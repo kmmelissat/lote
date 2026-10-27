@@ -12,32 +12,46 @@ export const textos = {
     pedidos: "Pedidos",
     ganancia: "Ganancia",
     ajustes: "Ajustes",
+    perfil: "Mi perfil y ajustes",
+    buscar: "Buscar",
+    avisos: "Avisos",
+  },
+
+  perfil: {
+    nombre: "Tu negocio",
+    detalle: "Completá tu perfil",
   },
 
   inicio: {
     titulo: "Inicio",
+    descripcion: "Lo que tenés, lo que está apartado y lo que falta cobrar.",
     vacioTitulo: "Todavía no tenés productos",
     vacioTexto: "Mandá la foto de tu primer producto y Lote arma la ficha.",
     vacioAccion: "Agregar producto",
   },
   productos: {
     titulo: "Productos",
+    descripcion: "Tu inventario con su estado, costo y ganancia.",
     vacioTexto: "Acá van a aparecer tus productos, con su estado y su ganancia.",
   },
   pedidos: {
     titulo: "Pedidos",
+    descripcion: "Seguí cada pedido desde el apartado hasta la entrega.",
     vacioTexto: "Cuando apartés o vendás algo, el pedido aparece acá.",
   },
   ganancia: {
     titulo: "Ganancia",
+    descripcion: "Cuánto vendés y cuánto te queda de verdad.",
     vacioTexto: "Registrá una venta y acá vas a ver cuánto te dejó.",
   },
   ajustes: {
     titulo: "Ajustes",
+    descripcion: "Tu negocio, tus pagos y tus envíos.",
     vacioTexto: "Acá se configura el negocio, los pagos y los envíos.",
   },
   nuevo: {
     titulo: "¿Qué querés hacer?",
+    descripcion: "Elegí una acción y Lote se encarga del resto.",
     opciones: [
       { id: "producto", etiqueta: "Nuevo producto" },
       { id: "venta", etiqueta: "Registrar venta o apartado" },

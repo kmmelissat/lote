@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
 
 const pestanas: { href: string; etiqueta: string; icono: NombreIcono }[] = [
@@ -24,7 +25,9 @@ function Enlace({ href, etiqueta, icono }: (typeof pestanas)[number]) {
       href={href}
       aria-current={activa ? "page" : undefined}
       className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-1 text-xs font-medium md:flex-row md:justify-start md:gap-3 md:px-4 md:text-base ${
-        activa ? "bg-teal-fondo text-teal" : "text-texto-2 hover:bg-teal-fondo"
+        activa
+          ? "bg-teal-fondo text-teal md:bg-superficie md:text-teal-oscuro md:shadow-sm"
+          : "text-texto-2 hover:bg-teal-fondo md:hover:bg-superficie"
       }`}
     >
       <Icon nombre={icono} className="size-6" />
@@ -66,18 +69,18 @@ export function Nav() {
       {/* Escritorio: menú lateral */}
       <nav
         aria-label="Principal"
-        className="fixed inset-y-0 left-0 hidden w-60 flex-col gap-2 border-r border-borde bg-superficie p-4 md:flex"
+        className="hidden w-60 shrink-0 flex-col gap-2 p-4 md:flex"
       >
-        <p className="px-4 pb-4 text-2xl font-bold">{textos.nombre}</p>
+        <Logo className="px-4 pb-4" />
         <BotonMas />
         <ul className="mt-2 flex flex-col gap-1">
           {pestanas.map((p) => (
             <li key={p.href}><Enlace {...p} /></li>
           ))}
-          <li>
-            <Enlace href="/ajustes" etiqueta={textos.nav.ajustes} icono="ajustes" />
-          </li>
         </ul>
+        <div className="mt-auto">
+          <Enlace href="/ajustes" etiqueta={textos.nav.ajustes} icono="ajustes" />
+        </div>
       </nav>
     </>
   );

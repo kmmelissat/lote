@@ -7,6 +7,7 @@
   --color-ambar: #ffb100;
   --color-perla: #ffebc6;
 
+  --color-exterior: #e6eeec;
   --color-fondo: #f5f8f7;
   --color-superficie: #ffffff;
   --color-texto: #003844;
@@ -34,6 +35,13 @@ body {
   background: var(--color-fondo);
   color: var(--color-texto);
   font-family: var(--font-sans);
+}
+
+@media (min-width: 48rem) {
+  html,
+  body {
+    background: var(--color-exterior);
+  }
 }
 
 :focus-visible {
