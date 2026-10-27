@@ -1,0 +1,84 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { textos } from "@/lib/textos";
+
+const pestanas: { href: string; etiqueta: string; icono: NombreIcono }[] = [
+  { href: "/inicio", etiqueta: textos.nav.inicio, icono: "inicio" },
+  { href: "/productos", etiqueta: textos.nav.productos, icono: "productos" },
+  { href: "/pedidos", etiqueta: textos.nav.pedidos, icono: "pedidos" },
+  { href: "/ganancia", etiqueta: textos.nav.ganancia, icono: "ganancia" },
+];
+
+function useActiva() {
+  const pathname = usePathname();
+  return (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function Enlace({ href, etiqueta, icono }: (typeof pestanas)[number]) {
+  const activa = useActiva()(href);
+  return (
+    <Link
+      href={href}
+      aria-current={activa ? "page" : undefined}
+      className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-1 text-xs font-medium md:flex-row md:justify-start md:gap-3 md:px-4 md:text-base ${
+        activa ? "bg-teal-fondo text-teal" : "text-texto-2 hover:bg-teal-fondo"
+      }`}
+    >
+      <Icon nombre={icono} className="size-6" />
+      {etiqueta}
+    </Link>
+  );
+}
+
+function BotonMas() {
+  return (
+    <Link
+      href="/nuevo"
+      aria-label={textos.nav.nuevo}
+      className="-mt-6 flex size-14 items-center justify-center rounded-full bg-teal text-white shadow-md hover:bg-teal-oscuro md:mt-0 md:h-12 md:w-full md:gap-2 md:text-base md:font-medium"
+    >
+      <Icon nombre="mas" className="size-7" />
+      <span className="hidden md:inline">{textos.nav.nuevo}</span>
+    </Link>
+  );
+}
+
+export function Nav() {
+  return (
+    <>
+      {/* Móvil: barra inferior con el botón "+" al centro */}
+      <nav
+        aria-label="Principal"
+        className="fixed inset-x-0 bottom-0 z-10 border-t border-borde bg-superficie md:hidden"
+      >
+        <ul className="mx-auto grid max-w-md grid-cols-5 items-center px-2 pb-[env(safe-area-inset-bottom)]">
+          <li><Enlace {...pestanas[0]} /></li>
+          <li><Enlace {...pestanas[1]} /></li>
+          <li className="flex justify-center"><BotonMas /></li>
+          <li><Enlace {...pestanas[2]} /></li>
+          <li><Enlace {...pestanas[3]} /></li>
+        </ul>
+      </nav>
+
+      {/* Escritorio: menú lateral */}
+      <nav
+        aria-label="Principal"
+        className="fixed inset-y-0 left-0 hidden w-60 flex-col gap-2 border-r border-borde bg-superficie p-4 md:flex"
+      >
+        <p className="px-4 pb-4 text-2xl font-bold">{textos.nombre}</p>
+        <BotonMas />
+        <ul className="mt-2 flex flex-col gap-1">
+          {pestanas.map((p) => (
+            <li key={p.href}><Enlace {...p} /></li>
+          ))}
+          <li>
+            <Enlace href="/ajustes" etiqueta={textos.nav.ajustes} icono="ajustes" />
+          </li>
+        </ul>
+      </nav>
+    </>
+  );
+}
