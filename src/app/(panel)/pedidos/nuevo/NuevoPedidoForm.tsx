@@ -146,6 +146,19 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
         </select>
       </label>
 
+      {tipo === "venta" && (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">{t.pago}</span>
+          <select name="metodo" defaultValue="efectivo" className={selectClase}>
+            {(["efectivo", "transferencia", "billetera"] as const).map((m) => (
+              <option key={m} value={m}>
+                {textos.cobro.metodos[m]}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
       <p className="text-lg">
         {t.total}: <strong>{formatearDolares(total)}</strong>
       </p>

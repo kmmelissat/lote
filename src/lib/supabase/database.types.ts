@@ -178,6 +178,38 @@ export type Database = {
           },
         ]
       }
+      metodo_pago_negocio: {
+        Row: {
+          activo: boolean
+          datos: string | null
+          id: string
+          negocio_id: string
+          tipo: string
+        }
+        Insert: {
+          activo?: boolean
+          datos?: string | null
+          id?: string
+          negocio_id: string
+          tipo: string
+        }
+        Update: {
+          activo?: boolean
+          datos?: string | null
+          id?: string
+          negocio_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metodo_pago_negocio_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       miembro: {
         Row: {
           creado_en: string
@@ -264,12 +296,64 @@ export type Database = {
         }
         Relationships: []
       }
+      pago: {
+        Row: {
+          comprobante: string | null
+          creado_en: string
+          fecha: string
+          id: string
+          metodo: string
+          monto: number
+          negocio_id: string
+          pedido_id: string
+          usuario_id: string | null
+        }
+        Insert: {
+          comprobante?: string | null
+          creado_en?: string
+          fecha?: string
+          id?: string
+          metodo: string
+          monto: number
+          negocio_id: string
+          pedido_id: string
+          usuario_id?: string | null
+        }
+        Update: {
+          comprobante?: string | null
+          creado_en?: string
+          fecha?: string
+          id?: string
+          metodo?: string
+          monto?: number
+          negocio_id?: string
+          pedido_id?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pago_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pago_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedido"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedido: {
         Row: {
           atendido_por: string | null
           canal: string
           cliente_id: string | null
           codigo: number
+          contra_entrega: boolean
           creado_en: string
           descuento: number
           envio_absorbido: number
@@ -287,6 +371,7 @@ export type Database = {
           canal: string
           cliente_id?: string | null
           codigo: number
+          contra_entrega?: boolean
           creado_en?: string
           descuento?: number
           envio_absorbido?: number
@@ -304,6 +389,7 @@ export type Database = {
           canal?: string
           cliente_id?: string | null
           codigo?: number
+          contra_entrega?: boolean
           creado_en?: string
           descuento?: number
           envio_absorbido?: number
@@ -520,14 +606,23 @@ export type Database = {
         }
         Returns: string
       }
+      marcar_contra_entrega: {
+        Args: { p_pedido: string; p_valor: boolean }
+        Returns: undefined
+      }
       puede_gestionar: { Args: { p_negocio: string }; Returns: boolean }
       puede_vender: { Args: { p_negocio: string }; Returns: boolean }
       quien_tiene_apartado: { Args: { p_producto: string }; Returns: string }
+      registrar_pago: {
+        Args: { p_fecha?: string; p_metodo: string; p_monto: number; p_pedido: string }
+        Returns: undefined
+      }
       registrar_pedido: {
         Args: {
           p_canal: string
           p_cliente: string
           p_items: Json
+          p_metodo?: string
           p_negocio: string
           p_tipo: string
         }
@@ -537,6 +632,7 @@ export type Database = {
         Args: { p_llegan: number; p_nuevo_costo?: number; p_producto: string }
         Returns: undefined
       }
+      verificar_retencion_pedido: { Args: { p_pedido: string }; Returns: undefined }
       rol_en: { Args: { p_negocio: string }; Returns: string }
     }
     Enums: {

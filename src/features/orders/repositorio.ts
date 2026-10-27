@@ -4,6 +4,8 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
 
+export type MetodoPago = "transferencia" | "billetera" | "efectivo" | "contra_entrega";
+
 export type Canal = "instagram" | "whatsapp" | "presencial" | "vitrina";
 
 export type ItemPedido = {
@@ -22,13 +24,14 @@ export type Pedido = {
   total: Centavos;
   saldo: Centavos;
   venceEn: Date | null;
+  contraEntrega: boolean;
   creadoEn: Date;
   cliente: string | null;
   items: ItemPedido[];
 };
 
 const columnas =
-  "id, codigo, canal, estado, total, saldo, vence_en, creado_en, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, codigo, fotos))";
+  "id, codigo, canal, estado, total, saldo, vence_en, contra_entrega, creado_en, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, codigo, fotos))";
 
 type Fila = {
   id: string;
@@ -38,6 +41,7 @@ type Fila = {
   total: number;
   saldo: number;
   vence_en: string | null;
+  contra_entrega: boolean;
   creado_en: string;
   cliente: { nombre: string } | null;
   pedido_item: {
@@ -55,6 +59,7 @@ const aPedido = (f: Fila): Pedido => ({
   total: aCentavos(f.total),
   saldo: aCentavos(f.saldo),
   venceEn: f.vence_en ? new Date(f.vence_en) : null,
+  contraEntrega: f.contra_entrega,
   creadoEn: new Date(f.creado_en),
   cliente: f.cliente?.nombre ?? null,
   items: f.pedido_item.map((i) => ({
@@ -99,12 +104,13 @@ export async function obtenerPedido(
 
 export type ErrorPedido =
   | { tipo: "sin_disponibilidad"; quien: string }
-  | { tipo: "falta_cliente" | "sin_permiso" | "desconocido" };
+  | { tipo: "falta_cliente" | "monto_invalido" | "sin_permiso" | "desconocido" };
 
 // Los errores de las funciones de la base: 'sin_disponibilidad' trae en details quién tiene el apartado.
 function aErrorPedido(e: { code?: string; message: string; details?: string | null }): ErrorPedido {
   if (e.message === "sin_disponibilidad") return { tipo: "sin_disponibilidad", quien: e.details ?? "" };
   if (e.message === "falta_cliente") return { tipo: "falta_cliente" };
+  if (e.message === "monto_invalido") return { tipo: "monto_invalido" };
   if (e.code === "42501") return { tipo: "sin_permiso" };
   return { tipo: "desconocido" };
 }
@@ -117,6 +123,8 @@ export async function registrarPedido(
     canal: Canal;
     tipo: "apartado" | "venta";
     items: { productoId: string; cantidad: number }[];
+    /** Cómo pagó una venta en persona; por defecto efectivo */
+    metodo?: MetodoPago;
   },
 ): Promise<{ ok: true; codigo: number } | { ok: false; error: ErrorPedido }> {
   const { data: id, error } = await supabase.rpc("registrar_pedido", {
@@ -125,6 +133,7 @@ export async function registrarPedido(
     p_canal: p.canal,
     p_tipo: p.tipo,
     p_items: p.items.map((i) => ({ producto_id: i.productoId, cantidad: i.cantidad })),
+    p_metodo: p.metodo,
   });
   if (error) return { ok: false, error: aErrorPedido(error) };
 
@@ -140,6 +149,50 @@ export async function cambiarEstadoPedido(
   const { error } = await supabase.rpc("cambiar_estado_pedido", {
     p_pedido: pedidoId,
     p_estado: estado,
+  });
+  return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
+}
+
+export type Pago = { id: string; monto: Centavos; metodo: MetodoPago; fecha: string };
+
+export async function listarPagos(supabase: Cliente, pedidoId: string): Promise<Pago[]> {
+  const { data, error } = await supabase
+    .from("pago")
+    .select("id, monto, metodo, fecha")
+    .eq("pedido_id", pedidoId)
+    .order("creado_en", { ascending: true });
+  if (error) throw error;
+  return data.map((p) => ({
+    id: p.id,
+    monto: aCentavos(p.monto),
+    metodo: p.metodo as MetodoPago,
+    fecha: p.fecha,
+  }));
+}
+
+/** Un pago o abono. El pedido pasa a pagado cuando el saldo llega a 0 (lo decide la base). */
+export async function registrarPago(
+  supabase: Cliente,
+  pedidoId: string,
+  monto: Centavos,
+  metodo: MetodoPago,
+): Promise<{ ok: true } | { ok: false; error: ErrorPedido }> {
+  const { error } = await supabase.rpc("registrar_pago", {
+    p_pedido: pedidoId,
+    p_monto: monto / 100,
+    p_metodo: metodo,
+  });
+  return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
+}
+
+export async function marcarContraEntrega(
+  supabase: Cliente,
+  pedidoId: string,
+  valor: boolean,
+): Promise<{ ok: true } | { ok: false; error: ErrorPedido }> {
+  const { error } = await supabase.rpc("marcar_contra_entrega", {
+    p_pedido: pedidoId,
+    p_valor: valor,
   });
   return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
 }

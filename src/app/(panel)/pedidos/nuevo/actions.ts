@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { registrarPedido, type Canal, type ErrorPedido } from "@/features/orders/repositorio";
+import {
+  registrarPedido,
+  type Canal,
+  type ErrorPedido,
+  type MetodoPago,
+} from "@/features/orders/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -13,6 +18,7 @@ export type EstadoNuevoPedido = {
   valores?: { tipo?: string; cliente?: string; canal?: string };
 };
 
+const METODOS: MetodoPago[] = ["transferencia", "billetera", "efectivo"];
 const CANALES: Canal[] = ["instagram", "whatsapp", "presencial", "vitrina"];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -51,6 +57,10 @@ export async function nuevoPedido(
   const canalPedido = String(formData.get("canal") ?? "");
   const canal: Canal = CANALES.includes(canalPedido as Canal) ? (canalPedido as Canal) : "presencial";
   const valores = { tipo, cliente, canal };
+  const metodoPedido = String(formData.get("metodo") ?? "");
+  const metodo: MetodoPago | undefined = METODOS.includes(metodoPedido as MetodoPago)
+    ? (metodoPedido as MetodoPago)
+    : undefined;
 
   const items = leerItems(String(formData.get("items") ?? ""));
   if (!items) return { error: t.errorProductos, valores };
@@ -58,7 +68,13 @@ export async function nuevoPedido(
 
   // El permiso y la disponibilidad los decide la base; acá solo se resuelve el negocio.
   const { supabase, negocio } = await negocioActual();
-  const r = await registrarPedido(supabase, negocio.id, { cliente, canal, tipo, items });
+  const r = await registrarPedido(supabase, negocio.id, {
+    cliente,
+    canal,
+    tipo,
+    items,
+    metodo: tipo === "venta" ? metodo : undefined,
+  });
   if (!r.ok) return { error: textoDeError(r.error), valores };
 
   revalidatePath("/", "layout");

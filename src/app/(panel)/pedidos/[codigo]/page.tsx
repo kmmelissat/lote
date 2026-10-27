@@ -6,13 +6,16 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
-import { puedeCancelarse, siguienteEstado } from "@/domain";
-import { obtenerPedido } from "@/features/orders/repositorio";
+import { puedeCancelarse, siguienteEstado, type EstadoPedido } from "@/domain";
+import { listarPagos, obtenerPedido } from "@/features/orders/repositorio";
+import { armarMensajeCobro } from "@/features/payments/mensajeCobro";
+import { listarMetodos } from "@/features/payments/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares, formatearFecha, tiempoRestante } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { AccionesPedido } from "./AccionesPedido";
+import { CobroPedido } from "./CobroPedido";
 
 const t = textos.pedidos;
 
@@ -35,7 +38,26 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
   if (!p) notFound();
 
   const ahora = new Date();
-  const siguiente = siguienteEstado(p.estado);
+  const [pagos, metodos, { data: datosNegocio }] = await Promise.all([
+    listarPagos(supabase, p.id),
+    listarMetodos(supabase, negocio.id),
+    supabase.from("negocio").select("nombre").eq("id", negocio.id).single(),
+  ]);
+
+  const mensaje = armarMensajeCobro({
+    negocio: datosNegocio?.nombre ?? textos.nombre,
+    cliente: p.cliente,
+    items: p.items,
+    total: p.total,
+    saldo: p.saldo,
+    metodos: metodos.filter((m) => m.activo && m.tipo !== "contra_entrega"),
+    venceEn: p.venceEn,
+    ahora,
+  });
+
+  // A "pagado" se llega registrando el pago. Un contra entrega salta de pendiente a preparando.
+  const siguiente: EstadoPedido | null =
+    p.estado === "pendiente" ? (p.contraEntrega ? "preparando" : null) : siguienteEstado(p.estado);
 
   return (
     <>
@@ -70,6 +92,9 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
               </>
             )}
           </dl>
+          {p.estado === "pendiente" && !p.contraEntrega && negocio.puedeVender && (
+            <p className="text-sm text-texto-2">{t.cobrar.avisoPendiente}</p>
+          )}
           {negocio.puedeVender && (
             <AccionesPedido
               pedidoId={p.id}
@@ -79,7 +104,18 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
           )}
         </Card>
 
-        <Card className="border border-borde">
+        <CobroPedido
+          pedidoId={p.id}
+          estado={p.estado}
+          total={p.total}
+          saldo={p.saldo}
+          pagos={pagos}
+          contraEntrega={p.contraEntrega}
+          mensaje={mensaje}
+          puedeVender={negocio.puedeVender}
+        />
+
+        <Card className="border border-borde md:col-span-2">
           <h2 className="mb-3 font-bold">{t.detalle.productos}</h2>
           <ul className="flex flex-col gap-3">
             {p.items.map((i) => (
