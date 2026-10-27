@@ -49,3 +49,18 @@ export const salidaVacia = (intencion: SalidaEntender["intencion"]): SalidaEnten
   guia: null,
   consulta: null,
 });
+
+// Lo que la IA saca de una foto de producto y de la línea que la acompaña.
+// El precio, el costo y la cantidad solo pueden salir de la línea escrita: de la foto nunca.
+export const SalidaFoto = z.object({
+  nombre: z.string(),
+  descripcion: z.string(),
+  categoria: z.string().nullable(),
+  /** Talla o tono, si se ve o se dijo ("M", "rosa") */
+  detalle: z.string().nullable(),
+  precio: z.number().nullable(),
+  costo: z.number().nullable(),
+  cantidad: z.number().int().nullable(),
+});
+
+export type SalidaFoto = z.infer<typeof SalidaFoto>;

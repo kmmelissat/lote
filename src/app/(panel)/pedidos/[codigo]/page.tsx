@@ -8,8 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { puedeCancelarse, siguienteEstado, type EstadoPedido } from "@/domain";
 import { listarPagos, obtenerPedido } from "@/features/orders/repositorio";
-import { armarMensajeCobro } from "@/features/payments/mensajeCobro";
-import { listarMetodos } from "@/features/payments/repositorio";
+import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
 import { obtenerEnvio, obtenerTarifas } from "@/features/shipping/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares, formatearFecha, tiempoRestante } from "@/lib/formato";
@@ -40,25 +39,12 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
   if (!p) notFound();
 
   const ahora = new Date();
-  const [pagos, metodos, envio, tarifas, { data: datosNegocio }] = await Promise.all([
+  const [pagos, envio, tarifas, mensaje] = await Promise.all([
     listarPagos(supabase, p.id),
-    listarMetodos(supabase, negocio.id),
     obtenerEnvio(supabase, p.id),
     obtenerTarifas(supabase, negocio.id),
-    supabase.from("negocio").select("nombre").eq("id", negocio.id).single(),
+    mensajeDeCobro(supabase, negocio.id, p, ahora),
   ]);
-
-  const mensaje = armarMensajeCobro({
-    negocio: datosNegocio?.nombre ?? textos.nombre,
-    cliente: p.cliente,
-    items: p.items,
-    envio: p.envioCobrado,
-    total: p.total,
-    saldo: p.saldo,
-    metodos: metodos.filter((m) => m.activo && m.tipo !== "contra_entrega"),
-    venceEn: p.venceEn,
-    ahora,
-  });
 
   // A "pagado" se llega registrando el pago. Un contra entrega salta de pendiente a preparando.
   const siguiente: EstadoPedido | null =

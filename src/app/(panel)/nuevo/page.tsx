@@ -7,6 +7,7 @@ import { textos } from "@/lib/textos";
 const RUTAS: Record<string, string> = {
   producto: "/productos/nuevo",
   venta: "/pedidos/nuevo",
+  asistente: "/asistente",
 };
 
 export const metadata: Metadata = { title: textos.nuevo.titulo };

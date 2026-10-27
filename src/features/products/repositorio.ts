@@ -157,7 +157,7 @@ export async function crearProducto(
   supabase: Cliente,
   negocioId: string,
   p: NuevoProducto,
-): Promise<{ codigo: number } | { error: "sin_permiso" | "desconocido" }> {
+): Promise<{ id: string; codigo: number } | { error: "sin_permiso" | "desconocido" }> {
   const { data: id, error } = await supabase.rpc("crear_producto", {
     p_negocio: negocioId,
     p_nombre: p.nombre,
@@ -174,7 +174,7 @@ export async function crearProducto(
   if (p.fotos.length) await supabase.from("producto").update({ fotos: p.fotos }).eq("id", id);
 
   const { data } = await supabase.from("producto").select("codigo").eq("id", id).single();
-  return data ? { codigo: data.codigo } : { error: "desconocido" };
+  return data ? { id, codigo: data.codigo } : { error: "desconocido" };
 }
 
 type ResultadoEscritura<T> = { ok: true; valor: T } | { ok: false; error: "sin_permiso" | "desconocido" };

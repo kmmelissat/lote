@@ -1,0 +1,288 @@
+import { describe, expect, it, vi } from "vitest";
+import { salidaVacia, type SalidaEntender } from "../ai/esquema";
+import { procesar, type Entrada, type Estado } from "./motor";
+import type { PedidoAsistente, ProductoAsistente, Puerto } from "./puerto";
+
+const ahora = new Date("2026-10-27T12:00:00Z");
+
+const producto = (codigo: number, nombre: string, extra: Partial<ProductoAsistente> = {}): ProductoAsistente => ({
+  id: `prod-${codigo}`,
+  codigo,
+  nombre,
+  precio: 2500,
+  cantidad: 3,
+  disponibles: 3,
+  apartadas: 0,
+  vendidas: 0,
+  costoUnitario: 1000,
+  desglose: { compra: 1000 },
+  ...extra,
+});
+
+const pedido = (codigo: number, cliente: string, extra: Partial<PedidoAsistente> = {}): PedidoAsistente => ({
+  id: `ped-${codigo}`,
+  codigo,
+  cliente,
+  estado: "pendiente",
+  total: 2500,
+  saldo: 2500,
+  venceEn: new Date("2026-10-28T12:00:00Z"),
+  contraEntrega: false,
+  items: [{ nombre: "Chaqueta negra M", cantidad: 1 }],
+  ...extra,
+});
+
+function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsistente[]; puerto?: Partial<Puerto> } = {}) {
+  const acciones = new Map<string, string | null>();
+  const puerto: Puerto = {
+    productos: async () => opciones.productos ?? [producto(1, "Chaqueta negra M"), producto(2, "Chaqueta roja S"), producto(3, "Llaveros de gato")],
+    pedidos: async (estados) => (opciones.pedidos ?? []).filter((p) => estados.includes(p.estado)),
+    crearProducto: vi.fn(async () => ({ ok: true as const, valor: { id: "nuevo", codigo: 9 } })),
+    reponer: vi.fn(async () => ({ ok: true as const, valor: null })),
+    registrarPedido: vi.fn(async () => ({ ok: true as const, valor: { id: "ped-nuevo", codigo: 7 } })),
+    registrarPago: vi.fn(async () => ({ ok: true as const, valor: { pagoId: "pago-1" } })),
+    cambiarEstado: vi.fn(async () => ({ ok: true as const, valor: null })),
+    registrarGuia: vi.fn(async () => ({ ok: true as const, valor: null })),
+    mensajeCobro: vi.fn(async () => "Hola Ana! Total: $25.00"),
+    iniciarAccion: async ({ mensajeId }) => {
+      if (acciones.has(mensajeId)) return { id: `a-${mensajeId}`, repetida: true, respuesta: acciones.get(mensajeId) };
+      acciones.set(mensajeId, null);
+      return { id: `a-${mensajeId}`, repetida: false };
+    },
+    cerrarAccion: async (id, respuesta) => {
+      acciones.set(id.replace("a-", ""), respuesta);
+    },
+    ultimaAccionDeshacible: async () => ({ id: "ultima" }),
+    deshacerAccion: vi.fn(async () => ({ ok: true as const, valor: "apartado de Chaqueta" })),
+    ...opciones.puerto,
+  };
+  const ia = (salida: Partial<SalidaEntender> & Pick<SalidaEntender, "intencion">) => ({
+    entenderMensaje: async () => ({ ...salidaVacia(salida.intencion), ...salida }),
+  });
+  const turno = (entrada: Partial<Entrada> & { mensajeId: string }, salida?: Partial<SalidaEntender> & Pick<SalidaEntender, "intencion">) =>
+    procesar({ texto: "texto", ...entrada }, { ia: salida ? ia(salida) : null, puerto, ahora });
+  return { puerto, turno };
+}
+
+describe("apartar", () => {
+  it("aparta, responde con el estado resultante y ofrece Deshacer", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "apartar", producto: "llavero", cliente: "@ana" });
+    expect(r.texto).toBe("Listo. Llaveros de gato apartado para @ana. Disponibles: 2.");
+    expect(r.botones?.[0]).toMatchObject({ etiqueta: "Deshacer", comando: { tipo: "deshacer", accionId: "a-m1" } });
+    expect(puerto.registrarPedido).toHaveBeenCalledWith(
+      expect.objectContaining({ productoId: "prod-3", cliente: "@ana", tipo: "apartado", cantidad: 1 }),
+    );
+  });
+
+  it("con dos productos parecidos no adivina: pregunta y sigue con el número", async () => {
+    const { puerto, turno } = montar();
+    const duda = await turno({ mensajeId: "m1" }, { intencion: "apartar", producto: "chaqueta", cliente: "Ana" });
+    expect(duda.texto).toContain("¿Cuál de estos?");
+    expect(duda.texto).toContain("1. #1 Chaqueta negra M");
+    expect(duda.texto).toContain("2. #2 Chaqueta roja S");
+    expect(puerto.registrarPedido).not.toHaveBeenCalled();
+
+    const r = await turno({ mensajeId: "m2", texto: "2", estado: duda.estado });
+    expect(r.texto).toContain("Chaqueta roja S apartado para Ana");
+    expect(puerto.registrarPedido).toHaveBeenCalledWith(expect.objectContaining({ productoId: "prod-2" }));
+  });
+
+  it("si falta el cliente pregunta solo eso y luego completa", async () => {
+    const { puerto, turno } = montar();
+    const duda = await turno({ mensajeId: "m1" }, { intencion: "apartar", producto: "#3" });
+    expect(duda.texto).toBe("¿Para quién es? Decime el nombre o el @usuario.");
+    expect((duda.estado as Estado).tipo).toBe("completar");
+
+    const r = await turno({ mensajeId: "m2", texto: "@luis", estado: duda.estado });
+    expect(r.texto).toContain("apartado para @luis");
+    expect(puerto.registrarPedido).toHaveBeenCalledWith(expect.objectContaining({ cliente: "@luis" }));
+  });
+
+  it("si la base bloquea la doble promesa, avisa para quién está y no ofrece deshacer", async () => {
+    const { turno } = montar({
+      puerto: { registrarPedido: async () => ({ ok: false, error: { tipo: "sin_disponibilidad", quien: "Ana" } }) },
+    });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "apartar", producto: "#1", cliente: "Luis" });
+    expect(r.texto).toBe("Chaqueta negra M ya está apartado para Ana.");
+    expect(r.botones).toBeUndefined();
+  });
+
+  it("el mismo mensaje procesado dos veces no duplica la acción", async () => {
+    const { puerto, turno } = montar();
+    const entrada = { mensajeId: "repetido" };
+    const salida = { intencion: "apartar" as const, producto: "#1", cliente: "Ana" };
+    const primera = await turno(entrada, salida);
+    const segunda = await turno(entrada, salida);
+    expect(segunda.texto).toBe(primera.texto);
+    expect(puerto.registrarPedido).toHaveBeenCalledTimes(1);
+  });
+
+  it("un producto que no existe pide el dato otra vez", async () => {
+    const { turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "apartar", producto: "bufanda", cliente: "Ana" });
+    expect(r.texto).toContain('No encontré "bufanda"');
+    expect((r.estado as Estado).tipo).toBe("completar");
+  });
+});
+
+describe("vender", () => {
+  it("calcula la ganancia con el costo real, con el código y no con la IA", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "vender", producto: "llaveros", cantidad: 2, metodo: "efectivo" });
+    expect(r.texto).toMatch(/Vendiste 2 Llaveros de gato\. Disponibles: 1\. Ganaste .*30/);
+    expect(puerto.registrarPedido).toHaveBeenCalledWith(expect.objectContaining({ tipo: "venta", metodo: "efectivo" }));
+  });
+
+  it("si no hay costo avisa que falta, sin inventar una ganancia", async () => {
+    const { turno } = montar({ productos: [producto(1, "Chaqueta negra M", { costoUnitario: null, desglose: undefined })] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "vender", producto: "#1", cantidad: 1 });
+    expect(r.texto).toContain("Falta el costo");
+    expect(r.texto).not.toContain("Ganaste");
+  });
+});
+
+describe("pagos", () => {
+  it("marcar pagado cobra todo el saldo y deja deshacer", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "marcar_pagado", cliente: "Ana" });
+    expect(r.texto).toMatch(/Ana pagó .*25.* por transferencia\. Pedido pagado\./);
+    expect(puerto.registrarPago).toHaveBeenCalledWith("ped-3", 2500, "transferencia");
+    expect(r.botones?.[0].etiqueta).toBe("Deshacer");
+  });
+
+  it("un abono parcial muestra el saldo que queda", async () => {
+    const { turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "abonar", cliente: "Ana", monto: 10 });
+    expect(r.texto).toMatch(/abonó .*10.* por transferencia\. Saldo: .*15/);
+  });
+
+  it("no deja abonar más de lo que debe", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "abonar", cliente: "Ana", monto: 100 });
+    expect(r.texto).toContain("pasa de lo que debe");
+    expect(puerto.registrarPago).not.toHaveBeenCalled();
+  });
+
+  it("con dos pedidos de Ana pregunta cuál", async () => {
+    const { turno } = montar({ pedidos: [pedido(3, "Ana"), pedido(4, "Ana")] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "marcar_pagado", cliente: "Ana" });
+    expect(r.texto).toContain("Pedido #3");
+    expect(r.texto).toContain("Pedido #4");
+  });
+});
+
+describe("liberar", () => {
+  it("una cancelación siempre se confirma antes de hacerse", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const pregunta = await turno({ mensajeId: "m1" }, { intencion: "liberar", cliente: "Ana" });
+    expect(pregunta.texto).toContain("¿Liberás el apartado de Ana");
+    expect(pregunta.botones?.map((b) => b.etiqueta)).toEqual(["Confirmar", "Descartar"]);
+    expect(puerto.cambiarEstado).not.toHaveBeenCalled();
+
+    const r = await turno({ mensajeId: "m2", comando: { tipo: "confirmar" }, estado: pregunta.estado });
+    expect(r.texto).toBe("Listo. Apartado de Ana liberado.");
+    expect(puerto.cambiarEstado).toHaveBeenCalledWith("ped-3", "cancelado");
+  });
+
+  it("descartar no hace nada", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const pregunta = await turno({ mensajeId: "m1" }, { intencion: "liberar", cliente: "Ana" });
+    const r = await turno({ mensajeId: "m2", texto: "no", estado: pregunta.estado });
+    expect(r.texto).toBe("Listo, no hice nada.");
+    expect(puerto.cambiarEstado).not.toHaveBeenCalled();
+  });
+});
+
+describe("enviar y cobrar", () => {
+  it("un pedido pagado pasa por preparando a enviado y guarda la guía", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana", { estado: "pagado", saldo: 0 })] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "enviar", cliente: "Ana", guia: "123", paquetera: "Boxful" });
+    expect(r.texto).toBe("Listo. Pedido de Ana enviado, guía 123.");
+    expect(puerto.cambiarEstado).toHaveBeenNthCalledWith(1, "ped-3", "preparando");
+    expect(puerto.cambiarEstado).toHaveBeenNthCalledWith(2, "ped-3", "enviado");
+    expect(puerto.registrarGuia).toHaveBeenCalledWith("ped-3", "Boxful", "123");
+  });
+
+  it("no envía un pedido que todavía no se pagó", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "enviar", cliente: "Ana" });
+    expect(r.texto).toContain("todavía no está pagado");
+    expect(puerto.cambiarEstado).not.toHaveBeenCalled();
+  });
+
+  it("cobrar devuelve el mensaje listo para copiar", async () => {
+    const { turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "cobrar", cliente: "Ana" });
+    expect(r.copiar).toBe("Hola Ana! Total: $25.00");
+  });
+});
+
+describe("consultas", () => {
+  it("quién me debe suma por cliente y da el total", async () => {
+    const { turno } = montar({ pedidos: [pedido(1, "Ana", { saldo: 1500 }), pedido(2, "Ana", { saldo: 500 }), pedido(3, "Luis")] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "por_cobrar" });
+    expect(r.texto).toMatch(/Ana: .*20/);
+    expect(r.texto).toMatch(/Luis: .*25/);
+    expect(r.texto).toMatch(/Total por cobrar: .*45/);
+  });
+
+  it("qué tengo apartado ignora los apartados vencidos", async () => {
+    const { turno } = montar({ pedidos: [pedido(1, "Ana"), pedido(2, "Luis", { venceEn: new Date("2026-10-27T11:00:00Z") })] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "apartados" });
+    expect(r.texto).toContain("Tenés 1 apartado");
+    expect(r.texto).toContain("Ana");
+    expect(r.texto).not.toContain("Luis");
+  });
+});
+
+describe("deshacer", () => {
+  it("el botón deshace esa acción", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m2", comando: { tipo: "deshacer", accionId: "a-m1" } });
+    expect(r.texto).toBe("Listo. Deshice: apartado de Chaqueta.");
+    expect(puerto.deshacerAccion).toHaveBeenCalledWith("a-m1");
+  });
+
+  it("escribir 'deshacer' deshace la última, sin gastar IA", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m2", texto: "deshacer" });
+    expect(r.texto).toContain("Deshice");
+    expect(puerto.deshacerAccion).toHaveBeenCalledWith("ultima");
+  });
+
+  it("si ya cambió, lo dice y manda al panel", async () => {
+    const { turno } = montar({ puerto: { deshacerAccion: async () => ({ ok: false, error: { tipo: "cambiado" } }) } });
+    const r = await turno({ mensajeId: "m2", comando: { tipo: "deshacer", accionId: "x" } });
+    expect(r.texto).toContain("ya cambió");
+  });
+});
+
+describe("sin IA conectada", () => {
+  it("ayuda funciona igual", async () => {
+    const { turno } = montar();
+    expect((await turno({ mensajeId: "m1", texto: "ayuda" })).texto).toContain("Esto podés decirme");
+  });
+
+  it("un mensaje libre explica que falta conectar la IA", async () => {
+    const { turno } = montar();
+    expect((await turno({ mensajeId: "m1", texto: "apartá la chaqueta" })).texto).toContain("no está conectado");
+  });
+});
+
+describe("crear y reponer", () => {
+  it("crea un producto y avisa si falta el costo", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "crear_producto", producto: "Gorra", precio: 8, cantidad: 4 });
+    expect(r.texto).toMatch(/#9 Gorra a .*8.*Cantidad: 4\. Falta el costo/);
+    expect(puerto.crearProducto).toHaveBeenCalledWith({ nombre: "Gorra", precio: 800, cantidad: 4, costo: null });
+  });
+
+  it("al reponer con costo recalcula el promedio con las unidades que quedan", async () => {
+    const { puerto, turno } = montar({ productos: [producto(3, "Llaveros de gato", { cantidad: 4, disponibles: 4, costoUnitario: 100, desglose: { compra: 100 } })] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "reponer", producto: "llaveros", cantidad: 6, costo: 2 });
+    expect(r.texto).toBe("Listo. Se sumaron 6 de Llaveros de gato. Disponibles: 10.");
+    // 4 a $1 y 6 a $2 dan $1.60
+    expect(puerto.reponer).toHaveBeenCalledWith("prod-3", 6, 160);
+  });
+});

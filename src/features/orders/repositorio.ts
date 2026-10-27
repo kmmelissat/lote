@@ -93,6 +93,23 @@ export async function listarPedidos(
   return (data as unknown as Fila[]).map(aPedido);
 }
 
+/** Pedidos en cualquiera de esos estados, los más recientes primero. */
+export async function buscarPedidos(
+  supabase: Cliente,
+  negocioId: string,
+  estados: EstadoPedido[],
+): Promise<Pedido[]> {
+  const { data, error } = await supabase
+    .from("pedido")
+    .select(columnas)
+    .eq("negocio_id", negocioId)
+    .in("estado", estados)
+    .order("creado_en", { ascending: false })
+    .limit(200);
+  if (error) throw error;
+  return (data as unknown as Fila[]).map(aPedido);
+}
+
 export async function obtenerPedido(
   supabase: Cliente,
   negocioId: string,
@@ -132,7 +149,7 @@ export async function registrarPedido(
     /** Cómo pagó una venta en persona; por defecto efectivo */
     metodo?: MetodoPago;
   },
-): Promise<{ ok: true; codigo: number } | { ok: false; error: ErrorPedido }> {
+): Promise<{ ok: true; id: string; codigo: number } | { ok: false; error: ErrorPedido }> {
   const { data: id, error } = await supabase.rpc("registrar_pedido", {
     p_negocio: negocioId,
     p_cliente: p.cliente,
@@ -144,7 +161,7 @@ export async function registrarPedido(
   if (error) return { ok: false, error: aErrorPedido(error) };
 
   const { data } = await supabase.from("pedido").select("codigo").eq("id", id).single();
-  return data ? { ok: true, codigo: data.codigo } : { ok: false, error: { tipo: "desconocido" } };
+  return data ? { ok: true, id, codigo: data.codigo } : { ok: false, error: { tipo: "desconocido" } };
 }
 
 export async function cambiarEstadoPedido(
@@ -199,6 +216,21 @@ export async function marcarContraEntrega(
   const { error } = await supabase.rpc("marcar_contra_entrega", {
     p_pedido: pedidoId,
     p_valor: valor,
+  });
+  return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
+}
+
+/** Guarda la paquetera y la guía sin tocar dirección ni costos. */
+export async function registrarGuia(
+  supabase: Cliente,
+  pedidoId: string,
+  paquetera: string | null,
+  guia: string | null,
+): Promise<{ ok: true } | { ok: false; error: ErrorPedido }> {
+  const { error } = await supabase.rpc("registrar_guia", {
+    p_pedido: pedidoId,
+    p_paquetera: paquetera ?? "",
+    p_guia: guia ?? "",
   });
   return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
 }
