@@ -41,8 +41,8 @@ const columnas =
 type Fila = {
   id: string;
   codigo: number;
-  canal: Canal;
-  estado: EstadoPedido;
+  canal: string;
+  estado: string;
   total: number;
   saldo: number;
   vence_en: string | null;
@@ -61,8 +61,9 @@ type Fila = {
 const aPedido = (f: Fila): Pedido => ({
   id: f.id,
   codigo: f.codigo,
-  canal: f.canal,
-  estado: f.estado,
+  // La base guarda texto y una restricción asegura los valores permitidos.
+  canal: f.canal as Canal,
+  estado: f.estado as EstadoPedido,
   total: aCentavos(f.total),
   saldo: aCentavos(f.saldo),
   venceEn: f.vence_en ? new Date(f.vence_en) : null,
@@ -93,7 +94,7 @@ export async function listarPedidos(
     .order("creado_en", { ascending: false })
     .limit(100);
   if (error) throw error;
-  return (data as unknown as Fila[]).map(aPedido);
+  return data.map(aPedido);
 }
 
 /** Pedidos en cualquiera de esos estados, los más recientes primero. */
@@ -110,7 +111,7 @@ export async function buscarPedidos(
     .order("creado_en", { ascending: false })
     .limit(200);
   if (error) throw error;
-  return (data as unknown as Fila[]).map(aPedido);
+  return data.map(aPedido);
 }
 
 export async function obtenerPedido(
@@ -125,7 +126,7 @@ export async function obtenerPedido(
     .eq("codigo", codigo)
     .maybeSingle();
   if (error) throw error;
-  return data ? aPedido(data as unknown as Fila) : null;
+  return data ? aPedido(data) : null;
 }
 
 export type ErrorPedido =

@@ -15,7 +15,9 @@ export type Intencion =
   | { tipo: "reponer"; producto: string; cantidad: number; costo: Centavos | null }
   | { tipo: "apartar"; producto: string; cliente: string; cantidad: number }
   | { tipo: "vender"; producto: string; cantidad: number; cliente: string | null; metodo: Metodo | null }
-  | { tipo: "marcar_pagado" | "liberar" | "cobrar"; pedido: RefPedido }
+  | { tipo: "marcar_pagado"; pedido: RefPedido }
+  | { tipo: "liberar"; pedido: RefPedido }
+  | { tipo: "cobrar"; pedido: RefPedido }
   | { tipo: "abonar"; pedido: RefPedido; monto: Centavos; metodo: Metodo | null }
   | { tipo: "enviar"; pedido: RefPedido; paquetera: string | null; guia: string | null }
   | { tipo: "gasto"; monto: Centavos; categoria: CategoriaGasto; nota: string | null };

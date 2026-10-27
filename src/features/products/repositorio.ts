@@ -107,7 +107,7 @@ export async function listarProductos(
     .order("creado_en", { ascending: false })
     .limit(100);
   if (error) throw error;
-  return (data as unknown as Fila[]).map((f) => aProducto(f, puedeVerCostos, new Date()));
+  return data.map((f) => aProducto(f, puedeVerCostos, new Date()));
 }
 
 export async function obtenerProducto(
@@ -123,7 +123,7 @@ export async function obtenerProducto(
     .eq("codigo", codigo)
     .maybeSingle();
   if (error) throw error;
-  return data ? aProducto(data as unknown as Fila, puedeVerCostos, new Date()) : null;
+  return data ? aProducto(data, puedeVerCostos, new Date()) : null;
 }
 
 export async function reponerProducto(
