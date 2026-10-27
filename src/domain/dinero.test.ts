@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { aCentavos, aDolares, repartir } from "./dinero";
+import { aCentavos, aDolares, leerDolares, repartir } from "./dinero";
 
 describe("dinero", () => {
+  it("lee montos escritos a mano", () => {
+    expect(leerDolares("25")).toBe(2500);
+    expect(leerDolares(" $3.50 ")).toBe(350);
+    expect(leerDolares("2,5")).toBe(250);
+  });
+
+  it("rechaza lo que no es un monto", () => {
+    for (const malo of ["", "abc", "-1", "1.234", "1,2,3"]) {
+      expect(leerDolares(malo)).toBeNull();
+    }
+  });
+
   it("convierte dólares a centavos sin error de punto flotante", () => {
     expect(aCentavos(0.1 + 0.2)).toBe(30);
     expect(aDolares(2550)).toBe(25.5);

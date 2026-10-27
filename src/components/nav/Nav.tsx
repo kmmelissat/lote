@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
@@ -13,13 +14,25 @@ const pestanas: { href: string; etiqueta: string; icono: NombreIcono }[] = [
   { href: "/ganancia", etiqueta: textos.nav.ganancia, icono: "ganancia" },
 ];
 
-function useActiva() {
-  const pathname = usePathname();
-  return (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+type Pestana = (typeof pestanas)[number];
+
+// En rutas dinámicas (/productos/[codigo]) el pathname solo se conoce en la petición:
+// mientras llega, el enlace se ve igual pero sin marcar como activo.
+function Enlace(props: Pestana) {
+  return (
+    <Suspense fallback={<EnlaceVista {...props} activa={false} />}>
+      <EnlaceActivo {...props} />
+    </Suspense>
+  );
 }
 
-function Enlace({ href, etiqueta, icono }: (typeof pestanas)[number]) {
-  const activa = useActiva()(href);
+function EnlaceActivo(props: Pestana) {
+  const pathname = usePathname();
+  const activa = pathname === props.href || pathname.startsWith(`${props.href}/`);
+  return <EnlaceVista {...props} activa={activa} />;
+}
+
+function EnlaceVista({ href, etiqueta, icono, activa }: Pestana & { activa: boolean }) {
   return (
     <Link
       href={href}

@@ -4,6 +4,13 @@ export type Centavos = number;
 export const aCentavos = (dolares: number): Centavos => Math.round(dolares * 100);
 export const aDolares = (c: Centavos): number => c / 100;
 
+/** Lee un monto escrito a mano ("25", "2,5", "$3.50"). Devuelve null si no es un monto válido. */
+export function leerDolares(texto: string): Centavos | null {
+  const t = texto.trim().replace(/^\$/, "").replace(",", ".");
+  if (!/^\d+(\.\d{1,2})?$/.test(t)) return null;
+  return aCentavos(Number(t));
+}
+
 /**
  * Reparte un total entre n partes sin perder ni inventar centavos.
  * Con `pesos` reparte en proporción (por ejemplo, el envío según el valor de cada pieza).
