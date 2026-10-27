@@ -10,8 +10,8 @@ import {
   type Canal,
 } from "@/features/orders/repositorio";
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
-import { aGastoPeriodo, gastosDelPeriodo, registrarGasto, ventasDelPeriodo } from "@/features/profit/repositorio";
-import { rangoPeriodo, resumenDelPeriodo } from "@/domain";
+import { rangoPeriodo } from "@/domain";
+import { registrarGasto, resumenDePeriodo } from "@/features/profit/repositorio";
 import { crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";
 import type { Database, Json } from "@/lib/supabase/database.types";
@@ -116,12 +116,7 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
 
     async ganancia(tipo) {
       if (!negocio.puedeGestionar) return falla("sin_permiso");
-      const periodo = rangoPeriodo(tipo, new Date());
-      const [ventas, gastos] = await Promise.all([
-        ventasDelPeriodo(supabase, negocio.id, periodo),
-        gastosDelPeriodo(supabase, negocio.id, periodo),
-      ]);
-      return ok(resumenDelPeriodo(ventas, gastos.map(aGastoPeriodo)));
+      return ok(await resumenDePeriodo(supabase, negocio.id, rangoPeriodo(tipo, new Date())));
     },
 
     async mensajeCobro(codigoPedido) {

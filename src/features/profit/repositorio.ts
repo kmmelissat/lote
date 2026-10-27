@@ -6,6 +6,8 @@ import {
   type GastoPeriodo,
   type LineaVendida,
   type Periodo,
+  type ResumenPeriodo,
+  resumenDelPeriodo,
 } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -79,6 +81,19 @@ export async function gastosDelPeriodo(
 }
 
 export const aGastoPeriodo = (g: Gasto): GastoPeriodo => ({ categoria: g.categoria, monto: g.monto });
+
+/** Las ventas y los gastos del periodo, ya juntos en los números de Ganancia. Solo dueña y administradora. */
+export async function resumenDePeriodo(
+  supabase: Cliente,
+  negocioId: string,
+  periodo: Periodo,
+): Promise<ResumenPeriodo> {
+  const [ventas, gastos] = await Promise.all([
+    ventasDelPeriodo(supabase, negocioId, periodo),
+    gastosDelPeriodo(supabase, negocioId, periodo),
+  ]);
+  return resumenDelPeriodo(ventas, gastos.map(aGastoPeriodo));
+}
 
 /** Devuelve el id del gasto nuevo, o null si la base lo rechazó (sin permiso, monto no válido). */
 export async function registrarGasto(

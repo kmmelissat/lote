@@ -4,6 +4,8 @@ import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
+import { Select } from "@/components/ui/Select";
 import type { EstadoPedido } from "@/domain";
 import type { Pago } from "@/features/orders/repositorio";
 import { formatearDolares } from "@/lib/formato";
@@ -11,7 +13,6 @@ import { textos } from "@/lib/textos";
 import { alternarContraEntrega, pagar, type EstadoPago } from "./actions";
 
 const t = textos.pedidos.cobrar;
-const SELECT = "h-12 w-full rounded-xl border border-borde bg-superficie px-3 text-base";
 
 type Props = {
   pedidoId: string;
@@ -118,13 +119,13 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
           />
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">{t.metodo}</span>
-            <select name="metodo" defaultValue="transferencia" className={SELECT}>
+            <Select name="metodo" defaultValue="transferencia">
               {(["transferencia", "billetera", "efectivo"] as const).map((m) => (
                 <option key={m} value={m}>
                   {textos.cobro.metodos[m]}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
           <Button type="submit" disabled={pendientePago}>
             {pendientePago ? t.registrando : t.boton}
@@ -135,11 +136,7 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
                 {estadoPago.listo}
               </p>
             )}
-            {estadoPago.error && (
-              <p role="alert" className="text-sm text-error">
-                {estadoPago.error}
-              </p>
-            )}
+            <MensajeError>{estadoPago.error}</MensajeError>
           </div>
         </form>
       )}
@@ -163,11 +160,7 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
           >
             {contraEntrega ? t.quitarContraEntrega : t.contraEntrega}
           </Button>
-          {errorContra && (
-            <p role="alert" className="text-sm text-error">
-              {errorContra}
-            </p>
-          )}
+          <MensajeError>{errorContra}</MensajeError>
         </div>
       )}
     </Card>

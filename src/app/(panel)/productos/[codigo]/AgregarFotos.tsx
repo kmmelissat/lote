@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { MensajeError } from "@/components/ui/MensajeError";
 import { FotoInput } from "@/features/products/FotoInput";
 import { textos } from "@/lib/textos";
 import { agregarFotos } from "./actions";
@@ -32,11 +33,7 @@ export function AgregarFotos({ codigo, negocioId }: { codigo: number; negocioId:
         <Button type="button" variante="secundario" disabled={pendiente || !rutas.length} onClick={guardar}>
           {pendiente ? t.guardando : t.guardar}
         </Button>
-        {error && (
-          <p role="alert" className="text-sm text-error">
-            {error}
-          </p>
-        )}
+        <MensajeError>{error}</MensajeError>
       </div>
     </Card>
   );

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { rangoPeriodo, resumenDelPeriodo, resumenSemanal } from "@/domain";
+import { rangoPeriodo, resumenSemanal } from "@/domain";
 import { listarProductos } from "@/features/products/repositorio";
-import { aGastoPeriodo, gastosDelPeriodo, ventasDelPeriodo } from "@/features/profit/repositorio";
+import { resumenDePeriodo } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -26,7 +26,7 @@ export default function Page() {
   );
 }
 
-function Tarjeta({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Tarjeta({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <Card className="flex flex-col gap-1 border border-borde">
       <h2 className="text-sm text-texto-2">{titulo}</h2>
@@ -42,15 +42,9 @@ async function Contenido() {
   const ahora = new Date();
   const esta = rangoPeriodo("semana", ahora);
   const pasada = rangoPeriodo("semana", ahora, -1);
-  const resumenDe = async (p: typeof esta) =>
-    resumenDelPeriodo(
-      await ventasDelPeriodo(supabase, negocio.id, p),
-      (await gastosDelPeriodo(supabase, negocio.id, p)).map(aGastoPeriodo),
-    );
-
   const [actual, anterior, productos] = await Promise.all([
-    resumenDe(esta),
-    resumenDe(pasada),
+    resumenDePeriodo(supabase, negocio.id, esta),
+    resumenDePeriodo(supabase, negocio.id, pasada),
     listarProductos(supabase, negocio.id, true),
   ]);
   const r = resumenSemanal(actual, anterior);

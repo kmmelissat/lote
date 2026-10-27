@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
 import type { Tarifas } from "@/features/shipping/repositorio";
 import { DEPARTAMENTOS } from "@/lib/departamentos";
 import { textos } from "@/lib/textos";
@@ -41,11 +42,7 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
           {t.guardado}
         </p>
       )}
-      {estado.error && (
-        <p role="alert" className="text-sm text-error">
-          {estado.error}
-        </p>
-      )}
+      <MensajeError>{estado.error}</MensajeError>
     </form>
   );
 }

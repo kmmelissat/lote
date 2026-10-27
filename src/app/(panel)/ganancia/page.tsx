@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { Pestanas } from "@/components/nav/Pestanas";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { rangoPeriodo, resumenDelPeriodo, type TipoPeriodo } from "@/domain";
@@ -60,23 +61,11 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
 
   return (
     <div className="flex flex-col gap-6">
-      <nav aria-label={t.periodos}>
-        <ul className="flex flex-wrap gap-2">
-          {PERIODOS.map((p) => (
-            <li key={p}>
-              <Link
-                href={`/ganancia?periodo=${p}`}
-                aria-current={p === tipo ? "page" : undefined}
-                className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-medium ${
-                  p === tipo ? "bg-teal text-white" : "bg-superficie text-texto-2 hover:bg-teal-fondo"
-                }`}
-              >
-                {t[p]}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <Pestanas
+        etiqueta={t.periodos}
+        activa={tipo}
+        pestanas={PERIODOS.map((p) => ({ valor: p, etiqueta: t[p], href: `/ganancia?periodo=${p}` }))}
+      />
 
       <Link href="/ganancia/resumen" className="inline-flex min-h-11 items-center text-teal underline">
         {t.verResumen}

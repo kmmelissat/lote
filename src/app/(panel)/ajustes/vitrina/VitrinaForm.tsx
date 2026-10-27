@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
 import type { AjustesVitrina } from "@/features/catalog/repositorio";
 import { textos } from "@/lib/textos";
 import { guardarVitrina, type EstadoVitrina } from "./actions";
@@ -58,11 +59,7 @@ export function VitrinaForm({ ajustes }: { ajustes: AjustesVitrina }) {
             {t.guardado}
           </p>
         )}
-        {estado.error && (
-          <p role="alert" className="text-sm text-error">
-            {estado.error}
-          </p>
-        )}
+        <MensajeError>{estado.error}</MensajeError>
       </form>
     </div>
   );

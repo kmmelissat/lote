@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
 import { crearNegocio, type EstadoCrear } from "./actions";
 
@@ -31,11 +32,7 @@ export function CrearNegocioForm() {
       <Button type="submit" disabled={pendiente}>
         {pendiente ? t.creando : t.crear}
       </Button>
-      {estado.error && estado.error !== t.errorNombre && (
-        <p role="alert" className="text-sm text-error">
-          {estado.error}
-        </p>
-      )}
+      <MensajeError>{estado.error !== t.errorNombre && estado.error}</MensajeError>
     </form>
   );
 }

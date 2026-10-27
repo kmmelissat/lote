@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
 import { reponer, type EstadoReponer } from "./actions";
 
@@ -31,11 +32,7 @@ export function ReponerForm({ codigo }: { codigo: number }) {
           <p role="status" className="text-sm text-teal">
             {estado.listo}
           </p>
-          {e.general && (
-            <p role="alert" className="text-sm text-error">
-              {e.general}
-            </p>
-          )}
+          <MensajeError>{e.general}</MensajeError>
         </div>
       </form>
     </Card>

@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition, type ChangeEvent } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { MensajeError } from "@/components/ui/MensajeError";
 import { parseCsv } from "@/features/import/csv";
 import {
   CAMPOS,
@@ -96,11 +97,7 @@ export function ImportarCsv() {
       <Card className="flex max-w-xl flex-col gap-4 border border-borde">
         <h2 className="text-lg font-bold">{deshecha ? t.deshechaTitulo : t.listoTitulo}</h2>
         <p role="status">{deshecha || t.listoTexto(resultado.creados, resultado.saltadas)}</p>
-        {error && (
-          <p role="alert" className="text-sm text-error">
-            {error}
-          </p>
-        )}
+        <MensajeError>{error}</MensajeError>
         <div className="flex flex-wrap gap-3">
           {!deshecha && (
             <Button type="button" variante="secundario" disabled={pendiente} onClick={deshacer}>
@@ -128,11 +125,7 @@ export function ImportarCsv() {
         <a href="/plantilla-productos.csv" download className="inline-flex min-h-11 items-center text-teal underline">
           {t.plantilla}
         </a>
-        {error && (
-          <p role="alert" className="text-sm text-error">
-            {error}
-          </p>
-        )}
+        <MensajeError>{error}</MensajeError>
       </div>
     );
   }
@@ -214,11 +207,7 @@ export function ImportarCsv() {
         </section>
       )}
 
-      {error && (
-        <p role="alert" className="text-sm text-error">
-          {error}
-        </p>
-      )}
+      <MensajeError>{error}</MensajeError>
       <div className="flex flex-wrap gap-3">
         <Button type="button" disabled={pendiente || !tieneRequeridos || buenas === 0} onClick={importar}>
           {pendiente ? t.importando : t.importar(buenas)}

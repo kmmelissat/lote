@@ -4,6 +4,8 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
+import { Select } from "@/components/ui/Select";
 import { leerDolares, repartirEnvio, type EstadoPedido, type QuienPagaEnvio } from "@/domain";
 import { armarMensajeEnvio } from "@/features/shipping/mensajeEnvio";
 import { tarifaDe, type Envio, type ModoEntrega, type Tarifas } from "@/features/shipping/repositorio";
@@ -13,7 +15,6 @@ import { textos } from "@/lib/textos";
 import { guardarEnvioDelPedido, type EstadoEnvio } from "./actions";
 
 const t = textos.pedidos.envio;
-const SELECT = "h-12 w-full rounded-xl border border-borde bg-superficie px-3 text-base";
 const dolares = (c: number) => (c / 100).toFixed(2);
 
 type Props = {
@@ -97,18 +98,17 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
         <form action={accion} className="flex flex-col gap-4 rounded-xl bg-perla/50 p-4">
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">{t.modo}</span>
-            <select
+            <Select
               name="modo"
               value={modo}
               onChange={(e) => setModo(e.target.value as ModoEntrega)}
-              className={SELECT}
             >
               {(["retiro", "propio", "paquetera"] as const).map((m) => (
                 <option key={m} value={m}>
                   {t.modos[m]}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
 
           {modo !== "retiro" && (
@@ -118,11 +118,10 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
                 <Field etiqueta={t.telefono} name="telefono" inputMode="tel" defaultValue={envio?.telefono ?? ""} />
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">{t.departamento}</span>
-                  <select
+                  <Select
                     name="departamento"
                     value={departamento}
                     onChange={(e) => elegirDepartamento(e.target.value)}
-                    className={SELECT}
                     required
                   >
                     <option value="">{t.elegirDepartamento}</option>
@@ -131,7 +130,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
                         {d}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </label>
                 <Field etiqueta={t.municipio} name="municipio" defaultValue={envio?.municipio ?? ""} />
               </div>
@@ -157,19 +156,18 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
                 </div>
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">{t.paga}</span>
-                  <select
+                  <Select
                     name="paga"
                     value={paga}
                     onChange={(e) => setPaga(e.target.value as QuienPagaEnvio)}
                     disabled={costoCerrado}
-                    className={SELECT}
                   >
                     {(["cliente", "vendedora", "mitad"] as const).map((q) => (
                       <option key={q} value={q}>
                         {t.pagas[q]}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                   {costoCerrado && <input type="hidden" name="paga" value={paga} />}
                 </label>
               </div>
@@ -198,11 +196,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
               {estadoForm.listo}
             </p>
           )}
-          {estadoForm.error && (
-            <p role="alert" className="text-sm text-error">
-              {estadoForm.error}
-            </p>
-          )}
+          <MensajeError>{estadoForm.error}</MensajeError>
         </form>
       )}
 

@@ -3,6 +3,7 @@
 import { useActionState, useId } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { MensajeError } from "@/components/ui/MensajeError";
 import { TIPOS_METODO, type MetodoPagoNegocio } from "@/features/payments/repositorio";
 import { textos } from "@/lib/textos";
 import { guardarDatosDePago, type EstadoPagos } from "./actions";
@@ -56,11 +57,7 @@ export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
           {t.guardado}
         </p>
       )}
-      {estado.error && (
-        <p role="alert" className="text-sm text-error">
-          {estado.error}
-        </p>
-      )}
+      <MensajeError>{estado.error}</MensajeError>
     </form>
   );
 }

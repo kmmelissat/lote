@@ -6,6 +6,9 @@ type Cliente = SupabaseClient<Database>;
 
 export type MetodoPago = "transferencia" | "billetera" | "efectivo" | "contra_entrega";
 
+/** Con qué se puede pagar al registrar un pedido o un abono (contra entrega es otro flujo). */
+export const METODOS_DE_COBRO: MetodoPago[] = ["transferencia", "billetera", "efectivo"];
+
 export type Canal = "instagram" | "whatsapp" | "presencial" | "vitrina";
 
 export type ItemPedido = {

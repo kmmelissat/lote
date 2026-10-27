@@ -4,6 +4,8 @@ import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
+import { Select } from "@/components/ui/Select";
 import { CATEGORIAS_GASTO } from "@/domain";
 import type { Gasto } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
@@ -11,7 +13,6 @@ import { textos } from "@/lib/textos";
 import { agregarGasto, quitarGasto, type EstadoGasto } from "./actions";
 
 const t = textos.ganancia;
-const SELECT = "h-12 w-full rounded-xl border border-borde bg-superficie px-3 text-base";
 
 export function FormGasto() {
   const [estado, accion, pendiente] = useActionState<EstadoGasto, FormData>(agregarGasto, {});
@@ -23,13 +24,13 @@ export function FormGasto() {
         <Field etiqueta={t.form.monto} name="monto" inputMode="decimal" required />
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.form.categoria}</span>
-          <select name="categoria" defaultValue="empaque" className={SELECT}>
+          <Select name="categoria" defaultValue="empaque">
             {CATEGORIAS_GASTO.map((c) => (
               <option key={c} value={c}>
                 {t.categorias[c]}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <div className="sm:col-span-2">
           <Field etiqueta={t.form.nota} name="nota" maxLength={120} />
@@ -43,11 +44,7 @@ export function FormGasto() {
               {estado.listo}
             </p>
           )}
-          {estado.error && (
-            <p role="alert" className="text-sm text-error">
-              {estado.error}
-            </p>
-          )}
+          <MensajeError>{estado.error}</MensajeError>
         </div>
       </form>
     </Card>
@@ -85,11 +82,7 @@ export function ListaGastos({ gastos }: { gastos: Gasto[] }) {
           </li>
         ))}
       </ul>
-      {error && (
-        <p role="alert" className="text-sm text-error">
-          {error}
-        </p>
-      )}
+      <MensajeError>{error}</MensajeError>
     </div>
   );
 }

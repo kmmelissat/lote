@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useId, useState, type ChangeEvent } from "react";
+import { MensajeError } from "@/components/ui/MensajeError";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 import { MAXIMO_FOTOS } from "./limites";
@@ -86,11 +87,7 @@ export function FotoInput({ negocioId, name, onCambio }: Props) {
       <p role="status" className="min-h-5 text-sm text-texto-2">
         {subiendo ? t.subiendo : ""}
       </p>
-      {error && (
-        <p role="alert" className="text-sm text-error">
-          {error}
-        </p>
-      )}
+      <MensajeError>{error}</MensajeError>
     </div>
   );
 }

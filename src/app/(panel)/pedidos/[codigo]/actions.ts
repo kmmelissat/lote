@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { leerDolares, repartirEnvio, type EstadoPedido, type QuienPagaEnvio } from "@/domain";
 import {
   cambiarEstadoPedido,
+  METODOS_DE_COBRO,
   marcarContraEntrega,
   registrarPago,
   type ErrorPedido,
@@ -14,7 +15,6 @@ import { esDepartamento } from "@/lib/departamentos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
-const METODOS: MetodoPago[] = ["transferencia", "billetera", "efectivo"];
 
 const ESTADOS: EstadoPedido[] = ["preparando", "enviado", "entregado", "cancelado"];
 
@@ -65,7 +65,7 @@ export async function pagar(
   const c = textos.pedidos.cobrar;
   const monto = leerDolares(String(formData.get("monto") ?? ""));
   const metodo = String(formData.get("metodo") ?? "") as MetodoPago;
-  if (monto === null || monto <= 0 || !METODOS.includes(metodo)) return { error: c.errorMonto };
+  if (monto === null || monto <= 0 || !METODOS_DE_COBRO.includes(metodo)) return { error: c.errorMonto };
 
   const { supabase } = await negocioActual();
   const r = await registrarPago(supabase, pedidoId, monto, metodo);

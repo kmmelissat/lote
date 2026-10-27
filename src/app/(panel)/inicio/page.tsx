@@ -5,11 +5,11 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { rangoPeriodo, resumenDelPeriodo } from "@/domain";
+import { rangoPeriodo } from "@/domain";
 import { HORAS_APARTADO_FRIO, resumenInicio } from "@/features/home/resumen";
 import { buscarPedidos } from "@/features/orders/repositorio";
 import { listarProductos } from "@/features/products/repositorio";
-import { aGastoPeriodo, gastosDelPeriodo, ventasDelPeriodo } from "@/features/profit/repositorio";
+import { resumenDePeriodo } from "@/features/profit/repositorio";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -38,12 +38,7 @@ async function Contenido() {
     listarProductos(supabase, negocio.id, negocio.puedeGestionar),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia.
-    negocio.puedeGestionar
-      ? Promise.all([
-          ventasDelPeriodo(supabase, negocio.id, periodo),
-          gastosDelPeriodo(supabase, negocio.id, periodo),
-        ]).then(([ventas, gastos]) => resumenDelPeriodo(ventas, gastos.map(aGastoPeriodo)))
-      : Promise.resolve(null),
+    negocio.puedeGestionar ? resumenDePeriodo(supabase, negocio.id, periodo) : null,
   ]);
 
   if (!productos.length) {

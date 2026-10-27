@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
 import { apartarProducto, type EstadoApartar } from "./actions";
 
@@ -49,11 +50,7 @@ export function ApartarForm({ slug, codigo, disponibles, plazoHoras }: Props) {
           <input type="checkbox" name="acepta" className="mt-1 size-5 shrink-0 accent-teal" />
           <span>{t.acepta}</span>
         </label>
-        {estado.error && (
-          <p role="alert" className="text-sm text-error">
-            {estado.error}
-          </p>
-        )}
+        <MensajeError>{estado.error}</MensajeError>
         <Button type="submit" disabled={pendiente}>
           {pendiente ? t.apartando : t.boton}
         </Button>

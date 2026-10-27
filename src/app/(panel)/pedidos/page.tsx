@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { Pestanas } from "@/components/nav/Pestanas";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -42,23 +43,11 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <nav aria-label={t.pestanas}>
-          <ul className="flex flex-wrap gap-2">
-            {PESTANAS.map((p) => (
-              <li key={p}>
-                <Link
-                  href={`/pedidos?estado=${p}`}
-                  aria-current={p === estado ? "page" : undefined}
-                  className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-medium ${
-                    p === estado ? "bg-teal text-white" : "bg-superficie text-texto-2 hover:bg-teal-fondo"
-                  }`}
-                >
-                  {textos.estadosPedido[p]}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <Pestanas
+          etiqueta={t.pestanas}
+          activa={estado}
+          pestanas={PESTANAS.map((p) => ({ valor: p, etiqueta: textos.estadosPedido[p], href: `/pedidos?estado=${p}` }))}
+        />
         {negocio.puedeVender && <ButtonLink href="/pedidos/nuevo">{t.registrar}</ButtonLink>}
       </div>
 

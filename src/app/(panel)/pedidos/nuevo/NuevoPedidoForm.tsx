@@ -3,6 +3,8 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
+import { MensajeError } from "@/components/ui/MensajeError";
+import { Select } from "@/components/ui/Select";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoPedido, type EstadoNuevoPedido } from "./actions";
@@ -20,7 +22,6 @@ export type OpcionProducto = {
 
 type Fila = { clave: number; productoId: string; cantidad: string };
 
-const selectClase = "h-12 w-full rounded-xl border border-borde bg-superficie px-3 text-base";
 
 export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoNuevoPedido, FormData>(nuevoPedido, {});
@@ -72,10 +73,9 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
             <li key={f.clave} className="flex items-end gap-3">
               <label className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <span className="text-sm font-medium">{i === 0 ? t.producto : `${t.producto} ${i + 1}`}</span>
-                <select
+                <Select
                   value={f.productoId}
                   onChange={(e) => cambiar(f.clave, { productoId: e.target.value, cantidad: "1" })}
-                  className={selectClase}
                 >
                   <option value="">{t.elegirProducto}</option>
                   {productos.map((o) => (
@@ -83,7 +83,7 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
                       {t.disponiblesOpcion(o.nombre, o.codigo, o.disponibles)}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label className="flex w-20 flex-col gap-1.5">
                 <span className="text-sm font-medium">{t.cantidad}</span>
@@ -132,30 +132,29 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
 
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">{t.canal}</span>
-        <select
+        <Select
           name="canal"
           defaultValue={v.canal ?? (tipo === "venta" ? "presencial" : "instagram")}
           key={tipo}
-          className={selectClase}
         >
           {(["instagram", "whatsapp", "presencial"] as const).map((c) => (
             <option key={c} value={c}>
               {textos.pedidos.canales[c]}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
 
       {tipo === "venta" && (
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.pago}</span>
-          <select name="metodo" defaultValue="efectivo" className={selectClase}>
+          <Select name="metodo" defaultValue="efectivo">
             {(["efectivo", "transferencia", "billetera"] as const).map((m) => (
               <option key={m} value={m}>
                 {textos.cobro.metodos[m]}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
       )}
 
@@ -163,11 +162,7 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
         {t.total}: <strong>{formatearDolares(total)}</strong>
       </p>
 
-      {estado.error && (
-        <p role="alert" className="text-sm text-error">
-          {estado.error}
-        </p>
-      )}
+      <MensajeError>{estado.error}</MensajeError>
       <Button type="submit" disabled={pendiente || !items.length}>
         {pendiente ? t.registrando : t.registrar}
       </Button>

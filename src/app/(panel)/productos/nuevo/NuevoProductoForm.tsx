@@ -5,6 +5,7 @@ import { costoUnitario, leerDolares } from "@/domain";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Sugerido } from "@/components/ui/Sugerido";
+import { MensajeError } from "@/components/ui/MensajeError";
 import { FotoInput } from "@/features/products/FotoInput";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -83,11 +84,7 @@ export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
             {leyendo ? t.leyendoFoto : t.completarConFoto}
           </Button>
           <p className="text-sm text-texto-2">{t.ayudaFoto}</p>
-          {errorFoto && (
-            <p role="alert" className="text-sm text-error">
-              {errorFoto}
-            </p>
-          )}
+          <MensajeError>{errorFoto}</MensajeError>
         </div>
       )}
       <Field
@@ -174,11 +171,7 @@ export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
         ))}
       </fieldset>
 
-      {e.general && (
-        <p role="alert" className="text-sm text-error">
-          {e.general}
-        </p>
-      )}
+      <MensajeError>{e.general}</MensajeError>
       <Button type="submit" disabled={pendiente}>
         {pendiente ? t.guardando : t.guardar}
       </Button>

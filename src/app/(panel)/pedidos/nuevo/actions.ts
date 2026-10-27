@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  METODOS_DE_COBRO,
   registrarPedido,
   type Canal,
   type ErrorPedido,
@@ -18,7 +19,6 @@ export type EstadoNuevoPedido = {
   valores?: { tipo?: string; cliente?: string; canal?: string };
 };
 
-const METODOS: MetodoPago[] = ["transferencia", "billetera", "efectivo"];
 const CANALES: Canal[] = ["instagram", "whatsapp", "presencial", "vitrina"];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -58,7 +58,7 @@ export async function nuevoPedido(
   const canal: Canal = CANALES.includes(canalPedido as Canal) ? (canalPedido as Canal) : "presencial";
   const valores = { tipo, cliente, canal };
   const metodoPedido = String(formData.get("metodo") ?? "");
-  const metodo: MetodoPago | undefined = METODOS.includes(metodoPedido as MetodoPago)
+  const metodo: MetodoPago | undefined = METODOS_DE_COBRO.includes(metodoPedido as MetodoPago)
     ? (metodoPedido as MetodoPago)
     : undefined;
 

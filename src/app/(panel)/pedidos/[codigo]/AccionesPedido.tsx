@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
+import { MensajeError } from "@/components/ui/MensajeError";
 import type { EstadoPedido } from "@/domain";
 import { textos } from "@/lib/textos";
 import { cambiarEstado } from "./actions";
@@ -47,11 +48,7 @@ export function AccionesPedido({ pedidoId, siguiente, puedeCancelar }: Props) {
           </Button>
         )}
       </div>
-      {error && (
-        <p role="alert" className="text-sm text-error">
-          {error}
-        </p>
-      )}
+      <MensajeError>{error}</MensajeError>
     </div>
   );
 }
