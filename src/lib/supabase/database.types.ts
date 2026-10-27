@@ -556,9 +556,64 @@ export type Database = {
           },
         ]
       }
+      gasto: {
+        Row: {
+          categoria: string
+          creado_en: string
+          creado_por: string | null
+          fecha: string
+          id: string
+          monto: number
+          negocio_id: string
+          nota: string | null
+          pedido_id: string | null
+          recurrente: boolean
+        }
+        Insert: {
+          categoria: string
+          creado_en?: string
+          creado_por?: string | null
+          fecha?: string
+          id?: string
+          monto: number
+          negocio_id: string
+          nota?: string | null
+          pedido_id?: string | null
+          recurrente?: boolean
+        }
+        Update: {
+          categoria?: string
+          creado_en?: string
+          creado_por?: string | null
+          fecha?: string
+          id?: string
+          monto?: number
+          negocio_id?: string
+          nota?: string | null
+          pedido_id?: string | null
+          recurrente?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gasto_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gasto_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedido"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedido_item: {
         Row: {
           cantidad: number
+          costo_unitario: number | null
           id: string
           negocio_id: string
           pedido_id: string
@@ -567,6 +622,7 @@ export type Database = {
         }
         Insert: {
           cantidad: number
+          costo_unitario?: number | null
           id?: string
           negocio_id: string
           pedido_id: string
@@ -575,6 +631,7 @@ export type Database = {
         }
         Update: {
           cantidad?: number
+          costo_unitario?: number | null
           id?: string
           negocio_id?: string
           pedido_id?: string
@@ -855,6 +912,31 @@ export type Database = {
           p_tipo: string
         }
         Returns: string
+      }
+      registrar_gasto: {
+        Args: {
+          p_categoria: string
+          p_fecha?: string
+          p_monto: number
+          p_negocio: string
+          p_nota?: string
+          p_pedido?: string
+        }
+        Returns: string
+      }
+      eliminar_gasto: { Args: { p_gasto: string }; Returns: undefined }
+      ventas_del_periodo: {
+        Args: { p_desde: string; p_hasta: string; p_negocio: string }
+        Returns: {
+          cantidad: number
+          costo_unitario: number | null
+          descuento: number
+          envio_absorbido: number
+          nombre: string
+          pedido_id: string
+          precio_final: number
+          producto_id: string
+        }[]
       }
       reponer_producto: {
         Args: { p_llegan: number; p_nuevo_costo?: number; p_producto: string }
