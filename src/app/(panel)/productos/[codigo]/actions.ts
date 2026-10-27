@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { costoPromedio, leerDolares } from "@/domain";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
 import {
@@ -24,7 +25,9 @@ export async function agregarFotos(
   const nuevas = rutas.filter((r) => esRutaFoto(r, negocio.id));
   const fotos = [...new Set([...producto.fotos, ...nuevas])].slice(0, MAXIMO_FOTOS);
   const ok = await guardarFotos(supabase, producto.id, fotos);
-  return ok ? {} : { error: textos.productos.fotos.errorGuardar };
+  if (!ok) return { error: textos.productos.fotos.errorGuardar };
+  revalidatePath("/", "layout");
+  return {};
 }
 
 export type EstadoReponer = {
@@ -53,11 +56,12 @@ export async function reponer(
   // con qué promediar, así que queda el costo de lo nuevo. Sin costo nuevo, el costo no cambia.
   let nuevoCosto: number | null = costoNuevo;
   if (costoNuevo !== null && producto.costoUnitario != null) {
-    nuevoCosto = costoPromedio(producto.cantidad, producto.costoUnitario, llegan, costoNuevo);
+    nuevoCosto = costoPromedio(producto.cantidad - producto.vendidas, producto.costoUnitario, llegan, costoNuevo);
   }
 
   const resultado = await reponerProducto(supabase, producto.id, llegan, nuevoCosto);
   if (resultado === "sin_permiso") return { errores: { general: t.errorPermiso } };
   if (resultado !== "ok") return { errores: { general: t.errorGeneral } };
+  revalidatePath("/", "layout");
   return { listo: t.listo(llegan) };
 }

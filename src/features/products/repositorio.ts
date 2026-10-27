@@ -3,8 +3,13 @@ import {
   aCentavos,
   costoUnitario,
   desgloseDeFilas,
+  disponibles,
+  estadoProducto,
+  retencionDe,
   type Centavos,
   type DesgloseCosto,
+  type EstadoPedido,
+  type EstadoProducto,
 } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -20,14 +25,19 @@ export type Producto = {
   condicion: string;
   fotos: string[];
   precio: Centavos;
+  /** Unidades totales; disponibles = cantidad − apartadas − vendidas */
   cantidad: number;
+  apartadas: number;
+  vendidas: number;
+  disponibles: number;
+  estado: EstadoProducto;
   /** undefined si la persona no puede ver costos; null si todavía no se registró ninguno */
   desglose: DesgloseCosto | undefined;
   costoUnitario: Centavos | null | undefined;
 };
 
 const columnas =
-  "id, codigo, nombre, descripcion, categoria, marca, condicion, fotos, precio, existencia(cantidad), costo_producto(tipo, monto, por_unidad)";
+  "id, codigo, nombre, descripcion, categoria, marca, condicion, fotos, precio, existencia(cantidad), pedido_item(cantidad, pedido(estado, vence_en)), costo_producto(tipo, monto, por_unidad)";
 
 type Fila = {
   id: string;
@@ -40,11 +50,21 @@ type Fila = {
   fotos: string[];
   precio: number;
   existencia: { cantidad: number }[];
+  pedido_item: { cantidad: number; pedido: { estado: string; vence_en: string | null } }[];
   costo_producto: { tipo: string; monto: number; por_unidad: boolean }[];
 };
 
-function aProducto(f: Fila, puedeVerCostos: boolean): Producto {
+function aProducto(f: Fila, puedeVerCostos: boolean, ahora: Date): Producto {
   const cantidad = f.existencia.reduce((suma, e) => suma + e.cantidad, 0);
+  let apartadas = 0;
+  let vendidas = 0;
+  for (const i of f.pedido_item) {
+    const venceEn = i.pedido.vence_en ? new Date(i.pedido.vence_en) : null;
+    const retencion = retencionDe(i.pedido.estado as EstadoPedido, venceEn, ahora);
+    if (retencion === "apartada") apartadas += i.cantidad;
+    if (retencion === "vendida") vendidas += i.cantidad;
+  }
+  const existencias = { cantidad, apartadas, vendidas };
   const desglose = puedeVerCostos
     ? desgloseDeFilas(
         f.costo_producto.map((c) => ({
@@ -66,6 +86,10 @@ function aProducto(f: Fila, puedeVerCostos: boolean): Producto {
     fotos: f.fotos,
     precio: aCentavos(f.precio),
     cantidad,
+    apartadas,
+    vendidas,
+    disponibles: disponibles(existencias),
+    estado: estadoProducto(existencias),
     desglose,
     costoUnitario: puedeVerCostos ? costoUnitario(desglose) : undefined,
   };
@@ -83,7 +107,7 @@ export async function listarProductos(
     .order("creado_en", { ascending: false })
     .limit(100);
   if (error) throw error;
-  return (data as Fila[]).map((f) => aProducto(f, puedeVerCostos));
+  return (data as unknown as Fila[]).map((f) => aProducto(f, puedeVerCostos, new Date()));
 }
 
 export async function obtenerProducto(
@@ -99,7 +123,7 @@ export async function obtenerProducto(
     .eq("codigo", codigo)
     .maybeSingle();
   if (error) throw error;
-  return data ? aProducto(data as Fila, puedeVerCostos) : null;
+  return data ? aProducto(data as unknown as Fila, puedeVerCostos, new Date()) : null;
 }
 
 export async function reponerProducto(

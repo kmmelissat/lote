@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
@@ -74,5 +75,6 @@ export async function nuevoProducto(
     const general = resultado.error === "sin_permiso" ? t.errorPermiso : t.errorGeneral;
     return { errores: { general }, valores };
   }
+  revalidatePath("/", "layout");
   redirect(`/productos/${resultado.codigo}`);
 }

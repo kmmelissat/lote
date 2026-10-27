@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
-import { estadoProducto, type DesgloseCosto } from "@/domain";
+import type { DesgloseCosto } from "@/domain";
 import { obtenerProducto } from "@/features/products/repositorio";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
 import { urlFoto } from "@/lib/fotos";
@@ -36,13 +36,15 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
   const p = await obtenerProducto(supabase, negocio.id, codigo, negocio.puedeGestionar);
   if (!p) notFound();
 
-  const estado = estadoProducto({ cantidad: p.cantidad, apartadas: 0, vendidas: 0 });
   const ganancia =
     p.costoUnitario === undefined || p.costoUnitario === null ? null : p.precio - p.costoUnitario;
 
   const filas: [string, string][] = [
     [t.detalle.codigo, `#${p.codigo}`],
     [t.detalle.cantidad, String(p.cantidad)],
+    [t.detalle.disponibles, String(p.disponibles)],
+    [t.detalle.apartadas, String(p.apartadas)],
+    [t.detalle.vendidas, String(p.vendidas)],
     [t.detalle.precio, formatearDolares(p.precio)],
   ];
   if (p.categoria) filas.push([t.detalle.categoria, p.categoria]);
@@ -77,7 +79,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
         )}
 
         <Card className="flex flex-col gap-3 border border-borde">
-          <StatusChip estado={estado} texto={t.quedan(p.cantidad)} />
+          <StatusChip estado={p.estado} texto={p.disponibles > 0 ? t.quedan(p.disponibles) : undefined} />
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
             {filas.map(([k, val]) => (
               <div key={k} className="contents">

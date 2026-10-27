@@ -7,7 +7,6 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusChip } from "@/components/ui/StatusChip";
-import { estadoProducto } from "@/domain";
 import { listarProductos } from "@/features/products/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
@@ -55,7 +54,6 @@ async function ListaProductos() {
       <div className="flex justify-end">{agregar}</div>
       <ul className="grid gap-3 md:grid-cols-2">
         {productos.map((p) => {
-          const estado = estadoProducto({ cantidad: p.cantidad, apartadas: 0, vendidas: 0 });
           return (
             <li key={p.id}>
               <Link href={`/productos/${p.codigo}`} className="block">
@@ -80,7 +78,10 @@ async function ListaProductos() {
                       <p className="font-bold">{formatearDolares(p.precio)}</p>
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
-                      <StatusChip estado={estado} texto={textos.productos.quedan(p.cantidad)} />
+                      <StatusChip
+                        estado={p.estado}
+                        texto={p.disponibles > 0 ? textos.productos.quedan(p.disponibles) : undefined}
+                      />
                       {p.costoUnitario !== undefined && (
                         <span className="text-texto-2">
                           {p.costoUnitario === null

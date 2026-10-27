@@ -4,6 +4,11 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { textos } from "@/lib/textos";
 
+const RUTAS: Record<string, string> = {
+  producto: "/productos/nuevo",
+  venta: "/pedidos/nuevo",
+};
+
 export const metadata: Metadata = { title: textos.nuevo.titulo };
 
 export default function NuevoPage() {
@@ -13,8 +18,8 @@ export default function NuevoPage() {
       <ul className="grid gap-3 sm:grid-cols-2">
         {textos.nuevo.opciones.map((o) => (
           <li key={o.id}>
-            {o.id === "producto" ? (
-              <Link href="/productos/nuevo" className="block">
+            {o.id in RUTAS ? (
+              <Link href={RUTAS[o.id]} className="block">
                 <Card className="font-medium hover:bg-teal-fondo">{o.etiqueta}</Card>
               </Link>
             ) : (

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import {
   CAMPOS,
   MAXIMO_FILAS,
@@ -42,6 +43,7 @@ export async function importarCsv(
   const r = await importarProductos(supabase, negocio.id, archivo, mapeoLimpio, buenas);
   if (!r.ok) return { ok: false, error: r.error === "sin_permiso" ? t.errorPermiso : t.errorGeneral };
 
+  revalidatePath("/", "layout");
   return { ok: true, importacionId: r.valor, creados: buenas.length, saltadas: filas.length - buenas.length };
 }
 
@@ -51,5 +53,6 @@ export async function deshacerImportacionAction(
   const { supabase } = await negocioActual();
   const r = await deshacerImportacion(supabase, importacionId);
   if (!r.ok) return { ok: false, error: r.error === "sin_permiso" ? t.errorPermiso : t.errorGeneral };
+  revalidatePath("/", "layout");
   return { ok: true, quitados: r.valor };
 }

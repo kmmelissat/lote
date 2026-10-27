@@ -33,6 +33,18 @@ export function apartadoVencido(
   return estado === "pendiente" && venceEn !== null && venceEn.getTime() <= ahora.getTime();
 }
 
+export type Retencion = "apartada" | "vendida" | null;
+
+/**
+ * Qué hace un pedido con sus unidades: un pendiente vigente las aparta, uno pagado o más
+ * adelante las vende, y uno cancelado o con el apartado vencido las deja libres.
+ */
+export function retencionDe(estado: EstadoPedido, venceEn: Date | null, ahora: Date): Retencion {
+  if (estado === "cancelado") return null;
+  if (estado === "pendiente") return apartadoVencido(estado, venceEn, ahora) ? null : "apartada";
+  return "vendida";
+}
+
 export const calcularVencimiento = (desde: Date, horas: number): Date =>
   new Date(desde.getTime() + horas * 60 * 60 * 1000);
 

@@ -2,7 +2,12 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export type NegocioActual = { id: string; rol: string; puedeGestionar: boolean };
+export type NegocioActual = {
+  id: string;
+  rol: string;
+  puedeGestionar: boolean;
+  puedeVender: boolean;
+};
 
 // Negocio de la persona que hace la petición. Solo corre en la petición (lee la sesión).
 // La autorización real la hace RLS; esto solo decide qué se muestra.
@@ -17,6 +22,7 @@ export async function negocioActual() {
     id: miembro.negocio_id,
     rol: miembro.rol,
     puedeGestionar: miembro.rol === "duena" || miembro.rol === "administradora",
+    puedeVender: miembro.rol !== "solo_lectura",
   };
   return { supabase, negocio };
 }

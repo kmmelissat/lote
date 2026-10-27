@@ -4,6 +4,7 @@ import {
   calcularVencimiento,
   estaPagado,
   puedeCancelarse,
+  retencionDe,
   saldo,
   siguienteEstado,
   totalPedido,
@@ -71,5 +72,30 @@ describe("estados del pedido", () => {
     expect(puedeCancelarse("enviado")).toBe(true);
     expect(puedeCancelarse("entregado")).toBe(false);
     expect(puedeCancelarse("cancelado")).toBe(false);
+  });
+});
+
+describe("retencionDe", () => {
+  const ahora = new Date("2026-10-27T12:00:00Z");
+  const futuro = new Date("2026-10-27T13:00:00Z");
+  const pasado = new Date("2026-10-27T11:00:00Z");
+
+  it("un pendiente vigente aparta las unidades", () => {
+    expect(retencionDe("pendiente", futuro, ahora)).toBe("apartada");
+    expect(retencionDe("pendiente", null, ahora)).toBe("apartada");
+  });
+
+  it("un apartado vencido las deja libres", () => {
+    expect(retencionDe("pendiente", pasado, ahora)).toBeNull();
+  });
+
+  it("pagado y lo que sigue las vende", () => {
+    for (const e of ["pagado", "preparando", "enviado", "entregado"] as const) {
+      expect(retencionDe(e, null, ahora)).toBe("vendida");
+    }
+  });
+
+  it("un pedido cancelado las deja libres", () => {
+    expect(retencionDe("cancelado", futuro, ahora)).toBeNull();
   });
 });
