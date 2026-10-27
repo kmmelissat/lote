@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain";
+import { proveedorIA } from "@/features/ai";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
 import { crearProducto, type NuevoProducto } from "@/features/products/repositorio";
-import { esRutaFoto } from "@/lib/fotos";
+import { esRutaFoto, urlFoto } from "@/lib/fotos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -64,6 +65,7 @@ export async function nuevoProducto(
     nombre,
     precio: precio!,
     cantidad,
+    descripcion: valores.descripcion?.trim() || undefined,
     categoria: valores.categoria?.trim() || undefined,
     marca: valores.marca?.trim() || undefined,
     condicion: valores.condicion === "usado" ? "usado" : "nuevo",
@@ -77,4 +79,25 @@ export async function nuevoProducto(
   }
   revalidatePath("/", "layout");
   redirect(`/productos/${resultado.codigo}`);
+}
+
+export type FichaSugerida = { nombre: string; descripcion: string; categoria: string | null };
+
+/** "Completar con la foto": la IA lee la foto y propone nombre, descripción y categoría. Todo editable. */
+export async function sugerirFicha(
+  ruta: string,
+): Promise<{ ficha: FichaSugerida } | { error: "sin_ia" | "no_se_pudo" }> {
+  const { negocio } = await negocioActual();
+  // Solo quien puede crear productos, y solo con una foto de su propio negocio: la URL se arma acá.
+  if (!negocio.puedeGestionar || !esRutaFoto(ruta, negocio.id)) return { error: "no_se_pudo" };
+
+  const ia = proveedorIA();
+  if (!ia) return { error: "sin_ia" };
+  try {
+    const f = await ia.entenderFoto(urlFoto(ruta), "");
+    const detalle = f.detalle && !f.descripcion.toLowerCase().includes(f.detalle.toLowerCase()) ? ` (${f.detalle})` : "";
+    return { ficha: { nombre: f.nombre, descripcion: f.descripcion + detalle, categoria: f.categoria } };
+  } catch {
+    return { error: "no_se_pudo" };
+  }
 }

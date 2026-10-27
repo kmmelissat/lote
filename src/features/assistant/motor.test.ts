@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { salidaVacia, type SalidaEntender } from "../ai/esquema";
+import { salidaVacia, type SalidaEntender, type SalidaFoto } from "../ai/esquema";
 import { procesar, type Entrada, type Estado } from "./motor";
 import type { PedidoAsistente, ProductoAsistente, Puerto } from "./puerto";
 
@@ -56,11 +56,19 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     deshacerAccion: vi.fn(async () => ({ ok: true as const, valor: "apartado de Chaqueta" })),
     ...opciones.puerto,
   };
-  const ia = (salida: Partial<SalidaEntender> & Pick<SalidaEntender, "intencion">) => ({
-    entenderMensaje: async () => ({ ...salidaVacia(salida.intencion), ...salida }),
+  const fichaBase: SalidaFoto = { nombre: "Producto", descripcion: "", categoria: null, detalle: null, precio: null, costo: null, cantidad: null };
+  const ia = (salida?: Partial<SalidaEntender> & Pick<SalidaEntender, "intencion">, foto?: Partial<SalidaFoto> | Error) => ({
+    entenderMensaje: async () => ({ ...salidaVacia(salida?.intencion ?? "no_entiendo"), ...salida }),
+    entenderFoto: async () => {
+      if (foto instanceof Error) throw foto;
+      return { ...fichaBase, ...foto };
+    },
   });
-  const turno = (entrada: Partial<Entrada> & { mensajeId: string }, salida?: Partial<SalidaEntender> & Pick<SalidaEntender, "intencion">) =>
-    procesar({ texto: "texto", ...entrada }, { ia: salida ? ia(salida) : null, puerto, ahora });
+  const turno = (
+    entrada: Partial<Entrada> & { mensajeId: string },
+    salida?: Partial<SalidaEntender> & Pick<SalidaEntender, "intencion">,
+    foto?: Partial<SalidaFoto> | Error,
+  ) => procesar({ texto: "texto", ...entrada }, { ia: salida || foto ? ia(salida, foto) : null, puerto, ahora });
   return { puerto, turno };
 }
 
@@ -275,7 +283,15 @@ describe("crear y reponer", () => {
     const { puerto, turno } = montar();
     const r = await turno({ mensajeId: "m1" }, { intencion: "crear_producto", producto: "Gorra", precio: 8, cantidad: 4 });
     expect(r.texto).toMatch(/#9 Gorra a .*8.*Cantidad: 4\. Falta el costo/);
-    expect(puerto.crearProducto).toHaveBeenCalledWith({ nombre: "Gorra", precio: 800, cantidad: 4, costo: null });
+    expect(puerto.crearProducto).toHaveBeenCalledWith({
+      nombre: "Gorra",
+      precio: 800,
+      cantidad: 4,
+      costo: null,
+      descripcion: null,
+      categoria: null,
+      fotoRuta: null,
+    });
   });
 
   it("al reponer con costo recalcula el promedio con las unidades que quedan", async () => {
@@ -284,5 +300,71 @@ describe("crear y reponer", () => {
     expect(r.texto).toBe("Listo. Se sumaron 6 de Llaveros de gato. Disponibles: 10.");
     // 4 a $1 y 6 a $2 dan $1.60
     expect(puerto.reponer).toHaveBeenCalledWith("prod-3", 6, 160);
+  });
+});
+
+describe("foto + una línea", () => {
+  const foto = { ruta: "neg/foto.webp", url: "https://ejemplo.test/foto.webp" };
+
+  it("la foto pone nombre, descripción y categoría; el precio y el costo salen de la línea", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno(
+      { mensajeId: "m1", texto: "chaqueta negra M, 25, me costó 10", foto },
+      undefined,
+      { nombre: "Chaqueta negra M", descripcion: "Chaqueta de tela negra con cierre.", categoria: "Ropa", precio: 25, costo: 10 },
+    );
+    expect(r.texto).toMatch(/#9 Chaqueta negra M a .*25.*costó .*10/);
+    expect(puerto.crearProducto).toHaveBeenCalledWith({
+      nombre: "Chaqueta negra M",
+      precio: 2500,
+      cantidad: 1,
+      costo: 1000,
+      descripcion: "Chaqueta de tela negra con cierre.",
+      categoria: "Ropa",
+      fotoRuta: "neg/foto.webp",
+    });
+    expect(r.botones?.[0].etiqueta).toBe("Deshacer");
+  });
+
+  it("sin precio en la línea, nunca lo inventa: pregunta, y al responder crea con lo que leyó de la foto", async () => {
+    const { puerto, turno } = montar();
+    const duda = await turno(
+      { mensajeId: "m1", texto: "", foto },
+      undefined,
+      { nombre: "Llavero de gato", descripcion: "Llavero rosa.", categoria: "Accesorios" },
+    );
+    expect(duda.texto).toBe("Leí la foto: Llavero de gato.\n¿A cuánto lo vendés?");
+    expect(puerto.crearProducto).not.toHaveBeenCalled();
+
+    const r = await turno({ mensajeId: "m2", texto: "$3,50", estado: duda.estado });
+    expect(r.texto).toMatch(/#9 Llavero de gato a .*3[.,]50/);
+    expect(puerto.crearProducto).toHaveBeenCalledWith(
+      expect.objectContaining({ precio: 350, descripcion: "Llavero rosa.", categoria: "Accesorios", fotoRuta: "neg/foto.webp" }),
+    );
+  });
+
+  it("anota la talla o el tono en la descripción si no estaba", async () => {
+    const { puerto, turno } = montar();
+    await turno({ mensajeId: "m1", texto: "20", foto }, undefined, {
+      nombre: "Blusa",
+      descripcion: "Blusa de manga corta.",
+      detalle: "rosa",
+      precio: 20,
+    });
+    expect(puerto.crearProducto).toHaveBeenCalledWith(expect.objectContaining({ descripcion: "Blusa de manga corta. (rosa)" }));
+  });
+
+  it("sin IA conectada lo dice en vez de fallar", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m1", texto: "", foto });
+    expect(r.texto).toContain("no está conectado");
+    expect(puerto.crearProducto).not.toHaveBeenCalled();
+  });
+
+  it("si la IA falla, avisa y no crea nada", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m1", texto: "", foto }, undefined, new Error("timeout"));
+    expect(r.texto).toContain("No pude leer");
+    expect(puerto.crearProducto).not.toHaveBeenCalled();
   });
 });

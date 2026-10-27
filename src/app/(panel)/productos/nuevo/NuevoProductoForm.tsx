@@ -1,13 +1,14 @@
 "use client";
 
-import { useActionState, useState, type FormEvent } from "react";
+import { useActionState, useId, useState, useTransition, type FormEvent } from "react";
 import { costoUnitario, leerDolares } from "@/domain";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
+import { Sugerido } from "@/components/ui/Sugerido";
 import { FotoInput } from "@/features/products/FotoInput";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { nuevoProducto, type EstadoNuevo } from "./actions";
+import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } from "./actions";
 
 const t = textos.productos.form;
 
@@ -16,8 +17,50 @@ const campoCosto = ["compra", "envio", "importacion", "otro"] as const;
 export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
   const [estado, accion, pendiente] = useActionState<EstadoNuevo, FormData>(nuevoProducto, {});
   const [ganancia, setGanancia] = useState<number | null>(null);
+  const [rutas, setRutas] = useState<string[]>([]);
+  const [nombre, setNombre] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [sugeridos, setSugeridos] = useState<Set<keyof FichaSugerida>>(new Set());
+  const [errorFoto, setErrorFoto] = useState("");
+  const [leyendo, empezarLectura] = useTransition();
+  const descripcionId = useId();
   const e = estado.errores ?? {};
   const v = estado.valores ?? {};
+
+  // Lo que escribió la persona no se pisa: solo se llenan los campos vacíos o los que ya eran sugeridos.
+  function aplicar(f: FichaSugerida) {
+    const nuevos = new Set(sugeridos);
+    const poner = (campo: keyof FichaSugerida, actual: string, valor: string | null, set: (s: string) => void) => {
+      if (valor && (!actual.trim() || sugeridos.has(campo))) {
+        set(valor);
+        nuevos.add(campo);
+      }
+    };
+    poner("nombre", nombre, f.nombre, setNombre);
+    poner("descripcion", descripcion, f.descripcion, setDescripcion);
+    poner("categoria", categoria, f.categoria, setCategoria);
+    setSugeridos(nuevos);
+  }
+
+  function completarConFoto() {
+    setErrorFoto("");
+    empezarLectura(async () => {
+      const r = await sugerirFicha(rutas[0]);
+      if ("ficha" in r) aplicar(r.ficha);
+      else setErrorFoto(r.error === "sin_ia" ? t.errorFotoSinIA : t.errorFoto);
+    });
+  }
+
+  // Si la persona corrige un campo, deja de ser "sugerido".
+  const editar = (campo: keyof FichaSugerida, set: (s: string) => void) => (valor: string) => {
+    set(valor);
+    if (sugeridos.has(campo)) {
+      const nuevos = new Set(sugeridos);
+      nuevos.delete(campo);
+      setSugeridos(nuevos);
+    }
+  };
 
   // Ganancia en vivo: precio − costo por unidad, con las mismas funciones que usa el servidor.
   function recalcular(ev: FormEvent<HTMLFormElement>) {
@@ -33,8 +76,29 @@ export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
 
   return (
     <form action={accion} onChange={recalcular} className="flex max-w-xl flex-col gap-4">
-      <FotoInput negocioId={negocioId} name="fotos" />
-      <Field etiqueta={t.nombre} name="nombre" required defaultValue={v.nombre} error={e.nombre} />
+      <FotoInput negocioId={negocioId} name="fotos" onCambio={setRutas} />
+      {rutas.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <Button type="button" variante="secundario" className="self-start" disabled={leyendo} onClick={completarConFoto}>
+            {leyendo ? t.leyendoFoto : t.completarConFoto}
+          </Button>
+          <p className="text-sm text-texto-2">{t.ayudaFoto}</p>
+          {errorFoto && (
+            <p role="alert" className="text-sm text-error">
+              {errorFoto}
+            </p>
+          )}
+        </div>
+      )}
+      <Field
+        etiqueta={t.nombre}
+        name="nombre"
+        required
+        value={nombre}
+        onChange={(ev) => editar("nombre", setNombre)(ev.target.value)}
+        sugerido={sugeridos.has("nombre")}
+        error={e.nombre}
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <Field
@@ -69,8 +133,29 @@ export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
       </fieldset>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field etiqueta={t.categoria} name="categoria" defaultValue={v.categoria} />
+        <Field
+          etiqueta={t.categoria}
+          name="categoria"
+          value={categoria}
+          onChange={(ev) => editar("categoria", setCategoria)(ev.target.value)}
+          sugerido={sugeridos.has("categoria")}
+        />
         <Field etiqueta={t.marca} name="marca" defaultValue={v.marca} />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={descripcionId} className="text-sm font-medium">
+          {t.descripcionCampo}
+          {sugeridos.has("descripcion") && <Sugerido />}
+        </label>
+        <textarea
+          id={descripcionId}
+          name="descripcion"
+          rows={3}
+          value={descripcion}
+          onChange={(ev) => editar("descripcion", setDescripcion)(ev.target.value)}
+          className="rounded-xl border border-borde bg-superficie px-4 py-3 text-base"
+        />
       </div>
 
       <fieldset className="flex gap-6">

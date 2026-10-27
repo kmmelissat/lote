@@ -21,10 +21,13 @@ export type Comando =
   | { tipo: "deshacer"; accionId: string }
   | { tipo: "elegir"; indice: number };
 
+/** Lo que salió de la foto de un producto y hay que acordarse hasta crearlo. */
+export type Extras = { fotoRuta?: string; descripcion?: string | null; categoria?: string | null };
+
 /** Lo que el chat recuerda entre mensajes: una pregunta a medias. Viaja de ida y vuelta con el cliente. */
 export type Estado =
   | { tipo: "elegir"; salida: SalidaEntender; opciones: { etiqueta: string; reemplazo: Partial<SalidaEntender> }[] }
-  | { tipo: "completar"; salida: SalidaEntender; falta: Falta }
+  | { tipo: "completar"; salida: SalidaEntender; falta: Falta; extras?: Extras }
   | { tipo: "confirmar"; salida: SalidaEntender };
 
 export type Boton = { etiqueta: string; comando: Comando };
@@ -41,6 +44,8 @@ export type Entrada = {
   /** Identifica el mensaje: el mismo id procesado dos veces no repite la acción */
   mensajeId: string;
   texto?: string;
+  /** Foto de un producto ya subida: ruta en el bucket y su URL pública, para que la IA la lea */
+  foto?: { ruta: string; url: string };
   comando?: Comando;
   estado?: Estado | null;
 };
@@ -82,6 +87,7 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
   if (comando?.tipo === "descartar") return { texto: t.descartado };
 
   let salida: SalidaEntender | null = null;
+  let extras: Extras | undefined;
   let confirmado = false;
 
   if (comando?.tipo === "confirmar" && estado?.tipo === "confirmar") {
@@ -91,6 +97,11 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
     const opcion = estado.opciones[comando.indice];
     if (!opcion) return { texto: t.noEntendiRespuesta };
     salida = { ...estado.salida, ...opcion.reemplazo };
+  } else if (entrada.foto) {
+    // Foto + una línea: la foto pone nombre, descripción y categoría; precio y costo salen solo de la línea.
+    const leida = await leerFoto(d, entrada.foto, texto);
+    if (typeof leida === "string") return { texto: leida };
+    ({ salida, extras } = leida);
   } else if (texto) {
     if (estado?.tipo === "elegir" && /^\d+$/.test(texto)) {
       const opcion = estado.opciones[Number(texto) - 1];
@@ -99,6 +110,7 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
     } else if (estado?.tipo === "completar") {
       salida = completarSalida(estado.salida, estado.falta, texto);
       if (!salida) return { texto: `${t.noEntendiRespuesta}\n${t.pregunta[estado.falta]}`, estado };
+      extras = estado.extras;
     } else if (estado?.tipo === "confirmar" && AFIRMATIVO.test(texto)) {
       salida = estado.salida;
       confirmado = true;
@@ -115,8 +127,11 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
   if (!salida) return { texto: t.noEntendi };
 
   const r = aIntencion(salida);
-  if (!r.ok) return { texto: t.pregunta[r.falta], estado: { tipo: "completar", salida, falta: r.falta } };
-  return ejecutar(d, entrada, r.intencion, salida, confirmado);
+  if (!r.ok) {
+    const leido = entrada.foto ? `${t.fotoLeida(salida.producto)}\n` : "";
+    return { texto: leido + t.pregunta[r.falta], estado: { tipo: "completar", salida, falta: r.falta, extras } };
+  }
+  return ejecutar(d, entrada, r.intencion, salida, confirmado, extras);
 }
 
 // "ayuda" y "deshacer" no necesitan IA: funcionan aunque no esté conectada.
@@ -124,6 +139,25 @@ function atajoLocal(texto: string): "ayuda" | "deshacer" | null {
   if (/^(ayuda|help|\?)$/i.test(texto)) return "ayuda";
   if (/^deshacer$/i.test(texto)) return "deshacer";
   return null;
+}
+
+async function leerFoto(
+  d: Deps,
+  foto: { ruta: string; url: string },
+  linea: string,
+): Promise<{ salida: SalidaEntender; extras: Extras } | string> {
+  if (!d.ia) return t.sinIA;
+  try {
+    const f = await d.ia.entenderFoto(foto.url, linea);
+    // La talla o el tono, si no quedaron ya en la descripción, se anotan ahí.
+    const detalle = f.detalle && !f.descripcion.toLowerCase().includes(f.detalle.toLowerCase()) ? ` (${f.detalle})` : "";
+    return {
+      salida: { ...salidaVacia("crear_producto"), producto: f.nombre, precio: f.precio, costo: f.costo, cantidad: f.cantidad },
+      extras: { fotoRuta: foto.ruta, descripcion: f.descripcion + detalle, categoria: f.categoria },
+    };
+  } catch (e) {
+    return e instanceof IANoDisponible ? t.sinIA : t.errorIA;
+  }
 }
 
 async function entender(d: Deps, texto: string): Promise<SalidaEntender | string> {
@@ -240,6 +274,7 @@ async function ejecutar(
   intencion: Intencion,
   salida: SalidaEntender,
   confirmado: boolean,
+  extras?: Extras,
 ): Promise<Respuesta> {
   switch (intencion.tipo) {
     case "ayuda":
@@ -256,6 +291,9 @@ async function ejecutar(
           precio: intencion.precio,
           cantidad: intencion.cantidad,
           costo: intencion.costo,
+          descripcion: extras?.descripcion ?? null,
+          categoria: extras?.categoria ?? null,
+          fotoRuta: extras?.fotoRuta ?? null,
         });
         if (!r.ok) return { respuesta: { texto: textoDeError(r.error) } };
         return {

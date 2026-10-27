@@ -1,14 +1,16 @@
 import { useId, type ComponentProps } from "react";
+import { Sugerido } from "./Sugerido";
 
-type Props = { etiqueta: string; error?: string } & ComponentProps<"input">;
+type Props = { etiqueta: string; error?: string; sugerido?: boolean } & ComponentProps<"input">;
 
-export function Field({ etiqueta, error, className = "", ...props }: Props) {
+export function Field({ etiqueta, error, sugerido, className = "", ...props }: Props) {
   const id = useId();
   const errorId = `${id}-error`;
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-sm font-medium">
         {etiqueta}
+        {sugerido && <Sugerido />}
       </label>
       <input
         id={id}

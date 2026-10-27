@@ -145,6 +145,7 @@ export type NuevoProducto = {
   nombre: string;
   precio: Centavos;
   cantidad: number;
+  descripcion?: string;
   categoria?: string;
   marca?: string;
   condicion: "nuevo" | "usado";
@@ -163,6 +164,7 @@ export async function crearProducto(
     p_nombre: p.nombre,
     p_precio: p.precio / 100,
     p_cantidad: p.cantidad,
+    p_descripcion: p.descripcion,
     p_categoria: p.categoria,
     p_marca: p.marca,
     p_condicion: p.condicion,

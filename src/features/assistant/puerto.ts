@@ -40,7 +40,16 @@ export interface Puerto {
   productos(): Promise<ProductoAsistente[]>;
   pedidos(estados: EstadoPedido[]): Promise<PedidoAsistente[]>;
 
-  crearProducto(p: { nombre: string; precio: Centavos; cantidad: number; costo: Centavos | null }): Promise<R<{ id: string; codigo: number }>>;
+  crearProducto(p: {
+    nombre: string;
+    precio: Centavos;
+    cantidad: number;
+    costo: Centavos | null;
+    descripcion: string | null;
+    categoria: string | null;
+    /** Ruta de la foto ya subida al bucket */
+    fotoRuta: string | null;
+  }): Promise<R<{ id: string; codigo: number }>>;
   reponer(productoId: string, llegan: number, nuevoCosto: Centavos | null): Promise<R<null>>;
   registrarPedido(p: {
     cliente: string;

@@ -58,8 +58,10 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
         nombre: p.nombre,
         precio: p.precio,
         cantidad: p.cantidad,
+        descripcion: p.descripcion ?? undefined,
+        categoria: p.categoria ?? undefined,
         condicion: "nuevo",
-        fotos: [],
+        fotos: p.fotoRuta ? [p.fotoRuta] : [],
         costos: p.costo === null ? [] : [{ tipo: "compra", monto: p.costo }],
       });
       return "error" in r ? falla(r.error) : ok(r);

@@ -1,22 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import type { Boton, Comando, Estado, Respuesta } from "@/features/assistant/motor";
 import { textos } from "@/lib/textos";
+import { subirFotos } from "@/features/products/subirFotos";
+import { urlFoto } from "@/lib/fotos";
 import { enviarAlAsistente } from "./actions";
 
 const t = textos.asistente;
 
 type Mensaje =
-  | { id: string; de: "yo"; texto: string }
+  | { id: string; de: "yo"; texto: string; foto?: string }
   | { id: string; de: "lote"; respuesta: Respuesta; vigente: boolean };
 
-export function Chat() {
+export function Chat({ negocioId }: { negocioId: string }) {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [texto, setTexto] = useState("");
   const [estado, setEstado] = useState<Estado | null>(null);
   const [aviso, setAviso] = useState("");
+  const [foto, setFoto] = useState<string | null>(null);
+  const [subiendo, setSubiendo] = useState(false);
   const [pendiente, empezar] = useTransition();
   const fin = useRef<HTMLDivElement>(null);
 
@@ -24,13 +29,15 @@ export function Chat() {
     fin.current?.scrollIntoView({ block: "end" });
   }, [mensajes, pendiente]);
 
-  function mandar(entrada: { texto?: string; comando?: Comando }, visible?: string) {
+  function mandar(entrada: { texto?: string; comando?: Comando; foto?: string }, visible?: string) {
     const mensajeId = crypto.randomUUID();
     setAviso("");
     setMensajes((ms) => {
       // Los botones de las respuestas anteriores dejan de servir: la conversación ya siguió.
       const anteriores = ms.map((m) => (m.de === "lote" && entrada.comando?.tipo !== "deshacer" ? { ...m, vigente: false } : m));
-      return visible ? [...anteriores, { id: mensajeId, de: "yo", texto: visible }] : anteriores;
+      return visible !== undefined || entrada.foto
+        ? [...anteriores, { id: mensajeId, de: "yo", texto: visible ?? "", foto: entrada.foto }]
+        : anteriores;
     });
     empezar(async () => {
       const respuesta = await enviarAlAsistente({ mensajeId, ...entrada, estado });
@@ -42,9 +49,29 @@ export function Chat() {
   function enviar(e: FormEvent) {
     e.preventDefault();
     const limpio = texto.trim();
-    if (!limpio || pendiente) return;
+    // Con foto alcanza: la IA pregunta lo que falte (por ejemplo el precio).
+    if ((!limpio && !foto) || pendiente || subiendo) return;
     setTexto("");
-    mandar({ texto: limpio }, limpio);
+    setFoto(null);
+    mandar({ texto: limpio || undefined, foto: foto ?? undefined }, limpio);
+  }
+
+  async function adjuntar(e: ChangeEvent<HTMLInputElement>) {
+    const archivo = e.target.files?.[0];
+    e.target.value = "";
+    if (!archivo) return;
+    setAviso("");
+    setSubiendo(true);
+    try {
+      // Se achica y se sube ya: al chat solo viaja la ruta.
+      setFoto(null);
+      const [ruta] = await subirFotos([archivo], negocioId);
+      setFoto(ruta);
+    } catch {
+      setAviso(t.errorSubirFoto);
+    } finally {
+      setSubiendo(false);
+    }
   }
 
   function boton(b: Boton) {
@@ -89,7 +116,18 @@ export function Chat() {
             m.de === "yo" ? (
               <li key={m.id} className="flex flex-col items-end">
                 <span className="sr-only">{t.tu}:</span>
-                <p className="max-w-[85%] whitespace-pre-line rounded-2xl rounded-br-md bg-teal px-4 py-2 text-white">{m.texto}</p>
+                {m.foto && (
+                  <Image
+                    src={urlFoto(m.foto)}
+                    alt={t.fotoAdjunta}
+                    width={160}
+                    height={160}
+                    className="mb-1 size-40 rounded-2xl border border-borde object-cover"
+                  />
+                )}
+                {m.texto && (
+                  <p className="max-w-[85%] whitespace-pre-line rounded-2xl rounded-br-md bg-teal px-4 py-2 text-white">{m.texto}</p>
+                )}
               </li>
             ) : (
               <li key={m.id} className="flex flex-col items-start gap-2">
@@ -134,7 +172,40 @@ export function Chat() {
       <p role="status" className="min-h-5 px-1 pt-1 text-sm text-texto-2">
         {aviso}
       </p>
+      {(foto || subiendo) && (
+        <div className="mb-2 flex items-center gap-3">
+          {foto ? (
+            <>
+              <Image
+                src={urlFoto(foto)}
+                alt={t.fotoAdjunta}
+                width={56}
+                height={56}
+                className="size-14 rounded-xl border border-borde object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setFoto(null)}
+                className="min-h-11 rounded-full px-3 text-sm text-teal underline"
+              >
+                {t.quitarFoto}
+              </button>
+            </>
+          ) : (
+            <p role="status" className="text-sm text-texto-2">
+              {t.subiendoFoto}
+            </p>
+          )}
+        </div>
+      )}
       <form onSubmit={enviar} className="flex gap-2">
+        <label className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-borde bg-superficie text-teal focus-within:outline-2 focus-within:outline-teal hover:bg-teal-fondo">
+          <span className="sr-only">{t.adjuntar}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-6">
+            <path d="M4 8h3l2-3h6l2 3h3v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+          </svg>
+          <input type="file" accept="image/*" capture="environment" onChange={adjuntar} disabled={subiendo || pendiente} className="sr-only" />
+        </label>
         <label htmlFor="asistente-texto" className="sr-only">
           {t.titulo}
         </label>
@@ -147,7 +218,7 @@ export function Chat() {
           maxLength={1000}
           className="h-12 min-w-0 flex-1 rounded-full border border-borde bg-superficie px-5 text-base"
         />
-        <Button type="submit" disabled={pendiente || !texto.trim()}>
+        <Button type="submit" disabled={pendiente || subiendo || (!texto.trim() && !foto)}>
           {t.enviar}
         </Button>
       </form>
