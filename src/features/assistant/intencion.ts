@@ -1,4 +1,4 @@
-import { aCentavos, type CategoriaGasto, type Centavos } from "@/domain";
+import { aCentavos, type CategoriaGasto, type Centavos, type EstadoProducto, type TipoPeriodo } from "@/domain";
 import type { SalidaEntender } from "../ai/esquema";
 
 export type Metodo = "transferencia" | "billetera" | "efectivo";
@@ -9,6 +9,8 @@ export type Intencion =
   | { tipo: "ayuda" | "deshacer" | "no_entiendo" }
   | { tipo: "consultar"; consulta: "apartados" | "por_cobrar" | "por_enviar" }
   | { tipo: "consultar_producto"; producto: string }
+  | { tipo: "consultar_ganancia"; periodo: TipoPeriodo; producto: string | null }
+  | { tipo: "consultar_estado"; estado: EstadoProducto }
   | { tipo: "crear_producto"; nombre: string; precio: Centavos; costo: Centavos | null; cantidad: number }
   | { tipo: "reponer"; producto: string; cantidad: number; costo: Centavos | null }
   | { tipo: "apartar"; producto: string; cliente: string; cantidad: number }
@@ -46,6 +48,13 @@ export function aIntencion(s: SalidaEntender): ResultadoIntencion {
       if (s.consulta === null) return ok({ tipo: "no_entiendo" });
       if (s.consulta === "producto") {
         return producto ? ok({ tipo: "consultar_producto", producto }) : falta("producto");
+      }
+      if (s.consulta === "ganancia") return ok({ tipo: "consultar_ganancia", periodo: s.periodo ?? "semana", producto: null });
+      if (s.consulta === "ganancia_producto") {
+        return producto ? ok({ tipo: "consultar_ganancia", periodo: s.periodo ?? "semana", producto }) : falta("producto");
+      }
+      if (s.consulta === "productos_estado") {
+        return s.estado ? ok({ tipo: "consultar_estado", estado: s.estado }) : ok({ tipo: "no_entiendo" });
       }
       return ok({ tipo: "consultar", consulta: s.consulta });
     case "crear_producto":

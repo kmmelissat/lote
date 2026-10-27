@@ -1,9 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
+import { resumenDelPeriodo, type LineaVendida } from "@/domain";
 import { salidaVacia, type SalidaEntender, type SalidaFoto } from "../ai/esquema";
 import { procesar, type Entrada, type Estado } from "./motor";
 import type { PedidoAsistente, ProductoAsistente, Puerto } from "./puerto";
 
 const ahora = new Date("2026-10-27T12:00:00Z");
+
+const LINEAS: LineaVendida[] = [
+  { pedidoId: "p1", productoId: "prod-1", nombre: "Chaqueta negra M", cantidad: 2, precioFinal: 2500, costoUnitario: 1000, descuento: 0, envioAbsorbido: 0 },
+  { pedidoId: "p2", productoId: "prod-3", nombre: "Llaveros de gato", cantidad: 1, precioFinal: 300, costoUnitario: null, descuento: 0, envioAbsorbido: 0 },
+];
 
 const producto = (codigo: number, nombre: string, extra: Partial<ProductoAsistente> = {}): ProductoAsistente => ({
   id: `prod-${codigo}`,
@@ -44,6 +50,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     cambiarEstado: vi.fn(async () => ({ ok: true as const, valor: null })),
     registrarGuia: vi.fn(async () => ({ ok: true as const, valor: null })),
     registrarGasto: vi.fn(async () => ({ ok: true as const, valor: { id: "gasto-1" } })),
+    ganancia: vi.fn(async () => ({ ok: true as const, valor: resumenDelPeriodo(LINEAS, []) })),
     mensajeCobro: vi.fn(async () => "Hola Ana! Total: $25.00"),
     iniciarAccion: async ({ mensajeId }) => {
       if (acciones.has(mensajeId)) return { id: `a-${mensajeId}`, repetida: true, respuesta: acciones.get(mensajeId) };
@@ -451,5 +458,44 @@ describe("cuando la IA duda", () => {
       ],
       clientes: ["Ana"],
     });
+  });
+});
+
+describe("preguntas de ganancia y de estado", () => {
+  it("responde la ganancia de la semana con las cifras del dominio", async () => {
+    const { turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "ganancia" });
+    // (2500−1000)×2 + 300 = 3300; hay una venta sin costo, así que es estimado
+    expect(r.texto).toBe("Esta semana te quedaron $33.00 después de gastos. Es un estimado: hay ventas sin costo registrado.");
+  });
+
+  it("responde la ganancia de un producto y el periodo que pidió", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno(
+      { mensajeId: "m1" },
+      { intencion: "consultar", consulta: "ganancia_producto", producto: "chaqueta negra", periodo: "mes" },
+    );
+    expect(r.texto).toBe("Chaqueta negra M: este mes vendiste 2 y ganaste $30.00.");
+    expect(puerto.ganancia).toHaveBeenCalledWith("mes");
+  });
+
+  it("si el producto no vendió, lo dice", async () => {
+    const { turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "ganancia_producto", producto: "#2" });
+    expect(r.texto).toBe("Chaqueta roja S no tuvo ventas pagadas esta semana.");
+  });
+
+  it("si el rol no ve ganancia, lo dice", async () => {
+    const { turno } = montar({ puerto: { ganancia: async () => ({ ok: false, error: { tipo: "sin_permiso" } }) } });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "ganancia" });
+    expect(r.texto).toBe("Tu rol no puede hacer eso.");
+  });
+
+  it("lista los productos agotados", async () => {
+    const { turno } = montar({
+      productos: [producto(1, "Chaqueta negra M", { disponibles: 0, cantidad: 2, vendidas: 2 }), producto(3, "Llaveros de gato")],
+    });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "productos_estado", estado: "vendido" });
+    expect(r.texto).toBe("Tenés 1 producto vendidos del todo:\n• #1 Chaqueta negra M");
   });
 });

@@ -1,5 +1,6 @@
 import {
   costoPromedio,
+  estadoProducto,
   gananciaProductos,
   type EstadoPedido,
 } from "@/domain";
@@ -556,6 +557,45 @@ async function ejecutar(
 
     case "consultar":
       return registrar(d, entrada, intencion, salida, async () => ({ respuesta: await consulta(d, intencion.consulta) }));
+
+    case "consultar_ganancia": {
+      let elegido: ProductoAsistente | null = null;
+      if (intencion.producto) {
+        const r = await productoDe(d, salida, intencion.producto);
+        if ("respuesta" in r) return r.respuesta;
+        elegido = r.producto;
+      }
+      return registrar(d, entrada, intencion, salida, async () => {
+        const r = await d.puerto.ganancia(intencion.periodo);
+        if (!r.ok) return { respuesta: { texto: textoDeError(r.error) } };
+        const periodo = t.periodo[intencion.periodo];
+        if (!elegido) {
+          return { respuesta: { texto: t.gananciaDelPeriodo(periodo, formatearDolares(r.valor.gananciaDespuesDeGastos), r.valor.estimada) } };
+        }
+        const fila = r.valor.ranking.find((p) => p.productoId === elegido!.id);
+        return {
+          respuesta: {
+            texto: fila
+              ? t.gananciaProducto(elegido!.nombre, periodo, formatearDolares(fila.ganancia), fila.unidades, fila.sinCosto)
+              : t.sinVentasProducto(elegido!.nombre, periodo),
+          },
+        };
+      });
+    }
+
+    case "consultar_estado": {
+      const productos = (await d.puerto.productos()).filter((p) => estadoProducto(p) === intencion.estado);
+      return registrar(d, entrada, intencion, salida, async () => ({
+        respuesta: {
+          texto: productos.length
+            ? [
+                t.productosEnEstado(t.estadoEnPlural[intencion.estado], productos.length),
+                ...productos.map((p) => `• #${p.codigo} ${p.nombre}`),
+              ].join("\n")
+            : t.ningunProductoEnEstado(t.estadoEnPlural[intencion.estado]),
+        },
+      }));
+    }
 
     case "consultar_producto": {
       const elegido = await productoDe(d, salida, intencion.producto);

@@ -1,4 +1,4 @@
-import type { CategoriaGasto, Centavos, DesgloseCosto, EstadoPedido } from "@/domain";
+import type { CategoriaGasto, Centavos, DesgloseCosto, EstadoPedido, ResumenPeriodo, TipoPeriodo } from "@/domain";
 import type { Metodo } from "./intencion";
 
 // Todo lo que el asistente necesita del mundo exterior. El motor no sabe de Supabase:
@@ -62,6 +62,8 @@ export interface Puerto {
   cambiarEstado(pedidoId: string, estado: EstadoPedido): Promise<R<null>>;
   registrarGuia(pedidoId: string, paquetera: string | null, guia: string | null): Promise<R<null>>;
   registrarGasto(g: { categoria: CategoriaGasto; monto: Centavos; nota: string | null }): Promise<R<{ id: string }>>;
+  /** La ganancia del periodo en curso. Solo dueña y administradora. */
+  ganancia(periodo: TipoPeriodo): Promise<R<ResumenPeriodo>>;
   mensajeCobro(codigoPedido: number): Promise<string>;
 
   // Registro de acciones: idempotencia y deshacer.

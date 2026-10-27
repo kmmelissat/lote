@@ -31,7 +31,11 @@ export const SalidaEntender = z.object({
   metodo: z.enum(["transferencia", "billetera", "efectivo"]).nullable(),
   paquetera: z.string().nullable(),
   guia: z.string().nullable(),
-  consulta: z.enum(["apartados", "por_cobrar", "por_enviar", "producto"]).nullable(),
+  consulta: z.enum(["apartados", "por_cobrar", "por_enviar", "producto", "ganancia", "ganancia_producto", "productos_estado"]).nullable(),
+  /** Solo para preguntas de ganancia: semana o mes. Null si no lo dijo. */
+  periodo: z.enum(["semana", "mes"]).nullable(),
+  /** Solo para "productos_estado": cuáles quiere ver */
+  estado: z.enum(["disponible", "apartado", "vendido"]).nullable(),
   /** Solo para gasto: en qué se gastó */
   categoria: z.enum(["empaque", "publicidad", "transporte", "local", "comisiones", "otros"]).nullable(),
   /** Solo para gasto: lo que dijo que compró o pagó ("bolsas") */
@@ -55,6 +59,8 @@ export const salidaVacia = (intencion: SalidaEntender["intencion"]): SalidaEnten
   paquetera: null,
   guia: null,
   consulta: null,
+  periodo: null,
+  estado: null,
   categoria: null,
   nota: null,
   alternativa: null,

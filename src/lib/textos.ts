@@ -257,6 +257,7 @@ export const textos = {
       "• \"se cayó el apartado de Ana\"",
       "• \"gasté $5 en bolsas\"",
       "• \"¿qué tengo apartado?\", \"¿quién me debe?\", \"¿qué falta enviar?\"",
+      "• \"¿cuánto gané esta semana?\", \"¿cuánto gané con las chaquetas?\", \"¿qué tengo agotado?\"",
       "• \"deshacer\" para revertir lo último",
     ].join("\n"),
     noEntendi: 'No te entendí. Probá con algo como "apartá la chaqueta para Ana". Escribí "ayuda" para ver más.',
@@ -344,6 +345,17 @@ export const textos = {
     porCobrar: "Te deben:",
     lineaDeuda: (cliente: string, monto: string) => `• ${cliente}: ${monto}`,
     totalPorCobrar: (monto: string) => `Total por cobrar: ${monto}.`,
+    periodo: { semana: "esta semana", mes: "este mes" },
+    gananciaDelPeriodo: (periodo: string, monto: string, estimada: boolean) =>
+      `${periodo[0].toUpperCase()}${periodo.slice(1)} te quedaron ${monto} después de gastos.${
+        estimada ? " Es un estimado: hay ventas sin costo registrado." : ""
+      }`,
+    gananciaProducto: (nombre: string, periodo: string, monto: string, unidades: number, sinCosto: boolean) =>
+      `${nombre}: ${periodo} vendiste ${unidades} y ganaste ${monto}.${sinCosto ? " Falta el costo, así que es un estimado." : ""}`,
+    sinVentasProducto: (nombre: string, periodo: string) => `${nombre} no tuvo ventas pagadas ${periodo}.`,
+    estadoEnPlural: { disponible: "disponibles", apartado: "apartados", vendido: "vendidos del todo" },
+    productosEnEstado: (estado: string, n: number) => `Tenés ${n} ${n === 1 ? "producto" : "productos"} ${estado}:`,
+    ningunProductoEnEstado: (estado: string) => `No tenés productos ${estado}.`,
     nadaPorEnviar: "No hay pedidos pendientes de enviar.",
     porEnviar: (n: number) => (n === 1 ? "Falta enviar 1 pedido:" : `Faltan enviar ${n} pedidos:`),
     estadoProducto: (nombre: string, codigo: number, precio: string, disp: number, apart: number, vend: number) =>

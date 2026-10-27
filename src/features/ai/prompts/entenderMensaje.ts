@@ -12,7 +12,7 @@ Intenciones:
 - enviar: el pedido ya salió ("ya la envié, guía 123"). Datos: cliente o pedido, paquetera y guia si las dijo.
 - cobrar: armar el mensaje de cobro ("cobrale a Ana"). Datos: cliente o pedido.
 - gasto: algo que gastó en el negocio que no es mercadería ("gasté $5 en bolsas", "pagué $20 de publicidad en Instagram", "$3 de pasaje para entregar"). Datos: monto, categoria (empaque, publicidad, transporte, local, comisiones u otros; si no queda claro, otros) y nota con solo lo que compró o pagó, en pocas palabras y sin el monto ("bolsas", "publicidad en Instagram", "pasaje"). Si lo que compró es mercadería para vender, es reponer o crear_producto, no gasto.
-- consultar: preguntas de solo lectura. consulta = "apartados" ("¿qué tengo apartado?"), "por_cobrar" ("¿quién me debe?"), "por_enviar" ("¿qué falta enviar?") o "producto" ("¿cuántas chaquetas quedan?", con producto).
+- consultar: preguntas de solo lectura. consulta = "apartados" ("¿qué tengo apartado?"), "por_cobrar" ("¿quién me debe?"), "por_enviar" ("¿qué falta enviar?") "producto" ("¿cuántas chaquetas quedan?", con producto), "ganancia" ("¿cuánto gané esta semana?", con periodo: semana o mes; si no lo dijo, null), "ganancia_producto" ("¿cuánto gané con las chaquetas?", con producto y periodo) o "productos_estado" ("¿qué tengo agotado?" es estado = vendido, "¿qué tengo disponible?" es disponible, "¿qué tengo apartado?" sigue siendo consulta apartados).
 - deshacer: revertir lo último ("deshacer", "no, eso no").
 - ayuda: pide ver qué puede decir ("ayuda", "¿qué puedo hacer?").
 - no_entiendo: no es nada de lo anterior, o no se puede saber qué quiere.
