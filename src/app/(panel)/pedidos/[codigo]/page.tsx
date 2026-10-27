@@ -10,12 +10,14 @@ import { puedeCancelarse, siguienteEstado, type EstadoPedido } from "@/domain";
 import { listarPagos, obtenerPedido } from "@/features/orders/repositorio";
 import { armarMensajeCobro } from "@/features/payments/mensajeCobro";
 import { listarMetodos } from "@/features/payments/repositorio";
+import { obtenerEnvio, obtenerTarifas } from "@/features/shipping/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares, formatearFecha, tiempoRestante } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { AccionesPedido } from "./AccionesPedido";
 import { CobroPedido } from "./CobroPedido";
+import { EnvioPedido } from "./EnvioPedido";
 
 const t = textos.pedidos;
 
@@ -38,9 +40,11 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
   if (!p) notFound();
 
   const ahora = new Date();
-  const [pagos, metodos, { data: datosNegocio }] = await Promise.all([
+  const [pagos, metodos, envio, tarifas, { data: datosNegocio }] = await Promise.all([
     listarPagos(supabase, p.id),
     listarMetodos(supabase, negocio.id),
+    obtenerEnvio(supabase, p.id),
+    obtenerTarifas(supabase, negocio.id),
     supabase.from("negocio").select("nombre").eq("id", negocio.id).single(),
   ]);
 
@@ -48,6 +52,7 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
     negocio: datosNegocio?.nombre ?? textos.nombre,
     cliente: p.cliente,
     items: p.items,
+    envio: p.envioCobrado,
     total: p.total,
     saldo: p.saldo,
     metodos: metodos.filter((m) => m.activo && m.tipo !== "contra_entrega"),
@@ -112,6 +117,15 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
           pagos={pagos}
           contraEntrega={p.contraEntrega}
           mensaje={mensaje}
+          puedeVender={negocio.puedeVender}
+        />
+
+        <EnvioPedido
+          pedidoId={p.id}
+          estado={p.estado}
+          cliente={p.cliente}
+          envio={envio}
+          tarifas={tarifas}
           puedeVender={negocio.puedeVender}
         />
 
