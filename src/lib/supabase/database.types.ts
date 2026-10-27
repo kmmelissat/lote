@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      accion: {
+        Row: {
+          canal: string
+          creada_en: string
+          id: string
+          intencion: string
+          mensaje_id: string
+          negocio_id: string
+          parametros: Json | null
+          respuesta: string | null
+          resultado: Json | null
+          revertida: boolean
+          usuario_id: string | null
+        }
+        Insert: {
+          canal?: string
+          creada_en?: string
+          id?: string
+          intencion: string
+          mensaje_id: string
+          negocio_id: string
+          parametros?: Json | null
+          respuesta?: string | null
+          resultado?: Json | null
+          revertida?: boolean
+          usuario_id?: string | null
+        }
+        Update: {
+          canal?: string
+          creada_en?: string
+          id?: string
+          intencion?: string
+          mensaje_id?: string
+          negocio_id?: string
+          parametros?: Json | null
+          respuesta?: string | null
+          resultado?: Json | null
+          revertida?: boolean
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accion_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cliente: {
         Row: {
           acepta_whatsapp: boolean
@@ -243,6 +293,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      intento_publico: {
+        Row: {
+          creado_en: string
+          huella: string
+          id: number
+        }
+        Insert: {
+          creado_en?: string
+          huella: string
+          id?: never
+        }
+        Update: {
+          creado_en?: string
+          huella?: string
+          id?: never
+        }
+        Relationships: []
       }
       metodo_pago_negocio: {
         Row: {
@@ -674,6 +742,52 @@ export type Database = {
         Args: { p_nombre: string; p_slug: string; p_usuario_instagram?: string }
         Returns: string
       }
+      cerrar_accion: {
+        Args: { p_accion: string; p_respuesta: string; p_resultado: Json }
+        Returns: undefined
+      }
+      deshacer_accion: { Args: { p_accion: string }; Returns: string }
+      iniciar_accion: {
+        Args: {
+          p_canal: string
+          p_intencion: string
+          p_mensaje_id: string
+          p_negocio: string
+          p_parametros: Json
+        }
+        Returns: Json
+      }
+      registrar_guia: {
+        Args: { p_guia: string; p_paquetera: string; p_pedido: string }
+        Returns: undefined
+      }
+      apartar_desde_vitrina: {
+        Args: {
+          p_acepta_whatsapp: boolean
+          p_cantidad: number
+          p_codigo: number
+          p_contacto: string
+          p_huella: string
+          p_nombre: string
+          p_slug: string
+        }
+        Returns: Json
+      }
+      crear_pedido_interno: {
+        Args: {
+          p_acepta_whatsapp?: boolean
+          p_canal: string
+          p_cliente: string
+          p_contacto: string
+          p_items: Json
+          p_metodo: string
+          p_negocio: string
+          p_origen: string
+          p_tipo: string
+          p_usuario: string
+        }
+        Returns: string
+      }
       crear_producto: {
         Args: {
           p_cantidad?: number
@@ -746,8 +860,49 @@ export type Database = {
         Args: { p_llegan: number; p_nuevo_costo?: number; p_producto: string }
         Returns: undefined
       }
+      vencer_apartados: { Args: never; Returns: number }
       verificar_retencion_pedido: { Args: { p_pedido: string }; Returns: undefined }
       rol_en: { Args: { p_negocio: string }; Returns: string }
+      vitrina_apartado: {
+        Args: { p_pedido: string; p_slug: string }
+        Returns: {
+          codigo: number
+          estado: string
+          items: Json
+          metodos: Json
+          negocio: string
+          saldo: number
+          total: number
+          vence_en: string
+        }[]
+      }
+      vitrina_negocio: {
+        Args: { p_slug: string }
+        Returns: {
+          apartar_desde_vitrina: boolean
+          color: string
+          logo: string
+          nombre: string
+          plazo_apartado_horas: number
+          usuario_instagram: string
+          whatsapp: string
+        }[]
+      }
+      vitrina_productos: {
+        Args: { p_codigo?: number; p_slug: string }
+        Returns: {
+          apartado: boolean
+          categoria: string
+          codigo: number
+          condicion: string
+          descripcion: string
+          disponibles: number
+          fotos: string[]
+          marca: string
+          nombre: string
+          precio: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
