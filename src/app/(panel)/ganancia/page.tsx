@@ -78,6 +78,10 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
         </ul>
       </nav>
 
+      <Link href="/ganancia/resumen" className="inline-flex min-h-11 items-center text-teal underline">
+        {t.verResumen}
+      </Link>
+
       <Card className="flex flex-col gap-4 border border-borde">
         <dl className="grid gap-4 sm:grid-cols-2">
           <Cifra etiqueta={t.gananciaProductos} valor={r.gananciaProductos} grande />

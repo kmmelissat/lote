@@ -5,3 +5,4 @@ export * from "./ganancia";
 export * from "./pedido";
 export * from "./periodo";
 export * from "./resumen";
+export * from "./resumenSemanal";
