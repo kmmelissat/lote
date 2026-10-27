@@ -13,8 +13,8 @@ import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { AgregarFotos } from "./AgregarFotos";
-import { ReponerForm } from "./ReponerForm";
+import { AgregarFotos } from "@/features/products/ui/AgregarFotos";
+import { ReponerForm } from "@/features/products/ui/ReponerForm";
 
 const t = textos.productos;
 

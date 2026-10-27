@@ -6,7 +6,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { BotonesChat } from "@/features/catalog/BotonesChat";
+import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico } from "@/features/catalog/repositorio";
 import { urlFoto } from "@/lib/fotos";

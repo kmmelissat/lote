@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { NuevoProductoForm } from "./NuevoProductoForm";
+import { NuevoProductoForm } from "@/features/products/ui/NuevoProductoForm";
 
 export const metadata: Metadata = { title: textos.productos.form.titulo };
 

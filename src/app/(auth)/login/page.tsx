@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { textos } from "@/lib/textos";
-import { LoginForm } from "./LoginForm";
+import { LoginForm } from "@/features/auth/ui/LoginForm";
 
 export const metadata: Metadata = { title: textos.acceso.titulo };
 

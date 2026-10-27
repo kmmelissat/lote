@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { listarMetodos } from "@/features/payments/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { PagosForm } from "./PagosForm";
+import { PagosForm } from "@/features/payments/ui/PagosForm";
 
 const t = textos.ajustes.pagos;
 

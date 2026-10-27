@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { Chat } from "./Chat";
+import { Chat } from "@/features/assistant/ui/Chat";
 
 export const metadata: Metadata = { title: textos.asistente.titulo };
 

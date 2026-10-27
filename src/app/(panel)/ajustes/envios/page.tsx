@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { obtenerTarifas } from "@/features/shipping/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { TarifasForm } from "./TarifasForm";
+import { TarifasForm } from "@/features/shipping/ui/TarifasForm";
 
 const t = textos.ajustes.envios;
 

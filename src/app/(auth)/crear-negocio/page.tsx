@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { textos } from "@/lib/textos";
-import { CrearNegocioForm } from "./CrearNegocioForm";
+import { CrearNegocioForm } from "@/features/auth/ui/CrearNegocioForm";
 
 export const metadata: Metadata = { title: textos.crearNegocio.titulo };
 

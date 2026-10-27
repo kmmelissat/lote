@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { obtenerAjustesVitrina } from "@/features/catalog/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { VitrinaForm } from "./VitrinaForm";
+import { VitrinaForm } from "@/features/catalog/ui/VitrinaForm";
 
 const t = textos.ajustes.vitrina;
 

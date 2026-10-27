@@ -14,9 +14,9 @@ import { urlFoto } from "@/lib/fotos";
 import { formatearDolares, formatearFecha, tiempoRestante } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { AccionesPedido } from "./AccionesPedido";
-import { CobroPedido } from "./CobroPedido";
-import { EnvioPedido } from "./EnvioPedido";
+import { AccionesPedido } from "@/features/orders/ui/AccionesPedido";
+import { CobroPedido } from "@/features/payments/ui/CobroPedido";
+import { EnvioPedido } from "@/features/shipping/ui/EnvioPedido";
 
 const t = textos.pedidos;
 

@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { listarProductos } from "@/features/products/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { NuevoPedidoForm } from "./NuevoPedidoForm";
+import { NuevoPedidoForm } from "@/features/orders/ui/NuevoPedidoForm";
 
 const t = textos.pedidos.form;
 

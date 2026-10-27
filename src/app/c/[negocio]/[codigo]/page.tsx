@@ -5,14 +5,14 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { StatusChip } from "@/components/ui/StatusChip";
-import { BotonesChat } from "@/features/catalog/BotonesChat";
+import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
 import { obtenerNegocioPublico, obtenerProductoPublico } from "@/features/catalog/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
-import { ApartarForm } from "./ApartarForm";
+import { ApartarForm } from "@/features/catalog/ui/ApartarForm";
 
 const t = textos.vitrina;
 

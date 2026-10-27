@@ -15,7 +15,7 @@ import {
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { FormGasto, ListaGastos } from "./Gastos";
+import { FormGasto, ListaGastos } from "@/features/profit/ui/Gastos";
 
 const t = textos.ganancia;
 
