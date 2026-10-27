@@ -403,3 +403,53 @@ describe("gasto", () => {
     expect(r.botones).toBeUndefined();
   });
 });
+
+describe("pregunta a medias", () => {
+  it("una frase larga mientras espera un producto se lee como mensaje nuevo, no como el nombre", async () => {
+    const { puerto, turno } = montar();
+    const duda = await turno({ mensajeId: "m1" }, { intencion: "apartar", cliente: "Ana" });
+    expect((duda.estado as Estado).tipo).toBe("completar");
+
+    const r = await turno(
+      { mensajeId: "m2", texto: "Ana abonó diez dólares por transferencia ayer en la tarde", estado: duda.estado },
+      { intencion: "ayuda" },
+    );
+    expect(r.texto).toContain("Esto podés decirme");
+    expect(puerto.registrarPedido).not.toHaveBeenCalled();
+  });
+});
+
+describe("cuando la IA duda", () => {
+  it("pregunta cuál de las dos acciones y sigue con la que elija", async () => {
+    const { puerto, turno } = montar();
+    const duda = await turno(
+      { mensajeId: "m1" },
+      { intencion: "vender", alternativa: "apartar", producto: "llavero", cliente: "Melissa" },
+    );
+    expect(duda.texto).toContain("No estoy seguro");
+    expect(duda.texto).toContain("1. Registrar la venta");
+    expect(duda.texto).toContain("2. Apartarlo");
+    expect(puerto.registrarPedido).not.toHaveBeenCalled();
+
+    const r = await turno({ mensajeId: "m2", texto: "2", estado: duda.estado });
+    expect(r.texto).toContain("Llaveros de gato apartado para Melissa");
+    expect(puerto.registrarPedido).toHaveBeenCalledWith(expect.objectContaining({ tipo: "apartado", cliente: "Melissa" }));
+  });
+
+  it("le pasa a la IA los productos y los clientes con pedidos abiertos", async () => {
+    const entenderMensaje = vi.fn(async () => salidaVacia("ayuda"));
+    const { puerto } = montar({ pedidos: [pedido(1, "Ana")] });
+    await procesar(
+      { mensajeId: "m1", texto: "hola" },
+      { ia: { entenderMensaje, entenderFoto: vi.fn() }, puerto, ahora },
+    );
+    expect(entenderMensaje).toHaveBeenCalledWith("hola", {
+      productos: [
+        { codigo: 1, nombre: "Chaqueta negra M" },
+        { codigo: 2, nombre: "Chaqueta roja S" },
+        { codigo: 3, nombre: "Llaveros de gato" },
+      ],
+      clientes: ["Ana"],
+    });
+  });
+});

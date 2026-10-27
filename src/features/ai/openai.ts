@@ -3,11 +3,25 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { SalidaEntender, SalidaFoto } from "./esquema";
 import { PROMPT_ENTENDER_MENSAJE } from "./prompts/entenderMensaje";
 import { PROMPT_FOTO_A_FICHA } from "./prompts/fotoAFicha";
-import { IANoDisponible, type ProveedorIA } from "./provider";
+import { IANoDisponible, type ContextoIA, type ProveedorIA } from "./provider";
 
 // Modelo por defecto: rápido y barato, con salida estructurada estricta. Se cambia sin tocar código
 // con ASISTENTE_MODELO en .env.local.
 const MODELO_POR_DEFECTO = "gpt-4.1-mini";
+
+function textoDeContexto(c?: ContextoIA): string {
+  if (!c || (!c.productos.length && !c.clientes.length)) return "";
+  const productos = c.productos.map((p) => `#${p.codigo} ${p.nombre}`).join("\n");
+  return [
+    "<contexto>",
+    "Productos del negocio:",
+    productos || "(ninguno)",
+    "Clientes con pedidos abiertos:",
+    c.clientes.join(", ") || "(ninguno)",
+    "</contexto>",
+    "",
+  ].join("\n");
+}
 
 export function crearProveedorOpenAI(): ProveedorIA {
   if (!process.env.OPENAI_API_KEY) throw new IANoDisponible("Falta OPENAI_API_KEY");
@@ -15,11 +29,11 @@ export function crearProveedorOpenAI(): ProveedorIA {
   const modelo = process.env.ASISTENTE_MODELO ?? MODELO_POR_DEFECTO;
 
   return {
-    async entenderMensaje(texto) {
+    async entenderMensaje(texto, contexto) {
       const respuesta = await client.responses.parse({
         model: modelo,
         instructions: PROMPT_ENTENDER_MENSAJE,
-        input: texto,
+        input: `${textoDeContexto(contexto)}Mensaje:\n${texto}`,
         text: { format: zodTextFormat(SalidaEntender, "salida_entender") },
         // Es una lectura, no una conversación: sin variaciones, y sin que OpenAI guarde el mensaje.
         ...(modelo.startsWith("gpt-4") ? { temperature: 0 } : {}),

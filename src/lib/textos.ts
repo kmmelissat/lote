@@ -261,6 +261,19 @@ export const textos = {
     productoNoEncontrado: (q: string) => `No encontré "${q}". Decime el nombre o el código (#12).`,
     pedidoNoEncontrado: (q: string) => `No encontré un pedido abierto de "${q}". Decime el nombre o el número (#3).`,
     cualDeEstos: "¿Cuál de estos? Respondé con el número.",
+    dudaIntencion: "No estoy seguro de qué querés hacer. ¿Cuál de estas? Respondé con el número.",
+    opcionIntencion: {
+      apartar: "Apartarlo",
+      vender: "Registrar la venta",
+      abonar: "Registrar un abono",
+      marcar_pagado: "Marcar el pedido como pagado",
+      reponer: "Sumar unidades",
+      crear_producto: "Crear un producto nuevo",
+      gasto: "Registrar un gasto",
+      liberar: "Liberar el apartado",
+      enviar: "Marcar como enviado",
+      cobrar: "Armar el mensaje de cobro",
+    } as Record<string, string>,
     productoOpcion: (codigo: number, nombre: string, disponibles: number) =>
       `#${codigo} ${nombre} (${disponibles} disp.)`,
     pedidoOpcion: (codigo: number, cliente: string | null, total: string) =>

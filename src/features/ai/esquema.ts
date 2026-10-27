@@ -36,6 +36,8 @@ export const SalidaEntender = z.object({
   categoria: z.enum(["empaque", "publicidad", "transporte", "local", "comisiones", "otros"]).nullable(),
   /** Solo para gasto: lo que dijo que compró o pagó ("bolsas") */
   nota: z.string().nullable(),
+  /** Solo si dudó entre dos intenciones: la segunda más probable. El sistema le pregunta a la persona. */
+  alternativa: z.enum(INTENCIONES).nullable(),
 });
 
 export type SalidaEntender = z.infer<typeof SalidaEntender>;
@@ -55,6 +57,7 @@ export const salidaVacia = (intencion: SalidaEntender["intencion"]): SalidaEnten
   consulta: null,
   categoria: null,
   nota: null,
+  alternativa: null,
 });
 
 // Lo que la IA saca de una foto de producto y de la línea que la acompaña.

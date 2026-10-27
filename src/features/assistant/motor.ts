@@ -6,7 +6,7 @@ import {
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { salidaVacia, type SalidaEntender } from "../ai/esquema";
-import { IANoDisponible, type ProveedorIA } from "../ai/provider";
+import { IANoDisponible, type ContextoIA, type ProveedorIA } from "../ai/provider";
 import { aIntencion, completarSalida, type Falta, type Intencion, type Metodo } from "./intencion";
 import type { ErrorPuerto, PedidoAsistente, ProductoAsistente, Puerto } from "./puerto";
 import { resolverPedido, resolverProducto } from "./resolver";
@@ -107,7 +107,7 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
       const opcion = estado.opciones[Number(texto) - 1];
       if (!opcion) return { ...respuestaDeElegir(estado), texto: `${t.noEntendiRespuesta}\n${t.cualDeEstos}` };
       salida = { ...estado.salida, ...opcion.reemplazo };
-    } else if (estado?.tipo === "completar") {
+    } else if (estado?.tipo === "completar" && !esMensajeNuevo(estado.falta, texto)) {
       salida = completarSalida(estado.salida, estado.falta, texto);
       if (!salida) return { texto: `${t.noEntendiRespuesta}\n${t.pregunta[estado.falta]}`, estado };
       extras = estado.extras;
@@ -121,6 +121,21 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
       if (atajo) return atajo === "ayuda" ? { texto: t.ayuda } : deshacerUltima(d);
       const entendida = await entender(d, texto);
       if (typeof entendida === "string") return { texto: entendida };
+      // Si la IA dudó entre dos acciones, no se adivina: se le pregunta a la persona.
+      const duda = entendida.alternativa;
+      if (duda && duda !== entendida.intencion && t.opcionIntencion[duda] && t.opcionIntencion[entendida.intencion]) {
+        return respuestaDeElegir(
+          {
+            tipo: "elegir",
+            salida: entendida,
+            opciones: [entendida.intencion, duda].map((i) => ({
+              etiqueta: t.opcionIntencion[i],
+              reemplazo: { intencion: i, alternativa: null },
+            })),
+          },
+          t.dudaIntencion,
+        );
+      }
       salida = entendida;
     }
   }
@@ -132,6 +147,14 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
     return { texto: leido + t.pregunta[r.falta], estado: { tipo: "completar", salida, falta: r.falta, extras } };
   }
   return ejecutar(d, entrada, r.intencion, salida, confirmado, extras);
+}
+
+// Si el chat quedó esperando un nombre, un cliente o un pedido y llega una frase larga, no es la respuesta:
+// es otro mensaje. Los números (precio, monto, cantidad) siempre se toman como respuesta.
+const PALABRAS_DE_RESPUESTA = 5;
+function esMensajeNuevo(falta: Falta, texto: string): boolean {
+  if (falta === "precio" || falta === "monto" || falta === "montoGasto" || falta === "cantidad") return false;
+  return texto.split(/\s+/).length > PALABRAS_DE_RESPUESTA;
 }
 
 // "ayuda" y "deshacer" no necesitan IA: funcionan aunque no esté conectada.
@@ -160,10 +183,29 @@ async function leerFoto(
   }
 }
 
+const MAX_CONTEXTO = 80;
+
+// Lo que el negocio tiene hoy, para que la IA reconozca "el cd" o "Melissa". Si falla, se sigue sin contexto.
+async function contextoDe(d: Deps): Promise<ContextoIA | undefined> {
+  try {
+    const [productos, pedidos] = await Promise.all([
+      d.puerto.productos(),
+      d.puerto.pedidos(["pendiente", "pagado", "preparando", "enviado", "entregado"]),
+    ]);
+    const clientes = [...new Set(pedidos.map((p) => p.cliente).filter((c): c is string => !!c))];
+    return {
+      productos: productos.slice(0, MAX_CONTEXTO).map((p) => ({ codigo: p.codigo, nombre: p.nombre })),
+      clientes: clientes.slice(0, MAX_CONTEXTO),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 async function entender(d: Deps, texto: string): Promise<SalidaEntender | string> {
   if (!d.ia) return t.sinIA;
   try {
-    return await d.ia.entenderMensaje(texto);
+    return await d.ia.entenderMensaje(texto, await contextoDe(d));
   } catch (e) {
     return e instanceof IANoDisponible ? t.sinIA : t.errorIA;
   }
@@ -171,9 +213,9 @@ async function entender(d: Deps, texto: string): Promise<SalidaEntender | string
 
 // ---- Preguntas al usuario: elegir cuando hay varios, nunca adivinar ----
 
-function respuestaDeElegir(e: Extract<Estado, { tipo: "elegir" }>): Respuesta {
+function respuestaDeElegir(e: Extract<Estado, { tipo: "elegir" }>, titulo: string = t.cualDeEstos): Respuesta {
   return {
-    texto: [t.cualDeEstos, ...e.opciones.map((o, i) => `${i + 1}. ${o.etiqueta}`)].join("\n"),
+    texto: [titulo, ...e.opciones.map((o, i) => `${i + 1}. ${o.etiqueta}`)].join("\n"),
     estado: e,
     botones: e.opciones.map((o, i) => ({ etiqueta: `${i + 1}`, comando: { tipo: "elegir", indice: i } })),
   };
