@@ -17,6 +17,21 @@ export function totalPedido(
   return productos - descuento + envioCobrado;
 }
 
+export type QuienPagaEnvio = "cliente" | "vendedora" | "mitad";
+
+/**
+ * Reparte el costo del envío: lo que paga el cliente se suma al cobro y lo que absorbe
+ * la vendedora cuenta como gasto del pedido. A medias, el centavo suelto lo absorbe ella.
+ */
+export function repartirEnvio(
+  costo: Centavos,
+  quienPaga: QuienPagaEnvio,
+): { cobrado: Centavos; absorbido: Centavos } {
+  const cobrado =
+    quienPaga === "cliente" ? costo : quienPaga === "vendedora" ? 0 : Math.floor(costo / 2);
+  return { cobrado, absorbido: costo - cobrado };
+}
+
 export const saldo = (total: Centavos, pagos: Centavos[]): Centavos =>
   total - pagos.reduce((a, b) => a + b, 0);
 

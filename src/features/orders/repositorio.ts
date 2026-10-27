@@ -24,6 +24,8 @@ export type Pedido = {
   total: Centavos;
   saldo: Centavos;
   venceEn: Date | null;
+  envioCobrado: Centavos;
+  envioAbsorbido: Centavos;
   contraEntrega: boolean;
   creadoEn: Date;
   cliente: string | null;
@@ -31,7 +33,7 @@ export type Pedido = {
 };
 
 const columnas =
-  "id, codigo, canal, estado, total, saldo, vence_en, contra_entrega, creado_en, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, codigo, fotos))";
+  "id, codigo, canal, estado, total, saldo, vence_en, envio_cobrado, envio_absorbido, contra_entrega, creado_en, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, codigo, fotos))";
 
 type Fila = {
   id: string;
@@ -41,6 +43,8 @@ type Fila = {
   total: number;
   saldo: number;
   vence_en: string | null;
+  envio_cobrado: number;
+  envio_absorbido: number;
   contra_entrega: boolean;
   creado_en: string;
   cliente: { nombre: string } | null;
@@ -59,6 +63,8 @@ const aPedido = (f: Fila): Pedido => ({
   total: aCentavos(f.total),
   saldo: aCentavos(f.saldo),
   venceEn: f.vence_en ? new Date(f.vence_en) : null,
+  envioCobrado: aCentavos(f.envio_cobrado),
+  envioAbsorbido: aCentavos(f.envio_absorbido),
   contraEntrega: f.contra_entrega,
   creadoEn: new Date(f.creado_en),
   cliente: f.cliente?.nombre ?? null,

@@ -8,6 +8,8 @@ export type DatosCobro = {
   negocio: string;
   cliente: string | null;
   items: { nombre: string; cantidad: number; precioFinal: Centavos }[];
+  /** Lo que paga el cliente de envío; ya viene incluido en el total */
+  envio?: Centavos;
   total: Centavos;
   saldo: Centavos;
   /** Solo los métodos activos, con los datos que ve quien paga */
@@ -24,7 +26,9 @@ export function armarMensajeCobro(d: DatosCobro): string {
   for (const i of d.items) {
     lineas.push(`- ${i.nombre} ×${i.cantidad}: ${formatearDolares(i.precioFinal * i.cantidad)}`);
   }
-  lineas.push("", `${t.total}: ${formatearDolares(d.total)}`);
+  lineas.push("");
+  if (d.envio) lineas.push(`${t.envio}: ${formatearDolares(d.envio)}`);
+  lineas.push(`${t.total}: ${formatearDolares(d.total)}`);
   if (d.saldo < d.total) {
     lineas.push(t.yaPagaste(formatearDolares(d.total - d.saldo)), `${t.saldo}: ${formatearDolares(d.saldo)}`);
   }

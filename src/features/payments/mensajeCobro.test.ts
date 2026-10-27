@@ -51,6 +51,13 @@ describe("armarMensajeCobro", () => {
     );
   });
 
+  it("muestra el envío que paga el cliente antes del total", () => {
+    const m = armarMensajeCobro({ ...base, envio: 350, total: 3550, saldo: 3550 });
+    expect(m).toMatch(/Envío: .*3[.,]50/);
+    expect(m.indexOf("Envío")).toBeLessThan(m.indexOf("Total"));
+    expect(armarMensajeCobro(base)).not.toContain("Envío");
+  });
+
   it("sin cliente ni métodos sigue siendo un mensaje válido", () => {
     const m = armarMensajeCobro({ ...base, cliente: null, metodos: [] });
     expect(m).toContain("Hola! Este es tu pedido");

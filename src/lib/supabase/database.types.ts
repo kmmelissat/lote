@@ -94,6 +94,72 @@ export type Database = {
           },
         ]
       }
+      envio: {
+        Row: {
+          actualizado_en: string
+          costo_real: number
+          departamento: string | null
+          direccion: string | null
+          guia: string | null
+          modo: string
+          municipio: string | null
+          negocio_id: string
+          nombre: string | null
+          paga: string
+          paquetera: string | null
+          pedido_id: string
+          referencia: string | null
+          telefono: string | null
+        }
+        Insert: {
+          actualizado_en?: string
+          costo_real?: number
+          departamento?: string | null
+          direccion?: string | null
+          guia?: string | null
+          modo: string
+          municipio?: string | null
+          negocio_id: string
+          nombre?: string | null
+          paga?: string
+          paquetera?: string | null
+          pedido_id: string
+          referencia?: string | null
+          telefono?: string | null
+        }
+        Update: {
+          actualizado_en?: string
+          costo_real?: number
+          departamento?: string | null
+          direccion?: string | null
+          guia?: string | null
+          modo?: string
+          municipio?: string | null
+          negocio_id?: string
+          nombre?: string | null
+          paga?: string
+          paquetera?: string | null
+          pedido_id?: string
+          referencia?: string | null
+          telefono?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "envio_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envio_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: true
+            referencedRelation: "pedido"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       existencia: {
         Row: {
           cantidad: number
@@ -256,6 +322,7 @@ export type Database = {
           siguiente_codigo: number
           siguiente_pedido: number
           slug: string
+          tarifa_envio_defecto: number
           umbral_poco_stock: number
           usuario_instagram: string | null
           whatsapp: string | null
@@ -273,6 +340,7 @@ export type Database = {
           siguiente_codigo?: number
           siguiente_pedido?: number
           slug: string
+          tarifa_envio_defecto?: number
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           whatsapp?: string | null
@@ -290,6 +358,7 @@ export type Database = {
           siguiente_codigo?: number
           siguiente_pedido?: number
           slug?: string
+          tarifa_envio_defecto?: number
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           whatsapp?: string | null
@@ -534,6 +603,32 @@ export type Database = {
           },
         ]
       }
+      tarifa_envio: {
+        Row: {
+          departamento: string
+          negocio_id: string
+          precio: number
+        }
+        Insert: {
+          departamento: string
+          negocio_id: string
+          precio: number
+        }
+        Update: {
+          departamento?: string
+          negocio_id?: string
+          precio?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarifa_envio_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ubicacion: {
         Row: {
           es_principal: boolean
@@ -597,6 +692,25 @@ export type Database = {
       disponibles_de: { Args: { p_producto: string }; Returns: number }
       es_duena: { Args: { p_negocio: string }; Returns: boolean }
       es_miembro: { Args: { p_negocio: string }; Returns: boolean }
+      guardar_envio: {
+        Args: {
+          p_absorbido: number
+          p_cobrado: number
+          p_costo: number
+          p_departamento: string
+          p_direccion: string
+          p_guia: string
+          p_modo: string
+          p_municipio: string
+          p_nombre: string
+          p_paga: string
+          p_paquetera: string
+          p_pedido: string
+          p_referencia: string
+          p_telefono: string
+        }
+        Returns: undefined
+      }
       importar_productos: {
         Args: {
           p_archivo: string

@@ -4,6 +4,7 @@ import {
   calcularVencimiento,
   estaPagado,
   puedeCancelarse,
+  repartirEnvio,
   retencionDe,
   saldo,
   siguienteEstado,
@@ -97,5 +98,31 @@ describe("retencionDe", () => {
 
   it("un pedido cancelado las deja libres", () => {
     expect(retencionDe("cancelado", futuro, ahora)).toBeNull();
+  });
+});
+
+describe("repartirEnvio", () => {
+  it("si paga el cliente, todo se suma al cobro", () => {
+    expect(repartirEnvio(350, "cliente")).toEqual({ cobrado: 350, absorbido: 0 });
+  });
+
+  it("si paga la vendedora, todo cuenta como gasto del pedido", () => {
+    expect(repartirEnvio(350, "vendedora")).toEqual({ cobrado: 0, absorbido: 350 });
+  });
+
+  it("a medias reparte sin perder ni inventar centavos", () => {
+    expect(repartirEnvio(400, "mitad")).toEqual({ cobrado: 200, absorbido: 200 });
+    const { cobrado, absorbido } = repartirEnvio(351, "mitad");
+    expect(cobrado + absorbido).toBe(351);
+    expect(absorbido).toBeGreaterThanOrEqual(cobrado);
+  });
+
+  it("un envío gratis no cobra ni absorbe nada", () => {
+    expect(repartirEnvio(0, "mitad")).toEqual({ cobrado: 0, absorbido: 0 });
+  });
+
+  it("el total del pedido suma solo lo que paga el cliente", () => {
+    const { cobrado } = repartirEnvio(500, "mitad");
+    expect(totalPedido(5000, 0, cobrado)).toBe(5250);
   });
 });
