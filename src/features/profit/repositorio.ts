@@ -101,3 +101,15 @@ export async function eliminarGasto(supabase: Cliente, gastoId: string): Promise
   const { error } = await supabase.rpc("eliminar_gasto", { p_gasto: gastoId });
   return !error;
 }
+
+/** Lo que clientas deben todavía: el saldo de los pedidos que siguen abiertos. */
+export async function porCobrar(supabase: Cliente, negocioId: string): Promise<Centavos> {
+  const { data, error } = await supabase
+    .from("pedido")
+    .select("saldo")
+    .eq("negocio_id", negocioId)
+    .neq("estado", "cancelado")
+    .gt("saldo", 0);
+  if (error) throw error;
+  return data.reduce((suma, p) => suma + aCentavos(p.saldo), 0);
+}

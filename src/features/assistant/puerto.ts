@@ -1,4 +1,4 @@
-import type { Centavos, DesgloseCosto, EstadoPedido } from "@/domain";
+import type { CategoriaGasto, Centavos, DesgloseCosto, EstadoPedido } from "@/domain";
 import type { Metodo } from "./intencion";
 
 // Todo lo que el asistente necesita del mundo exterior. El motor no sabe de Supabase:
@@ -61,6 +61,7 @@ export interface Puerto {
   registrarPago(pedidoId: string, monto: Centavos, metodo: Metodo): Promise<R<{ pagoId: string }>>;
   cambiarEstado(pedidoId: string, estado: EstadoPedido): Promise<R<null>>;
   registrarGuia(pedidoId: string, paquetera: string | null, guia: string | null): Promise<R<null>>;
+  registrarGasto(g: { categoria: CategoriaGasto; monto: Centavos; nota: string | null }): Promise<R<{ id: string }>>;
   mensajeCobro(codigoPedido: number): Promise<string>;
 
   // Registro de acciones: idempotencia y deshacer.

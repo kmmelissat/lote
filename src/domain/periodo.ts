@@ -43,3 +43,8 @@ export function rangoPeriodo(tipo: TipoPeriodo, ahora: Date, desplazar = 0): Per
     hastaFecha: fechaLocal(hasta),
   };
 }
+
+/** La fecha de hoy en El Salvador (YYYY-MM-DD). La base trabaja en UTC y a las 6 de la tarde ya sería mañana. */
+export function fechaLocalDe(ahora: Date): string {
+  return new Date(ahora.getTime() - DESFASE_HORAS * HORA_MS).toISOString().slice(0, 10);
+}

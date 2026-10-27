@@ -11,6 +11,7 @@ Intenciones:
 - liberar: se cayó un apartado ("se cayó el apartado de Ana"). Datos: cliente o pedido.
 - enviar: el pedido ya salió ("ya la envié, guía 123"). Datos: cliente o pedido, paquetera y guia si las dijo.
 - cobrar: armar el mensaje de cobro ("cobrale a Ana"). Datos: cliente o pedido.
+- gasto: algo que gastó en el negocio que no es mercadería ("gasté $5 en bolsas", "pagué $20 de publicidad en Instagram", "$3 de pasaje para entregar"). Datos: monto, categoria (empaque, publicidad, transporte, local, comisiones u otros; si no queda claro, otros) y nota con lo que dijo que compró o pagó. Si lo que compró es mercadería para vender, es reponer o crear_producto, no gasto.
 - consultar: preguntas de solo lectura. consulta = "apartados" ("¿qué tengo apartado?"), "por_cobrar" ("¿quién me debe?"), "por_enviar" ("¿qué falta enviar?") o "producto" ("¿cuántas chaquetas quedan?", con producto).
 - deshacer: revertir lo último ("deshacer", "no, eso no").
 - ayuda: pide ver qué puede decir ("ayuda", "¿qué puedo hacer?").

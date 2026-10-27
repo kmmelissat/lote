@@ -10,6 +10,7 @@ import {
   type Canal,
 } from "@/features/orders/repositorio";
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
+import { registrarGasto } from "@/features/profit/repositorio";
 import { crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";
 import type { Database, Json } from "@/lib/supabase/database.types";
@@ -100,6 +101,16 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
     async registrarGuia(pedidoId, paquetera, guia) {
       const r = await registrarGuia(supabase, pedidoId, paquetera, guia);
       return r.ok ? ok(null) : { ok: false, error: r.error as ErrorPuerto };
+    },
+
+    async registrarGasto(g) {
+      if (!negocio.puedeGestionar) return falla("sin_permiso");
+      const id = await registrarGasto(supabase, negocio.id, {
+        categoria: g.categoria,
+        monto: g.monto,
+        nota: g.nota ?? undefined,
+      });
+      return id === null ? falla("desconocido") : ok({ id });
     },
 
     async mensajeCobro(codigoPedido) {

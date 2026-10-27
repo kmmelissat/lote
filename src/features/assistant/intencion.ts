@@ -1,4 +1,4 @@
-import { aCentavos, type Centavos } from "@/domain";
+import { aCentavos, type CategoriaGasto, type Centavos } from "@/domain";
 import type { SalidaEntender } from "../ai/esquema";
 
 export type Metodo = "transferencia" | "billetera" | "efectivo";
@@ -15,9 +15,10 @@ export type Intencion =
   | { tipo: "vender"; producto: string; cantidad: number; cliente: string | null; metodo: Metodo | null }
   | { tipo: "marcar_pagado" | "liberar" | "cobrar"; pedido: RefPedido }
   | { tipo: "abonar"; pedido: RefPedido; monto: Centavos; metodo: Metodo | null }
-  | { tipo: "enviar"; pedido: RefPedido; paquetera: string | null; guia: string | null };
+  | { tipo: "enviar"; pedido: RefPedido; paquetera: string | null; guia: string | null }
+  | { tipo: "gasto"; monto: Centavos; categoria: CategoriaGasto; nota: string | null };
 
-export type Falta = "producto" | "cliente" | "precio" | "monto" | "pedido" | "cantidad";
+export type Falta = "producto" | "cliente" | "precio" | "monto" | "montoGasto" | "pedido" | "cantidad";
 
 export type ResultadoIntencion = { ok: true; intencion: Intencion } | { ok: false; falta: Falta };
 
@@ -74,6 +75,11 @@ export function aIntencion(s: SalidaEntender): ResultadoIntencion {
       const monto = s.monto !== null && s.monto > 0 ? aCentavos(s.monto) : null;
       return monto === null ? falta("monto") : ok({ tipo: "abonar", pedido, monto, metodo: s.metodo });
     }
+    case "gasto": {
+      const monto = s.monto !== null && s.monto > 0 ? aCentavos(s.monto) : null;
+      if (monto === null) return falta("montoGasto");
+      return ok({ tipo: "gasto", monto, categoria: s.categoria ?? "otros", nota: limpio(s.nota) });
+    }
     case "enviar":
       return tienePedido
         ? ok({ tipo: "enviar", pedido, paquetera: limpio(s.paquetera), guia: limpio(s.guia) })
@@ -101,7 +107,8 @@ export function completarSalida(s: SalidaEntender, falta: Falta, texto: string):
       const n = numeroDe(t);
       return n === null ? null : { ...s, precio: n };
     }
-    case "monto": {
+    case "monto":
+    case "montoGasto": {
       const n = numeroDe(t);
       return n === null ? null : { ...s, monto: n };
     }

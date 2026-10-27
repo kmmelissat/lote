@@ -16,6 +16,7 @@ describe.skipIf(!process.env.RUN_LIVE_AI)("entender mensajes con la IA real", ()
     ["ya la envié, guía 123", { intencion: "enviar", guia: "123" }],
     ["se cayó el apartado de Ana", { intencion: "liberar" }],
     ["cobrale a Ana", { intencion: "cobrar" }],
+    ["gasté $5 en bolsas", { intencion: "gasto", monto: 5, categoria: "empaque" }],
     ["¿qué tengo apartado?", { intencion: "consultar", consulta: "apartados" }],
     ["¿quién me debe?", { intencion: "consultar", consulta: "por_cobrar" }],
     ["¿qué falta enviar?", { intencion: "consultar", consulta: "por_enviar" }],

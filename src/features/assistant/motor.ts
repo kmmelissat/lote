@@ -496,6 +496,22 @@ async function ejecutar(
       });
     }
 
+    case "gasto":
+      return registrar(d, entrada, intencion, salida, async () => {
+        const r = await d.puerto.registrarGasto({
+          categoria: intencion.categoria,
+          monto: intencion.monto,
+          nota: intencion.nota,
+        });
+        if (!r.ok) return { respuesta: { texto: textoDeError(r.error) } };
+        const monto = formatearDolares(intencion.monto);
+        return {
+          respuesta: { texto: t.gastoRegistrado(monto, t.categoriaGasto[intencion.categoria], intencion.nota) },
+          inverso: { tipo: "gasto", gasto_id: r.valor.id },
+          descripcion: t.descGasto(monto, intencion.nota ?? t.categoriaGasto[intencion.categoria]),
+        };
+      });
+
     case "consultar":
       return registrar(d, entrada, intencion, salida, async () => ({ respuesta: await consulta(d, intencion.consulta) }));
 

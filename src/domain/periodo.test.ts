@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rangoPeriodo } from "./periodo";
+import { fechaLocalDe, rangoPeriodo } from "./periodo";
 
 describe("rangoPeriodo", () => {
   it("la semana empieza el lunes a medianoche de El Salvador", () => {
@@ -32,5 +32,11 @@ describe("rangoPeriodo", () => {
     const enero = rangoPeriodo("mes", new Date("2026-01-15T16:00:00Z"), -1);
     expect(enero.desdeFecha).toBe("2025-12-01");
     expect(enero.hastaFecha).toBe("2026-01-01");
+  });
+});
+
+describe("fechaLocalDe", () => {
+  it("a las 8 de la noche en El Salvador sigue siendo el mismo día aunque en UTC ya sea el siguiente", () => {
+    expect(fechaLocalDe(new Date("2026-10-28T02:00:00Z"))).toBe("2026-10-27");
   });
 });

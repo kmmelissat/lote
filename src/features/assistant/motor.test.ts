@@ -43,6 +43,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     registrarPago: vi.fn(async () => ({ ok: true as const, valor: { pagoId: "pago-1" } })),
     cambiarEstado: vi.fn(async () => ({ ok: true as const, valor: null })),
     registrarGuia: vi.fn(async () => ({ ok: true as const, valor: null })),
+    registrarGasto: vi.fn(async () => ({ ok: true as const, valor: { id: "gasto-1" } })),
     mensajeCobro: vi.fn(async () => "Hola Ana! Total: $25.00"),
     iniciarAccion: async ({ mensajeId }) => {
       if (acciones.has(mensajeId)) return { id: `a-${mensajeId}`, repetida: true, respuesta: acciones.get(mensajeId) };
@@ -366,5 +367,39 @@ describe("foto + una línea", () => {
     const r = await turno({ mensajeId: "m1", texto: "", foto }, undefined, new Error("timeout"));
     expect(r.texto).toContain("No pude leer");
     expect(puerto.crearProducto).not.toHaveBeenCalled();
+  });
+});
+
+describe("gasto", () => {
+  it("registra el gasto con su categoría y ofrece Deshacer", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "gasto", monto: 5, categoria: "empaque", nota: "bolsas" });
+    expect(r.texto).toBe("Listo. Gasto de $5.00 en empaque (bolsas). Ya cuenta en tu ganancia.");
+    expect(r.botones?.[0]).toMatchObject({ etiqueta: "Deshacer", comando: { tipo: "deshacer", accionId: "a-m1" } });
+    expect(puerto.registrarGasto).toHaveBeenCalledWith({ categoria: "empaque", monto: 500, nota: "bolsas" });
+  });
+
+  it("sin categoría queda en otros", async () => {
+    const { puerto, turno } = montar();
+    await turno({ mensajeId: "m1" }, { intencion: "gasto", monto: 2.5 });
+    expect(puerto.registrarGasto).toHaveBeenCalledWith({ categoria: "otros", monto: 250, nota: null });
+  });
+
+  it("si falta el monto pregunta solo eso y luego lo registra", async () => {
+    const { puerto, turno } = montar();
+    const duda = await turno({ mensajeId: "m1" }, { intencion: "gasto", categoria: "publicidad" });
+    expect(duda.texto).toBe("¿Cuánto fue el gasto?");
+    expect(puerto.registrarGasto).not.toHaveBeenCalled();
+
+    const r = await turno({ mensajeId: "m2", texto: "$20", estado: duda.estado });
+    expect(r.texto).toContain("Gasto de $20.00 en publicidad");
+    expect(puerto.registrarGasto).toHaveBeenCalledWith(expect.objectContaining({ monto: 2000, categoria: "publicidad" }));
+  });
+
+  it("si el rol no puede, lo dice y no ofrece deshacer", async () => {
+    const { turno } = montar({ puerto: { registrarGasto: async () => ({ ok: false, error: { tipo: "sin_permiso" } }) } });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "gasto", monto: 5 });
+    expect(r.texto).toBe("Tu rol no puede hacer eso.");
+    expect(r.botones).toBeUndefined();
   });
 });
