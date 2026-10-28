@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lote
 
-## Getting Started
+Asistente para emprendedores que venden por Instagram en El Salvador. Cada producto tiene su ficha con cantidad, estado, costo real y ganancia; los pedidos cubren apartado, cobro con abonos, envío y entrega. Se maneja desde un chat (en el panel y, con Meta, por WhatsApp), y hay una vitrina pública con enlace que se actualiza sola.
 
-First, run the development server:
+Es un proyecto del curso Diseño de Productos y Servicios (ciclo 3), no un producto para lanzar.
+
+## Documentos
+
+- [app.md](app.md): especificación del producto. Es la fuente de verdad.
+- [PROGRESO.md](PROGRESO.md): estado de la construcción, decisiones y lo que sigue. Empezar por acá para retomar.
+- [AGENTS.md](AGENTS.md): aviso sobre la versión de Next.js (tiene cambios; leer `node_modules/next/dist/docs/` antes de escribir código).
+
+## Stack
+
+Next.js 16, React 19, TypeScript, Tailwind 4, Supabase (base de datos, autenticación y fotos), OpenAI (asistente y lectura de fotos), WhatsApp Cloud API de Meta (avisos) y Vitest.
+
+## Cómo correrlo
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Variables de entorno
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Crear `.env.local` (no se sube a git):
 
-## Learn More
+| Variable | Para qué |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | El proyecto de Supabase |
+| `HUELLA_SECRETO` | Hashea el IP al limitar intentos de apartar desde la vitrina |
+| `OPENAI_API_KEY` | La IA del asistente. Opcional `ASISTENTE_MODELO` (por defecto `gpt-4.1-mini`). Sin ella el chat solo responde "ayuda" y "deshacer" |
+| `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET` | La tarea que envía los avisos. La clave de servicio nunca va al navegador |
+| `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID` | La API de Meta. Opcionales: `WHATSAPP_API_VERSION`, `WHATSAPP_IDIOMA` |
+| `WHATSAPP_CANAL=consola` | Imprime los avisos en la consola del servidor en vez de mandarlos (para la demo) |
 
-To learn more about Next.js, take a look at the following resources:
+### Base de datos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+El SQL vive en [supabase/](supabase/) y se corre a mano en el SQL Editor de Supabase, **una sola vez cada archivo y en este orden**: `schema`, `productos`, `reponer`, `fotos`, `importar`, `pedidos`, `cobros`, `envios`, `vitrina`, `asistente`, `gastos`, `asistente_gasto`, `rendimiento`, `unidades`, `seguimiento`, `variantes`, `equipo`, `avisos`, `avisos_eventos`, `avisos_tiempo`. `cron.sql` es opcional (vence apartados con `pg_cron`). El estado de cuáles ya se corrieron está en PROGRESO.md.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Verificación
 
-## Deploy on Vercel
+```bash
+npx tsc --noEmit
+npx eslint src
+npx vitest run
+npx next build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Las pruebas contra la IA real se saltan salvo con `RUN_LIVE_AI=1`. Después de `next build`, reiniciar `npm run dev`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Estructura
+
+Organizado por funcionalidad. `src/app/` solo tiene rutas delgadas.
+
+- `src/features/<tema>/`: todo lo de un tema (`repositorio.ts`, `ui/`, `actions/`). Temas: `products`, `orders`, `payments`, `shipping`, `profit`, `catalog`, `customers`, `import`, `export`, `assistant`, `ai`, `auth`, `team`, `tracking`, `whatsapp`, `home`.
+- `src/domain/`: reglas de plata y estados, funciones puras con pruebas. No importa de nada fuera de sí mismo.
+- `src/components/` y `src/lib/`: piezas compartidas; los textos en español salvadoreño están en `src/lib/textos.ts`.
+- `supabase/*.sql`: esquema y funciones.
+
+ESLint hace cumplir las fronteras: entre features solo se importa `repositorio.ts`, tipos y lógica, nunca `ui/` ni `actions/`.
+
+## Despliegue
+
+Vercel. [vercel.json](vercel.json) llama a `/api/cron/avisos` una vez al día (el plan Hobby no permite más); exige `Authorization: Bearer <CRON_SECRET>`.
