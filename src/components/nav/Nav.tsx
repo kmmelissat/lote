@@ -11,6 +11,7 @@ const pestanas: { href: string; etiqueta: string; icono: NombreIcono }[] = [
   { href: "/inicio", etiqueta: textos.nav.inicio, icono: "inicio" },
   { href: "/productos", etiqueta: textos.nav.productos, icono: "productos" },
   { href: "/pedidos", etiqueta: textos.nav.pedidos, icono: "pedidos" },
+  { href: "/clientes", etiqueta: textos.nav.clientes, icono: "clientes" },
   { href: "/ganancia", etiqueta: textos.nav.ganancia, icono: "ganancia" },
 ];
 
@@ -37,7 +38,7 @@ function EnlaceVista({ href, etiqueta, icono, activa }: Pestana & { activa: bool
     <Link
       href={href}
       aria-current={activa ? "page" : undefined}
-      className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-1 text-xs font-medium md:flex-row md:justify-start md:gap-3 md:px-4 md:text-base ${
+      className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-xs font-medium md:flex-row md:justify-start md:gap-3 md:px-4 md:text-base ${
         activa
           ? "bg-teal-fondo text-teal md:bg-superficie md:text-teal-oscuro md:shadow-sm"
           : "text-texto-2 hover:bg-teal-fondo md:hover:bg-superficie"
@@ -70,12 +71,13 @@ export function Nav() {
         aria-label="Principal"
         className="fixed inset-x-0 bottom-0 z-10 border-t border-borde bg-superficie md:hidden"
       >
-        <ul className="mx-auto grid max-w-md grid-cols-5 items-center px-2 pb-[env(safe-area-inset-bottom)]">
+        <ul className="mx-auto grid max-w-md grid-cols-6 items-center px-2 pb-[env(safe-area-inset-bottom)]">
           <li><Enlace {...pestanas[0]} /></li>
           <li><Enlace {...pestanas[1]} /></li>
           <li className="flex justify-center"><BotonMas /></li>
           <li><Enlace {...pestanas[2]} /></li>
           <li><Enlace {...pestanas[3]} /></li>
+          <li><Enlace {...pestanas[4]} /></li>
         </ul>
       </nav>
 
