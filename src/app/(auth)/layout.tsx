@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
+
+// Entrar y crear negocio no tienen nada que indexar: la landing es la puerta pública.
+export const metadata: Metadata = { robots: { index: false, follow: true } };
 
 // Entrar y crear negocio comparten el marco: en pantalla ancha, un panel de marca a la izquierda.
 export default function AuthLayout({ children }: LayoutProps<"/">) {

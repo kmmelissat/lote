@@ -1,8 +1,12 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Migas } from "@/components/nav/Migas";
 import { NavConDatos, NavSinDatos } from "@/components/nav/NavConDatos";
 import { RequiereNegocio } from "@/components/nav/RequiereNegocio";
 import { textos } from "@/lib/textos";
+
+// El panel es privado: los buscadores no lo indexan.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // Sin encabezado: el menú lleva la búsqueda, la acción rápida y el perfil, y las migas dicen dónde estás.
 export default function PanelLayout({ children }: LayoutProps<"/">) {

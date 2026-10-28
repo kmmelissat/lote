@@ -8,12 +8,32 @@ import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico } from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/products/variantes";
+import { urlFoto } from "@/lib/fotos";
+import { JsonLd } from "@/lib/jsonld";
+import { urlSitio } from "@/lib/sitio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 
 const t = textos.vitrina;
 
-export const metadata: Metadata = { title: t.titulo };
+export async function generateMetadata({ params }: PageProps<"/c/[negocio]">): Promise<Metadata> {
+  await connection();
+  const slug = (await params).negocio;
+  const supabase = createPublicClient();
+  const negocio = await obtenerNegocioPublico(supabase, slug);
+  if (!negocio) return { title: t.titulo, robots: { index: false } };
+  const piezas = (await listarProductosPublicos(supabase, slug)).reduce((n, p) => n + p.disponibles, 0);
+  const descripcion = negocio.descripcion?.trim() || t.seo.descripcionTienda(negocio.nombre, piezas);
+  const titulo = t.seo.tituloTienda(negocio.nombre);
+  const imagen = negocio.logo ? [{ url: urlFoto(negocio.logo) }] : undefined;
+  return {
+    title: { absolute: titulo },
+    description: descripcion,
+    alternates: { canonical: `/c/${slug}` },
+    openGraph: { title: titulo, description: descripcion, url: `/c/${slug}`, type: "website", images: imagen },
+    twitter: { card: imagen ? "summary" : "summary_large_image", title: titulo, description: descripcion },
+  };
+}
 
 export default function VitrinaPage({ params }: PageProps<"/c/[negocio]">) {
   return (
@@ -32,6 +52,16 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
 
   return (
     <MarcaTienda color={negocio.color}>
+      <JsonLd
+        datos={{
+          "@context": "https://schema.org",
+          "@type": "OnlineStore",
+          name: negocio.nombre,
+          description: negocio.descripcion ?? undefined,
+          url: `${urlSitio}/c/${slug}`,
+          image: negocio.logo ? urlFoto(negocio.logo) : undefined,
+        }}
+      />
       <header className="mb-8 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-superficie shadow-dura">
         <div aria-hidden="true" className="h-16 bg-teal md:h-20" />
         <div className="flex flex-col gap-4 px-5 pb-5 md:px-8 md:pb-7">

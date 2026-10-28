@@ -1,4 +1,8 @@
+import type { Metadata } from "next";
 import { textos } from "@/lib/textos";
+
+// El seguimiento de un pedido es de quien lo recibe: no se indexa.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // Seguimiento público: sin barra inferior ni menú, con la marca de Lote al pie (plan gratis).
 export default function SeguimientoLayout({ children }: LayoutProps<"/p">) {

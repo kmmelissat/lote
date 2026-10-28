@@ -260,7 +260,7 @@ export function atajosDeFormulario(ev: KeyboardEvent<HTMLFormElement>) {
 /** La barra de guardar: queda pegada abajo de la pantalla mientras se desplaza el formulario. En el celular flota sobre el menú. */
 export function BarraGuardar({ children }: { children: ReactNode }) {
   return (
-    <div className="sticky bottom-24 z-20 mt-auto flex flex-wrap items-center gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema p-3 shadow-dura md:bottom-3">
+    <div className="barra-guardar z-20 mt-auto flex flex-wrap items-center gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema p-3 shadow-dura">
       {children}
     </div>
   );

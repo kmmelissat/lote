@@ -93,6 +93,14 @@ export const textos = {
     titulo: "Lote · Tu inventario, apartado y cuadrado",
     descripcion:
       "Para quienes venden por redes sociales: sabé qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces.",
+    palabrasClave: [
+      "inventario para emprendedoras",
+      "controlar inventario Instagram",
+      "apartados y pedidos por redes sociales",
+      "ganancia por producto",
+      "vitrina en línea",
+      "El Salvador",
+    ],
     saltar: "Saltar al contenido",
     menu: "Secciones",
     enlaces: [
@@ -997,6 +1005,13 @@ export const textos = {
     pedirWhatsApp: "Pedir por WhatsApp",
     pedirInstagram: "Escribir por Instagram",
     verTodos: "Ver todos los productos",
+    seo: {
+      tituloTienda: (negocio: string) => `${negocio} · Vitrina`,
+      descripcionTienda: (negocio: string, piezas: number) =>
+        `Mirá lo que tiene ${negocio}: ${piezas === 1 ? "1 pieza disponible" : `${piezas} piezas disponibles`}. Apartá y pedí por WhatsApp o Instagram.`,
+      descripcionProducto: (nombre: string, precio: string, negocio: string) =>
+        `${nombre} por ${precio} en ${negocio}. Apartalo o pedilo por chat.`,
+    },
     marca: "Vitrina hecha con Lote",
     opciones: "Opciones",
     opcionApartada: (etiqueta: string) => `${etiqueta} (apartado)`,
@@ -1041,6 +1056,7 @@ export const textos = {
 
   privacidad: {
     titulo: "Aviso de privacidad",
+    descripcion: "Qué datos guarda Lote, para qué los usa y cómo cuidamos los de tus clientes.",
     actualizado: "Última actualización: 28 de octubre de 2026",
     volver: "Volver",
     secciones: [

@@ -134,3 +134,14 @@ body {
     animation: none !important;
   }
 }
+
+/* La barra de guardar de los formularios: pegada abajo de la pantalla mientras se desplaza. En el celular queda sobre el menú. */
+.barra-guardar {
+  position: sticky;
+  bottom: 6rem;
+}
+@media (min-width: 768px) {
+  .barra-guardar {
+    bottom: 0.75rem;
+  }
+}

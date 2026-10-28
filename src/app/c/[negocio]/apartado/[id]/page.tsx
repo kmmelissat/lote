@@ -11,7 +11,7 @@ import { textos } from "@/lib/textos";
 const t = textos.vitrina.confirmacion;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-export const metadata: Metadata = { title: t.titulo };
+export const metadata: Metadata = { title: t.titulo, robots: { index: false, follow: false } };
 
 export default function ApartadoPage({ params }: PageProps<"/c/[negocio]/apartado/[id]">) {
   return (

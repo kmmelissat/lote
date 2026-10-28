@@ -10,13 +10,34 @@ import { mensajePedirProducto } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico, obtenerProductoPublico } from "@/features/catalog/repositorio";
 import { nombreBase } from "@/features/products/variantes";
 import { formatearDolares } from "@/lib/formato";
+import { urlFoto } from "@/lib/fotos";
+import { JsonLd } from "@/lib/jsonld";
+import { urlSitio } from "@/lib/sitio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 import { ApartarForm } from "@/features/catalog/ui/ApartarForm";
 
 const t = textos.vitrina;
 
-export const metadata: Metadata = { title: t.titulo };
+export async function generateMetadata({ params }: PageProps<"/c/[negocio]/[codigo]">): Promise<Metadata> {
+  await connection();
+  const { negocio: slug, codigo: codigoTexto } = await params;
+  const codigo = Number(codigoTexto);
+  if (!Number.isInteger(codigo)) return { title: t.titulo, robots: { index: false } };
+  const supabase = createPublicClient();
+  const [negocio, p] = await Promise.all([obtenerNegocioPublico(supabase, slug), obtenerProductoPublico(supabase, slug, codigo)]);
+  if (!negocio || !p) return { title: t.titulo, robots: { index: false } };
+  const titulo = `${nombreBase(p.nombre, p.variante)} · ${negocio.nombre}`;
+  const descripcion = p.descripcion?.trim() || t.seo.descripcionProducto(nombreBase(p.nombre, p.variante), formatearDolares(p.precio), negocio.nombre);
+  const imagenes = p.fotos.slice(0, 3).map((f) => ({ url: urlFoto(f) }));
+  return {
+    title: { absolute: titulo },
+    description: descripcion,
+    alternates: { canonical: `/c/${slug}/${codigo}` },
+    openGraph: { title: titulo, description: descripcion, url: `/c/${slug}/${codigo}`, type: "website", images: imagenes },
+    twitter: { card: imagenes.length ? "summary_large_image" : "summary", title: titulo, description: descripcion },
+  };
+}
 
 export default function ProductoPublicoPage({ params }: PageProps<"/c/[negocio]/[codigo]">) {
   return (
@@ -52,6 +73,27 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
 
   return (
     <MarcaTienda color={negocio.color}>
+      <JsonLd
+        datos={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: nombreBase(p.nombre, p.variante),
+          description: p.descripcion ?? undefined,
+          image: p.fotos.map((f) => urlFoto(f)),
+          sku: String(p.codigo),
+          brand: p.marca ? { "@type": "Brand", name: p.marca } : undefined,
+          category: p.categoria ?? undefined,
+          itemCondition: p.condicion === "usado" ? "https://schema.org/UsedCondition" : "https://schema.org/NewCondition",
+          offers: {
+            "@type": "Offer",
+            url: `${urlSitio}/c/${slug}/${p.codigo}`,
+            price: (p.precio / 100).toFixed(2),
+            priceCurrency: "USD",
+            availability: disponible ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            seller: { "@type": "Organization", name: negocio.nombre },
+          },
+        }}
+      />
       <div className="flex flex-col gap-6">
         <Link
           href={`/c/${slug}`}

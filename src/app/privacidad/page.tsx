@@ -5,7 +5,11 @@ import { textos } from "@/lib/textos";
 
 const t = textos.privacidad;
 
-export const metadata: Metadata = { title: t.titulo };
+export const metadata: Metadata = {
+  title: t.titulo,
+  description: t.descripcion,
+  alternates: { canonical: "/privacidad" },
+};
 
 export default function PrivacidadPage() {
   return (
