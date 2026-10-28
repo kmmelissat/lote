@@ -17,9 +17,9 @@ export default function PanelLayout({ children }: LayoutProps<"/">) {
         {textos.nav.saltar}
       </a>
       <Nav perfil={<PerfilNav />} />
-      <main id="contenido" tabIndex={-1} className="w-full px-4 pb-28 pt-4 md:flex-1 md:overflow-y-auto md:px-8 md:pb-10 md:pt-8">
+      <main id="contenido" tabIndex={-1} className="w-full px-4 pb-28 pt-4 md:flex-1 md:overflow-y-auto md:px-6 md:pb-8 md:pt-5">
         <div className="mx-auto max-w-[1100px]">
-          <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="mb-4 flex items-center justify-between gap-4">
             <Migas />
             {/* Móvil: no hay menú lateral, el perfil queda a mano acá */}
             <Link

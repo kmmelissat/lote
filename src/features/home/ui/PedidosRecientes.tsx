@@ -10,13 +10,13 @@ const t = textos.inicio;
 
 export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
   return (
-    <Card className="flex flex-col gap-4">
+    <Card className="flex flex-col gap-2">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold">{t.recientesTitulo}</h2>
+          <h2 className="font-bold">{t.recientesTitulo}</h2>
           <p className="text-sm text-texto-2">{t.recientesTexto}</p>
         </div>
-        <ButtonLink href="/pedidos" variante="secundario" className="h-11 px-5 text-sm">
+        <ButtonLink href="/pedidos" variante="secundario" className="h-9 px-4 text-sm">
           {t.verPedidos}
         </ButtonLink>
       </div>
@@ -29,7 +29,7 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
             <li key={p.id} className="border-t border-borde first:border-t-0">
               <Link
                 href={`/pedidos/${p.codigo}`}
-                className="grid min-h-16 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-xl px-2 py-3 hover:bg-teal-fondo md:grid-cols-[2fr_1.5fr_auto_auto]"
+                className="grid min-h-12 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-xl px-2 py-2 hover:bg-teal-fondo md:grid-cols-[2fr_1.5fr_auto_auto]"
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium">

@@ -67,14 +67,14 @@ async function Contenido() {
     : [];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {faltanPasos(pasos) && <TarjetaPrimerosPasos pasos={pasos} />}
 
-      <section aria-labelledby="contadores" className="grid gap-4 lg:grid-cols-3">
+      <section aria-labelledby="contadores" className="grid gap-3 lg:grid-cols-3">
         <h2 id="contadores" className="sr-only">
           {t.contadores}
         </h2>
-        <div className="grid grid-cols-2 gap-4 lg:col-span-2">
+        <div className="grid grid-cols-2 gap-3 lg:col-span-2">
           <TarjetaDato
             etiqueta={t.disponibles}
             valor={r.disponibles}
@@ -105,7 +105,7 @@ async function Contenido() {
         <DonaInventario unidades={unidades} />
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-3 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <PedidosRecientes pedidos={recientes} />
         </div>

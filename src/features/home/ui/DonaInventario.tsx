@@ -22,14 +22,14 @@ export function DonaInventario({ unidades }: { unidades: Unidades }) {
   const arcos = partes.map((x, i) => ({ ...x, desde: partes.slice(0, i).reduce((suma, y) => suma + y.parte, 0) }));
 
   return (
-    <Card className="flex flex-col gap-5">
+    <Card className="flex flex-col gap-3">
       <div>
-        <h2 className="text-lg font-bold">{t.inventarioTitulo}</h2>
+        <h2 className="font-bold">{t.inventarioTitulo}</h2>
         <p className="text-sm text-texto-2">{t.inventarioTexto}</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-6">
-        <div className="relative size-40 shrink-0">
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="relative size-32 shrink-0">
           <svg viewBox="0 0 40 40" role="img" aria-label={tramos.map((x) => `${x.etiqueta}: ${unidades[x.clave]}`).join(", ")} className="size-full -rotate-90">
             <circle cx="20" cy="20" r={radio} fill="none" strokeWidth="5" className="text-gris-fondo" stroke="currentColor" />
             {arcos.map((x) =>
@@ -50,12 +50,12 @@ export function DonaInventario({ unidades }: { unidades: Unidades }) {
             )}
           </svg>
           <p className="absolute inset-0 flex flex-col items-center justify-center text-center leading-tight">
-            <span className="text-3xl font-bold">{total}</span>
+            <span className="text-2xl font-bold">{total}</span>
             <span className="text-xs text-texto-2">{t.inventarioUnidades}</span>
           </p>
         </div>
 
-        <ul className="flex min-w-40 flex-1 flex-col gap-3">
+        <ul className="flex min-w-36 flex-1 flex-col gap-2">
           {tramos.map((x) => (
             <li key={x.clave} className="flex items-center gap-3">
               <span aria-hidden="true" className={`size-3 shrink-0 rounded-full ${x.punto}`} />

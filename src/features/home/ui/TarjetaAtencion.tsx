@@ -5,14 +5,14 @@ import { HORAS_APARTADO_FRIO, type ResumenInicio } from "../resumen";
 
 const t = textos.inicio;
 
-const fila = "block rounded-xl bg-white/10 px-4 py-3 hover:bg-white/20";
+const fila = "block rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20";
 
 /** Lo que hay que atender hoy, en el color de marca para que sea lo primero que se vea. */
 export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date }) {
   const hayAccion = r.porPagar > 0 || r.porEnviar > 0 || r.seEnfrian.length > 0;
   return (
-    <section aria-labelledby="atencion" className="flex flex-col gap-4 rounded-tarjeta bg-teal p-5 text-white">
-      <h2 id="atencion" className="text-lg font-bold">
+    <section aria-labelledby="atencion" className="flex flex-col gap-3 rounded-tarjeta bg-teal p-4 text-white">
+      <h2 id="atencion" className="font-bold">
         {t.accionTitulo}
       </h2>
 
@@ -31,9 +31,9 @@ export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date })
             </li>
           )}
           {r.seEnfrian.length > 0 && (
-            <li className="mt-2">
+            <li className="mt-1">
               <p className="font-medium">{t.seEnfrianTitulo}</p>
-              <p className="mb-2 text-sm text-white/90">{t.seEnfrianAyuda(HORAS_APARTADO_FRIO)}</p>
+              <p className="mb-1 text-sm text-white/90">{t.seEnfrianAyuda(HORAS_APARTADO_FRIO)}</p>
               <ul className="flex flex-col gap-2">
                 {r.seEnfrian.slice(0, 3).map((p) => (
                   <li key={p.id}>

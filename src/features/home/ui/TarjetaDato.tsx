@@ -23,19 +23,19 @@ export function TarjetaDato({
   chip?: { texto: string; tono: keyof typeof tonos };
 }) {
   return (
-    <Card className="flex flex-col gap-3">
+    <Card className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-texto-2">{etiqueta}</h3>
         <Link
           href={href}
           aria-label={textos.inicio.ver(etiqueta.toLowerCase())}
-          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-borde text-teal-oscuro hover:bg-teal-fondo"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-borde text-teal-oscuro hover:bg-teal-fondo"
         >
           <Icon nombre="diagonal" className="size-4" />
         </Link>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-3xl font-bold">{valor}</p>
+        <p className="text-2xl font-bold">{valor}</p>
         {chip && <span className={`rounded-full px-3 py-1 text-sm font-medium ${tonos[chip.tono]}`}>{chip.texto}</span>}
       </div>
       <p className="text-sm text-texto-2">{texto}</p>

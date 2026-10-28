@@ -32,6 +32,15 @@ html {
   background: var(--color-fondo);
 }
 
+/* En escritorio la base es de 14 px (todo va en rem, así que el espaciado y los títulos bajan a la par).
+   Sigue siendo un porcentaje del tamaño del navegador, así que el zoom y los ajustes de la persona se respetan.
+   En móvil se queda en 16 px: ahí los toques necesitan su área de 44 px. */
+@media (min-width: 48rem) {
+  html {
+    font-size: 87.5%;
+  }
+}
+
 body {
   background: var(--color-fondo);
   color: var(--color-texto);
