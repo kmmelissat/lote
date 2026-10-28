@@ -32,6 +32,22 @@ export type NuevoGasto = {
   pedidoId?: string;
 };
 
+/** Lo que van a dejar los pedidos pendientes (apartados vigentes y contra entrega), con su costo congelado. Solo dueña y administradora. */
+export async function ventasPorEntrar(supabase: Cliente, negocioId: string): Promise<LineaVendida[]> {
+  const { data, error } = await supabase.rpc("ventas_por_cobrar", { p_negocio: negocioId });
+  if (error) throw error;
+  return data.map((v) => ({
+    pedidoId: v.pedido_id,
+    productoId: v.producto_id,
+    nombre: v.nombre,
+    cantidad: v.cantidad,
+    precioFinal: aCentavos(v.precio_final),
+    costoUnitario: v.costo_unitario === null ? null : aCentavos(v.costo_unitario),
+    descuento: aCentavos(v.descuento),
+    envioAbsorbido: aCentavos(v.envio_absorbido),
+  }));
+}
+
 /** Ventas del periodo con el costo que tenían al venderse. Solo dueña y administradora (lo exige la base). */
 export async function ventasDelPeriodo(
   supabase: Cliente,

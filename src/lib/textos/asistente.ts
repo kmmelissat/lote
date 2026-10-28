@@ -126,7 +126,7 @@ export const asistente = {
   porCobrar: "Te deben:",
   lineaDeuda: (cliente: string, monto: string) => `• ${cliente}: ${monto}`,
   totalPorCobrar: (monto: string) => `Total por cobrar: ${monto}.`,
-  periodo: { semana: "esta semana", mes: "este mes" },
+  periodo: { dia: "hoy", semana: "esta semana", mes: "este mes" },
   gananciaDelPeriodo: (periodo: string, monto: string, estimada: boolean) =>
     `${periodo[0].toUpperCase()}${periodo.slice(1)} te quedaron ${monto} después de gastos.${
       estimada ? " Es un estimado: hay ventas sin costo registrado." : ""

@@ -19,13 +19,20 @@ export async function agregarGasto(previo: EstadoGasto, datos: FormData): Promis
   const categoria = String(datos.get("categoria") ?? "");
   if (!CATEGORIAS_GASTO.includes(categoria as CategoriaGasto)) return { ...previo, error: t.errorCategoria, listo: undefined };
 
+  // La fecha se puede cambiar (por defecto hoy), pero no puede ser futura.
+  const hoy = fechaLocalDe(new Date());
+  const fecha = String(datos.get("fecha") ?? "").trim() || hoy;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || Number.isNaN(Date.parse(fecha)) || fecha > hoy) {
+    return { ...previo, error: t.errorFecha, listo: undefined };
+  }
+
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { ...previo, error: t.errorPermiso, listo: undefined };
 
   const id = await registrarGasto(supabase, negocio.id, {
     categoria: categoria as CategoriaGasto,
     monto,
-    fecha: fechaLocalDe(new Date()),
+    fecha,
     nota: String(datos.get("nota") ?? "").trim() || undefined,
   });
   if (!id) return { ...previo, error: t.errorGeneral, listo: undefined };

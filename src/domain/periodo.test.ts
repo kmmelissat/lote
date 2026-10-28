@@ -35,6 +35,16 @@ describe("rangoPeriodo", () => {
   });
 });
 
+describe("rangoPeriodo: el día", () => {
+  it("va de medianoche a medianoche de El Salvador, y -1 es ayer", () => {
+    const hoy = rangoPeriodo("dia", new Date("2026-10-28T16:00:00Z"));
+    expect(hoy.desdeFecha).toBe("2026-10-28");
+    expect(hoy.hastaFecha).toBe("2026-10-29");
+    expect(hoy.desde.toISOString()).toBe("2026-10-28T06:00:00.000Z");
+    expect(rangoPeriodo("dia", new Date("2026-10-28T16:00:00Z"), -1).desdeFecha).toBe("2026-10-27");
+  });
+});
+
 describe("fechaLocalDe", () => {
   it("a las 8 de la noche en El Salvador sigue siendo el mismo día aunque en UTC ya sea el siguiente", () => {
     expect(fechaLocalDe(new Date("2026-10-28T02:00:00Z"))).toBe("2026-10-27");

@@ -1,4 +1,4 @@
-export type TipoPeriodo = "semana" | "mes";
+export type TipoPeriodo = "dia" | "semana" | "mes";
 
 export type Periodo = {
   tipo: TipoPeriodo;
@@ -18,7 +18,7 @@ const DIA_MS = 24 * HORA_MS;
 const fechaLocal = (medianocheLocal: number): string => new Date(medianocheLocal).toISOString().slice(0, 10);
 const instante = (medianocheLocal: number): Date => new Date(medianocheLocal + DESFASE_HORAS * HORA_MS);
 
-/** La semana va de lunes a domingo; el mes, del día 1 al último. `desplazar` -1 es el periodo anterior. */
+/** El día va de medianoche a medianoche; la semana, de lunes a domingo; el mes, del día 1 al último. `desplazar` -1 es el periodo anterior. */
 export function rangoPeriodo(tipo: TipoPeriodo, ahora: Date, desplazar = 0): Periodo {
   const local = new Date(ahora.getTime() - DESFASE_HORAS * HORA_MS);
   const y = local.getUTCFullYear();
@@ -27,7 +27,10 @@ export function rangoPeriodo(tipo: TipoPeriodo, ahora: Date, desplazar = 0): Per
 
   let desde: number;
   let hasta: number;
-  if (tipo === "semana") {
+  if (tipo === "dia") {
+    desde = Date.UTC(y, m, d + desplazar);
+    hasta = desde + DIA_MS;
+  } else if (tipo === "semana") {
     const diaSemana = (local.getUTCDay() + 6) % 7; // lunes = 0
     desde = Date.UTC(y, m, d - diaSemana + 7 * desplazar);
     hasta = desde + 7 * DIA_MS;

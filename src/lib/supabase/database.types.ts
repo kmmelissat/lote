@@ -1180,6 +1180,19 @@ export type Database = {
         }[]
       }
       eliminar_gasto: { Args: { p_gasto: string }; Returns: undefined }
+      ventas_por_cobrar: {
+        Args: { p_negocio: string }
+        Returns: {
+          cantidad: number
+          costo_unitario: number | null
+          descuento: number
+          envio_absorbido: number
+          nombre: string
+          pedido_id: string
+          precio_final: number
+          producto_id: string
+        }[]
+      }
       ventas_del_periodo: {
         Args: { p_desde: string; p_hasta: string; p_negocio: string }
         Returns: {
