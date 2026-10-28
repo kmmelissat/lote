@@ -60,6 +60,24 @@ export async function listarClientes(supabase: Cliente, negocioId: string): Prom
   return (data as unknown as Fila[]).map(aCliente).sort((a, b) => b.resumen.saldo - a.resumen.saldo);
 }
 
+/** Una página de clientes en un orden fijo (el de la lista se reordena por saldo y no sirve para paginar). */
+export async function paginaDeClientes(
+  supabase: Cliente,
+  negocioId: string,
+  desde: number,
+  cantidad: number,
+): Promise<ClienteConResumen[]> {
+  const { data, error } = await supabase
+    .from("cliente")
+    .select(columnasLista)
+    .eq("negocio_id", negocioId)
+    .order("creado_en", { ascending: false })
+    .order("id")
+    .range(desde, desde + cantidad - 1);
+  if (error) throw error;
+  return (data as unknown as Fila[]).map(aCliente);
+}
+
 export async function obtenerCliente(
   supabase: Cliente,
   negocioId: string,

@@ -103,13 +103,16 @@ export async function listarProductos(
   supabase: Cliente,
   negocioId: string,
   puedeVerCostos: boolean,
+  /** Por defecto los 100 más recientes; la exportación pide página por página. */
+  pagina: { desde: number; cantidad: number } = { desde: 0, cantidad: 100 },
 ): Promise<Producto[]> {
   const { data, error } = await supabase
     .from("producto")
     .select(columnas(puedeVerCostos))
     .eq("negocio_id", negocioId)
     .order("creado_en", { ascending: false })
-    .limit(100);
+    .order("id")
+    .range(pagina.desde, pagina.desde + pagina.cantidad - 1);
   if (error) throw error;
   return (data as unknown as Fila[]).map((f) => aProducto(f, puedeVerCostos, new Date()));
 }

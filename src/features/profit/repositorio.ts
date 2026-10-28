@@ -82,6 +82,24 @@ export async function gastosDelPeriodo(
   return data.map(aGasto);
 }
 
+/** Una página de todos los gastos, los más recientes primero. Solo dueña y administradora (RLS). */
+export async function paginaDeGastos(
+  supabase: Cliente,
+  negocioId: string,
+  desde: number,
+  cantidad: number,
+): Promise<Gasto[]> {
+  const { data, error } = await supabase
+    .from("gasto")
+    .select("*")
+    .eq("negocio_id", negocioId)
+    .order("fecha", { ascending: false })
+    .order("id")
+    .range(desde, desde + cantidad - 1);
+  if (error) throw error;
+  return data.map(aGasto);
+}
+
 export const aGastoPeriodo = (g: Gasto): GastoPeriodo => ({ categoria: g.categoria, monto: g.monto });
 
 /** Las ventas y los gastos del periodo, ya juntos en los números de Ganancia. Solo dueña y administradora. */

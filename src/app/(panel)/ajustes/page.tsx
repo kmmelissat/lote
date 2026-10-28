@@ -35,6 +35,14 @@ export default function Page() {
             </Card>
           </Link>
         </li>
+        <li>
+          <Link href="/ajustes/exportar" className="block">
+            <Card className="flex flex-col gap-1 border border-borde hover:bg-teal-fondo">
+              <span className="font-medium">{textos.exportar.enlace}</span>
+              <span className="text-sm text-texto-2">{textos.exportar.enlaceTexto}</span>
+            </Card>
+          </Link>
+        </li>
       </ul>
     </>
   );

@@ -97,6 +97,24 @@ export async function listarPedidos(
   return data.map(aPedido);
 }
 
+/** Una página de todos los pedidos, de cualquier estado, los más recientes primero. */
+export async function paginaDePedidos(
+  supabase: Cliente,
+  negocioId: string,
+  desde: number,
+  cantidad: number,
+): Promise<Pedido[]> {
+  const { data, error } = await supabase
+    .from("pedido")
+    .select(columnas)
+    .eq("negocio_id", negocioId)
+    .order("creado_en", { ascending: false })
+    .order("id")
+    .range(desde, desde + cantidad - 1);
+  if (error) throw error;
+  return data.map(aPedido);
+}
+
 /** Pedidos en cualquiera de esos estados, los más recientes primero. */
 export async function buscarPedidos(
   supabase: Cliente,

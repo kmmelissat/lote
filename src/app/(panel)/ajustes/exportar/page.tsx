@@ -1,0 +1,48 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/nav/PageHeader";
+import { Card } from "@/components/ui/Card";
+import { TIPOS_EXPORTACION } from "@/features/export/exportar";
+import { negocioActual } from "@/lib/negocio";
+import { textos } from "@/lib/textos";
+
+const t = textos.exportar;
+
+export const metadata: Metadata = { title: t.titulo };
+
+export default function ExportarPage() {
+  return (
+    <>
+      <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
+      <Link href="/ajustes" className="mb-4 inline-flex min-h-11 items-center text-teal underline">
+        {t.volver}
+      </Link>
+      <Lista />
+    </>
+  );
+}
+
+async function Lista() {
+  const { negocio } = await negocioActual();
+  if (!negocio.puedeGestionar) notFound();
+
+  return (
+    <div className="flex flex-col gap-4">
+      <ul className="grid gap-3 md:grid-cols-2">
+        {TIPOS_EXPORTACION.map((tipo) => (
+          <li key={tipo}>
+            {/* Un enlace normal (no <Link>): es una descarga, no una navegación de la app */}
+            <a href={`/api/exportar/${tipo}`} download className="block">
+              <Card className="flex flex-col gap-1 border border-borde hover:bg-teal-fondo">
+                <span className="font-medium">{t.temas[tipo].titulo}</span>
+                <span className="text-sm text-texto-2">{t.temas[tipo].texto}</span>
+              </Card>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p className="text-sm text-texto-2">{t.ayuda}</p>
+    </div>
+  );
+}
