@@ -244,6 +244,8 @@ export type NuevoProducto = {
   /** Si es una variante: el grupo que comparte con sus hermanas y su etiqueta ("M", "rosa") */
   grupo?: string;
   variante?: string;
+  /** Los nombres de las opciones del cruce ("Modelo", "Color"), en el orden de la etiqueta */
+  opcionesVariante?: string[];
 };
 
 /** Crea la ficha, la existencia y los costos en una sola operación. Devuelve el código corto. */
@@ -269,6 +271,7 @@ export async function crearProducto(
   const extras = {
     ...(p.fotos.length ? { fotos: p.fotos } : {}),
     ...(p.grupo && p.variante ? { grupo: p.grupo, variante: p.variante } : {}),
+    ...(p.grupo && p.opcionesVariante?.length ? { opciones_variante: p.opcionesVariante } : {}),
   };
   if (Object.keys(extras).length) await supabase.from("producto").update(extras).eq("id", id);
 

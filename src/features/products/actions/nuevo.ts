@@ -28,6 +28,18 @@ function listaDeFilas(json: string | undefined): { etiqueta: unknown; cantidad: 
   }
 }
 
+/** Los nombres de las opciones de las variantes (un JSON en un campo oculto): hasta 3, de hasta 30 letras. */
+function nombresDeOpciones(json: string | undefined): string[] {
+  try {
+    const lista: unknown = JSON.parse(json || "[]");
+    return Array.isArray(lista)
+      ? lista.filter((n): n is string => typeof n === "string" && !!n.trim()).map((n) => n.trim().slice(0, 30)).slice(0, 3)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Adónde ir al guardar: la ficha, o el formulario limpio si pidió "guardar y agregar otro". Lleva el nombre para el aviso. */
 function destino(valores: Record<string, string>, codigo: number, nombre: string): string {
   const creado = `creado=${encodeURIComponent(nombre)}`;
@@ -93,6 +105,7 @@ export async function nuevoProducto(
   if (validadas?.ok) {
     // Cada variante es un producto hermano: su código, su stock y su costo; comparten grupo y foto.
     const grupo = crypto.randomUUID();
+    const opcionesVariante = nombresDeOpciones(valores.opcionesNombres);
     const hechos = await Promise.allSettled(
       validadas.variantes.map((v) =>
         crearProducto(supabase, negocio.id, {
@@ -101,6 +114,7 @@ export async function nuevoProducto(
           cantidad: v.cantidad,
           grupo,
           variante: v.etiqueta,
+          opcionesVariante,
         }),
       ),
     );

@@ -31,6 +31,7 @@ export const vitrina = {
   desde: (precio: string) => `Desde ${precio}`,
   nOpciones: (n: number) => `${n} opciones`,
   noDisponible: "Este producto ya no está disponible.",
+  noDisponibleCorto: "no disponible con tu elección",
   apartadoAviso: "Este producto está apartado. Si no lo pagan a tiempo, vuelve a estar disponible.",
   apartarApagado: "Este negocio no recibe apartados desde la vitrina por ahora. Escribile para pedirlo.",
   detalle: { categoria: "Categoría", marca: "Marca", condicion: "Condición" },

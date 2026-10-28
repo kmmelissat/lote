@@ -838,6 +838,7 @@ export type Database = {
           negocio_id: string
           nombre: string
           nota_condicion: string | null
+          opciones_variante: string[] | null
           precio: number
           variante: string | null
         }
@@ -856,6 +857,7 @@ export type Database = {
           negocio_id: string
           nombre: string
           nota_condicion?: string | null
+          opciones_variante?: string[] | null
           precio: number
           variante?: string | null
         }
@@ -874,6 +876,7 @@ export type Database = {
           negocio_id?: string
           nombre?: string
           nota_condicion?: string | null
+          opciones_variante?: string[] | null
           precio?: number
           variante?: string | null
         }
@@ -1256,6 +1259,7 @@ export type Database = {
           grupo: string | null
           marca: string
           nombre: string
+          opciones_variante: string[] | null
           precio: number
           variante: string | null
         }[]

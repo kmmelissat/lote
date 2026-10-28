@@ -6,6 +6,7 @@ import { StatusChip } from "@/components/ui/StatusChip";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { GaleriaVitrina } from "@/features/catalog/ui/GaleriaVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
+import { filasDeOpciones } from "@/features/catalog/opciones";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico, obtenerProductoPublico } from "@/features/catalog/repositorio";
 import { nombreBase } from "@/features/products/variantes";
@@ -66,6 +67,11 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
   opciones.sort((a, b) => a.codigo - b.codigo);
 
   const disponible = p.disponibles > 0;
+  const filas = filasDeOpciones(
+    opciones.map((o) => ({ codigo: o.codigo, variante: o.variante ?? "", disponibles: o.disponibles })),
+    p.codigo,
+    p.opciones,
+  );
   const detalles: [string, string][] = [];
   if (p.categoria) detalles.push([t.detalle.categoria, p.categoria]);
   if (p.marca) detalles.push([t.detalle.marca, p.marca]);
@@ -118,23 +124,50 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
             </div>
 
             {opciones.length > 1 && (
-              <nav aria-label={t.opciones} className="flex flex-col gap-2">
-                <h2 className="text-sm font-bold">{t.opciones}</h2>
-                <ul className="flex flex-wrap gap-2">
-                  {opciones.map((o) => (
-                    <li key={o.codigo}>
-                      <Link
-                        href={`/c/${slug}/${o.codigo}`}
-                        aria-current={o.codigo === p.codigo ? "page" : undefined}
-                        className={`inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold transition-colors ${
-                          o.codigo === p.codigo ? "bg-mango" : "bg-white hover:bg-limon"
-                        } ${o.disponibles > 0 ? "" : "opacity-70"}`}
-                      >
-                        {o.disponibles > 0 ? o.variante : t.opcionApartada(o.variante ?? "")}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+              <nav aria-label={t.opciones} className="flex flex-col gap-3">
+                {filas ? (
+                  // Un cruce (modelo × color): una fila de fichas por opción
+                  filas.map((fila) => (
+                    <div key={fila.titulo} className="flex flex-col gap-2">
+                      <h2 className="text-sm font-bold">{fila.titulo}</h2>
+                      <ul className="flex flex-wrap gap-2">
+                        {fila.fichas.map((f) => (
+                          <li key={f.valor}>
+                            <Link
+                              href={`/c/${slug}/${f.codigo}`}
+                              aria-current={f.actual ? "true" : undefined}
+                              className={`inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold transition-colors ${
+                                f.actual ? "bg-mango" : "bg-white hover:bg-limon"
+                              } ${f.disponible ? "" : "opacity-60 line-through"}`}
+                            >
+                              {f.valor}
+                              {!f.disponible && <span className="sr-only"> ({t.noDisponibleCorto})</span>}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <h2 className="text-sm font-bold">{t.opciones}</h2>
+                    <ul className="flex flex-wrap gap-2">
+                      {opciones.map((o) => (
+                        <li key={o.codigo}>
+                          <Link
+                            href={`/c/${slug}/${o.codigo}`}
+                            aria-current={o.codigo === p.codigo ? "page" : undefined}
+                            className={`inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold transition-colors ${
+                              o.codigo === p.codigo ? "bg-mango" : "bg-white hover:bg-limon"
+                            } ${o.disponibles > 0 ? "" : "opacity-70"}`}
+                          >
+                            {o.disponibles > 0 ? o.variante : t.opcionApartada(o.variante ?? "")}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </nav>
             )}
 

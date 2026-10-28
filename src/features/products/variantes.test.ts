@@ -52,6 +52,7 @@ const pub = (codigo: number, extra: Partial<ProductoPublico>): ProductoPublico =
   apartado: false,
   grupo: null,
   variante: null,
+  opciones: [],
   ...extra,
 });
 

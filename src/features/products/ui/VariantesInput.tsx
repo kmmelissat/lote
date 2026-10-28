@@ -150,6 +150,12 @@ export function VariantesInput({ valor, onCambio, error }: Props) {
         }}
       />
       {/* El formulario lleva las variantes como un solo campo, igual que las fotos */}
+      {/* Los nombres de las opciones que tienen valores, en el mismo orden que las partes de cada etiqueta */}
+      <input
+        type="hidden"
+        name="opcionesNombres"
+        value={JSON.stringify(abiertas ? e.grupos.filter((g) => g.valores.length).map((g) => g.nombre.trim()) : [])}
+      />
       <input type="hidden" name="variantes" value={JSON.stringify(abiertas ? filas.map(({ etiqueta, cantidad }) => ({ etiqueta, cantidad })) : [])} />
 
       <div className={`grid transition-[grid-template-rows] duration-200 ease-out ${abiertas ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>

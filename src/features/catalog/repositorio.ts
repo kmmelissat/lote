@@ -48,6 +48,8 @@ export type ProductoPublico = {
   /** Las variantes de un mismo producto comparten grupo (talla, tono, color) */
   grupo: string | null;
   variante: string | null;
+  /** Cómo se llama cada opción de la variante ("Modelo", "Color"), en el orden de la etiqueta; vacío si no se guardó */
+  opciones: string[];
 };
 
 type FilaProducto = Database["public"]["Functions"]["vitrina_productos"]["Returns"][number];
@@ -65,6 +67,7 @@ const aProductoPublico = (f: FilaProducto): ProductoPublico => ({
   apartado: f.apartado,
   grupo: f.grupo,
   variante: f.variante,
+  opciones: f.opciones_variante ?? [],
 });
 
 export async function listarProductosPublicos(supabase: Cliente, slug: string): Promise<ProductoPublico[]> {
