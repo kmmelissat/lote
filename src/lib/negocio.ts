@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 export type NegocioActual = {
   id: string;
   nombre: string;
+  /** El de la vitrina pública: /c/<slug> */
+  slug: string;
   /** La persona que hace la petición */
   usuarioId: string;
   rol: string;
@@ -25,7 +27,7 @@ export const negocioActual = cache(async function negocioActual() {
 
   const { data } = await supabase
     .from("miembro")
-    .select("negocio_id, rol, negocio(nombre)")
+    .select("negocio_id, rol, negocio(nombre, slug)")
     .eq("usuario_id", usuarioId)
     .limit(1);
   const miembro = data?.[0];
@@ -34,6 +36,7 @@ export const negocioActual = cache(async function negocioActual() {
   const negocio: NegocioActual = {
     id: miembro.negocio_id,
     nombre: miembro.negocio?.nombre ?? "",
+    slug: miembro.negocio?.slug ?? "",
     usuarioId,
     rol: miembro.rol,
     puedeGestionar: miembro.rol === "duena" || miembro.rol === "administradora",

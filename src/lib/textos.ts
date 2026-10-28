@@ -178,6 +178,29 @@ export const textos = {
       errorGuardar: "No pudimos guardar las fotos. Probá de nuevo.",
       maximo: "Máximo 8 fotos por producto.",
     },
+    compartir: {
+      titulo: "Compartir",
+      ayuda: "Textos listos con los datos de este producto. Los copiás y los pegás en Instagram o WhatsApp.",
+      botones: {
+        enlace: "Copiar enlace",
+        post: "Copiar texto para el post",
+        respuesta: "Copiar respuesta",
+      },
+      copiado: {
+        enlace: "Enlace copiado.",
+        post: "Texto para el post copiado.",
+        respuesta: "Respuesta copiada.",
+      },
+      noSePudoCopiar: "No pudimos copiar. Probá de nuevo.",
+      quedan: (n: number) => (n === 1 ? "Queda 1" : `Quedan ${n}`),
+      pedilo: (enlace: string) => `Apartalo acá: ${enlace}`,
+      respuestaDisponible: (nombre: string, precio: string, enlace: string) =>
+        `Hola! Sí, ${nombre} sigue disponible (${precio}). Podés apartarlo acá: ${enlace}`,
+      respuestaApartado: (nombre: string) =>
+        `Hola! ${nombre} está apartado por ahora. Si no se concreta, te aviso.`,
+      respuestaVendido: (nombre: string) =>
+        `Hola! ${nombre} ya se vendió. Escribime y te aviso cuando llegue algo parecido.`,
+    },
     reponer: {
       titulo: "Reponer",
       llegan: "Unidades que llegaron",

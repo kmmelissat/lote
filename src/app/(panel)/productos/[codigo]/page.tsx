@@ -14,6 +14,7 @@ import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { AgregarFotos } from "@/features/products/ui/AgregarFotos";
+import { CompartirProducto } from "@/features/products/ui/CompartirProducto";
 import { ReponerForm } from "@/features/products/ui/ReponerForm";
 
 const t = textos.productos;
@@ -116,6 +117,20 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
           </Card>
         )}
 
+        {negocio.slug && (
+          <CompartirProducto
+            slug={negocio.slug}
+            // Solo lo que el componente usa: un objeto completo viajaría al navegador con sus costos.
+            producto={{
+              codigo: p.codigo,
+              nombre: p.nombre,
+              descripcion: p.descripcion,
+              precio: p.precio,
+              estado: p.estado,
+              disponibles: p.disponibles,
+            }}
+          />
+        )}
         {negocio.puedeGestionar && <ReponerForm codigo={p.codigo} />}
         {negocio.puedeGestionar && p.fotos.length < MAXIMO_FOTOS && (
           <AgregarFotos codigo={p.codigo} negocioId={negocio.id} />
