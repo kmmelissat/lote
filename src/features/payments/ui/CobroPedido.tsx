@@ -1,16 +1,15 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { Select } from "@/components/ui/Select";
 import type { EstadoPedido } from "@/domain/index";
 import type { Pago } from "@/features/orders/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { alternarContraEntrega, pagar, type EstadoPago } from "../actions/cobro";
+import { alternarContraEntrega } from "../actions/cobro";
+import { PagoForm } from "./PagoForm";
 
 const t = textos.pedidos.cobrar;
 
@@ -30,10 +29,6 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
   const [aviso, setAviso] = useState("");
   const [errorContra, setErrorContra] = useState("");
   const [pendienteContra, empezarContra] = useTransition();
-  const [estadoPago, accionPago, pendientePago] = useActionState<EstadoPago, FormData>(
-    pagar.bind(null, pedidoId),
-    {},
-  );
 
   const abierto = estado !== "cancelado";
   const puedeCobrar = puedeVender && abierto && saldo > 0;
@@ -104,42 +99,8 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
         </div>
       )}
 
-      {puedeCobrar && (
-        <form
-          key={saldo}
-          action={accionPago}
-          className="grid gap-4 rounded-xl bg-perla/50 p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
-        >
-          <Field
-            etiqueta={t.monto}
-            name="monto"
-            inputMode="decimal"
-            required
-            defaultValue={(saldo / 100).toFixed(2)}
-          />
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">{t.metodo}</span>
-            <Select name="metodo" defaultValue="transferencia">
-              {(["transferencia", "billetera", "efectivo"] as const).map((m) => (
-                <option key={m} value={m}>
-                  {textos.cobro.metodos[m]}
-                </option>
-              ))}
-            </Select>
-          </label>
-          <Button type="submit" disabled={pendientePago}>
-            {pendientePago ? t.registrando : t.boton}
-          </Button>
-          <div className="sm:col-span-3">
-            {estadoPago.listo && (
-              <p role="status" className="text-sm text-teal">
-                {estadoPago.listo}
-              </p>
-            )}
-            <MensajeError>{estadoPago.error}</MensajeError>
-          </div>
-        </form>
-      )}
+      {/* key: al registrar un pago cambia el saldo y el formulario arranca limpio */}
+      {puedeCobrar && <PagoForm key={saldo} pedidoId={pedidoId} saldo={saldo} />}
 
       {puedeContraEntrega && (
         <div className="flex flex-col gap-2">

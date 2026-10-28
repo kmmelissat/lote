@@ -1,4 +1,4 @@
-import type { SalidaEntender, SalidaFoto } from "./esquema";
+import type { SalidaComprobante, SalidaEntender, SalidaFoto } from "./esquema";
 
 /** Lo que el negocio tiene hoy, para que la IA reconozca nombres. Son datos, no instrucciones. */
 export type ContextoIA = {
@@ -12,6 +12,8 @@ export interface ProveedorIA {
   entenderMensaje(texto: string, contexto?: ContextoIA): Promise<SalidaEntender>;
   /** Saca la ficha de un producto de su foto (por URL pública) y de la línea que la acompaña, si hay. */
   entenderFoto(urlImagen: string, linea: string): Promise<SalidaFoto>;
+  /** Lee el monto, la fecha y la referencia de la captura de un comprobante de pago (data URL, nunca guardada). */
+  leerComprobante(imagen: string): Promise<SalidaComprobante>;
 }
 
 export class IANoDisponible extends Error {

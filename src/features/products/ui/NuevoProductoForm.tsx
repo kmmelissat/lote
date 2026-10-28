@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useId, useState, useTransition, type FormEvent } from "react";
-import { costoUnitario, leerDolares } from "@/domain/index";
+import { costoUnitario, leerDolares, MARGEN_POR_DEFECTO, precioSugerido } from "@/domain/index";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Sugerido } from "@/components/ui/Sugerido";
@@ -13,21 +13,48 @@ import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } fro
 
 const t = textos.productos.form;
 
+const dolaresTexto = (centavos: number) => (centavos / 100).toFixed(2);
+
 const campoCosto = ["compra", "envio", "importacion", "otro"] as const;
 
-export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
+function costoDe(valores: Record<string, string> | undefined): number | null {
+  const rubros = Object.fromEntries(
+    campoCosto.flatMap((k) => {
+      const monto = leerDolares(valores?.[k] ?? "");
+      return monto === null ? [] : [[k, monto]];
+    }),
+  );
+  return costoUnitario(rubros);
+}
+
+export function NuevoProductoForm({
+  negocioId,
+  inicial,
+}: {
+  negocioId: string;
+  /** Valores con los que arranca el formulario, por ejemplo al repetir un producto */
+  inicial?: Record<string, string>;
+}) {
   const [estado, accion, pendiente] = useActionState<EstadoNuevo, FormData>(nuevoProducto, {});
-  const [ganancia, setGanancia] = useState<number | null>(null);
+  // Si el formulario arranca con datos (otra igual), costo y ganancia se calculan desde el inicio.
+  const [costoInicial] = useState(() => costoDe(inicial));
+  const [ganancia, setGanancia] = useState<number | null>(() => {
+    const precioInicial = leerDolares(inicial?.precio ?? "");
+    return precioInicial === null || costoInicial === null ? null : precioInicial - costoInicial;
+  });
+  const [costo, setCosto] = useState<number | null>(costoInicial);
+  const [precio, setPrecio] = useState(inicial?.precio ?? "");
+  const [margen, setMargen] = useState(String(MARGEN_POR_DEFECTO));
   const [rutas, setRutas] = useState<string[]>([]);
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [categoria, setCategoria] = useState("");
+  const [categoria, setCategoria] = useState(inicial?.categoria ?? "");
   const [sugeridos, setSugeridos] = useState<Set<keyof FichaSugerida>>(new Set());
   const [errorFoto, setErrorFoto] = useState("");
   const [leyendo, empezarLectura] = useTransition();
   const descripcionId = useId();
   const e = estado.errores ?? {};
-  const v = estado.valores ?? {};
+  const v = estado.valores ?? inicial ?? {};
 
   // Lo que escribió la persona no se pisa: solo se llenan los campos vacíos o los que ya eran sugeridos.
   function aplicar(f: FichaSugerida) {
@@ -71,9 +98,13 @@ export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
     const rubros = Object.fromEntries(
       campoCosto.map((k) => [k, monto(k) ?? undefined]).filter(([, m]) => m !== undefined),
     );
-    const costo = costoUnitario(rubros);
-    setGanancia(precio === null || costo === null ? null : precio - costo);
+    const costoPorUnidad = costoUnitario(rubros);
+    setCosto(costoPorUnidad);
+    setGanancia(precio === null || costoPorUnidad === null ? null : precio - costoPorUnidad);
   }
+
+  // La sugerencia aparece apenas hay costo; el margen lo cambia la persona.
+  const sugerido = costo === null ? null : precioSugerido(costo, Number(margen.replace(",", ".")));
 
   return (
     <form action={accion} onChange={recalcular} className="flex max-w-xl flex-col gap-4">
@@ -103,7 +134,8 @@ export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
           name="precio"
           inputMode="decimal"
           required
-          defaultValue={v.precio}
+          value={precio}
+          onChange={(ev) => setPrecio(ev.target.value)}
           error={e.precio}
         />
         <Field
@@ -127,6 +159,20 @@ export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
             ? t.sinCostoAun
             : `${t.gananciaEnVivo}: ${formatearDolares(ganancia)}`}
         </p>
+        {sugerido !== null && (
+          <div className="flex flex-wrap items-end gap-4 border-t border-borde pt-3">
+            {/* Sin name: el margen es solo para calcular, no se guarda */}
+            <div className="w-32">
+              <Field etiqueta={t.margen} inputMode="decimal" value={margen} onChange={(ev) => setMargen(ev.target.value)} />
+            </div>
+            <p className="min-h-12 flex-1 content-center" aria-live="polite">
+              {t.precioSugerido}: <strong>{formatearDolares(sugerido)}</strong>
+            </p>
+            <Button type="button" variante="secundario" onClick={() => setPrecio(dolaresTexto(sugerido))}>
+              {t.usarPrecio}
+            </Button>
+          </div>
+        )}
       </fieldset>
 
       <div className="grid grid-cols-2 gap-4">

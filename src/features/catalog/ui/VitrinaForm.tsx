@@ -45,6 +45,11 @@ export function VitrinaForm({ ajustes }: { ajustes: AjustesVitrina }) {
         </div>
 
         <div className="flex flex-col gap-1">
+          <Field etiqueta={t.umbral} name="umbral" type="number" min={0} max={50} inputMode="numeric" defaultValue={ajustes.umbralPocoStock} />
+          <p className="text-sm text-texto-2">{t.umbralAyuda}</p>
+        </div>
+
+        <div className="flex flex-col gap-1">
           <Field etiqueta={t.whatsapp} name="whatsapp" type="tel" autoComplete="off" defaultValue={ajustes.whatsapp ?? ""} />
           <p className="text-sm text-texto-2">{t.whatsappAyuda}</p>
         </div>

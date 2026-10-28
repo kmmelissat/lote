@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
-import { SalidaEntender, SalidaFoto } from "./esquema";
+import { SalidaComprobante, SalidaEntender, SalidaFoto } from "./esquema";
 import { PROMPT_ENTENDER_MENSAJE } from "./prompts/entenderMensaje";
+import { PROMPT_COMPROBANTE } from "./prompts/comprobante";
 import { PROMPT_FOTO_A_FICHA } from "./prompts/fotoAFicha";
 import { IANoDisponible, type ContextoIA, type ProveedorIA } from "./provider";
 
@@ -64,6 +65,29 @@ export function crearProveedorOpenAI(): ProveedorIA {
         max_output_tokens: 600,
       });
       if (!respuesta.output_parsed) throw new IANoDisponible("La IA no devolvió una ficha usable");
+      return respuesta.output_parsed;
+    },
+
+    async leerComprobante(imagen) {
+      const respuesta = await client.responses.parse({
+        model: modelo,
+        instructions: PROMPT_COMPROBANTE,
+        input: [
+          {
+            role: "user",
+            content: [
+              { type: "input_text", text: "Comprobante:" },
+              // Resolución alta: los dígitos del monto y de la referencia tienen que leerse bien.
+              { type: "input_image", image_url: imagen, detail: "high" },
+            ],
+          },
+        ],
+        text: { format: zodTextFormat(SalidaComprobante, "salida_comprobante") },
+        ...(modelo.startsWith("gpt-4") ? { temperature: 0 } : {}),
+        store: false,
+        max_output_tokens: 300,
+      });
+      if (!respuesta.output_parsed) throw new IANoDisponible("La IA no devolvió una lectura usable");
       return respuesta.output_parsed;
     },
   };

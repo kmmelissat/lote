@@ -7,3 +7,5 @@ export * from "./periodo";
 export * from "./resumen";
 export * from "./resumenSemanal";
 export * from "./avisos";
+export * from "./precio";
+export * from "./comprobante";

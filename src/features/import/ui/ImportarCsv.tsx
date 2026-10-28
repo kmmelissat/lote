@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState, useTransition, type ChangeEvent } from "react";
+import { useMemo, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { parseCsv } from "../csv";
 import {
@@ -16,6 +17,7 @@ import {
 } from "../mapeo";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { traerHojaDeGoogle } from "../actions/hoja";
 import { deshacerImportacionAction, importarCsv, type ResultadoImportar } from "../actions/importar";
 
 const t = textos.productos.importar;
@@ -39,20 +41,36 @@ export function ImportarCsv() {
   const malas = validadas.length - buenas;
   const tieneRequeridos = mapeo.nombre !== undefined && mapeo.precio !== undefined;
 
+  // Un archivo y una hoja de Google siguen el mismo camino desde que se tiene el texto CSV.
+  function cargar(nombre: string, texto: string) {
+    try {
+      const [encabezados, ...filas] = parseCsv(texto);
+      if (!encabezados || !filas.length) return setError(t.errorVacio);
+      if (filas.length > MAXIMO_FILAS) return setError(t.errorLimite(MAXIMO_FILAS));
+      setArchivo({ nombre, encabezados, filas });
+      setMapeo(proponerMapeo(encabezados));
+    } catch {
+      setError(t.errorArchivo);
+    }
+  }
+
   async function leer(e: ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f) return;
     setError("");
-    try {
-      const [encabezados, ...filas] = parseCsv(await f.text());
-      if (!encabezados || !filas.length) return setError(t.errorVacio);
-      if (filas.length > MAXIMO_FILAS) return setError(t.errorLimite(MAXIMO_FILAS));
-      setArchivo({ nombre: f.name, encabezados, filas });
-      setMapeo(proponerMapeo(encabezados));
-    } catch {
-      setError(t.errorArchivo);
-    }
+    cargar(f.name, await f.text());
+  }
+
+  function traerHoja(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const enlace = String(new FormData(e.currentTarget).get("enlace") ?? "");
+    setError("");
+    empezar(async () => {
+      const r = await traerHojaDeGoogle(enlace);
+      if (r.ok) cargar(t.hoja.nombreArchivo, r.csv);
+      else setError(r.error);
+    });
   }
 
   function cambiarColumna(campo: Campo, valor: string) {
@@ -125,6 +143,14 @@ export function ImportarCsv() {
         <a href="/plantilla-productos.csv" download className="inline-flex min-h-11 items-center text-teal underline">
           {t.plantilla}
         </a>
+
+        <form onSubmit={traerHoja} className="flex flex-col gap-2 border-t border-borde pt-4">
+          <Field etiqueta={t.hoja.etiqueta} name="enlace" type="url" inputMode="url" autoComplete="off" required placeholder="https://docs.google.com/spreadsheets/d/…" />
+          <p className="text-sm text-texto-2">{t.hoja.ayuda}</p>
+          <Button type="submit" variante="secundario" className="self-start" disabled={pendiente}>
+            {pendiente ? t.hoja.trayendo : t.hoja.boton}
+          </Button>
+        </form>
         <MensajeError>{error}</MensajeError>
       </div>
     );

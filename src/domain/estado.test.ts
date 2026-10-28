@@ -5,6 +5,7 @@ import {
   disponibles,
   estadoProducto,
   liberar,
+  pocoStock,
   venderApartadas,
   venderDirecto,
   type Existencias,
@@ -92,5 +93,25 @@ describe("liberar, vender y devolver", () => {
     const l: Existencias = { cantidad: 2, apartadas: 0, vendidas: 0 };
     expect(m.ok && estadoProducto(m.valor)).toBe("apartado");
     expect(estadoProducto(l)).toBe("disponible");
+  });
+});
+
+describe("pocoStock", () => {
+  it("avisa cuando quedan pocas de algo que se compró en cantidad", () => {
+    expect(pocoStock({ cantidad: 10, apartadas: 0, vendidas: 8 }, 2)).toBe(true);
+    expect(pocoStock({ cantidad: 10, apartadas: 1, vendidas: 7 }, 2)).toBe(true);
+  });
+
+  it("no avisa si todavía hay de sobra", () => {
+    expect(pocoStock({ cantidad: 10, apartadas: 0, vendidas: 5 }, 2)).toBe(false);
+  });
+
+  it("no avisa si no queda ninguna: eso ya es apartado o vendido", () => {
+    expect(pocoStock({ cantidad: 10, apartadas: 0, vendidas: 10 }, 2)).toBe(false);
+  });
+
+  it("una pieza única o un producto de pocas unidades no cuenta", () => {
+    expect(pocoStock({ cantidad: 1, apartadas: 0, vendidas: 0 }, 2)).toBe(false);
+    expect(pocoStock({ cantidad: 2, apartadas: 0, vendidas: 0 }, 2)).toBe(false);
   });
 });

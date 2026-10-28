@@ -158,6 +158,7 @@ export type AjustesVitrina = {
   apartarDesdeVitrina: boolean;
   plazoHoras: number;
   limitePorContacto: number;
+  umbralPocoStock: number;
   whatsapp: string | null;
   usuarioInstagram: string | null;
 };
@@ -165,7 +166,7 @@ export type AjustesVitrina = {
 export async function obtenerAjustesVitrina(supabase: Cliente, negocioId: string): Promise<AjustesVitrina> {
   const { data, error } = await supabase
     .from("negocio")
-    .select("slug, apartar_desde_vitrina, plazo_apartado_horas, limite_apartados_por_contacto, whatsapp, usuario_instagram")
+    .select("slug, apartar_desde_vitrina, plazo_apartado_horas, limite_apartados_por_contacto, umbral_poco_stock, whatsapp, usuario_instagram")
     .eq("id", negocioId)
     .single();
   if (error) throw error;
@@ -174,6 +175,7 @@ export async function obtenerAjustesVitrina(supabase: Cliente, negocioId: string
     apartarDesdeVitrina: data.apartar_desde_vitrina,
     plazoHoras: data.plazo_apartado_horas,
     limitePorContacto: data.limite_apartados_por_contacto,
+    umbralPocoStock: data.umbral_poco_stock,
     whatsapp: data.whatsapp,
     usuarioInstagram: data.usuario_instagram,
   };
@@ -191,6 +193,7 @@ export async function guardarAjustesVitrina(
       apartar_desde_vitrina: a.apartarDesdeVitrina,
       plazo_apartado_horas: a.plazoHoras,
       limite_apartados_por_contacto: a.limitePorContacto,
+      umbral_poco_stock: a.umbralPocoStock,
       whatsapp: a.whatsapp,
       usuario_instagram: a.usuarioInstagram,
     })

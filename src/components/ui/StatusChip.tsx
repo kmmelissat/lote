@@ -7,6 +7,7 @@ type Estilo = { texto: string; clase: string; icono: NombreIcono };
 const estilos = {
   disponible: { texto: textos.estadosProducto.disponible, clase: "bg-teal-fondo text-teal", icono: "check" },
   apartado: { texto: textos.estadosProducto.apartado, clase: "bg-perla text-ambar-texto", icono: "reloj" },
+  poco_stock: { texto: textos.productos.pocoStock, clase: "bg-perla text-ambar-texto", icono: "reloj" },
   vendido: { texto: textos.estadosProducto.vendido, clase: "bg-gris-fondo text-texto-2", icono: "moneda" },
   pendiente: { texto: textos.estadosPedido.pendiente, clase: "bg-perla text-ambar-texto", icono: "reloj" },
   pagado: { texto: textos.estadosPedido.pagado, clase: "bg-rosa-fondo text-rosa-texto", icono: "moneda" },

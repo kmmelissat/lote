@@ -80,3 +80,17 @@ export const SalidaFoto = z.object({
 });
 
 export type SalidaFoto = z.infer<typeof SalidaFoto>;
+
+// Lo que la IA lee de la captura de una transferencia. Solo lee: comparar con el pedido lo hace el código.
+export const SalidaComprobante = z.object({
+  /** false si la imagen no es un comprobante de pago */
+  esComprobante: z.boolean(),
+  /** Dólares transferidos (no el saldo de la cuenta ni comisiones). Null si no se lee con seguridad */
+  monto: z.number().nullable(),
+  /** AAAA-MM-DD, si se ve la fecha */
+  fecha: z.string().nullable(),
+  /** Número de referencia, confirmación o autorización, tal cual aparece */
+  referencia: z.string().nullable(),
+});
+
+export type SalidaComprobante = z.infer<typeof SalidaComprobante>;

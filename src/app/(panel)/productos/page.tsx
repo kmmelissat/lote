@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { esFiltroEstado, filtrarProductos, FILTROS_ESTADO } from "@/features/products/filtro";
+import { estadoVisible } from "@/features/products/estadoVisible";
 import { listarProductos } from "@/features/products/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
@@ -32,7 +33,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
 
   const { supabase, negocio } = await negocioActual();
   const todos = await listarProductos(supabase, negocio.id, negocio.puedeGestionar);
-  const productos = filtrarProductos(todos, { texto, estado });
+  const productos = filtrarProductos(todos, { texto, estado, umbral: negocio.umbralPocoStock });
   const filtrando = texto.trim() !== "" || estado !== "todos";
   const enlace = (e: string) => {
     const q = new URLSearchParams();
@@ -90,7 +91,12 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
         activa={estado}
         pestanas={FILTROS_ESTADO.map((e) => ({
           valor: e,
-          etiqueta: e === "todos" ? textos.productos.buscar.todos : textos.estadosProducto[e],
+          etiqueta:
+            e === "todos"
+              ? textos.productos.buscar.todos
+              : e === "poco"
+                ? textos.productos.buscar.poco
+                : textos.estadosProducto[e],
           href: enlace(e),
         }))}
       />
@@ -131,7 +137,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
                       <StatusChip
-                        estado={p.estado}
+                        estado={estadoVisible(p, negocio.umbralPocoStock)}
                         texto={p.disponibles > 0 ? textos.productos.quedan(p.disponibles) : undefined}
                       />
                       {p.costoUnitario !== undefined && (

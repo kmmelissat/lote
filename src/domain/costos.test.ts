@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { costoPromedio, costoUnitario, desgloseDeFilas } from "./costos";
+import { costoPromedio, costoUnitario, desgloseDeFilas, repartirCostoTotal } from "./costos";
 
 describe("desgloseDeFilas", () => {
   it("sin filas no hay desglose", () => {
@@ -54,5 +54,33 @@ describe("costoUnitario", () => {
 
   it("un costo de 0 explícito cuenta como registrado", () => {
     expect(costoUnitario({ compra: 0 })).toBe(0);
+  });
+});
+
+describe("repartirCostoTotal", () => {
+  it("reparte en partes iguales cuando divide exacto", () => {
+    expect(repartirCostoTotal(6000, 10)).toEqual(Array(10).fill(600));
+  });
+
+  it("los centavos que sobran van a las primeras piezas y la suma da el total", () => {
+    const partes = repartirCostoTotal(1000, 3);
+    expect(partes).toEqual([334, 333, 333]);
+    expect(partes.reduce((a, b) => a + b, 0)).toBe(1000);
+  });
+
+  it("siempre suma el total", () => {
+    for (const [total, n] of [[1, 3], [9999, 7], [0, 4], [12345, 10]] as const) {
+      expect(repartirCostoTotal(total, n).reduce((a, b) => a + b, 0)).toBe(total);
+    }
+  });
+
+  it("una sola pieza se queda con todo", () => {
+    expect(repartirCostoTotal(2500, 1)).toEqual([2500]);
+  });
+
+  it("datos imposibles no reparten nada", () => {
+    expect(repartirCostoTotal(1000, 0)).toEqual([]);
+    expect(repartirCostoTotal(-5, 3)).toEqual([]);
+    expect(repartirCostoTotal(1000, 2.5)).toEqual([]);
   });
 });

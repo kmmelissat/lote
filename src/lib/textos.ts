@@ -104,9 +104,11 @@ export const textos = {
       boton: "Buscar",
       estados: "Filtrar por estado",
       todos: "Todos",
+      poco: "Poco stock",
       sinResultados: "No encontramos productos con esa búsqueda.",
       limpiar: "Quitar filtros",
     },
+    pocoStock: "Poco stock",
     quedan: (n: number) => (n === 1 ? "Queda 1" : `Quedan ${n}`),
     ganaPor: "Ganancia estimada",
     sinCosto: "Sin costo",
@@ -159,6 +161,17 @@ export const textos = {
       deshecha: (n: number) => `Importación deshecha. Se quitaron ${n} productos.`,
       verProductos: "Ver productos",
       otroArchivo: "Elegir otro archivo",
+      hoja: {
+        nombreArchivo: "Google Sheets",
+        etiqueta: "O pegá el enlace de tu hoja de Google",
+        ayuda: "La hoja tiene que estar compartida como \"Cualquier persona con el enlace\" (puede ver). Se importa la pestaña del enlace.",
+        boton: "Traer la hoja",
+        trayendo: "Trayendo la hoja…",
+        errorEnlace: "Ese no parece un enlace de Google Sheets. Copialo desde el botón Compartir de tu hoja.",
+        errorPrivada: "No pudimos abrir la hoja. Revisá que esté compartida con \"Cualquier persona con el enlace\".",
+        errorGrande: "La hoja es demasiado grande para importarla de una vez.",
+        errorRed: "No pudimos traer la hoja. Probá de nuevo en un momento.",
+      },
       errorArchivo: "No pudimos leer el archivo. Probá guardándolo como CSV.",
       errorVacio: "El archivo no tiene filas para importar.",
       errorLimite: (n: number) => `El archivo tiene demasiadas filas. El máximo es ${n}.`,
@@ -177,6 +190,42 @@ export const textos = {
       errorSubir: "No pudimos subir la foto. Probá de nuevo.",
       errorGuardar: "No pudimos guardar las fotos. Probá de nuevo.",
       maximo: "Máximo 8 fotos por producto.",
+    },
+    lote: {
+      titulo: "Lote de fotos",
+      descripcion: "Subí varias fotos, ponele nombre a cada pieza y el costo total del lote se reparte solo.",
+      maximo: (n: number) => `Máximo ${n} fotos por lote.`,
+      piezas: (n: number) => (n === 1 ? "1 pieza" : `${n} piezas`),
+      nombrePieza: (n: number) => `Nombre de la pieza ${n}`,
+      sugerirNombres: "Sugerir nombres con las fotos",
+      sugerirAyuda: "Lote lee cada foto y propone un nombre. Solo llena los que estén vacíos y vos corregís.",
+      algunasFallaron: (n: number) =>
+        n === 1 ? "No pudimos leer 1 foto. Ponele el nombre a mano." : `No pudimos leer ${n} fotos. Ponéles el nombre a mano.`,
+      precio: "Precio de cada pieza ($)",
+      costoTotal: "Costo total del lote ($)",
+      repartoAyuda: "Si ponés el costo total, se reparte en partes iguales entre las piezas.",
+      reparto: (porPieza: string, n: number) => `Cada una de las ${n} piezas queda con un costo de ${porPieza}.`,
+      crear: (n: number) => (n === 1 ? "Crear 1 producto" : `Crear ${n} productos`),
+      creando: "Creando…",
+      errorFotos: (max: number) => `Subí entre 1 y ${max} fotos.`,
+      errorNombres: "Poné el nombre de cada pieza.",
+      errorPermiso: "Tu rol no puede crear productos.",
+      errorGeneral: "No pudimos crear el lote. Probá de nuevo.",
+      errorParcial: (creados: number, total: number) =>
+        `Se crearon ${creados} de ${total} productos. Revisá Productos antes de intentar de nuevo, para no repetir los que ya quedaron.`,
+    },
+    copiar: {
+      boton: "Otra igual",
+      aviso: (nombre: string) =>
+        `Copiamos el precio, el costo y la categoría de "${nombre}". Poné el nombre y cambiá lo que haga falta.`,
+    },
+    sticker: {
+      titulo: "Sticker para tus stories",
+      ayuda: "Una imagen vertical con la foto y la cinta VENDIDO, lista para subir a Instagram.",
+      boton: "Descargar sticker",
+      generando: "Armando la imagen…",
+      listo: "Sticker descargado.",
+      error: "No pudimos armar el sticker. Probá de nuevo.",
     },
     compartir: {
       titulo: "Compartir",
@@ -269,6 +318,9 @@ export const textos = {
       otro: "Otros ($)",
       gananciaEnVivo: "Ganancia estimada por unidad",
       sinCostoAun: "Poné el costo para ver tu ganancia.",
+      margen: "Margen deseado (%)",
+      precioSugerido: "Precio sugerido",
+      usarPrecio: "Usar este precio",
       guardar: "Guardar producto",
       guardando: "Guardando…",
       errorNombre: "Escribí el nombre del producto.",
@@ -538,6 +590,61 @@ export const textos = {
     ],
   },
 
+  ayuda: {
+    titulo: "Ayuda",
+    descripcion: "Respuestas a lo que más se pregunta.",
+    enlace: "Ayuda",
+    enlaceTexto: "Preguntas frecuentes sobre cómo usar Lote.",
+    volver: "Volver a ajustes",
+    preguntas: [
+      {
+        pregunta: "¿Cómo agrego un producto?",
+        respuesta:
+          "Tocá el botón + y elegí Nuevo producto. Con el nombre y el precio ya queda; el costo lo podés poner después. Si subís una foto, \"Completar con la foto\" te propone nombre, descripción y categoría para que los corrijas. Si ya tenés una lista en Excel, usá Importar en Productos.",
+      },
+      {
+        pregunta: "¿Qué pasa cuando alguien aparta desde mi vitrina?",
+        respuesta:
+          "El producto deja de estar disponible al instante y el cliente ve tus datos de pago y el tiempo que tiene para pagar. Si no paga a tiempo, el apartado vence solo y el producto vuelve a estar disponible. El plazo y el límite por persona se cambian en Ajustes, en Vitrina.",
+      },
+      {
+        pregunta: "¿Cómo le cobro a un cliente?",
+        respuesta:
+          "Abrí el pedido y tocá Copiar mensaje de cobro: arma el total, tus datos de pago y el plazo, listo para pegar en el chat. Cuando pague, registrá el pago o el abono en el mismo pedido. Los datos de pago se cargan en Ajustes.",
+      },
+      {
+        pregunta: "¿Cómo sé cuánto gané?",
+        respuesta:
+          "En Ganancia ves dos números: la ganancia de tus productos y la ganancia después de gastos. Si a algún producto le falta el costo, la ganancia aparece como estimada. Solo la ven la dueña y la administradora.",
+      },
+      {
+        pregunta: "¿Qué le puedo decir al asistente?",
+        respuesta:
+          "Escribile como a una ayudante: \"apartá la chaqueta para @ana\", \"vendí 2 llaveros en persona\", \"ya pagó Ana\", \"gasté $5 en bolsas\" o \"¿cuánto gané esta semana?\". Si escribís \"ayuda\" te muestra más ejemplos.",
+      },
+      {
+        pregunta: "¿Puedo deshacer algo que registré?",
+        respuesta:
+          "Sí. Con el asistente escribí \"deshacer\" y se revierte lo último que hizo. Un pedido también se puede cancelar mientras no esté entregado, y las unidades vuelven a estar disponibles.",
+      },
+      {
+        pregunta: "¿Cómo le mando a un cliente el seguimiento de su pedido?",
+        respuesta:
+          "En el pedido, en la parte de Envío, guardá cómo se entrega y tocá Copiar mensaje de envío: lleva un enlace donde el cliente ve el estado sin escribirte. El enlace no muestra sus datos ni los precios.",
+      },
+      {
+        pregunta: "¿Quién puede ver mis costos y mi ganancia?",
+        respuesta:
+          "Solo la dueña y la administradora. Una vendedora puede registrar ventas, apartados y pagos, pero no ve costos ni ganancias.",
+      },
+      {
+        pregunta: "¿Puedo llevarme mis datos?",
+        respuesta:
+          "Sí. En Ajustes, en Exportar datos, descargás tus productos, pedidos, clientes y gastos en un archivo que abre Excel o Google Sheets.",
+      },
+    ],
+  },
+
   exportar: {
     titulo: "Exportar datos",
     descripcion: "Descargá lo tuyo en un archivo que abre Excel o Google Sheets.",
@@ -716,6 +823,23 @@ export const textos = {
       registrando: "Registrando…",
       boton: "Registrar pago",
       listo: "Pago registrado.",
+      comprobante: {
+        etiqueta: "Subí el comprobante de transferencia",
+        ayuda: "Lote lee el monto y lo deja puesto abajo. Vos revisás y registrás. La imagen no se guarda.",
+        leyendo: "Leyendo el comprobante…",
+        sinMonto: "No pudimos leer el monto. Escribilo a mano.",
+        exacto: (leido: string) => `Leímos ${leido} y coincide con lo que debe el pedido. Revisá y tocá Registrar pago.`,
+        parcial: (leido: string, saldo: string) =>
+          `Leímos ${leido}, menos de los ${saldo} que debe el pedido: se registra como abono. Revisá y tocá Registrar pago.`,
+        excede: (leido: string, saldo: string) =>
+          `Leímos ${leido}, más de los ${saldo} que debe el pedido. Dejamos el saldo; revisá antes de registrar.`,
+        referencia: (r: string) => `Referencia ${r}.`,
+        fecha: (f: string) => `Fecha ${f}.`,
+        errorImagen: "No pudimos leer esa imagen. Probá con otra captura.",
+        noEsComprobante: "Esa imagen no parece un comprobante de pago.",
+        sinIA: "La lectura de comprobantes todavía no está conectada. Escribí el monto a mano.",
+        errorGeneral: "No pudimos leer el comprobante. Probá de nuevo o escribí el monto a mano.",
+      },
       pagado: "Pedido pagado por completo.",
       contraEntrega: "Cobrar contra entrega",
       contraEntregaActivo: "Se cobra contra entrega",
@@ -852,6 +976,8 @@ export const textos = {
       plazoAyuda: "Pasado ese tiempo, el apartado vence y el producto vuelve a estar disponible.",
       limite: "Apartados activos por contacto",
       limiteAyuda: "Cuántos apartados puede tener a la vez la misma persona.",
+      umbral: "Aviso de poco stock",
+      umbralAyuda: "Cuando de un producto que compraste en cantidad quedan este número de unidades o menos, se marca como poco stock.",
       whatsapp: "Tu WhatsApp",
       whatsappAyuda: "Con código de país, por ejemplo +503 7000 1234. Es el que abre el botón de pedir.",
       instagram: "Tu usuario de Instagram",
@@ -860,6 +986,7 @@ export const textos = {
       guardado: "Vitrina guardada.",
       errorPlazo: "Poné un plazo entre 1 y 168 horas.",
       errorLimite: "Poné un límite entre 1 y 20.",
+      errorUmbral: "Poné un número entre 0 y 50.",
       errorWhatsapp: "Ese número no parece válido. Probá con código de país, por ejemplo +503 7000 1234.",
       errorInstagram: "Ese usuario no parece válido.",
       errorGeneral: "No pudimos guardar. Probá de nuevo.",
@@ -905,6 +1032,7 @@ export const textos = {
     descripcion: "Elegí una acción y Lote se encarga del resto.",
     opciones: [
       { id: "producto", etiqueta: "Nuevo producto" },
+      { id: "lote", etiqueta: "Lote de fotos" },
       { id: "venta", etiqueta: "Registrar venta o apartado" },
       { id: "asistente", etiqueta: "Hablar con el asistente" },
       { id: "chat", etiqueta: "Pegar chat de cliente" },

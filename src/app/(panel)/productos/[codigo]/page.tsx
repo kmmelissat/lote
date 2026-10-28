@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { DesgloseCosto } from "@/domain";
+import { estadoVisible } from "@/features/products/estadoVisible";
 import { obtenerProducto } from "@/features/products/repositorio";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
 import { urlFoto } from "@/lib/fotos";
@@ -14,6 +15,7 @@ import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { AgregarFotos } from "@/features/products/ui/AgregarFotos";
+import { StickerVendido } from "@/features/products/ui/StickerVendido";
 import { CompartirProducto } from "@/features/products/ui/CompartirProducto";
 import { ReponerForm } from "@/features/products/ui/ReponerForm";
 
@@ -60,9 +62,14 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
           {t.volver}
         </Link>
         {negocio.puedeGestionar && (
-          <ButtonLink href={`/productos/${p.codigo}/editar`} variante="secundario">
-            {textos.productos.editar.boton}
-          </ButtonLink>
+          <div className="flex flex-wrap gap-3">
+            <ButtonLink href={`/productos/nuevo?copiar=${p.codigo}`} variante="secundario">
+              {t.copiar.boton}
+            </ButtonLink>
+            <ButtonLink href={`/productos/${p.codigo}/editar`} variante="secundario">
+              {t.editar.boton}
+            </ButtonLink>
+          </div>
         )}
       </div>
 
@@ -85,7 +92,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
         )}
 
         <Card className="flex flex-col gap-3 border border-borde">
-          <StatusChip estado={p.estado} texto={p.disponibles > 0 ? t.quedan(p.disponibles) : undefined} />
+          <StatusChip estado={estadoVisible(p, negocio.umbralPocoStock)} texto={p.disponibles > 0 ? t.quedan(p.disponibles) : undefined} />
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
             {filas.map(([k, val]) => (
               <div key={k} className="contents">
@@ -130,6 +137,9 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
               disponibles: p.disponibles,
             }}
           />
+        )}
+        {p.estado === "vendido" && p.fotos[0] && (
+          <StickerVendido foto={urlFoto(p.fotos[0])} nombre={p.nombre} codigo={p.codigo} negocio={negocio.nombre} />
         )}
         {negocio.puedeGestionar && <ReponerForm codigo={p.codigo} />}
         {negocio.puedeGestionar && p.fotos.length < MAXIMO_FOTOS && (

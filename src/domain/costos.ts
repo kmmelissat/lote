@@ -43,3 +43,14 @@ export function costoUnitario(d: DesgloseCosto | undefined): Centavos | null {
   );
   return valores.length ? valores.reduce((a, b) => a + b, 0) : null;
 }
+
+/**
+ * Reparte el costo total de un lote entre sus piezas, en partes iguales. Los centavos que no dividen
+ * exacto van de a uno a las primeras piezas, así la suma siempre da el total (nunca se pierde un centavo).
+ */
+export function repartirCostoTotal(total: Centavos, partes: number): Centavos[] {
+  if (!Number.isInteger(partes) || partes < 1 || total < 0) return [];
+  const base = Math.floor(total / partes);
+  const sobran = total - base * partes;
+  return Array.from({ length: partes }, (_, i) => base + (i < sobran ? 1 : 0));
+}

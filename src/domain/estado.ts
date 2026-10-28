@@ -9,6 +9,13 @@ export type Existencias = {
 export const disponibles = (e: Existencias): number =>
   e.cantidad - e.apartadas - e.vendidas;
 
+/**
+ * Poco stock: quedan pocas unidades de algo que se compró en cantidad. Una pieza única (o un producto
+ * que nunca tuvo más que el umbral) no cuenta: tener una sola es lo normal ahí.
+ */
+export const pocoStock = (e: Existencias, umbral: number): boolean =>
+  e.cantidad > umbral && disponibles(e) > 0 && disponibles(e) <= umbral;
+
 export function estadoProducto(e: Existencias): EstadoProducto {
   if (disponibles(e) > 0) return "disponible";
   if (e.apartadas > 0) return "apartado";

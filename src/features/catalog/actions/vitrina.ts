@@ -20,6 +20,11 @@ export async function guardarVitrina(_anterior: EstadoVitrina, formData: FormDat
     return { error: t.errorLimite };
   }
 
+  const umbralPocoStock = Number(texto("umbral"));
+  if (!Number.isInteger(umbralPocoStock) || umbralPocoStock < 0 || umbralPocoStock > 50) {
+    return { error: t.errorUmbral };
+  }
+
   const whatsapp = texto("whatsapp");
   const digitos = whatsapp.replace(/\D/g, "");
   if (whatsapp && (!/^\+?[\d\s-]+$/.test(whatsapp) || digitos.length < 8 || digitos.length > 15)) {
@@ -37,6 +42,7 @@ export async function guardarVitrina(_anterior: EstadoVitrina, formData: FormDat
     apartarDesdeVitrina: formData.get("apartar") === "on",
     plazoHoras,
     limitePorContacto,
+    umbralPocoStock,
     whatsapp: whatsapp || null,
     usuarioInstagram: instagram || null,
   });

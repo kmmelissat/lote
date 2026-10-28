@@ -6,6 +6,7 @@ import { textos } from "@/lib/textos";
 
 const RUTAS: Record<string, string> = {
   producto: "/productos/nuevo",
+  lote: "/productos/lote",
   venta: "/pedidos/nuevo",
   asistente: "/asistente",
 };

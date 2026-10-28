@@ -15,10 +15,13 @@ type Props = {
   /** Si se da, las rutas viajan en un campo oculto del formulario */
   name?: string;
   onCambio?: (rutas: string[]) => void;
+  /** Cuántas fotos como máximo; por defecto el tope de un producto */
+  maximo?: number;
+  mensajeMaximo?: string;
 };
 
 // Elige, comprime y sube las fotos al momento; el formulario solo guarda las rutas.
-export function FotoInput({ negocioId, name, onCambio }: Props) {
+export function FotoInput({ negocioId, name, onCambio, maximo = MAXIMO_FOTOS, mensajeMaximo = t.maximo }: Props) {
   const id = useId();
   const [rutas, setRutas] = useState<string[]>([]);
   const [subiendo, setSubiendo] = useState(false);
@@ -30,9 +33,9 @@ export function FotoInput({ negocioId, name, onCambio }: Props) {
   }
 
   async function elegir(e: ChangeEvent<HTMLInputElement>) {
-    const archivos = [...(e.target.files ?? [])].slice(0, MAXIMO_FOTOS - rutas.length);
+    const archivos = [...(e.target.files ?? [])].slice(0, maximo - rutas.length);
     e.target.value = "";
-    if (!archivos.length) return setError(t.maximo);
+    if (!archivos.length) return setError(mensajeMaximo);
     setError("");
     setSubiendo(true);
     try {
@@ -80,7 +83,7 @@ export function FotoInput({ negocioId, name, onCambio }: Props) {
         type="file"
         accept="image/*"
         multiple
-        disabled={subiendo || rutas.length >= MAXIMO_FOTOS}
+        disabled={subiendo || rutas.length >= maximo}
         onChange={elegir}
         className="block w-full text-sm file:mr-3 file:h-11 file:rounded-full file:border-0 file:bg-teal-fondo file:px-5 file:font-medium file:text-teal"
       />

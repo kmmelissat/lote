@@ -198,6 +198,13 @@ export async function cambiarEstadoPedido(
   return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
 }
 
+/** Cuánto debe todavía un pedido. Null si no existe o no es del negocio de la persona (lo filtra RLS). */
+export async function saldoDelPedido(supabase: Cliente, pedidoId: string): Promise<Centavos | null> {
+  const { data, error } = await supabase.from("pedido").select("saldo").eq("id", pedidoId).maybeSingle();
+  if (error) throw error;
+  return data ? aCentavos(data.saldo) : null;
+}
+
 export type Pago = { id: string; monto: Centavos; metodo: MetodoPago; fecha: string };
 
 export async function listarPagos(supabase: Cliente, pedidoId: string): Promise<Pago[]> {
