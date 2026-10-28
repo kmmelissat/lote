@@ -22,48 +22,79 @@ const enMovil = pestanas.filter((p) => !p.soloEscritorio);
 
 // En rutas dinámicas (/productos/[codigo]) el pathname solo se conoce en la petición:
 // mientras llega, el enlace se ve igual pero sin marcar como activo.
-function Enlace(props: Pestana) {
+type Vista = (props: Pestana & { activa: boolean }) => ReactNode;
+
+function Enlace({ vista: Vista, ...props }: Pestana & { vista: Vista }) {
   return (
-    <Suspense fallback={<EnlaceVista {...props} activa={false} />}>
-      <EnlaceActivo {...props} />
+    <Suspense fallback={<Vista {...props} activa={false} />}>
+      <EnlaceActivo vista={Vista} {...props} />
     </Suspense>
   );
 }
 
-function EnlaceActivo(props: Pestana) {
+function EnlaceActivo({ vista: Vista, ...props }: Pestana & { vista: Vista }) {
   const pathname = usePathname();
   const activa = pathname === props.href || pathname.startsWith(`${props.href}/`);
-  return <EnlaceVista {...props} activa={activa} />;
+  return <Vista {...props} activa={activa} />;
 }
 
-function EnlaceVista({ href, etiqueta, icono, activa }: Pestana & { activa: boolean }) {
+// Menú lateral (escritorio)
+function EnlaceLateral({ href, etiqueta, icono, activa }: Pestana & { activa: boolean }) {
   return (
     <Link
       href={href}
       aria-current={activa ? "page" : undefined}
       title={etiqueta}
-      className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-xs font-medium md:flex-row md:justify-start md:gap-3 md:px-3 md:text-base md:group-data-[cerrado]:justify-center ${
+      className={`flex min-h-11 items-center gap-3 rounded-xl border px-3 text-base font-medium group-data-[cerrado]:justify-center ${
         activa
-          ? "bg-teal-fondo text-teal md:border md:border-borde md:bg-superficie md:text-teal-oscuro md:shadow-sm"
-          : "text-texto-2 hover:bg-teal-fondo md:border md:border-transparent md:hover:bg-superficie"
+          ? "border-borde bg-superficie text-teal-oscuro shadow-sm"
+          : "border-transparent text-texto-2 hover:bg-superficie"
       }`}
     >
       <Icon nombre={icono} className="size-6 shrink-0" />
-      <span className="md:group-data-[cerrado]:hidden">{etiqueta}</span>
+      <span className="group-data-[cerrado]:hidden">{etiqueta}</span>
     </Link>
   );
 }
 
-function BotonMas() {
+// Barra flotante (móvil): solo íconos, todos del mismo tamaño; la pestaña activa va en círculo teal.
+function EnlaceMovil({ href, etiqueta, icono, activa }: Pestana & { activa: boolean }) {
+  return (
+    <Link
+      href={href}
+      aria-current={activa ? "page" : undefined}
+      aria-label={etiqueta}
+      className={`flex size-11 items-center justify-center rounded-full transition-colors duration-150 ${
+        activa ? "bg-teal text-white" : "text-texto-2 hover:bg-teal-fondo"
+      }`}
+    >
+      <Icon nombre={icono} className="size-5" />
+    </Link>
+  );
+}
+
+function BotonMasMovil() {
+  return (
+    <Link
+      href="/nuevo"
+      aria-label={textos.nav.nuevo}
+      className="flex size-12 shrink-0 items-center justify-center rounded-full bg-ambar text-teal-oscuro shadow-md transition-transform duration-150 active:scale-95"
+    >
+      <Icon nombre="mas" className="size-6" strokeWidth={2.25} />
+    </Link>
+  );
+}
+
+function BotonMasLateral() {
   return (
     <Link
       href="/nuevo"
       aria-label={textos.nav.nuevo}
       title={textos.nav.nuevo}
-      className="-mt-6 flex size-14 items-center justify-center rounded-full bg-teal text-white shadow-md hover:bg-teal-oscuro md:mt-0 md:h-12 md:w-full md:gap-2 md:rounded-xl md:text-base md:font-medium md:shadow-none"
+      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-teal text-base font-medium text-white hover:bg-teal-oscuro"
     >
-      <Icon nombre="mas" className="size-7" />
-      <span className="hidden md:inline md:group-data-[cerrado]:hidden">{textos.nav.nuevo}</span>
+      <Icon nombre="mas" className="size-6" />
+      <span className="group-data-[cerrado]:hidden">{textos.nav.nuevo}</span>
     </Link>
   );
 }
@@ -86,18 +117,18 @@ export function Nav({ perfil }: { perfil: ReactNode }) {
   const [cerrado, setCerrado] = useState(false);
   return (
     <>
-      {/* Móvil: barra inferior con el botón "+" al centro */}
+      {/* Móvil: barra flotante en píldora, con el botón "+" al centro */}
       <nav
         aria-label="Principal"
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-borde bg-superficie md:hidden"
+        className="fixed inset-x-2 bottom-[max(0.5rem,env(safe-area-inset-bottom))] z-10 md:hidden"
       >
-        <ul className="mx-auto grid max-w-md grid-cols-5 items-center px-2 pb-[env(safe-area-inset-bottom)]">
+        <ul className="mx-auto flex max-w-md items-center justify-between rounded-full border border-borde bg-superficie p-2 shadow-lg">
           {enMovil.slice(0, 2).map((p) => (
-            <li key={p.href}><Enlace {...p} /></li>
+            <li key={p.href}><Enlace vista={EnlaceMovil} {...p} /></li>
           ))}
-          <li className="flex justify-center"><BotonMas /></li>
+          <li><BotonMasMovil /></li>
           {enMovil.slice(2).map((p) => (
-            <li key={p.href}><Enlace {...p} /></li>
+            <li key={p.href}><Enlace vista={EnlaceMovil} {...p} /></li>
           ))}
         </ul>
       </nav>
@@ -125,16 +156,16 @@ export function Nav({ perfil }: { perfil: ReactNode }) {
           </button>
         </div>
         <Buscar />
-        <BotonMas />
+        <BotonMasLateral />
         <nav aria-label="Principal">
           <ul className="flex flex-col gap-1">
             {pestanas.map((p) => (
-              <li key={p.href}><Enlace {...p} /></li>
+              <li key={p.href}><Enlace vista={EnlaceLateral} {...p} /></li>
             ))}
           </ul>
         </nav>
         <div className="mt-auto flex flex-col gap-1 border-t border-borde pt-3">
-          <Enlace href="/ajustes" etiqueta={textos.nav.ajustes} icono="ajustes" />
+          <Enlace vista={EnlaceLateral} href="/ajustes" etiqueta={textos.nav.ajustes} icono="ajustes" />
           <Suspense fallback={null}>{perfil}</Suspense>
         </div>
       </aside>
