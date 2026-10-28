@@ -1,0 +1,23 @@
+// Nombre de cada tramo de la ruta en las migas de pan; lo que no está acá se muestra tal cual.
+export const migas = {
+  inicio: "Inicio",
+  productos: "Productos",
+  pedidos: "Pedidos",
+  clientes: "Clientes",
+  ganancia: "Ganancia",
+  ajustes: "Ajustes",
+  nuevo: "Nuevo",
+  asistente: "Asistente",
+  "pegar-chat": "Pegar chat",
+  importar: "Importar",
+  lote: "Lote de fotos",
+  editar: "Editar",
+  equipo: "Equipo",
+  ayuda: "Ayuda",
+  envios: "Envíos",
+  exportar: "Exportar datos",
+  pagos: "Datos de pago",
+  vitrina: "Vitrina",
+  tienda: "Mi tienda",
+  resumen: "Resumen semanal",
+} as Record<string, string>;

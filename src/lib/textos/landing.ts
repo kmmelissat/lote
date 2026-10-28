@@ -1,0 +1,230 @@
+export const landing = {
+  titulo: "Lote · Tu inventario, apartado y cuadrado",
+  descripcion:
+    "Para quienes venden por redes sociales: sabé qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces.",
+  palabrasClave: [
+    "inventario para emprendedoras",
+    "controlar inventario Instagram",
+    "apartados y pedidos por redes sociales",
+    "ganancia por producto",
+    "vitrina en línea",
+    "El Salvador",
+  ],
+  saltar: "Saltar al contenido",
+  menu: "Secciones",
+  enlaces: [
+    { href: "#como", etiqueta: "Cómo funciona" },
+    { href: "#funciones", etiqueta: "Funciones" },
+    { href: "#precios", etiqueta: "Precios" },
+    { href: "#preguntas", etiqueta: "Preguntas" },
+  ],
+  entrar: "Entrar",
+  empezar: "Empezar gratis",
+  irAlPanel: "Ir a mi panel",
+  hero: {
+    etiqueta: "Para quienes venden por redes sociales",
+    tituloInicio: "Tu inventario,",
+    tituloMarca: "apartado y cuadrado.",
+    texto:
+      "Saber en todo momento qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces.",
+    verComo: "Ver cómo funciona",
+    nota: "Gratis para empezar. Sin tarjeta.",
+    ejemplo: "Así se ve (datos de ejemplo)",
+    fuente: "Hecha con lo que nos contaron cinco emprendimientos",
+    emprendimientos: ["Ternuritos", "Koa", "Capo", "Mims", "MG Vinyls"],
+    mock: {
+      productos: "Productos",
+      disponibles: (n: number) => `Disponibles: ${n}`,
+      filas: [
+        { nombre: "Chaqueta negra M", precio: "$25.00", icono: "camisa" as const, texto: "Queda 1" },
+        { nombre: "CD Michael Jackson · Rose", precio: "$33.50", icono: "disco" as const, texto: "Quedan 12" },
+        { nombre: "Llaveros", precio: "$3.00", icono: "llave" as const, texto: "Quedan 3" },
+      ],
+      tu: "apartá la chaqueta para @ana",
+      lote: "Listo. Chaqueta negra apartada para @ana. Disponibles: 0.",
+      deshacer: "Deshacer",
+      gananciaEtiqueta: "Ganancia de la semana",
+      stickerApartado: "¡Apartado!",
+      gorila: "¡Anotado!",
+      escribile: "Escribile a Lote…",
+    },
+  },
+  marquesina: ["Apartado", "Cobrado", "Enviado", "Cuadrado"],
+  problema: {
+    titulo: "Si vendés por redes, esto te suena",
+    intro: "Hablamos con cinco emprendimientos que venden por redes sociales. En los cinco pasó lo mismo.",
+    carrusel: "Lo que encontramos en las entrevistas",
+    items: [
+      {
+        dato: "5 de 5",
+        titulo: "Prometiste algo que ya se vendió",
+        texto: "La publicación sigue arriba, el chat quedó enterrado y otra persona pregunta por la misma pieza.",
+        cita: "Casi le confirmé el mismo producto a dos personas.",
+        quien: "Ternuritos",
+      },
+      {
+        dato: "5 de 5",
+        titulo: "No sabés cuánto ganaste",
+        texto: "Vendiste bien, pero entre el envío, el empaque y lo que costó cada pieza, la cuenta no cuadra.",
+        cita: "Realmente no sé cuánto gané.",
+        quien: "Ternuritos",
+      },
+      {
+        dato: "5 de 5",
+        titulo: "Todo está en un chat, una nota y un Excel",
+        texto: "Pedidos, pagos y envíos viven en conversaciones, sin un estado que se vea de un vistazo.",
+        cita: "Tener que buscar la misma información en tres lugares distintos.",
+        quien: "Capo",
+      },
+    ],
+  },
+  como: {
+    titulo: "Así de simple",
+    pasos: [
+      {
+        titulo: "Mandá la foto y una línea",
+        texto: "Lote arma la ficha con nombre, precio, costo y estado. El costo lo podés poner después.",
+        chat: "chaqueta negra M, 25, me costó 10",
+        ficha: { nombre: "Chaqueta negra M", precio: "$25.00", costo: "Costo $10.00" },
+      },
+      {
+        titulo: "Compartí tu vitrina",
+        texto: "Un enlace siempre al día. Lo vendido sale, lo apartado se marca, y tus clientes apartan solos.",
+        enlace: "lote-ten.vercel.app/c/koa",
+        boton: "Apartar",
+      },
+      {
+        titulo: "Cobrá, enviá y mirá cuánto ganaste",
+        texto: "Cada pedido va de pendiente a entregado y la ganancia sale sola, con el costo real de cada pieza.",
+        pedido: "Pedido #12",
+        pasos: ["Pendiente", "Pagado", "Enviado"],
+        ganancia: "+$15.00",
+      },
+    ],
+  },
+  funciones: {
+    titulo: "Lo que ya podés hacer",
+    estado: {
+      titulo: "Un estado por pieza",
+      texto: "Disponible, apartada o vendida. Si alguien intenta apartar algo que ya no está, Lote te avisa para quién es.",
+      aviso: "Ya está apartada para @ana",
+    },
+    vitrina: {
+      titulo: "Vitrina con tu enlace",
+      texto: "Con tu logo, tu color y tus productos. Tus clientes apartan y ven los datos de pago sin crear cuenta.",
+    },
+    ganancia: {
+      titulo: "Ganancia real",
+      texto: "Costo por pieza (compra, envío, importación) y gastos.",
+      valor: "+$23.50",
+      margen: "70% de margen",
+    },
+    pedidos: {
+      titulo: "Pedidos con estados",
+      texto: "Con abonos, contra entrega y envío por departamento.",
+    },
+    asistente: {
+      titulo: "Un asistente por chat",
+      texto: "Escribile como a una persona. Todo se puede deshacer.",
+      tu: "gasté $5 en bolsas",
+      lote: "Listo. Gasto de $5.00 en empaque.",
+    },
+    importar: {
+      titulo: "Traé lo que ya tenés",
+      texto: "Subí tu Excel o tu hoja de Google y se crean todos los productos juntos, con un botón para deshacer.",
+      archivo: "mis-productos.csv",
+      filas: "12 productos listos",
+    },
+    tambien:
+      "También: variantes (talla, tono, color), resumen semanal, ayudante con permisos, y exportar tus datos cuando quieras.",
+  },
+  principios: {
+    titulo: "Hecha para que no la abandones",
+    intro: "Todas probaron Excel, notas o un sistema y no les funcionó del todo. Les preguntamos por qué.",
+    items: [
+      {
+        titulo: "Sin doble registro",
+        texto: "Registrar algo toma una línea o un par de toques. Lo que falta se pregunta después.",
+        cita: "Si me obliga a registrar lo mismo varias veces, no la voy a mantener.",
+        quien: "Capo",
+      },
+      {
+        titulo: "Rápida, desde el celular",
+        texto: "Pensada primero para una mano y para el celular. Nada enorme que aprender.",
+        cita: "Quiero algo rápido que no me quite más tiempo del que me ahorra.",
+        quien: "Koa",
+      },
+      {
+        titulo: "Números sin inventos",
+        texto: "La plata la calcula el programa con reglas fijas. Vos confirmás lo delicado.",
+        cita: "Tranquila, yo llevo la cuenta.",
+        quien: "Lote",
+      },
+    ],
+  },
+  precios: {
+    titulo: "Gratis para empezar",
+    intro: "Empezá sin pagar. Cuando tu negocio crezca, hay un plan para eso.",
+    recomendado: "Recomendado",
+    proximamente: "Próximamente",
+    gratis: {
+      nombre: "Gratis",
+      precio: "$0",
+      texto: "Para vender y llevar el control solo o con una ayudante.",
+      lista: [
+        "Fichas de producto, fotos y estados",
+        "Vitrina con tu enlace",
+        "Pedidos, cobros y envíos",
+        "Ganancia real y gastos",
+      ],
+      nota: "Con un límite de productos activos y de apartados desde la vitrina por mes, y con la marca de Lote en la vitrina.",
+    },
+    pago: {
+      nombre: "Con más negocio",
+      precio: "Mensualidad baja",
+      texto: "Cuando ya no te alcanza el plan gratis.",
+      lista: ["Sin límites", "Vitrina sin la marca de Lote", "Paquetera integrada", "Importación avanzada y resumen semanal"],
+      nota: "El precio exacto lo definimos con quienes participen del piloto.",
+    },
+  },
+  preguntas: {
+    titulo: "Preguntas frecuentes",
+    intro: "Lo que más nos preguntaron en las entrevistas, y algunas cosas más.",
+    abrir: "Abrir",
+    items: [
+      {
+        p: "¿Tengo que dejar mis redes?",
+        r: "No. Seguís vendiendo por Instagram, Facebook, WhatsApp o en persona. Lote es donde llevás el control, y tus clientes ven tu vitrina con un enlace.",
+      },
+      {
+        p: "¿Funciona desde el celular?",
+        r: "Sí. Se diseñó primero para el celular, para registrar con una mano.",
+      },
+      {
+        p: "¿Y si no sé cuánto me costó algo?",
+        r: "Lo dejás vacío. Lote marca la ganancia como estimada y te lo pregunta después, sin frenarte.",
+      },
+      {
+        p: "¿La IA calcula mi plata?",
+        r: "No. Los números los calcula el programa con reglas fijas. La IA solo lee fotos y mensajes para proponerte la acción, y vos confirmás lo delicado.",
+      },
+      {
+        p: "¿Mis clientes necesitan cuenta?",
+        r: "No. Ven tu vitrina, aparten con su nombre y su contacto, y siguen su pedido con un enlace.",
+      },
+      {
+        p: "¿Puedo llevarme mis datos?",
+        r: "Sí. Exportás tus productos, pedidos, clientes y gastos a CSV cuando quieras.",
+      },
+    ],
+  },
+  cierre: {
+    titulo: "Dejá de prometer lo que ya vendiste",
+    texto: "Creá tu cuenta con Google o con tu correo y cargá tu primer producto en minutos.",
+  },
+  pie: {
+    proyecto: "Proyecto del curso Diseño de Productos y Servicios · ESEN",
+    privacidad: "Aviso de privacidad",
+    gorila: "Hasta la próxima.",
+  },
+} as const;
