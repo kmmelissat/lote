@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { rangoPeriodo } from "@/domain";
 import { TarjetaPrimerosPasos } from "@/features/home/TarjetaPrimerosPasos";
+import { DonaInventario } from "@/features/home/ui/DonaInventario";
+import { PedidosRecientes } from "@/features/home/ui/PedidosRecientes";
+import { TarjetaAtencion } from "@/features/home/ui/TarjetaAtencion";
+import { TarjetaDato } from "@/features/home/ui/TarjetaDato";
 import { faltanPasos, primerosPasos } from "@/features/home/primerosPasos";
-import { HORAS_APARTADO_FRIO, resumenInicio } from "@/features/home/resumen";
-import { buscarPedidos } from "@/features/orders/repositorio";
+import { resumenInicio } from "@/features/home/resumen";
+import { buscarPedidos, paginaDePedidos } from "@/features/orders/repositorio";
 import { listarMetodos } from "@/features/payments/repositorio";
 import { contarUnidades } from "@/features/products/repositorio";
 import { resumenDePeriodo } from "@/features/profit/repositorio";
-import { formatearDolares, tiempoRestante } from "@/lib/formato";
+import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -34,9 +36,10 @@ async function Contenido() {
   const ahora = new Date();
   const periodo = rangoPeriodo("semana", ahora);
 
-  const [unidades, pedidos, ganancia, metodos] = await Promise.all([
+  const [unidades, pedidos, recientes, ganancia, metodos] = await Promise.all([
     contarUnidades(supabase, negocio.id),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
+    paginaDePedidos(supabase, negocio.id, 0, 5),
     // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia.
     negocio.puedeGestionar ? resumenDePeriodo(supabase, negocio.id, periodo) : null,
     // Los primeros pasos son para quien configura el negocio.
@@ -55,7 +58,6 @@ async function Contenido() {
   }
 
   const r = resumenInicio(unidades, pedidos, ahora);
-  const hayAccion = r.porPagar > 0 || r.porEnviar > 0;
   const pasos = metodos
     ? primerosPasos({
         tieneProductos: true,
@@ -65,84 +67,50 @@ async function Contenido() {
     : [];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {faltanPasos(pasos) && <TarjetaPrimerosPasos pasos={pasos} />}
-      <section aria-labelledby="contadores" className="flex flex-col gap-2">
+
+      <section aria-labelledby="contadores" className="grid gap-4 lg:grid-cols-3">
         <h2 id="contadores" className="sr-only">
           {t.contadores}
         </h2>
-        <dl className="grid grid-cols-3 gap-3">
-          {[
-            [t.disponibles, r.disponibles],
-            [t.apartados, r.apartadas],
-            [t.vendidos, r.vendidas],
-          ].map(([etiqueta, valor]) => (
-            <Card key={etiqueta} className="flex flex-col border border-borde">
-              <dt className="text-sm text-texto-2">{etiqueta}</dt>
-              <dd className="text-2xl font-bold">{valor}</dd>
-            </Card>
-          ))}
-        </dl>
+        <div className="grid grid-cols-2 gap-4 lg:col-span-2">
+          <TarjetaDato
+            etiqueta={t.disponibles}
+            valor={r.disponibles}
+            texto={t.quePasa.disponibles}
+            href="/productos?estado=disponible"
+            chip={r.disponibles === 0 ? { texto: t.agotado, tono: "ambar" } : undefined}
+          />
+          <TarjetaDato
+            etiqueta={t.apartados}
+            valor={r.apartadas}
+            texto={t.quePasa.apartados}
+            href="/pedidos?estado=pendiente"
+            chip={r.seEnfrian.length > 0 ? { texto: t.seEnfrianChip(r.seEnfrian.length), tono: "ambar" } : undefined}
+          />
+          <TarjetaDato etiqueta={t.vendidos} valor={r.vendidas} texto={t.quePasa.vendidos} href="/productos?estado=vendido" />
+          {ganancia ? (
+            <TarjetaDato
+              etiqueta={t.gananciaSemana}
+              valor={formatearDolares(ganancia.gananciaDespuesDeGastos)}
+              texto={t.quePasa.ganancia}
+              href="/ganancia"
+              chip={ganancia.estimada ? { texto: t.gananciaEstimada, tono: "ambar" } : undefined}
+            />
+          ) : (
+            <TarjetaDato etiqueta={t.porEnviarEtiqueta} valor={r.porEnviar} texto={t.quePasa.porEnviar} href="/pedidos?estado=pagado" />
+          )}
+        </div>
+        <DonaInventario unidades={unidades} />
       </section>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-bold">{t.accionTitulo}</h2>
-        {hayAccion ? (
-          <ul className="flex flex-col gap-2">
-            {r.porPagar > 0 && (
-              <li>
-                <Link href="/pedidos?estado=pendiente" className="block">
-                  <Card className="border border-borde hover:bg-teal-fondo">{t.porPagar(r.porPagar)}</Card>
-                </Link>
-              </li>
-            )}
-            {r.porEnviar > 0 && (
-              <li>
-                <Link href="/pedidos?estado=pagado" className="block">
-                  <Card className="border border-borde hover:bg-teal-fondo">{t.porEnviar(r.porEnviar)}</Card>
-                </Link>
-              </li>
-            )}
-          </ul>
-        ) : (
-          <p className="text-texto-2">{t.nadaPendiente}</p>
-        )}
-      </section>
-
-      {r.seEnfrian.length > 0 && (
-        <section className="flex flex-col gap-2">
-          <div>
-            <h2 className="font-bold">{t.seEnfrianTitulo}</h2>
-            <p className="text-sm text-texto-2">{t.seEnfrianAyuda(HORAS_APARTADO_FRIO)}</p>
-          </div>
-          <ul className="flex flex-col gap-2">
-            {r.seEnfrian.map((p) => (
-              <li key={p.id}>
-                <Link href={`/pedidos/${p.codigo}`} className="block">
-                  <Card className="flex items-center justify-between gap-3 border border-borde hover:bg-teal-fondo">
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{p.cliente ?? textos.pedidos.sinCliente}</p>
-                      <p className="text-sm text-texto-2">{t.venceEn(tiempoRestante(p.venceEn!, ahora))}</p>
-                    </div>
-                    <p className="font-bold">{formatearDolares(p.total)}</p>
-                  </Card>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {ganancia && (
-        <Card className="flex flex-col gap-1 border border-borde">
-          <p className="text-sm text-texto-2">{t.gananciaSemana}</p>
-          <p className="text-2xl font-bold">{formatearDolares(ganancia.gananciaDespuesDeGastos)}</p>
-          {ganancia.estimada && <p className="text-sm text-ambar-texto">{t.gananciaEstimada}</p>}
-          <Link href="/ganancia" className="mt-1 inline-flex min-h-11 items-center text-teal underline">
-            {t.verGanancia}
-          </Link>
-        </Card>
-      )}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <PedidosRecientes pedidos={recientes} />
+        </div>
+        <TarjetaAtencion r={r} ahora={ahora} />
+      </div>
 
       <section className="flex flex-col gap-2">
         <h2 className="font-bold">{t.accesos}</h2>

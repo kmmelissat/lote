@@ -1,4 +1,5 @@
 import {
+  ArrowUpRight,
   Bell,
   Box,
   Camera,
@@ -46,6 +47,7 @@ const iconos = {
   camara: Camera,
   campana: Bell,
   flecha: ChevronDown,
+  diagonal: ArrowUpRight,
   usuario: User,
   panel: PanelLeft,
 } as const;
