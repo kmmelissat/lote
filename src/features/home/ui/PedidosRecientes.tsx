@@ -29,7 +29,7 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
             <li key={p.id} className="border-t border-borde first:border-t-0">
               <Link
                 href={`/pedidos/${p.codigo}`}
-                className="grid min-h-12 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-xl px-2 py-2 hover:bg-teal-fondo md:grid-cols-[2fr_1.5fr_auto_auto]"
+                className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-xl px-2 py-2 hover:bg-teal-fondo md:grid-cols-[2fr_1.5fr_auto_auto]"
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium">

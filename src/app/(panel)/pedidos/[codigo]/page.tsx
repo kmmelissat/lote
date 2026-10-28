@@ -54,7 +54,7 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
         {t.volver}
       </Link>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card className="flex flex-col gap-3 border border-borde">
           <div className="flex flex-wrap items-center gap-3">
             <StatusChip estado={p.estado} />
@@ -64,7 +64,7 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
               </span>
             )}
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
+          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
             <dt className="text-texto-2">{t.detalle.cliente}</dt>
             <dd className="text-right font-medium">{p.cliente ?? t.sinCliente}</dd>
             <dt className="text-texto-2">{t.detalle.canal}</dt>

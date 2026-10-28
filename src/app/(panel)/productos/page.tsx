@@ -110,7 +110,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
           }
         />
       )}
-      <ul className="grid gap-3 md:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {productos.map((p) => {
           return (
             <li key={p.id}>

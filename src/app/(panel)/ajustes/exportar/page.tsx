@@ -29,7 +29,7 @@ async function Lista() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ul className="grid gap-3 md:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {TIPOS_EXPORTACION.map((tipo) => (
           <li key={tipo}>
             {/* Un enlace normal (no <Link>): es una descarga, no una navegación de la app */}

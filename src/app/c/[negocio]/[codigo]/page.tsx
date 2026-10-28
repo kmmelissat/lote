@@ -58,7 +58,7 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
           {negocio.nombre} · {t.verTodos}
         </Link>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {p.fotos.length > 0 ? (
             <ul className="flex flex-col gap-3">
               {p.fotos.map((ruta, i) => (
@@ -110,7 +110,7 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
             )}
 
             {p.descripcion && <p>{p.descripcion}</p>}
-            <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1">
+            <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1">
               {detalles.map(([k, v]) => (
                 <div key={k} className="contents">
                   <dt className="text-texto-2">{k}</dt>

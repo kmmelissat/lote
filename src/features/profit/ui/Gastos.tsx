@@ -20,7 +20,7 @@ export function FormGasto() {
     <Card className="flex flex-col gap-4 border border-borde">
       <h2 className="font-bold">{t.form.titulo}</h2>
       {/* La key reinicia los campos después de cada gasto guardado. */}
-      <form key={estado.guardados ?? 0} action={accion} className="grid gap-4 sm:grid-cols-2">
+      <form key={estado.guardados ?? 0} action={accion} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field etiqueta={t.form.monto} name="monto" inputMode="decimal" required />
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.form.categoria}</span>

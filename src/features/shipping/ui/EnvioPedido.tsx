@@ -119,7 +119,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
 
           {modo !== "retiro" && (
             <>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field etiqueta={t.nombre} name="nombre" defaultValue={envio?.nombre ?? cliente ?? ""} />
                 <Field etiqueta={t.telefono} name="telefono" inputMode="tel" defaultValue={envio?.telefono ?? ""} />
                 <label className="flex flex-col gap-1.5">
@@ -143,7 +143,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
               <Field etiqueta={t.direccion} name="direccion" required defaultValue={envio?.direccion ?? ""} />
               <Field etiqueta={t.referencia} name="referencia" defaultValue={envio?.referencia ?? ""} />
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1">
                   <Field
                     etiqueta={t.costo}
@@ -186,7 +186,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
               )}
 
               {modo === "paquetera" && (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field etiqueta={t.paquetera} name="paquetera" defaultValue={envio?.paquetera ?? ""} />
                   <Field etiqueta={t.guia} name="guia" defaultValue={envio?.guia ?? ""} />
                 </div>

@@ -77,7 +77,7 @@ export function PagoForm({ pedidoId, saldo }: { pedidoId: string; saldo: number 
       </div>
       <MensajeError>{error}</MensajeError>
 
-      <form action={accion} className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+      <form action={accion} className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <Field
           etiqueta={t.monto}
           name="monto"

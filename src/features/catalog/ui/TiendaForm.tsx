@@ -52,7 +52,7 @@ export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTiend
   }
 
   return (
-    <div className="grid max-w-4xl gap-8 md:grid-cols-[1fr_20rem]">
+    <div className="grid grid-cols-1 max-w-4xl gap-8 md:grid-cols-[1fr_20rem]">
       <form action={accion} className="flex flex-col gap-6">
         <input type="hidden" name="logo" value={logo} />
 

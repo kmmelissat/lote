@@ -75,7 +75,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {p.fotos.length > 0 && (
           <ul className="flex gap-3 overflow-x-auto md:col-span-2">
             {p.fotos.map((ruta, i) => (
@@ -95,7 +95,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
 
         <Card className="flex flex-col gap-3 border border-borde">
           <StatusChip estado={estadoVisible(p, negocio.umbralPocoStock)} texto={p.disponibles > 0 ? t.quedan(p.disponibles) : undefined} />
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
+          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
             {filas.map(([k, val]) => (
               <div key={k} className="contents">
                 <dt className="text-texto-2">{k}</dt>
@@ -110,7 +110,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
             {p.costoUnitario === null ? (
               <p className="text-texto-2">{t.sinCosto}. {t.detalle.estimada}</p>
             ) : (
-              <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
+              <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
                 {rubros.map(([tipo, monto]) => (
                   <div key={tipo} className="contents">
                     <dt className="text-texto-2">{t.detalle.desglose[tipo]}</dt>

@@ -81,7 +81,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
       {mostrarGuia && (
         <Card className="border border-borde">
           <h2 className="mb-2 font-bold">{t.envio}</h2>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
+          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
             {s.paquetera && (
               <>
                 <dt className="text-texto-2">{t.paquetera}</dt>

@@ -12,7 +12,7 @@ export default async function Page() {
   return (
     <>
       <PageHeader titulo={textos.ajustes.titulo} descripcion={textos.ajustes.descripcion} />
-      <ul className="grid gap-3 md:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {negocio.rol === "duena" && (
           <li>
             <Link href="/ajustes/tienda" className="block">

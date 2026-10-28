@@ -104,7 +104,7 @@ export function EquipoPanel({ miembros, invitaciones, yo }: Props) {
         <h2 id="roles" className="font-bold">
           {t.rolesTitulo}
         </h2>
-        <dl className="grid gap-2">
+        <dl className="grid grid-cols-1 gap-2">
           {(["duena", ...ROLES_INVITABLES] as const).map((r) => (
             <div key={r}>
               <dt className="font-medium">{textos.perfil.roles[r]}</dt>

@@ -88,7 +88,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/clientes">, "searchParam
           }
         />
       ) : (
-        <ul className="grid gap-3 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {clientes.map((c) => (
             <li key={c.id}>
               <Link href={`/clientes/${c.id}`} className="block">

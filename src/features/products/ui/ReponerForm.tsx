@@ -21,7 +21,7 @@ export function ReponerForm({ codigo }: { codigo: number }) {
     <Card className="border border-borde md:col-span-2">
       <form action={accion} className="flex flex-col gap-4">
         <h2 className="font-bold">{t.titulo}</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field etiqueta={t.llegan} name="llegan" inputMode="numeric" required error={e.llegan} />
           <Field etiqueta={t.costo} name="costo" inputMode="decimal" error={e.costo} />
         </div>

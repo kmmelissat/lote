@@ -69,13 +69,13 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
       </Link>
 
       <Card className="flex flex-col gap-4 border border-borde">
-        <dl className="grid gap-4 sm:grid-cols-2">
+        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Cifra etiqueta={t.gananciaProductos} valor={r.gananciaProductos} grande />
           <Cifra etiqueta={t.gananciaDespuesDeGastos} valor={r.gananciaDespuesDeGastos} grande />
         </dl>
         {r.estimada && <p className="text-sm text-ambar-texto">{t.estimada}</p>}
         {!r.pedidos && <p className="text-texto-2">{t.sinVentas}</p>}
-        <dl className="grid gap-4 border-t border-borde pt-4 sm:grid-cols-3">
+        <dl className="grid grid-cols-1 gap-4 border-t border-borde pt-4 sm:grid-cols-3">
           <Cifra etiqueta={t.vendido} valor={r.vendido} />
           <Cifra etiqueta={t.costoProductos} valor={r.costoProductos} />
           {r.descuentos > 0 && <Cifra etiqueta={t.descuentos} valor={r.descuentos} />}

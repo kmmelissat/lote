@@ -43,7 +43,7 @@ export function VariantesInput({ filas, onCambio, error }: Props) {
           <p className="text-sm text-texto-2">{t.ayuda}</p>
           <ul className="flex flex-col gap-3">
             {filas.map((f, i) => (
-              <li key={f.id} className="grid grid-cols-[1fr_6rem_auto] items-end gap-3">
+              <li key={f.id} className="grid grid-cols-[minmax(0,1fr)_6rem_auto] items-end gap-3">
                 <Field etiqueta={t.etiqueta(i + 1)} value={f.etiqueta} maxLength={40} onChange={(ev) => cambiar(f.id, "etiqueta", ev.target.value)} />
                 <Field etiqueta={t.cantidad(i + 1)} inputMode="numeric" value={f.cantidad} onChange={(ev) => cambiar(f.id, "cantidad", ev.target.value)} />
                 <button

@@ -54,7 +54,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
       {!pedidos.length ? (
         <EmptyState texto={estado === "pendiente" ? t.vacioTexto : t.vacioEstado} />
       ) : (
-        <ul className="grid gap-3 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {pedidos.map((p) => (
             <li key={p.id}>
               <Link href={`/pedidos/${p.codigo}`} className="block">

@@ -43,9 +43,9 @@ async function Ficha({ params }: Pick<PageProps<"/clientes/[id]">, "params">) {
         {t.volver}
       </Link>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card className="flex flex-col gap-3 border border-borde">
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
+          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
             {filas.map(([k, v]) => (
               <div key={k} className="contents">
                 <dt className="text-texto-2">{k}</dt>
