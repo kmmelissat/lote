@@ -70,6 +70,13 @@ describe("canal de la API de Meta", () => {
 });
 
 describe("canal de consola", () => {
+  it("si se le pasa imprimir, muestra cada mensaje", async () => {
+    const imprimir = vi.fn();
+    const canal = crearCanalDeConsola(imprimir);
+    await canal.enviarTexto("503", "Hola");
+    expect(imprimir).toHaveBeenCalledWith({ a: "503", texto: "Hola" });
+  });
+
   it("guarda lo que se habría mandado", async () => {
     const canal = crearCanalDeConsola();
     await canal.enviarTexto("503", "Hola");
