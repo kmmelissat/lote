@@ -18,7 +18,9 @@ function etiquetaDe(tramo: string) {
 function Ruta() {
   const pathname = usePathname();
   // En Inicio el ícono de la casa ya es la ruta: no se repite "Inicio / Inicio".
-  const tramos = pathname === "/inicio" ? [] : pathname.split("/").filter(Boolean);
+  const tramos = pathname.split("/").filter(Boolean);
+  // En las pantallas de primer nivel el menú ya dice dónde estás: las migas empiezan en el segundo nivel.
+  if (tramos.length < 2) return null;
   return (
     <ol className="flex min-w-0 items-center gap-2 text-sm">
       <li className="flex">
@@ -48,7 +50,7 @@ function Ruta() {
 
 export function Migas() {
   return (
-    <nav aria-label={textos.nav.migas} className="min-w-0">
+    <nav aria-label={textos.nav.migas} className="min-w-0 empty:hidden [&:has(ol)]:mb-4">
       <Suspense fallback={null}>
         <Ruta />
       </Suspense>

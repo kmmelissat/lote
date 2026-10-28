@@ -21,14 +21,16 @@ function Boton({ clase, soloIcono }: { clase: string; soloIcono: boolean }) {
  * Botón de cerrar sesión. `lateral` es el del menú (se queda en el ícono cuando el menú se cierra);
  * `completo` es el de Ajustes, a todo el ancho.
  */
-export function CerrarSesion({ variante }: { variante: "lateral" | "completo" }) {
+export function CerrarSesion({ variante }: { variante: "lateral" | "completo" | "menu" }) {
   const lateral = variante === "lateral";
   return (
     <form action={cerrarSesion}>
       <Boton
         soloIcono={lateral}
         clase={
-          lateral
+          variante === "menu"
+            ? "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left font-medium text-error hover:bg-error-fondo"
+            : lateral
             ? "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-texto-2 hover:bg-superficie hover:text-error group-data-[cerrado]:justify-center"
             : "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-borde bg-superficie px-6 font-medium text-error hover:bg-error-fondo disabled:opacity-50"
         }
