@@ -5,8 +5,11 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { rangoPeriodo } from "@/domain";
+import { TarjetaPrimerosPasos } from "@/features/home/TarjetaPrimerosPasos";
+import { faltanPasos, primerosPasos } from "@/features/home/primerosPasos";
 import { HORAS_APARTADO_FRIO, resumenInicio } from "@/features/home/resumen";
 import { buscarPedidos } from "@/features/orders/repositorio";
+import { listarMetodos } from "@/features/payments/repositorio";
 import { contarUnidades } from "@/features/products/repositorio";
 import { resumenDePeriodo } from "@/features/profit/repositorio";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
@@ -31,11 +34,13 @@ async function Contenido() {
   const ahora = new Date();
   const periodo = rangoPeriodo("semana", ahora);
 
-  const [unidades, pedidos, ganancia] = await Promise.all([
+  const [unidades, pedidos, ganancia, metodos] = await Promise.all([
     contarUnidades(supabase, negocio.id),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia.
     negocio.puedeGestionar ? resumenDePeriodo(supabase, negocio.id, periodo) : null,
+    // Los primeros pasos son para quien configura el negocio.
+    negocio.puedeGestionar ? listarMetodos(supabase, negocio.id) : null,
   ]);
 
   // Sin unidades de ningún tipo es que todavía no hay productos.
@@ -51,9 +56,17 @@ async function Contenido() {
 
   const r = resumenInicio(unidades, pedidos, ahora);
   const hayAccion = r.porPagar > 0 || r.porEnviar > 0;
+  const pasos = metodos
+    ? primerosPasos({
+        tieneProductos: true,
+        tieneMetodoPago: metodos.some((m) => m.activo),
+        tienePedidos: r.apartadas + r.vendidas > 0 || pedidos.length > 0,
+      })
+    : [];
 
   return (
     <div className="flex flex-col gap-6">
+      {faltanPasos(pasos) && <TarjetaPrimerosPasos pasos={pasos} />}
       <section aria-labelledby="contadores" className="flex flex-col gap-2">
         <h2 id="contadores" className="sr-only">
           {t.contadores}

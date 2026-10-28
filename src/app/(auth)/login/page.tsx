@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { textos } from "@/lib/textos";
 import { LoginForm } from "@/features/auth/ui/LoginForm";
@@ -16,6 +17,13 @@ export default function LoginPage() {
       <Suspense>
         <LoginForm />
       </Suspense>
+      <p className="text-sm text-texto-2">
+        {textos.acceso.privacidad}{" "}
+        <Link href="/privacidad" className="text-teal underline">
+          {textos.acceso.privacidadEnlace}
+        </Link>
+        .
+      </p>
     </>
   );
 }

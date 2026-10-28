@@ -31,6 +31,8 @@ export const textos = {
     errorEnlace: "No pudimos mandar el enlace. Probá de nuevo.",
     errorGoogle: "No pudimos entrar con Google. Probá de nuevo.",
     errorCallback: "El enlace venció o ya se usó. Pedí uno nuevo.",
+    privacidad: "Al entrar aceptás el",
+    privacidadEnlace: "aviso de privacidad",
   },
 
   crearNegocio: {
@@ -61,6 +63,16 @@ export const textos = {
     vacioTitulo: "Todavía no tenés productos",
     vacioTexto: "Mandá la foto de tu primer producto y Lote arma la ficha.",
     vacioAccion: "Agregar producto",
+    primerosPasos: {
+      titulo: "Primeros pasos",
+      avance: (hechos: number, total: number) => `${hechos} de ${total}`,
+      listo: "listo",
+      pasos: {
+        producto: { titulo: "Agregá tu primer producto", texto: "Con el nombre y el precio ya queda." },
+        pago: { titulo: "Poné cómo te pagan", texto: "Así tus clientes ven a dónde transferir cuando aparten." },
+        pedido: { titulo: "Registrá tu primer apartado o venta", texto: "También se aparta desde tu vitrina pública." },
+      },
+    },
     contadores: "Tus productos",
     disponibles: "Disponibles",
     apartados: "Apartados",
@@ -463,6 +475,44 @@ export const textos = {
       sinDatos: "Escribile al negocio para coordinar el pago.",
       avisar: "Cuando pagués, mandale el comprobante al negocio por WhatsApp o Instagram.",
     },
+  },
+
+  privacidad: {
+    titulo: "Aviso de privacidad",
+    actualizado: "Última actualización: 28 de octubre de 2026",
+    volver: "Volver",
+    secciones: [
+      {
+        titulo: "Qué es Lote",
+        texto:
+          "Lote es un proyecto de diseño (ciclo 3). Sirve para llevar el inventario, los apartados, los cobros y los envíos de un negocio que vende por Instagram y WhatsApp.",
+      },
+      {
+        titulo: "Qué guardamos de tus clientes",
+        texto:
+          "Lo mínimo para atender el pedido: nombre, contacto (teléfono o usuario de Instagram), la dirección cuando hay envío y el historial de sus pedidos. No pedimos nada más.",
+      },
+      {
+        titulo: "Cuándo se les escribe por WhatsApp",
+        texto:
+          "Solo a quien marcó la casilla al apartar desde la vitrina. Sin esa casilla, Lote no le escribe.",
+      },
+      {
+        titulo: "Qué se envía a la inteligencia artificial",
+        texto:
+          "Cuando usás el asistente o \"Completar con la foto\", se envía a OpenAI el mensaje que escribiste o la foto, junto con una lista de tus productos y de los nombres de los clientes con pedidos abiertos, para que entienda de qué hablás. La inteligencia artificial propone; los números y el dinero los calcula Lote.",
+      },
+      {
+        titulo: "Qué ve quien recibe un enlace de seguimiento",
+        texto:
+          "El estado del pedido, los productos y, si va por paquetera, la empresa y la guía. Nunca el nombre, el teléfono ni la dirección de nadie, ni los precios.",
+      },
+      {
+        titulo: "Exportar o borrar tus datos",
+        texto:
+          "Todavía no se puede hacer desde la app: está pendiente. Mientras tanto, tus datos solo los ven las personas de tu negocio.",
+      },
+    ],
   },
 
   seguimiento: {
