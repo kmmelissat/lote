@@ -1,8 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Rutas que se ven sin sesión: entrar, el retorno de Google/correo y las páginas públicas.
-const PUBLICAS = ["/login", "/auth", "/c", "/p"];
+// Rutas que se ven sin sesión: entrar, el retorno de Google/correo, las páginas públicas y las tareas
+// programadas (/api/cron, que se protegen con su propio secreto).
+const PUBLICAS = ["/login", "/auth", "/c", "/p", "/api/cron"];
 
 const esPublica = (ruta: string) =>
   PUBLICAS.some((p) => ruta === p || ruta.startsWith(`${p}/`));

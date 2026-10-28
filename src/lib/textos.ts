@@ -372,6 +372,17 @@ export const textos = {
     descEnviado: (cliente: string | null) => `envío del pedido de ${cliente ?? "un cliente"}`,
   },
 
+  // Cuerpos de las plantillas de WhatsApp. Son exactamente el texto que se manda a aprobar a Meta:
+  // {{1}}, {{2}}… son los datos que se rellenan. Si cambiás uno, hay que volver a pedir su aprobación.
+  avisos: {
+    apartado_nuevo: "Nuevo apartado: {{1}} apartó {{2}}. Tiene {{3}} para pagar.",
+    apartado_por_vencer: "El apartado de {{1}} ({{2}}) vence en {{3}}. Escribile para que pague o liberalo.",
+    apartado_vencido: "El apartado de {{1}} ({{2}}) venció y el producto volvió a estar disponible.",
+    resumen_semanal: "Tu semana: vendiste {{1}} y te quedaron {{2}} de ganancia. Lo que más te dejó: {{3}}.",
+    pedido_enviado: "Hola {{1}}! Tu pedido de {{2}} ya salió. Número de guía: {{3}}.",
+    recordatorio_abono: "Hola {{1}}! Te recordamos que te quedan {{2}} por pagar de tu pedido en {{3}}.",
+  },
+
   vitrina: {
     titulo: "Vitrina",
     mensajeVitrina: (negocio: string) =>

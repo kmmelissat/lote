@@ -64,6 +64,69 @@ export type Database = {
           },
         ]
       }
+      aviso: {
+        Row: {
+          clave: string
+          creado_en: string
+          enviado_en: string | null
+          estado: string
+          id: string
+          intentos: number
+          mensaje_externo: string | null
+          motivo: string | null
+          negocio_id: string
+          parametros: Json
+          programado_para: string
+          telefono: string
+          tipo: string
+        }
+        Insert: {
+          clave: string
+          creado_en?: string
+          enviado_en?: string | null
+          estado?: string
+          id?: string
+          intentos?: number
+          mensaje_externo?: string | null
+          motivo?: string | null
+          negocio_id: string
+          parametros?: Json
+          programado_para?: string
+          telefono: string
+          tipo: string
+        }
+        Update: {
+          clave?: string
+          creado_en?: string
+          enviado_en?: string | null
+          estado?: string
+          id?: string
+          intentos?: number
+          mensaje_externo?: string | null
+          motivo?: string | null
+          negocio_id?: string
+          parametros?: Json
+          programado_para?: string
+          telefono?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aviso_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aviso_tipo_fkey"
+            columns: ["tipo"]
+            isOneToOne: false
+            referencedRelation: "plantilla_whatsapp"
+            referencedColumns: ["nombre"]
+          },
+        ]
+      }
       cliente: {
         Row: {
           acepta_whatsapp: boolean
@@ -662,6 +725,24 @@ export type Database = {
           },
         ]
       }
+      plantilla_whatsapp: {
+        Row: {
+          actualizada_en: string
+          estado_aprobacion: string
+          nombre: string
+        }
+        Insert: {
+          actualizada_en?: string
+          estado_aprobacion?: string
+          nombre: string
+        }
+        Update: {
+          actualizada_en?: string
+          estado_aprobacion?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
       producto: {
         Row: {
           categoria: string | null
@@ -923,6 +1004,39 @@ export type Database = {
           p_pedido?: string
         }
         Returns: string
+      }
+      cerrar_aviso: {
+        Args: {
+          p_aviso: string
+          p_espera?: string
+          p_estado: string
+          p_mensaje_externo?: string
+          p_motivo?: string
+          p_reintentar?: boolean
+        }
+        Returns: undefined
+      }
+      encolar_aviso: {
+        Args: {
+          p_clave: string
+          p_negocio: string
+          p_parametros: Json
+          p_programado_para?: string
+          p_telefono: string
+          p_tipo: string
+        }
+        Returns: string
+      }
+      tomar_avisos: {
+        Args: { p_limite?: number }
+        Returns: {
+          id: string
+          negocio_id: string
+          parametros: Json
+          plantilla_aprobada: boolean
+          telefono: string
+          tipo: string
+        }[]
       }
       eliminar_gasto: { Args: { p_gasto: string }; Returns: undefined }
       ventas_del_periodo: {

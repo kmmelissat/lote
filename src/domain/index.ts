@@ -6,3 +6,4 @@ export * from "./pedido";
 export * from "./periodo";
 export * from "./resumen";
 export * from "./resumenSemanal";
+export * from "./avisos";
