@@ -74,6 +74,11 @@ export const SalidaFoto = z.object({
   categoria: z.string().nullable(),
   /** Marca, solo si se lee en la foto (logo o etiqueta) o la dijo la línea */
   marca: z.string().nullable(),
+  /**
+   * Versiones del mismo producto que se VEN en la foto (por ejemplo varios colores de una misma funda).
+   * Vacío si es un solo producto. Nunca tallas ni modelos que no se vean.
+   */
+  opciones: z.array(z.object({ nombre: z.string(), valores: z.array(z.string()) })),
   /** Talla o tono, si se ve o se dijo ("M", "rosa") */
   detalle: z.string().nullable(),
   precio: z.number().nullable(),

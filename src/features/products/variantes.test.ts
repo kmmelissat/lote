@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ProductoPublico } from "@/features/catalog/repositorio";
-import { agruparParaVitrina, agruparProductos, nombreBase, nombreConVariante, validarVariantes } from "./variantes";
+import { agruparParaVitrina, combinarOpciones, agruparProductos, nombreBase, nombreConVariante, validarVariantes } from "./variantes";
 
 describe("nombres", () => {
   it("la variante se pega al nombre y se puede quitar", () => {
@@ -23,7 +23,7 @@ describe("validarVariantes", () => {
 
   it("pide al menos dos y no más de doce", () => {
     expect(validarVariantes([ok[0]])).toEqual({ ok: false, error: "pocas" });
-    const trece = Array.from({ length: 13 }, (_, i) => ({ etiqueta: `T${i}`, cantidad: 1 }));
+    const trece = Array.from({ length: 31 }, (_, i) => ({ etiqueta: `T${i}`, cantidad: 1 }));
     expect(validarVariantes(trece)).toEqual({ ok: false, error: "muchas" });
   });
 
@@ -118,5 +118,28 @@ describe("agruparProductos", () => {
     expect(grupos[1].principal.codigo).toBe(1);
     expect(grupos[1].conVariantes).toBe(true);
     expect(grupos[0].conVariantes).toBe(false);
+  });
+});
+
+describe("combinarOpciones", () => {
+  it("hace el cruce de dos opciones", () => {
+    expect(combinarOpciones([["iPhone 16", "iPhone 17"], ["Rosa", "Celeste"]])).toEqual([
+      "iPhone 16 · Rosa",
+      "iPhone 16 · Celeste",
+      "iPhone 17 · Rosa",
+      "iPhone 17 · Celeste",
+    ]);
+  });
+
+  it("con una sola opción con valores, devuelve esos valores", () => {
+    expect(combinarOpciones([[], ["Rosa", "Rojo"]])).toEqual(["Rosa", "Rojo"]);
+  });
+
+  it("junta los repetidos sin importar mayúsculas y recorta espacios", () => {
+    expect(combinarOpciones([[" Rosa", "rosa", "Rojo "]])).toEqual(["Rosa", "Rojo"]);
+  });
+
+  it("sin valores no hay combinaciones", () => {
+    expect(combinarOpciones([[], []])).toEqual([]);
   });
 });

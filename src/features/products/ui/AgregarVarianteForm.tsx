@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { aDolares } from "@/domain/index";
@@ -16,11 +17,16 @@ export function AgregarVarianteForm({ codigo, precio, convierte }: { codigo: num
   const e = estado.errores ?? {};
 
   return (
-    <section className="rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-5">
+    <section className="rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-5 shadow-dura">
       <form action={accion} className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-lg font-bold">{convierte ? t.convertirTitulo : t.agregarTitulo}</h2>
-          <p className="text-sm text-texto-2">{convierte ? t.convertirAyuda : t.agregarAyuda}</p>
+<div className="flex items-start gap-3">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-rosa text-teal-oscuro">
+            <Icon nombre="mas" className="size-6" />
+          </span>
+          <div>
+            <h2 className="text-lg font-bold leading-tight">{convierte ? t.convertirTitulo : t.agregarTitulo}</h2>
+            <p className="text-sm text-texto-2">{convierte ? t.convertirAyuda : t.agregarAyuda}</p>
+          </div>
         </div>
         {convierte && <Field etiqueta={t.etiquetaActual} name="etiquetaActual" maxLength={40} required error={e.etiquetaActual} />}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

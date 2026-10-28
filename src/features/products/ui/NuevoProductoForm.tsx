@@ -8,7 +8,7 @@ import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } from "../actions/nuevo";
 import { Campo, CampoDinero, Cantidad, Etiqueta, estiloCampo, Seccion } from "./campos";
-import { VariantesInput, type FilaForm } from "./VariantesInput";
+import { estadoNuevo, filasDe, grupoNuevo, VariantesInput, type EstadoVariantes } from "./VariantesInput";
 import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { ZonaFotos } from "./ZonaFotos";
 
@@ -17,7 +17,7 @@ const l = t.lotito;
 
 const dolaresTexto = (centavos: number) => (centavos / 100).toFixed(2);
 const campoCosto = ["compra", "envio", "importacion", "otro"] as const;
-type CampoLotito = keyof FichaSugerida;
+type CampoLotito = Exclude<keyof FichaSugerida, "opciones">;
 const ORDEN_LOTITO: CampoLotito[] = ["nombre", "categoria", "marca", "descripcion"];
 /** Lo que tarda Lotito en "escribir" cada campo, para que se sienta que va llenando uno por uno */
 const PAUSA_MS = 380;
@@ -88,7 +88,10 @@ export function NuevoProductoForm({
   const [marca, setMarca] = useState(v.marca ?? "");
   const [descripcion, setDescripcion] = useState(v.descripcion ?? "");
   const [condicion, setCondicion] = useState<"nuevo" | "usado">(v.condicion === "usado" ? "usado" : "nuevo");
-  const [variantes, setVariantes] = useState<FilaForm[] | null>(null);
+  const [estadoVar, setEstadoVar] = useState<EstadoVariantes | null>(null);
+  const variantes = estadoVar ? filasDe(estadoVar) : null;
+  // Lo que Lotito vio en la foto como posibles variantes, a la espera de que la persona diga sí o no
+  const [ofertaVar, setOfertaVar] = useState<{ nombre: string; valores: string[] } | null>(null);
   const [detallesAbiertos, setDetallesAbiertos] = useState(false);
   const [costosAbiertos, setCostosAbiertos] = useState(costoInicial !== null);
 
@@ -129,6 +132,8 @@ export function NuevoProductoForm({
       );
     });
     if (!llenar.length) setEstadoLotito("listo");
+    const oferta = f.opciones[0];
+    if (oferta && !estadoVar) setOfertaVar(oferta);
   }
 
   // Apenas hay una foto nueva arranca solo: un solo gesto, sin botón de "analizar".
@@ -229,6 +234,31 @@ export function NuevoProductoForm({
         <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotos} />
         <input type="hidden" name="fotos" value={JSON.stringify(rutas)} />
         <CartelLotito estado={estadoLotito} />
+        {ofertaVar && !estadoVar && (
+          <div className="flex animate-entra flex-col gap-3 rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-3">
+            <p className="font-medium">{textos.productos.form.variantes.lotitoVe(ofertaVar.nombre, ofertaVar.valores)}</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const base = estadoNuevo();
+                  setEstadoVar({ ...base, grupos: [base.grupos[0], grupoNuevo(ofertaVar.nombre, ofertaVar.valores)] });
+                  setOfertaVar(null);
+                }}
+                className="inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold"
+              >
+                {textos.productos.form.variantes.lotitoSi}
+              </button>
+              <button
+                type="button"
+                onClick={() => setOfertaVar(null)}
+                className="inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold"
+              >
+                {textos.productos.form.variantes.lotitoNo}
+              </button>
+            </div>
+          </div>
+        )}
         {deLotito.size > 0 && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             <p className="text-texto-2">{l.revisar}</p>
@@ -260,10 +290,10 @@ export function NuevoProductoForm({
             onChange={(ev) => setPrecio(ev.target.value)}
             error={e.precio}
           />
-          {variantes === null && <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />}
+          {estadoVar === null && <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />}
         </div>
 
-        <VariantesInput filas={variantes} onCambio={setVariantes} error={e.variantes} />
+        <VariantesInput valor={estadoVar} onCambio={setEstadoVar} error={e.variantes} />
 
         <Seccion titulo={t.costosSeccion} ayuda={t.costosAyuda} abierta={costosAbiertos} onAlternar={() => setCostosAbiertos((a) => !a)}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Monito } from "@/components/ui/Monito";
+import { Icon } from "@/components/ui/Icon";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { DesgloseCosto } from "@/domain";
 import { estadoVisible } from "@/features/products/estadoVisible";
@@ -177,10 +179,15 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         {variantes.length > 1 && (
-          <section className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5 md:col-span-2">
-            <div>
-              <h2 className="text-lg font-bold">{t.variantes.titulo}</h2>
-              <p className="text-sm text-texto-2">{t.variantes.ayuda}</p>
+          <section className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5 shadow-dura md:col-span-2">
+            <div className="flex items-start gap-3">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-mango text-teal-oscuro">
+                <Icon nombre="productos" className="size-6" />
+              </span>
+              <div>
+                <h2 className="text-lg font-bold leading-tight">{t.variantes.titulo}</h2>
+                <p className="text-sm text-texto-2">{t.variantes.ayuda}</p>
+              </div>
             </div>
             <ul className="overflow-hidden rounded-2xl border-2 border-teal-oscuro/20">
               {variantes.map((v) => {
@@ -191,7 +198,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
                     <Link
                       href={`/productos/${v.codigo}`}
                       aria-current={actual ? "true" : undefined}
-                      className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-teal-fondo md:grid-cols-[minmax(0,1fr)_9rem_6rem_7rem] ${actual ? "bg-teal-fondo" : ""}`}
+                      className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-teal-fondo md:grid-cols-[minmax(0,1fr)_9rem_6rem_7rem] ${actual ? "bg-limon/50" : ""}`}
                     >
                       <span className="min-w-0">
                         <span className="block truncate font-medium">{v.variante}</span>
@@ -230,7 +237,10 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
         {p.estado === "vendido" && p.fotos[0] && (
           <StickerVendido foto={urlFoto(p.fotos[0])} nombre={p.nombre} codigo={p.codigo} negocio={negocio.nombre} />
         )}
-        {negocio.puedeGestionar && <h2 className="mt-2 text-xl font-bold md:col-span-2">{t.detalle.masAcciones}</h2>}
+        {negocio.puedeGestionar && <div className="mt-4 flex items-center gap-3 md:col-span-2">
+            <Monito nombre="calculadora" className="w-8 text-teal" />
+            <h2 className="text-2xl font-bold">{t.detalle.masAcciones}</h2>
+          </div>}
         {negocio.puedeGestionar && <ReponerForm codigo={p.codigo} />}
         {negocio.puedeGestionar && variantes.length < MAXIMO_VARIANTES && (
           <AgregarVarianteForm codigo={p.codigo} precio={p.precio} convierte={variantes.length === 0} />

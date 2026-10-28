@@ -5,9 +5,24 @@ import type { Producto } from "./repositorio";
 // de cómo se nombran, se validan y se juntan en la vitrina.
 
 export const MINIMO_VARIANTES = 2;
-export const MAXIMO_VARIANTES = 12;
+export const MAXIMO_VARIANTES = 30;
 
 const SEPARADOR = " · ";
+
+/**
+ * El cruce de varias opciones: [["iPhone 16", "iPhone 17"], ["Rosa", "Celeste"]] da las cuatro combinaciones
+ * ("iPhone 16 · Rosa", …). Las opciones sin valores se ignoran y los repetidos (sin importar mayúsculas) se juntan.
+ */
+export function combinarOpciones(opciones: string[][]): string[] {
+  const listas = opciones
+    .map((valores) => {
+      const vistos = new Set<string>();
+      return valores.map((v) => v.trim()).filter((v) => v && !vistos.has(v.toLowerCase()) && vistos.add(v.toLowerCase()));
+    })
+    .filter((valores) => valores.length);
+  if (!listas.length) return [];
+  return listas.reduce<string[]>((acum, valores) => acum.flatMap((a) => valores.map((v) => (a ? `${a}${SEPARADOR}${v}` : v))), [""]);
+}
 
 /** El nombre completo de una variante: "Chaqueta negra · M". Así se distingue en pedidos, listas y asistente. */
 export const nombreConVariante = (base: string, etiqueta: string): string => `${base}${SEPARADOR}${etiqueta}`;
@@ -23,7 +38,7 @@ export type FilaVariante = { etiqueta: string; cantidad: number };
 
 export type ErrorVariantes = "pocas" | "muchas" | "etiqueta" | "repetida" | "cantidad";
 
-/** Valida lo que escribió la persona: entre 2 y 12 variantes, sin etiquetas repetidas y con cantidades enteras de 1 en adelante. */
+/** Valida lo que escribió la persona: entre 2 y 30 variantes, sin etiquetas repetidas y con cantidades enteras de 1 en adelante. */
 export function validarVariantes(
   filas: { etiqueta: unknown; cantidad: unknown }[],
 ): { ok: true; variantes: FilaVariante[] } | { ok: false; error: ErrorVariantes } {

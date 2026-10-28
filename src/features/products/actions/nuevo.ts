@@ -126,7 +126,14 @@ export async function nuevoProducto(
   redirect(destino(valores, resultado.codigo, nombre));
 }
 
-export type FichaSugerida = { nombre: string; descripcion: string; categoria: string | null; marca: string | null };
+export type FichaSugerida = {
+  nombre: string;
+  descripcion: string;
+  categoria: string | null;
+  marca: string | null;
+  /** Versiones que Lotito ve en la foto, por ejemplo los colores de una misma funda */
+  opciones: { nombre: string; valores: string[] }[];
+};
 
 /** "Completar con la foto": la IA lee la foto y propone nombre, descripción y categoría. Todo editable. */
 export async function sugerirFicha(
@@ -141,7 +148,7 @@ export async function sugerirFicha(
   try {
     const f = await ia.entenderFoto(urlFoto(ruta), "", await contextoDeLaTienda(supabase, negocio.id).catch(() => ""));
     const detalle = f.detalle && !f.descripcion.toLowerCase().includes(f.detalle.toLowerCase()) ? ` (${f.detalle})` : "";
-    return { ficha: { nombre: f.nombre, descripcion: f.descripcion + detalle, categoria: f.categoria, marca: f.marca } };
+    return { ficha: { nombre: f.nombre, descripcion: f.descripcion + detalle, categoria: f.categoria, marca: f.marca, opciones: f.opciones.filter((o) => o.valores.length > 1) } };
   } catch {
     return { error: "no_se_pudo" };
   }
