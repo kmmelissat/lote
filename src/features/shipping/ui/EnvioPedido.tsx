@@ -55,7 +55,13 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
     if (!envio) return;
     try {
       await navigator.clipboard.writeText(
-        armarMensajeEnvio({ cliente, modo: envio.modo, paquetera: envio.paquetera, guia: envio.guia }),
+        armarMensajeEnvio({
+          cliente,
+          modo: envio.modo,
+          paquetera: envio.paquetera,
+          guia: envio.guia,
+          enlace: `${window.location.origin}/p/${pedidoId}`,
+        }),
       );
       setAviso(t.copiado);
     } catch {

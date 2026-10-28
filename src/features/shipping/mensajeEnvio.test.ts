@@ -18,4 +18,10 @@ describe("armarMensajeEnvio", () => {
     expect(armarMensajeEnvio({ cliente: null, modo: "propio", paquetera: null, guia: null })).toContain("va en camino");
     expect(armarMensajeEnvio({ cliente: null, modo: "retiro", paquetera: null, guia: null })).toContain("retirés");
   });
+
+  it("con enlace agrega el seguimiento, y sin enlace no", () => {
+    const base = { cliente: "Ana", modo: "paquetera", paquetera: "Boxful", guia: "123" } as const;
+    expect(armarMensajeEnvio({ ...base, enlace: "https://lote.app/p/abc" })).toContain("https://lote.app/p/abc");
+    expect(armarMensajeEnvio(base)).not.toContain("http");
+  });
 });

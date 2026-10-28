@@ -872,6 +872,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      seguimiento_pedido: {
+        Args: { p_pedido: string }
+        Returns: {
+          negocio: string
+          slug: string
+          codigo: number
+          estado: string
+          creado_en: string
+          items: Json
+          modo: string | null
+          paquetera: string | null
+          guia: string | null
+        }[]
+      }
       unidades_del_negocio: {
         Args: { p_negocio: string }
         Returns: { cantidad: number; apartadas: number; vendidas: number }[]

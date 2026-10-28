@@ -465,6 +465,26 @@ export const textos = {
     },
   },
 
+  seguimiento: {
+    titulo: "Seguimiento de tu pedido",
+    pedido: (n: number) => `Pedido #${n}`,
+    estado: "Cómo va tu pedido",
+    ahora: "estado actual",
+    pasos: {
+      pendiente: "Pedido recibido",
+      pagado: "Pago confirmado",
+      preparando: "Preparando tu pedido",
+      enviado: "En camino",
+      entregado: "Entregado",
+    },
+    cancelado: "Este pedido se canceló. Si tenés dudas, escribile al negocio.",
+    envio: "Envío",
+    paquetera: "Empresa",
+    guia: "Número de guía",
+    productos: "Tu pedido",
+    verVitrina: (negocio: string) => `Ver más de ${negocio}`,
+  },
+
   mensajeEnvio: {
     paquetera: (cliente: string | null, paquetera: string | null) =>
       `${cliente ? `Hola ${cliente}!` : "Hola!"} Tu pedido ya salió${paquetera ? ` con ${paquetera}` : ""}.`,
@@ -473,6 +493,7 @@ export const textos = {
       `${cliente ? `Hola ${cliente}!` : "Hola!"} Tu pedido va en camino. Te avisamos cuando lleguemos.`,
     retiro: (cliente: string | null) =>
       `${cliente ? `Hola ${cliente}!` : "Hola!"} Tu pedido ya está listo para que lo retirés.`,
+    seguimiento: (enlace: string) => `Podés ver cómo va tu pedido acá: ${enlace}`,
     gracias: "Gracias por tu compra!",
   },
 
