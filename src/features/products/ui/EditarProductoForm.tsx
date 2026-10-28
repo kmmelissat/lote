@@ -9,6 +9,7 @@ import { aDolares } from "@/domain/index";
 import { textos } from "@/lib/textos";
 import { editarProducto, type EstadoEditar } from "../actions/editar";
 import type { Producto } from "../repositorio";
+import { nombreBase } from "../variantes";
 
 const t = textos.productos.form;
 const te = textos.productos.editar;
@@ -19,12 +20,23 @@ export function EditarProductoForm({ producto: p }: { producto: Producto }) {
     {},
   );
   const e = estado.errores ?? {};
+  const conVariantes = p.grupo !== null && p.variante !== null;
 
   return (
     <form action={accion} className="flex max-w-xl flex-col gap-4">
-      <Field etiqueta={t.nombre} name="nombre" required defaultValue={p.nombre} error={e.nombre} />
+      {conVariantes ? (
+        <>
+          <div className="flex flex-col gap-1">
+            <Field etiqueta={te.nombreVariantes} name="nombre" required defaultValue={nombreBase(p.nombre, p.variante)} error={e.nombre} />
+            <p className="text-sm text-texto-2">{te.nombreVariantesAyuda}</p>
+          </div>
+          <Field etiqueta={te.variante} name="variante" required defaultValue={p.variante ?? ""} error={e.variante} />
+        </>
+      ) : (
+        <Field etiqueta={t.nombre} name="nombre" required defaultValue={p.nombre} error={e.nombre} />
+      )}
       <Field
-        etiqueta={t.precio}
+        etiqueta={conVariantes ? te.precioVariante : t.precio}
         name="precio"
         inputMode="decimal"
         required
@@ -65,7 +77,7 @@ export function EditarProductoForm({ producto: p }: { producto: Producto }) {
         ))}
       </fieldset>
 
-      <p className="text-sm text-texto-2">{te.aviso}</p>
+      <p className="text-sm text-texto-2">{conVariantes ? te.avisoVariantes : te.aviso}</p>
       <MensajeError>{e.general}</MensajeError>
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={pendiente}>

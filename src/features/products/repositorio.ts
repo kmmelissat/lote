@@ -302,6 +302,48 @@ export async function actualizarProducto(
   return !error && data.length > 0;
 }
 
+/** Pone (o cambia) el grupo, la variante y el nombre de un producto. Sin grupo ni variante, vuelve a ser un producto suelto. */
+export async function guardarVariante(
+  supabase: Cliente,
+  productoId: string,
+  v: { grupo: string | null; variante: string | null; nombre: string },
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("producto")
+    .update({ grupo: v.grupo, variante: v.variante, nombre: v.nombre })
+    .eq("id", productoId)
+    .select("id");
+  return !error && data.length > 0;
+}
+
+/** Lo que comparten todas las variantes de un producto: su ficha. El nombre de cada una lo arma su variante. */
+export type FichaCompartida = {
+  descripcion: string | null;
+  categoria: string | null;
+  marca: string | null;
+  condicion: "nuevo" | "usado";
+};
+
+/** Aplica la ficha compartida y el nombre base a todas las variantes (cada una conserva su precio, stock y costo). */
+export async function actualizarFichaDelGrupo(
+  supabase: Cliente,
+  miembros: { id: string; variante: string | null }[],
+  nombreBase: string,
+  ficha: FichaCompartida,
+  nombreDe: (base: string, variante: string) => string,
+): Promise<boolean> {
+  const resultados = await Promise.all(
+    miembros.map((m) =>
+      supabase
+        .from("producto")
+        .update({ ...ficha, nombre: m.variante ? nombreDe(nombreBase, m.variante) : nombreBase })
+        .eq("id", m.id)
+        .select("id"),
+    ),
+  );
+  return resultados.every((r) => !r.error && r.data.length > 0);
+}
+
 export type Hermana = { codigo: number; variante: string };
 
 /** Las otras variantes del mismo producto, para saltar de una a otra desde el panel. */

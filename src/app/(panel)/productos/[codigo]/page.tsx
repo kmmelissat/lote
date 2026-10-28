@@ -18,7 +18,9 @@ import { textos } from "@/lib/textos";
 import { AgregarFotos } from "@/features/products/ui/AgregarFotos";
 import { StickerVendido } from "@/features/products/ui/StickerVendido";
 import { CompartirProducto } from "@/features/products/ui/CompartirProducto";
+import { AgregarVarianteForm } from "@/features/products/ui/AgregarVarianteForm";
 import { ReponerForm } from "@/features/products/ui/ReponerForm";
+import { MAXIMO_VARIANTES } from "@/features/products/variantes";
 
 const t = textos.productos;
 
@@ -185,6 +187,9 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
           <StickerVendido foto={urlFoto(p.fotos[0])} nombre={p.nombre} codigo={p.codigo} negocio={negocio.nombre} />
         )}
         {negocio.puedeGestionar && <ReponerForm codigo={p.codigo} />}
+        {negocio.puedeGestionar && variantes.length < MAXIMO_VARIANTES && (
+          <AgregarVarianteForm codigo={p.codigo} precio={p.precio} convierte={variantes.length === 0} />
+        )}
         {negocio.puedeGestionar && p.fotos.length < MAXIMO_FOTOS && (
           <AgregarFotos codigo={p.codigo} negocioId={negocio.id} />
         )}
