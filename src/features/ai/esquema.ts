@@ -94,3 +94,11 @@ export const SalidaComprobante = z.object({
 });
 
 export type SalidaComprobante = z.infer<typeof SalidaComprobante>;
+
+// Lo que la IA propone al leer un chat pegado: una lista de acciones, cada una con la misma forma que
+// un mensaje suelto. Solo lee; cada acción se confirma una por una antes de ejecutarse.
+export const SalidaChat = z.object({
+  acciones: z.array(SalidaEntender).max(5),
+});
+
+export type SalidaChat = z.infer<typeof SalidaChat>;

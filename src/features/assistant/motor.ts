@@ -132,7 +132,7 @@ async function leerFoto(
 const MAX_CONTEXTO = 80;
 
 // Lo que el negocio tiene hoy, para que la IA reconozca "el cd" o "Melissa". Si falla, se sigue sin contexto.
-async function contextoDe(d: Deps): Promise<ContextoIA | undefined> {
+export async function contextoDe(d: Deps): Promise<ContextoIA | undefined> {
   try {
     const [productos, pedidos] = await Promise.all([
       d.puerto.productos(),

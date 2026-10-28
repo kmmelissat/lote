@@ -9,6 +9,7 @@ const RUTAS: Record<string, string> = {
   lote: "/productos/lote",
   venta: "/pedidos/nuevo",
   asistente: "/asistente",
+  chat: "/pegar-chat",
 };
 
 export const metadata: Metadata = { title: textos.nuevo.titulo };

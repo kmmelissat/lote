@@ -14,6 +14,8 @@ export interface ProveedorIA {
   entenderFoto(urlImagen: string, linea: string): Promise<SalidaFoto>;
   /** Lee el monto, la fecha y la referencia de la captura de un comprobante de pago (data URL, nunca guardada). */
   leerComprobante(imagen: string): Promise<SalidaComprobante>;
+  /** Lee un chat pegado y propone las acciones que la conversación deja claras. No ejecuta nada. */
+  proponerAcciones(chat: string, contexto?: ContextoIA): Promise<SalidaEntender[]>;
 }
 
 export class IANoDisponible extends Error {

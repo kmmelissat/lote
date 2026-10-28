@@ -72,6 +72,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
       return { ...fichaBase, ...foto };
     },
     leerComprobante: async () => ({ esComprobante: false, monto: null, fecha: null, referencia: null }),
+    proponerAcciones: async () => [],
   });
   const turno = (
     entrada: Partial<Entrada> & { mensajeId: string },
@@ -449,7 +450,7 @@ describe("cuando la IA duda", () => {
     const { puerto } = montar({ pedidos: [pedido(1, "Ana")] });
     await procesar(
       { mensajeId: "m1", texto: "hola" },
-      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn() }, puerto, ahora },
+      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), proponerAcciones: vi.fn() }, puerto, ahora },
     );
     expect(entenderMensaje).toHaveBeenCalledWith("hola", {
       productos: [

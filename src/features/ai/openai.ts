@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
-import { SalidaComprobante, SalidaEntender, SalidaFoto } from "./esquema";
+import { SalidaChat, SalidaComprobante, SalidaEntender, SalidaFoto } from "./esquema";
 import { PROMPT_ENTENDER_MENSAJE } from "./prompts/entenderMensaje";
+import { PROMPT_CHAT_DE_CLIENTE } from "./prompts/chatDeCliente";
 import { PROMPT_COMPROBANTE } from "./prompts/comprobante";
 import { PROMPT_FOTO_A_FICHA } from "./prompts/fotoAFicha";
 import { IANoDisponible, type ContextoIA, type ProveedorIA } from "./provider";
@@ -89,6 +90,20 @@ export function crearProveedorOpenAI(): ProveedorIA {
       });
       if (!respuesta.output_parsed) throw new IANoDisponible("La IA no devolvió una lectura usable");
       return respuesta.output_parsed;
+    },
+
+    async proponerAcciones(chat, contexto) {
+      const respuesta = await client.responses.parse({
+        model: modelo,
+        instructions: PROMPT_CHAT_DE_CLIENTE,
+        input: `${textoDeContexto(contexto)}Chat:\n${chat}`,
+        text: { format: zodTextFormat(SalidaChat, "salida_chat") },
+        ...(modelo.startsWith("gpt-4") ? { temperature: 0 } : {}),
+        store: false,
+        max_output_tokens: 1500,
+      });
+      if (!respuesta.output_parsed) throw new IANoDisponible("La IA no devolvió una lectura usable");
+      return respuesta.output_parsed.acciones;
     },
   };
 }

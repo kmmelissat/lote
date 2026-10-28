@@ -590,6 +590,48 @@ export const textos = {
     ],
   },
 
+  chatCliente: {
+    titulo: "Pegar chat de cliente",
+    subtitulo: "Pegá una conversación y Lote te propone qué registrar. No se aplica nada sin que lo confirmes.",
+    etiqueta: "Conversación con el cliente",
+    placeholder: "Pegá acá el chat de Instagram o WhatsApp",
+    privacidad:
+      "Al revisar, el texto se envía a OpenAI para leerlo. Pegá solo lo necesario y evitá números de cuenta o datos que no hagan falta.",
+    revisar: "Revisar mensaje",
+    revisando: "Leyendo el chat…",
+    propuestas: (n: number) => (n === 1 ? "Encontramos 1 cosa para registrar" : `Encontramos ${n} cosas para registrar`),
+    nada: "No encontramos nada claro para registrar en ese chat. Probá pegando más de la conversación.",
+    confirmar: "Confirmar",
+    descartar: "Descartar",
+    descartada: "Descartada.",
+    enviar: "Enviar",
+    tuRespuesta: "Tu respuesta",
+    otroChat: "Pegar otro chat",
+    errorVacio: "Pegá primero la conversación.",
+    errorLargo: (max: number) => `El chat es muy largo. Pegá hasta ${max} caracteres.`,
+    errorPermiso: "Tu rol no puede registrar ventas ni pagos.",
+    sinIA: "La lectura de chats todavía no está conectada. Usá el asistente o registrá a mano.",
+    errorIA: "No pudimos leer el chat. Probá de nuevo en un momento.",
+    descripcion: {
+      apartar: (producto: string, cliente: string) => `Apartar ${producto} para ${cliente}`,
+      vender: (producto: string, cliente: string | null) =>
+        cliente ? `Registrar la venta de ${producto} a ${cliente}` : `Registrar la venta de ${producto}`,
+      marcarPagado: (pedido: string) => `Marcar como pagado ${pedido}`,
+      abonar: (pedido: string, monto: string | null) =>
+        monto ? `Registrar un abono de ${monto} en ${pedido}` : `Registrar un abono en ${pedido}`,
+      liberar: (pedido: string) => `Liberar ${pedido}`,
+      enviar: (pedido: string, guia: string | null) =>
+        guia ? `Marcar como enviado ${pedido} (guía ${guia})` : `Marcar como enviado ${pedido}`,
+      cobrar: (pedido: string) => `Armar el mensaje de cobro de ${pedido}`,
+      otra: "Acción",
+      unProducto: "un producto (falta elegir cuál)",
+      unCliente: "un cliente (falta decir cuál)",
+      unPedido: "un pedido",
+      pedidoNumero: (n: number) => `el pedido #${n}`,
+      pedidoDe: (cliente: string) => `el pedido de ${cliente}`,
+    },
+  },
+
   ayuda: {
     titulo: "Ayuda",
     descripcion: "Respuestas a lo que más se pregunta.",
