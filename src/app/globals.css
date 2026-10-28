@@ -24,6 +24,18 @@
   --color-error: #b3261e;
   --color-error-fondo: #fde8e6;
 
+  /* Solo la landing: acentos con más personalidad */
+  --color-mango: #ff9a2e;
+  --color-limon: #ffe27a;
+  --color-rosa-palido: #fdeaf1;
+  --color-crema: #fff7e8;
+  --shadow-dura: 4px 4px 0 0 var(--color-teal-oscuro);
+  --shadow-dura-chica: 3px 3px 0 0 var(--color-teal-oscuro);
+  --animate-flotar: flotar 4s ease-in-out infinite;
+  --animate-asomar: asomar 700ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-marquesina: marquesina 30s linear infinite;
+  --animate-entra: entra 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
   --font-sans: var(--font-jakarta), system-ui, sans-serif;
 
   --radius-tarjeta: 1rem;
@@ -64,11 +76,62 @@ body {
   outline-offset: 2px;
 }
 
+@keyframes flotar {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--giro, 0deg));
+  }
+  50% {
+    transform: translateY(-8px) rotate(var(--giro, 0deg));
+  }
+}
+
+@keyframes asomar {
+  from {
+    transform: translateY(70%);
+  }
+}
+
+@keyframes marquesina {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes entra {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+}
+
+@keyframes revelar {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+/* Las secciones de la landing aparecen al llegar a la pantalla. Solo con CSS: donde el navegador no
+   soporta animaciones por scroll, el contenido simplemente está ahí. */
+@supports (animation-timeline: view()) {
+  .revelar {
+    animation: revelar linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  .revelar {
+    animation: none !important;
+  }
 }
+

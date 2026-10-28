@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
+import { CerrarSesion } from "@/features/auth/ui/CerrarSesion";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -74,6 +75,9 @@ export default async function Page() {
           </Link>
         </li>
       </ul>
+      <div className="mt-6 md:hidden">
+        <CerrarSesion variante="completo" />
+      </div>
     </>
   );
 }

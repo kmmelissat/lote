@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Suspense, useState, type ReactNode } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
+import { CerrarSesion } from "@/features/auth/ui/CerrarSesion";
 import { textos } from "@/lib/textos";
 
 // En móvil caben cuatro pestañas y el "+": las `soloEscritorio` se alcanzan desde otra pantalla (Pedidos e Inicio).
@@ -165,6 +166,7 @@ export function Nav({ perfil }: { perfil: ReactNode }) {
           </ul>
         </nav>
         <div className="mt-auto flex flex-col gap-1 border-t border-borde pt-3">
+          <CerrarSesion variante="lateral" />
           <Enlace vista={EnlaceLateral} href="/ajustes" etiqueta={textos.nav.ajustes} icono="ajustes" />
           <Suspense fallback={null}>{perfil}</Suspense>
         </div>
