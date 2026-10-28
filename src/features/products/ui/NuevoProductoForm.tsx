@@ -151,7 +151,7 @@ export function NuevoProductoForm({ negocioId }: { negocioId: string }) {
           rows={3}
           value={descripcion}
           onChange={(ev) => editar("descripcion", setDescripcion)(ev.target.value)}
-          className="rounded-xl border border-borde bg-superficie px-4 py-3 text-base"
+          className="rounded-xl border border-borde-control bg-superficie px-4 py-3 text-base"
         />
       </div>
 

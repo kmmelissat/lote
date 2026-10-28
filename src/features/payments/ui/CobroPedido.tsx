@@ -93,7 +93,7 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
               href={`https://wa.me/?text=${encodeURIComponent(mensaje)}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-12 items-center justify-center rounded-full border border-borde bg-superficie px-6 font-medium text-teal hover:bg-teal-fondo"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-borde-control bg-superficie px-6 font-medium text-teal hover:bg-teal-fondo"
             >
               {t.whatsapp}
             </a>

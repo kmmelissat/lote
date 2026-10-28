@@ -45,7 +45,7 @@ export function EditarProductoForm({ producto: p }: { producto: Producto }) {
           name="descripcion"
           rows={3}
           defaultValue={p.descripcion ?? ""}
-          className="rounded-xl border border-borde bg-superficie px-4 py-3 text-base"
+          className="rounded-xl border border-borde-control bg-superficie px-4 py-3 text-base"
         />
       </div>
 

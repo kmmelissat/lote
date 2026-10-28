@@ -14,8 +14,8 @@ export const textos = {
     ganancia: "Ganancia",
     ajustes: "Ajustes",
     perfil: "Mi perfil y ajustes",
-    buscar: "Buscar",
-    avisos: "Avisos",
+    buscar: "Buscar productos",
+    saltar: "Saltar al contenido",
   },
 
   acceso: {

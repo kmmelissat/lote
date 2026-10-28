@@ -58,7 +58,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/clientes">, "searchParam
             type="search"
             defaultValue={texto}
             placeholder={t.placeholder}
-            className="h-12 rounded-xl border border-borde bg-superficie px-4 text-base"
+            className="h-12 rounded-xl border border-borde-control bg-superficie px-4 text-base"
           />
         </div>
         <Button type="submit" variante="secundario">

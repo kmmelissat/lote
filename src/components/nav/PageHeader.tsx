@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -7,11 +7,11 @@ import { textos } from "@/lib/textos";
 const boton =
   "flex size-11 items-center justify-center rounded-xl bg-superficie text-teal-oscuro hover:bg-teal-fondo";
 
-function BotonIcono({ icono, etiqueta }: { icono: NombreIcono; etiqueta: string }) {
+function EnlaceBuscar() {
   return (
-    <button type="button" aria-label={etiqueta} className={boton}>
-      <Icon nombre={icono} className="size-5" />
-    </button>
+    <Link href="/productos" aria-label={textos.nav.buscar} className={boton}>
+      <Icon nombre="buscar" className="size-5" />
+    </Link>
   );
 }
 
@@ -48,8 +48,7 @@ export function PageHeader({
 }) {
   const acciones = (
     <div className="flex items-center gap-2">
-      <BotonIcono icono="buscar" etiqueta={textos.nav.buscar} />
-      <BotonIcono icono="campana" etiqueta={textos.nav.avisos} />
+      <EnlaceBuscar />
       <Perfil />
     </div>
   );

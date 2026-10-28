@@ -13,6 +13,8 @@
   --color-texto: #003844;
   --color-texto-2: #4a6b73;
   --color-borde: #dce5e4;
+  /* Bordes de campos y controles: 3.5 a 1 sobre blanco (WCAG 1.4.11 pide 3 a 1) */
+  --color-borde-control: #6b8990;
 
   --color-ambar-texto: #7a5200;
   --color-rosa-texto: #9c3a60;

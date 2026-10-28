@@ -143,7 +143,7 @@ export function ImportarCsv() {
             <select
               value={mapeo[campo] ?? ""}
               onChange={(e) => cambiarColumna(campo, e.target.value)}
-              className="h-12 rounded-xl border border-borde bg-superficie px-3 text-base"
+              className="h-12 rounded-xl border border-borde-control bg-superficie px-3 text-base"
             >
               <option value="">{t.noIncluir}</option>
               {archivo.encabezados.map((h, i) => (

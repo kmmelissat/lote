@@ -141,7 +141,7 @@ export function Chat({ negocioId }: { negocioId: string }) {
                         type="button"
                         disabled={pendiente}
                         onClick={() => boton(b)}
-                        className="min-h-11 rounded-full border border-borde bg-superficie px-4 text-sm font-medium text-teal hover:bg-teal-fondo disabled:opacity-50"
+                        className="min-h-11 rounded-full border border-borde-control bg-superficie px-4 text-sm font-medium text-teal hover:bg-teal-fondo disabled:opacity-50"
                       >
                         {b.etiqueta}
                       </button>
@@ -150,7 +150,7 @@ export function Chat({ negocioId }: { negocioId: string }) {
                       <button
                         type="button"
                         onClick={() => copiar(m.respuesta.copiar!)}
-                        className="min-h-11 rounded-full border border-borde bg-superficie px-4 text-sm font-medium text-teal hover:bg-teal-fondo"
+                        className="min-h-11 rounded-full border border-borde-control bg-superficie px-4 text-sm font-medium text-teal hover:bg-teal-fondo"
                       >
                         {t.copiar}
                       </button>
@@ -216,7 +216,7 @@ export function Chat({ negocioId }: { negocioId: string }) {
           placeholder={t.placeholder}
           autoComplete="off"
           maxLength={1000}
-          className="h-12 min-w-0 flex-1 rounded-full border border-borde bg-superficie px-5 text-base"
+          className="h-12 min-w-0 flex-1 rounded-full border border-borde-control bg-superficie px-5 text-base"
         />
         <Button type="submit" disabled={pendiente || subiendo || (!texto.trim() && !foto)}>
           {t.enviar}

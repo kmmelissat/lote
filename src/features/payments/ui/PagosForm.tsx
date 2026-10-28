@@ -39,7 +39,7 @@ export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
                 rows={2}
                 defaultValue={actual?.datos ?? ""}
                 aria-describedby={`${id}-${tipo}-ayuda`}
-                className="rounded-xl border border-borde bg-superficie px-4 py-3 text-base"
+                className="rounded-xl border border-borde-control bg-superficie px-4 py-3 text-base"
               />
               <p id={`${id}-${tipo}-ayuda`} className="text-sm text-texto-2">
                 {t.ayuda[tipo]}

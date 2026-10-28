@@ -76,7 +76,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
               type="search"
               defaultValue={texto}
               placeholder={textos.productos.buscar.placeholder}
-              className="h-12 rounded-xl border border-borde bg-superficie px-4 text-base"
+              className="h-12 rounded-xl border border-borde-control bg-superficie px-4 text-base"
             />
           </div>
           <Button type="submit" variante="secundario">

@@ -94,7 +94,7 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
                   inputMode="numeric"
                   value={f.cantidad}
                   onChange={(e) => cambiar(f.clave, { cantidad: e.target.value })}
-                  className="h-12 rounded-xl border border-borde bg-superficie px-3 text-base"
+                  className="h-12 rounded-xl border border-borde-control bg-superficie px-3 text-base"
                 />
               </label>
               {filas.length > 1 && (
