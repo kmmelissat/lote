@@ -14,7 +14,9 @@ export type ClienteConResumen = {
   resumen: ResumenCliente;
 };
 
-const columnas =
+// La lista solo necesita los totales; los productos de cada pedido se piden solo en la ficha.
+const columnasLista = "id, nombre, contacto, notas, pedido(codigo, estado, total, saldo, creado_en)";
+const columnasFicha =
   "id, nombre, contacto, notas, pedido(codigo, estado, total, saldo, creado_en, pedido_item(cantidad, producto(nombre)))";
 
 type Fila = {
@@ -28,7 +30,7 @@ type Fila = {
     total: number;
     saldo: number;
     creado_en: string;
-    pedido_item: { cantidad: number; producto: { nombre: string } }[];
+    pedido_item?: { cantidad: number; producto: { nombre: string } }[];
   }[];
 };
 
@@ -40,7 +42,7 @@ function aCliente(f: Fila): ClienteConResumen {
       total: aCentavos(p.total),
       saldo: aCentavos(p.saldo),
       creadoEn: new Date(p.creado_en),
-      productos: p.pedido_item.map((i) => `${i.producto.nombre} ×${i.cantidad}`).join(", "),
+      productos: (p.pedido_item ?? []).map((i) => `${i.producto.nombre} ×${i.cantidad}`).join(", "),
     }))
     .sort((a, b) => b.creadoEn.getTime() - a.creadoEn.getTime());
   return { id: f.id, nombre: f.nombre, contacto: f.contacto, notas: f.notas, pedidos, resumen: resumenDeCliente(pedidos) };
@@ -50,7 +52,7 @@ function aCliente(f: Fila): ClienteConResumen {
 export async function listarClientes(supabase: Cliente, negocioId: string): Promise<ClienteConResumen[]> {
   const { data, error } = await supabase
     .from("cliente")
-    .select(columnas)
+    .select(columnasLista)
     .eq("negocio_id", negocioId)
     .order("creado_en", { ascending: false })
     .limit(200);
@@ -65,7 +67,7 @@ export async function obtenerCliente(
 ): Promise<ClienteConResumen | null> {
   const { data, error } = await supabase
     .from("cliente")
-    .select(columnas)
+    .select(columnasFicha)
     .eq("negocio_id", negocioId)
     .eq("id", id)
     .maybeSingle();

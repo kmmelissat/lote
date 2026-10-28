@@ -36,8 +36,12 @@ export type Producto = {
   costoUnitario: Centavos | null | undefined;
 };
 
-const columnas =
-  "id, codigo, nombre, descripcion, categoria, marca, condicion, fotos, precio, existencia(cantidad), pedido_item(cantidad, pedido(estado, vence_en)), costo_producto(tipo, monto, por_unidad)";
+// Los costos son la parte pesada de la consulta y solo los ve quien gestiona: sin permiso (o sin
+// necesitarlos, como en Inicio) no se piden.
+const columnasBase =
+  "id, codigo, nombre, descripcion, categoria, marca, condicion, fotos, precio, existencia(cantidad), pedido_item(cantidad, pedido(estado, vence_en))";
+const columnasConCostos = `${columnasBase}, costo_producto(tipo, monto, por_unidad)`;
+const columnas = (puedeVerCostos: boolean) => (puedeVerCostos ? columnasConCostos : columnasBase);
 
 type Fila = {
   id: string;
@@ -51,7 +55,7 @@ type Fila = {
   precio: number;
   existencia: { cantidad: number }[];
   pedido_item: { cantidad: number; pedido: { estado: string; vence_en: string | null } }[];
-  costo_producto: { tipo: string; monto: number; por_unidad: boolean }[];
+  costo_producto?: { tipo: string; monto: number; por_unidad: boolean }[];
 };
 
 function aProducto(f: Fila, puedeVerCostos: boolean, ahora: Date): Producto {
@@ -67,7 +71,7 @@ function aProducto(f: Fila, puedeVerCostos: boolean, ahora: Date): Producto {
   const existencias = { cantidad, apartadas, vendidas };
   const desglose = puedeVerCostos
     ? desgloseDeFilas(
-        f.costo_producto.map((c) => ({
+        (f.costo_producto ?? []).map((c) => ({
           tipo: c.tipo as keyof DesgloseCosto,
           monto: aCentavos(c.monto),
           porUnidad: c.por_unidad,
@@ -102,12 +106,12 @@ export async function listarProductos(
 ): Promise<Producto[]> {
   const { data, error } = await supabase
     .from("producto")
-    .select(columnas)
+    .select(columnas(puedeVerCostos))
     .eq("negocio_id", negocioId)
     .order("creado_en", { ascending: false })
     .limit(100);
   if (error) throw error;
-  return data.map((f) => aProducto(f, puedeVerCostos, new Date()));
+  return (data as unknown as Fila[]).map((f) => aProducto(f, puedeVerCostos, new Date()));
 }
 
 export async function obtenerProducto(
@@ -118,12 +122,12 @@ export async function obtenerProducto(
 ): Promise<Producto | null> {
   const { data, error } = await supabase
     .from("producto")
-    .select(columnas)
+    .select(columnas(puedeVerCostos))
     .eq("negocio_id", negocioId)
     .eq("codigo", codigo)
     .maybeSingle();
   if (error) throw error;
-  return data ? aProducto(data, puedeVerCostos, new Date()) : null;
+  return data ? aProducto(data as unknown as Fila, puedeVerCostos, new Date()) : null;
 }
 
 export async function reponerProducto(

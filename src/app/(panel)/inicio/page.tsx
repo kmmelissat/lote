@@ -32,7 +32,8 @@ async function Contenido() {
   const periodo = rangoPeriodo("semana", ahora);
 
   const [productos, pedidos, ganancia] = await Promise.all([
-    listarProductos(supabase, negocio.id, negocio.puedeGestionar),
+    // Acá solo se cuentan unidades: no hacen falta los costos.
+    listarProductos(supabase, negocio.id, false),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia.
     negocio.puedeGestionar ? resumenDePeriodo(supabase, negocio.id, periodo) : null,

@@ -43,7 +43,7 @@ async function Contenido() {
   const [actual, anterior, productos] = await Promise.all([
     resumenDePeriodo(supabase, negocio.id, esta),
     resumenDePeriodo(supabase, negocio.id, pasada),
-    listarProductos(supabase, negocio.id, true),
+    listarProductos(supabase, negocio.id, false),
   ]);
   const r = resumenSemanal(actual, anterior);
   const apartadas = productos.reduce((suma, p) => suma + p.apartadas, 0);
