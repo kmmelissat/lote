@@ -1,44 +1,3 @@
-import Link from "next/link";
-import { Icon } from "@/components/ui/Icon";
-import { Logo } from "@/components/ui/Logo";
-import { negocioActual } from "@/lib/negocio";
-import { textos } from "@/lib/textos";
-
-const boton =
-  "flex size-11 items-center justify-center rounded-xl bg-superficie text-teal-oscuro hover:bg-teal-fondo";
-
-function EnlaceBuscar() {
-  return (
-    <Link href="/productos" aria-label={textos.nav.buscar} className={boton}>
-      <Icon nombre="buscar" className="size-5" />
-    </Link>
-  );
-}
-
-function PerfilVista({ nombre, detalle }: { nombre: string; detalle: string }) {
-  return (
-    <Link
-      href="/ajustes"
-      aria-label={textos.nav.perfil}
-      className="flex min-h-11 items-center gap-3 rounded-xl bg-superficie p-1 hover:bg-teal-fondo md:pr-3"
-    >
-      <span className="flex size-10 items-center justify-center rounded-full bg-teal-fondo text-teal">
-        <Icon nombre="usuario" className="size-5" />
-      </span>
-      <span className="hidden min-w-0 max-w-40 flex-col leading-tight md:flex">
-        <span className="truncate text-sm font-medium">{nombre}</span>
-        <span className="text-xs text-texto-2">{detalle}</span>
-      </span>
-      <Icon nombre="flecha" className="hidden size-4 text-texto-2 md:block" />
-    </Link>
-  );
-}
-
-async function Perfil() {
-  const { negocio } = await negocioActual();
-  return <PerfilVista nombre={negocio.nombre || textos.perfil.nombre} detalle={textos.perfil.roles[negocio.rol] ?? textos.perfil.detalle} />;
-}
-
 export function PageHeader({
   titulo,
   descripcion,
@@ -46,28 +5,10 @@ export function PageHeader({
   titulo: string;
   descripcion: string;
 }) {
-  const acciones = (
-    <div className="flex items-center gap-2">
-      <EnlaceBuscar />
-      <Perfil />
-    </div>
-  );
   return (
     <header className="mb-6">
-      {/* Móvil: logo y acciones arriba; en escritorio el logo está en el menú lateral */}
-      <div className="mb-4 flex items-center justify-between md:hidden">
-        <Link href="/inicio" aria-label={textos.nombre}>
-          <Logo />
-        </Link>
-        {acciones}
-      </div>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">{titulo}</h1>
-          <p className="mt-1 text-texto-2">{descripcion}</p>
-        </div>
-        <div className="hidden md:block">{acciones}</div>
-      </div>
+      <h1 className="text-2xl font-bold">{titulo}</h1>
+      <p className="mt-1 text-texto-2">{descripcion}</p>
     </header>
   );
 }

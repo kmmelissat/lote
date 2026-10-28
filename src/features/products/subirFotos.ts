@@ -3,9 +3,9 @@ import { createClient } from "@/lib/supabase/client";
 const LADO_MAXIMO = 1280;
 
 // Reduce la foto antes de subir: el celular manda 4-8 MB y la vitrina no los necesita.
-async function comprimir(archivo: File): Promise<Blob> {
+async function comprimir(archivo: File, ladoMaximo = LADO_MAXIMO): Promise<Blob> {
   const imagen = await createImageBitmap(archivo);
-  const escala = Math.min(1, LADO_MAXIMO / Math.max(imagen.width, imagen.height));
+  const escala = Math.min(1, ladoMaximo / Math.max(imagen.width, imagen.height));
   const lienzo = document.createElement("canvas");
   lienzo.width = Math.round(imagen.width * escala);
   lienzo.height = Math.round(imagen.height * escala);
@@ -29,4 +29,15 @@ export async function subirFotos(archivos: File[], negocioId: string): Promise<s
     rutas.push(ruta);
   }
   return rutas;
+}
+
+/** Sube el logo del negocio (más chico que una foto de producto). Devuelve la ruta dentro del bucket. */
+export async function subirLogo(archivo: File, negocioId: string): Promise<string> {
+  const supabase = createClient();
+  const ruta = `${negocioId}/logo-${crypto.randomUUID()}.webp`;
+  const { error } = await supabase.storage
+    .from("productos")
+    .upload(ruta, await comprimir(archivo, 512), { contentType: "image/webp" });
+  if (error) throw error;
+  return ruta;
 }

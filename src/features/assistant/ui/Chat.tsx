@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import type { Boton, Comando, Estado, Respuesta } from "../motor";
 import { textos } from "@/lib/textos";
 import { subirFotos } from "@/features/products/subirFotos";
@@ -201,9 +202,7 @@ export function Chat({ negocioId }: { negocioId: string }) {
       <form onSubmit={enviar} className="flex gap-2">
         <label className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-borde bg-superficie text-teal focus-within:outline-2 focus-within:outline-teal hover:bg-teal-fondo">
           <span className="sr-only">{t.adjuntar}</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-6">
-            <path d="M4 8h3l2-3h6l2 3h3v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
-          </svg>
+          <Icon nombre="camara" />
           <input type="file" accept="image/*" capture="environment" onChange={adjuntar} disabled={subiendo || pendiente} className="sr-only" />
         </label>
         <label htmlFor="asistente-texto" className="sr-only">

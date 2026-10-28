@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState, type ReactNode } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
@@ -38,14 +38,15 @@ function EnlaceVista({ href, etiqueta, icono, activa }: Pestana & { activa: bool
     <Link
       href={href}
       aria-current={activa ? "page" : undefined}
-      className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-xs font-medium md:flex-row md:justify-start md:gap-3 md:px-4 md:text-base ${
+      title={etiqueta}
+      className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-xs font-medium md:flex-row md:justify-start md:gap-3 md:px-3 md:text-base md:group-data-[cerrado]:justify-center ${
         activa
-          ? "bg-teal-fondo text-teal md:bg-superficie md:text-teal-oscuro md:shadow-sm"
-          : "text-texto-2 hover:bg-teal-fondo md:hover:bg-superficie"
+          ? "bg-teal-fondo text-teal md:border md:border-borde md:bg-superficie md:text-teal-oscuro md:shadow-sm"
+          : "text-texto-2 hover:bg-teal-fondo md:border md:border-transparent md:hover:bg-superficie"
       }`}
     >
-      <Icon nombre={icono} className="size-6" />
-      {etiqueta}
+      <Icon nombre={icono} className="size-6 shrink-0" />
+      <span className="md:group-data-[cerrado]:hidden">{etiqueta}</span>
     </Link>
   );
 }
@@ -55,15 +56,31 @@ function BotonMas() {
     <Link
       href="/nuevo"
       aria-label={textos.nav.nuevo}
-      className="-mt-6 flex size-14 items-center justify-center rounded-full bg-teal text-white shadow-md hover:bg-teal-oscuro md:mt-0 md:h-12 md:w-full md:gap-2 md:text-base md:font-medium"
+      title={textos.nav.nuevo}
+      className="-mt-6 flex size-14 items-center justify-center rounded-full bg-teal text-white shadow-md hover:bg-teal-oscuro md:mt-0 md:h-12 md:w-full md:gap-2 md:rounded-xl md:text-base md:font-medium md:shadow-none"
     >
       <Icon nombre="mas" className="size-7" />
-      <span className="hidden md:inline">{textos.nav.nuevo}</span>
+      <span className="hidden md:inline md:group-data-[cerrado]:hidden">{textos.nav.nuevo}</span>
     </Link>
   );
 }
 
-export function Nav() {
+function Buscar() {
+  return (
+    <Link
+      href="/productos"
+      aria-label={textos.nav.buscar}
+      title={textos.nav.buscar}
+      className="flex min-h-11 items-center gap-3 rounded-xl border border-borde bg-superficie px-3 text-texto-2 hover:border-borde-control group-data-[cerrado]:justify-center"
+    >
+      <Icon nombre="buscar" className="size-5 shrink-0" />
+      <span className="group-data-[cerrado]:hidden">{textos.nav.buscarCorto}</span>
+    </Link>
+  );
+}
+
+export function Nav({ perfil }: { perfil: ReactNode }) {
+  const [cerrado, setCerrado] = useState(false);
   return (
     <>
       {/* Móvil: barra inferior con el botón "+" al centro */}
@@ -81,22 +98,42 @@ export function Nav() {
         </ul>
       </nav>
 
-      {/* Escritorio: menú lateral */}
-      <nav
-        aria-label="Principal"
-        className="hidden w-60 shrink-0 flex-col gap-2 p-4 md:flex"
+      {/* Escritorio: menú flotante que se cierra a una tira de íconos */}
+      <aside
+        data-cerrado={cerrado ? "" : undefined}
+        className={`group sticky top-3 m-3 hidden h-[calc(100dvh-1.5rem)] shrink-0 flex-col gap-3 rounded-2xl border border-borde bg-fondo p-3 shadow-sm transition-[width] duration-200 md:flex ${
+          cerrado ? "w-[4.5rem]" : "w-64"
+        }`}
       >
-        <Logo className="px-4 pb-4" />
-        <BotonMas />
-        <ul className="mt-2 flex flex-col gap-1">
-          {pestanas.map((p) => (
-            <li key={p.href}><Enlace {...p} /></li>
-          ))}
-        </ul>
-        <div className="mt-auto">
-          <Enlace href="/ajustes" etiqueta={textos.nav.ajustes} icono="ajustes" />
+        <div className="flex items-center justify-between gap-2 group-data-[cerrado]:flex-col">
+          <Link href="/inicio" aria-label={textos.nombre} className="px-1">
+            <Logo />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setCerrado((c) => !c)}
+            aria-expanded={!cerrado}
+            aria-label={cerrado ? textos.nav.abrirMenu : textos.nav.cerrarMenu}
+            title={cerrado ? textos.nav.abrirMenu : textos.nav.cerrarMenu}
+            className="flex size-9 shrink-0 items-center justify-center rounded-lg text-texto-2 hover:bg-superficie hover:text-teal-oscuro"
+          >
+            <Icon nombre="panel" className="size-5" />
+          </button>
         </div>
-      </nav>
+        <Buscar />
+        <BotonMas />
+        <nav aria-label="Principal">
+          <ul className="flex flex-col gap-1">
+            {pestanas.map((p) => (
+              <li key={p.href}><Enlace {...p} /></li>
+            ))}
+          </ul>
+        </nav>
+        <div className="mt-auto flex flex-col gap-1 border-t border-borde pt-3">
+          <Enlace href="/ajustes" etiqueta={textos.nav.ajustes} icono="ajustes" />
+          <Suspense fallback={null}>{perfil}</Suspense>
+        </div>
+      </aside>
     </>
   );
 }

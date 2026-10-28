@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 export type NegocioActual = {
   id: string;
   nombre: string;
+  /** Ruta del logo en el bucket, si la dueña subió uno */
+  logo: string | null;
   /** El de la vitrina pública: /c/<slug> */
   slug: string;
   /** Con cuántas unidades disponibles un producto cuenta como "poco stock" */
@@ -29,7 +31,7 @@ export const negocioActual = cache(async function negocioActual() {
 
   const { data } = await supabase
     .from("miembro")
-    .select("negocio_id, rol, negocio(nombre, slug, umbral_poco_stock)")
+    .select("negocio_id, rol, negocio(nombre, logo, slug, umbral_poco_stock)")
     .eq("usuario_id", usuarioId)
     .limit(1);
   const miembro = data?.[0];
@@ -38,6 +40,7 @@ export const negocioActual = cache(async function negocioActual() {
   const negocio: NegocioActual = {
     id: miembro.negocio_id,
     nombre: miembro.negocio?.nombre ?? "",
+    logo: miembro.negocio?.logo ?? null,
     slug: miembro.negocio?.slug ?? "",
     umbralPocoStock: miembro.negocio?.umbral_poco_stock ?? 2,
     usuarioId,

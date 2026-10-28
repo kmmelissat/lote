@@ -4,6 +4,7 @@ import type { ComponentProps } from "react";
 const variantes = {
   primario: "bg-teal text-white hover:bg-teal-oscuro",
   acento: "bg-ambar text-teal-oscuro hover:brightness-95",
+  peligro: "bg-error text-white hover:brightness-90",
   secundario: "bg-superficie text-teal border border-borde hover:bg-teal-fondo",
 } as const;
 

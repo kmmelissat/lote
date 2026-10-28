@@ -8,6 +8,8 @@ type Cliente = SupabaseClient<Database>;
 export type NegocioPublico = {
   nombre: string;
   logo: string | null;
+  color: string | null;
+  descripcion: string | null;
   whatsapp: string | null;
   usuarioInstagram: string | null;
   apartarDesdeVitrina: boolean;
@@ -22,6 +24,8 @@ export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Pr
   return {
     nombre: n.nombre,
     logo: n.logo,
+    color: n.color,
+    descripcion: n.descripcion,
     whatsapp: n.whatsapp,
     usuarioInstagram: n.usuario_instagram,
     apartarDesdeVitrina: n.apartar_desde_vitrina,
@@ -202,6 +206,37 @@ export async function guardarAjustesVitrina(
       whatsapp: a.whatsapp,
       usuario_instagram: a.usuarioInstagram,
     })
+    .eq("id", negocioId);
+  return !error;
+}
+
+export type IdentidadTienda = {
+  nombre: string;
+  slug: string;
+  descripcion: string | null;
+  logo: string | null;
+  color: string | null;
+};
+
+export async function obtenerIdentidad(supabase: Cliente, negocioId: string): Promise<IdentidadTienda> {
+  const { data, error } = await supabase
+    .from("negocio")
+    .select("nombre, slug, descripcion, logo, color")
+    .eq("id", negocioId)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+/** Solo la dueña puede guardar (lo exige RLS). */
+export async function guardarIdentidad(
+  supabase: Cliente,
+  negocioId: string,
+  a: Omit<IdentidadTienda, "slug">,
+): Promise<boolean> {
+  const { error } = await supabase
+    .from("negocio")
+    .update({ nombre: a.nombre, descripcion: a.descripcion, logo: a.logo, color: a.color })
     .eq("id", negocioId);
   return !error;
 }

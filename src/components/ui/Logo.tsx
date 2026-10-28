@@ -9,7 +9,7 @@ export function Logo({ className = "" }: { className?: string }) {
       >
         L
       </span>
-      <span className="text-xl font-bold">{textos.nombre}</span>
+      <span className="text-xl font-bold group-data-[cerrado]:hidden">{textos.nombre}</span>
     </span>
   );
 }

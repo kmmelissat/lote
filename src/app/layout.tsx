@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { ConfirmarProvider } from "@/components/ui/Confirmar";
+import { ToastProvider } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
 import "./globals.css";
 
@@ -21,7 +23,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es" className={`${jakarta.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <ToastProvider>
+          <ConfirmarProvider>{children}</ConfirmarProvider>
+        </ToastProvider>
+      </body>
     </html>
   );
 }

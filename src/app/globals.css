@@ -7,7 +7,6 @@
   --color-ambar: #ffb100;
   --color-perla: #ffebc6;
 
-  --color-exterior: #e6eeec;
   --color-fondo: #f5f8f7;
   --color-superficie: #ffffff;
   --color-texto: #003844;
@@ -39,11 +38,15 @@ body {
   font-family: var(--font-sans);
 }
 
-@media (min-width: 48rem) {
-  html,
-  body {
-    background: var(--color-exterior);
+@keyframes entra-aviso {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
   }
+}
+
+.animate-aviso {
+  animation: entra-aviso 180ms ease-out;
 }
 
 :focus-visible {

@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
+import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico } from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/products/variantes";
@@ -34,9 +35,15 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
   const productos = agruparParaVitrina(await listarProductosPublicos(supabase, slug));
 
   return (
-    <>
+    <MarcaTienda color={negocio.color}>
       <header className="mb-6 flex flex-col gap-4">
-        <h1 className="text-3xl font-bold">{negocio.nombre}</h1>
+        <div className="flex items-center gap-4">
+          <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-16" />
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold">{negocio.nombre}</h1>
+            {negocio.descripcion && <p className="mt-1 text-texto-2">{negocio.descripcion}</p>}
+          </div>
+        </div>
         <BotonesChat
           whatsapp={negocio.whatsapp}
           instagram={negocio.usuarioInstagram}
@@ -80,6 +87,6 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           ))}
         </ul>
       )}
-    </>
+    </MarcaTienda>
   );
 }

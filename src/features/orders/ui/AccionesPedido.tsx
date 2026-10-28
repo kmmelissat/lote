@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
+import { useConfirmar } from "@/components/ui/Confirmar";
 import { MensajeError } from "@/components/ui/MensajeError";
 import type { EstadoPedido } from "@/domain/index";
 import { textos } from "@/lib/textos";
@@ -18,6 +19,7 @@ type Props = {
 export function AccionesPedido({ pedidoId, siguiente, puedeCancelar }: Props) {
   const [error, setError] = useState("");
   const [pendiente, empezar] = useTransition();
+  const confirmar = useConfirmar();
 
   function cambiar(estado: EstadoPedido) {
     setError("");
@@ -25,6 +27,17 @@ export function AccionesPedido({ pedidoId, siguiente, puedeCancelar }: Props) {
       const r = await cambiarEstado(pedidoId, estado);
       if (r.error) setError(r.error);
     });
+  }
+
+  async function cancelar() {
+    const si = await confirmar({
+      titulo: t.cancelarTitulo,
+      texto: t.confirmarCancelar,
+      confirmar: t.cancelarConfirmar,
+      cancelar: t.cancelarVolver,
+      peligro: true,
+    });
+    if (si) cambiar("cancelado");
   }
 
   if (!siguiente && !puedeCancelar) return null;
@@ -42,7 +55,7 @@ export function AccionesPedido({ pedidoId, siguiente, puedeCancelar }: Props) {
             type="button"
             variante="secundario"
             disabled={pendiente}
-            onClick={() => window.confirm(t.confirmarCancelar) && cambiar("cancelado")}
+            onClick={cancelar}
           >
             {t.cancelar}
           </Button>

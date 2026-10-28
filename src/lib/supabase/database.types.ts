@@ -488,6 +488,7 @@ export type Database = {
           apartar_desde_vitrina: boolean
           color: string | null
           creado_en: string
+          descripcion: string | null
           id: string
           limite_apartados_por_contacto: number
           logo: string | null
@@ -506,6 +507,7 @@ export type Database = {
           apartar_desde_vitrina?: boolean
           color?: string | null
           creado_en?: string
+          descripcion?: string | null
           id?: string
           limite_apartados_por_contacto?: number
           logo?: string | null
@@ -524,6 +526,7 @@ export type Database = {
           apartar_desde_vitrina?: boolean
           color?: string | null
           creado_en?: string
+          descripcion?: string | null
           id?: string
           limite_apartados_por_contacto?: number
           logo?: string | null
@@ -1183,6 +1186,7 @@ export type Database = {
         Returns: {
           apartar_desde_vitrina: boolean
           color: string
+          descripcion: string
           logo: string
           nombre: string
           plazo_apartado_horas: number
