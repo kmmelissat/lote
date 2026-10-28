@@ -10,6 +10,7 @@ import {
   ajustarExistencia,
   guardarFotos,
   guardarVariante,
+  listarCategorias,
   listarGrupo,
   obtenerProducto,
   reemplazarCostos,
@@ -44,6 +45,12 @@ export async function editarProducto(
   // En un producto con variantes el nombre es el base y cada variante tiene su etiqueta.
   const etiqueta = texto("variante");
   if ("variante" in valores && (!etiqueta || etiqueta.length > 40)) errores.variante = t.errorVariantes.etiqueta;
+
+  const { supabase: clienteCategorias, negocio: negocioCategorias } = await negocioActual();
+  const categoria = texto("categoria");
+  if (categoria && !(await listarCategorias(clienteCategorias, negocioCategorias.id)).some((c) => c.toLowerCase() === categoria.toLowerCase())) {
+    errores.categoria = t.categorias.errorNoExiste;
+  }
 
   const cantidad = Number(texto("cantidad") || "NaN");
   if (!Number.isInteger(cantidad) || cantidad < 0) errores.cantidad = te.errorCantidad;

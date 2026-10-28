@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain/index";
 import { proveedorIA } from "@/features/ai/index";
 import { fotosValidas, TIPOS_COSTO } from "../leerFormulario";
-import { crearProducto, type NuevoProducto } from "../repositorio";
+import { crearProducto, listarCategorias, type NuevoProducto } from "../repositorio";
 import { nombreConVariante, validarVariantes } from "../variantes";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
 import { contextoDeLaTienda } from "@/features/catalog/repositorio";
@@ -15,7 +15,7 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 
 export type EstadoNuevo = {
-  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
+  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "categoria" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
   valores?: Record<string, string>;
 };
 
@@ -48,6 +48,13 @@ export async function nuevoProducto(
 
   const precio = leerDolares(valores.precio ?? "");
   if (precio === null) errores.precio = t.errorPrecio;
+
+  // La categoría se elige de la lista: una escrita a mano que no exista se rechaza.
+  const { supabase: clienteCategorias, negocio: negocioCategorias } = await negocioActual();
+  const categoria = (valores.categoria ?? "").trim();
+  if (categoria && !(await listarCategorias(clienteCategorias, negocioCategorias.id)).some((c) => c.toLowerCase() === categoria.toLowerCase())) {
+    errores.categoria = t.categorias.errorNoExiste;
+  }
 
   // Con variantes, la cantidad es la de cada una y el campo general no cuenta.
   const crudas = listaDeFilas(valores.variantes);

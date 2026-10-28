@@ -9,6 +9,7 @@ import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } from "../actions/nuevo";
 import { atajosDeFormulario, BarraGuardar, Campo, CampoDinero, Cantidad, Etiqueta, estiloCampo, Seccion } from "./campos";
+import { SelectorCategoria } from "./SelectorCategoria";
 import { estadoNuevo, filasDe, grupoNuevo, VariantesInput, type EstadoVariantes } from "./VariantesInput";
 import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { ZonaFotos } from "./ZonaFotos";
@@ -102,6 +103,9 @@ export function NuevoProductoForm({
   const [nombre, setNombre] = useState(v.nombre ?? "");
   const [cantidad, setCantidad] = useState(v.cantidad ?? "1");
   const [categoria, setCategoria] = useState(v.categoria ?? "");
+  const [categorias, setCategorias] = useState(sugerencias.categorias);
+  // La categoría que Lotito vio en la foto y todavía no existe: se ofrece crearla, no se inventa
+  const [categoriaSugerida, setCategoriaSugerida] = useState<string | null>(null);
   const [marca, setMarca] = useState(v.marca ?? "");
   const [descripcion, setDescripcion] = useState(v.descripcion ?? "");
   const [condicion, setCondicion] = useState<"nuevo" | "usado">(v.condicion === "usado" ? "usado" : "nuevo");
@@ -131,7 +135,11 @@ export function NuevoProductoForm({
   const actuales: Record<CampoLotito, string> = { nombre, categoria, marca, descripcion };
 
   // Lotito no pisa lo que escribió la persona: solo llena campos vacíos o los que él mismo había llenado.
-  function aplicar(f: FichaSugerida) {
+  function aplicar(visto: FichaSugerida) {
+    const vista = visto.categoria?.trim() ?? "";
+    const existente = categorias.find((c) => c.toLowerCase() === vista.toLowerCase());
+    if (vista && !existente && !categoria.trim()) setCategoriaSugerida(vista);
+    const f = { ...visto, categoria: existente ?? null };
     const llenar = ORDEN_LOTITO.filter((c) => f[c] && (!actuales[c].trim() || deLotito.has(c)));
     if (llenar.some((c) => c !== "nombre")) setDetallesAbiertos(true);
     setEscribiendo(new Set(llenar));
@@ -355,15 +363,17 @@ export function NuevoProductoForm({
 
         <Seccion titulo={t.masDetalles} ayuda={t.masDetallesAyuda} abierta={detallesAbiertos} onAlternar={() => setDetallesAbiertos((a) => !a)}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Campo
+            <SelectorCategoria
               etiqueta={t.categoria}
-              name="categoria"
-              list={`${id}-categorias`}
-              placeholder={t.categoriaPlaceholder}
-              value={categoria}
-              onChange={(ev) => editar("categoria")(ev.target.value)}
+              valor={categoria}
+              onCambio={editar("categoria")}
+              opciones={categorias}
+              onOpciones={setCategorias}
+              error={e.categoria}
               lotito={deLotito.has("categoria")}
               trabajando={brillo("categoria")}
+              sugerida={categoriaSugerida}
+              onSugerida={setCategoriaSugerida}
             />
             <Campo
               etiqueta={t.marca}
@@ -376,11 +386,6 @@ export function NuevoProductoForm({
               trabajando={brillo("marca")}
             />
           </div>
-          <datalist id={`${id}-categorias`}>
-            {sugerencias.categorias.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
           <datalist id={`${id}-marcas`}>
             {sugerencias.marcas.map((m) => (
               <option key={m} value={m} />

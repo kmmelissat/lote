@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { valoresParaCopiar } from "@/features/products/copiarProducto";
-import { listarProductos, obtenerProducto } from "@/features/products/repositorio";
+import { listarCategorias, listarProductos, obtenerProducto } from "@/features/products/repositorio";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
 import { NuevoProductoForm } from "@/features/products/ui/NuevoProductoForm";
 import { negocioActual } from "@/lib/negocio";
@@ -41,7 +41,7 @@ async function Formulario({ searchParams }: Pick<PageProps<"/productos/nuevo">, 
   // Lo que ya usó, para completar categoría y marca mientras escribe
   const existentes = await listarProductos(supabase, negocio.id, false);
   const unicos = (valores: (string | null)[]) => [...new Set(valores.filter((x): x is string => !!x?.trim()))].sort();
-  const sugerencias = { categorias: unicos(existentes.map((p) => p.categoria)), marcas: unicos(existentes.map((p) => p.marca)) };
+  const sugerencias = { categorias: await listarCategorias(supabase, negocio.id), marcas: unicos(existentes.map((p) => p.marca)) };
 
   return (
     <div className="flex flex-col gap-4">

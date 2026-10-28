@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
+import { Monito } from "@/components/ui/Monito";
 import { Icon } from "@/components/ui/Icon";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { urlFoto } from "@/lib/fotos";
@@ -58,9 +59,11 @@ function Avisos({ p, ahora }: { p: Pedido; ahora: Date }) {
 function Foto({ p }: { p: Pedido }) {
   const foto = p.items.find((i) => i.foto)?.foto;
   return foto ? (
-    <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-xl object-cover" />
+    <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-xl border-2 border-teal-oscuro/20 object-cover" />
   ) : (
-    <span aria-hidden="true" className="size-12 shrink-0 rounded-xl bg-perla" />
+    <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro/20 bg-crema">
+      <Monito nombre="caja" className="w-5 text-teal/50" />
+    </span>
   );
 }
 
@@ -97,9 +100,9 @@ export function ListaPedidos({
   return (
     <div className="@container">
       {/* Tabla */}
-      <div className="hidden overflow-hidden rounded-tarjeta border border-borde bg-superficie @2xl:block">
+      <div className="hidden overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie shadow-dura @2xl:block">
         <table className="w-full text-left">
-          <thead className="border-b border-borde bg-fondo text-xs font-medium text-texto-2">
+          <thead className="border-b-2 border-teal-oscuro bg-crema text-xs font-bold text-teal-oscuro">
             <tr>
               <th scope="col" className="px-4 py-2 font-medium">{t.lista.producto}</th>
               <th scope="col" className="px-2 py-2 font-medium">{t.lista.cliente}</th>
@@ -111,7 +114,7 @@ export function ListaPedidos({
           </thead>
           <tbody>
             {pedidos.map((p) => (
-              <tr key={p.id} className="border-t border-borde first:border-t-0 hover:bg-teal-fondo">
+              <tr key={p.id} className="border-t border-borde first:border-t-0 hover:bg-limon/25">
                 <td className="max-w-64 px-4 py-3">
                   <div className="flex items-center gap-3">
                     <Foto p={p} />
@@ -150,9 +153,9 @@ export function ListaPedidos({
       </div>
 
       {/* Lista apilada */}
-      <ul className="overflow-hidden rounded-tarjeta border border-borde bg-superficie @2xl:hidden">
+      <ul className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie shadow-dura @2xl:hidden">
         {pedidos.map((p) => (
-          <li key={p.id} className="relative flex flex-col gap-2 border-t border-borde px-4 py-3 first:border-t-0 hover:bg-teal-fondo">
+          <li key={p.id} className="relative flex flex-col gap-2 border-t border-borde px-4 py-3 first:border-t-0 hover:bg-limon/25">
             <div className="flex items-start gap-3">
               <Foto p={p} />
               <div className="min-w-0 flex-1">

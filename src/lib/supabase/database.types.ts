@@ -165,6 +165,35 @@ export type Database = {
           },
         ]
       }
+      categoria: {
+        Row: {
+          creado_en: string
+          id: string
+          negocio_id: string
+          nombre: string
+        }
+        Insert: {
+          creado_en?: string
+          id?: string
+          negocio_id: string
+          nombre: string
+        }
+        Update: {
+          creado_en?: string
+          id?: string
+          negocio_id?: string
+          nombre?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categoria_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       costo_producto: {
         Row: {
           id: string

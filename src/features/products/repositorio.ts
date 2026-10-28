@@ -213,6 +213,24 @@ export async function reemplazarCostos(
   return !errorNuevo;
 }
 
+/** Las categorías que existen en el negocio, en orden alfabético. */
+export async function listarCategorias(supabase: Cliente, negocioId: string): Promise<string[]> {
+  const { data, error } = await supabase.from("categoria").select("nombre").eq("negocio_id", negocioId).order("nombre");
+  if (error) throw error;
+  return data.map((c) => c.nombre);
+}
+
+/** Crea una categoría. Si ya existe (sin importar mayúsculas) no hace nada y lo avisa. Solo gestiona (RLS). */
+export async function guardarCategoria(
+  supabase: Cliente,
+  negocioId: string,
+  nombre: string,
+): Promise<"ok" | "repetida" | "desconocido"> {
+  const { error } = await supabase.from("categoria").insert({ negocio_id: negocioId, nombre });
+  if (!error) return "ok";
+  return error.code === "23505" ? "repetida" : "desconocido";
+}
+
 export type NuevoProducto = {
   nombre: string;
   precio: Centavos;

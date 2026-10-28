@@ -67,7 +67,7 @@ export function AccionPedido({
     // z-10: queda por encima del enlace que cubre toda la fila
     <Button
       type="button"
-      className="relative z-10 h-9 px-4 text-sm"
+      className="relative z-10 h-9 border-2 border-teal-oscuro px-4 text-sm"
       disabled={pendiente}
       onClick={() => empezar(avanzar)}
     >

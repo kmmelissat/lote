@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Monito } from "@/components/ui/Monito";
 import { Icon } from "@/components/ui/Icon";
 import { pocoStock } from "@/domain";
 import { urlFoto } from "@/lib/fotos";
@@ -181,14 +182,14 @@ export function ListaProductos({
               setTexto(e.target.value);
               guardarEnUrl(e.target.value, estado);
             }}
-            className="h-12 w-full rounded-full border border-borde-control bg-superficie pl-11 pr-4 text-base"
+            className="h-12 w-full rounded-full border-2 border-borde-control bg-superficie pl-11 pr-4 text-base focus:border-teal"
           />
         </div>
         <div className="flex flex-wrap gap-2 md:ml-auto">
           <ButtonLink href="/productos/importar" variante="secundario">
             {t.importar.boton}
           </ButtonLink>
-          <ButtonLink href="/productos/nuevo">{t.agregar}</ButtonLink>
+          <ButtonLink href="/productos/nuevo" variante="mango">{t.agregar}</ButtonLink>
         </div>
       </div>
 
@@ -205,12 +206,14 @@ export function ListaProductos({
                 setEstado(e);
                 guardarEnUrl(texto, e);
               }}
-              className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-medium ${
-                activo ? "bg-teal text-white" : "bg-superficie text-texto-2 hover:bg-teal-fondo"
+              className={`inline-flex min-h-11 items-center gap-2 rounded-full border-2 px-4 text-sm font-bold transition-[transform,background-color] duration-150 ${
+                activo
+                  ? "border-teal-oscuro bg-mango text-teal-oscuro"
+                  : "border-teal-oscuro/20 bg-superficie text-texto-2 hover:-translate-y-0.5 hover:border-teal-oscuro hover:bg-limon/40"
               } ${vacio && !activo ? "opacity-60" : ""}`}
             >
               {nombreDelFiltro(e)}
-              <span className={`rounded-full px-2 text-xs ${activo ? "bg-white/20" : "bg-gris-fondo"}`}>{cantidades[e]}</span>
+              <span className={`rounded-full px-2 text-xs ${activo ? "bg-white/70" : "bg-gris-fondo"}`}>{cantidades[e]}</span>
             </button>
           );
         })}
@@ -236,11 +239,11 @@ export function ListaProductos({
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-tarjeta border border-borde bg-superficie">
+        <div className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie shadow-dura">
           {/* Encabezados de las columnas: solo en pantalla ancha, donde las columnas se alinean */}
           <div
             aria-hidden="true"
-            className={`hidden gap-x-4 border-b border-borde bg-fondo px-4 py-2 text-xs font-medium text-texto-2 md:grid ${columnas}`}
+            className={`hidden gap-x-4 border-b-2 border-teal-oscuro bg-crema px-4 py-2 text-xs font-bold text-teal-oscuro md:grid ${columnas}`}
           >
             <span />
             <span>{t.lista.producto}</span>
@@ -256,17 +259,19 @@ export function ListaProductos({
               const idLista = `variantes-${g.clave}`;
               return (
                 <li key={g.clave} className="border-t border-borde first:border-t-0">
-                  <div className={`${fila} hover:bg-teal-fondo`}>
+                  <div className={`${fila} hover:bg-limon/25`}>
                     {foto ? (
                       <Image
                         src={urlFoto(foto)}
                         alt=""
                         width={56}
                         height={56}
-                        className="size-14 rounded-xl object-cover max-md:row-span-2 max-md:self-start"
+                        className="size-14 rounded-xl border-2 border-teal-oscuro/20 object-cover max-md:row-span-2 max-md:self-start"
                       />
                     ) : (
-                      <span aria-hidden="true" className="size-14 rounded-xl bg-perla max-md:row-span-2 max-md:self-start" />
+                      <span aria-hidden="true" className="flex size-14 items-center justify-center rounded-xl border-2 border-teal-oscuro/20 bg-crema max-md:row-span-2 max-md:self-start">
+                        <Monito nombre="caja" className="w-6 text-teal/50" />
+                      </span>
                     )}
                     <div className="min-w-0">
                       {/* El enlace del nombre cubre toda la fila; "Agregar costo" y el botón de variantes quedan por encima (z-10) */}

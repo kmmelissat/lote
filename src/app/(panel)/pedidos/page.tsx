@@ -60,11 +60,11 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
             cantidad: p === "todos" ? total : cuentas[p],
           }))}
         />
-        {negocio.puedeVender && <ButtonLink href="/pedidos/nuevo">{t.registrar}</ButtonLink>}
+        {negocio.puedeVender && <ButtonLink href="/pedidos/nuevo" variante="mango">{t.registrar}</ButtonLink>}
       </div>
 
       {!visibles.length ? (
-        <EmptyState texto={total === 0 || estado === "todos" ? t.vacioTexto : t.lista.vacio[estado]} />
+        <EmptyState monito="caja" texto={total === 0 || estado === "todos" ? t.vacioTexto : t.lista.vacio[estado]} />
       ) : (
         <ListaPedidos pedidos={visibles} ahora={new Date()} puedeVender={negocio.puedeVender} mostrarEstado={estado === "todos"} />
       )}

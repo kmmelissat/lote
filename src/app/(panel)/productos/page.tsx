@@ -29,6 +29,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
   if (!todos.length) {
     return (
       <EmptyState
+        monito="caja"
         titulo={textos.productos.vacioTitulo}
         texto={textos.productos.vacioTexto}
         accion={
@@ -36,7 +37,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
             <ButtonLink href="/productos/importar" variante="secundario">
               {textos.productos.importar.boton}
             </ButtonLink>
-            <ButtonLink href="/productos/nuevo">{textos.productos.agregar}</ButtonLink>
+            <ButtonLink href="/productos/nuevo" variante="mango">{textos.productos.agregar}</ButtonLink>
           </div>
         }
       />
