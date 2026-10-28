@@ -72,6 +72,8 @@ export const SalidaFoto = z.object({
   nombre: z.string(),
   descripcion: z.string(),
   categoria: z.string().nullable(),
+  /** Marca, solo si se lee en la foto (logo o etiqueta) o la dijo la línea */
+  marca: z.string().nullable(),
   /** Talla o tono, si se ve o se dijo ("M", "rosa") */
   detalle: z.string().nullable(),
   precio: z.number().nullable(),

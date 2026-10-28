@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { aDolares } from "@/domain/index";
@@ -17,10 +16,10 @@ export function AgregarVarianteForm({ codigo, precio, convierte }: { codigo: num
   const e = estado.errores ?? {};
 
   return (
-    <Card className="md:col-span-2">
+    <section className="rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-5">
       <form action={accion} className="flex flex-col gap-4">
         <div>
-          <h2 className="font-bold">{convierte ? t.convertirTitulo : t.agregarTitulo}</h2>
+          <h2 className="text-lg font-bold">{convierte ? t.convertirTitulo : t.agregarTitulo}</h2>
           <p className="text-sm text-texto-2">{convierte ? t.convertirAyuda : t.agregarAyuda}</p>
         </div>
         {convierte && <Field etiqueta={t.etiquetaActual} name="etiquetaActual" maxLength={40} required error={e.etiquetaActual} />}
@@ -31,12 +30,12 @@ export function AgregarVarianteForm({ codigo, precio, convierte }: { codigo: num
           <Field etiqueta={t.costoNueva} name="costo" inputMode="decimal" error={e.costo} />
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <Button type="submit" variante="secundario" disabled={pendiente}>
+          <Button type="submit" variante="mango" disabled={pendiente}>
             {pendiente ? t.guardando : convierte ? t.botonConvertir : t.boton}
           </Button>
           <MensajeError>{e.general}</MensajeError>
         </div>
       </form>
-    </Card>
+    </section>
   );
 }

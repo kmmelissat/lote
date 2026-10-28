@@ -527,11 +527,6 @@ export function Nav({ datos }: { datos: DatosMenu }) {
         </nav>
         {datos.pasos ? <PrimerosPasos pasos={datos.pasos} /> : <div className="mt-auto" />}
         <div className="flex flex-col gap-1 border-t-2 border-teal-oscuro/15 pt-3">
-          <ConRuta
-            hijos={(ruta) => (
-              <EnlaceLateral pestana={{ href: "/ajustes", etiqueta: t.ajustes, icono: "ajustes" }} pathname={ruta} />
-            )}
-          />
           <TarjetaPerfil perfil={datos.perfil} />
         </div>
       </aside>

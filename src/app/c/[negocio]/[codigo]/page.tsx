@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
+import { GaleriaVitrina } from "@/features/catalog/ui/GaleriaVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico, obtenerProductoPublico } from "@/features/catalog/repositorio";
 import { nombreBase } from "@/features/products/variantes";
-import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
@@ -54,34 +53,22 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
   return (
     <MarcaTienda color={negocio.color}>
       <div className="flex flex-col gap-6">
-        <Link href={`/c/${slug}`} className="inline-flex min-h-11 items-center self-start text-teal underline">
-          {negocio.nombre} · {t.verTodos}
+        <Link
+          href={`/c/${slug}`}
+          className="inline-flex h-10 items-center gap-2 self-start rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica"
+        >
+          <span aria-hidden="true">←</span>
+          {negocio.nombre}
+          <span className="sr-only"> · {t.verTodos}</span>
         </Link>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {p.fotos.length > 0 ? (
-            <ul className="flex flex-col gap-3">
-              {p.fotos.map((ruta, i) => (
-                <li key={ruta} className="relative aspect-square overflow-hidden rounded-tarjeta border border-borde bg-perla">
-                  <Image
-                    src={urlFoto(ruta)}
-                    alt={i === 0 ? p.nombre : `${p.nombre}, foto ${i + 1}`}
-                    fill
-                    priority={i === 0}
-                    sizes="(min-width: 768px) 50vw, 100vw"
-                    className="object-cover"
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div aria-hidden="true" className="aspect-square rounded-tarjeta bg-perla" />
-          )}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <GaleriaVitrina fotos={p.fotos} nombre={p.nombre} />
 
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col items-start gap-2">
-              <h1 className="text-2xl font-bold">{nombreBase(p.nombre, p.variante)}</h1>
-              <p className="text-2xl font-bold">{formatearDolares(p.precio)}</p>
+            <div className="flex flex-col items-start gap-3">
+              <h1 className="text-3xl font-bold leading-tight">{nombreBase(p.nombre, p.variante)}</h1>
+              <p className="text-4xl font-bold tabular-nums">{formatearDolares(p.precio)}</p>
               <StatusChip
                 estado={disponible ? "disponible" : p.apartado ? "apartado" : "vendido"}
                 texto={disponible ? textos.productos.quedan(p.disponibles) : undefined}
@@ -90,16 +77,16 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
 
             {opciones.length > 1 && (
               <nav aria-label={t.opciones} className="flex flex-col gap-2">
-                <h2 className="text-sm font-medium">{t.opciones}</h2>
+                <h2 className="text-sm font-bold">{t.opciones}</h2>
                 <ul className="flex flex-wrap gap-2">
                   {opciones.map((o) => (
                     <li key={o.codigo}>
                       <Link
                         href={`/c/${slug}/${o.codigo}`}
                         aria-current={o.codigo === p.codigo ? "page" : undefined}
-                        className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-medium ${
-                          o.codigo === p.codigo ? "bg-teal text-white" : "bg-superficie text-teal ring-1 ring-borde-control hover:bg-teal-fondo"
-                        }`}
+                        className={`inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold transition-colors ${
+                          o.codigo === p.codigo ? "bg-mango" : "bg-white hover:bg-limon"
+                        } ${o.disponibles > 0 ? "" : "opacity-70"}`}
                       >
                         {o.disponibles > 0 ? o.variante : t.opcionApartada(o.variante ?? "")}
                       </Link>
@@ -109,22 +96,22 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
               </nav>
             )}
 
-            {p.descripcion && <p>{p.descripcion}</p>}
-            <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1">
+            {p.descripcion && <p className="text-lg leading-relaxed">{p.descripcion}</p>}
+            <ul className="flex flex-wrap gap-2">
               {detalles.map(([k, v]) => (
-                <div key={k} className="contents">
-                  <dt className="text-texto-2">{k}</dt>
-                  <dd className="font-medium">{v}</dd>
-                </div>
+                <li key={k} className="rounded-full border-2 border-teal-oscuro/30 bg-white px-3 py-1 text-sm">
+                  <span className="text-texto-2">{k}: </span>
+                  <span className="font-bold">{v}</span>
+                </li>
               ))}
-            </dl>
+            </ul>
 
             {disponible && negocio.apartarDesdeVitrina && (
               <ApartarForm slug={slug} codigo={codigo} disponibles={p.disponibles} plazoHoras={negocio.plazoHoras} />
             )}
             {disponible && !negocio.apartarDesdeVitrina && <p className="text-texto-2">{t.apartarApagado}</p>}
             {!disponible && (
-              <p role="status" className="text-texto-2">
+              <p role="status" className="rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-3 font-medium">
                 {p.apartado ? t.apartadoAviso : t.noDisponible}
               </p>
             )}

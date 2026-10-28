@@ -216,16 +216,27 @@ export type IdentidadTienda = {
   descripcion: string | null;
   logo: string | null;
   color: string | null;
+  whatsapp: string | null;
+  usuarioInstagram: string | null;
+  /** Lo que Lotito debe saber de la tienda cuando lee una foto */
+  contextoIa: string | null;
 };
 
 export async function obtenerIdentidad(supabase: Cliente, negocioId: string): Promise<IdentidadTienda> {
   const { data, error } = await supabase
     .from("negocio")
-    .select("nombre, slug, descripcion, logo, color")
+    .select("nombre, slug, descripcion, logo, color, whatsapp, usuario_instagram, contexto_ia")
     .eq("id", negocioId)
     .single();
   if (error) throw error;
-  return data;
+  const { usuario_instagram, contexto_ia, ...resto } = data;
+  return { ...resto, usuarioInstagram: usuario_instagram, contextoIa: contexto_ia };
+}
+
+/** Solo el contexto para la IA; lo pide quien va a leer una foto. Vacío si no hay o no se pudo leer. */
+export async function contextoDeLaTienda(supabase: Cliente, negocioId: string): Promise<string> {
+  const { data } = await supabase.from("negocio").select("contexto_ia").eq("id", negocioId).single();
+  return data?.contexto_ia?.trim() ?? "";
 }
 
 /** Solo la dueña puede guardar (lo exige RLS). */
@@ -236,7 +247,15 @@ export async function guardarIdentidad(
 ): Promise<boolean> {
   const { error } = await supabase
     .from("negocio")
-    .update({ nombre: a.nombre, descripcion: a.descripcion, logo: a.logo, color: a.color })
+    .update({
+      nombre: a.nombre,
+      descripcion: a.descripcion,
+      logo: a.logo,
+      color: a.color,
+      whatsapp: a.whatsapp,
+      usuario_instagram: a.usuarioInstagram,
+      contexto_ia: a.contextoIa,
+    })
     .eq("id", negocioId);
   return !error;
 }

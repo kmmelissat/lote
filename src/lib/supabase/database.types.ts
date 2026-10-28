@@ -487,6 +487,7 @@ export type Database = {
         Row: {
           apartar_desde_vitrina: boolean
           color: string | null
+          contexto_ia: string | null
           creado_en: string
           descripcion: string | null
           id: string
@@ -506,6 +507,7 @@ export type Database = {
         Insert: {
           apartar_desde_vitrina?: boolean
           color?: string | null
+          contexto_ia?: string | null
           creado_en?: string
           descripcion?: string | null
           id?: string
@@ -525,6 +527,7 @@ export type Database = {
         Update: {
           apartar_desde_vitrina?: boolean
           color?: string | null
+          contexto_ia?: string | null
           creado_en?: string
           descripcion?: string | null
           id?: string

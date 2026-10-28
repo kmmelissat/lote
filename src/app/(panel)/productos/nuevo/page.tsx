@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { ButtonLink } from "@/components/ui/Button";
 import { valoresParaCopiar } from "@/features/products/copiarProducto";
-import { obtenerProducto } from "@/features/products/repositorio";
+import { listarProductos, obtenerProducto } from "@/features/products/repositorio";
+import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
 import { NuevoProductoForm } from "@/features/products/ui/NuevoProductoForm";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -14,7 +16,13 @@ export default function NuevoProductoPage({ searchParams }: PageProps<"/producto
       <PageHeader
         titulo={textos.productos.form.titulo}
         descripcion={textos.productos.form.descripcion}
+        accion={
+          <ButtonLink href="/productos" variante="secundario" className="h-10 px-5 text-sm">
+            ← {textos.productos.form.volver}
+          </ButtonLink>
+        }
       />
+      <AvisoCreado />
       <Formulario searchParams={searchParams} />
     </>
   );
@@ -30,6 +38,11 @@ async function Formulario({ searchParams }: Pick<PageProps<"/productos/nuevo">, 
       ? await obtenerProducto(supabase, negocio.id, copiar, negocio.puedeGestionar)
       : null;
 
+  // Lo que ya usó, para completar categoría y marca mientras escribe
+  const existentes = await listarProductos(supabase, negocio.id, false);
+  const unicos = (valores: (string | null)[]) => [...new Set(valores.filter((x): x is string => !!x?.trim()))].sort();
+  const sugerencias = { categorias: unicos(existentes.map((p) => p.categoria)), marcas: unicos(existentes.map((p) => p.marca)) };
+
   return (
     <div className="flex flex-col gap-4">
       {original && (
@@ -37,7 +50,7 @@ async function Formulario({ searchParams }: Pick<PageProps<"/productos/nuevo">, 
           {textos.productos.copiar.aviso(original.nombre)}
         </p>
       )}
-      <NuevoProductoForm negocioId={negocio.id} inicial={original ? valoresParaCopiar(original) : undefined} />
+      <NuevoProductoForm negocioId={negocio.id} inicial={original ? valoresParaCopiar(original) : undefined} sugerencias={sugerencias} />
     </div>
   );
 }

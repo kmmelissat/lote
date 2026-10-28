@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { StatusChip } from "@/components/ui/StatusChip";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { Monito } from "@/components/ui/Monito";
+import { CatalogoVitrina } from "@/features/catalog/ui/CatalogoVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico } from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/products/variantes";
-import { urlFoto } from "@/lib/fotos";
-import { formatearDolares } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 
@@ -36,56 +32,35 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
 
   return (
     <MarcaTienda color={negocio.color}>
-      <header className="mb-6 flex flex-col gap-4">
-        <div className="flex items-center gap-4">
-          <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-16" />
-          <div className="min-w-0">
-            <h1 className="text-3xl font-bold">{negocio.nombre}</h1>
-            {negocio.descripcion && <p className="mt-1 text-texto-2">{negocio.descripcion}</p>}
+      <header className="mb-8 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-superficie shadow-dura">
+        <div aria-hidden="true" className="h-16 bg-teal md:h-20" />
+        <div className="flex flex-col gap-4 px-5 pb-5 md:px-8 md:pb-7">
+          <div className="-mt-9 flex items-end gap-4 md:-mt-11">
+            <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-[4.5rem] border-4 border-superficie ring-2 ring-teal-oscuro md:size-24" />
+            <span className="mb-1 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold">
+              {t.piezas(productos.reduce((n, p) => n + p.disponibles, 0))}
+            </span>
           </div>
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold leading-tight md:text-4xl">{negocio.nombre}</h1>
+            {negocio.descripcion && <p className="mt-1 text-lg text-texto-2">{negocio.descripcion}</p>}
+          </div>
+          <BotonesChat
+            whatsapp={negocio.whatsapp}
+            instagram={negocio.usuarioInstagram}
+            mensaje={mensajePedirVitrina(negocio.nombre)}
+          />
         </div>
-        <BotonesChat
-          whatsapp={negocio.whatsapp}
-          instagram={negocio.usuarioInstagram}
-          mensaje={mensajePedirVitrina(negocio.nombre)}
-        />
       </header>
 
       {!productos.length ? (
-        <EmptyState titulo={t.vacioTitulo} texto={t.vacioTexto} />
+        <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-teal-oscuro bg-superficie px-6 py-12 text-center">
+          <Monito nombre="asoma" className="w-24 text-rosa" />
+          <h2 className="text-lg font-bold">{t.vacioTitulo}</h2>
+          <p className="max-w-sm text-texto-2">{t.vacioTexto}</p>
+        </div>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          {productos.map((p) => (
-            <li key={p.codigo}>
-              <Link href={`/c/${slug}/${p.codigo}`} className="flex flex-col gap-2">
-                <div className="relative aspect-square overflow-hidden rounded-tarjeta border border-borde bg-perla">
-                  {p.fotos[0] && (
-                    <Image
-                      src={urlFoto(p.fotos[0])}
-                      alt={p.nombre}
-                      fill
-                      sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-                <div className="flex flex-col items-start gap-1">
-                  <p className="font-medium">{p.nombre}</p>
-                  <p className="font-bold">
-                    {p.precioMinimo === p.precioMaximo
-                      ? formatearDolares(p.precioMinimo)
-                      : t.desde(formatearDolares(p.precioMinimo))}
-                  </p>
-                  <StatusChip
-                    estado={p.disponibles > 0 ? "disponible" : "apartado"}
-                    texto={p.disponibles > 0 ? textos.productos.quedan(p.disponibles) : undefined}
-                  />
-                  {p.opciones > 1 && <p className="text-sm text-texto-2">{t.nOpciones(p.opciones)}</p>}
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <CatalogoVitrina slug={slug} productos={productos} />
       )}
     </MarcaTienda>
   );

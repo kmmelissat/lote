@@ -1,11 +1,17 @@
+import { Monito } from "@/components/ui/Monito";
 import { textos } from "@/lib/textos";
 
 // Páginas públicas: sin barra inferior ni menú, con la marca de Lote al pie (plan gratis).
 export default function PublicoLayout({ children }: LayoutProps<"/c">) {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col px-4 py-6">
-      <main className="flex-1">{children}</main>
-      <footer className="pt-10 text-center text-sm text-texto-2">{textos.vitrina.marca}</footer>
+    <div className="min-h-dvh bg-crema">
+      <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col px-4 py-6">
+        <main className="flex-1">{children}</main>
+        <footer className="flex items-center justify-center gap-2 pt-12 text-sm font-medium text-teal-oscuro">
+          <Monito nombre="saluda" className="w-6 text-rosa" />
+          {textos.vitrina.marca}
+        </footer>
+      </div>
     </div>
   );
 }

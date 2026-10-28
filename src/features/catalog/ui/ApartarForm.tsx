@@ -1,8 +1,6 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
@@ -20,7 +18,7 @@ export function ApartarForm({ slug, codigo, disponibles, plazoHoras }: Props) {
   const v = estado.valores ?? {};
 
   return (
-    <Card className="border border-borde">
+    <div className="rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura">
       <form action={accion} className="flex flex-col gap-4">
         <div>
           <h2 className="text-lg font-bold">{t.titulo}</h2>
@@ -51,10 +49,14 @@ export function ApartarForm({ slug, codigo, disponibles, plazoHoras }: Props) {
           <span>{t.acepta}</span>
         </label>
         <MensajeError>{estado.error}</MensajeError>
-        <Button type="submit" disabled={pendiente}>
+        <button
+          type="submit"
+          disabled={pendiente}
+          className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal px-8 font-bold text-white shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+        >
           {pendiente ? t.apartando : t.boton}
-        </Button>
+        </button>
       </form>
-    </Card>
+    </div>
   );
 }

@@ -1,22 +1,28 @@
 "use client";
 
-import { useActionState, useId, useState, useTransition, type FormEvent } from "react";
+import { useActionState, useEffect, useId, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from "react";
 import { costoUnitario, leerDolares, MARGEN_POR_DEFECTO, precioSugerido } from "@/domain/index";
-import { Button } from "@/components/ui/Button";
-import { Field } from "@/components/ui/Field";
-import { Sugerido } from "@/components/ui/Sugerido";
+import { Monito } from "@/components/ui/Monito";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { FotoInput } from "./FotoInput";
-import { VariantesInput, type FilaForm } from "./VariantesInput";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } from "../actions/nuevo";
+import { Campo, CampoDinero, Cantidad, Etiqueta, estiloCampo, Seccion } from "./campos";
+import { VariantesInput, type FilaForm } from "./VariantesInput";
+import { VistaPreviaProducto } from "./VistaPreviaProducto";
+import { ZonaFotos } from "./ZonaFotos";
 
 const t = textos.productos.form;
+const l = t.lotito;
 
 const dolaresTexto = (centavos: number) => (centavos / 100).toFixed(2);
-
 const campoCosto = ["compra", "envio", "importacion", "otro"] as const;
+type CampoLotito = keyof FichaSugerida;
+const ORDEN_LOTITO: CampoLotito[] = ["nombre", "categoria", "marca", "descripcion"];
+/** Lo que tarda Lotito en "escribir" cada campo, para que se sienta que va llenando uno por uno */
+const PAUSA_MS = 380;
+
+type EstadoLotito = "quieto" | "leyendo" | "listo" | "borrosa" | "sin_ia";
 
 function costoDe(valores: Record<string, string> | undefined): number | null {
   const rubros = Object.fromEntries(
@@ -28,205 +34,369 @@ function costoDe(valores: Record<string, string> | undefined): number | null {
   return costoUnitario(rubros);
 }
 
+/** Lotito en pose y con una frase corta: lo que está haciendo con la foto. */
+function CartelLotito({ estado }: { estado: EstadoLotito }) {
+  const [frase, setFrase] = useState(0);
+  useEffect(() => {
+    if (estado !== "leyendo") return;
+    const id = setInterval(() => setFrase((f) => (f + 1) % 2), 1600);
+    return () => clearInterval(id);
+  }, [estado]);
+  if (estado === "quieto") return null;
+  const contenido = {
+    leyendo: { pose: "asoma" as const, texto: frase === 0 ? l.mirando : l.buscando, tono: "bg-limon" },
+    listo: { pose: "thumbsup" as const, texto: l.listo, tono: "bg-teal-fondo" },
+    borrosa: { pose: "asoma" as const, texto: l.borrosa, tono: "bg-rosa-palido" },
+    sin_ia: { pose: "asoma" as const, texto: l.sinIA, tono: "bg-crema" },
+  }[estado];
+  return (
+    <p
+      role="status"
+      className={`flex animate-entra items-center gap-3 rounded-2xl border-2 border-teal-oscuro px-4 py-3 font-medium ${contenido.tono}`}
+    >
+      <Monito nombre={contenido.pose} className={`w-12 shrink-0 text-teal ${estado === "leyendo" ? "animate-pulse" : ""}`} />
+      {contenido.texto}
+    </p>
+  );
+}
+
 export function NuevoProductoForm({
   negocioId,
   inicial,
+  sugerencias,
 }: {
   negocioId: string;
   /** Valores con los que arranca el formulario, por ejemplo al repetir un producto */
   inicial?: Record<string, string>;
+  /** Categorías y marcas que ya usó, para completar mientras escribe */
+  sugerencias: { categorias: string[]; marcas: string[] };
 }) {
   const [estado, accion, pendiente] = useActionState<EstadoNuevo, FormData>(nuevoProducto, {});
-  // Si el formulario arranca con datos (otra igual), costo y ganancia se calculan desde el inicio.
-  const [costoInicial] = useState(() => costoDe(inicial));
-  const [ganancia, setGanancia] = useState<number | null>(() => {
-    const precioInicial = leerDolares(inicial?.precio ?? "");
-    return precioInicial === null || costoInicial === null ? null : precioInicial - costoInicial;
-  });
-  const [costo, setCosto] = useState<number | null>(costoInicial);
-  const [precio, setPrecio] = useState(inicial?.precio ?? "");
-  const [margen, setMargen] = useState(String(MARGEN_POR_DEFECTO));
-  const [rutas, setRutas] = useState<string[]>([]);
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [categoria, setCategoria] = useState(inicial?.categoria ?? "");
-  const [variantes, setVariantes] = useState<FilaForm[] | null>(null);
-  const [sugeridos, setSugeridos] = useState<Set<keyof FichaSugerida>>(new Set());
-  const [errorFoto, setErrorFoto] = useState("");
-  const [leyendo, empezarLectura] = useTransition();
-  const descripcionId = useId();
   const e = estado.errores ?? {};
   const v = estado.valores ?? inicial ?? {};
+  const id = useId();
+  const formulario = useRef<HTMLFormElement>(null);
 
-  // Lo que escribió la persona no se pisa: solo se llenan los campos vacíos o los que ya eran sugeridos.
+  const [costoInicial] = useState(() => costoDe(v));
+  const [costo, setCosto] = useState<number | null>(costoInicial);
+  const [precio, setPrecio] = useState(v.precio ?? "");
+  const [margen, setMargen] = useState(String(MARGEN_POR_DEFECTO));
+  const [rutas, setRutas] = useState<string[]>([]);
+  const [nombre, setNombre] = useState(v.nombre ?? "");
+  const [cantidad, setCantidad] = useState(v.cantidad ?? "1");
+  const [categoria, setCategoria] = useState(v.categoria ?? "");
+  const [marca, setMarca] = useState(v.marca ?? "");
+  const [descripcion, setDescripcion] = useState(v.descripcion ?? "");
+  const [condicion, setCondicion] = useState<"nuevo" | "usado">(v.condicion === "usado" ? "usado" : "nuevo");
+  const [variantes, setVariantes] = useState<FilaForm[] | null>(null);
+  const [detallesAbiertos, setDetallesAbiertos] = useState(false);
+  const [costosAbiertos, setCostosAbiertos] = useState(costoInicial !== null);
+
+  // Lotito: lo que llenó, qué está haciendo y cuál foto ya leyó
+  const [deLotito, setDeLotito] = useState<Set<CampoLotito>>(new Set());
+  const [estadoLotito, setEstadoLotito] = useState<EstadoLotito>("quieto");
+  const [escribiendo, setEscribiendo] = useState<Set<CampoLotito>>(new Set());
+  const [, empezarLectura] = useTransition();
+  const leida = useRef<string | null>(null);
+  const temporizadores = useRef<number[]>([]);
+  useEffect(() => () => temporizadores.current.forEach(clearTimeout), []);
+
+  const setters: Record<CampoLotito, (s: string) => void> = {
+    nombre: setNombre,
+    categoria: setCategoria,
+    marca: setMarca,
+    descripcion: setDescripcion,
+  };
+  const actuales: Record<CampoLotito, string> = { nombre, categoria, marca, descripcion };
+
+  // Lotito no pisa lo que escribió la persona: solo llena campos vacíos o los que él mismo había llenado.
   function aplicar(f: FichaSugerida) {
-    const nuevos = new Set(sugeridos);
-    const poner = (campo: keyof FichaSugerida, actual: string, valor: string | null, set: (s: string) => void) => {
-      if (valor && (!actual.trim() || sugeridos.has(campo))) {
-        set(valor);
-        nuevos.add(campo);
-      }
-    };
-    poner("nombre", nombre, f.nombre, setNombre);
-    poner("descripcion", descripcion, f.descripcion, setDescripcion);
-    poner("categoria", categoria, f.categoria, setCategoria);
-    setSugeridos(nuevos);
+    const llenar = ORDEN_LOTITO.filter((c) => f[c] && (!actuales[c].trim() || deLotito.has(c)));
+    if (llenar.some((c) => c !== "nombre")) setDetallesAbiertos(true);
+    setEscribiendo(new Set(llenar));
+    llenar.forEach((campo, i) => {
+      temporizadores.current.push(
+        window.setTimeout(() => {
+          setters[campo](f[campo] as string);
+          setDeLotito((d) => new Set(d).add(campo));
+          setEscribiendo((s) => {
+            const n = new Set(s);
+            n.delete(campo);
+            return n;
+          });
+          if (i === llenar.length - 1) setEstadoLotito("listo");
+        }, PAUSA_MS * (i + 1)),
+      );
+    });
+    if (!llenar.length) setEstadoLotito("listo");
   }
 
-  function completarConFoto() {
-    setErrorFoto("");
+  // Apenas hay una foto nueva arranca solo: un solo gesto, sin botón de "analizar".
+  function leerFoto(ruta: string) {
+    leida.current = ruta;
+    setEstadoLotito("leyendo");
+    setEscribiendo(new Set(ORDEN_LOTITO.filter((c) => !actuales[c].trim())));
     empezarLectura(async () => {
-      const r = await sugerirFicha(rutas[0]);
+      const r = await sugerirFicha(ruta);
       if ("ficha" in r) aplicar(r.ficha);
-      else setErrorFoto(r.error === "sin_ia" ? t.errorFotoSinIA : t.errorFoto);
+      else {
+        setEscribiendo(new Set());
+        setEstadoLotito(r.error === "sin_ia" ? "sin_ia" : "borrosa");
+      }
     });
   }
 
-  // Si la persona corrige un campo, deja de ser "sugerido".
-  const editar = (campo: keyof FichaSugerida, set: (s: string) => void) => (valor: string) => {
-    set(valor);
-    if (sugeridos.has(campo)) {
-      const nuevos = new Set(sugeridos);
-      nuevos.delete(campo);
-      setSugeridos(nuevos);
-    }
+  function cambiarFotos(nuevas: string[]) {
+    setRutas(nuevas);
+    if (nuevas[0] && nuevas[0] !== leida.current) leerFoto(nuevas[0]);
+  }
+
+  const editar = (campo: CampoLotito) => (valor: string) => {
+    setters[campo](valor);
+    if (deLotito.has(campo)) setDeLotito((d) => {
+      const n = new Set(d);
+      n.delete(campo);
+      return n;
+    });
   };
+
+  function deshacerLotito() {
+    temporizadores.current.forEach(clearTimeout);
+    deLotito.forEach((c) => setters[c](""));
+    setDeLotito(new Set());
+    setEscribiendo(new Set());
+    setEstadoLotito("quieto");
+  }
 
   // Ganancia en vivo: precio − costo por unidad, con las mismas funciones que usa el servidor.
   function recalcular(ev: FormEvent<HTMLFormElement>) {
     const f = new FormData(ev.currentTarget);
-    const monto = (k: string) => leerDolares(String(f.get(k) ?? ""));
-    const precio = monto("precio");
     const rubros = Object.fromEntries(
-      campoCosto.map((k) => [k, monto(k) ?? undefined]).filter(([, m]) => m !== undefined),
+      campoCosto.map((k) => [k, leerDolares(String(f.get(k) ?? "")) ?? undefined]).filter(([, m]) => m !== undefined),
     );
-    const costoPorUnidad = costoUnitario(rubros);
-    setCosto(costoPorUnidad);
-    setGanancia(precio === null || costoPorUnidad === null ? null : precio - costoPorUnidad);
+    setCosto(costoUnitario(rubros));
   }
 
-  // La sugerencia aparece apenas hay costo; el margen lo cambia la persona.
+  const precioCentavos = leerDolares(precio);
+  const ganancia = precioCentavos === null || costo === null ? null : precioCentavos - costo;
+  const margenReal = ganancia !== null && precioCentavos ? Math.round((ganancia / precioCentavos) * 100) : null;
   const sugerido = costo === null ? null : precioSugerido(costo, Number(margen.replace(",", ".")));
+  const unidades = Number.isInteger(Number(cantidad)) && Number(cantidad) > 0 ? Number(cantidad) : 1;
+
+  // Enter pasa al campo siguiente en vez de guardar a medias; ⌘/Ctrl + Enter guarda.
+  function alTeclear(ev: KeyboardEvent<HTMLFormElement>) {
+    if (ev.key !== "Enter") return;
+    const destino = ev.target as HTMLElement;
+    if (ev.metaKey || ev.ctrlKey) {
+      ev.preventDefault();
+      formulario.current?.requestSubmit();
+    } else if (destino.tagName === "INPUT" && (destino as HTMLInputElement).type !== "checkbox") {
+      ev.preventDefault();
+      const campos = [...(formulario.current?.querySelectorAll<HTMLElement>("input:not([type=hidden]):not([type=file]), textarea, select") ?? [])].filter(
+        (c) => c.offsetParent !== null && !c.closest("[inert]"),
+      );
+      campos[campos.indexOf(destino) + 1]?.focus();
+    }
+  }
+
+  const chip = (valor: "nuevo" | "usado") => (
+    <label key={valor} className="cursor-pointer">
+      <input
+        type="radio"
+        name="condicion"
+        value={valor}
+        checked={condicion === valor}
+        onChange={() => setCondicion(valor)}
+        className="peer sr-only"
+      />
+      <span className="flex h-11 items-center rounded-full border-2 border-teal-oscuro px-6 font-bold transition-colors peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
+        {t[valor]}
+      </span>
+    </label>
+  );
+
+  const brillo = (c: CampoLotito) => escribiendo.has(c);
 
   return (
-    <form action={accion} onChange={recalcular} className="flex max-w-xl flex-col gap-4">
-      <FotoInput negocioId={negocioId} name="fotos" onCambio={setRutas} />
-      {rutas.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <Button type="button" variante="secundario" className="self-start" disabled={leyendo} onClick={completarConFoto}>
-            {leyendo ? t.leyendoFoto : t.completarConFoto}
-          </Button>
-          <p className="text-sm text-texto-2">{t.ayudaFoto}</p>
-          <MensajeError>{errorFoto}</MensajeError>
-        </div>
-      )}
-      <Field
-        etiqueta={t.nombre}
-        name="nombre"
-        required
-        value={nombre}
-        onChange={(ev) => editar("nombre", setNombre)(ev.target.value)}
-        sugerido={sugeridos.has("nombre")}
-        error={e.nombre}
-      />
-
-      <div className="grid grid-cols-2 gap-4">
-        <Field
-          etiqueta={t.precio}
-          name="precio"
-          inputMode="decimal"
-          required
-          value={precio}
-          onChange={(ev) => setPrecio(ev.target.value)}
-          error={e.precio}
-        />
-        {variantes === null && (
-          <Field
-            etiqueta={t.cantidad}
-            name="cantidad"
-            inputMode="numeric"
-            defaultValue={v.cantidad ?? "1"}
-            error={e.cantidad}
-          />
-        )}
-      </div>
-
-      <VariantesInput filas={variantes} onCambio={setVariantes} error={e.variantes} />
-
-      <fieldset className="flex flex-col gap-3 rounded-tarjeta border border-borde bg-superficie p-4">
-        <legend className="px-1 text-sm font-medium">{t.costosTitulo}</legend>
-        <div className="grid grid-cols-2 gap-4">
-          {campoCosto.map((k) => (
-            <Field key={k} etiqueta={t[k]} name={k} inputMode="decimal" defaultValue={v[k]} error={e[k]} />
-          ))}
-        </div>
-        <p className="text-sm text-texto-2" aria-live="polite">
-          {ganancia === null
-            ? t.sinCostoAun
-            : `${t.gananciaEnVivo}: ${formatearDolares(ganancia)}`}
-        </p>
-        {sugerido !== null && (
-          <div className="flex flex-wrap items-end gap-4 border-t border-borde pt-3">
-            {/* Sin name: el margen es solo para calcular, no se guarda */}
-            <div className="w-32">
-              <Field etiqueta={t.margen} inputMode="decimal" value={margen} onChange={(ev) => setMargen(ev.target.value)} />
-            </div>
-            <p className="min-h-12 flex-1 content-center" aria-live="polite">
-              {t.precioSugerido}: <strong>{formatearDolares(sugerido)}</strong>
-            </p>
-            <Button type="button" variante="secundario" onClick={() => setPrecio(dolaresTexto(sugerido))}>
-              {t.usarPrecio}
-            </Button>
+    <form
+      ref={formulario}
+      action={accion}
+      onChange={recalcular}
+      onKeyDown={alTeclear}
+      className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_21rem]"
+    >
+      <div className="flex min-w-0 flex-col gap-5">
+        <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotos} />
+        <input type="hidden" name="fotos" value={JSON.stringify(rutas)} />
+        <CartelLotito estado={estadoLotito} />
+        {deLotito.size > 0 && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+            <p className="text-texto-2">{l.revisar}</p>
+            <button type="button" onClick={deshacerLotito} className="font-bold text-teal underline">
+              {l.deshacer}
+            </button>
           </div>
         )}
-      </fieldset>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Field
-          etiqueta={t.categoria}
-          name="categoria"
-          value={categoria}
-          onChange={(ev) => editar("categoria", setCategoria)(ev.target.value)}
-          sugerido={sugeridos.has("categoria")}
+        <Campo
+          etiqueta={t.nombre}
+          name="nombre"
+          requerido
+          placeholder={t.nombrePlaceholder}
+          value={nombre}
+          onChange={(ev) => editar("nombre")(ev.target.value)}
+          lotito={deLotito.has("nombre")}
+          trabajando={brillo("nombre")}
+          error={e.nombre}
         />
-        <Field etiqueta={t.marca} name="marca" defaultValue={v.marca} />
-      </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={descripcionId} className="text-sm font-medium">
-          {t.descripcionCampo}
-          {sugeridos.has("descripcion") && <Sugerido />}
-        </label>
-        <textarea
-          id={descripcionId}
-          name="descripcion"
-          rows={3}
-          value={descripcion}
-          onChange={(ev) => editar("descripcion", setDescripcion)(ev.target.value)}
-          className="rounded-xl border border-borde-control bg-superficie px-4 py-3 text-base"
-        />
-      </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <CampoDinero
+            etiqueta={t.precio}
+            name="precio"
+            requerido
+            placeholder={t.precioPlaceholder}
+            value={precio}
+            onChange={(ev) => setPrecio(ev.target.value)}
+            error={e.precio}
+          />
+          {variantes === null && <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />}
+        </div>
 
-      <fieldset className="flex gap-6">
-        <legend className="mb-1.5 text-sm font-medium">{t.condicion}</legend>
-        {(["nuevo", "usado"] as const).map((c) => (
-          <label key={c} className="flex min-h-11 items-center gap-2">
-            <input
-              type="radio"
-              name="condicion"
-              value={c}
-              defaultChecked={(v.condicion ?? "nuevo") === c}
-              className="size-5 accent-teal"
+        <VariantesInput filas={variantes} onCambio={setVariantes} error={e.variantes} />
+
+        <Seccion titulo={t.costosSeccion} ayuda={t.costosAyuda} abierta={costosAbiertos} onAlternar={() => setCostosAbiertos((a) => !a)}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {campoCosto.map((k) => (
+              <CampoDinero key={k} etiqueta={t[k]} name={k} defaultValue={v[k]} error={e[k]} />
+            ))}
+          </div>
+          <div aria-live="polite" className="rounded-2xl border-2 border-teal-oscuro bg-crema p-4">
+            {ganancia === null ? (
+              <p className="text-texto-2">{t.resumenSinCosto}</p>
+            ) : (
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
+                {[
+                  [t.costoUnidad, formatearDolares(costo!)],
+                  [t.precio, formatearDolares(precioCentavos!)],
+                  [t.gananciaUnidad, formatearDolares(ganancia)],
+                  [t.margenReal, margenReal === null ? "–" : `${margenReal} %`],
+                ].map(([etiqueta, valor], i) => (
+                  <div key={etiqueta} className="flex flex-col">
+                    <dt className="text-xs text-texto-2">{etiqueta}</dt>
+                    <dd className={`font-bold tabular-nums ${i === 2 ? "text-xl text-teal" : "text-lg"}`}>{valor}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </div>
+          {sugerido !== null && (
+            <div className="flex flex-wrap items-end gap-4">
+              {/* Sin name: el margen es solo para calcular, no se guarda */}
+              <div className="w-32">
+                <Campo etiqueta={t.margen} inputMode="decimal" value={margen} onChange={(ev) => setMargen(ev.target.value)} />
+              </div>
+              <p className="min-h-12 flex-1 content-center" aria-live="polite">
+                {t.precioSugerido}: <strong>{formatearDolares(sugerido)}</strong>
+              </p>
+              <button
+                type="button"
+                onClick={() => setPrecio(dolaresTexto(sugerido))}
+                className="inline-flex h-11 items-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
+              >
+                {t.usarPrecio}
+              </button>
+            </div>
+          )}
+        </Seccion>
+
+        <Seccion titulo={t.masDetalles} ayuda={t.masDetallesAyuda} abierta={detallesAbiertos} onAlternar={() => setDetallesAbiertos((a) => !a)}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Campo
+              etiqueta={t.categoria}
+              name="categoria"
+              list={`${id}-categorias`}
+              placeholder={t.categoriaPlaceholder}
+              value={categoria}
+              onChange={(ev) => editar("categoria")(ev.target.value)}
+              lotito={deLotito.has("categoria")}
+              trabajando={brillo("categoria")}
             />
-            {t[c]}
-          </label>
-        ))}
-      </fieldset>
+            <Campo
+              etiqueta={t.marca}
+              name="marca"
+              list={`${id}-marcas`}
+              placeholder={t.marcaPlaceholder}
+              value={marca}
+              onChange={(ev) => editar("marca")(ev.target.value)}
+              lotito={deLotito.has("marca")}
+              trabajando={brillo("marca")}
+            />
+          </div>
+          <datalist id={`${id}-categorias`}>
+            {sugerencias.categorias.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
+          <datalist id={`${id}-marcas`}>
+            {sugerencias.marcas.map((m) => (
+              <option key={m} value={m} />
+            ))}
+          </datalist>
 
-      <MensajeError>{e.general}</MensajeError>
-      <Button type="submit" disabled={pendiente}>
-        {pendiente ? t.guardando : t.guardar}
-      </Button>
+          <div className="flex flex-col gap-1.5">
+            <Etiqueta htmlFor={`${id}-descripcion`} lotito={deLotito.has("descripcion")}>
+              {t.descripcionCampo}
+            </Etiqueta>
+            <textarea
+              id={`${id}-descripcion`}
+              name="descripcion"
+              rows={3}
+              value={descripcion}
+              onChange={(ev) => editar("descripcion")(ev.target.value)}
+              className={`${estiloCampo} h-auto py-3 ${brillo("descripcion") ? "animate-pulse bg-limon/40" : ""} ${deLotito.has("descripcion") ? "border-teal-oscuro bg-limon/20" : ""}`}
+            />
+          </div>
+
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1.5 text-sm font-bold">{t.condicion}</legend>
+            <div className="flex gap-3">{(["nuevo", "usado"] as const).map(chip)}</div>
+          </fieldset>
+        </Seccion>
+
+        <MensajeError>{e.general}</MensajeError>
+
+        {/* La barra de guardar se queda a la vista; en el celular flota sobre el menú de abajo */}
+        <div className="sticky bottom-24 z-10 flex flex-wrap items-center gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema p-3 shadow-dura-chica md:bottom-3">
+          <button
+            type="submit"
+            disabled={pendiente}
+            className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60 sm:flex-none"
+          >
+            {pendiente ? t.guardando : t.guardar}
+          </button>
+          <button
+            type="submit"
+            name="otro"
+            value="1"
+            disabled={pendiente}
+            className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold text-teal-oscuro hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-60"
+          >
+            {t.guardarOtro}
+          </button>
+          <span className="hidden text-xs text-texto-2 lg:block">{t.atajo}</span>
+        </div>
+      </div>
+
+      <VistaPreviaProducto
+        foto={rutas[0] ?? null}
+        nombre={nombre}
+        precio={precioCentavos === null ? "" : formatearDolares(precioCentavos)}
+        unidades={unidades}
+        variantes={variantes?.length ?? 0}
+        categoria={categoria}
+        condicion={condicion}
+      />
     </form>
   );
 }

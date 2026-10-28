@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
@@ -18,15 +17,18 @@ export function ReponerForm({ codigo }: { codigo: number }) {
   const e = estado.errores ?? {};
 
   return (
-    <Card className="border border-borde md:col-span-2">
+    <section className="rounded-[24px] border-2 border-teal-oscuro bg-limon/40 p-5">
       <form action={accion} className="flex flex-col gap-4">
-        <h2 className="font-bold">{t.titulo}</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <h2 className="text-lg font-bold">{t.titulo}</h2>
+          <p className="text-sm text-texto-2">{t.ayuda}</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4">
           <Field etiqueta={t.llegan} name="llegan" inputMode="numeric" required error={e.llegan} />
           <Field etiqueta={t.costo} name="costo" inputMode="decimal" error={e.costo} />
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <Button type="submit" variante="secundario" disabled={pendiente}>
+          <Button type="submit" variante="mango" disabled={pendiente}>
             {pendiente ? t.guardando : t.boton}
           </Button>
           <p role="status" className="text-sm text-teal">
@@ -35,6 +37,6 @@ export function ReponerForm({ codigo }: { codigo: number }) {
           <MensajeError>{e.general}</MensajeError>
         </div>
       </form>
-    </Card>
+    </section>
   );
 }

@@ -48,6 +48,7 @@ export type TarjetaVitrina = {
   /** El código al que lleva la tarjeta: el de la primera variante con unidades libres, o el primero si no hay */
   codigo: number;
   nombre: string;
+  categoria: string | null;
   fotos: string[];
   precioMinimo: number;
   precioMaximo: number;
@@ -70,6 +71,7 @@ export function agruparParaVitrina(productos: ProductoPublico[]): TarjetaVitrina
       const t: TarjetaVitrina = {
         codigo: p.codigo,
         nombre: nombreBase(p.nombre, p.variante),
+        categoria: p.categoria,
         fotos: p.fotos,
         precioMinimo: p.precio,
         precioMaximo: p.precio,

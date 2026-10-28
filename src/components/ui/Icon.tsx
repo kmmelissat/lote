@@ -1,6 +1,7 @@
 import {
   ArrowUpRight,
   Bell,
+  Banknote,
   Box,
   Camera,
   Check,
@@ -16,6 +17,7 @@ import {
   Clock,
   House,
   Info,
+  Landmark,
   Lock,
   LogOut,
   type LucideProps,
@@ -31,6 +33,7 @@ import {
   Truck,
   User,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 
@@ -64,6 +67,9 @@ const iconos = {
   flecha: ChevronDown,
   diagonal: ArrowUpRight,
   enlace: ExternalLink,
+  banco: Landmark,
+  billetera: Wallet,
+  efectivo: Banknote,
   copiar: Copy,
   mas_opciones: Ellipsis,
   usuario: User,

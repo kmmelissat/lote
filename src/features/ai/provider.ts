@@ -10,8 +10,8 @@ export type ContextoIA = {
 export interface ProveedorIA {
   /** Entiende un mensaje de chat. No ejecuta nada ni calcula plata. */
   entenderMensaje(texto: string, contexto?: ContextoIA): Promise<SalidaEntender>;
-  /** Saca la ficha de un producto de su foto (por URL pública) y de la línea que la acompaña, si hay. */
-  entenderFoto(urlImagen: string, linea: string): Promise<SalidaFoto>;
+  /** Saca la ficha de un producto de su foto (por URL pública) y de la línea que la acompaña, si hay. El contexto de la tienda es un dato, no una instrucción. */
+  entenderFoto(urlImagen: string, linea: string, contextoTienda?: string): Promise<SalidaFoto>;
   /** Lee el monto, la fecha y la referencia de la captura de un comprobante de pago (data URL, nunca guardada). */
   leerComprobante(imagen: string): Promise<SalidaComprobante>;
   /** Lee un chat pegado y propone las acciones que la conversación deja claras. No ejecuta nada. */

@@ -8,6 +8,7 @@ import { MAXIMO_FOTOS } from "../limites";
 import { crearProducto, type NuevoProducto } from "../repositorio";
 import { nombreConVariante, validarVariantes } from "../variantes";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
+import { contextoDeLaTienda } from "@/features/catalog/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -38,6 +39,12 @@ function fotosValidas(json: string | undefined, negocioId: string): string[] {
   } catch {
     return [];
   }
+}
+
+/** Adónde ir al guardar: la ficha, o el formulario limpio si pidió "guardar y agregar otro". Lleva el nombre para el aviso. */
+function destino(valores: Record<string, string>, codigo: number, nombre: string): string {
+  const creado = `creado=${encodeURIComponent(nombre)}`;
+  return valores.otro === "1" ? `/productos/nuevo?${creado}` : `/productos/${codigo}?${creado}`;
 }
 
 export async function nuevoProducto(
@@ -105,7 +112,7 @@ export async function nuevoProducto(
     );
     revalidatePath("/", "layout");
     const buenos = hechos.flatMap((h) => (h.status === "fulfilled" && !("error" in h.value) ? [h.value.codigo] : []));
-    if (buenos.length === hechos.length) redirect(`/productos/${buenos[0]}`);
+    if (buenos.length === hechos.length) redirect(destino(valores, buenos[0], nombre));
     return { errores: { general: t.errorVariantesParcial(buenos.length, hechos.length) }, valores };
   }
 
@@ -116,25 +123,25 @@ export async function nuevoProducto(
     return { errores: { general }, valores };
   }
   revalidatePath("/", "layout");
-  redirect(`/productos/${resultado.codigo}`);
+  redirect(destino(valores, resultado.codigo, nombre));
 }
 
-export type FichaSugerida = { nombre: string; descripcion: string; categoria: string | null };
+export type FichaSugerida = { nombre: string; descripcion: string; categoria: string | null; marca: string | null };
 
 /** "Completar con la foto": la IA lee la foto y propone nombre, descripción y categoría. Todo editable. */
 export async function sugerirFicha(
   ruta: string,
 ): Promise<{ ficha: FichaSugerida } | { error: "sin_ia" | "no_se_pudo" }> {
-  const { negocio } = await negocioActual();
+  const { supabase, negocio } = await negocioActual();
   // Solo quien puede crear productos, y solo con una foto de su propio negocio: la URL se arma acá.
   if (!negocio.puedeGestionar || !esRutaFoto(ruta, negocio.id)) return { error: "no_se_pudo" };
 
   const ia = proveedorIA();
   if (!ia) return { error: "sin_ia" };
   try {
-    const f = await ia.entenderFoto(urlFoto(ruta), "");
+    const f = await ia.entenderFoto(urlFoto(ruta), "", await contextoDeLaTienda(supabase, negocio.id).catch(() => ""));
     const detalle = f.detalle && !f.descripcion.toLowerCase().includes(f.detalle.toLowerCase()) ? ` (${f.detalle})` : "";
-    return { ficha: { nombre: f.nombre, descripcion: f.descripcion + detalle, categoria: f.categoria } };
+    return { ficha: { nombre: f.nombre, descripcion: f.descripcion + detalle, categoria: f.categoria, marca: f.marca } };
   } catch {
     return { error: "no_se_pudo" };
   }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
 import { armarRespuesta, armarTextoPost } from "../textosCompartir";
 import type { Producto } from "../repositorio";
@@ -15,7 +15,7 @@ type Props = {
 };
 
 export function CompartirProducto({ slug, producto }: Props) {
-  const [aviso, setAviso] = useState("");
+  const { avisar } = useToast();
 
   // El enlace se arma al tocar el botón: ahí ya se conoce el dominio real del navegador.
   async function copiar(que: "enlace" | "post" | "respuesta") {
@@ -24,30 +24,33 @@ export function CompartirProducto({ slug, producto }: Props) {
       que === "enlace" ? enlace : que === "post" ? armarTextoPost(producto, enlace) : armarRespuesta(producto, enlace);
     try {
       await navigator.clipboard.writeText(texto);
-      setAviso(t.copiado[que]);
+      avisar(t.copiado[que], { tipo: "exito" });
     } catch {
-      setAviso(t.noSePudoCopiar);
+      avisar(t.noSePudoCopiar, { tipo: "error" });
     }
   }
 
+  const boton =
+    "inline-flex h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
+
   return (
-    <Card className="flex flex-col gap-3 border border-borde md:col-span-2">
-      <h2 className="font-bold">{t.titulo}</h2>
-      <p className="text-sm text-texto-2">{t.ayuda}</p>
-      <div className="flex flex-wrap gap-3">
-        <Button type="button" variante="secundario" onClick={() => copiar("enlace")}>
-          {t.botones.enlace}
-        </Button>
-        <Button type="button" variante="secundario" onClick={() => copiar("post")}>
-          {t.botones.post}
-        </Button>
-        <Button type="button" variante="secundario" onClick={() => copiar("respuesta")}>
-          {t.botones.respuesta}
-        </Button>
+    <Card className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-5 md:col-span-2">
+      <div>
+        <h2 className="text-lg font-bold">{t.titulo}</h2>
+        <p className="text-sm text-texto-2">{t.ayuda}</p>
       </div>
-      <p role="status" className="min-h-5 text-sm text-teal">
-        {aviso}
-      </p>
+      <div className="flex flex-wrap gap-3">
+        <button type="button" onClick={() => copiar("enlace")} className={`${boton} bg-mango`}>
+          <Icon nombre="copiar" className="size-4" />
+          {t.botones.enlace}
+        </button>
+        <button type="button" onClick={() => copiar("post")} className={`${boton} bg-white`}>
+          {t.botones.post}
+        </button>
+        <button type="button" onClick={() => copiar("respuesta")} className={`${boton} bg-white`}>
+          {t.botones.respuesta}
+        </button>
+      </div>
     </Card>
   );
 }

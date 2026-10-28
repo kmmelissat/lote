@@ -2,11 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { FotoInput } from "./FotoInput";
 import { textos } from "@/lib/textos";
 import { agregarFotos } from "../actions/detalle";
+import { ZonaFotos } from "./ZonaFotos";
 
 const t = textos.productos.fotos;
 
@@ -25,16 +24,15 @@ export function AgregarFotos({ codigo, negocioId }: { codigo: number; negocioId:
   }
 
   return (
-    <Card className="flex flex-col gap-3 border border-borde md:col-span-2">
-      <h2 className="font-bold">{t.agregarTitulo}</h2>
-      {/* key: al guardar el servidor refresca la página y el selector arranca limpio */}
-      <FotoInput key={pendiente ? "x" : "y"} negocioId={negocioId} onCambio={setRutas} />
+    <section className="flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5 md:col-span-2">
+      <h2 className="text-lg font-bold">{t.agregarTitulo}</h2>
+      <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={setRutas} />
       <div className="flex items-center gap-4">
-        <Button type="button" variante="secundario" disabled={pendiente || !rutas.length} onClick={guardar}>
+        <Button type="button" variante="mango" disabled={pendiente || !rutas.length} onClick={guardar}>
           {pendiente ? t.guardando : t.guardar}
         </Button>
         <MensajeError>{error}</MensajeError>
       </div>
-    </Card>
+    </section>
   );
 }

@@ -28,3 +28,6 @@ export function estiloDeMarca(guardado: string | null | undefined): Record<strin
     "--color-teal-fondo": `color-mix(in srgb, ${hex} 12%, white)`,
   };
 }
+
+/** Cuántas letras puede tener el contexto de la tienda para la IA (igual que el límite de la base). */
+export const LIMITE_CONTEXTO = 600;
