@@ -77,7 +77,7 @@ const visuales = [<Paso1 key="1" />, <Paso2 key="2" />, <Paso3 key="3" />];
 
 export function ComoFunciona() {
   return (
-    <section id="como" className="scroll-mt-16 bg-crema py-16 md:py-24" aria-labelledby="como-titulo">
+    <section id="como" className="scroll-mt-16 bg-crema py-12 md:py-24" aria-labelledby="como-titulo">
       <div className={`${contenedor} revelar flex flex-col gap-12`}>
         <h2 id="como-titulo" className={tituloSeccion}>
           {t.titulo}

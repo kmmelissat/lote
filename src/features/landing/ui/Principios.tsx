@@ -6,7 +6,7 @@ const t = textos.landing.principios;
 
 export function Principios() {
   return (
-    <section className="bg-rosa-palido py-16 md:py-24" aria-labelledby="principios">
+    <section className="bg-rosa-palido py-12 md:py-24" aria-labelledby="principios">
       <div className={`${contenedor} revelar flex flex-col gap-10`}>
         <div className="flex max-w-2xl flex-col gap-3">
           <h2 id="principios" className={tituloSeccion}>

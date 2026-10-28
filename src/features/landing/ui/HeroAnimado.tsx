@@ -108,7 +108,7 @@ export function HeroAnimado() {
         </ul>
       </div>
 
-      <div className="relative z-10 flex min-h-36 rotate-2 flex-col justify-end gap-2 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura md:ml-12 md:p-5">
+      <div className="relative z-10 flex min-h-40 rotate-2 flex-col justify-end gap-2 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura md:ml-12 md:p-5">
         {paso >= 1 && (
           <p className="max-w-[85%] animate-entra self-end rounded-2xl rounded-br-md bg-teal px-4 py-2 text-white">{m.tu}</p>
         )}
@@ -120,6 +120,8 @@ export function HeroAnimado() {
             {m.deshacer}
           </span>
         )}
+        {/* La barra para escribir: así la tarjeta no se ve vacía antes de que llegue el primer mensaje */}
+        <p className="mt-1 rounded-full border-2 border-borde px-4 py-2 text-sm text-texto-2">{m.escribile}</p>
       </div>
 
       <div className="relative z-10 -rotate-1 flex items-center justify-between gap-3 rounded-[24px] border-2 border-teal-oscuro bg-teal-oscuro px-5 py-4 text-white shadow-[4px_4px_0_0_var(--color-mango)] md:mr-10">

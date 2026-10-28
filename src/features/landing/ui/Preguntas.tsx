@@ -7,7 +7,7 @@ const t = textos.landing.preguntas;
 
 export function Preguntas() {
   return (
-    <section id="preguntas" className="scroll-mt-16 bg-crema py-16 md:py-24" aria-labelledby="preguntas-titulo">
+    <section id="preguntas" className="scroll-mt-16 bg-crema py-12 md:py-24" aria-labelledby="preguntas-titulo">
       <div className={`${contenedor} revelar grid grid-cols-1 gap-10 md:grid-cols-[1fr_1.5fr] md:gap-16`}>
         <div className="flex flex-col gap-4 md:sticky md:top-24 md:self-start">
           <h2 id="preguntas-titulo" className={tituloSeccion}>

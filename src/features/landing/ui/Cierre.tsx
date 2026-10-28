@@ -6,9 +6,9 @@ const t = textos.landing;
 
 export function Cierre({ conSesion }: { conSesion: boolean }) {
   return (
-    <section className="bg-superficie py-16 md:py-24" aria-labelledby="cierre">
+    <section className="bg-superficie py-12 md:py-24" aria-labelledby="cierre">
       <div className={`${contenedor} revelar`}>
-        <div className="relative overflow-hidden rounded-[32px] border-2 border-teal-oscuro bg-teal-oscuro p-8 text-white shadow-[6px_6px_0_0_var(--color-mango)] md:p-16">
+        <div className="relative overflow-hidden rounded-[32px] border-2 border-teal-oscuro bg-teal-oscuro p-7 pb-24 text-white shadow-[6px_6px_0_0_var(--color-mango)] md:p-16 md:pb-16">
           <div className="relative z-10 flex max-w-2xl flex-col items-start gap-5">
             <h2 id="cierre" className="text-[38px] font-bold leading-[1.05] tracking-tight md:text-[56px]">
               {t.cierre.titulo}
@@ -19,7 +19,7 @@ export function Cierre({ conSesion }: { conSesion: boolean }) {
             </BotonLanding>
           </div>
           {/* El monito se asoma desde abajo del bloque */}
-          <Gorila className="absolute -bottom-2 right-4 z-0 size-36 animate-asomar text-rosa md:right-14 md:size-64" />
+          <Gorila className="absolute -bottom-2 right-3 z-0 size-28 animate-asomar text-rosa md:right-14 md:size-64" />
         </div>
       </div>
     </section>

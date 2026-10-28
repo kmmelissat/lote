@@ -10,7 +10,7 @@ const h3 = "text-[22px] font-bold leading-tight";
 // Un bento: tarjetas de distinto tamaño y color, cada una con un pedacito de la pantalla de verdad adentro.
 export function Funciones() {
   return (
-    <section id="funciones" className="scroll-mt-16 bg-superficie py-16 md:py-24" aria-labelledby="funciones-titulo">
+    <section id="funciones" className="scroll-mt-16 bg-superficie py-12 md:py-24" aria-labelledby="funciones-titulo">
       <div className={`${contenedor} revelar flex flex-col gap-10`}>
         <h2 id="funciones-titulo" className={tituloSeccion}>
           {t.titulo}
@@ -114,13 +114,13 @@ export function Funciones() {
               <h3 className={h3}>{t.importar.titulo}</h3>
               <p className={parrafo}>{t.importar.texto}</p>
             </div>
-            <div aria-hidden="true" className="flex items-center gap-3">
-              <span className="flex items-center gap-2 rounded-xl border-2 border-teal-oscuro bg-superficie px-4 py-2 font-medium">
+            <div aria-hidden="true" className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-3">
+              <span className="flex max-w-full items-center gap-2 rounded-xl border-2 border-teal-oscuro bg-superficie px-4 py-2 font-medium">
                 <Icon nombre="subir" className="size-5" />
                 {t.importar.archivo}
               </span>
-              <Icon nombre="flecha" className="size-6 -rotate-90" />
-              <span className="flex items-center gap-2 rounded-xl border-2 border-teal-oscuro bg-teal px-4 py-2 font-bold text-white">
+              <Icon nombre="flecha" className="ml-4 size-6 md:ml-0 md:-rotate-90" />
+              <span className="flex max-w-full items-center gap-2 rounded-xl border-2 border-teal-oscuro bg-teal px-4 py-2 font-bold text-white">
                 <Icon nombre="check" className="size-5" />
                 {t.importar.filas}
               </span>

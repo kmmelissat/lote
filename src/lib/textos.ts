@@ -95,12 +95,14 @@ export const textos = {
         gananciaEtiqueta: "Ganancia de la semana",
         stickerApartado: "¡Apartado!",
         gorila: "¡Anotado!",
+        escribile: "Escribile a Lote…",
       },
     },
     marquesina: ["Apartado", "Cobrado", "Enviado", "Cuadrado"],
     problema: {
       titulo: "Si vendés por Instagram, esto te suena",
       intro: "Hablamos con cinco emprendimientos que venden por Instagram. En los cinco pasó lo mismo.",
+      carrusel: "Lo que encontramos en las entrevistas",
       items: [
         {
           dato: "5 de 5",
