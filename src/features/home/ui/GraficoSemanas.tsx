@@ -74,25 +74,28 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
       </div>
 
       {/* Lo mismo en una tabla, para lector de pantalla y para quien no pueda pasar el mouse. */}
-      <table className="sr-only">
-        <caption>{t.flujoTabla}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{t.flujoSemanaDel("")}</th>
-            <th scope="col">{t.flujoVendido}</th>
-            <th scope="col">{t.flujoGanancia}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {semanas.map((s) => (
-            <tr key={s.desde}>
-              <th scope="row">{dia(s.desde)}</th>
-              <td>{formatearDolares(s.vendido)}</td>
-              <td>{formatearDolares(s.gananciaDespuesDeGastos)}{s.estimada ? ` (${t.flujoEstimada})` : ""}</td>
+      {/* En un div: un <table> con sr-only ignora el ancho de 1px y ensancha toda la página en móvil. */}
+      <div className="sr-only">
+        <table>
+          <caption>{t.flujoTabla}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t.flujoSemanaDel("")}</th>
+              <th scope="col">{t.flujoVendido}</th>
+              <th scope="col">{t.flujoGanancia}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {semanas.map((s) => (
+              <tr key={s.desde}>
+                <th scope="row">{dia(s.desde)}</th>
+                <td>{formatearDolares(s.vendido)}</td>
+                <td>{formatearDolares(s.gananciaDespuesDeGastos)}{s.estimada ? ` (${t.flujoEstimada})` : ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {semanas.some((s) => s.estimada) && <p className="text-sm text-ambar-texto">{t.flujoEstimada}</p>}
     </Card>
   );
