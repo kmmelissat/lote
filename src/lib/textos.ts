@@ -58,7 +58,7 @@ export const textos = {
   landing: {
     titulo: "Lote · Tu inventario, apartado y cuadrado",
     descripcion:
-      "Para quienes venden por Instagram: sabé qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces.",
+      "Para quienes venden por redes sociales: sabé qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces.",
     saltar: "Saltar al contenido",
     menu: "Secciones",
     enlaces: [
@@ -71,7 +71,7 @@ export const textos = {
     empezar: "Empezar gratis",
     irAlPanel: "Ir a mi panel",
     hero: {
-      etiqueta: "Para quienes venden por Instagram",
+      etiqueta: "Para quienes venden por redes sociales",
       tituloInicio: "Tu inventario,",
       tituloMarca: "apartado y cuadrado.",
       texto:
@@ -100,8 +100,8 @@ export const textos = {
     },
     marquesina: ["Apartado", "Cobrado", "Enviado", "Cuadrado"],
     problema: {
-      titulo: "Si vendés por Instagram, esto te suena",
-      intro: "Hablamos con cinco emprendimientos que venden por Instagram. En los cinco pasó lo mismo.",
+      titulo: "Si vendés por redes, esto te suena",
+      intro: "Hablamos con cinco emprendimientos que venden por redes sociales. En los cinco pasó lo mismo.",
       carrusel: "Lo que encontramos en las entrevistas",
       items: [
         {
@@ -243,8 +243,8 @@ export const textos = {
       abrir: "Abrir",
       items: [
         {
-          p: "¿Tengo que dejar Instagram?",
-          r: "No. Seguís vendiendo por Instagram, WhatsApp o en persona. Lote es donde llevás el control, y tus clientes ven tu vitrina con un enlace.",
+          p: "¿Tengo que dejar mis redes?",
+          r: "No. Seguís vendiendo por Instagram, Facebook, WhatsApp o en persona. Lote es donde llevás el control, y tus clientes ven tu vitrina con un enlace.",
         },
         {
           p: "¿Funciona desde el celular?",
@@ -531,7 +531,7 @@ export const textos = {
     },
     sticker: {
       titulo: "Sticker para tus stories",
-      ayuda: "Una imagen vertical con la foto y la cinta VENDIDO, lista para subir a Instagram.",
+      ayuda: "Una imagen vertical con la foto y la cinta VENDIDO, lista para subir a tus redes.",
       boton: "Descargar sticker",
       generando: "Armando la imagen…",
       listo: "Sticker descargado.",
@@ -560,7 +560,7 @@ export const textos = {
     },
     compartir: {
       titulo: "Compartir",
-      ayuda: "Textos listos con los datos de este producto. Los copiás y los pegás en Instagram o WhatsApp.",
+      ayuda: "Textos listos con los datos de este producto. Los copiás y los pegás en tus redes o en WhatsApp.",
       botones: {
         enlace: "Copiar enlace",
         post: "Copiar texto para el post",
@@ -881,7 +881,7 @@ export const textos = {
       ayuda: (horas: number) =>
         `Te lo guardamos ${horas} ${horas === 1 ? "hora" : "horas"}. En ese tiempo hacé el pago para asegurarlo.`,
       nombre: "Tu nombre",
-      contacto: "Tu WhatsApp o @usuario de Instagram",
+      contacto: "Tu WhatsApp o tu usuario en redes",
       cantidad: "Cantidad",
       acepta: "Acepto que me escriban por WhatsApp sobre mi pedido.",
       boton: "Apartar",
@@ -917,12 +917,12 @@ export const textos = {
       {
         titulo: "Qué es Lote",
         texto:
-          "Lote es un proyecto de diseño (ciclo 3). Sirve para llevar el inventario, los apartados, los cobros y los envíos de un negocio que vende por Instagram y WhatsApp.",
+          "Lote es un proyecto de diseño (ciclo 3). Sirve para llevar el inventario, los apartados, los cobros y los envíos de un negocio que vende por redes sociales y WhatsApp.",
       },
       {
         titulo: "Qué guardamos de tus clientes",
         texto:
-          "Lo mínimo para atender el pedido: nombre, contacto (teléfono o usuario de Instagram), la dirección cuando hay envío y el historial de sus pedidos. No pedimos nada más.",
+          "Lo mínimo para atender el pedido: nombre, contacto (teléfono o usuario en redes), la dirección cuando hay envío y el historial de sus pedidos. No pedimos nada más.",
       },
       {
         titulo: "Cuándo se les escribe por WhatsApp",
@@ -1006,7 +1006,7 @@ export const textos = {
     titulo: "Pegar chat de cliente",
     subtitulo: "Pegá una conversación y Lote te propone qué registrar. No se aplica nada sin que lo confirmes.",
     etiqueta: "Conversación con el cliente",
-    placeholder: "Pegá acá el chat de Instagram o WhatsApp",
+    placeholder: "Pegá acá el chat de tu cliente (WhatsApp, Instagram, Facebook…)",
     privacidad:
       "Al revisar, el texto se envía a OpenAI para leerlo. Pegá solo lo necesario y evitá números de cuenta o datos que no hagan falta.",
     revisar: "Revisar mensaje",

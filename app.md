@@ -6,7 +6,7 @@
 
 ## 1. Qué es
 
-Un asistente para emprendedores que venden por Instagram. Se maneja **por chat de WhatsApp** (sin abrir otra app), y tiene un **panel web/PWA** para ver y corregir, y una **vitrina pública** con enlace que se actualiza sola.
+Un asistente para emprendedores que venden por redes sociales (Instagram, Facebook, WhatsApp). Se maneja **por chat de WhatsApp** (sin abrir otra app), y tiene un **panel web/PWA** para ver y corregir, y una **vitrina pública** con enlace que se actualiza sola.
 
 Cada producto tiene su ficha con cantidad, estado, costo real y ganancia. Una pieza única es un producto con cantidad 1; un producto normal es el mismo con cantidad N. Los pedidos cubren todo el camino: apartado (también desde la vitrina, sin que el cliente tenga que escribirte), cobro con abonos, envío con paquetera y entrega. La IA evita el doble registro: lee fotos, mensajes y comprobantes, y registra o propone la acción.
 
@@ -14,7 +14,7 @@ Propuesta de valor: "Saber en todo momento qué tenés, qué está apartado y cu
 
 Referencia: Treinta (ventas, inventario, fiados, catálogo, reportes), adaptada a Instagram, a piezas únicas y con IA.
 
-Usuario principal: emprendedor joven que vende por Instagram desde el celular (Ternuritos, Koa, Capo). Siguiente etapa: negocios con local y equipo (Mims, MG Vinyls); ver la sección 18 sobre cómo crece Lote.
+Usuario principal: emprendedor joven que vende por redes sociales desde el celular (Ternuritos, Koa, Capo). Siguiente etapa: negocios con local y equipo (Mims, MG Vinyls); ver la sección 18 sobre cómo crece Lote.
 
 ## 2. Los cuatro ganchos (por qué alguien la usaría)
 
@@ -833,7 +833,7 @@ La IA nunca calcula plata: propone, y `domain/` hace las cuentas.
 
 ## 18. Cómo crece Lote
 
-Lote nace para quien vende por Instagram y WhatsApp, y crece con el negocio. Las funciones de todas las etapas están en este documento; la etapa decide el orden en que se construyen.
+Lote nace para quien vende por redes sociales y WhatsApp, y crece con el negocio. Las funciones de todas las etapas están en este documento; la etapa decide el orden en que se construyen.
 
 ### 18.1 La escalera
 
