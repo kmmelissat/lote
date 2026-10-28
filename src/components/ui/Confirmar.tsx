@@ -14,9 +14,16 @@ export type OpcionesConfirmar = {
   peligro?: boolean;
 };
 
+export type OpcionesElegir = OpcionesConfirmar & {
+  /** Lo que se puede elegir; la primera viene marcada. */
+  opciones: { valor: string; etiqueta: string }[];
+};
+
 type Contexto = {
   /** Abre el modal y responde true si la persona confirma, false si cancela, cierra o toca Esc. */
   confirmar: (opciones: OpcionesConfirmar) => Promise<boolean>;
+  /** Como confirmar, pero con una lista para elegir: responde el valor elegido, o null si cancela. */
+  elegir: (opciones: OpcionesElegir) => Promise<string | null>;
 };
 
 const ConfirmarContexto = createContext<Contexto | null>(null);
@@ -27,11 +34,22 @@ export function useConfirmar(): Contexto["confirmar"] {
   return contexto.confirmar;
 }
 
-type Abierto = OpcionesConfirmar & { responder: (si: boolean) => void };
+export function useElegir(): Contexto["elegir"] {
+  const contexto = useContext(ConfirmarContexto);
+  if (!contexto) throw new Error("useElegir hay que usarlo dentro de <ConfirmarProvider>");
+  return contexto.elegir;
+}
+
+type Abierto = Partial<OpcionesElegir> &
+  OpcionesConfirmar & {
+    /** false = canceló; true = confirmó; texto = confirmó eligiendo ese valor */
+    responder: (r: boolean | string) => void;
+  };
 
 // Usa <dialog>: el navegador ya atrapa el foco, cierra con Esc y devuelve el foco a quien lo abrió (app.md §6.2).
-function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (si: boolean) => void }) {
+function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (r: boolean | string) => void }) {
   const dialogo = useRef<HTMLDialogElement>(null);
+  const [elegido, setElegido] = useState(abierto.opciones?.[0]?.valor ?? "");
 
   useEffect(() => {
     const d = dialogo.current;
@@ -61,6 +79,24 @@ function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (si: boolean) =>
             {abierto.texto}
           </p>
         )}
+        {abierto.opciones && (
+          <fieldset className="mt-2 flex flex-col gap-1">
+            <legend className="sr-only">{abierto.titulo}</legend>
+            {abierto.opciones.map((o) => (
+              <label key={o.valor} className="flex min-h-11 items-center gap-3 rounded-xl px-2 hover:bg-teal-fondo">
+                <input
+                  type="radio"
+                  name="elegido"
+                  value={o.valor}
+                  checked={elegido === o.valor}
+                  onChange={() => setElegido(o.valor)}
+                  className="size-5 accent-teal"
+                />
+                {o.etiqueta}
+              </label>
+            ))}
+          </fieldset>
+        )}
         <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button type="button" variante="secundario" autoFocus={abierto.peligro} onClick={() => cerrar(false)}>
             {abierto.cancelar ?? textos.comun.cancelar}
@@ -69,7 +105,7 @@ function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (si: boolean) =>
             type="button"
             variante={abierto.peligro ? "peligro" : "primario"}
             autoFocus={!abierto.peligro}
-            onClick={() => cerrar(true)}
+            onClick={() => cerrar(abierto.opciones ? elegido : true)}
           >
             {abierto.confirmar ?? textos.comun.confirmar}
           </Button>
@@ -84,19 +120,27 @@ export function ConfirmarProvider({ children }: { children: ReactNode }) {
 
   const confirmar = useCallback(
     (opciones: OpcionesConfirmar) =>
-      new Promise<boolean>((resolver) => setAbierto({ ...opciones, responder: resolver })),
+      new Promise<boolean>((resolver) => setAbierto({ ...opciones, responder: (r) => resolver(r !== false) })),
+    [],
+  );
+
+  const elegir = useCallback(
+    (opciones: OpcionesElegir) =>
+      new Promise<string | null>((resolver) =>
+        setAbierto({ ...opciones, responder: (r) => resolver(typeof r === "string" ? r : null) }),
+      ),
     [],
   );
 
   const cerrar = useCallback(
-    (si: boolean) => {
-      abierto?.responder(si);
+    (r: boolean | string) => {
+      abierto?.responder(r);
       setAbierto(null);
     },
     [abierto],
   );
 
-  const contexto = useMemo(() => ({ confirmar }), [confirmar]);
+  const contexto = useMemo(() => ({ confirmar, elegir }), [confirmar, elegir]);
 
   return (
     <ConfirmarContexto.Provider value={contexto}>

@@ -6,8 +6,8 @@ import { textos } from "@/lib/textos";
 export function Logo({ className = "" }: { className?: string }) {
   return (
     <span className={`inline-flex items-center ${className}`}>
-      <Image src="/lote-logo.svg" alt={textos.nombre} width={98} height={24} priority className="h-7 w-auto group-data-[cerrado]:hidden" />
-      <Image src="/lote-iso.svg" alt="" width={24} height={24} className="hidden size-7 group-data-[cerrado]:block" />
+      <Image src="/lote-logo.svg" alt={textos.nombre} width={98} height={24} priority unoptimized className="h-7 w-auto group-data-[cerrado]:hidden" />
+      <Image src="/lote-iso.svg" alt="" width={24} height={24} unoptimized className="hidden size-7 group-data-[cerrado]:block" />
     </span>
   );
 }

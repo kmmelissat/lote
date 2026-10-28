@@ -11,6 +11,15 @@ const esPublica = (ruta: string) =>
 // Refresca la sesión de Supabase en cada request y manda a /login a quien no la tiene.
 // Es solo un chequeo rápido: la autorización real se verifica en el servidor y con RLS.
 export async function proxy(request: NextRequest) {
+  // Si Supabase no reconoce la dirección de retorno, manda el código a la raíz del sitio. Antes de
+  // mirar la sesión se reenvía a /auth/callback, o se perdería en la redirección a /login.
+  const url = request.nextUrl;
+  if (url.pathname === "/" && (url.searchParams.has("code") || url.searchParams.has("token_hash"))) {
+    const destino = url.clone();
+    destino.pathname = "/auth/callback";
+    return NextResponse.redirect(destino);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -49,5 +58,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest).*)"],
+  // Los archivos de /public (logos, imágenes) no son páginas: se sirven sin pedir sesión.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|webp|ico|csv)$).*)"],
 };

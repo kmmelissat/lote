@@ -115,6 +115,18 @@ export async function paginaDePedidos(
   return data.map(aPedido);
 }
 
+/** Cuántos pedidos hay en cada estado (para los contadores de las pestañas). */
+export async function contarPedidosPorEstado(
+  supabase: Cliente,
+  negocioId: string,
+): Promise<Record<EstadoPedido, number>> {
+  const { data, error } = await supabase.from("pedido").select("estado").eq("negocio_id", negocioId).limit(5000);
+  if (error) throw error;
+  const cuentas = { pendiente: 0, pagado: 0, preparando: 0, enviado: 0, entregado: 0, cancelado: 0 } as Record<EstadoPedido, number>;
+  for (const f of data) if (f.estado in cuentas) cuentas[f.estado as EstadoPedido] += 1;
+  return cuentas;
+}
+
 /** Pedidos en cualquiera de esos estados, los más recientes primero. */
 export async function buscarPedidos(
   supabase: Cliente,
