@@ -24,6 +24,9 @@ export type Producto = {
   marca: string | null;
   condicion: string;
   fotos: string[];
+  /** Las variantes de un mismo producto comparten grupo */
+  grupo: string | null;
+  variante: string | null;
   precio: Centavos;
   /** Unidades totales; disponibles = cantidad − apartadas − vendidas */
   cantidad: number;
@@ -39,7 +42,7 @@ export type Producto = {
 // Los costos son la parte pesada de la consulta y solo los ve quien gestiona: sin permiso (o sin
 // necesitarlos, como en Inicio) no se piden.
 const columnasBase =
-  "id, codigo, nombre, descripcion, categoria, marca, condicion, fotos, precio, existencia(cantidad), pedido_item(cantidad, pedido(estado, vence_en))";
+  "id, codigo, nombre, descripcion, categoria, marca, condicion, fotos, grupo, variante, precio, existencia(cantidad), pedido_item(cantidad, pedido(estado, vence_en))";
 const columnasConCostos = `${columnasBase}, costo_producto(tipo, monto, por_unidad)`;
 const columnas = (puedeVerCostos: boolean) => (puedeVerCostos ? columnasConCostos : columnasBase);
 
@@ -52,6 +55,8 @@ type Fila = {
   marca: string | null;
   condicion: string;
   fotos: string[];
+  grupo: string | null;
+  variante: string | null;
   precio: number;
   existencia: { cantidad: number }[];
   pedido_item: { cantidad: number; pedido: { estado: string; vence_en: string | null } }[];
@@ -88,6 +93,8 @@ function aProducto(f: Fila, puedeVerCostos: boolean, ahora: Date): Producto {
     marca: f.marca,
     condicion: f.condicion,
     fotos: f.fotos,
+    grupo: f.grupo,
+    variante: f.variante,
     precio: aCentavos(f.precio),
     cantidad,
     apartadas,
@@ -172,6 +179,9 @@ export type NuevoProducto = {
   condicion: "nuevo" | "usado";
   fotos: string[];
   costos: { tipo: "compra" | "envio" | "importacion" | "otro"; monto: Centavos }[];
+  /** Si es una variante: el grupo que comparte con sus hermanas y su etiqueta ("M", "rosa") */
+  grupo?: string;
+  variante?: string;
 };
 
 /** Crea la ficha, la existencia y los costos en una sola operación. Devuelve el código corto. */
@@ -193,8 +203,12 @@ export async function crearProducto(
   });
   if (error) return { error: error.code === "42501" ? "sin_permiso" : "desconocido" };
 
-  // Las fotos ya están subidas; crear_producto no las recibe, se guardan en la ficha ya creada.
-  if (p.fotos.length) await supabase.from("producto").update({ fotos: p.fotos }).eq("id", id);
+  // Las fotos y la variante no las recibe crear_producto: se guardan en la ficha ya creada.
+  const extras = {
+    ...(p.fotos.length ? { fotos: p.fotos } : {}),
+    ...(p.grupo && p.variante ? { grupo: p.grupo, variante: p.variante } : {}),
+  };
+  if (Object.keys(extras).length) await supabase.from("producto").update(extras).eq("id", id);
 
   const { data } = await supabase.from("producto").select("codigo").eq("id", id).single();
   return data ? { id, codigo: data.codigo } : { error: "desconocido" };
@@ -269,4 +283,24 @@ export async function actualizarProducto(
     .select("id");
   // Sin permiso, RLS no da error: simplemente no toca ninguna fila.
   return !error && data.length > 0;
+}
+
+export type Hermana = { codigo: number; variante: string };
+
+/** Las otras variantes del mismo producto, para saltar de una a otra desde el panel. */
+export async function listarHermanas(
+  supabase: Cliente,
+  negocioId: string,
+  grupo: string,
+  codigoActual: number,
+): Promise<Hermana[]> {
+  const { data, error } = await supabase
+    .from("producto")
+    .select("codigo, variante")
+    .eq("negocio_id", negocioId)
+    .eq("grupo", grupo)
+    .neq("codigo", codigoActual)
+    .order("codigo");
+  if (error) throw error;
+  return data.flatMap((h) => (h.variante ? [{ codigo: h.codigo, variante: h.variante }] : []));
 }

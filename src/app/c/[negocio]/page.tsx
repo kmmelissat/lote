@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico } from "@/features/catalog/repositorio";
+import { agruparParaVitrina } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
@@ -29,7 +30,8 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
   const supabase = createPublicClient();
   const negocio = await obtenerNegocioPublico(supabase, slug);
   if (!negocio) notFound();
-  const productos = await listarProductosPublicos(supabase, slug);
+  // Las variantes de un mismo producto (talla, tono) se muestran en una sola tarjeta.
+  const productos = agruparParaVitrina(await listarProductosPublicos(supabase, slug));
 
   return (
     <>
@@ -62,11 +64,16 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
                 </div>
                 <div className="flex flex-col items-start gap-1">
                   <p className="font-medium">{p.nombre}</p>
-                  <p className="font-bold">{formatearDolares(p.precio)}</p>
+                  <p className="font-bold">
+                    {p.precioMinimo === p.precioMaximo
+                      ? formatearDolares(p.precioMinimo)
+                      : t.desde(formatearDolares(p.precioMinimo))}
+                  </p>
                   <StatusChip
                     estado={p.disponibles > 0 ? "disponible" : "apartado"}
                     texto={p.disponibles > 0 ? textos.productos.quedan(p.disponibles) : undefined}
                   />
+                  {p.opciones > 1 && <p className="text-sm text-texto-2">{t.nOpciones(p.opciones)}</p>}
                 </div>
               </Link>
             </li>

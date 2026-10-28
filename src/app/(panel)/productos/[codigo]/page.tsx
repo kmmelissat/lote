@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { DesgloseCosto } from "@/domain";
 import { estadoVisible } from "@/features/products/estadoVisible";
-import { obtenerProducto } from "@/features/products/repositorio";
+import { listarHermanas, obtenerProducto } from "@/features/products/repositorio";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
@@ -36,6 +36,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
   const { supabase, negocio } = await negocioActual();
   const p = await obtenerProducto(supabase, negocio.id, codigo, negocio.puedeGestionar);
   if (!p) notFound();
+  const hermanas = p.grupo ? await listarHermanas(supabase, negocio.id, p.grupo, p.codigo) : [];
 
   const ganancia =
     p.costoUnitario === undefined || p.costoUnitario === null ? null : p.precio - p.costoUnitario;
@@ -48,6 +49,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
     [t.detalle.vendidas, String(p.vendidas)],
     [t.detalle.precio, formatearDolares(p.precio)],
   ];
+  if (p.variante) filas.push([t.variantes.variante, p.variante]);
   if (p.categoria) filas.push([t.detalle.categoria, p.categoria]);
   if (p.marca) filas.push([t.detalle.marca, p.marca]);
   filas.push([t.detalle.condicion, p.condicion === "usado" ? t.form.usado : t.form.nuevo]);
@@ -124,6 +126,24 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
           </Card>
         )}
 
+        {hermanas.length > 0 && (
+          <Card className="flex flex-col gap-3 border border-borde md:col-span-2">
+            <h2 className="font-bold">{t.variantes.titulo}</h2>
+            <p className="text-sm text-texto-2">{t.variantes.ayuda}</p>
+            <ul className="flex flex-wrap gap-2">
+              {hermanas.map((h) => (
+                <li key={h.codigo}>
+                  <Link
+                    href={`/productos/${h.codigo}`}
+                    className="inline-flex min-h-11 items-center rounded-full bg-superficie px-4 text-sm font-medium text-teal ring-1 ring-borde-control hover:bg-teal-fondo"
+                  >
+                    {h.variante} · #{h.codigo}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
         {negocio.slug && (
           <CompartirProducto
             slug={negocio.slug}

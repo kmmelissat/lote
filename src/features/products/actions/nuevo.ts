@@ -6,6 +6,7 @@ import { leerDolares } from "@/domain/index";
 import { proveedorIA } from "@/features/ai/index";
 import { MAXIMO_FOTOS } from "../limites";
 import { crearProducto, type NuevoProducto } from "../repositorio";
+import { nombreConVariante, validarVariantes } from "../variantes";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -13,11 +14,20 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 
 export type EstadoNuevo = {
-  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
+  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
   valores?: Record<string, string>;
 };
 
 const TIPOS_COSTO = ["compra", "envio", "importacion", "otro"] as const;
+
+function listaDeFilas(json: string | undefined): { etiqueta: unknown; cantidad: unknown }[] {
+  try {
+    const lista: unknown = JSON.parse(json || "[]");
+    return Array.isArray(lista) ? lista.filter((f): f is { etiqueta: unknown; cantidad: unknown } => typeof f === "object" && f !== null) : [];
+  } catch {
+    return [];
+  }
+}
 
 function fotosValidas(json: string | undefined, negocioId: string): string[] {
   try {
@@ -45,8 +55,14 @@ export async function nuevoProducto(
   const precio = leerDolares(valores.precio ?? "");
   if (precio === null) errores.precio = t.errorPrecio;
 
+  // Con variantes, la cantidad es la de cada una y el campo general no cuenta.
+  const crudas = listaDeFilas(valores.variantes);
+  const conVariantes = crudas.length > 0;
+  const validadas = conVariantes ? validarVariantes(crudas) : null;
+  if (validadas && !validadas.ok) errores.variantes = t.errorVariantes[validadas.error];
+
   const cantidad = Number((valores.cantidad ?? "1").trim() || "1");
-  if (!Number.isInteger(cantidad) || cantidad < 1) errores.cantidad = t.errorCantidad;
+  if (!conVariantes && (!Number.isInteger(cantidad) || cantidad < 1)) errores.cantidad = t.errorCantidad;
 
   const costos: NuevoProducto["costos"] = [];
   for (const tipo of TIPOS_COSTO) {
@@ -61,17 +77,39 @@ export async function nuevoProducto(
 
   // La autorización real la hace crear_producto en la base; acá solo se resuelve el negocio.
   const { supabase, negocio } = await negocioActual();
-  const resultado = await crearProducto(supabase, negocio.id, {
+  const comun = {
     nombre,
     precio: precio!,
     cantidad,
     descripcion: valores.descripcion?.trim() || undefined,
     categoria: valores.categoria?.trim() || undefined,
     marca: valores.marca?.trim() || undefined,
-    condicion: valores.condicion === "usado" ? "usado" : "nuevo",
+    condicion: valores.condicion === "usado" ? ("usado" as const) : ("nuevo" as const),
     fotos: fotosValidas(valores.fotos, negocio.id),
     costos,
-  });
+  };
+
+  if (validadas?.ok) {
+    // Cada variante es un producto hermano: su código, su stock y su costo; comparten grupo y foto.
+    const grupo = crypto.randomUUID();
+    const hechos = await Promise.allSettled(
+      validadas.variantes.map((v) =>
+        crearProducto(supabase, negocio.id, {
+          ...comun,
+          nombre: nombreConVariante(nombre, v.etiqueta),
+          cantidad: v.cantidad,
+          grupo,
+          variante: v.etiqueta,
+        }),
+      ),
+    );
+    revalidatePath("/", "layout");
+    const buenos = hechos.flatMap((h) => (h.status === "fulfilled" && !("error" in h.value) ? [h.value.codigo] : []));
+    if (buenos.length === hechos.length) redirect(`/productos/${buenos[0]}`);
+    return { errores: { general: t.errorVariantesParcial(buenos.length, hechos.length) }, valores };
+  }
+
+  const resultado = await crearProducto(supabase, negocio.id, comun);
 
   if ("error" in resultado) {
     const general = resultado.error === "sin_permiso" ? t.errorPermiso : t.errorGeneral;

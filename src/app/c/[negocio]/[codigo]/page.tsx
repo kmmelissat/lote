@@ -6,7 +6,8 @@ import { connection } from "next/server";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
-import { obtenerNegocioPublico, obtenerProductoPublico } from "@/features/catalog/repositorio";
+import { listarProductosPublicos, obtenerNegocioPublico, obtenerProductoPublico } from "@/features/catalog/repositorio";
+import { nombreBase } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
@@ -35,6 +36,13 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
     obtenerProductoPublico(supabase, slug, codigo),
   ]);
   if (!negocio || !p) notFound();
+
+  // Si es una variante, las opciones hermanas que todavía se ven en la vitrina (las agotadas no).
+  const opciones = p.grupo
+    ? (await listarProductosPublicos(supabase, slug)).filter((o) => o.grupo === p.grupo && o.variante)
+    : [];
+  if (p.grupo && !opciones.some((o) => o.codigo === p.codigo)) opciones.push(p);
+  opciones.sort((a, b) => a.codigo - b.codigo);
 
   const disponible = p.disponibles > 0;
   const detalles: [string, string][] = [];
@@ -70,13 +78,34 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
 
         <div className="flex flex-col gap-5">
           <div className="flex flex-col items-start gap-2">
-            <h1 className="text-2xl font-bold">{p.nombre}</h1>
+            <h1 className="text-2xl font-bold">{nombreBase(p.nombre, p.variante)}</h1>
             <p className="text-2xl font-bold">{formatearDolares(p.precio)}</p>
             <StatusChip
               estado={disponible ? "disponible" : p.apartado ? "apartado" : "vendido"}
               texto={disponible ? textos.productos.quedan(p.disponibles) : undefined}
             />
           </div>
+
+          {opciones.length > 1 && (
+            <nav aria-label={t.opciones} className="flex flex-col gap-2">
+              <h2 className="text-sm font-medium">{t.opciones}</h2>
+              <ul className="flex flex-wrap gap-2">
+                {opciones.map((o) => (
+                  <li key={o.codigo}>
+                    <Link
+                      href={`/c/${slug}/${o.codigo}`}
+                      aria-current={o.codigo === p.codigo ? "page" : undefined}
+                      className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-medium ${
+                        o.codigo === p.codigo ? "bg-teal text-white" : "bg-superficie text-teal ring-1 ring-borde-control hover:bg-teal-fondo"
+                      }`}
+                    >
+                      {o.disponibles > 0 ? o.variante : t.opcionApartada(o.variante ?? "")}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
 
           {p.descripcion && <p>{p.descripcion}</p>}
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1">

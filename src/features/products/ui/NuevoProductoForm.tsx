@@ -7,6 +7,7 @@ import { Field } from "@/components/ui/Field";
 import { Sugerido } from "@/components/ui/Sugerido";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { FotoInput } from "./FotoInput";
+import { VariantesInput, type FilaForm } from "./VariantesInput";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } from "../actions/nuevo";
@@ -49,6 +50,7 @@ export function NuevoProductoForm({
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [categoria, setCategoria] = useState(inicial?.categoria ?? "");
+  const [variantes, setVariantes] = useState<FilaForm[] | null>(null);
   const [sugeridos, setSugeridos] = useState<Set<keyof FichaSugerida>>(new Set());
   const [errorFoto, setErrorFoto] = useState("");
   const [leyendo, empezarLectura] = useTransition();
@@ -138,14 +140,18 @@ export function NuevoProductoForm({
           onChange={(ev) => setPrecio(ev.target.value)}
           error={e.precio}
         />
-        <Field
-          etiqueta={t.cantidad}
-          name="cantidad"
-          inputMode="numeric"
-          defaultValue={v.cantidad ?? "1"}
-          error={e.cantidad}
-        />
+        {variantes === null && (
+          <Field
+            etiqueta={t.cantidad}
+            name="cantidad"
+            inputMode="numeric"
+            defaultValue={v.cantidad ?? "1"}
+            error={e.cantidad}
+          />
+        )}
       </div>
+
+      <VariantesInput filas={variantes} onCambio={setVariantes} error={e.variantes} />
 
       <fieldset className="flex flex-col gap-3 rounded-tarjeta border border-borde bg-superficie p-4">
         <legend className="px-1 text-sm font-medium">{t.costosTitulo}</legend>

@@ -41,6 +41,9 @@ export type ProductoPublico = {
   disponibles: number;
   /** Sin unidades libres pero con un apartado vigente: puede volver a estar disponible */
   apartado: boolean;
+  /** Las variantes de un mismo producto comparten grupo (talla, tono, color) */
+  grupo: string | null;
+  variante: string | null;
 };
 
 type FilaProducto = Database["public"]["Functions"]["vitrina_productos"]["Returns"][number];
@@ -56,6 +59,8 @@ const aProductoPublico = (f: FilaProducto): ProductoPublico => ({
   precio: aCentavos(f.precio),
   disponibles: f.disponibles,
   apartado: f.apartado,
+  grupo: f.grupo,
+  variante: f.variante,
 });
 
 export async function listarProductosPublicos(supabase: Cliente, slug: string): Promise<ProductoPublico[]> {

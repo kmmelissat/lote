@@ -1,0 +1,98 @@
+import { describe, expect, it } from "vitest";
+import type { ProductoPublico } from "@/features/catalog/repositorio";
+import { agruparParaVitrina, nombreBase, nombreConVariante, validarVariantes } from "./variantes";
+
+describe("nombres", () => {
+  it("la variante se pega al nombre y se puede quitar", () => {
+    expect(nombreConVariante("Chaqueta negra", "M")).toBe("Chaqueta negra · M");
+    expect(nombreBase("Chaqueta negra · M", "M")).toBe("Chaqueta negra");
+  });
+
+  it("si el nombre ya no lleva la variante, queda como está", () => {
+    expect(nombreBase("Chaqueta vieja", "M")).toBe("Chaqueta vieja");
+    expect(nombreBase("Llavero", null)).toBe("Llavero");
+  });
+});
+
+describe("validarVariantes", () => {
+  const ok = [{ etiqueta: " M ", cantidad: "2" }, { etiqueta: "L", cantidad: 3 }];
+
+  it("acepta y limpia lo escrito", () => {
+    expect(validarVariantes(ok)).toEqual({ ok: true, variantes: [{ etiqueta: "M", cantidad: 2 }, { etiqueta: "L", cantidad: 3 }] });
+  });
+
+  it("pide al menos dos y no más de doce", () => {
+    expect(validarVariantes([ok[0]])).toEqual({ ok: false, error: "pocas" });
+    const trece = Array.from({ length: 13 }, (_, i) => ({ etiqueta: `T${i}`, cantidad: 1 }));
+    expect(validarVariantes(trece)).toEqual({ ok: false, error: "muchas" });
+  });
+
+  it("rechaza etiquetas vacías o repetidas, sin importar mayúsculas", () => {
+    expect(validarVariantes([ok[0], { etiqueta: "  ", cantidad: 1 }])).toEqual({ ok: false, error: "etiqueta" });
+    expect(validarVariantes([{ etiqueta: "m", cantidad: 1 }, { etiqueta: "M", cantidad: 1 }])).toEqual({ ok: false, error: "repetida" });
+  });
+
+  it("rechaza cantidades que no son enteros de 1 en adelante", () => {
+    for (const cantidad of ["0", "-1", "1.5", "", "abc"]) {
+      expect(validarVariantes([ok[0], { etiqueta: "XL", cantidad }])).toEqual({ ok: false, error: "cantidad" });
+    }
+  });
+});
+
+const pub = (codigo: number, extra: Partial<ProductoPublico>): ProductoPublico => ({
+  codigo,
+  nombre: "Producto",
+  descripcion: null,
+  categoria: null,
+  marca: null,
+  condicion: "nuevo",
+  fotos: [],
+  precio: 2500,
+  disponibles: 1,
+  apartado: false,
+  grupo: null,
+  variante: null,
+  ...extra,
+});
+
+describe("agruparParaVitrina", () => {
+  it("los productos sin grupo van cada uno en su tarjeta", () => {
+    const t = agruparParaVitrina([pub(1, {}), pub(2, {})]);
+    expect(t.map((x) => x.codigo)).toEqual([1, 2]);
+    expect(t.every((x) => x.opciones === 1)).toBe(true);
+  });
+
+  it("las variantes de un grupo forman una sola tarjeta con el nombre sin la talla", () => {
+    const t = agruparParaVitrina([
+      pub(10, { grupo: "g", variante: "M", nombre: "Chaqueta · M", disponibles: 2 }),
+      pub(11, { grupo: "g", variante: "L", nombre: "Chaqueta · L", disponibles: 3 }),
+      pub(5, {}),
+    ]);
+    expect(t).toHaveLength(2);
+    expect(t[0]).toMatchObject({ nombre: "Chaqueta", disponibles: 5, opciones: 2, codigo: 10 });
+  });
+
+  it("la tarjeta lleva a la primera variante que se puede apartar", () => {
+    const t = agruparParaVitrina([
+      pub(10, { grupo: "g", variante: "M", disponibles: 0, apartado: true }),
+      pub(11, { grupo: "g", variante: "L", disponibles: 2 }),
+    ]);
+    expect(t[0]).toMatchObject({ codigo: 11, disponibles: 2, apartado: false });
+  });
+
+  it("si todas están apartadas, la tarjeta figura apartada", () => {
+    const t = agruparParaVitrina([
+      pub(10, { grupo: "g", variante: "M", disponibles: 0, apartado: true }),
+      pub(11, { grupo: "g", variante: "L", disponibles: 0, apartado: true }),
+    ]);
+    expect(t[0]).toMatchObject({ disponibles: 0, apartado: true });
+  });
+
+  it("junta el rango de precios", () => {
+    const t = agruparParaVitrina([
+      pub(10, { grupo: "g", variante: "M", precio: 2500 }),
+      pub(11, { grupo: "g", variante: "L", precio: 3000 }),
+    ]);
+    expect(t[0]).toMatchObject({ precioMinimo: 2500, precioMaximo: 3000 });
+  });
+});

@@ -752,6 +752,7 @@ export type Database = {
           creado_en: string
           descripcion: string | null
           fotos: string[]
+          grupo: string | null
           id: string
           importacion_id: string | null
           marca: string | null
@@ -759,6 +760,7 @@ export type Database = {
           nombre: string
           nota_condicion: string | null
           precio: number
+          variante: string | null
         }
         Insert: {
           categoria?: string | null
@@ -768,6 +770,7 @@ export type Database = {
           creado_en?: string
           descripcion?: string | null
           fotos?: string[]
+          grupo?: string | null
           id?: string
           importacion_id?: string | null
           marca?: string | null
@@ -775,6 +778,7 @@ export type Database = {
           nombre: string
           nota_condicion?: string | null
           precio: number
+          variante?: string | null
         }
         Update: {
           categoria?: string | null
@@ -784,6 +788,7 @@ export type Database = {
           creado_en?: string
           descripcion?: string | null
           fotos?: string[]
+          grupo?: string | null
           id?: string
           importacion_id?: string | null
           marca?: string | null
@@ -791,6 +796,7 @@ export type Database = {
           nombre?: string
           nota_condicion?: string | null
           precio?: number
+          variante?: string | null
         }
         Relationships: [
           {
@@ -1141,9 +1147,11 @@ export type Database = {
           descripcion: string
           disponibles: number
           fotos: string[]
+          grupo: string | null
           marca: string
           nombre: string
           precio: number
+          variante: string | null
         }[]
       }
     }
