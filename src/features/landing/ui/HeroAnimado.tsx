@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Gorila } from "@/components/ui/Gorila";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { textos } from "@/lib/textos";
-import { Globo, Miniatura } from "./comun";
+import { Globo, Miniatura, Monito } from "./comun";
 
 const m = textos.landing.hero.mock;
 
@@ -71,21 +70,21 @@ export function HeroAnimado() {
   const apartada = paso >= 3;
 
   return (
-    <div aria-hidden="true" className="relative mx-auto flex w-full max-w-lg flex-col gap-4 pt-16 md:pt-20">
+    <div aria-hidden="true" className="relative mx-auto flex w-full max-w-lg flex-col gap-4 pt-20 md:pt-28">
       {/* El monito asoma por detrás de la lista y se entera cuando se aparta algo */}
       <div className="absolute right-4 top-0 z-0 flex items-end gap-2 md:right-8">
         {apartada && <Globo key="globo" className="mb-8 animate-entra">{m.gorila}</Globo>}
-        <Gorila className="size-24 animate-asomar text-rosa md:size-28" />
+        <Monito nombre="asoma" className="w-36 animate-asomar text-rosa md:w-44" />
       </div>
 
       <div className="relative z-10 -rotate-2 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura md:p-5">
         <div className="mb-2 flex items-center justify-between">
           <p className="text-lg font-bold">{m.productos}</p>
-          {apartada && (
-            <span className="animate-entra rounded-full border-2 border-teal-oscuro bg-rosa px-3 py-1 text-sm font-bold text-teal-oscuro">
-              {m.stickerApartado}
-            </span>
-          )}
+          <span
+            className={`rounded-full border-2 border-teal-oscuro bg-rosa px-3 py-1 text-sm font-bold text-teal-oscuro ${apartada ? "animate-entra" : "invisible"}`}
+          >
+            {m.stickerApartado}
+          </span>
         </div>
         <ul className="flex flex-col">
           {m.filas.map((f, i) => (
@@ -109,17 +108,18 @@ export function HeroAnimado() {
       </div>
 
       <div className="relative z-10 flex min-h-40 rotate-2 flex-col justify-end gap-2 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura md:ml-12 md:p-5">
-        {paso >= 1 && (
-          <p className="max-w-[85%] animate-entra self-end rounded-2xl rounded-br-md bg-teal px-4 py-2 text-white">{m.tu}</p>
-        )}
-        {paso >= 2 && (
-          <p className="max-w-[90%] animate-entra rounded-2xl rounded-bl-md bg-fondo px-4 py-2">{m.lote}</p>
-        )}
-        {paso >= 3 && (
-          <span className="animate-entra self-start rounded-full border-2 border-teal-oscuro px-3 py-0.5 text-sm font-bold text-teal">
-            {m.deshacer}
-          </span>
-        )}
+        {/* Los mensajes ocupan su lugar desde el inicio (invisibles) para que la tarjeta no cambie de alto */}
+        <p className={`max-w-[85%] self-end rounded-2xl rounded-br-md bg-teal px-4 py-2 text-white ${paso >= 1 ? "animate-entra" : "invisible"}`}>
+          {m.tu}
+        </p>
+        <p className={`max-w-[90%] rounded-2xl rounded-bl-md bg-fondo px-4 py-2 ${paso >= 2 ? "animate-entra" : "invisible"}`}>
+          {m.lote}
+        </p>
+        <span
+          className={`self-start rounded-full border-2 border-teal-oscuro px-3 py-0.5 text-sm font-bold text-teal ${paso >= 3 ? "animate-entra" : "invisible"}`}
+        >
+          {m.deshacer}
+        </span>
         {/* La barra para escribir: así la tarjeta no se ve vacía antes de que llegue el primer mensaje */}
         <p className="mt-1 rounded-full border-2 border-borde px-4 py-2 text-sm text-texto-2">{m.escribile}</p>
       </div>

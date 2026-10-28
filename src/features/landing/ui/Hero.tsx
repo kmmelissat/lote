@@ -1,8 +1,17 @@
 import { textos } from "@/lib/textos";
-import { BotonLanding } from "./comun";
+import { BotonLanding, Monito } from "./comun";
 import { HeroAnimado } from "./HeroAnimado";
 
 const t = textos.landing.hero;
+
+// Cada nombre va como una etiqueta pegada, de un color y un poco torcida
+const ETIQUETAS = [
+  "-rotate-2 bg-limon",
+  "rotate-1 bg-rosa",
+  "-rotate-1 bg-crema",
+  "rotate-2 bg-mango",
+  "-rotate-1 bg-rosa-palido",
+];
 
 export function Hero({ conSesion }: { conSesion: boolean }) {
   return (
@@ -34,14 +43,22 @@ export function Hero({ conSesion }: { conSesion: boolean }) {
         </div>
       </div>
 
-      <div className="border-t-2 border-teal-oscuro/15">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-4 text-sm md:px-8">
-          <span className="text-teal-oscuro/70">{t.fuente}</span>
-          {t.emprendimientos.map((e) => (
-            <span key={e} className="rounded-full border-2 border-teal-oscuro bg-superficie px-3 py-0.5 font-bold text-teal-oscuro">
-              {e}
-            </span>
-          ))}
+      <div className="border-t-2 border-teal-oscuro bg-superficie">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:gap-8 md:px-8">
+          <p className="flex items-center gap-2 text-[15px] font-bold text-teal-oscuro md:max-w-[14rem]">
+            <Monito nombre="saluda" className="w-7 shrink-0 text-rosa" />
+            {t.fuente}
+          </p>
+          <ul className="flex flex-wrap gap-x-3 gap-y-3">
+            {t.emprendimientos.map((e, i) => (
+              <li
+                key={e}
+                className={`rounded-full border-2 border-teal-oscuro px-4 py-1 text-[15px] font-bold text-teal-oscuro shadow-dura-chica transition-transform duration-150 ease-out hover:-translate-y-0.5 ${ETIQUETAS[i % ETIQUETAS.length]}`}
+              >
+                {e}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

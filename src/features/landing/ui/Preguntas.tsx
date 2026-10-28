@@ -1,7 +1,6 @@
-import { Gorila } from "@/components/ui/Gorila";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
-import { contenedor, parrafo, tituloSeccion } from "./comun";
+import { contenedor, Monito, parrafo, tituloSeccion } from "./comun";
 
 const t = textos.landing.preguntas;
 
@@ -14,7 +13,7 @@ export function Preguntas() {
             {t.titulo}
           </h2>
           <p className={parrafo}>{t.intro}</p>
-          <Gorila className="hidden size-28 -rotate-6 text-mango md:block" />
+          <Monito nombre="saluda" className="hidden w-28 -rotate-6 text-mango md:block" />
         </div>
         <div className="flex flex-col gap-3">
           {t.items.map((i) => (

@@ -1,7 +1,7 @@
 import { Icon } from "@/components/ui/Icon";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { textos } from "@/lib/textos";
-import { contenedor, Miniatura, parrafo, tarjeta, tituloSeccion } from "./comun";
+import { contenedor, Miniatura, Monito, parrafo, tarjeta, tituloSeccion } from "./comun";
 
 const t = textos.landing.funciones;
 
@@ -81,6 +81,7 @@ export function Funciones() {
               {t.ganancia.margen}
             </span>
             <p className="text-[17px] leading-relaxed">{t.ganancia.texto}</p>
+            <Monito nombre="moneda" className="mt-auto w-24 self-end text-teal-oscuro" />
           </article>
 
           {/* Pedidos */}

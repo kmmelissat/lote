@@ -1,6 +1,5 @@
-import { Gorila } from "@/components/ui/Gorila";
 import { textos } from "@/lib/textos";
-import { contenedor, Nota } from "./comun";
+import { contenedor, Monito, Nota } from "./comun";
 
 const t = textos.landing.problema;
 
@@ -10,7 +9,7 @@ const NOTAS = ["-rotate-2 bg-limon text-teal-oscuro", "rotate-1 bg-rosa text-tea
 export function Problema() {
   return (
     <section className="relative overflow-hidden bg-teal-oscuro py-12 text-white md:py-24" aria-labelledby="problema">
-      <Gorila className="pointer-events-none absolute -right-16 top-8 size-72 -rotate-12 text-white/5 md:size-[26rem]" />
+      <Monito nombre="caja" className="pointer-events-none absolute -right-12 top-8 w-60 -rotate-12 text-white/5 md:w-96" />
       <div className={`${contenedor} revelar relative flex flex-col gap-12`}>
         <div className="flex max-w-2xl flex-col gap-3">
           <h2 id="problema" className="text-[34px] font-bold leading-[1.08] tracking-tight md:text-[48px]">

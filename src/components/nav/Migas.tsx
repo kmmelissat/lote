@@ -17,7 +17,8 @@ function etiquetaDe(tramo: string) {
 
 function Ruta() {
   const pathname = usePathname();
-  const tramos = pathname.split("/").filter(Boolean);
+  // En Inicio el ícono de la casa ya es la ruta: no se repite "Inicio / Inicio".
+  const tramos = pathname === "/inicio" ? [] : pathname.split("/").filter(Boolean);
   return (
     <ol className="flex min-w-0 items-center gap-2 text-sm">
       <li className="flex">

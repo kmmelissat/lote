@@ -1,6 +1,5 @@
-import { Gorila } from "@/components/ui/Gorila";
 import { textos } from "@/lib/textos";
-import { BotonLanding, contenedor } from "./comun";
+import { BotonLanding, contenedor, Monito } from "./comun";
 
 const t = textos.landing;
 
@@ -19,7 +18,7 @@ export function Cierre({ conSesion }: { conSesion: boolean }) {
             </BotonLanding>
           </div>
           {/* El monito se asoma desde abajo del bloque */}
-          <Gorila className="absolute -bottom-2 right-3 z-0 size-28 animate-asomar text-rosa md:right-14 md:size-64" />
+          <Monito nombre="thumbsup" className="absolute -bottom-2 right-3 z-0 w-24 animate-asomar text-rosa md:right-14 md:w-56" />
         </div>
       </div>
     </section>
