@@ -1034,8 +1034,37 @@ export type Database = {
           negocio_id: string
           parametros: Json
           plantilla_aprobada: boolean
+          programado_para: string
           telefono: string
           tipo: string
+        }[]
+      }
+      generar_avisos_del_tiempo: {
+        Args: { p_horas_frio?: number }
+        Returns: number
+      }
+      encolar_aviso_servicio: {
+        Args: {
+          p_clave: string
+          p_negocio: string
+          p_parametros: Json
+          p_programado_para?: string
+          p_telefono: string
+          p_tipo: string
+        }
+        Returns: string
+      }
+      ventas_del_periodo_servicio: {
+        Args: { p_desde: string; p_hasta: string; p_negocio: string }
+        Returns: {
+          cantidad: number
+          costo_unitario: number | null
+          descuento: number
+          envio_absorbido: number
+          nombre: string
+          pedido_id: string
+          precio_final: number
+          producto_id: string
         }[]
       }
       eliminar_gasto: { Args: { p_gasto: string }; Returns: undefined }

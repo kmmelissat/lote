@@ -18,6 +18,7 @@ export function crearColaSupabase(supabase: SupabaseClient<Database>): Cola {
           telefono: f.telefono,
           // Si la base trajera algo que no es una lista de textos, queda vacío y el envío lo marca como inválido.
           parametros: Array.isArray(f.parametros) && f.parametros.every(esTexto) ? (f.parametros as string[]) : [],
+          programadoPara: new Date(f.programado_para),
           plantillaAprobada: f.plantilla_aprobada,
         }),
       );

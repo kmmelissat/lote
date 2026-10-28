@@ -9,6 +9,7 @@ const aviso = (extra: Partial<AvisoPendiente> = {}): AvisoPendiente => ({
   tipo: "apartado_nuevo",
   telefono: "50377562959",
   parametros: ["@ana", "Chaqueta", "23 h"],
+  programadoPara: new Date("2026-10-27T11:55:00Z"),
   plantillaAprobada: true,
   ...extra,
 });
@@ -49,6 +50,16 @@ describe("enviarAvisosPendientes", () => {
     expect(r.omitidos).toBe(1);
     expect(canal.enviados).toEqual([]);
     expect(cierres[0]).toMatchObject({ estado: "omitido", motivo: "plantilla_no_aprobada" });
+  });
+
+  it("un aviso que esperó más de un día se descarta sin mandarlo", async () => {
+    const canal = crearCanalDeConsola();
+    const { cola, cierres } = colaCon([aviso({ programadoPara: new Date("2026-10-26T10:00:00Z") })]);
+    const r = await enviarAvisosPendientes({ cola, canal, ahora });
+
+    expect(r.omitidos).toBe(1);
+    expect(canal.enviados).toEqual([]);
+    expect(cierres[0]).toMatchObject({ estado: "omitido", motivo: "caducado" });
   });
 
   it("datos de menos o de más: falla sin mandar nada", async () => {

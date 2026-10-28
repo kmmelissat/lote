@@ -1,7 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
-import { crearColaSupabase } from "@/features/whatsapp/cola";
-import { enviarAvisosPendientes } from "@/features/whatsapp/enviarCola";
 import { canalWhatsApp } from "@/features/whatsapp";
+import { correrTareaDeAvisos } from "@/features/whatsapp/tarea";
 import { createServiceClient } from "@/lib/supabase/servicio";
 
 // Lo llama Vercel Cron (ver vercel.json) con "Authorization: Bearer <CRON_SECRET>". Sin sesión de nadie:
@@ -18,8 +17,8 @@ export async function GET(request: Request) {
   if (!autorizado(request)) return new Response("No autorizado", { status: 401 });
 
   try {
-    const resumen = await enviarAvisosPendientes({
-      cola: crearColaSupabase(createServiceClient()),
+    const resumen = await correrTareaDeAvisos({
+      supabase: createServiceClient(),
       canal: canalWhatsApp(),
       ahora: new Date(),
     });

@@ -27,6 +27,8 @@ export async function encolarAviso(
   supabase: SupabaseClient<Database>,
   negocioId: string,
   a: NuevoAviso,
+  /** La tarea programada encola sin sesión de una persona: usa la versión de servicio. */
+  rpc: "encolar_aviso" | "encolar_aviso_servicio" = "encolar_aviso",
 ): Promise<ResultadoEncolar> {
   const telefono = a.contacto ? normalizarTelefono(a.contacto) : null;
   if (motivoSinAviso({ tipo: a.tipo, tieneTelefono: telefono !== null, aceptaWhatsapp: a.aceptaWhatsapp ?? false })) {
@@ -34,7 +36,7 @@ export async function encolarAviso(
   }
   if (a.parametros.length !== PLANTILLAS[a.tipo].parametros) return "omitido";
 
-  const { data, error } = await supabase.rpc("encolar_aviso", {
+  const { data, error } = await supabase.rpc(rpc, {
     p_negocio: negocioId,
     p_tipo: a.tipo,
     p_telefono: telefono!,

@@ -35,8 +35,10 @@ export async function ventasDelPeriodo(
   supabase: Cliente,
   negocioId: string,
   periodo: Periodo,
+  /** La tarea programada no tiene una persona con sesión: usa la versión que no comprueba su rol. */
+  rpc: "ventas_del_periodo" | "ventas_del_periodo_servicio" = "ventas_del_periodo",
 ): Promise<LineaVendida[]> {
-  const { data, error } = await supabase.rpc("ventas_del_periodo", {
+  const { data, error } = await supabase.rpc(rpc, {
     p_negocio: negocioId,
     p_desde: periodo.desde.toISOString(),
     p_hasta: periodo.hasta.toISOString(),

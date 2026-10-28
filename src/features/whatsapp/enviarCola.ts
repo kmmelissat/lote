@@ -1,4 +1,4 @@
-import { decidirEnvio, ventanaAbierta, type TipoAviso } from "@/domain";
+import { avisoCaducado, decidirEnvio, ventanaAbierta, type TipoAviso } from "@/domain";
 import type { CanalMensajeria, ResultadoEnvio } from "./canal";
 import { IDIOMA_PLANTILLAS, PLANTILLAS, textoDelAviso } from "./plantillas";
 
@@ -7,6 +7,7 @@ export type AvisoPendiente = {
   tipo: TipoAviso;
   telefono: string;
   parametros: string[];
+  programadoPara: Date;
   plantillaAprobada: boolean;
 };
 
@@ -56,6 +57,11 @@ async function enviarUno(a: AvisoPendiente, deps: { cola: Cola; canal: CanalMens
   if (!plantilla || a.parametros.length !== plantilla.parametros) {
     r.fallidos++;
     return deps.cola.cerrar(a.id, { estado: "fallido", motivo: "parametros_invalidos" });
+  }
+
+  if (avisoCaducado(a.programadoPara, deps.ahora)) {
+    r.omitidos++;
+    return deps.cola.cerrar(a.id, { estado: "omitido", motivo: "caducado" });
   }
 
   const ultimo = (await deps.cola.ultimoMensajeDe?.(a.telefono)) ?? null;

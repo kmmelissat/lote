@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claveDeAviso, decidirEnvio, normalizarTelefono, ventanaAbierta } from "./avisos";
+import { avisoCaducado, claveDeAviso, decidirEnvio, normalizarTelefono, ventanaAbierta } from "./avisos";
 
 const ahora = new Date("2026-10-27T12:00:00Z");
 const hace = (h: number) => new Date(ahora.getTime() - h * 3_600_000);
@@ -42,6 +42,15 @@ describe("decidirEnvio", () => {
   });
   it("sin teléfono no se manda", () => {
     expect(decidirEnvio({ ...base, tieneTelefono: false })).toEqual({ accion: "omitir", motivo: "sin_telefono" });
+  });
+});
+
+describe("avisoCaducado", () => {
+  it("un aviso de hace 23 horas todavía sirve", () => {
+    expect(avisoCaducado(hace(23), ahora)).toBe(false);
+  });
+  it("uno de hace más de 24 horas se descarta", () => {
+    expect(avisoCaducado(hace(25), ahora)).toBe(true);
   });
 });
 
