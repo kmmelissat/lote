@@ -154,6 +154,23 @@ export async function obtenerProducto(
   return data ? aProducto(data as unknown as Fila, puedeVerCostos, new Date()) : null;
 }
 
+/** Todas las variantes de un grupo, de menor a mayor código. */
+export async function listarGrupo(
+  supabase: Cliente,
+  negocioId: string,
+  grupo: string,
+  puedeVerCostos: boolean,
+): Promise<Producto[]> {
+  const { data, error } = await supabase
+    .from("producto")
+    .select(columnas(puedeVerCostos))
+    .eq("negocio_id", negocioId)
+    .eq("grupo", grupo)
+    .order("codigo");
+  if (error) throw error;
+  return (data as unknown as Fila[]).map((f) => aProducto(f, puedeVerCostos, new Date()));
+}
+
 export async function reponerProducto(
   supabase: Cliente,
   productoId: string,

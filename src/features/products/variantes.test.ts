@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ProductoPublico } from "@/features/catalog/repositorio";
-import { agruparParaVitrina, nombreBase, nombreConVariante, validarVariantes } from "./variantes";
+import { agruparParaVitrina, agruparProductos, nombreBase, nombreConVariante, validarVariantes } from "./variantes";
 
 describe("nombres", () => {
   it("la variante se pega al nombre y se puede quitar", () => {
@@ -94,5 +94,29 @@ describe("agruparParaVitrina", () => {
       pub(11, { grupo: "g", variante: "L", precio: 3000 }),
     ]);
     expect(t[0]).toMatchObject({ precioMinimo: 2500, precioMaximo: 3000 });
+  });
+});
+
+describe("agruparProductos", () => {
+  const base = {
+    descripcion: null, categoria: null, marca: null, condicion: "nuevo", fotos: [], precio: 1000,
+    cantidad: 1, apartadas: 0, vendidas: 0, disponibles: 1, estado: "disponible" as const,
+    desglose: undefined, costoUnitario: undefined,
+  };
+  const prod = (codigo: number, nombre: string, grupo: string | null, variante: string | null) => ({
+    ...base, id: `id-${codigo}`, codigo, nombre, grupo, variante,
+  });
+
+  it("junta las variantes de un grupo y deja sueltos los demás, en el orden de llegada", () => {
+    const grupos = agruparProductos([
+      prod(3, "Gorra", null, null),
+      prod(2, "CD · Gold", "g1", "Gold"),
+      prod(1, "CD · Rose", "g1", "Rose"),
+    ]);
+    expect(grupos.map((g) => g.nombre)).toEqual(["Gorra", "CD"]);
+    expect(grupos[1].miembros.map((m) => m.codigo)).toEqual([1, 2]);
+    expect(grupos[1].principal.codigo).toBe(1);
+    expect(grupos[1].conVariantes).toBe(true);
+    expect(grupos[0].conVariantes).toBe(false);
   });
 });

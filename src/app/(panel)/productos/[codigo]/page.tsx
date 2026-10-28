@@ -8,8 +8,9 @@ import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { DesgloseCosto } from "@/domain";
 import { estadoVisible } from "@/features/products/estadoVisible";
-import { listarHermanas, obtenerProducto } from "@/features/products/repositorio";
+import { listarGrupo, obtenerProducto } from "@/features/products/repositorio";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
+import { nombreBase } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
@@ -36,7 +37,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
   const { supabase, negocio } = await negocioActual();
   const p = await obtenerProducto(supabase, negocio.id, codigo, negocio.puedeGestionar);
   if (!p) notFound();
-  const hermanas = p.grupo ? await listarHermanas(supabase, negocio.id, p.grupo, p.codigo) : [];
+  const variantes = p.grupo ? await listarGrupo(supabase, negocio.id, p.grupo, negocio.puedeGestionar) : [];
 
   const ganancia =
     p.costoUnitario === undefined || p.costoUnitario === null ? null : p.precio - p.costoUnitario;
@@ -58,7 +59,10 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
 
   return (
     <>
-      <PageHeader titulo={p.nombre} descripcion={p.descripcion ?? `#${p.codigo}`} />
+      <PageHeader
+        titulo={nombreBase(p.nombre, p.variante)}
+        descripcion={p.variante ? `${t.variantes.variante}: ${p.variante} · #${p.codigo}` : (p.descripcion ?? `#${p.codigo}`)}
+      />
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Link href="/productos" className="inline-flex min-h-11 items-center text-teal underline">
           {t.volver}
@@ -126,21 +130,40 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
           </Card>
         )}
 
-        {hermanas.length > 0 && (
-          <Card className="flex flex-col gap-3 border border-borde md:col-span-2">
-            <h2 className="font-bold">{t.variantes.titulo}</h2>
-            <p className="text-sm text-texto-2">{t.variantes.ayuda}</p>
-            <ul className="flex flex-wrap gap-2">
-              {hermanas.map((h) => (
-                <li key={h.codigo}>
-                  <Link
-                    href={`/productos/${h.codigo}`}
-                    className="inline-flex min-h-11 items-center rounded-full bg-superficie px-4 text-sm font-medium text-teal ring-1 ring-borde-control hover:bg-teal-fondo"
-                  >
-                    {h.variante} · #{h.codigo}
-                  </Link>
-                </li>
-              ))}
+        {variantes.length > 1 && (
+          <Card className="flex flex-col gap-3 md:col-span-2">
+            <div>
+              <h2 className="font-bold">{t.variantes.titulo}</h2>
+              <p className="text-sm text-texto-2">{t.variantes.ayuda}</p>
+            </div>
+            <ul className="overflow-hidden rounded-xl border border-borde">
+              {variantes.map((v) => {
+                const actual = v.codigo === p.codigo;
+                const g = v.costoUnitario === undefined || v.costoUnitario === null ? null : v.precio - v.costoUnitario;
+                return (
+                  <li key={v.id} className="border-t border-borde first:border-t-0">
+                    <Link
+                      href={`/productos/${v.codigo}`}
+                      aria-current={actual ? "true" : undefined}
+                      className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-teal-fondo md:grid-cols-[minmax(0,1fr)_9rem_6rem_7rem] ${actual ? "bg-teal-fondo" : ""}`}
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium">{v.variante}</span>
+                        <span className="text-sm text-texto-2">#{v.codigo}</span>
+                      </span>
+                      <span className="text-right font-bold md:order-3">{formatearDolares(v.precio)}</span>
+                      <span className="md:order-2">
+                        <StatusChip estado={estadoVisible(v, negocio.umbralPocoStock)} texto={v.disponibles > 0 ? t.quedan(v.disponibles) : undefined} />
+                      </span>
+                      {v.costoUnitario !== undefined && (
+                        <span className={`text-right text-sm md:order-4 ${g !== null && g < 0 ? "text-error" : "text-teal"}`}>
+                          {g === null ? <span className="text-ambar-texto">{t.sinCosto}</span> : `${g < 0 ? "−" : "+"}${formatearDolares(Math.abs(g))}`}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </Card>
         )}

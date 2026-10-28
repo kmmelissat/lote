@@ -1,4 +1,5 @@
 import type { ProductoPublico } from "@/features/catalog/repositorio";
+import type { Producto } from "./repositorio";
 
 // Cada variante es un producto hermano (ver supabase/variantes.sql). Estas funciones son las reglas
 // de cómo se nombran, se validan y se juntan en la vitrina.
@@ -90,4 +91,40 @@ export function agruparParaVitrina(productos: ProductoPublico[]): TarjetaVitrina
     existente.opciones += 1;
   }
   return tarjetas;
+}
+
+export type GrupoProducto = {
+  /** El grupo, o el id del producto si no tiene variantes */
+  clave: string;
+  /** La variante de menor código: a ella lleva la fila y de ella salen la foto y el nombre */
+  principal: Producto;
+  /** Todas, de menor a mayor código. Una sola si el producto no tiene variantes. */
+  miembros: Producto[];
+  /** El nombre sin la variante */
+  nombre: string;
+  conVariantes: boolean;
+};
+
+/** Junta las variantes de un mismo grupo en un solo producto para la lista. Respeta el orden en que llegan. */
+export function agruparProductos(productos: Producto[]): GrupoProducto[] {
+  const grupos: GrupoProducto[] = [];
+  const porClave = new Map<string, GrupoProducto>();
+  for (const p of productos) {
+    const clave = p.grupo ?? p.id;
+    const existente = porClave.get(clave);
+    if (existente) {
+      existente.miembros.push(p);
+      continue;
+    }
+    const g: GrupoProducto = { clave, principal: p, miembros: [p], nombre: p.nombre, conVariantes: false };
+    grupos.push(g);
+    porClave.set(clave, g);
+  }
+  for (const g of grupos) {
+    g.miembros.sort((a, b) => a.codigo - b.codigo);
+    g.principal = g.miembros[0];
+    g.conVariantes = g.principal.grupo !== null && g.miembros.length > 0 && g.principal.variante !== null;
+    g.nombre = nombreBase(g.principal.nombre, g.principal.variante);
+  }
+  return grupos;
 }

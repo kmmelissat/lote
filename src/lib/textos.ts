@@ -163,8 +163,7 @@ export const textos = {
     agregar: "Nuevo producto",
     buscar: {
       etiqueta: "Buscar producto",
-      placeholder: "Nombre, código, categoría o marca",
-      boton: "Buscar",
+      placeholder: "Buscar producto, código o marca",
       estados: "Filtrar por estado",
       todos: "Todos",
       poco: "Poco stock",
@@ -175,6 +174,17 @@ export const textos = {
     quedan: (n: number) => (n === 1 ? "Queda 1" : `Quedan ${n}`),
     ganaPor: "Ganancia estimada",
     sinCosto: "Sin costo",
+    lista: {
+      producto: "Producto",
+      stock: "Stock",
+      precio: "Precio",
+      ganancia: "Ganancia",
+      agotado: "Agotado",
+      apartadas: (n: number) => (n === 1 ? "1 apartada" : `${n} apartadas`),
+      agregarCosto: "Agregar costo",
+      variantes: (n: number) => `${n} variantes`,
+      margen: (pct: number) => `(${pct}%)`,
+    },
     volver: "Volver a productos",
     noExiste: "No encontramos ese producto.",
     importar: {
@@ -291,8 +301,8 @@ export const textos = {
       error: "No pudimos armar el sticker. Probá de nuevo.",
     },
     variantes: {
-      titulo: "Otras variantes",
-      ayuda: "Cada variante es un producto con su propio código, stock y ganancia.",
+      titulo: "Variantes",
+      ayuda: "Cada una tiene su propio stock, precio, costo y ganancia. Tocá una para verla.",
       variante: "Variante",
     },
     compartir: {

@@ -22,6 +22,7 @@
   --color-gris-fondo: #e6eeef;
   --color-azul-fondo: #dce8ea;
   --color-error: #b3261e;
+  --color-error-fondo: #fde8e6;
 
   --font-sans: var(--font-jakarta), system-ui, sans-serif;
 
