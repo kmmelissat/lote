@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { obtenerProducto } from "@/features/products/repositorio";
 import { EditarProductoForm } from "@/features/products/ui/EditarProductoForm";
@@ -15,9 +14,7 @@ export default function EditarProductoPage({ params }: PageProps<"/productos/[co
   return (
     <>
       <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Suspense fallback={<p className="text-texto-2">…</p>}>
-        <Formulario params={params} />
-      </Suspense>
+      <Formulario params={params} />
     </>
   );
 }

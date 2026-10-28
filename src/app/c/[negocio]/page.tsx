@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { Suspense } from "react";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
@@ -20,9 +19,7 @@ export const metadata: Metadata = { title: t.titulo };
 
 export default function VitrinaPage({ params }: PageProps<"/c/[negocio]">) {
   return (
-    <Suspense fallback={<p className="text-texto-2">…</p>}>
-      <Vitrina params={params} />
-    </Suspense>
+    <Vitrina params={params} />
   );
 }
 

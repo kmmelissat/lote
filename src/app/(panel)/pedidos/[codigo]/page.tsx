@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
@@ -24,9 +23,7 @@ export const metadata: Metadata = { title: t.titulo };
 
 export default function PedidoPage({ params }: PageProps<"/pedidos/[codigo]">) {
   return (
-    <Suspense fallback={<p className="text-texto-2">…</p>}>
-      <Detalle params={params} />
-    </Suspense>
+    <Detalle params={params} />
   );
 }
 

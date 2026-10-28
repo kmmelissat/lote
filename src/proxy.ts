@@ -30,9 +30,10 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() verifica el token en el servidor sin ir a Supabase en cada petición
+  // (getUser() hace una consulta de red cada vez); también refresca la sesión si venció.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
   const ruta = request.nextUrl.pathname;
 
   const redirigir = (destino: string) => {

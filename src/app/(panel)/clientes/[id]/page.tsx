@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
@@ -18,9 +17,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default function ClientePage({ params }: PageProps<"/clientes/[id]">) {
   return (
-    <Suspense fallback={<p className="text-texto-2">…</p>}>
-      <Ficha params={params} />
-    </Suspense>
+    <Ficha params={params} />
   );
 }
 

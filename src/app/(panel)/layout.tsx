@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Nav } from "@/components/nav/Nav";
 import { RequiereNegocio } from "@/components/nav/RequiereNegocio";
 
@@ -10,9 +9,8 @@ export default function PanelLayout({ children }: LayoutProps<"/">) {
         <Nav />
         <main className="w-full px-4 pb-28 pt-4 md:flex-1 md:overflow-y-auto md:px-8 md:pb-10 md:pt-8">
           <div className="mx-auto max-w-[1100px]">
-            <Suspense>
-              <RequiereNegocio>{children}</RequiereNegocio>
-            </Suspense>
+            <RequiereNegocio />
+            {children}
           </div>
         </main>
       </div>

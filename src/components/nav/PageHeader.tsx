@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { negocioActual } from "@/lib/negocio";
@@ -35,18 +34,9 @@ function PerfilVista({ nombre, detalle }: { nombre: string; detalle: string }) {
   );
 }
 
-// El nombre sale de la sesión, así que va en un Suspense; mientras llega se ve el texto genérico.
-async function PerfilConNombre() {
+async function Perfil() {
   const { negocio } = await negocioActual();
   return <PerfilVista nombre={negocio.nombre || textos.perfil.nombre} detalle={textos.perfil.roles[negocio.rol] ?? textos.perfil.detalle} />;
-}
-
-function Perfil() {
-  return (
-    <Suspense fallback={<PerfilVista nombre={textos.perfil.nombre} detalle={textos.perfil.detalle} />}>
-      <PerfilConNombre />
-    </Suspense>
-  );
 }
 
 export function PageHeader({

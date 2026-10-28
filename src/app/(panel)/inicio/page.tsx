@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -22,9 +21,7 @@ export default function InicioPage() {
   return (
     <>
       <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Suspense fallback={<p className="text-texto-2">…</p>}>
-        <Contenido />
-      </Suspense>
+      <Contenido />
     </>
   );
 }

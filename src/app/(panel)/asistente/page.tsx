@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -11,9 +10,7 @@ export default function AsistentePage() {
   return (
     <>
       <PageHeader titulo={textos.asistente.titulo} descripcion={textos.asistente.descripcion} />
-      <Suspense>
-        <ChatDelNegocio />
-      </Suspense>
+      <ChatDelNegocio />
     </>
   );
 }

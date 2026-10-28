@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Pestanas } from "@/components/nav/Pestanas";
 import { Card } from "@/components/ui/Card";
@@ -28,9 +27,7 @@ export default function Page({ searchParams }: PageProps<"/ganancia">) {
   return (
     <>
       <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Suspense fallback={<p className="text-texto-2">…</p>}>
-        <Contenido searchParams={searchParams} />
-      </Suspense>
+      <Contenido searchParams={searchParams} />
     </>
   );
 }

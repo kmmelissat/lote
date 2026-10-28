@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { obtenerAjustesVitrina } from "@/features/catalog/repositorio";
 import { negocioActual } from "@/lib/negocio";
@@ -14,9 +13,7 @@ export default function VitrinaAjustesPage() {
   return (
     <>
       <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Suspense>
-        <Formulario />
-      </Suspense>
+      <Formulario />
     </>
   );
 }

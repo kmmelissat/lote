@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -14,9 +13,7 @@ export default function NuevoProductoPage() {
         titulo={textos.productos.form.titulo}
         descripcion={textos.productos.form.descripcion}
       />
-      <Suspense>
-        <Formulario />
-      </Suspense>
+      <Formulario />
     </>
   );
 }

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { Suspense } from "react";
 import { Card } from "@/components/ui/Card";
 import { obtenerApartadoPublico } from "@/features/catalog/repositorio";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
@@ -16,9 +15,7 @@ export const metadata: Metadata = { title: t.titulo };
 
 export default function ApartadoPage({ params }: PageProps<"/c/[negocio]/apartado/[id]">) {
   return (
-    <Suspense fallback={<p className="text-texto-2">…</p>}>
-      <Confirmacion params={params} />
-    </Suspense>
+    <Confirmacion params={params} />
   );
 }
 

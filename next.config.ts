@@ -2,8 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
   images: {
     // Solo las fotos públicas de productos de nuestro Supabase.
     remotePatterns: [

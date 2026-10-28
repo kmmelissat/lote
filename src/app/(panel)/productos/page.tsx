@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Pestanas } from "@/components/nav/Pestanas";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -21,9 +20,7 @@ export default function Page({ searchParams }: PageProps<"/productos">) {
   return (
     <>
       <PageHeader titulo={textos.productos.titulo} descripcion={textos.productos.descripcion} />
-      <Suspense fallback={<p className="text-texto-2">…</p>}>
-        <ListaProductos searchParams={searchParams} />
-      </Suspense>
+      <ListaProductos searchParams={searchParams} />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -19,9 +19,7 @@ export default function Page() {
   return (
     <>
       <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Suspense fallback={<p className="text-texto-2">…</p>}>
-        <Contenido />
-      </Suspense>
+      <Contenido />
     </>
   );
 }

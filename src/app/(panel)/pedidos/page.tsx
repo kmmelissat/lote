@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Pestanas } from "@/components/nav/Pestanas";
 import { ButtonLink } from "@/components/ui/Button";
@@ -25,9 +24,7 @@ export default function Page({ searchParams }: PageProps<"/pedidos">) {
   return (
     <>
       <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Suspense fallback={<p className="text-texto-2">…</p>}>
-        <Lista searchParams={searchParams} />
-      </Suspense>
+      <Lista searchParams={searchParams} />
     </>
   );
 }
