@@ -186,6 +186,33 @@ export async function reponerProducto(
   return error.code === "42501" ? "sin_permiso" : "desconocido";
 }
 
+/** Pone la cantidad total en un número exacto (corregir un error de conteo). Necesita `editar_existencia.sql`. */
+export async function ajustarExistencia(
+  supabase: Cliente,
+  productoId: string,
+  cantidad: number,
+): Promise<"ok" | "sin_permiso" | "desconocido"> {
+  const { error } = await supabase.rpc("ajustar_existencia", { p_producto: productoId, p_cantidad: cantidad });
+  if (!error) return "ok";
+  return error.code === "42501" ? "sin_permiso" : "desconocido";
+}
+
+/** Cambia el desglose de costos por unidad: borra el que había y guarda el nuevo. Sin rubros, queda sin costo. Solo gestiona (RLS). */
+export async function reemplazarCostos(
+  supabase: Cliente,
+  negocioId: string,
+  productoId: string,
+  costos: NuevoProducto["costos"],
+): Promise<boolean> {
+  const { error } = await supabase.from("costo_producto").delete().eq("producto_id", productoId);
+  if (error) return false;
+  if (!costos.length) return true;
+  const { error: errorNuevo } = await supabase
+    .from("costo_producto")
+    .insert(costos.map((c) => ({ producto_id: productoId, negocio_id: negocioId, tipo: c.tipo, monto: c.monto / 100, por_unidad: true })));
+  return !errorNuevo;
+}
+
 export type NuevoProducto = {
   nombre: string;
   precio: Centavos;

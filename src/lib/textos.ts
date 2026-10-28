@@ -655,7 +655,7 @@ export const textos = {
     },
     editar: {
       titulo: "Editar producto",
-      descripcion: "Cambiá la ficha. Para sumar unidades o cambiar el costo usá Reponer.",
+      descripcion: "Es el mismo formulario de crear: cambiá la ficha, las fotos, la cantidad y los costos.",
       boton: "Editar",
       guardar: "Guardar cambios",
       guardando: "Guardando…",
@@ -666,6 +666,10 @@ export const textos = {
       variante: "Nombre de esta variante",
       precioVariante: "Precio de esta variante",
       avisoVariantes: "La descripción, la categoría, la marca y la condición también se cambian en todas las variantes. El precio es solo de esta.",
+      errorCantidad: "La cantidad tiene que ser un número entero, de 0 en adelante.",
+      errorCantidadMinima: (n: number) =>
+        `Hay ${n} ${n === 1 ? "unidad apartada o vendida" : "unidades apartadas o vendidas"}: la cantidad no puede ser menor.`,
+      guardado: (nombre: string) => `${nombre} se actualizó.`,
       errorPermiso: "Tu rol no puede editar productos.",
       errorGeneral: "No pudimos guardar los cambios. Probá de nuevo.",
     },

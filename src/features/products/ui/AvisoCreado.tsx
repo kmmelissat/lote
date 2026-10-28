@@ -9,10 +9,13 @@ export function AvisoCreado() {
   const { avisar } = useToast();
   useEffect(() => {
     const url = new URL(window.location.href);
-    const nombre = url.searchParams.get("creado");
-    if (!nombre) return;
-    avisar(textos.productos.form.creado(nombre), { tipo: "exito" });
+    const creado = url.searchParams.get("creado");
+    const guardado = url.searchParams.get("guardado");
+    const mensaje = creado ? textos.productos.form.creado(creado) : guardado ? textos.productos.editar.guardado(guardado) : null;
+    if (!mensaje) return;
+    avisar(mensaje, { tipo: "exito" });
     url.searchParams.delete("creado");
+    url.searchParams.delete("guardado");
     window.history.replaceState(null, "", url.pathname + url.search);
   }, [avisar]);
   return null;

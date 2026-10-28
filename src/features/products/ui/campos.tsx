@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ComponentProps, type ReactNode } from "react";
+import { useId, type ComponentProps, type KeyboardEvent, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 
@@ -237,5 +237,31 @@ export function Seccion({
         </div>
       </div>
     </section>
+  );
+}
+
+/** Enter pasa al campo siguiente en vez de guardar a medias; ⌘ o Ctrl + Enter guarda. Va en el onKeyDown del formulario. */
+export function atajosDeFormulario(ev: KeyboardEvent<HTMLFormElement>) {
+  if (ev.key !== "Enter") return;
+  const formulario = ev.currentTarget;
+  const destino = ev.target as HTMLElement;
+  if (ev.metaKey || ev.ctrlKey) {
+    ev.preventDefault();
+    formulario.requestSubmit();
+  } else if (destino.tagName === "INPUT" && (destino as HTMLInputElement).type !== "checkbox") {
+    ev.preventDefault();
+    const campos = [
+      ...formulario.querySelectorAll<HTMLElement>("input:not([type=hidden]):not([type=file]), textarea, select"),
+    ].filter((c) => c.offsetParent !== null && !c.closest("[inert]"));
+    campos[campos.indexOf(destino) + 1]?.focus();
+  }
+}
+
+/** La barra de guardar: queda pegada abajo de la pantalla mientras se desplaza el formulario. En el celular flota sobre el menú. */
+export function BarraGuardar({ children }: { children: ReactNode }) {
+  return (
+    <div className="sticky bottom-24 z-20 mt-auto flex flex-wrap items-center gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema p-3 shadow-dura md:bottom-3">
+      {children}
+    </div>
   );
 }

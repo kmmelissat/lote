@@ -1164,6 +1164,10 @@ export type Database = {
           producto_id: string
         }[]
       }
+      ajustar_existencia: {
+        Args: { p_cantidad: number; p_producto: string }
+        Returns: undefined
+      }
       reponer_producto: {
         Args: { p_llegan: number; p_nuevo_costo?: number; p_producto: string }
         Returns: undefined

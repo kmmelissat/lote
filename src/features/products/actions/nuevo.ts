@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain/index";
 import { proveedorIA } from "@/features/ai/index";
-import { MAXIMO_FOTOS } from "../limites";
+import { fotosValidas, TIPOS_COSTO } from "../leerFormulario";
 import { crearProducto, type NuevoProducto } from "../repositorio";
 import { nombreConVariante, validarVariantes } from "../variantes";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
@@ -15,27 +15,14 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 
 export type EstadoNuevo = {
-  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
+  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
   valores?: Record<string, string>;
 };
-
-const TIPOS_COSTO = ["compra", "envio", "importacion", "otro"] as const;
 
 function listaDeFilas(json: string | undefined): { etiqueta: unknown; cantidad: unknown }[] {
   try {
     const lista: unknown = JSON.parse(json || "[]");
     return Array.isArray(lista) ? lista.filter((f): f is { etiqueta: unknown; cantidad: unknown } => typeof f === "object" && f !== null) : [];
-  } catch {
-    return [];
-  }
-}
-
-function fotosValidas(json: string | undefined, negocioId: string): string[] {
-  try {
-    const lista: unknown = JSON.parse(json || "[]");
-    return Array.isArray(lista)
-      ? lista.filter((r): r is string => esRutaFoto(r, negocioId)).slice(0, MAXIMO_FOTOS)
-      : [];
   } catch {
     return [];
   }
