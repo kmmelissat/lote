@@ -10,6 +10,7 @@ import {
   rangoPeriodo,
   resumenDelPeriodo,
 } from "@/domain";
+import { repartirPorSemana, type SemanaResumen } from "./porSemana";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -116,15 +117,16 @@ export async function resumenDePeriodo(
   return resumenDelPeriodo(ventas, gastos.map(aGastoPeriodo));
 }
 
-export type SemanaResumen = {
-  /** Lunes de esa semana (YYYY-MM-DD) */
-  desde: string;
-  vendido: Centavos;
-  gananciaDespuesDeGastos: Centavos;
-  estimada: boolean;
-};
+export type { SemanaResumen };
 
-/** Las últimas `semanas` semanas, la más vieja primero y la actual al final. Reusa `resumenDePeriodo`, así las cifras son las de Ganancia. */
+// Los mismos estados que cuenta `ventas_del_periodo` (gastos.sql): de pagado en adelante.
+const ESTADOS_DE_VENTA = ["pagado", "preparando", "enviado", "entregado"];
+
+/**
+ * Las últimas `semanas` semanas, la más vieja primero y la actual al final.
+ * Pide todo el rango de una vez (ventas, fechas de los pedidos y gastos: 3 consultas, no 2 por semana)
+ * y lo reparte por semana en código con `resumenDelPeriodo`, así las cifras son las de Ganancia.
+ */
 export async function resumenPorSemana(
   supabase: Cliente,
   negocioId: string,
@@ -132,13 +134,28 @@ export async function resumenPorSemana(
   semanas: number,
 ): Promise<SemanaResumen[]> {
   const periodos = Array.from({ length: semanas }, (_, i) => rangoPeriodo("semana", ahora, i - (semanas - 1)));
-  const resumenes = await Promise.all(periodos.map((p) => resumenDePeriodo(supabase, negocioId, p)));
-  return periodos.map((p, i) => ({
-    desde: p.desdeFecha,
-    vendido: resumenes[i].vendido,
-    gananciaDespuesDeGastos: resumenes[i].gananciaDespuesDeGastos,
-    estimada: resumenes[i].estimada,
-  }));
+  const rango: Periodo = {
+    ...periodos[0],
+    hasta: periodos[semanas - 1].hasta,
+    hastaFecha: periodos[semanas - 1].hastaFecha,
+  };
+
+  const [ventas, fechas, gastos] = await Promise.all([
+    ventasDelPeriodo(supabase, negocioId, rango),
+    supabase
+      .from("pedido")
+      .select("id, creado_en")
+      .eq("negocio_id", negocioId)
+      .in("estado", ESTADOS_DE_VENTA)
+      .gte("creado_en", rango.desde.toISOString())
+      .lt("creado_en", rango.hasta.toISOString())
+      .limit(5000),
+    gastosDelPeriodo(supabase, negocioId, rango),
+  ]);
+  if (fechas.error) throw fechas.error;
+  const creado = new Map(fechas.data.map((f) => [f.id, new Date(f.creado_en).getTime()]));
+
+  return repartirPorSemana(periodos, ventas, creado, gastos);
 }
 
 /** Devuelve el id del gasto nuevo, o null si la base lo rechazó (sin permiso, monto no válido). */

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { rangoPeriodo } from "@/domain";
 import { TarjetaPrimerosPasos } from "@/features/home/TarjetaPrimerosPasos";
 import { DonaInventario } from "@/features/home/ui/DonaInventario";
 import { GraficoSemanas } from "@/features/home/ui/GraficoSemanas";
@@ -14,7 +13,7 @@ import { resumenInicio } from "@/features/home/resumen";
 import { buscarPedidos, paginaDePedidos } from "@/features/orders/repositorio";
 import { listarMetodos } from "@/features/payments/repositorio";
 import { contarUnidades } from "@/features/products/repositorio";
-import { resumenDePeriodo, resumenPorSemana } from "@/features/profit/repositorio";
+import { resumenPorSemana } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -37,14 +36,12 @@ export default function InicioPage() {
 async function Contenido() {
   const { supabase, negocio } = await negocioActual();
   const ahora = new Date();
-  const periodo = rangoPeriodo("semana", ahora);
 
-  const [unidades, pedidos, recientes, ganancia, semanas, metodos] = await Promise.all([
+  const [unidades, pedidos, recientes, semanas, metodos] = await Promise.all([
     contarUnidades(supabase, negocio.id),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     paginaDePedidos(supabase, negocio.id, 0, 5),
     // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia.
-    negocio.puedeGestionar ? resumenDePeriodo(supabase, negocio.id, periodo) : null,
     negocio.puedeGestionar ? resumenPorSemana(supabase, negocio.id, ahora, SEMANAS_DEL_GRAFICO) : null,
     // Los primeros pasos son para quien configura el negocio.
     negocio.puedeGestionar ? listarMetodos(supabase, negocio.id) : null,
@@ -60,6 +57,9 @@ async function Contenido() {
       />
     );
   }
+
+  // La semana actual es la última del gráfico: no hace falta pedirla aparte.
+  const ganancia = semanas?.at(-1)?.resumen ?? null;
 
   const r = resumenInicio(unidades, pedidos, ahora);
   const pasos = metodos
