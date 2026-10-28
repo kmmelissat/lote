@@ -872,6 +872,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      unidades_del_negocio: {
+        Args: { p_negocio: string }
+        Returns: { cantidad: number; apartadas: number; vendidas: number }[]
+      }
       cambiar_estado_pedido: {
         Args: { p_estado: string; p_pedido: string }
         Returns: undefined

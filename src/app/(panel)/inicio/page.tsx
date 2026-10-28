@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { rangoPeriodo } from "@/domain";
 import { HORAS_APARTADO_FRIO, resumenInicio } from "@/features/home/resumen";
 import { buscarPedidos } from "@/features/orders/repositorio";
-import { listarProductos } from "@/features/products/repositorio";
+import { contarUnidades } from "@/features/products/repositorio";
 import { resumenDePeriodo } from "@/features/profit/repositorio";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
@@ -31,15 +31,15 @@ async function Contenido() {
   const ahora = new Date();
   const periodo = rangoPeriodo("semana", ahora);
 
-  const [productos, pedidos, ganancia] = await Promise.all([
-    // Acá solo se cuentan unidades: no hacen falta los costos.
-    listarProductos(supabase, negocio.id, false),
+  const [unidades, pedidos, ganancia] = await Promise.all([
+    contarUnidades(supabase, negocio.id),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia.
     negocio.puedeGestionar ? resumenDePeriodo(supabase, negocio.id, periodo) : null,
   ]);
 
-  if (!productos.length) {
+  // Sin unidades de ningún tipo es que todavía no hay productos.
+  if (unidades.disponibles + unidades.apartadas + unidades.vendidas === 0) {
     return (
       <EmptyState
         titulo={t.vacioTitulo}
@@ -49,7 +49,7 @@ async function Contenido() {
     );
   }
 
-  const r = resumenInicio(productos, pedidos, ahora);
+  const r = resumenInicio(unidades, pedidos, ahora);
   const hayAccion = r.porPagar > 0 || r.porEnviar > 0;
 
   return (

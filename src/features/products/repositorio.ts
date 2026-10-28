@@ -114,6 +114,20 @@ export async function listarProductos(
   return (data as unknown as Fila[]).map((f) => aProducto(f, puedeVerCostos, new Date()));
 }
 
+export type Unidades = { disponibles: number; apartadas: number; vendidas: number };
+
+/** Unidades de todo el negocio, contadas en la base: no depende del tope de la lista de productos. */
+export async function contarUnidades(supabase: Cliente, negocioId: string): Promise<Unidades> {
+  const { data, error } = await supabase.rpc("unidades_del_negocio", { p_negocio: negocioId });
+  if (error) throw error;
+  const u = data[0] ?? { cantidad: 0, apartadas: 0, vendidas: 0 };
+  return {
+    disponibles: disponibles({ cantidad: u.cantidad, apartadas: u.apartadas, vendidas: u.vendidas }),
+    apartadas: u.apartadas,
+    vendidas: u.vendidas,
+  };
+}
+
 export async function obtenerProducto(
   supabase: Cliente,
   negocioId: string,

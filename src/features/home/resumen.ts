@@ -1,5 +1,5 @@
 import type { Pedido } from "@/features/orders/repositorio";
-import type { Producto } from "@/features/products/repositorio";
+import type { Unidades } from "@/features/products/repositorio";
 
 /** Un apartado se "enfría" cuando le quedan menos de estas horas para vencer. */
 export const HORAS_APARTADO_FRIO = 6;
@@ -18,8 +18,8 @@ export type ResumenInicio = {
   seEnfrian: Pedido[];
 };
 
-/** Los números de Inicio, sacados de los productos y de los pedidos abiertos. Sin plata: eso lo calcula `domain/`. */
-export function resumenInicio(productos: Producto[], pedidos: Pedido[], ahora: Date): ResumenInicio {
+/** Los números de Inicio, sacados del conteo de unidades y de los pedidos abiertos. Sin plata: eso lo calcula `domain/`. */
+export function resumenInicio(unidades: Unidades, pedidos: Pedido[], ahora: Date): ResumenInicio {
   const limite = ahora.getTime() + HORAS_APARTADO_FRIO * HORA_MS;
   // Un apartado vencido ya no retiene unidades: no cuenta como pendiente (igual que en el asistente).
   const vigentes = pedidos.filter(
@@ -27,9 +27,7 @@ export function resumenInicio(productos: Producto[], pedidos: Pedido[], ahora: D
   );
 
   return {
-    disponibles: productos.reduce((s, p) => s + p.disponibles, 0),
-    apartadas: productos.reduce((s, p) => s + p.apartadas, 0),
-    vendidas: productos.reduce((s, p) => s + p.vendidas, 0),
+    ...unidades,
     porPagar: vigentes.filter((p) => !p.contraEntrega).length,
     porEnviar:
       pedidos.filter((p) => p.estado === "pagado" || p.estado === "preparando").length +
