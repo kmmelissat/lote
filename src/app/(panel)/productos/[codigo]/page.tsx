@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { DesgloseCosto } from "@/domain";
@@ -56,9 +57,16 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
   return (
     <>
       <PageHeader titulo={p.nombre} descripcion={p.descripcion ?? `#${p.codigo}`} />
-      <Link href="/productos" className="mb-4 inline-flex min-h-11 items-center text-teal underline">
-        {t.volver}
-      </Link>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <Link href="/productos" className="inline-flex min-h-11 items-center text-teal underline">
+          {t.volver}
+        </Link>
+        {negocio.puedeGestionar && (
+          <ButtonLink href={`/productos/${p.codigo}/editar`} variante="secundario">
+            {textos.productos.editar.boton}
+          </ButtonLink>
+        )}
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         {p.fotos.length > 0 && (

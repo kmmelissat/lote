@@ -14,7 +14,7 @@ describe("plantillas", () => {
 
   it("rellena los datos y limpia los saltos de línea", () => {
     expect(textoDelAviso("apartado_nuevo", ["@ana", "Chaqueta\nnegra M", "23 h"])).toBe(
-      "Nuevo apartado: @ana apartó Chaqueta negra M. Tiene 23 h para pagar.",
+      "Tenés un nuevo apartado en tu vitrina de Lote. @ana apartó Chaqueta negra M y tiene 23 h para pagarlo. Revisalo en la sección de pedidos para confirmar el pago o liberar el producto.",
     );
   });
 });

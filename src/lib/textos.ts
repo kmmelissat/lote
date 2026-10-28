@@ -45,7 +45,13 @@ export const textos = {
 
   perfil: {
     nombre: "Tu negocio",
-    detalle: "Completá tu perfil",
+    detalle: "Ajustes",
+    roles: {
+      duena: "Dueña",
+      administradora: "Administradora",
+      vendedora: "Vendedora",
+      solo_lectura: "Solo lectura",
+    } as Record<string, string>,
   },
 
   inicio: {
@@ -79,6 +85,15 @@ export const textos = {
     vacioTexto: "Acá van a aparecer tus productos, con su estado y su ganancia.",
     vacioTitulo: "Todavía no tenés productos",
     agregar: "Nuevo producto",
+    buscar: {
+      etiqueta: "Buscar producto",
+      placeholder: "Nombre, código, categoría o marca",
+      boton: "Buscar",
+      estados: "Filtrar por estado",
+      todos: "Todos",
+      sinResultados: "No encontramos productos con esa búsqueda.",
+      limpiar: "Quitar filtros",
+    },
     quedan: (n: number) => (n === 1 ? "Queda 1" : `Quedan ${n}`),
     ganaPor: "Ganancia estimada",
     sinCosto: "Sin costo",
@@ -181,6 +196,17 @@ export const textos = {
         importacion: "Importación",
         otro: "Otros",
       },
+    },
+    editar: {
+      titulo: "Editar producto",
+      descripcion: "Cambiá la ficha. Para sumar unidades o cambiar el costo usá Reponer.",
+      boton: "Editar",
+      guardar: "Guardar cambios",
+      guardando: "Guardando…",
+      cancelar: "Cancelar",
+      aviso: "Los pedidos que ya hiciste mantienen el precio con el que se vendieron.",
+      errorPermiso: "Tu rol no puede editar productos.",
+      errorGeneral: "No pudimos guardar los cambios. Probá de nuevo.",
     },
     form: {
       titulo: "Nuevo producto",
@@ -375,12 +401,18 @@ export const textos = {
   // Cuerpos de las plantillas de WhatsApp. Son exactamente el texto que se manda a aprobar a Meta:
   // {{1}}, {{2}}… son los datos que se rellenan. Si cambiás uno, hay que volver a pedir su aprobación.
   avisos: {
-    apartado_nuevo: "Nuevo apartado: {{1}} apartó {{2}}. Tiene {{3}} para pagar.",
-    apartado_por_vencer: "El apartado de {{1}} ({{2}}) vence en {{3}}. Escribile para que pague o liberalo.",
-    apartado_vencido: "El apartado de {{1}} ({{2}}) venció y el producto volvió a estar disponible.",
-    resumen_semanal: "Tu semana: vendiste {{1}} y te quedaron {{2}} de ganancia. Lo que más te dejó: {{3}}.",
-    pedido_enviado: "Hola {{1}}! Tu pedido de {{2}} ya salió. Número de guía: {{3}}.",
-    recordatorio_abono: "Hola {{1}}! Te recordamos que te quedan {{2}} por pagar de tu pedido en {{3}}.",
+    apartado_nuevo:
+      "Tenés un nuevo apartado en tu vitrina de Lote. {{1}} apartó {{2}} y tiene {{3}} para pagarlo. Revisalo en la sección de pedidos para confirmar el pago o liberar el producto.",
+    apartado_por_vencer:
+      "Aviso de Lote: el apartado de {{1}} ({{2}}) vence en {{3}}. Escribile para recordarle que tiene que pagar, o liberá el producto desde la sección de pedidos si ya no lo quiere.",
+    apartado_vencido:
+      "Aviso de Lote: el apartado de {{1}} ({{2}}) venció porque no se recibió el pago a tiempo. El producto ya volvió a estar disponible en tu vitrina para que otra persona lo aparte.",
+    resumen_semanal:
+      "Este es el resumen de tu semana en Lote: vendiste {{1}} y te quedaron {{2}} de ganancia después de gastos. El producto que más te dejó fue {{3}}. Entrá a la sección de ganancia para ver el detalle completo.",
+    pedido_enviado:
+      "Hola {{1}}! Te escribimos de parte de {{2}}: tu pedido ya salió y va en camino. Tu número de guía para darle seguimiento es {{3}}. Si tenés cualquier duda, escribile directamente al negocio.",
+    recordatorio_abono:
+      "Hola {{1}}! Te recordamos que todavía tenés un saldo pendiente de {{2}} en tu pedido con {{3}}. Podés completar el pago con los datos que ya te enviaron cuando hiciste tu abono, y así asegurar tu producto.",
   },
 
   vitrina: {
@@ -461,12 +493,41 @@ export const textos = {
     gracias: "Gracias por tu compra!",
   },
 
+  clientes: {
+    titulo: "Clientes",
+    descripcion: "Quién te compra, cuánto y quién te debe.",
+    enlace: "Clientes",
+    vacioTexto: "Los clientes aparecen solos cuando apartás o vendés algo con su nombre.",
+    buscar: "Buscar cliente",
+    buscarBoton: "Buscar",
+    placeholder: "Nombre o contacto",
+    filtros: "Filtrar clientes",
+    todos: "Todos",
+    conSaldo: "Con saldo pendiente",
+    sinResultados: "No encontramos clientes con esa búsqueda.",
+    sinDeudores: "Nadie te debe nada ahora.",
+    limpiar: "Quitar filtros",
+    debeTotal: (monto: string) => `Te deben ${monto}`,
+    pedidos: (n: number) => (n === 1 ? "1 pedido" : `${n} pedidos`),
+    debe: (monto: string) => `Debe ${monto}`,
+    volver: "Volver a clientes",
+    noExiste: "No encontramos ese cliente.",
+    contacto: "Contacto",
+    sinContacto: "Sin contacto",
+    notas: "Notas",
+    comprado: "Total comprado",
+    saldo: "Saldo pendiente",
+    ultimoPedido: "Último pedido",
+    historial: "Pedidos",
+    sinPedidos: "Todavía no tiene pedidos.",
+  },
   pedidos: {
     titulo: "Pedidos",
     descripcion: "Seguí cada pedido desde el apartado hasta la entrega.",
     vacioTexto: "Cuando apartés o vendás algo, el pedido aparece acá.",
     vacioEstado: "No hay pedidos en este estado.",
     registrar: "Registrar venta o apartado",
+    verClientes: "Ver clientes",
     pestanas: "Estados de pedidos",
     sinCliente: "Sin cliente",
     pedido: (n: number) => `Pedido #${n}`,

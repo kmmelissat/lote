@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
+import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
 const boton =
@@ -14,7 +16,7 @@ function BotonIcono({ icono, etiqueta }: { icono: NombreIcono; etiqueta: string 
   );
 }
 
-function Perfil() {
+function PerfilVista({ nombre, detalle }: { nombre: string; detalle: string }) {
   return (
     <Link
       href="/ajustes"
@@ -24,12 +26,26 @@ function Perfil() {
       <span className="flex size-10 items-center justify-center rounded-full bg-teal-fondo text-teal">
         <Icon nombre="usuario" className="size-5" />
       </span>
-      <span className="hidden flex-col leading-tight md:flex">
-        <span className="text-sm font-medium">{textos.perfil.nombre}</span>
-        <span className="text-xs text-texto-2">{textos.perfil.detalle}</span>
+      <span className="hidden min-w-0 max-w-40 flex-col leading-tight md:flex">
+        <span className="truncate text-sm font-medium">{nombre}</span>
+        <span className="text-xs text-texto-2">{detalle}</span>
       </span>
       <Icon nombre="flecha" className="hidden size-4 text-texto-2 md:block" />
     </Link>
+  );
+}
+
+// El nombre sale de la sesión, así que va en un Suspense; mientras llega se ve el texto genérico.
+async function PerfilConNombre() {
+  const { negocio } = await negocioActual();
+  return <PerfilVista nombre={negocio.nombre || textos.perfil.nombre} detalle={textos.perfil.roles[negocio.rol] ?? textos.perfil.detalle} />;
+}
+
+function Perfil() {
+  return (
+    <Suspense fallback={<PerfilVista nombre={textos.perfil.nombre} detalle={textos.perfil.detalle} />}>
+      <PerfilConNombre />
+    </Suspense>
   );
 }
 

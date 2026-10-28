@@ -225,3 +225,27 @@ export async function guardarFotos(
   const { error } = await supabase.from("producto").update({ fotos }).eq("id", productoId);
   return !error;
 }
+
+export type CambiosProducto = {
+  nombre: string;
+  precio: Centavos;
+  descripcion: string | null;
+  categoria: string | null;
+  marca: string | null;
+  condicion: "nuevo" | "usado";
+};
+
+/** Cambia la ficha. La cantidad y el costo no van acá (se reponen); RLS deja editar solo a quien gestiona. */
+export async function actualizarProducto(
+  supabase: Cliente,
+  productoId: string,
+  c: CambiosProducto,
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("producto")
+    .update({ ...c, precio: c.precio / 100 })
+    .eq("id", productoId)
+    .select("id");
+  // Sin permiso, RLS no da error: simplemente no toca ninguna fila.
+  return !error && data.length > 0;
+}

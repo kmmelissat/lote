@@ -1,7 +1,9 @@
 import { DESTINATARIO_DE, type TipoAviso } from "@/domain";
 import { textos } from "@/lib/textos";
 
-export const IDIOMA_PLANTILLAS = "es";
+// Tiene que ser el mismo idioma con el que se creó cada plantilla en WhatsApp Manager: "Spanish (MEX)" es
+// es_MX, "Spanish" a secas es es. Se cambia sin tocar código con WHATSAPP_IDIOMA.
+export const IDIOMA_PLANTILLAS = process.env.WHATSAPP_IDIOMA ?? "es_MX";
 
 export type Plantilla = {
   /** Nombre con el que se registra en Meta (el mismo que el tipo de aviso) */

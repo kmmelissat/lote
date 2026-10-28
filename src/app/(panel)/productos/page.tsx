@@ -3,10 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { ButtonLink } from "@/components/ui/Button";
+import { Pestanas } from "@/components/nav/Pestanas";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusChip } from "@/components/ui/StatusChip";
+import { esFiltroEstado, filtrarProductos, FILTROS_ESTADO } from "@/features/products/filtro";
 import { listarProductos } from "@/features/products/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
@@ -15,20 +17,33 @@ import { textos } from "@/lib/textos";
 
 export const metadata: Metadata = { title: textos.productos.titulo };
 
-export default function Page() {
+export default function Page({ searchParams }: PageProps<"/productos">) {
   return (
     <>
       <PageHeader titulo={textos.productos.titulo} descripcion={textos.productos.descripcion} />
       <Suspense fallback={<p className="text-texto-2">…</p>}>
-        <ListaProductos />
+        <ListaProductos searchParams={searchParams} />
       </Suspense>
     </>
   );
 }
 
-async function ListaProductos() {
+async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "searchParams">) {
+  const params = await searchParams;
+  const texto = typeof params.q === "string" ? params.q.slice(0, 80) : "";
+  const estado = esFiltroEstado(String(params.estado)) ? (String(params.estado) as (typeof FILTROS_ESTADO)[number]) : "todos";
+
   const { supabase, negocio } = await negocioActual();
-  const productos = await listarProductos(supabase, negocio.id, negocio.puedeGestionar);
+  const todos = await listarProductos(supabase, negocio.id, negocio.puedeGestionar);
+  const productos = filtrarProductos(todos, { texto, estado });
+  const filtrando = texto.trim() !== "" || estado !== "todos";
+  const enlace = (e: string) => {
+    const q = new URLSearchParams();
+    if (texto.trim()) q.set("q", texto);
+    if (e !== "todos") q.set("estado", e);
+    const cadena = q.toString();
+    return cadena ? `/productos?${cadena}` : "/productos";
+  };
 
   const agregar = (
     <div className="flex flex-wrap justify-center gap-3">
@@ -39,7 +54,7 @@ async function ListaProductos() {
     </div>
   );
 
-  if (!productos.length) {
+  if (!todos.length) {
     return (
       <EmptyState
         titulo={textos.productos.vacioTitulo}
@@ -51,7 +66,47 @@ async function ListaProductos() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">{agregar}</div>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <form role="search" className="flex min-w-0 flex-1 items-end gap-2 md:max-w-md">
+          {estado !== "todos" && <input type="hidden" name="estado" value={estado} />}
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <label htmlFor="q" className="text-sm font-medium">
+              {textos.productos.buscar.etiqueta}
+            </label>
+            <input
+              id="q"
+              name="q"
+              type="search"
+              defaultValue={texto}
+              placeholder={textos.productos.buscar.placeholder}
+              className="h-12 rounded-xl border border-borde bg-superficie px-4 text-base"
+            />
+          </div>
+          <Button type="submit" variante="secundario">
+            {textos.productos.buscar.boton}
+          </Button>
+        </form>
+        {agregar}
+      </div>
+      <Pestanas
+        etiqueta={textos.productos.buscar.estados}
+        activa={estado}
+        pestanas={FILTROS_ESTADO.map((e) => ({
+          valor: e,
+          etiqueta: e === "todos" ? textos.productos.buscar.todos : textos.estadosProducto[e],
+          href: enlace(e),
+        }))}
+      />
+      {!productos.length && filtrando && (
+        <EmptyState
+          texto={textos.productos.buscar.sinResultados}
+          accion={
+            <ButtonLink href="/productos" variante="secundario">
+              {textos.productos.buscar.limpiar}
+            </ButtonLink>
+          }
+        />
+      )}
       <ul className="grid gap-3 md:grid-cols-2">
         {productos.map((p) => {
           return (
