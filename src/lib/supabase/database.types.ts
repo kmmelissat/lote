@@ -375,6 +375,50 @@ export type Database = {
         }
         Relationships: []
       }
+      invitacion: {
+        Row: {
+          creada_en: string
+          creada_por: string
+          id: string
+          negocio_id: string
+          rol: string
+          token: string
+          usada_en: string | null
+          usada_por: string | null
+          vence_en: string
+        }
+        Insert: {
+          creada_en?: string
+          creada_por?: string
+          id?: string
+          negocio_id: string
+          rol: string
+          token?: string
+          usada_en?: string | null
+          usada_por?: string | null
+          vence_en?: string
+        }
+        Update: {
+          creada_en?: string
+          creada_por?: string
+          id?: string
+          negocio_id?: string
+          rol?: string
+          token?: string
+          usada_en?: string | null
+          usada_por?: string | null
+          vence_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitacion_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       metodo_pago_negocio: {
         Row: {
           activo: boolean
@@ -878,6 +922,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aceptar_invitacion: { Args: { p_token: string }; Returns: string }
+      equipo_del_negocio: {
+        Args: { p_negocio: string }
+        Returns: { usuario_id: string; rol: string; correo: string; creado_en: string }[]
+      }
+      invitacion_publica: {
+        Args: { p_token: string }
+        Returns: { negocio: string; rol: string }[]
+      }
       seguimiento_pedido: {
         Args: { p_pedido: string }
         Returns: {

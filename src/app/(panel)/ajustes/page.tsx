@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
+import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
 export const metadata: Metadata = { title: textos.ajustes.titulo };
 
-export default function Page() {
+export default async function Page() {
+  const { negocio } = await negocioActual();
   return (
     <>
       <PageHeader titulo={textos.ajustes.titulo} descripcion={textos.ajustes.descripcion} />
@@ -43,6 +45,16 @@ export default function Page() {
             </Card>
           </Link>
         </li>
+        {negocio.rol === "duena" && (
+          <li>
+            <Link href="/ajustes/equipo" className="block">
+              <Card className="flex flex-col gap-1 border border-borde hover:bg-teal-fondo">
+                <span className="font-medium">{textos.equipo.enlace}</span>
+                <span className="text-sm text-texto-2">{textos.equipo.enlaceTexto}</span>
+              </Card>
+            </Link>
+          </li>
+        )}
         <li>
           <Link href="/ajustes/ayuda" className="block">
             <Card className="flex flex-col gap-1 border border-borde hover:bg-teal-fondo">

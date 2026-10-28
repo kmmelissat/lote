@@ -5,17 +5,24 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { createClient } from "@/lib/supabase/client";
+import { COOKIE_DESTINO, rutaSegura } from "../rutaSegura";
 import { textos } from "@/lib/textos";
 
 const t = textos.acceso;
 
 export function LoginForm() {
-  const errorUrl = useSearchParams().get("error");
+  const params = useSearchParams();
+  const errorUrl = params.get("error");
+  // Viene de una invitación: se recuerda a dónde volver mientras la persona entra.
+  const destino = rutaSegura(params.get("next"));
   const [correo, setCorreo] = useState("");
   const [estado, setEstado] = useState<"libre" | "enviando" | "enviado">("libre");
   const [error, setError] = useState(errorUrl ? t.errorCallback : "");
 
-  const redirectTo = () => `${window.location.origin}/auth/callback`;
+  const redirectTo = () => {
+    if (destino) document.cookie = `${COOKIE_DESTINO}=${encodeURIComponent(destino)}; path=/; max-age=900; samesite=lax`;
+    return `${window.location.origin}/auth/callback`;
+  };
 
   async function conGoogle() {
     setError("");
