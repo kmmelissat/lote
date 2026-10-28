@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { Pie, PieChart, ResponsiveContainer } from "recharts";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { textos } from "@/lib/textos";
@@ -8,19 +11,13 @@ const t = textos.inicio;
 
 // Cada tramo lleva su color y también su nombre y su número en la lista: nada se dice solo con color.
 const tramos = [
-  { clave: "disponibles", estado: "disponible", etiqueta: t.disponibles, color: "text-teal", punto: "bg-teal" },
-  { clave: "apartadas", estado: "apartado", etiqueta: t.apartados, color: "text-ambar", punto: "bg-ambar" },
-  { clave: "vendidas", estado: "vendido", etiqueta: t.vendidos, color: "text-borde-control", punto: "bg-borde-control" },
+  { clave: "disponibles", estado: "disponible", etiqueta: t.disponibles, relleno: "var(--color-teal)", punto: "bg-teal" },
+  { clave: "apartadas", estado: "apartado", etiqueta: t.apartados, relleno: "var(--color-ambar)", punto: "bg-ambar" },
+  { clave: "vendidas", estado: "vendido", etiqueta: t.vendidos, relleno: "var(--color-borde-control)", punto: "bg-borde-control" },
 ] as const;
 
 export function DonaInventario({ unidades }: { unidades: Unidades }) {
   const total = unidades.disponibles + unidades.apartadas + unidades.vendidas;
-  // Circunferencia de 100 para que cada tramo mida lo mismo que su porcentaje (radio = 100 / 2π).
-  const radio = 100 / (2 * Math.PI);
-  // Cada tramo empieza donde terminó el anterior.
-  const partes = tramos.map((x) => ({ ...x, parte: (unidades[x.clave] / total) * 100 }));
-  const arcos = partes.map((x, i) => ({ ...x, desde: partes.slice(0, i).reduce((suma, y) => suma + y.parte, 0) }));
-
   return (
     <Card className="flex flex-col gap-3">
       <div>
@@ -30,26 +27,21 @@ export function DonaInventario({ unidades }: { unidades: Unidades }) {
 
       <div className="flex flex-wrap items-center gap-4">
         <div className="relative size-32 shrink-0">
-          <svg viewBox="0 0 40 40" role="img" aria-label={tramos.map((x) => `${x.etiqueta}: ${unidades[x.clave]}`).join(", ")} className="size-full -rotate-90">
-            <circle cx="20" cy="20" r={radio} fill="none" strokeWidth="5" className="text-gris-fondo" stroke="currentColor" />
-            {arcos.map((x) =>
-              x.parte > 0 ? (
-                <circle
-                  key={x.clave}
-                  cx="20"
-                  cy="20"
-                  r={radio}
-                  fill="none"
-                  strokeWidth="5"
-                  stroke="currentColor"
-                  className={x.color}
-                  strokeDasharray={`${x.parte} ${100 - x.parte}`}
-                  strokeDashoffset={-x.desde}
-                />
-              ) : null,
-            )}
-          </svg>
-          <p className="absolute inset-0 flex flex-col items-center justify-center text-center leading-tight">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={tramos.map((x) => ({ name: x.etiqueta, value: unidades[x.clave], fill: x.relleno }))}
+                dataKey="value"
+                innerRadius="68%"
+                outerRadius="100%"
+                startAngle={90}
+                endAngle={-270}
+                stroke="none"
+                isAnimationActive={false}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <p className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center leading-tight">
             <span className="text-2xl font-bold">{total}</span>
             <span className="text-xs text-texto-2">{t.inventarioUnidades}</span>
           </p>

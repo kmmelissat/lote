@@ -7,15 +7,18 @@ import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
 
-const pestanas: { href: string; etiqueta: string; icono: NombreIcono }[] = [
+// En móvil caben cuatro pestañas y el "+": las `soloEscritorio` se alcanzan desde otra pantalla (Pedidos e Inicio).
+const pestanas: { href: string; etiqueta: string; icono: NombreIcono; soloEscritorio?: boolean }[] = [
   { href: "/inicio", etiqueta: textos.nav.inicio, icono: "inicio" },
   { href: "/productos", etiqueta: textos.nav.productos, icono: "productos" },
   { href: "/pedidos", etiqueta: textos.nav.pedidos, icono: "pedidos" },
-  { href: "/clientes", etiqueta: textos.nav.clientes, icono: "clientes" },
+  { href: "/clientes", etiqueta: textos.nav.clientes, icono: "clientes", soloEscritorio: true },
   { href: "/ganancia", etiqueta: textos.nav.ganancia, icono: "ganancia" },
 ];
 
 type Pestana = (typeof pestanas)[number];
+
+const enMovil = pestanas.filter((p) => !p.soloEscritorio);
 
 // En rutas dinámicas (/productos/[codigo]) el pathname solo se conoce en la petición:
 // mientras llega, el enlace se ve igual pero sin marcar como activo.
@@ -88,13 +91,14 @@ export function Nav({ perfil }: { perfil: ReactNode }) {
         aria-label="Principal"
         className="fixed inset-x-0 bottom-0 z-10 border-t border-borde bg-superficie md:hidden"
       >
-        <ul className="mx-auto grid max-w-md grid-cols-6 items-center px-2 pb-[env(safe-area-inset-bottom)]">
-          <li><Enlace {...pestanas[0]} /></li>
-          <li><Enlace {...pestanas[1]} /></li>
+        <ul className="mx-auto grid max-w-md grid-cols-5 items-center px-2 pb-[env(safe-area-inset-bottom)]">
+          {enMovil.slice(0, 2).map((p) => (
+            <li key={p.href}><Enlace {...p} /></li>
+          ))}
           <li className="flex justify-center"><BotonMas /></li>
-          <li><Enlace {...pestanas[2]} /></li>
-          <li><Enlace {...pestanas[3]} /></li>
-          <li><Enlace {...pestanas[4]} /></li>
+          {enMovil.slice(2).map((p) => (
+            <li key={p.href}><Enlace {...p} /></li>
+          ))}
         </ul>
       </nav>
 

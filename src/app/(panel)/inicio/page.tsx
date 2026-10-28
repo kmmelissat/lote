@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { rangoPeriodo } from "@/domain";
 import { TarjetaPrimerosPasos } from "@/features/home/TarjetaPrimerosPasos";
 import { DonaInventario } from "@/features/home/ui/DonaInventario";
+import { GraficoSemanas } from "@/features/home/ui/GraficoSemanas";
 import { PedidosRecientes } from "@/features/home/ui/PedidosRecientes";
 import { TarjetaAtencion } from "@/features/home/ui/TarjetaAtencion";
 import { TarjetaDato } from "@/features/home/ui/TarjetaDato";
@@ -13,12 +14,14 @@ import { resumenInicio } from "@/features/home/resumen";
 import { buscarPedidos, paginaDePedidos } from "@/features/orders/repositorio";
 import { listarMetodos } from "@/features/payments/repositorio";
 import { contarUnidades } from "@/features/products/repositorio";
-import { resumenDePeriodo } from "@/features/profit/repositorio";
+import { resumenDePeriodo, resumenPorSemana } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
 const t = textos.inicio;
+
+const SEMANAS_DEL_GRAFICO = 6;
 
 export const metadata: Metadata = { title: t.titulo };
 
@@ -36,12 +39,13 @@ async function Contenido() {
   const ahora = new Date();
   const periodo = rangoPeriodo("semana", ahora);
 
-  const [unidades, pedidos, recientes, ganancia, metodos] = await Promise.all([
+  const [unidades, pedidos, recientes, ganancia, semanas, metodos] = await Promise.all([
     contarUnidades(supabase, negocio.id),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     paginaDePedidos(supabase, negocio.id, 0, 5),
     // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia.
     negocio.puedeGestionar ? resumenDePeriodo(supabase, negocio.id, periodo) : null,
+    negocio.puedeGestionar ? resumenPorSemana(supabase, negocio.id, ahora, SEMANAS_DEL_GRAFICO) : null,
     // Los primeros pasos son para quien configura el negocio.
     negocio.puedeGestionar ? listarMetodos(supabase, negocio.id) : null,
   ]);
@@ -70,7 +74,7 @@ async function Contenido() {
     <div className="flex flex-col gap-3">
       {faltanPasos(pasos) && <TarjetaPrimerosPasos pasos={pasos} />}
 
-      <section aria-labelledby="contadores" className="grid gap-3 lg:grid-cols-3">
+      <section aria-labelledby="contadores" className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <h2 id="contadores" className="sr-only">
           {t.contadores}
         </h2>
@@ -105,12 +109,13 @@ async function Contenido() {
         <DonaInventario unidades={unidades} />
       </section>
 
-      <div className="grid gap-3 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <PedidosRecientes pedidos={recientes} />
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div className="min-w-0 lg:col-span-2">
+          {semanas ? <GraficoSemanas semanas={semanas} /> : <PedidosRecientes pedidos={recientes} />}
         </div>
         <TarjetaAtencion r={r} ahora={ahora} />
       </div>
+      {semanas && <PedidosRecientes pedidos={recientes} />}
 
       <section className="flex flex-col gap-2">
         <h2 className="font-bold">{t.accesos}</h2>
@@ -121,6 +126,9 @@ async function Contenido() {
               {t.registrarVenta}
             </ButtonLink>
           )}
+          <ButtonLink variante="secundario" href="/clientes">
+            {textos.nav.clientes}
+          </ButtonLink>
           <ButtonLink variante="secundario" href="/asistente">
             {t.hablarAsistente}
           </ButtonLink>

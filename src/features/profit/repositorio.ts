@@ -7,6 +7,7 @@ import {
   type LineaVendida,
   type Periodo,
   type ResumenPeriodo,
+  rangoPeriodo,
   resumenDelPeriodo,
 } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
@@ -113,6 +114,31 @@ export async function resumenDePeriodo(
     gastosDelPeriodo(supabase, negocioId, periodo),
   ]);
   return resumenDelPeriodo(ventas, gastos.map(aGastoPeriodo));
+}
+
+export type SemanaResumen = {
+  /** Lunes de esa semana (YYYY-MM-DD) */
+  desde: string;
+  vendido: Centavos;
+  gananciaDespuesDeGastos: Centavos;
+  estimada: boolean;
+};
+
+/** Las últimas `semanas` semanas, la más vieja primero y la actual al final. Reusa `resumenDePeriodo`, así las cifras son las de Ganancia. */
+export async function resumenPorSemana(
+  supabase: Cliente,
+  negocioId: string,
+  ahora: Date,
+  semanas: number,
+): Promise<SemanaResumen[]> {
+  const periodos = Array.from({ length: semanas }, (_, i) => rangoPeriodo("semana", ahora, i - (semanas - 1)));
+  const resumenes = await Promise.all(periodos.map((p) => resumenDePeriodo(supabase, negocioId, p)));
+  return periodos.map((p, i) => ({
+    desde: p.desdeFecha,
+    vendido: resumenes[i].vendido,
+    gananciaDespuesDeGastos: resumenes[i].gananciaDespuesDeGastos,
+    estimada: resumenes[i].estimada,
+  }));
 }
 
 /** Devuelve el id del gasto nuevo, o null si la base lo rechazó (sin permiso, monto no válido). */

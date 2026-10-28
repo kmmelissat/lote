@@ -45,7 +45,10 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
           activa={estado}
           pestanas={PESTANAS.map((p) => ({ valor: p, etiqueta: textos.estadosPedido[p], href: `/pedidos?estado=${p}` }))}
         />
-        {negocio.puedeVender && <ButtonLink href="/pedidos/nuevo">{t.registrar}</ButtonLink>}
+        <div className="flex flex-wrap gap-2">
+          <ButtonLink href="/clientes" variante="secundario">{textos.nav.clientes}</ButtonLink>
+          {negocio.puedeVender && <ButtonLink href="/pedidos/nuevo">{t.registrar}</ButtonLink>}
+        </div>
       </div>
 
       {!pedidos.length ? (

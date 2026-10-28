@@ -11,5 +11,6 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#f5f8f7",
     theme_color: "#003844",
     lang: "es",
+    icons: [{ src: "/lote-iso.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
   };
 }

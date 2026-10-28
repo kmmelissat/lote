@@ -11,7 +11,7 @@ const fila = "block rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20";
 export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date }) {
   const hayAccion = r.porPagar > 0 || r.porEnviar > 0 || r.seEnfrian.length > 0;
   return (
-    <section aria-labelledby="atencion" className="flex flex-col gap-3 rounded-tarjeta bg-teal p-4 text-white">
+    <section aria-labelledby="atencion" className="flex min-w-0 flex-col gap-3 rounded-tarjeta bg-teal p-4 text-white">
       <h2 id="atencion" className="font-bold">
         {t.accionTitulo}
       </h2>
