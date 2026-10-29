@@ -50,6 +50,17 @@ export interface Puerto {
     /** Ruta de la foto ya subida al bucket */
     fotoRuta: string | null;
   }): Promise<R<{ id: string; codigo: number }>>;
+  /** Un producto con variantes (sabores, colores, tallas): una ficha hermana por cada una, con su precio y cantidad. */
+  crearProductoConVariantes(p: {
+    nombre: string;
+    variantes: { etiqueta: string; precio: Centavos; cantidad: number }[];
+    /** Qué cambia entre ellas ("Sabor"); null si no se sabe */
+    opcion: string | null;
+    costo: Centavos | null;
+    descripcion: string | null;
+    categoria: string | null;
+    fotoRuta: string | null;
+  }): Promise<R<{ grupo: string; productos: { id: string; codigo: number; etiqueta: string }[] }>>;
   reponer(productoId: string, llegan: number, nuevoCosto: Centavos | null): Promise<R<null>>;
   registrarPedido(p: {
     cliente: string;

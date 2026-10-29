@@ -1,7 +1,6 @@
 "use client";
 
 import { useId, type ComponentProps, type KeyboardEvent, type ReactNode } from "react";
-import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos.form;
@@ -171,44 +170,18 @@ export function Cantidad({
   );
 }
 
-/**
- * Una sección que se abre y se cierra con una animación suave. El contenido sigue en el formulario aunque esté cerrado
- * (así lo escrito se guarda igual) pero no se puede tabular.
- */
-export function Seccion({
-  titulo,
-  ayuda,
-  abierta,
-  onAlternar,
-  children,
-}: {
-  titulo: string;
-  ayuda?: string;
-  abierta: boolean;
-  onAlternar: () => void;
-  children: ReactNode;
-}) {
+/** Un bloque del formulario con su título y su ayuda, siempre a la vista. */
+export function Seccion({ titulo, ayuda, children }: { titulo: string; ayuda?: string; children: ReactNode }) {
   const id = useId();
   return (
-    <section className="rounded-[20px] border-2 border-teal-oscuro/20 bg-superficie">
-      <button
-        type="button"
-        onClick={onAlternar}
-        aria-expanded={abierta}
-        aria-controls={id}
-        className="flex min-h-14 w-full items-center gap-3 rounded-[18px] px-4 text-left hover:bg-teal-fondo/60"
-      >
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="font-bold">{titulo}</span>
-          {ayuda && <span className="text-sm text-texto-2">{ayuda}</span>}
-        </span>
-        <Icon nombre="flecha" className={`size-5 shrink-0 transition-transform duration-200 ${abierta ? "rotate-180" : ""}`} />
-      </button>
-      <div id={id} className={`grid transition-[grid-template-rows] duration-200 ease-out ${abierta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-        <div className="overflow-hidden" inert={!abierta}>
-          <div className="flex flex-col gap-4 px-4 pb-4 pt-1">{children}</div>
-        </div>
+    <section aria-labelledby={id} className="flex flex-col gap-4 rounded-[20px] border-2 border-teal-oscuro/15 bg-white p-4">
+      <div className="flex flex-col">
+        <h2 id={id} className="font-bold">
+          {titulo}
+        </h2>
+        {ayuda && <p className="text-sm text-texto-2">{ayuda}</p>}
       </div>
+      {children}
     </section>
   );
 }

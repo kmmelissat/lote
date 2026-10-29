@@ -5,6 +5,7 @@ import { PROMPT_ENTENDER_MENSAJE } from "./prompts/entenderMensaje";
 import { PROMPT_CHAT_DE_CLIENTE } from "./prompts/chatDeCliente";
 import { PROMPT_COMPROBANTE } from "./prompts/comprobante";
 import { PROMPT_FOTO_A_FICHA } from "./prompts/fotoAFicha";
+import { PROMPT_RESPONDER } from "./prompts/responder";
 import { IANoDisponible, type ContextoIA, type ProveedorIA } from "./provider";
 
 // Modelo por defecto: rápido y barato, con salida estructurada estricta. Se cambia sin tocar código
@@ -106,6 +107,24 @@ export function crearProveedorOpenAI(): ProveedorIA {
       });
       if (!respuesta.output_parsed) throw new IANoDisponible("La IA no devolvió una lectura usable");
       return respuesta.output_parsed;
+    },
+
+    async responder(mensaje, datosNegocio, conversacion) {
+      const historial = conversacion?.length
+        ? ["<conversacion>", ...conversacion.map((t) => `${t.de === "yo" ? "Persona" : "Lotito"}: ${t.texto.replace(/\s+/g, " ")}`), "</conversacion>", ""]
+        : [];
+      const respuesta = await client.responses.create({
+        model: modelo,
+        instructions: PROMPT_RESPONDER,
+        input: ["<datos>", datosNegocio, "</datos>", "", ...historial, `Mensaje:\n${mensaje}`].join("\n"),
+        // Acá sí conversa: un poco de variación suena menos a robot, sin inventar (los datos van en el pedido)
+        ...(modelo.startsWith("gpt-4") ? { temperature: 0.5 } : {}),
+        store: false,
+        max_output_tokens: 600,
+      });
+      const texto = respuesta.output_text.trim();
+      if (!texto) throw new IANoDisponible("La IA no devolvió una respuesta");
+      return texto;
     },
 
     async proponerAcciones(chat, contexto) {

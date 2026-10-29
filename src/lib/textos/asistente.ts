@@ -11,7 +11,9 @@ export const asistente = {
   sugerenciasTitulo: "Pedime algo",
   flotanteSubtitulo: "Yo llevo la cuenta",
   flotanteEtiqueta: "Preguntale a Lotito",
-  flotante: { abrir: "Hablar con Lotito", cerrar: "Cerrar el chat" },
+  flotante: { abrir: "Hablar con Lotito", cerrar: "Cerrar el chat", ampliar: "Abrir el chat en grande" },
+  saludoInicial: "¡Hola! Soy Lotito. Contame qué pasó en tu negocio y lo anoto, o preguntame lo que quieras: cómo vas, qué reponer, quién te debe.",
+  enLinea: "En línea",
   vacioTexto: "Escribí como si le mandaras un mensaje a una ayudante. Probá una de estas:",
   /** Lo que se ofrece en el chat vacío. "mandar" lo envía, "escribir" lo deja listo para completar, "foto" abre la cámara. */
   sugerencias: {
@@ -70,6 +72,7 @@ export const asistente = {
     "• \"¿cuánto gané esta semana?\", \"¿cuánto gané con las chaquetas?\", \"¿qué tengo agotado?\"",
     "• \"deshacer\" para revertir lo último",
     "• Preguntame cómo se hace algo: \"¿cómo agrego un producto?\" o \"¿cómo cobro?\"",
+    "• O lo que quieras de tu negocio: \"¿qué se vende más?\", \"¿qué debería reponer?\", \"haceme un post para la chaqueta\"",
   ].join("\n"),
   sinRespuesta: "Eso no lo tengo en mis preguntas frecuentes. Mirá la ayuda o escribime de otra forma.",
   verAyuda: "Ver la ayuda",
@@ -82,6 +85,7 @@ export const asistente = {
   yaProcesado: "Ese mensaje ya se había procesado.",
   pregunta: {
     producto: "¿De cuál producto? Decime el nombre o el código, por ejemplo #12.",
+    nombre: "¡Dale! ¿Cómo se llama el producto? También podés mandarme una foto y armo la ficha con ella.",
     cliente: "¿Para quién es? Decime el nombre o el @usuario.",
     precio: "¿A cuánto lo vendés?",
     monto: "¿De cuánto fue el pago?",
@@ -112,6 +116,11 @@ export const asistente = {
     `Pedido #${codigo} · ${cliente ?? "sin cliente"} · ${total}`,
   sinDisponibilidad: (producto: string) => `No quedan unidades disponibles de ${producto}.`,
   yaApartado: (producto: string, quien: string) => `${producto} ya está apartado para ${quien}.`,
+  productoConVariantes: (nombre: string, n: number, opcion: string | null) =>
+    `Listo, agregué ${nombre} con ${n} ${opcion ? `${opcion.toLowerCase()}${/[aeiou]$/i.test(opcion) ? "s" : "es"}` : "variantes"}:`,
+  lineaVariante: (codigo: number, etiqueta: string, precio: string, cantidad: number) => `• #${codigo} ${etiqueta}: ${precio} (${cantidad} ${cantidad === 1 ? "unidad" : "unidades"})`,
+  faltaCostoVariantes: "Falta el costo para calcular tu ganancia: decime cuánto te costó cada una o ponelo en la ficha.",
+  costoVariantes: (costo: string) => `A cada una le puse un costo de ${costo}.`,
   productoCreado: (codigo: number, nombre: string, precio: string, cantidad: number, costo: string | null) =>
     `Listo. #${codigo} ${nombre} a ${precio}${costo ? `, costó ${costo}` : ""}. Cantidad: ${cantidad}.${
       costo ? "" : " Falta el costo para calcular tu ganancia."

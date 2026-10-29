@@ -100,9 +100,11 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
 // Si el chat quedó esperando un nombre, un cliente o un pedido y llega una frase larga, no es la respuesta:
 // es otro mensaje. Los números (precio, monto, cantidad) siempre se toman como respuesta.
 const PALABRAS_DE_RESPUESTA = 5;
+// El nombre de un producto nuevo puede ser largo ("funda de silicona para iPhone 15 rosa"): se le da más margen.
+const PALABRAS_DE_NOMBRE = 10;
 function esMensajeNuevo(falta: Falta, texto: string): boolean {
   if (falta === "precio" || falta === "monto" || falta === "montoGasto" || falta === "cantidad") return false;
-  return texto.split(/\s+/).length > PALABRAS_DE_RESPUESTA;
+  return texto.split(/\s+/).length > (falta === "nombre" ? PALABRAS_DE_NOMBRE : PALABRAS_DE_RESPUESTA);
 }
 
 // "ayuda" y "deshacer" no necesitan IA: funcionan aunque no esté conectada.
@@ -123,7 +125,15 @@ async function leerFoto(
     // La talla o el tono, si no quedaron ya en la descripción, se anotan ahí.
     const detalle = f.detalle && !f.descripcion.toLowerCase().includes(f.detalle.toLowerCase()) ? ` (${f.detalle})` : "";
     return {
-      salida: { ...salidaVacia("crear_producto"), producto: f.nombre, precio: f.precio, costo: f.costo, cantidad: f.cantidad },
+      salida: {
+        ...salidaVacia("crear_producto"),
+        producto: f.nombre,
+        precio: f.precio,
+        costo: f.costo,
+        cantidad: f.cantidad,
+        variantes: f.variantes,
+        opcionVariante: f.opcionVariante,
+      },
       extras: { fotoRuta: foto.ruta, descripcion: f.descripcion + detalle, categoria: f.categoria },
     };
   } catch (e) {

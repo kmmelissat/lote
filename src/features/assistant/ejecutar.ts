@@ -9,6 +9,7 @@ import { consultar, consultarEstado, consultarGanancia, consultarProducto } from
 import { crearProducto, reponer } from "./intenciones/producto";
 import { registrarGasto } from "./intenciones/gasto";
 import { registrarPago, cobrar } from "./intenciones/cobro";
+import { conversar } from "./intenciones/conversar";
 
 const t = textos.asistente;
 
@@ -26,9 +27,12 @@ export async function ejecutar(
     case "ayuda":
       return { texto: t.ayuda };
     case "pregunta":
-      return respuestaDeAyuda(intencion.tema);
+      // Si ninguna pregunta frecuente calza, Lotito la contesta con la guía en vez de decir "no sé"
+      return intencion.tema ? respuestaDeAyuda(intencion.tema) : conversar(d, entrada);
+    case "conversar":
     case "no_entiendo":
-      return { texto: t.noEntendi };
+      // Lo que no es una acción se contesta con palabras; si no hay IA, el "no te entendí" de siempre
+      return conversar(d, entrada);
     case "deshacer":
       return deshacerUltima(d);
     case "crear_producto":

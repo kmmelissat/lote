@@ -10,7 +10,7 @@ import {
   type Canal,
 } from "@/features/orders/repositorio";
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
-import { fechaLocalDe, rangoPeriodo } from "@/domain";
+import { fechaLocalDe, nombreConVariante, rangoPeriodo } from "@/domain";
 import { registrarGasto, resumenDePeriodo } from "@/features/profit/repositorio";
 import { crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";
@@ -67,6 +67,30 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
         costos: p.costo === null ? [] : [{ tipo: "compra", monto: p.costo }],
       });
       return "error" in r ? falla(r.error) : ok(r);
+    },
+
+    async crearProductoConVariantes(p) {
+      const grupo = crypto.randomUUID();
+      const productos: { id: string; codigo: number; etiqueta: string }[] = [];
+      // Una por una, para que los códigos queden en el orden en que se dijeron
+      for (const v of p.variantes) {
+        const r = await crearProducto(supabase, negocio.id, {
+          nombre: nombreConVariante(p.nombre, v.etiqueta),
+          precio: v.precio,
+          cantidad: v.cantidad,
+          descripcion: p.descripcion ?? undefined,
+          categoria: p.categoria ?? undefined,
+          condicion: "nuevo",
+          fotos: p.fotoRuta ? [p.fotoRuta] : [],
+          costos: p.costo === null ? [] : [{ tipo: "compra", monto: p.costo }],
+          grupo,
+          variante: v.etiqueta,
+          opcionesVariante: p.opcion ? [p.opcion] : [],
+        });
+        if ("error" in r) return falla(r.error);
+        productos.push({ ...r, etiqueta: v.etiqueta });
+      }
+      return ok({ grupo, productos });
     },
 
     async reponer(productoId, llegan, nuevoCosto) {

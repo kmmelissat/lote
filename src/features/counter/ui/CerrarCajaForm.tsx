@@ -1,5 +1,6 @@
 "use client";
 
+import { MensajeError } from "@/components/ui/MensajeError";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useConfirmar } from "@/components/ui/Confirmar";
@@ -121,11 +122,7 @@ export function CerrarCajaForm({
           placeholder={t.cierre.notaAyuda}
           maxLength={300}
         />
-        {error && (
-          <p role="alert" className="text-sm text-error">
-            {error}
-          </p>
-        )}
+        <MensajeError>{error}</MensajeError>
         <Button
           type="button"
           variante="mango"

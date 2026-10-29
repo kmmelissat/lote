@@ -6,7 +6,9 @@ import { productoDe, registrar, textoDeError } from "../ayudas";
 
 const t = textos.asistente;
 
-export async function crearProducto({ d, entrada, intencion, salida, extras }: Ctx<"crear_producto">): Promise<Respuesta> {
+export async function crearProducto(c: Ctx<"crear_producto">): Promise<Respuesta> {
+  if (c.intencion.variantes.length) return crearConVariantes(c);
+  const { d, entrada, intencion, salida, extras } = c;
   return registrar(d, entrada, intencion, salida, async () => {
     const r = await d.puerto.crearProducto({
       nombre: intencion.nombre,
@@ -29,6 +31,37 @@ export async function crearProducto({ d, entrada, intencion, salida, extras }: C
         ),
       },
       inverso: { tipo: "producto", producto_id: r.valor.id },
+      descripcion: t.descProducto(intencion.nombre),
+    };
+  });
+}
+
+/** "Galletas: chocolate 3, red velvet 3.5": un producto con una variante por cada versión, cada una con su precio. */
+async function crearConVariantes({ d, entrada, intencion, salida, extras }: Ctx<"crear_producto">): Promise<Respuesta> {
+  return registrar(d, entrada, intencion, salida, async () => {
+    const r = await d.puerto.crearProductoConVariantes({
+      nombre: intencion.nombre,
+      variantes: intencion.variantes,
+      opcion: intencion.opcion,
+      costo: intencion.costo,
+      descripcion: extras?.descripcion ?? null,
+      categoria: extras?.categoria ?? null,
+      fotoRuta: extras?.fotoRuta ?? null,
+    });
+    if (!r.ok) return { respuesta: { texto: textoDeError(r.error) } };
+    const lineas = r.valor.productos.map((p, i) => {
+      const v = intencion.variantes[i];
+      return t.lineaVariante(p.codigo, p.etiqueta, formatearDolares(v.precio), v.cantidad);
+    });
+    return {
+      respuesta: {
+        texto: [
+          t.productoConVariantes(intencion.nombre, intencion.variantes.length, intencion.opcion),
+          ...lineas,
+          intencion.costo === null ? t.faltaCostoVariantes : t.costoVariantes(formatearDolares(intencion.costo)),
+        ].join("\n"),
+      },
+      inverso: { tipo: "grupo", grupo: r.valor.grupo },
       descripcion: t.descProducto(intencion.nombre),
     };
   });

@@ -31,6 +31,26 @@ type Contexto = {
 
 const ToastContexto = createContext<Contexto | null>(null);
 
+/** Igual que useToast, pero sin romper si no hay proveedor (por ejemplo en una prueba aislada). */
+export function useToastOpcional(): Contexto | null {
+  return useContext(ToastContexto);
+}
+
+/**
+ * Los errores por campo de un formulario (los que devuelve la acción del servidor) también salen como aviso:
+ * el primero, y cuántos más hay. Se dispara en cada intento de guardar, aunque el error sea el mismo.
+ * El error "general" no, porque ese ya lo avisa MensajeError.
+ */
+export function useAvisarErrores(estado: { errores?: Partial<Record<string, string>> } | undefined) {
+  const toast = useToastOpcional();
+  useEffect(() => {
+    const campos = Object.entries(estado?.errores ?? {}).filter(([k, v]) => k !== "general" && v);
+    if (!campos.length) return;
+    const [, primero] = campos[0];
+    toast?.avisar(campos.length > 1 ? textos.comun.yOtrosErrores(primero!, campos.length - 1) : primero!, { tipo: "error" });
+  }, [estado, toast]);
+}
+
 export function useToast(): Contexto {
   const contexto = useContext(ToastContexto);
   if (!contexto) throw new Error("useToast hay que usarlo dentro de <ToastProvider>");

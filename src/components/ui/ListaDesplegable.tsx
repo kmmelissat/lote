@@ -170,7 +170,7 @@ export function ListaDesplegable({
         {elegida?.detalle && <span className="shrink-0 text-sm font-bold text-texto-2">{elegida.detalle}</span>}
         <span
           aria-hidden="true"
-          className={`flex shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon text-teal-oscuro transition-transform duration-150 ${variante === "compacto" ? "size-6" : variante === "campo" ? "size-8" : "size-7"} ${abierta ? "rotate-180" : ""}`}
+          className={`flex shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal-fondo text-teal-oscuro transition-transform duration-150 ${variante === "compacto" ? "size-6" : variante === "campo" ? "size-8" : "size-7"} ${abierta ? "rotate-180" : ""}`}
         >
           <Icon nombre="flecha" className="size-4" strokeWidth={2.5} />
         </span>
@@ -204,7 +204,7 @@ export function ListaDesplegable({
                   elegir(i);
                 }}
                 onMouseEnter={() => setActiva(i)}
-                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 ${activa === i ? "bg-limon/60" : ""} ${marcada ? "font-bold" : ""}`}
+                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 ${activa === i ? "bg-teal-fondo" : ""} ${marcada ? "font-bold" : ""}`}
               >
                 <span className="flex size-5 shrink-0 items-center justify-center">
                   {marcada && <Icon nombre="check" className="size-5" strokeWidth={2.5} />}

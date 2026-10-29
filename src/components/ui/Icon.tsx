@@ -1,4 +1,5 @@
 import {
+  ArrowUp,
   ArrowUpRight,
   Bell,
   Banknote,
@@ -20,6 +21,7 @@ import {
   Landmark,
   Lock,
   LogOut,
+  Maximize2,
   type LucideProps,
   PanelLeft,
   Package,
@@ -80,6 +82,8 @@ const iconos = {
   usuario: User,
   panel: PanelLeft,
   filtros: SlidersHorizontal,
+  enviar: ArrowUp,
+  ampliar: Maximize2,
 } as const;
 
 export type NombreIcono = keyof typeof iconos;

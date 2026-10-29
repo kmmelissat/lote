@@ -55,7 +55,7 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
                 type="button"
                 onClick={() => onCambio(filas.filter((_, k) => k !== i))}
                 aria-label={t.quitar(i + 1)}
-                className="flex size-11 shrink-0 items-center justify-center rounded-full text-texto-2 hover:bg-limon/50 hover:text-teal-oscuro"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full text-texto-2 hover:bg-teal-fondo hover:text-teal-oscuro"
               >
                 <Icon nombre="x" />
               </button>
@@ -68,7 +68,7 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
         <button
           type="button"
           onClick={() => onCambio([...filas, { nombre: "", valor: "" }])}
-          className="inline-flex h-11 items-center gap-2 self-start rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro hover:bg-limon"
+          className="inline-flex h-11 items-center gap-2 self-start rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro hover:bg-teal-fondo"
         >
           <Icon nombre="mas" className="size-4" />
           {t.agregar}

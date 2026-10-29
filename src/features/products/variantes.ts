@@ -1,10 +1,9 @@
-import { leerDolares, nombreBase, SEPARADOR_VARIANTE as SEPARADOR, type Centavos } from "@/domain";
+import { nombreBase, SEPARADOR_VARIANTE as SEPARADOR } from "@/domain";
 import type { Producto } from "./repositorio";
 
 // Cada variante es un producto hermano (ver supabase/variantes.sql). Estas funciones son las reglas
-// de cómo se nombran, se validan y se juntan en la vitrina.
+// de cómo se nombran y se juntan en la vitrina; validar la tabla de variantes vive en edicionGrupo.ts.
 
-const MINIMO_VARIANTES = 2;
 export const MAXIMO_VARIANTES = 30;
 
 /**
@@ -23,35 +22,16 @@ export function combinarOpciones(opciones: string[][]): string[] {
 }
 
 /** `compra`: el costo de compra propio de la variante; null si usa el del producto. */
-export type FilaVariante = { etiqueta: string; cantidad: number; compra: Centavos | null };
-
-export type ErrorVariantes = "pocas" | "muchas" | "etiqueta" | "repetida" | "cantidad" | "costo";
-
-/**
- * Valida lo que escribió la persona: entre 2 y 30 variantes, sin etiquetas repetidas, con cantidades enteras de 1 en
- * adelante y, si se puso, un costo de compra que se entienda.
- */
-export function validarVariantes(
-  filas: { etiqueta: unknown; cantidad: unknown; compra?: unknown }[],
-): { ok: true; variantes: FilaVariante[] } | { ok: false; error: ErrorVariantes } {
-  if (filas.length < MINIMO_VARIANTES) return { ok: false, error: "pocas" };
-  if (filas.length > MAXIMO_VARIANTES) return { ok: false, error: "muchas" };
-  const vistas = new Set<string>();
-  const variantes: FilaVariante[] = [];
-  for (const f of filas) {
-    const etiqueta = typeof f.etiqueta === "string" ? f.etiqueta.trim() : "";
-    if (!etiqueta || etiqueta.length > 40) return { ok: false, error: "etiqueta" };
-    const clave = etiqueta.toLowerCase();
-    if (vistas.has(clave)) return { ok: false, error: "repetida" };
-    vistas.add(clave);
-    const cantidad = Number(typeof f.cantidad === "string" ? f.cantidad.trim() || "NaN" : f.cantidad);
-    if (!Number.isInteger(cantidad) || cantidad < 1) return { ok: false, error: "cantidad" };
-    const textoCompra = typeof f.compra === "string" ? f.compra.trim() : "";
-    const compra = textoCompra ? leerDolares(textoCompra) : null;
-    if (textoCompra && compra === null) return { ok: false, error: "costo" };
-    variantes.push({ etiqueta, cantidad, compra });
+/** Los nombres de las opciones de las variantes (un JSON en un campo oculto): hasta 3, de hasta 30 letras. */
+export function nombresDeOpciones(json: string | undefined): string[] {
+  try {
+    const lista: unknown = JSON.parse(json || "[]");
+    return Array.isArray(lista)
+      ? lista.filter((n): n is string => typeof n === "string" && !!n.trim()).map((n) => n.trim().slice(0, 30)).slice(0, 3)
+      : [];
+  } catch {
+    return [];
   }
-  return { ok: true, variantes };
 }
 
 export type GrupoProducto = {

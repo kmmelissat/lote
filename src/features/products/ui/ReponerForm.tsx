@@ -1,48 +1,63 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { Select } from "@/components/ui/Select";
+import { useAvisarErrores, useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
-import { reponer, type EstadoReponer } from "../actions/detalle";
+import { reponerElegido, type EstadoReponer } from "../actions/detalle";
 
 const t = textos.productos.reponer;
 
-export function ReponerForm({ codigo }: { codigo: number }) {
-  const [estado, accion, pendiente] = useActionState<EstadoReponer, FormData>(
-    reponer.bind(null, codigo),
-    {},
-  );
+/**
+ * Sumar unidades que llegaron. Vive en una ventana: al terminar avisa y la cierra. Con variantes, se elige a
+ * cuál llegaron (arranca en la que se está mirando).
+ */
+export function ReponerForm({
+  codigo,
+  variantes = [],
+}: {
+  codigo: number;
+  variantes?: { codigo: number; etiqueta: string }[];
+}) {
+  const [estado, accion, pendiente] = useActionState<EstadoReponer, FormData>(reponerElegido, {});
+  useAvisarErrores(estado);
+  const { avisar } = useToast();
   const e = estado.errores ?? {};
+  const formulario = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (!estado.listo) return;
+    avisar(estado.listo, { tipo: "exito" });
+    // Queda vacío para la próxima vez que se abra
+    formulario.current?.reset();
+    formulario.current?.closest("dialog")?.close();
+  }, [estado, avisar]);
 
   return (
-    <section className="rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura">
-      <form action={accion} className="flex flex-col gap-4">
-<div className="flex items-start gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-limon text-teal-oscuro">
-            <Icon nombre="caja" className="size-6" />
-          </span>
-          <div>
-            <h2 className="text-lg font-bold leading-tight">{t.titulo}</h2>
-            <p className="text-sm text-texto-2">{t.ayuda}</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-4">
-          <Field etiqueta={t.llegan} name="llegan" inputMode="numeric" required error={e.llegan} />
-          <Field etiqueta={t.costo} name="costo" inputMode="decimal" error={e.costo} />
-        </div>
-        <div className="flex flex-wrap items-center gap-4">
-          <Button type="submit" variante="mango" disabled={pendiente}>
-            {pendiente ? t.guardando : t.boton}
-          </Button>
-          <p role="status" className="text-sm text-teal">
-            {estado.listo}
-          </p>
-          <MensajeError>{e.general}</MensajeError>
-        </div>
-      </form>
-    </section>
+    <form ref={formulario} action={accion} className="flex flex-col gap-4">
+      {variantes.length > 1 ? (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">{t.variante}</span>
+          <Select name="codigo" defaultValue={String(codigo)}>
+            {variantes.map((v) => (
+              <option key={v.codigo} value={v.codigo}>
+                {v.etiqueta}
+              </option>
+            ))}
+          </Select>
+        </label>
+      ) : (
+        <input type="hidden" name="codigo" value={codigo} />
+      )}
+      <Field etiqueta={t.llegan} name="llegan" inputMode="numeric" required error={e.llegan} />
+      <Field etiqueta={t.costo} name="costo" inputMode="decimal" error={e.costo} />
+      <Button type="submit" variante="mango" disabled={pendiente}>
+        {pendiente ? t.guardando : t.boton}
+      </Button>
+      <MensajeError>{e.general}</MensajeError>
+    </form>
   );
 }

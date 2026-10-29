@@ -1,5 +1,6 @@
 "use client";
 
+import { MensajeError } from "@/components/ui/MensajeError";
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Field } from "@/components/ui/Field";
@@ -107,9 +108,9 @@ export function LoginForm() {
         </button>
       </form>
 
-      <p role="alert" className="min-h-5 text-sm font-medium text-error">
-        {error}
-      </p>
+      <div className="min-h-5">
+        <MensajeError>{error}</MensajeError>
+      </div>
     </div>
   );
 }

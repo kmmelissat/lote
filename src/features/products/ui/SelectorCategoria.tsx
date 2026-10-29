@@ -86,7 +86,7 @@ export function SelectorCategoria({
             type="button"
             disabled={pendiente}
             onClick={() => crear(sugerida, () => onSugerida?.(null))}
-            className="rounded-full border-2 border-teal-oscuro bg-mango px-3 py-0.5 font-bold"
+            className="rounded-full border-2 border-teal-oscuro bg-white px-3 py-0.5 font-bold"
           >
             {pendiente ? t.creando : t.lotitoCrear}
           </button>
@@ -116,7 +116,7 @@ export function SelectorCategoria({
               }}
               className={estiloCampo}
             />
-            <Button type="button" variante="mango" disabled={pendiente || !nombre.trim()} onClick={() => crear(nombre)} className="shrink-0">
+            <Button type="button" variante="primario" disabled={pendiente || !nombre.trim()} onClick={() => crear(nombre)} className="shrink-0">
               {pendiente ? t.creando : t.crear}
             </Button>
             <button

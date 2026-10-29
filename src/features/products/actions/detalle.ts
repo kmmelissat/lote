@@ -2,33 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { costoPromedio, leerDolares } from "@/domain/index";
-import { MAXIMO_FOTOS } from "../limites";
-import {
-  guardarFotos,
-  obtenerProducto,
-  reponerProducto,
-} from "../repositorio";
-import { esRutaFoto } from "@/lib/fotos";
+import { obtenerProducto, reponerProducto } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos.reponer;
-
-export async function agregarFotos(
-  codigo: number,
-  rutas: string[],
-): Promise<{ error?: string }> {
-  const { supabase, negocio } = await negocioActual();
-  const producto = await obtenerProducto(supabase, negocio.id, codigo, negocio.puedeGestionar);
-  if (!producto || !negocio.puedeGestionar) return { error: textos.productos.fotos.errorGuardar };
-
-  const nuevas = rutas.filter((r) => esRutaFoto(r, negocio.id));
-  const fotos = [...new Set([...producto.fotos, ...nuevas])].slice(0, MAXIMO_FOTOS);
-  // Igual que en Editar: cada variante tiene sus fotos, así que se guardan solo en esta.
-  if (!(await guardarFotos(supabase, producto.id, fotos))) return { error: textos.productos.fotos.errorGuardar };
-  revalidatePath("/", "layout");
-  return {};
-}
 
 export type EstadoReponer = {
   errores?: { llegan?: string; costo?: string; general?: string };
@@ -64,4 +42,11 @@ export async function reponer(
   if (resultado !== "ok") return { errores: { general: t.errorGeneral } };
   revalidatePath("/", "layout");
   return { listo: t.listo(llegan) };
+}
+
+/** Reponer desde la ventana del detalle: la variante a la que llegan unidades viene en el formulario. */
+export async function reponerElegido(anterior: EstadoReponer, formData: FormData): Promise<EstadoReponer> {
+  const codigo = Number(formData.get("codigo"));
+  if (!Number.isInteger(codigo)) return { errores: { general: t.errorGeneral } };
+  return reponer(codigo, anterior, formData);
 }

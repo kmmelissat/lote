@@ -1,5 +1,6 @@
 "use client";
 
+import { MensajeError } from "@/components/ui/MensajeError";
 import {
   useEffect,
   useMemo,
@@ -418,14 +419,7 @@ export function Mostrador({
                   faltaRecibido={faltaRecibido}
                 />
 
-                {error && (
-                  <p
-                    role="alert"
-                    className="rounded-xl bg-error-fondo p-3 text-sm text-error"
-                  >
-                    {error}
-                  </p>
-                )}
+                <MensajeError>{error}</MensajeError>
 
                 <Button
                   type="button"

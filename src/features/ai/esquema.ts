@@ -19,8 +19,12 @@ const INTENCIONES = [
   "deshacer",
   "ayuda",
   "pregunta",
+  "conversar",
   "no_entiendo",
 ] as const;
+
+/** Una versión de un producto nuevo dicha en la línea ("chocolate 3", "red velvet 3.5"): su nombre corto, su precio y cuántas. */
+const VarianteDicha = z.object({ nombre: z.string(), precio: z.number().nullable(), cantidad: z.number().int().nullable() });
 
 // Lo que la IA devuelve: la intención y los datos que dijo la persona, tal cual.
 // Plano y con todo anulable a propósito: la IA solo lee, y el código decide qué falta y qué se hace.
@@ -37,8 +41,8 @@ export const SalidaEntender = z.object({
   paquetera: z.string().nullable(),
   guia: z.string().nullable(),
   consulta: z.enum(["apartados", "por_cobrar", "por_enviar", "producto", "ganancia", "ganancia_producto", "productos_estado"]).nullable(),
-  /** Solo para preguntas de ganancia: semana o mes. Null si no lo dijo. */
-  periodo: z.enum(["semana", "mes"]).nullable(),
+  /** Solo para preguntas de ganancia: hoy, semana o mes. Null si no lo dijo. */
+  periodo: z.enum(["dia", "semana", "mes"]).nullable(),
   /** Solo para "productos_estado": cuáles quiere ver */
   estado: z.enum(["disponible", "apartado", "vendido"]).nullable(),
   /** Solo para gasto: en qué se gastó */
@@ -49,6 +53,10 @@ export const SalidaEntender = z.object({
   tema: z.enum(TEMAS_AYUDA).nullable(),
   /** Solo si dudó entre dos intenciones: la segunda más probable. El sistema le pregunta a la persona. */
   alternativa: z.enum(INTENCIONES).nullable(),
+  /** Solo para crear_producto: las versiones con su precio, si nombró varias ("chocolate 3, red velvet 3.5"). Vacío si es uno solo. */
+  variantes: z.array(VarianteDicha),
+  /** Qué es lo que cambia entre las variantes: "Sabor", "Color", "Talla", "Modelo". Null si no hay variantes. */
+  opcionVariante: z.string().nullable(),
 });
 
 export type SalidaEntender = z.infer<typeof SalidaEntender>;
@@ -72,6 +80,8 @@ export const salidaVacia = (intencion: SalidaEntender["intencion"]): SalidaEnten
   nota: null,
   tema: null,
   alternativa: null,
+  variantes: [],
+  opcionVariante: null,
 });
 
 // Lo que la IA saca de una foto de producto y de la línea que la acompaña.
@@ -89,9 +99,17 @@ export const SalidaFoto = z.object({
   opciones: z.array(z.object({ nombre: z.string(), valores: z.array(z.string()) })),
   /** Talla o tono, si se ve o se dijo ("M", "rosa") */
   detalle: z.string().nullable(),
+  /** Nuevo o usado, solo si se nota en la foto o lo dice la línea. Null si no se puede saber. */
+  condicion: z.enum(["nuevo", "usado"]).nullable(),
+  /** Datos concretos que se ven o se leen (material, compatibilidad, capacidad): nombre corto y valor corto. */
+  detalles: z.array(z.object({ nombre: z.string(), valor: z.string() })),
   precio: z.number().nullable(),
   costo: z.number().nullable(),
   cantidad: z.number().int().nullable(),
+  /** Las versiones que nombró la línea con su precio ("chocolate 3, red velvet 3.5"). Vacío si es uno solo. */
+  variantes: z.array(VarianteDicha),
+  /** Qué cambia entre las variantes ("Sabor", "Color", "Talla"). Null si no hay. */
+  opcionVariante: z.string().nullable(),
 });
 
 export type SalidaFoto = z.infer<typeof SalidaFoto>;

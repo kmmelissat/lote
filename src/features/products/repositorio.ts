@@ -411,15 +411,31 @@ export async function obtenerInfoExtra(supabase: Cliente, productoId: string): P
   }
 }
 
-/** Guarda la información extra. Los detalles y el estado son de todas las variantes; el precio de antes, de la que se edita. */
+/**
+ * Guarda la información extra. Los detalles y el estado son de todas las variantes; el precio de antes, de la que
+ * se edita. Con `esta` en null (se editan todas juntas) el precio de antes de cada una no se toca.
+ */
 export async function guardarInfoExtra(
   supabase: Cliente,
-  ids: { todas: string[]; esta: string },
+  ids: { todas: string[]; esta: string | null },
   info: { detalles: { nombre: string; valor: string }[]; estadoDetalle: string | null; precioAnterior: Centavos | null },
 ): Promise<boolean> {
   const ficha = await supabase.from("producto").update({ detalles: info.detalles, estado_detalle: info.estadoDetalle }).in("id", ids.todas);
+  if (ids.esta === null) return !ficha.error;
   const precio = await supabase.from("producto").update({ precio_anterior: info.precioAnterior === null ? null : info.precioAnterior / 100 }).eq("id", ids.esta);
   return !ficha.error && !precio.error;
+}
+
+/** Guarda los nombres de las opciones del cruce en todas las variantes. Sin el SQL de esto, no hace nada. */
+export async function guardarOpcionesVariante(supabase: Cliente, ids: string[], nombres: string[]): Promise<void> {
+  await supabase.from("producto").update({ opciones_variante: nombres }).in("id", ids);
+}
+
+/** Los nombres de las opciones del cruce ("Sabor", "Color") de un producto con variantes. Vacío si no hay o falta el SQL. */
+export async function opcionesDeVariante(supabase: Cliente, productoId: string): Promise<string[]> {
+  const { data } = await supabase.from("producto").select("opciones_variante").eq("id", productoId).maybeSingle();
+  const lista: unknown = data?.opciones_variante;
+  return Array.isArray(lista) ? lista.filter((x): x is string => typeof x === "string") : [];
 }
 
 export type AvisoDeStock = { id: string; nombre: string; contacto: string; creadoEn: Date };
@@ -479,6 +495,17 @@ export async function borrarCategoria(supabase: Cliente, negocioId: string, nomb
  */
 export async function eliminarProducto(supabase: Cliente, productoId: string): Promise<"ok" | "con_pedidos" | "sin_permiso" | "desconocido"> {
   const { data, error } = await supabase.from("producto").delete().eq("id", productoId).select("id");
+  if (error) return error.code === "23503" ? "con_pedidos" : "desconocido";
+  return data.length > 0 ? "ok" : "sin_permiso";
+}
+
+/** Borra un producto con todas sus variantes, en una sola orden: si alguna tiene pedidos no se borra ninguna. */
+export async function eliminarGrupo(
+  supabase: Cliente,
+  negocioId: string,
+  grupo: string,
+): Promise<"ok" | "con_pedidos" | "sin_permiso" | "desconocido"> {
+  const { data, error } = await supabase.from("producto").delete().eq("negocio_id", negocioId).eq("grupo", grupo).select("id");
   if (error) return error.code === "23503" ? "con_pedidos" : "desconocido";
   return data.length > 0 ? "ok" : "sin_permiso";
 }

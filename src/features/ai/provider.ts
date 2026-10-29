@@ -18,6 +18,11 @@ export interface ProveedorIA {
   entenderFoto(urlImagen: string, linea: string, contextoTienda?: string): Promise<SalidaFoto>;
   /** Lee el monto, la fecha y la referencia de la captura de un comprobante de pago (data URL, nunca guardada). */
   leerComprobante(imagen: string): Promise<SalidaComprobante>;
+  /**
+   * Contesta con sus palabras lo que no es una acción: un saludo, una pregunta sobre cómo va el negocio, un
+   * consejo o un texto para publicar. Solo con los datos que recibe; no ejecuta nada.
+   */
+  responder(mensaje: string, datosNegocio: string, conversacion?: Turno[]): Promise<string>;
   /** Lee un chat pegado y propone las acciones que la conversación deja claras. No ejecuta nada. */
   proponerAcciones(chat: string, contexto?: ContextoIA): Promise<SalidaEntender[]>;
 }

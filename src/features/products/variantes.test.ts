@@ -1,36 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { combinarOpciones, agruparProductos, validarVariantes } from "./variantes";
-
-describe("validarVariantes", () => {
-  const ok = [{ etiqueta: " M ", cantidad: "2" }, { etiqueta: "L", cantidad: 3 }];
-
-  it("acepta y limpia lo escrito", () => {
-    expect(validarVariantes(ok)).toEqual({ ok: true, variantes: [{ etiqueta: "M", cantidad: 2, compra: null }, { etiqueta: "L", cantidad: 3, compra: null }] });
-  });
-
-  it("pide al menos dos y no más de doce", () => {
-    expect(validarVariantes([ok[0]])).toEqual({ ok: false, error: "pocas" });
-    const trece = Array.from({ length: 31 }, (_, i) => ({ etiqueta: `T${i}`, cantidad: 1 }));
-    expect(validarVariantes(trece)).toEqual({ ok: false, error: "muchas" });
-  });
-
-  it("rechaza etiquetas vacías o repetidas, sin importar mayúsculas", () => {
-    expect(validarVariantes([ok[0], { etiqueta: "  ", cantidad: 1 }])).toEqual({ ok: false, error: "etiqueta" });
-    expect(validarVariantes([{ etiqueta: "m", cantidad: 1 }, { etiqueta: "M", cantidad: 1 }])).toEqual({ ok: false, error: "repetida" });
-  });
-
-  it("rechaza cantidades que no son enteros de 1 en adelante", () => {
-    for (const cantidad of ["0", "-1", "1.5", "", "abc"]) {
-      expect(validarVariantes([ok[0], { etiqueta: "XL", cantidad }])).toEqual({ ok: false, error: "cantidad" });
-    }
-  });
-
-  it("lee el costo de compra de cada variante, y vacío usa el del producto", () => {
-    const r = validarVariantes([{ ...ok[0], compra: "5.99" }, { ...ok[1], compra: " " }]);
-    expect(r.ok && r.variantes.map((v) => v.compra)).toEqual([599, null]);
-    expect(validarVariantes([{ ...ok[0], compra: "abc" }, ok[1]])).toEqual({ ok: false, error: "costo" });
-  });
-});
+import { combinarOpciones, agruparProductos } from "./variantes";
 
 describe("agruparProductos", () => {
   const base = {

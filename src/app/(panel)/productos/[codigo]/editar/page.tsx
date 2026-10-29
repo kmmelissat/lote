@@ -3,8 +3,16 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { aDolares } from "@/domain/index";
-import { editarProducto } from "@/features/products/actions/editar";
-import { listarCategorias, listarProductos, obtenerInfoExtra, obtenerProducto } from "@/features/products/repositorio";
+import { guardarProducto } from "@/features/products/actions/guardar";
+import { separarFotos } from "@/features/products/fotosVariantes";
+import {
+  listarCategorias,
+  listarGrupo,
+  listarProductos,
+  obtenerInfoExtra,
+  obtenerProducto,
+  opcionesDeVariante,
+} from "@/features/products/repositorio";
 import { NuevoProductoForm } from "@/features/products/ui/NuevoProductoForm";
 import { nombreBase } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
@@ -49,6 +57,25 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
   const extra = await obtenerInfoExtra(supabase, p.id);
   const conVariante = p.grupo !== null && p.variante !== null;
   const dolares = (c: number | undefined) => (c === undefined ? "" : String(aDolares(c)));
+  // Con variantes se editan todas juntas, en el mismo editor que al crear
+  const miembros = conVariante ? await listarGrupo(supabase, negocio.id, p.grupo!, true) : [];
+  // Las que tienen todas las variantes son las del producto (arriba); el resto, las propias de cada una
+  const { generales, propias } = separarFotos(miembros.map((m) => m.fotos));
+  const fotosProducto = conVariante ? generales : p.fotos;
+  const variantes = conVariante
+    ? {
+        nombres: await opcionesDeVariante(supabase, miembros[0].id),
+        filas: miembros.map((m, i) => ({
+          etiqueta: m.variante ?? m.nombre,
+          id: m.id,
+          precio: dolares(m.precio),
+          cantidad: String(m.cantidad),
+          compra: dolares(m.desglose?.compra),
+          fotos: propias[i],
+          comprometidas: m.apartadas + m.vendidas,
+        })),
+      }
+    : null;
   const inicial: Record<string, string> = {
     nombre: conVariante ? nombreBase(p.nombre, p.variante) : p.nombre,
     variante: p.variante ?? "",
@@ -72,7 +99,15 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
       negocioId={negocio.id}
       inicial={inicial}
       sugerencias={sugerencias}
-      modo={{ tipo: "editar", codigo: p.codigo, conVariante, fotos: p.fotos, accion: editarProducto.bind(null, p.codigo) }}
+      modo={{
+        tipo: "editar",
+        codigo: p.codigo,
+        id: p.id,
+        conVariante,
+        fotos: fotosProducto,
+        variantes,
+        accion: guardarProducto.bind(null, p.codigo),
+      }}
     />
   );
 }

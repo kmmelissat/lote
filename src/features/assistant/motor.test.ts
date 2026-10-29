@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { resumenDelPeriodo, type LineaVendida } from "@/domain";
 import { salidaVacia, type SalidaEntender, type SalidaFoto } from "../ai/esquema";
+import { textos } from "@/lib/textos";
 import { procesar, type Entrada, type Estado } from "./motor";
 import type { PedidoAsistente, ProductoAsistente, Puerto } from "./puerto";
 
@@ -44,6 +45,10 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     productos: async () => opciones.productos ?? [producto(1, "Chaqueta negra M"), producto(2, "Chaqueta roja S"), producto(3, "Llaveros de gato")],
     pedidos: async (estados) => (opciones.pedidos ?? []).filter((p) => estados.includes(p.estado)),
     crearProducto: vi.fn(async () => ({ ok: true as const, valor: { id: "nuevo", codigo: 9 } })),
+    crearProductoConVariantes: vi.fn(async (p: { variantes: { etiqueta: string }[] }) => ({
+      ok: true as const,
+      valor: { grupo: "g1", productos: p.variantes.map((v, i) => ({ id: `v${i}`, codigo: 10 + i, etiqueta: v.etiqueta })) },
+    })),
     reponer: vi.fn(async () => ({ ok: true as const, valor: null })),
     registrarPedido: vi.fn(async () => ({ ok: true as const, valor: { id: "ped-nuevo", codigo: 7 } })),
     registrarPago: vi.fn(async () => ({ ok: true as const, valor: { pagoId: "pago-1" } })),
@@ -64,7 +69,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     deshacerAccion: vi.fn(async () => ({ ok: true as const, valor: "apartado de Chaqueta" })),
     ...opciones.puerto,
   };
-  const fichaBase: SalidaFoto = { nombre: "Producto", descripcion: "", categoria: null, marca: null, opciones: [], detalle: null, precio: null, costo: null, cantidad: null };
+  const fichaBase: SalidaFoto = { nombre: "Producto", descripcion: "", categoria: null, marca: null, opciones: [], detalle: null, condicion: null, detalles: [], precio: null, costo: null, cantidad: null, variantes: [], opcionVariante: null };
   const ia = (salida?: Partial<SalidaEntender> & Pick<SalidaEntender, "intencion">, foto?: Partial<SalidaFoto> | Error) => ({
     entenderMensaje: async () => ({ ...salidaVacia(salida?.intencion ?? "no_entiendo"), ...salida }),
     entenderFoto: async () => {
@@ -72,6 +77,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
       return { ...fichaBase, ...foto };
     },
     leerComprobante: async () => ({ esComprobante: false, monto: null, fecha: null, referencia: null }),
+    responder: async () => "Respuesta de Lotito",
     proponerAcciones: async () => [],
   });
   const turno = (
@@ -289,6 +295,72 @@ describe("sin IA conectada", () => {
 });
 
 describe("crear y reponer", () => {
+  it("una foto con varios sabores y sus precios crea un producto con variantes, sin volver a preguntar el precio", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno(
+      { mensajeId: "m1", texto: "son galletas: chocolate 3.00, chispas de chocolate 2.5, red velvet 3.5 y butter oreo 4.00", foto: { ruta: "neg/g.webp", url: "https://x/g.webp" } },
+      undefined,
+      {
+        nombre: "Galletas",
+        descripcion: "Galletas caseras.",
+        categoria: "Postres",
+        variantes: [
+          { nombre: "Chocolate", precio: 3, cantidad: null },
+          { nombre: "Chispas de chocolate", precio: 2.5, cantidad: null },
+          { nombre: "Red velvet", precio: 3.5, cantidad: null },
+          { nombre: "Butter oreo", precio: 4, cantidad: null },
+        ],
+        opcionVariante: "Sabor",
+      },
+    );
+    expect(puerto.crearProductoConVariantes).toHaveBeenCalledWith(
+      expect.objectContaining({
+        nombre: "Galletas",
+        opcion: "Sabor",
+        fotoRuta: "neg/g.webp",
+        variantes: [
+          { etiqueta: "Chocolate", precio: 300, cantidad: 1 },
+          { etiqueta: "Chispas de chocolate", precio: 250, cantidad: 1 },
+          { etiqueta: "Red velvet", precio: 350, cantidad: 1 },
+          { etiqueta: "Butter oreo", precio: 400, cantidad: 1 },
+        ],
+      }),
+    );
+    expect(r.texto).toContain("Galletas con 4 sabores");
+    expect(r.texto).toContain("#12 Red velvet");
+    expect(r.estado).toBeUndefined();
+  });
+
+  it("si a una variante le falta el precio y no hay uno general, lo pregunta una vez", async () => {
+    const { turno } = montar();
+    const r = await turno(
+      { mensajeId: "m1" },
+      {
+        intencion: "crear_producto",
+        producto: "Fundas",
+        variantes: [
+          { nombre: "Rosa", precio: 12, cantidad: null },
+          { nombre: "Celeste", precio: null, cantidad: null },
+        ],
+      },
+    );
+    expect(r.estado).toMatchObject({ tipo: "completar", falta: "precio" });
+  });
+
+  it("«¿me podés agregar un producto?» sin datos pide el nombre, después el precio, y lo crea", async () => {
+    const { puerto, turno } = montar();
+    const r1 = await turno({ mensajeId: "m1", texto: "¿me podés agregar un producto?" }, { intencion: "crear_producto" });
+    expect(r1.texto).toBe(textos.asistente.pregunta.nombre);
+    expect(r1.estado).toMatchObject({ tipo: "completar", falta: "nombre" });
+
+    // Un nombre largo sigue siendo la respuesta, no un mensaje nuevo
+    const r2 = await turno({ mensajeId: "m2", texto: "funda de silicona para iPhone 15 rosa", estado: r1.estado });
+    expect(r2.texto).toBe(textos.asistente.pregunta.precio);
+
+    await turno({ mensajeId: "m3", texto: "12", estado: r2.estado });
+    expect(puerto.crearProducto).toHaveBeenCalledWith(expect.objectContaining({ nombre: "funda de silicona para iPhone 15 rosa", precio: 1200 }));
+  });
+
   it("crea un producto y avisa si falta el costo", async () => {
     const { puerto, turno } = montar();
     const r = await turno({ mensajeId: "m1" }, { intencion: "crear_producto", producto: "Gorra", precio: 8, cantidad: 4 });
@@ -450,7 +522,7 @@ describe("cuando la IA duda", () => {
     const { puerto } = montar({ pedidos: [pedido(1, "Ana")] });
     await procesar(
       { mensajeId: "m1", texto: "hola" },
-      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), proponerAcciones: vi.fn() }, puerto, ahora },
+      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder: vi.fn(), proponerAcciones: vi.fn() }, puerto, ahora },
     );
     expect(entenderMensaje).toHaveBeenCalledWith("hola", {
       productos: [
@@ -471,7 +543,7 @@ describe("cuando la IA duda", () => {
     ];
     await procesar(
       { mensajeId: "m1", texto: "¿y el mes pasado?", historial },
-      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), proponerAcciones: vi.fn() }, puerto, ahora },
+      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder: vi.fn(), proponerAcciones: vi.fn() }, puerto, ahora },
     );
     expect(entenderMensaje).toHaveBeenCalledWith("¿y el mes pasado?", expect.objectContaining({ conversacion: historial }));
   });
@@ -513,5 +585,61 @@ describe("preguntas de ganancia y de estado", () => {
     });
     const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "productos_estado", estado: "vendido" });
     expect(r.texto).toBe("Tenés 1 producto vendidos del todo:\n• #1 Chaqueta negra M");
+  });
+});
+
+describe("conversar", () => {
+  it("lo que no es una acción lo contesta la IA, con los productos, los pedidos y la ganancia como datos", async () => {
+    const responder = vi.fn(async () => "Lo que más se vende son las chaquetas.");
+    const { puerto } = montar({ pedidos: [pedido(1, "Ana")] });
+    const r = await procesar(
+      { mensajeId: "m1", texto: "¿qué se vende más?" },
+      {
+        ia: { entenderMensaje: async () => salidaVacia("conversar"), entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder, proponerAcciones: vi.fn() },
+        puerto,
+        ahora,
+      },
+    );
+    expect(r.texto).toBe("Lo que más se vende son las chaquetas.");
+    const [mensaje, datos] = responder.mock.calls[0] as unknown as [string, string];
+    expect(mensaje).toBe("¿qué se vende más?");
+    expect(datos).toContain("Chaqueta negra M");
+    expect(datos).toContain("Ana");
+    expect(datos).toContain("Ganancia después de gastos:");
+  });
+
+  it("si la IA no entendió, pregunta con sus palabras en vez del texto fijo", async () => {
+    const responder = vi.fn(async () => "¿Querés apartar algo o ver tu ganancia?");
+    const { puerto } = montar();
+    const r = await procesar(
+      { mensajeId: "m1", texto: "asdf" },
+      {
+        ia: { entenderMensaje: async () => salidaVacia("no_entiendo"), entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder, proponerAcciones: vi.fn() },
+        puerto,
+        ahora,
+      },
+    );
+    expect(r.texto).toBe("¿Querés apartar algo o ver tu ganancia?");
+  });
+
+  it("si la respuesta falla, avisa sin romper el chat", async () => {
+    const { puerto } = montar();
+    const r = await procesar(
+      { mensajeId: "m1", texto: "hola" },
+      {
+        ia: {
+          entenderMensaje: async () => salidaVacia("conversar"),
+          entenderFoto: vi.fn(),
+          leerComprobante: vi.fn(),
+          responder: vi.fn(async () => {
+            throw new Error("caída");
+          }),
+          proponerAcciones: vi.fn(),
+        },
+        puerto,
+        ahora,
+      },
+    );
+    expect(r.texto).toBe(textos.asistente.errorIA);
   });
 });

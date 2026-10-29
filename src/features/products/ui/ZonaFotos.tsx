@@ -88,7 +88,7 @@ export function ZonaFotos({
           {!rutas.length && <p className="text-sm text-texto-2">{conLotito ? l.zonaTexto : t.zonaTextoSimple}</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-2">
-          <button type="button" disabled={subiendo || lleno} onClick={() => galeria.current?.click()} className={`${boton} bg-mango`}>
+          <button type="button" disabled={subiendo || lleno} onClick={() => galeria.current?.click()} className={`${boton} bg-white`}>
             <Icon nombre="subir" className="size-4" />
             {l.elegir}
           </button>
@@ -118,7 +118,7 @@ export function ZonaFotos({
                 className="size-24 rounded-2xl border-2 border-teal-oscuro object-cover"
               />
               {i === 0 && (
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border-2 border-teal-oscuro bg-limon px-2 text-xs font-bold">
+                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border-2 border-teal-oscuro bg-white px-2 text-xs font-bold">
                   {l.principal}
                 </span>
               )}

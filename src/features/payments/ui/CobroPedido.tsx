@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button, estiloBoton } from "@/components/ui/Button";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { MensajeError } from "@/components/ui/MensajeError";
 import type { EstadoPedido } from "@/domain/index";
@@ -88,7 +88,7 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
               href={`https://wa.me/?text=${encodeURIComponent(mensaje)}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-12 items-center justify-center rounded-full border border-borde-control bg-superficie px-6 font-medium text-teal hover:bg-teal-fondo"
+              className={estiloBoton("secundario")}
             >
               {t.whatsapp}
             </a>

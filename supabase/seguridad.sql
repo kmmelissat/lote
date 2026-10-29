@@ -1,4 +1,4 @@
--- Arreglos de seguridad de la auditoría del 29 de octubre de 2026. Correr DESPUÉS de todos los demás
+-- Arreglos de seguridad de la auditoría del 29 de octubre de 2026 (y "deshacer" de un producto con variantes). Correr DESPUÉS de todos los demás
 -- (en especial de asistente_gasto.sql, avisos.sql, gastos.sql y schema.sql). Se puede correr de nuevo.
 
 -- ============================================================
@@ -92,6 +92,18 @@ begin
     begin
       delete from public.producto
       where id = (v_inv->>'producto_id')::uuid and negocio_id = v_accion.negocio_id;
+    exception when foreign_key_violation then
+      raise exception 'cambiado' using errcode = '22023';
+    end;
+
+  elsif v_tipo = 'grupo' then
+    -- Un producto con variantes que creó el asistente: se borran todas juntas, solo si ninguna se vendió ni se apartó.
+    if not public.puede_gestionar(v_accion.negocio_id) then
+      raise exception 'Sin permiso' using errcode = '42501';
+    end if;
+    begin
+      delete from public.producto
+      where grupo = (v_inv->>'grupo')::uuid and negocio_id = v_accion.negocio_id;
     exception when foreign_key_violation then
       raise exception 'cambiado' using errcode = '22023';
     end;

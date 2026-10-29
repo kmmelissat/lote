@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, estiloBoton } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Monito } from "@/components/ui/Monito";
 import { Icon } from "@/components/ui/Icon";
@@ -233,7 +233,7 @@ export function ListaProductos({
                   setEstado("todos");
                   guardarEnUrl("", "todos");
                 }}
-                className="inline-flex h-12 items-center rounded-full border border-borde bg-superficie px-6 font-medium text-teal hover:bg-teal-fondo"
+                className={estiloBoton("secundario")}
               >
                 {t.buscar.limpiar}
               </button>
@@ -313,7 +313,7 @@ export function ListaProductos({
                           <div className={`${fila} py-2 hover:bg-teal-fondo`}>
                             <span aria-hidden="true" className="max-md:hidden" />
                             <div className="min-w-0 max-md:col-span-2">
-                              <Link href={`/productos/${m.codigo}`} className="block truncate text-sm font-medium after:absolute after:inset-0">
+                              <Link href={`/productos/${p.codigo}?variante=${m.codigo}`} className="block truncate text-sm font-medium after:absolute after:inset-0">
                                 {m.variante}
                               </Link>
                               <p className="text-xs text-texto-2">#{m.codigo}</p>

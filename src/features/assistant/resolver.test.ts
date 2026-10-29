@@ -80,8 +80,42 @@ describe("aIntencion", () => {
     const s = { ...salidaVacia("crear_producto"), producto: "Chaqueta", precio: 25, costo: 10.5 };
     expect(aIntencion(s)).toEqual({
       ok: true,
-      intencion: { tipo: "crear_producto", nombre: "Chaqueta", precio: 2500, costo: 1050, cantidad: 1 },
+      intencion: { tipo: "crear_producto", nombre: "Chaqueta", precio: 2500, costo: 1050, cantidad: 1, variantes: [], opcion: null },
     });
+  });
+
+  it("con dos o más variantes, cada una con su precio; el del producto es el más bajo", () => {
+    const s = {
+      ...salidaVacia("crear_producto"),
+      producto: "Galletas",
+      opcionVariante: "Sabor",
+      variantes: [
+        { nombre: "Chocolate", precio: 3, cantidad: 6 },
+        { nombre: " chocolate ", precio: 9, cantidad: null },
+        { nombre: "Red velvet", precio: 3.5, cantidad: null },
+      ],
+    };
+    expect(aIntencion(s)).toEqual({
+      ok: true,
+      intencion: {
+        tipo: "crear_producto",
+        nombre: "Galletas",
+        precio: 300,
+        costo: null,
+        cantidad: 7,
+        opcion: "Sabor",
+        // La repetida (sin importar mayúsculas ni espacios) se descarta
+        variantes: [
+          { etiqueta: "Chocolate", precio: 300, cantidad: 6 },
+          { etiqueta: "Red velvet", precio: 350, cantidad: 1 },
+        ],
+      },
+    });
+  });
+
+  it("una sola variante es un producto común", () => {
+    const s = { ...salidaVacia("crear_producto"), producto: "Galletas", precio: 3, variantes: [{ nombre: "Chocolate", precio: 3, cantidad: null }] };
+    expect(aIntencion(s)).toMatchObject({ ok: true, intencion: { variantes: [] } });
   });
 
   it("abonar necesita pedido y monto", () => {

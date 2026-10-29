@@ -1,5 +1,6 @@
 "use client";
 
+import { estiloBoton } from "@/components/ui/Button";
 import { useFormStatus } from "react-dom";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
@@ -32,7 +33,7 @@ export function CerrarSesion({ variante }: { variante: "lateral" | "completo" | 
             ? "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left font-medium text-error hover:bg-error-fondo"
             : lateral
             ? "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-texto-2 hover:bg-superficie hover:text-error group-data-[cerrado]:justify-center"
-            : "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-borde bg-superficie px-6 font-medium text-error hover:bg-error-fondo disabled:opacity-50"
+            : `${estiloBoton("secundario")} text-error!`
         }
       />
     </form>
