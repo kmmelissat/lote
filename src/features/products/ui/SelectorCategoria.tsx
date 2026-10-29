@@ -2,6 +2,7 @@
 
 import { useId, useState, useTransition } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { textos } from "@/lib/textos";
 import { crearCategoria } from "../actions/categoria";
 import { ChipLotito, estiloCampo, MensajeCampo } from "./campos";
@@ -64,22 +65,17 @@ export function SelectorCategoria({
         {etiqueta}
         {lotito && <ChipLotito />}
       </label>
-      <select
+      <ListaDesplegable
         id={id}
         name="categoria"
-        value={valor}
-        onChange={(e) => onCambio(e.target.value)}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className={`${estiloCampo} ${trabajando ? "animate-pulse bg-limon/40" : ""} ${lotito ? "border-teal-oscuro bg-limon/20" : ""}`}
-      >
-        <option value="">{t.sinCategoria}</option>
-        {lista.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
+        variante="campo"
+        valor={valor}
+        alCambiar={onCambio}
+        opciones={[{ valor: "", etiqueta: t.sinCategoria }, ...lista.map((o) => ({ valor: o, etiqueta: o }))]}
+        placeholder={t.sinCategoria}
+        error={error}
+        className={`${trabajando ? "animate-pulse bg-limon/40" : ""} ${lotito ? "border-teal-oscuro bg-limon/20" : ""}`}
+      />
       <MensajeCampo id={`${id}-error`}>{error}</MensajeCampo>
 
       {sugerida && !creando && (

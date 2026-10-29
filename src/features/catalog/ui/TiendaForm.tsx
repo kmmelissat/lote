@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/Toast";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { subirLogo } from "@/features/products/subirFotos";
 import { urlFoto } from "@/lib/fotos";
+import { slugDe } from "@/lib/slug";
 import { urlSitio } from "@/lib/sitio";
 import { textos } from "@/lib/textos";
 import { guardarTienda, type EstadoTienda } from "../actions/tienda";
@@ -119,6 +120,8 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
   const [instagram, setInstagram] = useState(identidad.usuarioInstagram ?? "");
   const [contexto, setContexto] = useState(identidad.contextoIa ?? "");
   const [vitrina, setVitrina] = useState(ajustes.vitrinaActiva);
+  // La dirección de la vitrina: nace del nombre al crear la tienda y después no cambia sola, así que se puede editar acá
+  const [direccion, setDireccion] = useState(identidad.slug);
   const [apartar, setApartar] = useState(ajustes.apartarDesdeVitrina);
   const [explorar, setExplorar] = useState(ajustes.visibleEnExplorar);
   const [subiendo, setSubiendo] = useState(false);
@@ -152,6 +155,41 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
               {v.opcional.apagada}
             </p>
           )}
+          {/* El campo sigue en el formulario aunque la vitrina esté apagada: la dirección no se pierde */}
+          <div className={`flex flex-col gap-1.5 ${vitrina ? "" : "hidden"}`}>
+            <label htmlFor="direccion-vitrina" className="text-sm font-medium">
+              {t.slug.etiqueta}
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="flex h-12 min-w-0 flex-1 basis-72 items-center overflow-hidden rounded-[14px] border-2 border-borde-control bg-superficie focus-within:border-teal">
+                <span className="shrink-0 bg-fondo px-3 py-3.5 text-sm text-texto-2">{urlSitio.replace(/^https?:\/\//, "")}/c/</span>
+                <input
+                  id="direccion-vitrina"
+                  name="slug"
+                  value={direccion}
+                  onChange={(e) => setDireccion(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                  maxLength={30}
+                  autoCapitalize="none"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="h-full min-w-0 flex-1 bg-transparent px-3 text-base outline-none"
+                />
+              </span>
+              <button
+                type="button"
+                onClick={() => setDireccion(slugDe(nombre))}
+                className="inline-flex h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
+              >
+                {t.slug.usarNombre}
+              </button>
+            </div>
+            <p className="text-sm text-texto-2">{t.slug.ayuda}</p>
+            {direccion !== identidad.slug && (
+              <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+                {t.slug.aviso}
+              </p>
+            )}
+          </div>
         </Grupo>
 
         <Grupo icono="tienda" titulo={t.secciones.marca} texto={t.secciones.marcaAyuda}>

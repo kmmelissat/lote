@@ -395,9 +395,11 @@ export async function contextoDeLaTienda(supabase: Cliente, negocioId: string): 
 export async function guardarTienda(
   supabase: Cliente,
   negocioId: string,
-  a: Omit<IdentidadTienda, "slug"> & Omit<AjustesVitrina, "slug" | "whatsapp" | "usuarioInstagram">,
-): Promise<boolean> {
+  a: Omit<IdentidadTienda, "slug"> & Omit<AjustesVitrina, "slug" | "whatsapp" | "usuarioInstagram"> & { slug?: string },
+): Promise<"ok" | "slug_repetido" | "error"> {
   const base = {
+      // La dirección de la vitrina solo se toca si la persona la cambió
+      ...(a.slug ? { slug: a.slug } : {}),
       nombre: a.nombre,
       descripcion: a.descripcion,
       logo: a.logo,
@@ -414,12 +416,15 @@ export async function guardarTienda(
   // Las columnas más nuevas (vitrina opcional, tiempo de entrega y cambios) existen solo después de correr su SQL.
   const nuevas = { vitrina_activa: a.vitrinaActiva, tiempo_entrega: a.tiempoEntrega, politica_cambios: a.politicaCambios };
   const { error } = await supabase.from("negocio").update({ ...base, ...nuevas }).eq("id", negocioId);
-  if (!error) return true;
-  // Si falta alguna, se guarda todo lo demás en vez de perder el cambio entero.
+  if (!error) return "ok";
+  // La dirección ya la usa otra tienda
+  if (error.code === "23505") return "slug_repetido";
+  // Si falta alguna columna nueva, se guarda todo lo demás en vez de perder el cambio entero.
   if (/vitrina_activa|tiempo_entrega|politica_cambios/.test(error.message)) {
-    return !(await supabase.from("negocio").update(base).eq("id", negocioId)).error;
+    const r = await supabase.from("negocio").update(base).eq("id", negocioId);
+    return r.error ? (r.error.code === "23505" ? "slug_repetido" : "error") : "ok";
   }
-  return false;
+  return "error";
 }
 
 export type ResenaPublica = { nombre: string; estrellas: number; texto: string | null; origen: "cliente" | "tienda"; creadoEn: Date };

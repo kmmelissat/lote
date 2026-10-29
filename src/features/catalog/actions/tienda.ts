@@ -48,6 +48,10 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
   const politicaCambios = texto("politica_cambios");
   if (politicaCambios.length > 300) return { error: v.errorPoliticaCambios };
 
+  // La dirección de la vitrina (/c/<dirección>): la misma regla que la base, y nunca vacía
+  const slug = texto("slug").toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(slug)) return { error: t.slug.errorFormato };
+
   const color = texto("color");
   if (!COLORES_MARCA.some((c) => c.hex === color)) return { error: t.errorColor };
 
@@ -59,6 +63,8 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
   if (logo && !esRutaFoto(logo, negocio.id)) return { error: t.errorLogo };
 
   const ok = await guardar(supabase, negocio.id, {
+    // Si no cambió, no se toca
+    slug: slug === negocio.slug ? undefined : slug,
     nombre,
     descripcion: descripcion || null,
     logo: logo || null,
@@ -76,7 +82,8 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
     tiempoEntrega: tiempoEntrega || null,
     politicaCambios: politicaCambios || null,
   });
-  if (!ok) return { error: t.errorGeneral };
+  if (ok === "slug_repetido") return { error: t.slug.errorRepetida };
+  if (ok !== "ok") return { error: t.errorGeneral };
 
   revalidatePath("/", "layout");
   return { listo: true };

@@ -9,7 +9,8 @@ import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { comprarCarrito, comprarProducto, type EstadoApartar } from "../actions/apartar";
 import type { OpcionesDeCompra } from "../repositorio";
-import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, ListaDesplegable, useDatosGuardados } from "./camposCompra";
+import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
+import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados } from "./camposCompra";
 
 const t = textos.vitrina.compra;
 const ta = textos.vitrina.apartar;
@@ -202,6 +203,7 @@ export function CompraForm({
                   <span className="text-sm font-bold">{t.departamento}</span>
                   <ListaDesplegable
                     name="departamento"
+                    variante="campo"
                     valor={departamento}
                     alCambiar={(d) => {
                       setDepartamento(d);

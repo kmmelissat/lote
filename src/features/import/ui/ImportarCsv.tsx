@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition, type ChangeEvent, type FormEvent } fr
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { parseCsv } from "../csv";
@@ -166,18 +167,12 @@ export function ImportarCsv() {
         {CAMPOS.map((campo) => (
           <label key={campo} className="grid grid-cols-2 items-center gap-3">
             <span className="text-sm font-medium">{t.campos[campo]}</span>
-            <select
-              value={mapeo[campo] ?? ""}
-              onChange={(e) => cambiarColumna(campo, e.target.value)}
-              className="h-12 rounded-xl border border-borde-control bg-superficie px-3 text-base"
-            >
-              <option value="">{t.noIncluir}</option>
-              {archivo.encabezados.map((h, i) => (
-                <option key={i} value={i}>
-                  {h || `(${i + 1})`}
-                </option>
-              ))}
-            </select>
+            <ListaDesplegable
+              valor={mapeo[campo] === undefined ? "" : String(mapeo[campo])}
+              alCambiar={(v) => cambiarColumna(campo, v)}
+              opciones={[{ valor: "", etiqueta: t.noIncluir }, ...archivo.encabezados.map((h, i) => ({ valor: String(i), etiqueta: h || `(${i + 1})` }))]}
+              placeholder={t.noIncluir}
+            />
           </label>
         ))}
         {!tieneRequeridos && <p className="text-sm text-error">{t.requeridos}</p>}

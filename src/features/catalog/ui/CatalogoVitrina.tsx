@@ -8,7 +8,7 @@ import { Monito } from "@/components/ui/Monito";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { TarjetaVitrina } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
-import { ListaDesplegable } from "./camposCompra";
+import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 
@@ -94,6 +94,7 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
               <div className="sm:ml-auto sm:w-64">
                 <ListaDesplegable
                   name="orden"
+                  variante="campo"
                   valor={orden}
                   alCambiar={(v) => setOrden(v as Orden)}
                   opciones={(Object.keys(t.ordenes) as Orden[]).map((o) => ({ valor: o, etiqueta: t.ordenes[o] }))}

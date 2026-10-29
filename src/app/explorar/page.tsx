@@ -11,7 +11,7 @@ import {
   type OrdenExplorar,
 } from "@/features/catalog/explorar";
 import { colorDeMarca } from "@/features/catalog/marca";
-import { ListaDesplegable } from "@/features/catalog/ui/camposCompra";
+import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { LogoTienda } from "@/features/catalog/ui/MarcaTienda";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
@@ -232,7 +232,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/explorar">, "searchP
                   valorInicial={orden}
                   opciones={ORDENES_EXPLORAR.map((o) => ({ valor: o, etiqueta: t.ordenes[o] }))}
                   placeholder={t.ordenar}
-                  compacto
+                  variante="compacto"
                 />
               </div>
               <button type="submit" className="inline-flex h-10 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold">
