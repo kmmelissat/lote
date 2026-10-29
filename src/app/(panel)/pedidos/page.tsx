@@ -31,7 +31,7 @@ export default function Page({ searchParams }: PageProps<"/pedidos">) {
 
 async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams">) {
   const params = await searchParams;
-  const estado: Pestana = esPestana(String(params.estado)) ? (String(params.estado) as Pestana) : "pendiente";
+  const estado: Pestana = esPestana(String(params.estado)) ? (String(params.estado) as Pestana) : "todos";
   const pagina = Math.max(1, Math.floor(Number(params.pagina)) || 1);
 
   const { supabase, negocio } = await negocioActual();

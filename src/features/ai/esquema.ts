@@ -89,8 +89,6 @@ export const SalidaFoto = z.object({
   opciones: z.array(z.object({ nombre: z.string(), valores: z.array(z.string()) })),
   /** Talla o tono, si se ve o se dijo ("M", "rosa") */
   detalle: z.string().nullable(),
-  /** Pares para la ficha ("Material" → "Silicón") que se ven en la foto o dijo la línea; vacío si no hay nada claro */
-  detalles: z.array(z.object({ nombre: z.string(), valor: z.string() })),
   precio: z.number().nullable(),
   costo: z.number().nullable(),
   cantidad: z.number().int().nullable(),

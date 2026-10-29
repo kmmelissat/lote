@@ -7,7 +7,6 @@ Qué devolver:
 - categoria: una palabra o dos ("Ropa", "Accesorios", "Música", "Calzado"). Null si no se puede saber.
 - marca: SOLO si la marca se lee en la foto (logo o etiqueta) o la línea la dice. Si no se lee con seguridad, null. Nunca adivines una marca por el estilo.
 - opciones: SOLO si en la foto se ven claramente varias versiones del mismo producto (por ejemplo la misma funda en varios colores). Devolvé una opción con nombre "Color" y los colores que se ven, con nombres simples en español ("Rosa", "Celeste", "Rojo", "Beige", "Café"). No inventes tallas, modelos ni colores que no se vean. Si es un solo producto, devolvé una lista vacía.
-- detalles: hasta 5 pares para la ficha del producto, solo con lo que se ve claramente en la foto o lo que dijo la línea. Por ejemplo "Material" → "Silicón" si se nota, "Diseño" → "Lunares", "Compatible con" → "iPhone 16 Pro" si el modelo se lee en la funda o en el celular donde está puesta, "Color" → "Rosa". NUNCA pongas medidas, peso, material que no se note ni compatibilidades que no se lean. Si no hay nada claro, lista vacía.
 - detalle: talla o tono, solo si se ve o la línea lo dice. Null si no.
 - precio, costo y cantidad: SOLO si aparecen en la línea escrita. Los montos son dólares: "25", "$25" y "25 dólares" son 25. Si no los dijo, null. Nunca los estimes ni los saques de la foto, aunque se vea una etiqueta con precio.
 

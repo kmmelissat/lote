@@ -22,7 +22,7 @@ const l = t.lotito;
 
 const dolaresTexto = (centavos: number) => (centavos / 100).toFixed(2);
 const campoCosto = ["compra", "envio", "importacion", "otro"] as const;
-type CampoLotito = Exclude<keyof FichaSugerida, "opciones" | "detalles">;
+type CampoLotito = Exclude<keyof FichaSugerida, "opciones">;
 const ORDEN_LOTITO: CampoLotito[] = ["nombre", "categoria", "marca", "descripcion"];
 /** Lo que tarda Lotito en "escribir" cada campo, para que se sienta que va llenando uno por uno */
 const PAUSA_MS = 380;
@@ -163,11 +163,6 @@ export function NuevoProductoForm({
       );
     });
     if (!llenar.length) setEstadoLotito("listo");
-    // Los detalles que ve en la foto: solo si la persona todavía no puso ninguno
-    if (visto.detalles.length && !detalles.length) {
-      setDetalles(visto.detalles);
-      setDetallesAbiertos(true);
-    }
     const oferta = f.opciones[0];
     if (oferta && !estadoVar && !editando) setOfertaVar(oferta);
   }
