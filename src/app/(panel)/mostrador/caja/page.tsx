@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { ButtonLink } from "@/components/ui/Button";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { cuadreDeCaja } from "@/domain";
 import { cajaAbierta, detalleDeCajaAbierta, resumenDeCaja, ultimosCierres } from "@/features/counter/repositorio";
@@ -22,11 +21,7 @@ export default function CajaPage() {
       <PageHeader
         titulo={t.titulo}
         descripcion={t.descripcion}
-        accion={
-          <ButtonLink href="/mostrador" variante="secundario">
-            {t.volver}
-          </ButtonLink>
-        }
+        volver={{ href: "/mostrador", etiqueta: t.volver }}
       />
       <Contenido />
     </>

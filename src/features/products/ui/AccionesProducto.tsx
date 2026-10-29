@@ -1,6 +1,7 @@
 "use client";
 
-import { estiloBoton } from "@/components/ui/Button";
+import { useRef } from "react";
+import { MenuAcciones } from "@/components/ui/MenuAcciones";
 import { Ventana } from "@/components/ui/Ventana";
 import { textos } from "@/lib/textos";
 import { AgregarVarianteForm } from "./AgregarVarianteForm";
@@ -8,9 +9,7 @@ import { ReponerForm } from "./ReponerForm";
 
 const t = textos.productos;
 
-const claseBoton = `${estiloBoton("secundario")} h-10 max-md:min-h-11 px-5 text-sm`;
-
-/** Reponer y agregar variante, cada uno en su ventana: no ocupan la ficha, se abren cuando hacen falta. */
+/** Reponer, agregar variante y copiar, guardados en el menú "⋯": reponer y agregar se abren en su ventana. */
 export function AccionesProducto({
   codigo,
   precio,
@@ -23,19 +22,30 @@ export function AccionesProducto({
   variantes: { codigo: number; etiqueta: string }[];
   puedeAgregarVariante: boolean;
 }) {
+  const reponer = useRef<HTMLDialogElement>(null);
+  const agregar = useRef<HTMLDialogElement>(null);
   const convierte = variantes.length === 0;
+
   return (
     <>
-      <Ventana boton={t.reponer.titulo} icono="caja" titulo={t.reponer.titulo} ayuda={t.reponer.ayuda} claseBoton={claseBoton}>
+      <MenuAcciones
+        etiqueta={t.detalle.acciones}
+        acciones={[
+          { etiqueta: t.reponer.titulo, icono: "caja", alElegir: () => reponer.current?.showModal() },
+          ...(puedeAgregarVariante
+            ? [{ etiqueta: t.detalle.agregarVariante, icono: "mas" as const, alElegir: () => agregar.current?.showModal() }]
+            : []),
+          { etiqueta: t.copiar.boton, icono: "copiar", href: `/productos/nuevo?copiar=${codigo}` },
+        ]}
+      />
+      <Ventana ref={reponer} titulo={t.reponer.titulo} ayuda={t.reponer.ayuda}>
         <ReponerForm codigo={codigo} variantes={variantes} />
       </Ventana>
       {puedeAgregarVariante && (
         <Ventana
-          boton={t.detalle.agregarVariante}
-          icono="mas"
+          ref={agregar}
           titulo={convierte ? t.variantes.convertirTitulo : t.variantes.agregarTitulo}
           ayuda={convierte ? t.variantes.convertirAyuda : t.variantes.agregarAyuda}
-          claseBoton={claseBoton}
         >
           <AgregarVarianteForm codigo={codigo} precio={precio} convierte={convierte} />
         </Ventana>

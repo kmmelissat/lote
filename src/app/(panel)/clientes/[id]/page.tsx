@@ -38,10 +38,7 @@ async function Ficha({ params }: Pick<PageProps<"/clientes/[id]">, "params">) {
 
   return (
     <>
-      <PageHeader titulo={c.nombre} descripcion={textos.clientes.pedidos(c.resumen.pedidos)} />
-      <Link href="/clientes" className="mb-4 inline-flex min-h-11 items-center text-teal underline">
-        {t.volver}
-      </Link>
+      <PageHeader titulo={c.nombre} descripcion={textos.clientes.pedidos(c.resumen.pedidos)} volver={{ href: "/clientes", etiqueta: t.volver }} />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card className="flex flex-col gap-3">

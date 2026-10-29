@@ -277,6 +277,7 @@ export const productos = {
     desde: (precio: string) => `Desde ${precio}`,
     entre: (bajo: string, alto: string) => `${bajo} – ${alto}`,
     agregarVariante: "Agregar variante",
+    acciones: "Más acciones",
     siVendes: (n: number) => (n === 1 ? "Si vendés la que queda" : `Si vendés las ${n} que quedan`),
     yaVendidas: (n: number) => (n === 1 ? "Con la que ya vendiste" : `Con las ${n} que ya vendiste`),
     faltaCosto: (n: number) =>
@@ -296,6 +297,7 @@ export const productos = {
     titulo: "Editar producto",
     descripcion: "Es el mismo formulario de crear: cambiá la ficha, las fotos, la cantidad y los costos.",
     boton: "Editar",
+    volver: "Volver al producto",
     guardar: "Guardar cambios",
     guardando: "Guardando…",
     cancelar: "Cancelar",

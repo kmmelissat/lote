@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { ButtonLink } from "@/components/ui/Button";
 import { valoresParaCopiar } from "@/features/products/copiarProducto";
 import { listarCategorias, listarProductos, obtenerProducto } from "@/features/products/repositorio";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
@@ -17,11 +16,7 @@ export default function NuevoProductoPage({ searchParams }: PageProps<"/producto
       <PageHeader
         titulo={textos.productos.form.titulo}
         descripcion={textos.productos.form.descripcion}
-        accion={
-          <ButtonLink href="/productos" variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
-            ← {textos.productos.form.volver}
-          </ButtonLink>
-        }
+        volver={{ href: "/productos", etiqueta: textos.productos.volver }}
       />
       <AvisoCreado />
       <Formulario searchParams={searchParams} />

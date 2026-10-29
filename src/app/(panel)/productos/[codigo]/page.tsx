@@ -166,28 +166,21 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
       <PageHeader
         titulo={base}
         descripcion={general ? t.detalle.resumenVariantes(variantes.length) : p.variante ? t.detalle.soloVariante(p.variante, p.codigo) : `#${p.codigo}`}
+        volver={{ href: "/productos", etiqueta: t.volver }}
         accion={
-          <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/productos" variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
-              {t.volver}
-            </ButtonLink>
-            {negocio.puedeGestionar && (
-              <>
-                <AccionesProducto
-                  codigo={p.codigo}
-                  precio={p.precio}
-                  variantes={variantes.map((v) => ({ codigo: v.codigo, etiqueta: v.variante ?? v.nombre }))}
-                  puedeAgregarVariante={variantes.length < MAXIMO_VARIANTES}
-                />
-                <ButtonLink href={`/productos/nuevo?copiar=${p.codigo}`} variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
-                  {t.copiar.boton}
-                </ButtonLink>
-                <ButtonLink href={`/productos/${p.codigo}/editar`} variante="mango" className="h-10 max-md:min-h-11 px-5 text-sm">
-                  {t.editar.boton}
-                </ButtonLink>
-              </>
-            )}
-          </div>
+          negocio.puedeGestionar && (
+            <div className="flex items-center gap-2">
+              <ButtonLink href={`/productos/${p.codigo}/editar`} variante="mango" className="h-10 max-md:min-h-11 px-5 text-sm">
+                {t.editar.boton}
+              </ButtonLink>
+              <AccionesProducto
+                codigo={p.codigo}
+                precio={p.precio}
+                variantes={variantes.map((v) => ({ codigo: v.codigo, etiqueta: v.variante ?? v.nombre }))}
+                puedeAgregarVariante={variantes.length < MAXIMO_VARIANTES}
+              />
+            </div>
+          )
         }
       />
 

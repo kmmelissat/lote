@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -12,10 +11,7 @@ export const metadata: Metadata = { title: t.titulo };
 export default function AyudaPage() {
   return (
     <>
-      <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Link href="/ajustes" className="mb-4 inline-flex min-h-11 items-center text-teal underline">
-        {t.volver}
-      </Link>
+      <PageHeader titulo={t.titulo} descripcion={t.descripcion} volver={{ href: "/ajustes", etiqueta: t.volver }} />
       <ul className="flex max-w-2xl flex-col gap-3">
         {t.preguntas.map((p) => (
           <li key={p.pregunta}>

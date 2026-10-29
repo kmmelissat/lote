@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { ButtonLink } from "@/components/ui/Button";
 import { aDolares } from "@/domain/index";
 import { guardarProducto } from "@/features/products/actions/guardar";
 import { separarFotos } from "@/features/products/fotosVariantes";
@@ -29,11 +28,7 @@ export default async function EditarProductoPage({ params }: PageProps<"/product
       <PageHeader
         titulo={t.titulo}
         descripcion={t.descripcion}
-        accion={
-          <ButtonLink href={`/productos/${codigo}`} variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
-            ← {textos.productos.form.volver}
-          </ButtonLink>
-        }
+        volver={{ href: `/productos/${codigo}`, etiqueta: t.volver }}
       />
       <Formulario params={params} />
     </>

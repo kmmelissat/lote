@@ -54,6 +54,7 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
       <PageHeader
         titulo={t.pedido(p.codigo)}
         descripcion={cliente}
+        volver={{ href: "/pedidos", etiqueta: t.volver }}
         accion={
           negocio.puedeVender && (
             <div className="flex flex-wrap items-center gap-2">
@@ -71,9 +72,6 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
           )
         }
       />
-      <Link href="/pedidos" className="mb-4 inline-flex min-h-11 items-center text-teal underline">
-        {t.volver}
-      </Link>
 
       <div className="flex flex-col gap-4">
         <ProgresoPedido estado={p.estado} contraEntrega={p.contraEntrega} />

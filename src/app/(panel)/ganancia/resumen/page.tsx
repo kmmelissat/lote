@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -18,7 +17,7 @@ export const metadata: Metadata = { title: t.titulo };
 export default function Page() {
   return (
     <>
-      <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
+      <PageHeader titulo={t.titulo} descripcion={t.descripcion} volver={{ href: "/ganancia", etiqueta: t.volver }} />
       <Contenido />
     </>
   );
@@ -92,9 +91,6 @@ async function Contenido() {
         </Tarjeta>
       )}
 
-      <Link href="/ganancia" className="inline-flex min-h-11 items-center text-teal underline">
-        {t.volver}
-      </Link>
     </div>
   );
 }
