@@ -7,6 +7,7 @@ import { GraficoSemanas } from "@/features/home/ui/GraficoSemanas";
 import { PedidosRecientes } from "@/features/home/ui/PedidosRecientes";
 import { TarjetaAtencion } from "@/features/home/ui/TarjetaAtencion";
 import { TarjetaDato } from "@/features/home/ui/TarjetaDato";
+import { TarjetaVitrina } from "@/features/home/ui/TarjetaVitrina";
 import { TarjetaGanancia } from "@/features/home/ui/TarjetaGanancia";
 import { faltanPasos, primerosPasos } from "@/features/home/primerosPasos";
 import { resumenInicio } from "@/features/home/resumen";
@@ -81,6 +82,8 @@ async function Contenido() {
     : [];
   // Sin ningún pedido todavía no hay nada que graficar ni listar: se esconde en vez de mostrar widgets vacíos.
   const sinMovimiento = recientes.length === 0;
+  // Sin nada que atender la tarjeta no existe: el gráfico ocupa su lugar para que no quede un hueco.
+  const hayAtencion = r.porPagar > 0 || r.porEnviar > 0 || r.seEnfrian.length > 0;
 
   return (
     <>
@@ -114,12 +117,14 @@ async function Contenido() {
           </div>
         </section>
 
+        <TarjetaVitrina slug={negocio.slug} />
+
         {sinMovimiento ? (
           <TarjetaAtencion r={r} ahora={ahora} />
         ) : (
           <>
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-              <div className="min-w-0 lg:col-span-2">
+              <div className={`min-w-0 ${hayAtencion ? "lg:col-span-2" : "lg:col-span-3"}`}>
                 {semanas ? <GraficoSemanas semanas={semanas} /> : <PedidosRecientes pedidos={recientes} />}
               </div>
               <TarjetaAtencion r={r} ahora={ahora} />

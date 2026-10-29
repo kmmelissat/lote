@@ -1,10 +1,10 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
-import { Card } from "@/components/ui/Card";
 import type { SemanaResumen } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { TARJETA } from "./estilo";
 
 const t = textos.inicio;
 
@@ -35,7 +35,7 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
   }));
 
   return (
-    <Card className="flex flex-col gap-3">
+    <div className={`${TARJETA} flex h-full flex-col gap-3 bg-superficie`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 className="font-bold">{t.flujoTitulo}</h2>
@@ -97,6 +97,6 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
         </table>
       </div>
       {semanas.some((s) => s.estimada) && <p className="text-sm text-ambar-texto">{t.flujoEstimada}</p>}
-    </Card>
+    </div>
   );
 }

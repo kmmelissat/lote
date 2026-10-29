@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { TARJETA } from "./estilo";
 import { HORAS_APARTADO_FRIO, type ResumenInicio } from "../resumen";
 
 const t = textos.inicio;
@@ -14,7 +15,7 @@ export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date })
   if (!hayAccion) return null;
 
   return (
-    <section aria-labelledby="atencion" className="flex min-w-0 flex-col gap-3 rounded-tarjeta bg-teal p-4 text-white">
+    <section aria-labelledby="atencion" className={`${TARJETA} flex flex-col gap-3 bg-teal text-white`}>
       <h2 id="atencion" className="font-bold">
         {t.accionTitulo}
       </h2>

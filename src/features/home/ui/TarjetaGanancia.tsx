@@ -3,6 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import type { Centavos } from "@/domain/dinero";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { TARJETA } from "./estilo";
 
 const t = textos.inicio;
 
@@ -27,7 +28,7 @@ export function TarjetaGanancia({
   return (
     <section
       aria-labelledby="ganancia-semana"
-      className="flex min-w-0 flex-col justify-between gap-3 rounded-[24px] border-2 border-teal-oscuro bg-limon p-5 text-teal-oscuro shadow-dura"
+      className={`${TARJETA} flex h-full flex-col justify-between gap-3 bg-limon text-teal-oscuro`}
     >
       <div className="flex items-center justify-between gap-2">
         <h2 id="ganancia-semana" className="font-medium">

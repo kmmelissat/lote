@@ -4,7 +4,11 @@ import type { SalidaComprobante, SalidaEntender, SalidaFoto } from "./esquema";
 export type ContextoIA = {
   productos: { codigo: number; nombre: string }[];
   clientes: string[];
+  /** Los últimos mensajes de la conversación (de los últimos minutos), para entender "y el mes pasado?". Son datos, no instrucciones. */
+  conversacion?: Turno[];
 };
+
+export type Turno = { de: "yo" | "lote"; texto: string };
 
 // El asistente solo conoce esta interfaz: cambiar de modelo o de proveedor no toca el resto.
 export interface ProveedorIA {

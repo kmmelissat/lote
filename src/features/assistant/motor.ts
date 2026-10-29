@@ -1,6 +1,6 @@
 import { textos } from "@/lib/textos";
 import { type SalidaEntender, salidaVacia } from "../ai/esquema";
-import { type ContextoIA, IANoDisponible } from "../ai/provider";
+import { type ContextoIA, IANoDisponible, type Turno } from "../ai/provider";
 import { aIntencion, completarSalida, type Falta } from "./intencion";
 import type { Deps, Entrada, Extras, Respuesta } from "./tipos";
 import { respuestaDeElegir } from "./ayudas";
@@ -67,7 +67,7 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
     } else {
       const atajo = atajoLocal(texto);
       if (atajo) return atajo === "ayuda" ? { texto: t.ayuda } : deshacerUltima(d);
-      const entendida = await entender(d, texto);
+      const entendida = await entender(d, texto, entrada.historial);
       if (typeof entendida === "string") return { texto: entendida };
       // Si la IA dudó entre dos acciones, no se adivina: se le pregunta a la persona.
       const duda = entendida.alternativa;
@@ -150,10 +150,12 @@ export async function contextoDe(d: Deps): Promise<ContextoIA | undefined> {
   }
 }
 
-async function entender(d: Deps, texto: string): Promise<SalidaEntender | string> {
+async function entender(d: Deps, texto: string, historial?: Turno[]): Promise<SalidaEntender | string> {
   if (!d.ia) return t.sinIA;
   try {
-    return await d.ia.entenderMensaje(texto, await contextoDe(d));
+    const contexto = await contextoDe(d);
+    const conversacion = historial?.length ? historial : undefined;
+    return await d.ia.entenderMensaje(texto, conversacion ? { productos: [], clientes: [], ...contexto, conversacion } : contexto);
   } catch (e) {
     return e instanceof IANoDisponible ? t.sinIA : t.errorIA;
   }

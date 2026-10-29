@@ -59,4 +59,10 @@ export const inicio = {
   contraSemana: (cambio: string) => `${cambio} que la semana pasada`,
   sinMovimiento: "Todavía no hay ventas. Cuando apartés algo, aparece acá.",
   nuevoProducto: "Nuevo producto",
+  vitrina: {
+    titulo: "Tu vitrina",
+    texto: "Compartí este enlace donde vendés: tus clientes ven lo disponible y compran o apartan solos.",
+    copiar: "Copiar enlace",
+    ver: "Abrir",
+  },
 } as const;

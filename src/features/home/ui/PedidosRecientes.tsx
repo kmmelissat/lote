@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { Pedido } from "@/features/orders/repositorio";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { TARJETA } from "./estilo";
 
 const t = textos.inicio;
 
 export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
   return (
-    <Card className="flex flex-col gap-2">
+    <div className={`${TARJETA} flex flex-col gap-2 bg-superficie`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-bold">{t.recientesTitulo}</h2>
@@ -50,6 +50,6 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
           ))}
         </ul>
       )}
-    </Card>
+    </div>
   );
 }

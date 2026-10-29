@@ -5,28 +5,46 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
 import type { Boton, Comando, Estado, Respuesta } from "../motor";
 import { textos } from "@/lib/textos";
 import { subirFotos } from "@/features/products/subirFotos";
 import { urlFoto } from "@/lib/fotos";
+import type { Turno } from "@/features/ai/provider";
 import { enviarAlAsistente } from "../actions/enviar";
 
 const t = textos.asistente;
 
 type Mensaje =
-  | { id: string; de: "yo"; texto: string; foto?: string }
-  | { id: string; de: "lote"; respuesta: Respuesta; vigente: boolean };
+  | { id: string; en: number; de: "yo"; texto: string; foto?: string }
+  | { id: string; en: number; de: "lote"; respuesta: Respuesta; vigente: boolean };
+
+// Lotito se acuerda de lo último que se habló, por unos minutos: así entiende "¿y el mes pasado?".
+const MEMORIA_MS = 5 * 60_000;
+const TURNOS_DE_MEMORIA = 6;
+
+function historialDe(ms: Mensaje[]): Turno[] {
+  const desde = Date.now() - MEMORIA_MS;
+  return ms
+    .filter((m) => m.en >= desde)
+    .map((m): Turno => ({ de: m.de, texto: m.de === "yo" ? m.texto : m.respuesta.texto }))
+    .filter((t) => t.texto.trim())
+    .slice(-TURNOS_DE_MEMORIA);
+}
 
 const pildora =
   "min-h-11 rounded-full border-2 border-teal-oscuro bg-superficie px-4 text-sm font-medium text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-50";
 
-/** Las preguntas frecuentes que se ofrecen: las de esta pantalla primero y, si faltan, los atajos de siempre. */
+/** Las preguntas de "cómo se hace" que tocan en esta pantalla; si no hay, los atajos de siempre. */
 function preguntasParaMostrar(ruta: string | null, max: number) {
   const todas = textos.ayuda.preguntas;
   const deAca = ruta ? todas.filter((p) => p.donde.some((d) => ruta === d || ruta.startsWith(`${d}/`))) : [];
   const atajos = textos.ayuda.atajos.map((id) => todas.find((p) => p.id === id)).filter((p) => !!p);
   return [...new Map([...deAca, ...atajos].map((p) => [p.id, p])).values()].slice(0, max);
+}
+
+function sugerenciasPara(ruta: string | null) {
+  const clave = Object.keys(t.sugerencias).find((k) => k !== "inicio" && ruta && (ruta === k || ruta.startsWith(`${k}/`)));
+  return t.sugerencias[clave ?? "inicio"];
 }
 
 type Props = {
@@ -48,10 +66,12 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
   const [foto, setFoto] = useState<string | null>(null);
   const [subiendo, setSubiendo] = useState(false);
   const [pendiente, empezar] = useTransition();
-  const fin = useRef<HTMLDivElement>(null);
+  const lista = useRef<HTMLDivElement>(null);
+  const archivoRef = useRef<HTMLInputElement>(null);
 
+  // Baja solo la lista del chat. scrollIntoView movería también la página entera.
   useEffect(() => {
-    fin.current?.scrollIntoView({ block: "end" });
+    if (lista.current && (mensajes.length || pendiente)) lista.current.scrollTop = lista.current.scrollHeight;
   }, [mensajes, pendiente]);
 
   function mandar(entrada: { texto?: string; comando?: Comando; foto?: string }, visible?: string) {
@@ -61,13 +81,15 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
       // Los botones de las respuestas anteriores dejan de servir: la conversación ya siguió.
       const anteriores = ms.map((m) => (m.de === "lote" && entrada.comando?.tipo !== "deshacer" ? { ...m, vigente: false } : m));
       return visible !== undefined || entrada.foto
-        ? [...anteriores, { id: mensajeId, de: "yo", texto: visible ?? "", foto: entrada.foto }]
+        ? [...anteriores, { id: mensajeId, en: Date.now(), de: "yo", texto: visible ?? "", foto: entrada.foto }]
         : anteriores;
     });
+    // Lo que se habló antes de este mensaje (el nuevo viaja aparte).
+    const historial = historialDe(mensajes);
     empezar(async () => {
-      const respuesta = await enviarAlAsistente({ mensajeId, ...entrada, estado });
+      const respuesta = await enviarAlAsistente({ mensajeId, ...entrada, estado, historial });
       setEstado(respuesta.estado ?? null);
-      setMensajes((ms) => [...ms, { id: `${mensajeId}-r`, de: "lote", respuesta, vigente: true }]);
+      setMensajes((ms) => [...ms, { id: `${mensajeId}-r`, en: Date.now(), de: "lote", respuesta, vigente: true }]);
     });
   }
 
@@ -112,24 +134,47 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
     }
   }
 
-  const preguntas = preguntasParaMostrar(ruta, compacto ? 4 : 6);
-  const ejemplos = compacto ? t.ejemplos.slice(0, 3) : t.ejemplos;
+  const preguntas = preguntasParaMostrar(ruta, compacto ? 3 : 5);
+  const sugerencias = sugerenciasPara(ruta);
+
+  function usarSugerencia(sg: (typeof sugerencias)[number]) {
+    if (sg.modo === "mandar") mandar({ texto: sg.texto }, sg.texto);
+    else if (sg.modo === "foto") archivoRef.current?.click();
+    else setTexto(sg.texto);
+  }
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex-1 overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-crema p-4">
+      <div ref={lista} className={`flex-1 overflow-y-auto ${compacto ? "" : "rounded-[24px] border-2 border-teal-oscuro bg-crema p-4"}`}>
         {!mensajes.length && (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-end justify-between gap-3">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-lg font-bold text-teal-oscuro">{compacto ? t.vacioFlotante : t.vacioTitulo}</h2>
-                {!compacto && <p className="text-texto-2">{t.vacioTexto}</p>}
-              </div>
-              <Monito nombre="saluda" className={`shrink-0 text-teal-oscuro ${compacto ? "w-14" : "w-20"}`} />
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-lg font-bold text-teal-oscuro">{compacto ? t.vacioFlotante : t.vacioTitulo}</h2>
+              {!compacto && <p className="text-texto-2">{t.vacioTexto}</p>}
             </div>
 
-            <section aria-labelledby="chat-preguntas" className="flex flex-col gap-2">
-              <h3 id="chat-preguntas" className="text-sm font-bold text-teal-oscuro">
+            <section aria-labelledby={`chat-sugerencias-${compacto}`} className="flex flex-col gap-2">
+              <h3 id={`chat-sugerencias-${compacto}`} className="text-sm font-bold text-teal-oscuro">
+                {t.sugerenciasTitulo}
+              </h3>
+              <ul className="flex flex-wrap gap-2">
+                {sugerencias.map((sg) => (
+                  <li key={sg.texto}>
+                    <button
+                      type="button"
+                      disabled={pendiente || subiendo}
+                      onClick={() => usarSugerencia(sg)}
+                      className={`${pildora} bg-limon text-left hover:bg-limon hover:brightness-95`}
+                    >
+                      {sg.texto}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section aria-labelledby={`chat-preguntas-${compacto}`} className="flex flex-col gap-2">
+              <h3 id={`chat-preguntas-${compacto}`} className="text-sm font-bold text-teal-oscuro">
                 {t.preguntasTitulo}
               </h3>
               <ul className="flex flex-wrap gap-2">
@@ -139,24 +184,9 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
                       type="button"
                       disabled={pendiente}
                       onClick={() => mandar({ comando: { tipo: "faq", id: p.id } }, p.pregunta)}
-                      className={`${pildora} bg-limon text-left hover:bg-limon hover:brightness-95`}
+                      className="min-h-11 rounded-full border border-borde-control bg-superficie px-4 text-left text-sm text-teal-oscuro hover:bg-teal-fondo disabled:opacity-50"
                     >
                       {p.pregunta}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section aria-labelledby="chat-ejemplos" className="flex flex-col gap-2">
-              <h3 id="chat-ejemplos" className="text-sm font-bold text-teal-oscuro">
-                {t.ejemplosTitulo}
-              </h3>
-              <ul className="flex flex-wrap gap-2">
-                {ejemplos.map((e) => (
-                  <li key={e}>
-                    <button type="button" onClick={() => setTexto(e)} className={`${pildora} text-left`}>
-                      {e}
                     </button>
                   </li>
                 ))}
@@ -226,7 +256,6 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
             </li>
           )}
         </ol>
-        <div ref={fin} />
       </div>
 
       <p role="status" className="min-h-5 px-1 pt-1 text-sm text-texto-2">
@@ -258,7 +287,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
         <label className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro focus-within:outline-2 focus-within:outline-teal hover:bg-teal-fondo">
           <span className="sr-only">{t.adjuntar}</span>
           <Icon nombre="camara" />
-          <input type="file" accept="image/*" capture="environment" onChange={adjuntar} disabled={subiendo || pendiente} className="sr-only" />
+          <input ref={archivoRef} type="file" accept="image/*" capture="environment" onChange={adjuntar} disabled={subiendo || pendiente} className="sr-only" />
         </label>
         <label htmlFor={compacto ? "asistente-texto-flotante" : "asistente-texto"} className="sr-only">
           {t.titulo}
@@ -267,12 +296,12 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
           id={compacto ? "asistente-texto-flotante" : "asistente-texto"}
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
-          placeholder={t.placeholder}
+          placeholder={compacto ? t.placeholderCorto : t.placeholder}
           autoComplete="off"
           maxLength={1000}
           className="h-12 min-w-0 flex-1 rounded-full border-2 border-teal-oscuro bg-superficie px-5 text-base"
         />
-        <Button type="submit" disabled={pendiente || subiendo || (!texto.trim() && !foto)} className="px-5">
+        <Button type="submit" disabled={pendiente || subiendo || (!texto.trim() && !foto)} className="px-5 disabled:bg-teal-fondo disabled:text-texto-2 disabled:opacity-100">
           {t.enviar}
         </Button>
       </form>

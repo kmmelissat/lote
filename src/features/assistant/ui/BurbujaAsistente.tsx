@@ -24,6 +24,9 @@ export function BurbujaAsistente({ negocioId }: { negocioId: string }) {
 function Burbuja({ negocioId }: { negocioId: string }) {
   const pathname = usePathname();
   const [abierto, setAbierto] = useState(false);
+  // El chat se monta la primera vez que se abre y desde ahí se queda (para no perder la conversación).
+  const [montado, setMontado] = useState(false);
+  if (abierto && !montado) setMontado(true);
   const ventana = useRef<HTMLDivElement>(null);
   const boton = useRef<HTMLButtonElement>(null);
 
@@ -75,8 +78,8 @@ function Burbuja({ negocioId }: { negocioId: string }) {
             <Icon nombre="x" />
           </button>
         </header>
-        <div className="min-h-0 flex-1 p-3">
-          <Chat negocioId={negocioId} compacto ruta={pathname} alSeguirEnlace={alSeguirEnlace} />
+        <div className="min-h-0 flex-1 bg-crema p-3">
+          {montado && <Chat negocioId={negocioId} compacto ruta={pathname} alSeguirEnlace={alSeguirEnlace} />}
         </div>
       </div>
 
@@ -85,17 +88,11 @@ function Burbuja({ negocioId }: { negocioId: string }) {
         type="button"
         onClick={() => setAbierto((a) => !a)}
         aria-expanded={abierto}
-        aria-label={abierto ? t.flotante.cerrar : t.flotante.abrir}
-        className={`fixed bottom-[7rem] right-4 z-30 flex h-14 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro bg-limon pl-3 text-teal-oscuro shadow-dura-chica transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none md:bottom-6 md:right-6 ${abierto ? "max-md:hidden w-14 pl-0" : "pr-5"}`}
+        aria-label={t.flotante.abrir}
+        className={`fixed bottom-[7rem] right-4 z-30 flex h-14 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro bg-limon pl-3 text-teal-oscuro shadow-dura-chica transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none md:bottom-6 md:right-6 ${abierto ? "hidden" : "pr-5"}`}
       >
-        {abierto ? (
-          <Icon nombre="x" className="size-6" strokeWidth={2.25} />
-        ) : (
-          <>
-            <Gorila className="size-8 shrink-0" />
-            <span className="text-sm font-bold">{t.flotanteEtiqueta}</span>
-          </>
-        )}
+        <Gorila className="size-8 shrink-0" />
+        <span className="text-sm font-bold">{t.flotanteEtiqueta}</span>
       </button>
     </div>
   );

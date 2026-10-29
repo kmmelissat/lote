@@ -3,6 +3,7 @@ import { Gorila } from "@/components/ui/Gorila";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 import type { PasoInicial } from "./primerosPasos";
+import { TARJETA } from "./ui/estilo";
 
 const t = textos.inicio.primerosPasos;
 
@@ -19,7 +20,7 @@ export function TarjetaPrimerosPasos({ pasos }: { pasos: PasoInicial[] }) {
   return (
     <section
       aria-labelledby="primeros-pasos"
-      className="relative flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura md:p-6"
+      className={`${TARJETA} relative flex flex-col gap-4 bg-crema`}
     >
       <Gorila className="absolute right-4 top-4 size-16 text-rosa md:size-20" />
       <div className="pr-20 md:pr-24">

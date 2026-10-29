@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
+import { TARJETA } from "./estilo";
 
 const tonos = {
   teal: "bg-teal-fondo text-teal",
@@ -23,7 +23,7 @@ export function TarjetaDato({
   chip?: { texto: string; tono: keyof typeof tonos };
 }) {
   return (
-    <Card className="flex flex-col gap-2">
+    <div className={`${TARJETA} flex h-full flex-col gap-2 bg-superficie`}>
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-texto-2">{etiqueta}</h3>
         <Link
@@ -39,6 +39,6 @@ export function TarjetaDato({
         {chip && <span className={`rounded-full px-3 py-1 text-sm font-medium ${tonos[chip.tono]}`}>{chip.texto}</span>}
       </div>
       <p className="text-sm text-texto-2">{texto}</p>
-    </Card>
+    </div>
   );
 }

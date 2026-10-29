@@ -1,6 +1,6 @@
 // Lo que se manda y se recibe en cada turno del chat.
 import type { SalidaEntender } from "../ai/esquema";
-import type { ProveedorIA } from "../ai/provider";
+import type { ProveedorIA, Turno } from "../ai/provider";
 import type { Falta, Intencion } from "./intencion";
 import type { Puerto } from "./puerto";
 
@@ -41,6 +41,8 @@ export type Entrada = {
   foto?: { ruta: string; url: string };
   comando?: Comando;
   estado?: Estado | null;
+  /** Lo último que se habló (unos minutos), para los mensajes que siguen a otro */
+  historial?: Turno[];
 };
 
 export type Deps = { ia: ProveedorIA | null; puerto: Puerto; ahora: Date };

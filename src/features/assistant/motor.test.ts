@@ -461,6 +461,20 @@ describe("cuando la IA duda", () => {
       clientes: ["Ana"],
     });
   });
+
+  it("le pasa a la IA lo último que se habló, para entender los mensajes que siguen a otro", async () => {
+    const entenderMensaje = vi.fn(async () => salidaVacia("ayuda"));
+    const { puerto } = montar();
+    const historial = [
+      { de: "yo" as const, texto: "¿cuánto gané esta semana?" },
+      { de: "lote" as const, texto: "Esta semana te quedaron $33.00 después de gastos." },
+    ];
+    await procesar(
+      { mensajeId: "m1", texto: "¿y el mes pasado?", historial },
+      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), proponerAcciones: vi.fn() }, puerto, ahora },
+    );
+    expect(entenderMensaje).toHaveBeenCalledWith("¿y el mes pasado?", expect.objectContaining({ conversacion: historial }));
+  });
 });
 
 describe("preguntas de ganancia y de estado", () => {
