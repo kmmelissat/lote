@@ -532,6 +532,7 @@ export type Database = {
           umbral_poco_stock: number
           usuario_instagram: string | null
           visible_en_explorar: boolean
+          vitrina_activa: boolean
           direccion_retiro: string | null
           whatsapp: string | null
         }
@@ -554,6 +555,7 @@ export type Database = {
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           visible_en_explorar?: boolean
+          vitrina_activa?: boolean
           direccion_retiro?: string | null
           whatsapp?: string | null
         }
@@ -576,6 +578,7 @@ export type Database = {
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           visible_en_explorar?: boolean
+          vitrina_activa?: boolean
           direccion_retiro?: string | null
           whatsapp?: string | null
         }
@@ -1033,6 +1036,23 @@ export type Database = {
           p_direccion: string
           p_entrega: string
           p_huella: string
+          p_metodo: string
+          p_municipio: string
+          p_nombre: string
+          p_referencia: string
+          p_slug: string
+        }
+        Returns: Json
+      }
+      comprar_carrito_vitrina: {
+        Args: {
+          p_acepta_whatsapp: boolean
+          p_contacto: string
+          p_departamento: string
+          p_direccion: string
+          p_entrega: string
+          p_huella: string
+          p_items: Json
           p_metodo: string
           p_municipio: string
           p_nombre: string

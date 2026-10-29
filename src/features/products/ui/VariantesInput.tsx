@@ -5,7 +5,8 @@ import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
 import { combinarOpciones, MAXIMO_VARIANTES } from "../variantes";
-import { Interruptor, estiloCampo } from "./campos";
+import { Interruptor } from "@/components/ui/Interruptor";
+import { estiloCampo } from "./campos";
 
 const t = textos.productos.form.variantes;
 

@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { colorDeMarca, COLORES_MARCA, LIMITE_CONTEXTO } from "../marca";
-import { guardarIdentidad } from "../repositorio";
+import { guardarTienda as guardar } from "../repositorio";
 import { esRutaFoto } from "@/lib/fotos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
 const t = textos.ajustes.tienda;
+const v = textos.ajustes.vitrina;
 
 export type EstadoTienda = { error?: string; listo?: boolean };
 
@@ -32,6 +33,16 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
   const contextoIa = texto("contexto");
   if (contextoIa.length > LIMITE_CONTEXTO) return { error: t.errorContexto };
 
+  // Las reglas de la vitrina
+  const plazoHoras = Number(texto("plazo"));
+  if (!Number.isInteger(plazoHoras) || plazoHoras < 1 || plazoHoras > 168) return { error: v.errorPlazo };
+  const limitePorContacto = Number(texto("limite"));
+  if (!Number.isInteger(limitePorContacto) || limitePorContacto < 1 || limitePorContacto > 20) return { error: v.errorLimite };
+  const umbralPocoStock = Number(texto("umbral"));
+  if (!Number.isInteger(umbralPocoStock) || umbralPocoStock < 0 || umbralPocoStock > 50) return { error: v.errorUmbral };
+
+  const vitrinaActiva = formData.get("vitrina") === "on";
+
   const color = texto("color");
   if (!COLORES_MARCA.some((c) => c.hex === color)) return { error: t.errorColor };
 
@@ -42,7 +53,7 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
   const logo = texto("logo");
   if (logo && !esRutaFoto(logo, negocio.id)) return { error: t.errorLogo };
 
-  const ok = await guardarIdentidad(supabase, negocio.id, {
+  const ok = await guardar(supabase, negocio.id, {
     nombre,
     descripcion: descripcion || null,
     logo: logo || null,
@@ -50,6 +61,13 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
     whatsapp: whatsapp || null,
     usuarioInstagram: instagram || null,
     contextoIa: contextoIa || null,
+    apartarDesdeVitrina: formData.get("apartar") === "on",
+    plazoHoras,
+    limitePorContacto,
+    umbralPocoStock,
+    // Sin vitrina no se puede aparecer en Explorar
+    visibleEnExplorar: vitrinaActiva && formData.get("explorar") === "on",
+    vitrinaActiva,
   });
   if (!ok) return { error: t.errorGeneral };
 

@@ -29,6 +29,9 @@
   --color-limon: #ffe27a;
   --color-rosa-palido: #fdeaf1;
   --color-crema: #fff7e8;
+  /* El color de la acción principal: mango, salvo en las páginas de una tienda que eligió su color (ver marca.ts) */
+  --color-accion: #ff9a2e;
+  --color-accion-texto: #003844;
   --shadow-dura: 4px 4px 0 0 var(--color-teal-oscuro);
   --shadow-dura-chica: 3px 3px 0 0 var(--color-teal-oscuro);
   --animate-flotar: flotar 4s ease-in-out infinite;

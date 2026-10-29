@@ -469,13 +469,15 @@ export function Nav({ datos }: { datos: DatosMenu }) {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link href={`/c/${datos.slug}`} target="_blank" className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
-                <Icon nombre="tienda" className="size-6 shrink-0 text-teal" />
-                {t.vitrina}
-                <Icon nombre="enlace" className="size-4 text-texto-2" />
-              </Link>
-            </li>
+            {datos.slug && (
+              <li>
+                <Link href={`/c/${datos.slug}`} target="_blank" className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
+                  <Icon nombre="tienda" className="size-6 shrink-0 text-teal" />
+                  {t.vitrina}
+                  <Icon nombre="enlace" className="size-4 text-texto-2" />
+                </Link>
+              </li>
+            )}
             <li>
               <CerrarSesion variante="menu" />
             </li>
@@ -518,9 +520,11 @@ export function Nav({ datos }: { datos: DatosMenu }) {
                     <EnlaceLateral pestana={p} pathname={ruta} insignia={p.href === "/pedidos" ? insignia : undefined} />
                   </li>
                 ))}
-                <li>
-                  <Vitrina slug={datos.slug} />
-                </li>
+                {datos.slug && (
+                  <li>
+                    <Vitrina slug={datos.slug} />
+                  </li>
+                )}
               </ul>
             )}
           />

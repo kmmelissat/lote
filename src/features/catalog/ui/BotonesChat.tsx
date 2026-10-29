@@ -40,15 +40,27 @@ export function BotonesChat({
     );
   }
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       {wa && (
         <a href={wa} target="_blank" rel="noreferrer" className={`${base} bg-teal text-white`}>
           {textos.vitrina.pedirWhatsApp}
         </a>
       )}
+      {/* Instagram es la opción de segunda: un ícono chico, no un segundo botón del mismo peso */}
       {ig && (
-        <a href={ig} target="_blank" rel="noreferrer" className={`${base} bg-white text-teal-oscuro`}>
-          {textos.vitrina.pedirInstagram}
+        <a
+          href={ig}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={textos.vitrina.pedirInstagram}
+          title={textos.vitrina.pedirInstagram}
+          className="flex size-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro transition-colors hover:bg-limon"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-6">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
+          </svg>
         </a>
       )}
     </div>

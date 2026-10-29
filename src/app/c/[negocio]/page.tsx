@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
 import { CatalogoVitrina } from "@/features/catalog/ui/CatalogoVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { mensajePedirVitrina } from "@/features/catalog/enlaces";
-import { listarProductosPublicos, obtenerNegocioPublico } from "@/features/catalog/repositorio";
+import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra } from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
@@ -48,7 +49,9 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
   const negocio = await obtenerNegocioPublico(supabase, slug);
   if (!negocio) notFound();
   // Las variantes de un mismo producto (talla, tono) se muestran en una sola tarjeta.
-  const productos = agruparParaVitrina(await listarProductosPublicos(supabase, slug));
+  const [lista, opciones] = await Promise.all([listarProductosPublicos(supabase, slug), obtenerOpcionesDeCompra(supabase, slug)]);
+  const productos = agruparParaVitrina(lista);
+  const metodos = opciones.metodos.map((m) => textos.cobro.metodos[m].toLowerCase());
 
   return (
     <MarcaTienda color={negocio.color}>
@@ -63,18 +66,31 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
         }}
       />
       <header className="mb-8 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-superficie shadow-dura">
-        <div aria-hidden="true" className="h-16 bg-teal md:h-20" />
+        <div aria-hidden="true" className="h-10 bg-teal md:h-14" />
         <div className="flex flex-col gap-4 px-5 pb-5 md:px-8 md:pb-7">
-          <div className="-mt-9 flex items-end gap-4 md:-mt-11">
+          <div className="-mt-7 flex items-end gap-4 md:-mt-9">
             <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-[4.5rem] border-4 border-superficie ring-2 ring-teal-oscuro md:size-24" />
             <span className="mb-1 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold">
-              {t.piezas(productos.reduce((n, p) => n + p.disponibles, 0))}
+              {t.productos(productos.length)}
             </span>
           </div>
           <div className="min-w-0">
             <h1 className="text-3xl font-bold leading-tight md:text-4xl">{negocio.nombre}</h1>
-            {negocio.descripcion && <p className="mt-1 text-lg text-texto-2">{negocio.descripcion}</p>}
+            {negocio.descripcion && <p className="mt-2 max-w-2xl text-lg leading-relaxed text-texto-2">{negocio.descripcion}</p>}
           </div>
+          {/* Lo que da confianza antes de mirar: cómo se paga y cómo llega */}
+          <ul className="flex flex-wrap gap-2 text-sm">
+            {metodos.length > 0 && (
+              <li className="inline-flex items-center gap-2 rounded-full border border-teal-oscuro/25 px-3 py-1.5">
+                <Icon nombre="banco" className="size-4 text-teal" />
+                {t.infoPagas(metodos.join(", "))}
+              </li>
+            )}
+            <li className="inline-flex items-center gap-2 rounded-full border border-teal-oscuro/25 px-3 py-1.5">
+              <Icon nombre="camion" className="size-4 text-teal" />
+              {opciones.direccionRetiro ? t.infoEnvioRetiro : t.infoEnvio}
+            </li>
+          </ul>
           <BotonesChat
             whatsapp={negocio.whatsapp}
             instagram={negocio.usuarioInstagram}

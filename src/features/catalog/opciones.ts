@@ -6,6 +6,24 @@ const SEPARADOR = " · ";
 /** Las partes de la etiqueta de una variante ("iPhone 17 · Rosa"); vacío si el producto no tiene variantes. */
 export const partesDe = (variante: string | null): string[] => (variante ? variante.split(SEPARADOR) : []);
 
+/**
+ * El modelo de celular de una variante ("iPhone 17 Pro Max · Rosa" → "iPhone 17 Pro Max"), o null si no tiene.
+ * Si la dueña le puso nombre a las opciones y una es "Modelo", se toma esa; si no, la primera parte que parece un modelo.
+ */
+export function modeloDe(variante: string | null, nombresOpciones: string[] = []): string | null {
+  const partes = partesDe(variante);
+  const i = nombresOpciones.findIndex((n) => /modelo/i.test(n));
+  const parte = (i >= 0 ? partes[i] : undefined) ?? partes.find(esModelo);
+  const limpio = parte?.trim();
+  // Se escribe como se escribe: "iphone 16" y "iPhone 16" son el mismo chip
+  return limpio
+    ? limpio
+        .replace(/^iphone/i, "iPhone")
+        .replace(/^ipad/i, "iPad")
+        .replace(/\b(pro|max|plus|mini|ultra|air)\b/gi, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
+    : null;
+}
+
 export type OpcionVariante = { codigo: number; variante: string; disponibles: number };
 
 export type FilaOpciones = {

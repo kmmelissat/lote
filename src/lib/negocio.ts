@@ -10,6 +10,8 @@ export type NegocioActual = {
   logo: string | null;
   /** El de la vitrina pública: /c/<slug> */
   slug: string;
+  /** La vitrina es opcional: sin ella Lote sirve igual para registrar ventas y ver ganancia y stock */
+  vitrinaActiva: boolean;
   /** Con cuántas unidades disponibles un producto cuenta como "poco stock" */
   umbralPocoStock: number;
   /** La persona que hace la petición */
@@ -37,11 +39,15 @@ export const negocioActual = cache(async function negocioActual() {
   const miembro = data?.[0];
   if (!miembro) redirect("/crear-negocio");
 
+  // Aparte y sin romper nada: si todavía no existe la columna (falta correr vitrina_opcional.sql), cuenta como prendida.
+  const { data: v } = await supabase.from("negocio").select("vitrina_activa").eq("id", miembro.negocio_id).maybeSingle();
+
   const negocio: NegocioActual = {
     id: miembro.negocio_id,
     nombre: miembro.negocio?.nombre ?? "",
     logo: miembro.negocio?.logo ?? null,
     slug: miembro.negocio?.slug ?? "",
+    vitrinaActiva: v?.vitrina_activa ?? true,
     umbralPocoStock: miembro.negocio?.umbral_poco_stock ?? 2,
     usuarioId,
     rol: miembro.rol,

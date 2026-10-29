@@ -1,3 +1,4 @@
+import { modeloDe } from "@/features/catalog/opciones";
 import type { ProductoPublico } from "@/features/catalog/repositorio";
 import type { Producto } from "./repositorio";
 
@@ -72,6 +73,8 @@ export type TarjetaVitrina = {
   apartado: boolean;
   /** Cuántas opciones tiene; 1 es un producto normal */
   opciones: number;
+  /** Los modelos de celular de sus variantes ("iPhone 16", "iPhone 17 Pro Max"), para filtrar la vitrina */
+  modelos: string[];
 };
 
 /** Junta en una sola tarjeta las variantes de un mismo grupo; los productos sin grupo van cada uno por su lado. */
@@ -81,6 +84,7 @@ export function agruparParaVitrina(productos: ProductoPublico[]): TarjetaVitrina
 
   for (const p of productos) {
     const hay = p.disponibles > 0;
+    const modelo = modeloDe(p.variante, p.opciones);
     const existente = p.grupo ? porGrupo.get(p.grupo) : undefined;
     if (!existente) {
       const t: TarjetaVitrina = {
@@ -93,7 +97,9 @@ export function agruparParaVitrina(productos: ProductoPublico[]): TarjetaVitrina
         disponibles: p.disponibles,
         apartado: !hay && p.apartado,
         opciones: 1,
+        modelos: [],
       };
+      if (modelo) t.modelos.push(modelo);
       tarjetas.push(t);
       if (p.grupo) porGrupo.set(p.grupo, t);
       continue;
@@ -106,6 +112,7 @@ export function agruparParaVitrina(productos: ProductoPublico[]): TarjetaVitrina
     existente.precioMaximo = Math.max(existente.precioMaximo, p.precio);
     if (!existente.fotos.length) existente.fotos = p.fotos;
     existente.opciones += 1;
+    if (modelo && !existente.modelos.some((m) => m.toLowerCase() === modelo.toLowerCase())) existente.modelos.push(modelo);
   }
   return tarjetas;
 }

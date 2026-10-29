@@ -171,33 +171,6 @@ export function Cantidad({
   );
 }
 
-/** Interruptor con título: es un checkbox de verdad (teclado y lectores de pantalla lo entienden). */
-export function Interruptor({
-  titulo,
-  ayuda,
-  activo,
-  onCambio,
-}: {
-  titulo: string;
-  ayuda?: string;
-  activo: boolean;
-  onCambio: (v: boolean) => void;
-}) {
-  return (
-    <label className="flex min-h-12 cursor-pointer items-center gap-3">
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="font-bold">{titulo}</span>
-        {ayuda && <span className="text-sm text-texto-2">{ayuda}</span>}
-      </span>
-      <input type="checkbox" role="switch" checked={activo} onChange={(e) => onCambio(e.target.checked)} className="peer sr-only" />
-      <span
-        aria-hidden="true"
-        className="relative h-8 w-14 shrink-0 rounded-full border-2 border-teal-oscuro bg-white transition-colors duration-150 after:absolute after:left-0.5 after:top-0.5 after:size-6 after:rounded-full after:border-2 after:border-teal-oscuro after:bg-limon after:transition-transform after:duration-150 peer-checked:bg-teal peer-checked:after:translate-x-6 peer-checked:after:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal"
-      />
-    </label>
-  );
-}
-
 /**
  * Una sección que se abre y se cierra con una animación suave. El contenido sigue en el formulario aunque esté cerrado
  * (así lo escrito se guarda igual) pero no se puede tabular.
@@ -255,13 +228,4 @@ export function atajosDeFormulario(ev: KeyboardEvent<HTMLFormElement>) {
     ].filter((c) => c.offsetParent !== null && !c.closest("[inert]"));
     campos[campos.indexOf(destino) + 1]?.focus();
   }
-}
-
-/** La barra de guardar: queda pegada abajo de la pantalla mientras se desplaza el formulario. En el celular flota sobre el menú. */
-export function BarraGuardar({ children }: { children: ReactNode }) {
-  return (
-    <div className="barra-guardar z-20 mt-auto flex flex-wrap items-center gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema p-3 shadow-dura">
-      {children}
-    </div>
-  );
 }

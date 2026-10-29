@@ -27,9 +27,7 @@ async function Comprar({ params, searchParams }: Props) {
     <PantallaCompra slug={slug} negocio={negocio} producto={producto} unidades={unidades} titulo={t.hojaComprar} ayuda={t.comprarAyuda}>
       <CompraForm
         slug={slug}
-        codigo={producto.codigo}
-        precio={producto.precio}
-        unidades={unidades}
+        lineas={[{ codigo: producto.codigo, cantidad: unidades, precio: producto.precio }]}
         opciones={opciones}
         volverHref={`/c/${slug}/${producto.codigo}`}
       />

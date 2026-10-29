@@ -249,8 +249,43 @@ export async function comprarDesdeVitrina(
   return { ok: false, error: ERRORES.find((e) => e === r.error) ?? "desconocido" };
 }
 
+/** Comprar varios productos en un solo pedido (el carrito). Necesita carrito_vitrina.sql. */
+export async function comprarCarritoDesdeVitrina(
+  supabase: Cliente,
+  p: {
+    slug: string;
+    items: { codigo: number; cantidad: number }[];
+    nombre: string;
+    contacto: string;
+    aceptaWhatsapp: boolean;
+    huella: string;
+  } & DatosDeCompra,
+): Promise<{ ok: true; pedidoId: string } | { ok: false; error: ErrorApartar }> {
+  const { data, error } = await supabase.rpc("comprar_carrito_vitrina", {
+    p_slug: p.slug,
+    p_items: p.items,
+    p_nombre: p.nombre,
+    p_contacto: p.contacto,
+    p_acepta_whatsapp: p.aceptaWhatsapp,
+    p_huella: p.huella,
+    p_entrega: p.entrega,
+    p_departamento: p.departamento,
+    p_municipio: p.municipio,
+    p_direccion: p.direccion,
+    p_referencia: p.referencia,
+    p_metodo: p.metodo,
+  });
+  if (error) return { ok: false, error: "desconocido" };
+
+  const r = data as { pedido?: string; error?: string };
+  if (r.pedido) return { ok: true, pedidoId: r.pedido };
+  return { ok: false, error: ERRORES.find((e) => e === r.error) ?? "desconocido" };
+}
+
 export type AjustesVitrina = {
   slug: string;
+  /** La vitrina pública es opcional: apagada, /c/<tienda> no existe y no se aparece en Explorar */
+  vitrinaActiva: boolean;
   apartarDesdeVitrina: boolean;
   plazoHoras: number;
   limitePorContacto: number;
@@ -268,8 +303,11 @@ export async function obtenerAjustesVitrina(supabase: Cliente, negocioId: string
     .eq("id", negocioId)
     .single();
   if (error) throw error;
+  // Aparte: si todavía no existe la columna (falta correr vitrina_opcional.sql), cuenta como prendida
+  const { data: v } = await supabase.from("negocio").select("vitrina_activa").eq("id", negocioId).maybeSingle();
   return {
     slug: data.slug,
+    vitrinaActiva: v?.vitrina_activa ?? true,
     visibleEnExplorar: data.visible_en_explorar,
     apartarDesdeVitrina: data.apartar_desde_vitrina,
     plazoHoras: data.plazo_apartado_horas,
@@ -278,27 +316,6 @@ export async function obtenerAjustesVitrina(supabase: Cliente, negocioId: string
     whatsapp: data.whatsapp,
     usuarioInstagram: data.usuario_instagram,
   };
-}
-
-/** Solo la dueña puede guardar (lo exige RLS). */
-export async function guardarAjustesVitrina(
-  supabase: Cliente,
-  negocioId: string,
-  a: Omit<AjustesVitrina, "slug">,
-): Promise<boolean> {
-  const { error } = await supabase
-    .from("negocio")
-    .update({
-      apartar_desde_vitrina: a.apartarDesdeVitrina,
-      plazo_apartado_horas: a.plazoHoras,
-      limite_apartados_por_contacto: a.limitePorContacto,
-      umbral_poco_stock: a.umbralPocoStock,
-      whatsapp: a.whatsapp,
-      usuario_instagram: a.usuarioInstagram,
-      visible_en_explorar: a.visibleEnExplorar,
-    })
-    .eq("id", negocioId);
-  return !error;
 }
 
 export type IdentidadTienda = {
@@ -330,15 +347,13 @@ export async function contextoDeLaTienda(supabase: Cliente, negocioId: string): 
   return data?.contexto_ia?.trim() ?? "";
 }
 
-/** Solo la dueña puede guardar (lo exige RLS). */
-export async function guardarIdentidad(
+/** La marca y las reglas de la vitrina se guardan juntas, en un solo paso. Solo la dueña puede (lo exige RLS). */
+export async function guardarTienda(
   supabase: Cliente,
   negocioId: string,
-  a: Omit<IdentidadTienda, "slug">,
+  a: Omit<IdentidadTienda, "slug"> & Omit<AjustesVitrina, "slug" | "whatsapp" | "usuarioInstagram">,
 ): Promise<boolean> {
-  const { error } = await supabase
-    .from("negocio")
-    .update({
+  const cambios = {
       nombre: a.nombre,
       descripcion: a.descripcion,
       logo: a.logo,
@@ -346,7 +361,17 @@ export async function guardarIdentidad(
       whatsapp: a.whatsapp,
       usuario_instagram: a.usuarioInstagram,
       contexto_ia: a.contextoIa,
-    })
-    .eq("id", negocioId);
-  return !error;
+      apartar_desde_vitrina: a.apartarDesdeVitrina,
+      plazo_apartado_horas: a.plazoHoras,
+      limite_apartados_por_contacto: a.limitePorContacto,
+      umbral_poco_stock: a.umbralPocoStock,
+      visible_en_explorar: a.visibleEnExplorar,
+  };
+  const { error } = await supabase.from("negocio").update({ ...cambios, vitrina_activa: a.vitrinaActiva }).eq("id", negocioId);
+  if (!error) return true;
+  // Sin la columna nueva (falta correr vitrina_opcional.sql) se guarda todo lo demás, y solo se pierde la vitrina opcional.
+  if (a.vitrinaActiva && /vitrina_activa/.test(error.message)) {
+    return !(await supabase.from("negocio").update(cambios).eq("id", negocioId)).error;
+  }
+  return false;
 }

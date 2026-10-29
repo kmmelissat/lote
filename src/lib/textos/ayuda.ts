@@ -17,11 +17,11 @@ export const ayuda = {
     },
     {
       id: "apartado_vitrina",
-      enlace: { href: "/ajustes/vitrina", etiqueta: "Ajustes de la vitrina" },
+      enlace: { href: "/ajustes/tienda", etiqueta: "Ajustes de tu tienda" },
       donde: ["/pedidos"],
       pregunta: "¿Qué pasa cuando alguien aparta desde mi vitrina?",
       respuesta:
-        "El producto deja de estar disponible al instante y el cliente ve tus datos de pago y el tiempo que tiene para pagar. Si no paga a tiempo, el apartado vence solo y el producto vuelve a estar disponible. El plazo y el límite por persona se cambian en Ajustes, en Vitrina.",
+        "El producto deja de estar disponible al instante y el cliente ve tus datos de pago y el tiempo que tiene para pagar. Si no paga a tiempo, el apartado vence solo y el producto vuelve a estar disponible. El plazo y el límite por persona se cambian en Ajustes, en Mi tienda.",
     },
     {
       id: "cobrar",
@@ -87,7 +87,7 @@ export const ayuda = {
     },
     {
       id: "vitrina",
-      enlace: { href: "/ajustes/vitrina", etiqueta: "Ajustes de la vitrina" },
+      enlace: { href: "/ajustes/tienda", etiqueta: "Ajustes de tu tienda" },
       donde: ["/inicio", "/productos"],
       pregunta: "¿Cómo comparto mi vitrina?",
       respuesta:
@@ -95,11 +95,11 @@ export const ayuda = {
     },
     {
       id: "explorar",
-      enlace: { href: "/ajustes/vitrina", etiqueta: "Ajustes de la vitrina" },
+      enlace: { href: "/ajustes/tienda", etiqueta: "Ajustes de tu tienda" },
       donde: ["/ajustes"],
       pregunta: "¿Mis productos salen en Explorar?",
       respuesta:
-        "Solo si vos querés. En Ajustes, en Vitrina, está el interruptor de Explorar y empieza apagado. Cuando lo prendés, tus productos aparecen junto a los de otras tiendas.",
+        "Solo si vos querés. En Ajustes, en Mi tienda, está el interruptor de Explorar y empieza apagado. Cuando lo prendés, tus productos aparecen junto a los de otras tiendas.",
     },
     {
       id: "lotito_foto",

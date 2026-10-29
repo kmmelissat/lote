@@ -3,7 +3,7 @@
 import { createHmac } from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { apartarDesdeVitrina, comprarDesdeVitrina, type ErrorApartar } from "../repositorio";
+import { apartarDesdeVitrina, comprarCarritoDesdeVitrina, comprarDesdeVitrina, type ErrorApartar } from "../repositorio";
 import { esDepartamento } from "@/lib/departamentos";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
@@ -54,6 +54,7 @@ export async function apartarProducto(
   if (!nombre || contacto.length < 3 || !Number.isInteger(cantidad) || cantidad < 1) {
     return { error: t.errorDatos, valores };
   }
+  if (formData.get("acepta") !== "on") return { error: t.errorAcepta, valores };
 
   const r = await apartarDesdeVitrina(createPublicClient(), {
     slug,
@@ -93,6 +94,7 @@ export async function comprarProducto(
   if (!nombre || contacto.length < 3 || !Number.isInteger(cantidad) || cantidad < 1 || !metodo) {
     return { error: t.errorDatos, valores };
   }
+  if (formData.get("acepta") !== "on") return { error: t.errorAcepta, valores };
   if (entrega === "envio" && (!esDepartamento(departamento) || !texto("direccion"))) {
     return { error: textos.vitrina.compra.errorEntrega, valores };
   }
@@ -115,4 +117,53 @@ export async function comprarProducto(
   if (!r.ok) return { error: TEXTO_ERROR[r.error], valores };
 
   redirect(`/c/${slug}/apartado/${r.pedidoId}`);
+}
+
+/** Comprar el carrito: varios productos en un solo pedido, con los mismos datos de entrega y pago que una compra. */
+export async function comprarCarrito(slug: string, _anterior: EstadoApartar, formData: FormData): Promise<EstadoApartar> {
+  if (String(formData.get("sitio_web") ?? "").trim()) return { error: t.errorGeneral };
+  const texto = (k: string) => String(formData.get(k) ?? "").trim();
+  const nombre = texto("nombre");
+  const contacto = contactoDe(formData);
+  const entrega = texto("entrega") === "retiro" ? "retiro" : "envio";
+  const departamento = texto("departamento");
+  const metodo = METODOS.find((m) => m === texto("metodo"));
+  const valores = { nombre, contacto };
+
+  // Lo que viene del navegador no se cree: se revisa cada línea y se vuelve a armar
+  let items: { codigo: number; cantidad: number }[] = [];
+  try {
+    const crudo: unknown = JSON.parse(texto("items"));
+    if (Array.isArray(crudo)) {
+      items = crudo
+        .map((i) => ({ codigo: Number((i as { codigo?: unknown }).codigo), cantidad: Number((i as { cantidad?: unknown }).cantidad) }))
+        .filter((i) => Number.isInteger(i.codigo) && Number.isInteger(i.cantidad) && i.cantidad >= 1 && i.cantidad <= 20);
+    }
+  } catch {}
+  items = items.filter((i, k) => items.findIndex((o) => o.codigo === i.codigo) === k).slice(0, 10);
+
+  if (!items.length || !nombre || contacto.length < 3 || !metodo) return { error: t.errorDatos, valores };
+  if (formData.get("acepta") !== "on") return { error: t.errorAcepta, valores };
+  if (entrega === "envio" && (!esDepartamento(departamento) || !texto("direccion"))) {
+    return { error: textos.vitrina.compra.errorEntrega, valores };
+  }
+
+  const r = await comprarCarritoDesdeVitrina(createPublicClient(), {
+    slug,
+    items,
+    nombre,
+    contacto,
+    aceptaWhatsapp: true,
+    huella: await huellaDelDispositivo(),
+    entrega,
+    departamento: entrega === "envio" ? departamento : "",
+    municipio: entrega === "envio" ? texto("municipio") : "",
+    direccion: entrega === "envio" ? texto("direccion") : "",
+    referencia: entrega === "envio" ? texto("referencia") : "",
+    metodo,
+  });
+  if (!r.ok) return { error: TEXTO_ERROR[r.error], valores };
+
+  // ?carrito=1: la pantalla de confirmación vacía el carrito del navegador
+  redirect(`/c/${slug}/apartado/${r.pedidoId}?carrito=1`);
 }

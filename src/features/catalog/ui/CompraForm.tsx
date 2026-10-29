@@ -7,7 +7,7 @@ import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { DEPARTAMENTOS } from "@/lib/departamentos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { comprarProducto, type EstadoApartar } from "../actions/apartar";
+import { comprarCarrito, comprarProducto, type EstadoApartar } from "../actions/apartar";
 import type { OpcionesDeCompra } from "../repositorio";
 import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, ListaDesplegable, useDatosGuardados } from "./camposCompra";
 
@@ -62,28 +62,32 @@ function Opcion({
 /** Comprar como en cualquier tienda en línea: tus datos, cómo lo recibís, cómo pagás y el total. O solo apartar. */
 export function CompraForm({
   slug,
-  codigo,
-  precio,
-  unidades,
+  lineas,
+  carrito = false,
   opciones,
   volverHref,
 }: {
   slug: string;
-  codigo: number;
-  precio: number;
-  /** Cuántas unidades compra: se elige antes, junto al precio */
-  unidades: number;
+  /** Lo que se compra: un producto ("Comprar ahora") o los del carrito. Precio en centavos. */
+  lineas: { codigo: number; cantidad: number; precio: number }[];
+  /** Compra del carrito: un solo pedido con todas las líneas */
+  carrito?: boolean;
   opciones: OpcionesDeCompra;
   /** A dónde lleva "Volver" en el primer paso: la página del producto */
   volverHref: string;
 }) {
-  const [estado, accion, pendiente] = useActionState<EstadoApartar, FormData>(comprarProducto.bind(null, slug, codigo), {});
+  const [estado, accion, pendiente] = useActionState<EstadoApartar, FormData>(
+    carrito ? comprarCarrito.bind(null, slug) : comprarProducto.bind(null, slug, lineas[0].codigo),
+    {},
+  );
   const puedeRecoger = opciones.direccionRetiro !== null;
   const [entrega, setEntrega] = useState<Entrega>(puedeRecoger ? "retiro" : "envio");
   const [departamento, setDepartamento] = useState("");
   // Si intenta seguir sin elegir el departamento, la lista se abre sola y avisa
   const [faltaDepartamento, setFaltaDepartamento] = useState(false);
   const [intentos, setIntentos] = useState(0);
+  // Sin aceptar que la tienda le escriba por WhatsApp no se puede confirmar
+  const [acepta, setAcepta] = useState(false);
   const [metodo, setMetodo] = useState<Metodo | "">("");
   // La compra va de a un paso: datos, entrega y pago. Los tres siguen en el formulario (solo se esconden) para que todo se envíe junto.
   const [paso, setPaso] = useState(0);
@@ -99,7 +103,7 @@ export function CompraForm({
 
   const costoDe = (d: string) => opciones.tarifas[d] ?? opciones.tarifaDefecto;
   const tarifa = entrega === "envio" && departamento ? costoDe(departamento) : 0;
-  const subtotal = precio * unidades;
+  const subtotal = lineas.reduce((n, l) => n + l.precio * l.cantidad, 0);
 
   /** Pasa al paso siguiente solo si lo de este paso está completo; si no, muestra qué falta. */
   function siguiente() {
@@ -124,13 +128,20 @@ export function CompraForm({
           ref={formulario}
           action={accion}
           onSubmit={(e) => {
+            // Solo se envía desde el último paso, tocando "Confirmar pedido": un Enter o un toque que cae encima
+            // del botón al cambiar de paso no debe confirmar nada.
+            if (paso < 2) return e.preventDefault();
             const f = new FormData(e.currentTarget);
             guardarDatos(String(f.get("nombre") ?? ""), String(f.get("telefono") ?? ""));
           }}
           className="relative flex flex-col gap-5"
         >
           <Honeypot />
-          <input type="hidden" name="cantidad" value={unidades} />
+          {carrito ? (
+            <input type="hidden" name="items" value={JSON.stringify(lineas.map((l) => ({ codigo: l.codigo, cantidad: l.cantidad })))} />
+          ) : (
+            <input type="hidden" name="cantidad" value={lineas[0].cantidad} />
+          )}
           {/* Dónde vas: "Paso 1 de 3" con tres puntos gruesos, para que no parezcan campos */}
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-bold">
@@ -141,7 +152,7 @@ export function CompraForm({
                 <li
                   key={nombre}
                   aria-current={i === paso ? "step" : undefined}
-                  className={`size-3.5 rounded-full border-2 border-teal-oscuro ${i <= paso ? "bg-mango" : "bg-white"}`}
+                  className={`size-3.5 rounded-full border-2 border-teal-oscuro ${i <= paso ? "bg-accion" : "bg-white"}`}
                 >
                   <span className="sr-only">{nombre}</span>
                 </li>
@@ -267,8 +278,8 @@ export function CompraForm({
             </p>
           </section>
 
-          <label className="flex min-h-11 items-start gap-3">
-            <input type="checkbox" name="acepta" className="mt-1 size-5 shrink-0 accent-teal" />
+          <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-teal-oscuro/20 bg-white p-3">
+            <input type="checkbox" name="acepta" required checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-teal" />
             <span>{ta.acepta}</span>
           </label>
           </div>
@@ -276,6 +287,11 @@ export function CompraForm({
           <MensajeError>{estado.error}</MensajeError>
           {/* Anclado abajo: el total, "Volver" y el botón principal siempre se ven, sea cual sea el paso */}
           <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t-2 border-teal-oscuro bg-crema px-4 py-3">
+            {paso === 2 && !acepta && (
+              <p role="status" className="text-sm font-medium text-ambar-texto">
+                {ta.aceptaFalta}
+              </p>
+            )}
             <p className="flex justify-between text-sm" aria-live="polite">
               <span className="text-texto-2">{t.total}</span>
               <span className="font-bold tabular-nums">{formatearDolares(subtotal + tarifa)}</span>
@@ -299,16 +315,18 @@ export function CompraForm({
               )}
               {paso < 2 ? (
                 <button
+                  key="siguiente"
                   type="button"
                   onClick={siguiente}
-                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
                 >
                   {t.siguiente}
                 </button>
               ) : (
                 <button
+                  key="confirmar"
                   type="submit"
-                  disabled={pendiente || !metodoElegido}
+                  disabled={pendiente || !metodoElegido || !acepta}
                   className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal px-8 font-bold text-white shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
                 >
                   {pendiente ? t.confirmando : t.confirmar}

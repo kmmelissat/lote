@@ -34,7 +34,8 @@ export async function NavConDatos() {
             siguiente: { titulo: textos.inicio.primerosPasos.pasos[siguiente.clave].titulo, href: ENLACES_DE_PASOS[siguiente.clave] },
           }
         : null,
-    slug: negocio.slug,
+    // Sin vitrina no hay enlace que mostrar
+    slug: negocio.vitrinaActiva ? negocio.slug : "",
     perfil: {
       nombre: negocio.nombre || textos.perfil.nombre,
       detalle: textos.perfil.roles[negocio.rol] ?? textos.perfil.detalle,

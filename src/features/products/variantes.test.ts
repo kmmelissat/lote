@@ -89,6 +89,17 @@ describe("agruparParaVitrina", () => {
     expect(t[0]).toMatchObject({ disponibles: 0, apartado: true });
   });
 
+  it("junta los modelos de celular de las variantes, sin repetir y escritos igual", () => {
+    const t = agruparParaVitrina([
+      pub(10, { grupo: "g", variante: "iphone 16 · Rosa" }),
+      pub(11, { grupo: "g", variante: "iPhone 16 · Azul" }),
+      pub(12, { grupo: "g", variante: "iPhone 17 Pro Max · Rosa" }),
+      pub(5, { variante: null }),
+    ]);
+    expect(t[0].modelos).toEqual(["iPhone 16", "iPhone 17 Pro Max"]);
+    expect(t[1].modelos).toEqual([]);
+  });
+
   it("junta el rango de precios", () => {
     const t = agruparParaVitrina([
       pub(10, { grupo: "g", variante: "M", precio: 2500 }),

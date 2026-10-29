@@ -23,10 +23,17 @@ export function colorDeMarca(guardado: string | null | undefined): ColorMarca {
 /** Variables de CSS que repintan lo que en la app es teal; la vitrina las pone en su contenedor. */
 export function estiloDeMarca(guardado: string | null | undefined): Record<string, string> {
   const { hex } = colorDeMarca(guardado);
-  return {
+  const estilo: Record<string, string> = {
     "--color-teal": hex,
     "--color-teal-fondo": `color-mix(in srgb, ${hex} 12%, white)`,
   };
+  // Si la tienda eligió un color, sus botones principales lo usan (con texto blanco: todos pasan 4.5 a 1);
+  // si no eligió, se queda el mango de Lote.
+  if (COLORES_MARCA.some((c) => c.hex === guardado)) {
+    estilo["--color-accion"] = hex;
+    estilo["--color-accion-texto"] = "#ffffff";
+  }
+  return estilo;
 }
 
 /** Cuántas letras puede tener el contexto de la tienda para la IA (igual que el límite de la base). */

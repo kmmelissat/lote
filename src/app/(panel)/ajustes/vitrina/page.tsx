@@ -1,25 +1,6 @@
-import type { Metadata } from "next";
-import { PageHeader } from "@/components/nav/PageHeader";
-import { obtenerAjustesVitrina } from "@/features/catalog/repositorio";
-import { negocioActual } from "@/lib/negocio";
-import { textos } from "@/lib/textos";
-import { VitrinaForm } from "@/features/catalog/ui/VitrinaForm";
+import { redirect } from "next/navigation";
 
-const t = textos.ajustes.vitrina;
-
-export const metadata: Metadata = { title: t.titulo };
-
+// La vitrina ahora se configura en Mi tienda. Esta dirección queda para los enlaces y marcadores viejos.
 export default function VitrinaAjustesPage() {
-  return (
-    <>
-      <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Formulario />
-    </>
-  );
-}
-
-async function Formulario() {
-  const { supabase, negocio } = await negocioActual();
-  if (negocio.rol !== "duena") return <p className="text-texto-2">{t.soloDuena}</p>;
-  return <VitrinaForm ajustes={await obtenerAjustesVitrina(supabase, negocio.id)} />;
+  redirect("/ajustes/tienda");
 }

@@ -2,19 +2,26 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useActionState, useId, useRef, useState } from "react";
+import { useActionState, useId, useRef, useState, type ReactNode } from "react";
+import { BarraGuardar } from "@/components/ui/BarraGuardar";
+import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
-import { Icon } from "@/components/ui/Icon";
+import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { Interruptor } from "@/components/ui/Interruptor";
 import { Monito } from "@/components/ui/Monito";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { useToast } from "@/components/ui/Toast";
+import { TARJETA } from "@/components/ui/tarjeta";
 import { subirLogo } from "@/features/products/subirFotos";
 import { urlFoto } from "@/lib/fotos";
+import { urlSitio } from "@/lib/sitio";
 import { textos } from "@/lib/textos";
 import { guardarTienda, type EstadoTienda } from "../actions/tienda";
 import { COLORES_MARCA, colorDeMarca, estiloDeMarca, LIMITE_CONTEXTO } from "../marca";
-import type { IdentidadTienda } from "../repositorio";
+import type { AjustesVitrina, IdentidadTienda } from "../repositorio";
 
 const t = textos.ajustes.tienda;
+const v = textos.ajustes.vitrina;
 
 function Logo({ ruta, nombre, className }: { ruta: string; nombre: string; className: string }) {
   return ruta ? (
@@ -26,18 +33,83 @@ function Logo({ ruta, nombre, className }: { ruta: string; nombre: string; class
   );
 }
 
-const seccion = "flex flex-col gap-5 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5";
-
-function EncabezadoSeccion({ titulo, ayuda }: { titulo: string; ayuda: string }) {
+/** Un grupo de ajustes: su ícono, qué es y lo que se puede cambiar. */
+function Grupo({
+  icono,
+  titulo,
+  texto,
+  className = "",
+  fondo = "bg-superficie",
+  children,
+}: {
+  icono: NombreIcono;
+  titulo: string;
+  texto: string;
+  className?: string;
+  fondo?: string;
+  children: ReactNode;
+}) {
   return (
-    <div>
-      <h2 className="text-lg font-bold">{titulo}</h2>
-      <p className="text-sm text-texto-2">{ayuda}</p>
-    </div>
+    <section className={`${TARJETA} relative flex flex-col gap-4 ${fondo} ${className}`}>
+      <header className="flex items-center gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon text-teal-oscuro">
+          <Icon nombre={icono} className="size-5" />
+        </span>
+        <div className="min-w-0">
+          <h2 className="font-bold">{titulo}</h2>
+          <p className="text-sm text-texto-2">{texto}</p>
+        </div>
+      </header>
+      {children}
+    </section>
   );
 }
 
-export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTienda; negocioId: string }) {
+/** El enlace de la vitrina, completo y listo para copiar. */
+function TarjetaEnlace({ slug }: { slug: string }) {
+  const { avisar } = useToast();
+  const enlace = `${urlSitio}/c/${slug}`;
+  async function copiar() {
+    try {
+      await navigator.clipboard.writeText(enlace);
+      avisar(v.enlaceCopiado, { tipo: "exito" });
+    } catch {
+      avisar(v.enlaceNoCopiado, { tipo: "error" });
+    }
+  }
+  return (
+    <section aria-labelledby="mi-enlace" className={`${TARJETA} flex flex-col gap-3 bg-teal-fondo`}>
+      <div>
+        <h2 id="mi-enlace" className="font-bold">
+          {v.miEnlace}
+        </h2>
+        <p className="text-sm text-teal-oscuro/80">{v.miEnlaceAyuda}</p>
+      </div>
+      <p className="break-all rounded-2xl border-2 border-teal-oscuro bg-superficie px-4 py-3 text-sm font-medium">{enlace}</p>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={copiar}
+          className="inline-flex h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-superficie px-5 font-bold text-teal-oscuro hover:bg-limon"
+        >
+          <Icon nombre="copiar" className="size-4" />
+          {v.copiarEnlace}
+        </button>
+        <Link
+          href={`/c/${slug}`}
+          target="_blank"
+          className="inline-flex h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro px-5 font-bold text-teal-oscuro hover:bg-superficie"
+        >
+          {v.verVitrina}
+          <Icon nombre="enlace" className="size-4" />
+          <span className="sr-only">(se abre en una pestaña nueva)</span>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: IdentidadTienda; ajustes: AjustesVitrina; negocioId: string }) {
   const [estado, accion, pendiente] = useActionState<EstadoTienda, FormData>(guardarTienda, {});
   const [nombre, setNombre] = useState(identidad.nombre);
   const [frase, setFrase] = useState(identidad.descripcion ?? "");
@@ -46,6 +118,9 @@ export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTiend
   const [whatsapp, setWhatsapp] = useState(identidad.whatsapp ?? "");
   const [instagram, setInstagram] = useState(identidad.usuarioInstagram ?? "");
   const [contexto, setContexto] = useState(identidad.contextoIa ?? "");
+  const [vitrina, setVitrina] = useState(ajustes.vitrinaActiva);
+  const [apartar, setApartar] = useState(ajustes.apartarDesdeVitrina);
+  const [explorar, setExplorar] = useState(ajustes.visibleEnExplorar);
   const [subiendo, setSubiendo] = useState(false);
   const [errorLogo, setErrorLogo] = useState<string>();
   const entrada = useRef<HTMLInputElement>(null);
@@ -66,15 +141,23 @@ export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTiend
   }
 
   return (
-    <div className="grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <form action={accion} className="flex min-w-0 flex-col gap-5">
+    <div className={`grid w-full grid-cols-1 gap-4 ${vitrina ? "lg:grid-cols-[minmax(0,1fr)_22rem]" : ""}`}>
+      <form action={accion} className="flex min-w-0 flex-col gap-4">
         <input type="hidden" name="logo" value={logo} />
 
-        <section className={seccion}>
-          <EncabezadoSeccion titulo={t.secciones.marca} ayuda={t.secciones.marcaAyuda} />
+        <Grupo icono="tienda" titulo={v.opcional.titulo} texto={v.opcional.texto}>
+          <Interruptor name="vitrina" titulo={v.opcional.interruptor} ayuda={v.opcional.ayuda} activo={vitrina} onCambio={setVitrina} />
+          {!vitrina && (
+            <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+              {v.opcional.apagada}
+            </p>
+          )}
+        </Grupo>
+
+        <Grupo icono="tienda" titulo={t.secciones.marca} texto={t.secciones.marcaAyuda}>
           <Field etiqueta={t.nombre} name="nombre" maxLength={60} required value={nombre} onChange={(e) => setNombre(e.target.value)} />
 
-          <div className="flex flex-col gap-1">
+          <div className={`flex flex-col gap-1 ${vitrina ? "" : "hidden"}`}>
             <Field etiqueta={t.frase} name="frase" maxLength={120} value={frase} onChange={(e) => setFrase(e.target.value)} />
             <p className="text-sm text-texto-2">{t.fraseAyuda}</p>
           </div>
@@ -115,7 +198,7 @@ export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTiend
             <MensajeError>{errorLogo}</MensajeError>
           </div>
 
-          <fieldset className="flex flex-col gap-2">
+          <fieldset className={`flex flex-col gap-2 ${vitrina ? "" : "hidden"}`}>
             <legend className="text-sm font-medium">{t.color}</legend>
             <div className="flex flex-wrap gap-3">
               {COLORES_MARCA.map((c) => (
@@ -140,10 +223,9 @@ export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTiend
             </div>
             <p className="text-sm text-texto-2">{t.colorAyuda}</p>
           </fieldset>
-        </section>
+        </Grupo>
 
-        <section className={seccion}>
-          <EncabezadoSeccion titulo={t.secciones.contacto} ayuda={t.secciones.contactoAyuda} />
+        <Grupo icono="chat" titulo={t.secciones.contacto} texto={t.secciones.contactoAyuda}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field
               etiqueta={t.whatsapp}
@@ -163,11 +245,48 @@ export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTiend
               onChange={(e) => setInstagram(e.target.value)}
             />
           </div>
-        </section>
+        </Grupo>
 
-        <section className="relative flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura">
+        <Grupo icono="pedidos" className={vitrina ? "" : "hidden"} titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto}>
+          <Interruptor name="apartar" titulo={v.apartar} ayuda={v.apartarAyuda} activo={apartar} onCambio={setApartar} />
+          {/* Los dos campos siguen en el formulario aunque esté apagado, para no perder lo ya escrito */}
+          <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${apartar ? "" : "opacity-60"}`}>
+            <div className="flex flex-col gap-1">
+              <Field etiqueta={v.plazo} name="plazo" type="number" min={1} max={168} inputMode="numeric" defaultValue={ajustes.plazoHoras} />
+              <p className="text-sm text-texto-2">{v.plazoAyuda}</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Field etiqueta={v.limite} name="limite" type="number" min={1} max={20} inputMode="numeric" defaultValue={ajustes.limitePorContacto} />
+              <p className="text-sm text-texto-2">{v.limiteAyuda}</p>
+            </div>
+          </div>
+          {!apartar && (
+            <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+              {v.apagadoAviso}
+            </p>
+          )}
+        </Grupo>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Grupo icono="buscar" className={vitrina ? "" : "hidden"} titulo={v.grupos.explorar.titulo} texto={v.grupos.explorar.texto}>
+            <Interruptor name="explorar" titulo={v.explorar} ayuda={v.explorarAyuda} activo={explorar} onCambio={setExplorar} />
+            <Link href="/explorar" target="_blank" className="inline-flex min-h-11 items-center gap-2 self-start font-bold text-teal underline">
+              {v.verExplorar}
+              <Icon nombre="enlace" className="size-4" />
+              <span className="sr-only">(se abre en una pestaña nueva)</span>
+            </Link>
+          </Grupo>
+
+          <Grupo icono="caja" titulo={v.grupos.stock.titulo} texto={v.grupos.stock.texto}>
+            <div className="flex flex-col gap-1">
+              <Field etiqueta={v.umbral} name="umbral" type="number" min={0} max={50} inputMode="numeric" defaultValue={ajustes.umbralPocoStock} />
+              <p className="text-sm text-texto-2">{v.umbralAyuda}</p>
+            </div>
+          </Grupo>
+        </div>
+
+        <Grupo icono="chat" titulo={t.secciones.lotito} texto={t.secciones.lotitoAyuda} fondo="bg-crema">
           <Monito nombre="asoma" className="absolute -top-9 right-6 w-20 text-rosa" />
-          <EncabezadoSeccion titulo={t.secciones.lotito} ayuda={t.secciones.lotitoAyuda} />
           <div className="flex flex-col gap-1.5">
             <label htmlFor={idContexto} className="text-sm font-bold">
               {t.contexto}
@@ -197,31 +316,25 @@ export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTiend
             </ul>
           </div>
           <p className="text-sm text-texto-2">{t.lotitoNota}</p>
-        </section>
+        </Grupo>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="submit"
-            disabled={pendiente || subiendo}
-            className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50"
-          >
+        <BarraGuardar>
+          <Button type="submit" variante="mango" disabled={pendiente || subiendo}>
             {pendiente ? t.guardando : t.guardar}
-          </button>
+          </Button>
           {estado.listo && (
-            <p role="status" className="rounded-full bg-teal-fondo px-4 py-2 text-sm font-bold text-teal-oscuro">
+            <p role="status" className="text-sm font-medium text-teal">
               {t.guardado}
             </p>
           )}
-        </div>
-        <MensajeError>{estado.error}</MensajeError>
+          <MensajeError>{estado.error}</MensajeError>
+        </BarraGuardar>
       </form>
 
-      <aside aria-label={t.vistaPrevia} className="flex flex-col gap-3 lg:sticky lg:top-4 lg:self-start">
+      <aside aria-label={t.vistaPrevia} className={`flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start ${vitrina ? "" : "hidden"}`}>
+        <TarjetaEnlace slug={identidad.slug} />
         <p className="text-sm font-bold">{t.vistaPrevia}</p>
-        <div
-          style={estiloDeMarca(color)}
-          className="flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5 shadow-dura"
-        >
+        <div style={estiloDeMarca(color)} className={`${TARJETA} flex flex-col gap-4 bg-superficie`}>
           <div className="flex items-center gap-3">
             <Logo ruta={logo} nombre={nombre} className="size-14 shrink-0 rounded-2xl border-2 border-teal-oscuro" />
             <div className="min-w-0">
@@ -239,9 +352,6 @@ export function TiendaForm({ identidad, negocioId }: { identidad: IdentidadTiend
             </ul>
           )}
         </div>
-        <Link href={`/c/${identidad.slug}`} target="_blank" className="inline-flex min-h-11 items-center text-teal underline">
-          {t.verVitrina}
-        </Link>
       </aside>
     </div>
   );

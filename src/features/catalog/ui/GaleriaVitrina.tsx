@@ -53,7 +53,7 @@ export function GaleriaVitrina({ fotos, nombre }: { fotos: string[]; nombre: str
                 aria-label={textos.productos.fotos.foto(i + 1)}
                 aria-current={i === actual ? "true" : undefined}
                 className={`relative block size-16 overflow-hidden rounded-xl border-2 transition-transform hover:-translate-y-0.5 ${
-                  i === actual ? "border-teal-oscuro ring-2 ring-mango" : "border-borde"
+                  i === actual ? "border-teal-oscuro ring-2 ring-accion" : "border-borde"
                 }`}
               >
                 <Image src={urlFoto(ruta)} alt="" fill sizes="64px" className="object-cover" />

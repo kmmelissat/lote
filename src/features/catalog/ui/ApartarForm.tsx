@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
 import { apartarProducto, type EstadoApartar } from "../actions/apartar";
@@ -22,6 +22,8 @@ export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
   const [estado, accion, pendiente] = useActionState<EstadoApartar, FormData>(apartarProducto.bind(null, slug, codigo), {});
   const guardados = useDatosGuardados();
   const v = estado.valores ?? {};
+  // Sin aceptar que la tienda le escriba por WhatsApp no se puede apartar
+  const [acepta, setAcepta] = useState(false);
 
   return (
     <form
@@ -43,15 +45,15 @@ export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
         </label>
         <CampoWhatsApp defecto={guardados.telefono} />
       </div>
-      <label className="flex min-h-11 items-start gap-3">
-        <input type="checkbox" name="acepta" className="mt-1 size-5 shrink-0 accent-teal" />
+      <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-teal-oscuro/20 bg-white p-3">
+        <input type="checkbox" name="acepta" required checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-teal" />
         <span>{t.acepta}</span>
       </label>
       <MensajeError>{estado.error}</MensajeError>
       <button
         type="submit"
-        disabled={pendiente}
-        className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+        disabled={pendiente || !acepta}
+        className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
       >
         {pendiente ? t.apartando : c.apartarListo}
       </button>

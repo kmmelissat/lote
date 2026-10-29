@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Monito } from "@/components/ui/Monito";
-import { obtenerApartadoPublico } from "@/features/catalog/repositorio";
+import { obtenerApartadoPublico, obtenerNegocioPublico } from "@/features/catalog/repositorio";
+import { LimpiarCarrito } from "@/features/catalog/ui/LimpiarCarrito";
+import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
@@ -13,18 +15,19 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export const metadata: Metadata = { title: t.titulo, robots: { index: false, follow: false } };
 
-export default function ApartadoPage({ params }: PageProps<"/c/[negocio]/apartado/[id]">) {
-  return (
-    <Confirmacion params={params} />
-  );
+export default function ApartadoPage({ params, searchParams }: PageProps<"/c/[negocio]/apartado/[id]">) {
+  return <Confirmacion params={params} searchParams={searchParams} />;
 }
 
-async function Confirmacion({ params }: Pick<PageProps<"/c/[negocio]/apartado/[id]">, "params">) {
+async function Confirmacion({ params, searchParams }: Pick<PageProps<"/c/[negocio]/apartado/[id]">, "params" | "searchParams">) {
   await connection();
   const { negocio: slug, id } = await params;
+  // Una compra del carrito llega con ?carrito=1: ahí el carrito del navegador ya se usó y se vacía
+  const vieneDelCarrito = (await searchParams).carrito === "1";
   if (!UUID.test(id)) notFound();
 
-  const a = await obtenerApartadoPublico(createPublicClient(), slug, id);
+  const supabase = createPublicClient();
+  const [a, tienda] = await Promise.all([obtenerApartadoPublico(supabase, slug, id), obtenerNegocioPublico(supabase, slug)]);
   if (!a) notFound();
 
   const ahora = new Date();
@@ -42,6 +45,8 @@ async function Confirmacion({ params }: Pick<PageProps<"/c/[negocio]/apartado/[i
   ];
 
   return (
+    <MarcaTienda color={tienda?.color ?? null}>
+      {vieneDelCarrito && <LimpiarCarrito slug={slug} />}
     <div className="mx-auto flex max-w-xl flex-col gap-5">
       <div className="relative flex flex-col gap-1 rounded-[24px] border-2 border-teal-oscuro bg-limon p-5 pr-24 shadow-dura">
         <Monito nombre="thumbsup" className="absolute -top-8 right-5 w-16 text-rosa" />
@@ -141,5 +146,6 @@ async function Confirmacion({ params }: Pick<PageProps<"/c/[negocio]/apartado/[i
         ← {textos.vitrina.verTodos}
       </Link>
     </div>
+    </MarcaTienda>
   );
 }

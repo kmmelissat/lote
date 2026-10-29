@@ -117,7 +117,7 @@ async function Contenido() {
           </div>
         </section>
 
-        <TarjetaVitrina slug={negocio.slug} />
+        {negocio.vitrinaActiva && <TarjetaVitrina slug={negocio.slug} />}
 
         {sinMovimiento ? (
           <TarjetaAtencion r={r} ahora={ahora} />

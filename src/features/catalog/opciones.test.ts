@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filasDeOpciones } from "./opciones";
+import { filasDeOpciones, modeloDe } from "./opciones";
 
 const o = (codigo: number, variante: string, disponibles = 1) => ({ codigo, variante, disponibles });
 
@@ -45,5 +45,26 @@ describe("filasDeOpciones", () => {
   it("si no es un cruce devuelve null", () => {
     expect(filasDeOpciones([o(1, "M"), o(2, "L")], 1)).toBeNull();
     expect(filasDeOpciones([o(1, "A · B"), o(2, "C")], 1)).toBeNull();
+  });
+});
+
+describe("modeloDe", () => {
+  it("saca el modelo de la etiqueta de la variante", () => {
+    expect(modeloDe("iPhone 17 Pro Max · Rosa")).toBe("iPhone 17 Pro Max");
+    expect(modeloDe("Rosa · iPhone 16")).toBe("iPhone 16");
+  });
+
+  it("escribe iPhone igual aunque venga en minúsculas, para que sea un solo chip", () => {
+    expect(modeloDe("iphone 16 · Rojo")).toBe("iPhone 16");
+    expect(modeloDe("iphone 17 pro max · Rojo")).toBe("iPhone 17 Pro Max");
+  });
+
+  it("si la opción se llama Modelo, usa esa aunque no parezca un modelo conocido", () => {
+    expect(modeloDe("Reno 12 · Negro", ["Modelo", "Color"])).toBe("Reno 12");
+  });
+
+  it("sin modelo o sin variante devuelve null", () => {
+    expect(modeloDe("Rosa · Corazones")).toBeNull();
+    expect(modeloDe(null)).toBeNull();
   });
 });
