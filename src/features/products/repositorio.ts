@@ -397,26 +397,6 @@ export async function actualizarFichaDelGrupo(
   return resultados.every((r) => !r.error && r.data.length > 0);
 }
 
-export type Hermana = { codigo: number; variante: string };
-
-/** Las otras variantes del mismo producto, para saltar de una a otra desde el panel. */
-export async function listarHermanas(
-  supabase: Cliente,
-  negocioId: string,
-  grupo: string,
-  codigoActual: number,
-): Promise<Hermana[]> {
-  const { data, error } = await supabase
-    .from("producto")
-    .select("codigo, variante")
-    .eq("negocio_id", negocioId)
-    .eq("grupo", grupo)
-    .neq("codigo", codigoActual)
-    .order("codigo");
-  if (error) throw error;
-  return data.flatMap((h) => (h.variante ? [{ codigo: h.codigo, variante: h.variante }] : []));
-}
-
 /** Lo que la tienda agrega a un producto: detalles, cómo está si es usado y el precio de antes. */
 export type InfoExtraGuardada = { detalles: { nombre: string; valor: string }[]; estadoDetalle: string | null; precioAnterior: Centavos | null };
 

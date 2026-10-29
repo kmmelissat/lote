@@ -26,8 +26,6 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 const te = textos.productos.editar;
 
-export type EstadoEditar = EstadoNuevo;
-
 /** Guarda todo lo del formulario de producto: ficha, fotos, cantidad y costos. Es el mismo formulario que para crear. */
 export async function editarProducto(
   codigo: number,

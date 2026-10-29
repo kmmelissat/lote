@@ -50,7 +50,7 @@ export type FilaImportable = {
   marca?: string;
 };
 
-export type ErrorFila = "nombre" | "precio" | "cantidad" | "costo";
+type ErrorFila = "nombre" | "precio" | "cantidad" | "costo";
 export type ResultadoFila =
   | { ok: true; fila: FilaImportable }
   | { ok: false; errores: ErrorFila[] };

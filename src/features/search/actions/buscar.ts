@@ -7,7 +7,7 @@ import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
-export type ResultadoBusqueda = { clave: string; titulo: string; detalle: string; href: string };
+type ResultadoBusqueda = { clave: string; titulo: string; detalle: string; href: string };
 export type ResultadosBusqueda = {
   productos: ResultadoBusqueda[];
   clientes: ResultadoBusqueda[];

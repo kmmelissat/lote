@@ -15,7 +15,7 @@ const t = textos.pedidos.lista;
 type Siguiente = "pagado" | "preparando" | "enviado" | "entregado";
 
 /** El paso que sigue para un pedido, o null si ya no hay (entregado, cancelado). */
-export function siguientePaso(estado: EstadoPedido, contraEntrega: boolean): Siguiente | null {
+function siguientePaso(estado: EstadoPedido, contraEntrega: boolean): Siguiente | null {
   if (estado === "pendiente") return contraEntrega ? "preparando" : "pagado";
   if (estado === "pagado") return "preparando";
   if (estado === "preparando") return "enviado";

@@ -5,7 +5,7 @@ import type { Producto } from "./repositorio";
 // Cada variante es un producto hermano (ver supabase/variantes.sql). Estas funciones son las reglas
 // de cómo se nombran, se validan y se juntan en la vitrina.
 
-export const MINIMO_VARIANTES = 2;
+const MINIMO_VARIANTES = 2;
 export const MAXIMO_VARIANTES = 30;
 
 const SEPARADOR = " · ";

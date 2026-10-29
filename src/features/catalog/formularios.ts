@@ -8,9 +8,9 @@ import { textos } from "@/lib/textos";
 const t = textos.vitrina.apartar;
 const c = textos.vitrina.compra;
 
-export const METODOS_DE_PAGO = ["transferencia", "billetera", "efectivo", "contra_entrega"] as const;
-export const MAXIMO_POR_PRODUCTO = 20;
-export const MAXIMO_PRODUCTOS_EN_CARRITO = 10;
+const METODOS_DE_PAGO = ["transferencia", "billetera", "efectivo", "contra_entrega"] as const;
+const MAXIMO_POR_PRODUCTO = 20;
+const MAXIMO_PRODUCTOS_EN_CARRITO = 10;
 
 const nombre = z.string().trim().min(1, t.errorNombre).max(80, t.errorNombre);
 const contacto = z.string().trim().min(3, t.errorContacto).max(80, t.errorContacto);

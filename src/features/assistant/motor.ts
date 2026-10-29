@@ -8,7 +8,7 @@ import { deshacer, deshacerUltima } from "./deshacer";
 import { ejecutar } from "./ejecutar";
 import { respuestaDeAyuda } from "./faq";
 
-export type { Boton, Comando, Entrada, Estado, Extras, Respuesta } from "./tipos";
+export type { Boton, Comando, Entrada, Estado, Respuesta } from "./tipos";
 
 const t = textos.asistente;
 
@@ -160,5 +160,3 @@ async function entender(d: Deps, texto: string, historial?: Turno[]): Promise<Sa
     return e instanceof IANoDisponible ? t.sinIA : t.errorIA;
   }
 }
-
-export { salidaVacia };

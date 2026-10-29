@@ -432,7 +432,7 @@ export async function guardarTienda(
   return "error";
 }
 
-export type ResenaPublica = { nombre: string; estrellas: number; texto: string | null; origen: "cliente" | "tienda"; creadoEn: Date };
+type ResenaPublica = { nombre: string; estrellas: number; texto: string | null; origen: "cliente" | "tienda"; creadoEn: Date };
 export type ResumenResenas = { promedio: number; total: number; resenas: ResenaPublica[] };
 
 /** Las reseñas publicadas de un producto (con sus variantes) o, sin código, de toda la tienda. Si falla, no hay reseñas. */

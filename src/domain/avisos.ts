@@ -22,10 +22,10 @@ export const DESTINATARIO_DE: Record<TipoAviso, Destinatario> = {
 
 const HORA_MS = 3_600_000;
 /** WhatsApp solo deja escribir libremente en las 24 horas siguientes al último mensaje de la persona. */
-export const VENTANA_HORAS = 24;
+const VENTANA_HORAS = 24;
 
 /** Un aviso que esperó más que esto ya no sirve (un "vence en 2 horas" de ayer): se descarta en vez de mandarlo. */
-export const AVISO_CADUCA_HORAS = 24;
+const AVISO_CADUCA_HORAS = 24;
 
 export const avisoCaducado = (programadoPara: Date, ahora: Date): boolean =>
   ahora.getTime() - programadoPara.getTime() > AVISO_CADUCA_HORAS * HORA_MS;

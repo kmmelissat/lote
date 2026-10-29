@@ -4,7 +4,7 @@ import { textos } from "@/lib/textos";
 const r = textos.nav.rapida;
 
 /** Lo que se hace más seguido, para el menú de "Acción rápida" y para la paleta. */
-export const ACCIONES: { href: string; etiqueta: string; icono: NombreIcono; tono: string }[] = [
+const ACCIONES: { href: string; etiqueta: string; icono: NombreIcono; tono: string }[] = [
   { href: "/productos/nuevo", etiqueta: r.producto, icono: "productos", tono: "bg-limon" },
   { href: "/pedidos/nuevo", etiqueta: r.pedido, icono: "pedidos", tono: "bg-rosa" },
   { href: "/mostrador", etiqueta: r.mostrador, icono: "efectivo", tono: "bg-mango/40" },

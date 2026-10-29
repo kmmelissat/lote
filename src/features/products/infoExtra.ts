@@ -6,7 +6,7 @@ import { leerDolares } from "@/domain/index";
 export const MAX_DETALLES = 12;
 export const MAX_NOMBRE_DETALLE = 40;
 export const MAX_VALOR_DETALLE = 120;
-export const MAX_ESTADO = 200;
+const MAX_ESTADO = 200;
 
 export type Detalle = { nombre: string; valor: string };
 

@@ -3,7 +3,7 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
 
-export type EstadoResena = "pendiente" | "publicada" | "oculta";
+type EstadoResena = "pendiente" | "publicada" | "oculta";
 
 export type ResenaPanel = {
   id: string;

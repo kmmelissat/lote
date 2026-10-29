@@ -11,7 +11,7 @@ export const METODOS_DE_COBRO: MetodoPago[] = ["transferencia", "billetera", "ef
 
 export type Canal = "instagram" | "whatsapp" | "presencial" | "vitrina";
 
-export type ItemPedido = {
+type ItemPedido = {
   cantidad: number;
   precioFinal: Centavos;
   nombre: string;

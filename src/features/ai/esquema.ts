@@ -2,9 +2,9 @@ import { z } from "zod";
 import { ayuda } from "@/lib/textos/ayuda";
 
 /** Los temas de las preguntas frecuentes: la IA solo elige uno, la respuesta es el texto fijo. */
-export const TEMAS_AYUDA = ayuda.preguntas.map((p) => p.id) as [string, ...string[]];
+const TEMAS_AYUDA = ayuda.preguntas.map((p) => p.id) as [string, ...string[]];
 
-export const INTENCIONES = [
+const INTENCIONES = [
   "crear_producto",
   "reponer",
   "apartar",
