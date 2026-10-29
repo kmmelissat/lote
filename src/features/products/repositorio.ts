@@ -461,3 +461,34 @@ export async function listarAvisosDeStock(supabase: Cliente, productoIds: string
     return [];
   }
 }
+
+export type CategoriaConConteo = { nombre: string; productos: number };
+
+/** Las categorías del negocio con cuántos productos usa cada una (las que nadie usa también salen, con 0). */
+export async function listarCategoriasConConteo(supabase: Cliente, negocioId: string): Promise<CategoriaConConteo[]> {
+  const [lista, productos] = await Promise.all([
+    listarCategorias(supabase, negocioId),
+    supabase.from("producto").select("categoria").eq("negocio_id", negocioId).not("categoria", "is", null),
+  ]);
+  const cuenta = new Map<string, number>();
+  for (const p of productos.data ?? []) if (p.categoria) cuenta.set(p.categoria, (cuenta.get(p.categoria) ?? 0) + 1);
+  // Una categoría escrita en un producto que no está en la lista también se muestra, para poder limpiarla
+  const nombres = new Set([...lista, ...cuenta.keys()]);
+  return [...nombres].sort((a, b) => a.localeCompare(b, "es")).map((nombre) => ({ nombre, productos: cuenta.get(nombre) ?? 0 }));
+}
+
+/** Cambia el nombre de una categoría y el de todos los productos que la usan. */
+export async function renombrarCategoria(supabase: Cliente, negocioId: string, de: string, a: string): Promise<"ok" | "repetida" | "desconocido"> {
+  const { error } = await supabase.from("categoria").update({ nombre: a }).eq("negocio_id", negocioId).eq("nombre", de);
+  if (error) return error.code === "23505" ? "repetida" : "desconocido";
+  const { error: errorProductos } = await supabase.from("producto").update({ categoria: a }).eq("negocio_id", negocioId).eq("categoria", de);
+  return errorProductos ? "desconocido" : "ok";
+}
+
+/** Borra una categoría. Los productos que la tenían quedan sin categoría (no se borra ninguno). */
+export async function borrarCategoria(supabase: Cliente, negocioId: string, nombre: string): Promise<boolean> {
+  const { error: errorProductos } = await supabase.from("producto").update({ categoria: null }).eq("negocio_id", negocioId).eq("categoria", nombre);
+  if (errorProductos) return false;
+  const { error } = await supabase.from("categoria").delete().eq("negocio_id", negocioId).eq("nombre", nombre);
+  return !error;
+}
