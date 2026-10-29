@@ -322,6 +322,8 @@ export type AjustesVitrina = {
   slug: string;
   /** La vitrina pública es opcional: apagada, /c/<tienda> no existe y no se aparece en Explorar */
   vitrinaActiva: boolean;
+  /** Vende en persona desde un local: prende el Mostrador y la caja */
+  tieneLocal: boolean;
   /** Lo que tarda la tienda en entregar ("Sale en 24 h"); vacío si no lo dice */
   tiempoEntrega: string | null;
   /** Cambios y devoluciones, en una frase */
@@ -345,11 +347,14 @@ export async function obtenerAjustesVitrina(supabase: Cliente, negocioId: string
   if (error) throw error;
   // Aparte: si todavía no existe la columna (falta correr vitrina_opcional.sql), cuenta como prendida
   const { data: v } = await supabase.from("negocio").select("vitrina_activa").eq("id", negocioId).maybeSingle();
+  // Y con el local (falta correr local.sql): sin la columna cuenta como apagado
+  const { data: loc } = await supabase.from("negocio").select("tiene_local").eq("id", negocioId).maybeSingle();
   // Igual con lo que cuenta la tienda (falta correr ficha_producto.sql)
   const { data: info } = await supabase.from("negocio").select("tiempo_entrega, politica_cambios").eq("id", negocioId).maybeSingle();
   return {
     slug: data.slug,
     vitrinaActiva: v?.vitrina_activa ?? true,
+    tieneLocal: loc?.tiene_local ?? false,
     tiempoEntrega: info?.tiempo_entrega ?? null,
     politicaCambios: info?.politica_cambios ?? null,
     visibleEnExplorar: data.visible_en_explorar,
@@ -413,14 +418,14 @@ export async function guardarTienda(
       umbral_poco_stock: a.umbralPocoStock,
       visible_en_explorar: a.visibleEnExplorar,
   };
-  // Las columnas más nuevas (vitrina opcional, tiempo de entrega y cambios) existen solo después de correr su SQL.
-  const nuevas = { vitrina_activa: a.vitrinaActiva, tiempo_entrega: a.tiempoEntrega, politica_cambios: a.politicaCambios };
+  // Las columnas más nuevas (vitrina opcional, local, tiempo de entrega y cambios) existen solo después de correr su SQL.
+  const nuevas = { vitrina_activa: a.vitrinaActiva, tiene_local: a.tieneLocal, tiempo_entrega: a.tiempoEntrega, politica_cambios: a.politicaCambios };
   const { error } = await supabase.from("negocio").update({ ...base, ...nuevas }).eq("id", negocioId);
   if (!error) return "ok";
   // La dirección ya la usa otra tienda
   if (error.code === "23505") return "slug_repetido";
   // Si falta alguna columna nueva, se guarda todo lo demás en vez de perder el cambio entero.
-  if (/vitrina_activa|tiempo_entrega|politica_cambios/.test(error.message)) {
+  if (/vitrina_activa|tiene_local|tiempo_entrega|politica_cambios/.test(error.message)) {
     const r = await supabase.from("negocio").update(base).eq("id", negocioId);
     return r.error ? (r.error.code === "23505" ? "slug_repetido" : "error") : "ok";
   }

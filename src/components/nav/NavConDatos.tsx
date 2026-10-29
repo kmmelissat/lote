@@ -9,6 +9,7 @@ const SIN_DATOS: DatosMenu = {
   urgente: false,
   pasos: null,
   slug: "",
+  tieneLocal: false,
   perfil: { nombre: textos.perfil.nombre, detalle: textos.perfil.detalle, logo: null },
 };
 
@@ -36,6 +37,7 @@ export async function NavConDatos() {
         : null,
     // Sin vitrina no hay enlace que mostrar
     slug: negocio.vitrinaActiva ? negocio.slug : "",
+    tieneLocal: negocio.tieneLocal,
     perfil: {
       nombre: negocio.nombre || textos.perfil.nombre,
       detalle: textos.perfil.roles[negocio.rol] ?? textos.perfil.detalle,

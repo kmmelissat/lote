@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { buscarEnLote, type ResultadosBusqueda } from "@/features/search/actions/buscar";
 import { textos } from "@/lib/textos";
-import { ACCIONES, PANTALLAS } from "./acciones";
+import { accionesDe, PANTALLAS } from "./acciones";
 
 const t = textos.nav.paleta;
 
@@ -14,7 +14,7 @@ type Opcion = { clave: string; grupo: string; titulo: string; detalle?: string; 
 const normalizar = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 /** El buscador de todo (⌘K): acciones y pantallas al instante, y productos, clientes y pedidos mientras escribís. */
-export function Paleta({ cerrar }: { cerrar: () => void }) {
+export function Paleta({ cerrar, tieneLocal }: { cerrar: () => void; tieneLocal: boolean }) {
   const router = useRouter();
   const [consulta, setConsulta] = useState("");
   const [encontrado, setEncontrado] = useState<ResultadosBusqueda | null>(null);
@@ -51,7 +51,7 @@ export function Paleta({ cerrar }: { cerrar: () => void }) {
   const opciones = useMemo<Opcion[]>(() => {
     const q = normalizar(consulta.trim());
     const locales: Opcion[] = [
-      ...ACCIONES.map((a) => ({ clave: `a-${a.href}`, grupo: textos.nav.rapida.titulo, titulo: a.etiqueta, href: a.href, icono: a.icono })),
+      ...accionesDe(tieneLocal).map((a) => ({ clave: `a-${a.href}`, grupo: textos.nav.rapida.titulo, titulo: a.etiqueta, href: a.href, icono: a.icono })),
       ...PANTALLAS.map((p) => ({ clave: `p-${p.href}`, grupo: t.acciones, titulo: p.etiqueta, href: p.href, icono: p.icono })),
     ].filter((o) => !q || normalizar(o.titulo).includes(q));
     const remotos: Opcion[] =
@@ -63,7 +63,7 @@ export function Paleta({ cerrar }: { cerrar: () => void }) {
           ]
         : [];
     return [...remotos, ...locales];
-  }, [consulta, encontrado]);
+  }, [consulta, encontrado, tieneLocal]);
 
   const ir = (o: Opcion) => {
     cerrar();

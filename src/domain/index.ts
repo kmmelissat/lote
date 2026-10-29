@@ -9,3 +9,4 @@ export * from "./resumenSemanal";
 export * from "./avisos";
 export * from "./precio";
 export * from "./comprobante";
+export * from "./mostrador";

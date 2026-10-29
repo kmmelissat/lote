@@ -29,6 +29,7 @@ import { ajustes } from "./ajustes";
 import { estadosProducto } from "./estadosProducto";
 import { estadosPedido } from "./estadosPedido";
 import { explorar } from "./explorar";
+import { mostrador, caja } from "./mostrador";
 
 export const textos = {
   nombre: "Lote",
@@ -64,4 +65,6 @@ export const textos = {
   estadosProducto,
   estadosPedido,
   explorar,
+  mostrador,
+  caja,
 } as const;

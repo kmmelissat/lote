@@ -79,6 +79,7 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
     // Sin vitrina no se puede aparecer en Explorar
     visibleEnExplorar: vitrinaActiva && formData.get("explorar") === "on",
     vitrinaActiva,
+    tieneLocal: formData.get("local") === "on",
     tiempoEntrega: tiempoEntrega || null,
     politicaCambios: politicaCambios || null,
   });

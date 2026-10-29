@@ -20,4 +20,6 @@ export const migas = {
   vitrina: "Vitrina",
   tienda: "Mi tienda",
   resumen: "Resumen semanal",
+  mostrador: "Mostrador",
+  caja: "Caja",
 } as Record<string, string>;

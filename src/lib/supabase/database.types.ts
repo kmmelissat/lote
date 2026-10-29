@@ -532,6 +532,7 @@ export type Database = {
           umbral_poco_stock: number
           usuario_instagram: string | null
           visible_en_explorar: boolean
+          tiene_local: boolean
           vitrina_activa: boolean
           tiempo_entrega?: string | null
           politica_cambios?: string | null
@@ -557,6 +558,7 @@ export type Database = {
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           visible_en_explorar?: boolean
+          tiene_local?: boolean
           vitrina_activa?: boolean
           tiempo_entrega?: string | null
           politica_cambios?: string | null
@@ -582,6 +584,7 @@ export type Database = {
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           visible_en_explorar?: boolean
+          tiene_local?: boolean
           vitrina_activa?: boolean
           tiempo_entrega?: string | null
           politica_cambios?: string | null
@@ -766,6 +769,63 @@ export type Database = {
             columns: ["pedido_id"]
             isOneToOne: false
             referencedRelation: "pedido"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cierre_caja: {
+        Row: {
+          abierta_en: string
+          cerrada_en: string | null
+          diferencia: number | null
+          efectivo_contado: number | null
+          efectivo_esperado: number | null
+          efectivo_inicial: number
+          id: string
+          negocio_id: string
+          nota: string | null
+          ubicacion_id: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          abierta_en?: string
+          cerrada_en?: string | null
+          diferencia?: number | null
+          efectivo_contado?: number | null
+          efectivo_esperado?: number | null
+          efectivo_inicial?: number
+          id?: string
+          negocio_id: string
+          nota?: string | null
+          ubicacion_id?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          abierta_en?: string
+          cerrada_en?: string | null
+          diferencia?: number | null
+          efectivo_contado?: number | null
+          efectivo_esperado?: number | null
+          efectivo_inicial?: number
+          id?: string
+          negocio_id?: string
+          nota?: string | null
+          ubicacion_id?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cierre_caja_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cierre_caja_ubicacion_id_fkey"
+            columns: ["ubicacion_id"]
+            isOneToOne: false
+            referencedRelation: "ubicacion"
             referencedColumns: ["id"]
           },
         ]
@@ -1346,6 +1406,43 @@ export type Database = {
           precio_final: number
           producto_id: string
         }[]
+      }
+      asignar_codigo_barras: {
+        Args: { p_codigo: string | null; p_producto: string }
+        Returns: undefined
+      }
+      vender_mostrador: {
+        Args: {
+          p_cliente?: string | null
+          p_descuento?: number
+          p_items: Json
+          p_metodo?: string
+          p_negocio: string
+        }
+        Returns: string
+      }
+      caja_abierta: {
+        Args: { p_negocio: string }
+        Returns: { abierta_en: string; id: string }[]
+      }
+      abrir_caja: {
+        Args: { p_efectivo_inicial: number; p_negocio: string }
+        Returns: string
+      }
+      resumen_caja: {
+        Args: { p_caja: string }
+        Returns: {
+          billetera: number
+          descuentos: number
+          efectivo: number
+          gastos: number
+          transferencia: number
+          ventas: number
+        }[]
+      }
+      cerrar_caja: {
+        Args: { p_caja: string; p_contado: number; p_nota?: string | null }
+        Returns: undefined
       }
       ajustar_existencia: {
         Args: { p_cantidad: number; p_producto: string }

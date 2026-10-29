@@ -83,6 +83,13 @@ export const ajustes = {
       ayuda: "Es opcional. Sin ella, Lote sirve igual para registrar tus ventas, ver tu ganancia y llevar tu stock.",
       apagada: "Sin vitrina nadie ve tus productos desde afuera y no aparecés en Explorar. Tus productos, pedidos y ganancia siguen igual, y la podés prender cuando quieras.",
     },
+    local: {
+      titulo: "Local en vivo",
+      texto: "Si además de las redes vendés en persona desde un local, feria o puesto fijo.",
+      interruptor: "Tengo un local donde vendo en persona",
+      ayuda: "Prende el Mostrador, para cobrar en pocos toques, y la caja, para cuadrar el efectivo al cerrar. Es opcional: si solo vendés por redes, no lo necesitás.",
+      prendido: "Listo: ahora aparecen Vender en el Mostrador, la caja y el código de barras en cada producto. Lo ya vendido no cambia.",
+    },
     confianza: {
       titulo: "Para dar confianza",
       texto: "Lo que quien compra quiere saber antes de pedir.",

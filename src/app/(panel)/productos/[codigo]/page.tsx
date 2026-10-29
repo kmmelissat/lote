@@ -10,6 +10,8 @@ import { StatusChip } from "@/components/ui/StatusChip";
 import type { DesgloseCosto } from "@/domain";
 import { estadoVisible } from "@/features/products/estadoVisible";
 import { listarAvisosDeStock, listarGrupo, obtenerProducto } from "@/features/products/repositorio";
+import { codigoDeBarrasDe } from "@/features/counter/repositorio";
+import { CodigoDeBarrasForm } from "@/features/counter/ui/CodigoDeBarrasForm";
 import { AvisosDeStock } from "@/features/products/ui/AvisosDeStock";
 import { BorrarProducto } from "@/features/products/ui/BorrarProducto";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
@@ -47,6 +49,8 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
   const { supabase, negocio } = await negocioActual();
   const p = await obtenerProducto(supabase, negocio.id, codigo, negocio.puedeGestionar);
   if (!p) notFound();
+  // Aparte y sin romper nada: si todavía no existe la columna, la ficha se ve igual.
+  const codigoDeBarras = negocio.puedeGestionar && negocio.tieneLocal ? await codigoDeBarrasDe(supabase, p.id).catch(() => null) : null;
   const variantes = p.grupo ? await listarGrupo(supabase, negocio.id, p.grupo, negocio.puedeGestionar) : [];
   // Quiénes esperan este producto (o cualquiera de sus variantes)
   const avisos = await listarAvisosDeStock(supabase, p.grupo ? variantes.map((v) => v.id) : [p.id]);
@@ -250,6 +254,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
             <h2 className="text-2xl font-bold">{t.detalle.masAcciones}</h2>
           </div>}
         {negocio.puedeGestionar && <ReponerForm codigo={p.codigo} />}
+        {negocio.puedeGestionar && negocio.tieneLocal && <CodigoDeBarrasForm productoId={p.id} actual={codigoDeBarras} />}
         {negocio.puedeGestionar && variantes.length < MAXIMO_VARIANTES && (
           <AgregarVarianteForm codigo={p.codigo} precio={p.precio} convierte={variantes.length === 0} />
         )}

@@ -120,6 +120,7 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
   const [instagram, setInstagram] = useState(identidad.usuarioInstagram ?? "");
   const [contexto, setContexto] = useState(identidad.contextoIa ?? "");
   const [vitrina, setVitrina] = useState(ajustes.vitrinaActiva);
+  const [local, setLocal] = useState(ajustes.tieneLocal);
   // La dirección de la vitrina: nace del nombre al crear la tienda y después no cambia sola, así que se puede editar acá
   const [direccion, setDireccion] = useState(identidad.slug);
   const [apartar, setApartar] = useState(ajustes.apartarDesdeVitrina);
@@ -283,6 +284,15 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
               onChange={(e) => setInstagram(e.target.value)}
             />
           </div>
+        </Grupo>
+
+        <Grupo icono="efectivo" titulo={v.local.titulo} texto={v.local.texto}>
+          <Interruptor name="local" titulo={v.local.interruptor} ayuda={v.local.ayuda} activo={local} onCambio={setLocal} />
+          {local && (
+            <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+              {v.local.prendido}
+            </p>
+          )}
         </Grupo>
 
         <Grupo icono="pedidos" className={vitrina ? "" : "hidden"} titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto}>

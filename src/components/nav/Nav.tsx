@@ -10,7 +10,7 @@ import { Logo } from "@/components/ui/Logo";
 import { useToast } from "@/components/ui/Toast";
 import { CerrarSesion } from "@/features/auth/ui/CerrarSesion";
 import { textos } from "@/lib/textos";
-import { ACCIONES, escribiendoEnCampo } from "./acciones";
+import { accionesDe, escribiendoEnCampo } from "./acciones";
 import { Paleta } from "./Paleta";
 
 const t = textos.nav;
@@ -22,6 +22,8 @@ export type DatosMenu = {
   /** Cuántos primeros pasos hay hechos y cuántos son; null si ya terminó todo o no le toca configurar */
   pasos: { hechos: number; total: number; siguiente: { titulo: string; href: string } } | null;
   slug: string;
+  /** Si tiene un local: entonces el menú de acción rápida ofrece el Mostrador */
+  tieneLocal: boolean;
   perfil: { nombre: string; detalle: string; logo: string | null };
 };
 
@@ -165,10 +167,10 @@ function Vitrina({ slug }: { slug: string }) {
   );
 }
 
-function ListaAcciones({ alElegir }: { alElegir: () => void }) {
+function ListaAcciones({ alElegir, tieneLocal }: { alElegir: () => void; tieneLocal: boolean }) {
   return (
     <ul className="flex flex-col gap-1">
-      {ACCIONES.map((a) => (
+      {accionesDe(tieneLocal).map((a) => (
         <li key={a.href}>
           <Link
             href={a.href}
@@ -187,7 +189,7 @@ function ListaAcciones({ alElegir }: { alElegir: () => void }) {
 }
 
 /** El botón principal del menú: abre las cosas que se hacen más seguido. Atajo: la tecla N. */
-function AccionRapida({ abierta, alternar }: { abierta: boolean; alternar: (abrir?: boolean) => void }) {
+function AccionRapida({ abierta, alternar, tieneLocal }: { abierta: boolean; alternar: (abrir?: boolean) => void; tieneLocal: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useCerrarAfuera(abierta, () => alternar(false), ref);
   return (
@@ -206,7 +208,7 @@ function AccionRapida({ abierta, alternar }: { abierta: boolean; alternar: (abri
       </button>
       {abierta && (
         <div className="absolute left-0 top-full z-30 mt-2 w-64 rounded-2xl border-2 border-teal-oscuro bg-superficie p-2 shadow-dura">
-          <ListaAcciones alElegir={() => alternar(false)} />
+          <ListaAcciones alElegir={() => alternar(false)} tieneLocal={tieneLocal} />
         </div>
       )}
     </div>
@@ -458,7 +460,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
       />
       {rapida && (
         <Hoja titulo={t.rapida.titulo} cerrar={() => setRapida(false)}>
-          <ListaAcciones alElegir={() => setRapida(false)} />
+          <ListaAcciones alElegir={() => setRapida(false)} tieneLocal={datos.tieneLocal} />
         </Hoja>
       )}
       {mas && (
@@ -495,7 +497,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
         </Hoja>
       )}
 
-      {paleta && <Paleta cerrar={() => setPaleta(false)} />}
+      {paleta && <Paleta cerrar={() => setPaleta(false)} tieneLocal={datos.tieneLocal} />}
 
       {/* Escritorio: menú flotante color crema, con borde y sombra dura, que se cierra a una tira de íconos */}
       <aside
@@ -520,7 +522,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
           </button>
         </div>
         <Buscar abrir={() => setPaleta(true)} />
-        <AccionRapida abierta={rapida} alternar={(abrir) => setRapida((r) => abrir ?? !r)} />
+        <AccionRapida abierta={rapida} alternar={(abrir) => setRapida((r) => abrir ?? !r)} tieneLocal={datos.tieneLocal} />
         <nav aria-label="Principal">
           <ConRuta
             hijos={(ruta) => (
