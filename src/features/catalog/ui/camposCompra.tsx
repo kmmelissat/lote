@@ -18,16 +18,22 @@ export type OpcionLista = { valor: string; etiqueta: string; /** Se muestra a la
  */
 export function ListaDesplegable({
   name,
-  valor,
+  valor: valorControlado,
+  valorInicial = "",
   alCambiar,
   opciones,
   placeholder,
   error,
   abrirAlFallar = 0,
+  compacto = false,
 }: {
   name: string;
-  valor: string;
-  alCambiar: (valor: string) => void;
+  /** Si se pasa, la lista es controlada (con `alCambiar`); si no, guarda lo elegido ella misma y lo manda en el formulario */
+  valor?: string;
+  valorInicial?: string;
+  alCambiar?: (valor: string) => void;
+  /** Más baja y con la forma de los campos del panel y de Explorar */
+  compacto?: boolean;
   opciones: OpcionLista[];
   placeholder: string;
   error?: string;
@@ -39,6 +45,8 @@ export function ListaDesplegable({
   const lista = useRef<HTMLUListElement>(null);
   const [abierta, setAbierta] = useState(false);
   const [activa, setActiva] = useState(-1);
+  const [interno, setInterno] = useState(valorInicial);
+  const valor = valorControlado ?? interno;
   const elegida = opciones.find((o) => o.valor === valor);
 
   const abrir = useCallback(() => {
@@ -76,7 +84,8 @@ export function ListaDesplegable({
   function elegir(i: number) {
     const o = opciones[i];
     if (!o) return;
-    alCambiar(o.valor);
+    setInterno(o.valor);
+    alCambiar?.(o.valor);
     setAbierta(false);
   }
 
@@ -133,13 +142,13 @@ export function ListaDesplegable({
         aria-describedby={error ? `${id}-error` : undefined}
         onClick={() => (abierta ? setAbierta(false) : abrir())}
         onKeyDown={teclado}
-        className={`${campoCompra} flex items-center justify-between gap-3 text-left ${error ? "border-error" : ""}`}
+        className={`${compacto ? "h-10 w-full rounded-[12px] border-2 border-borde-control bg-superficie px-3 text-sm focus:border-teal" : campoCompra} flex items-center justify-between gap-3 text-left ${error ? "border-error" : ""}`}
       >
         <span className={`truncate ${elegida ? "" : "text-texto-2/70"}`}>{elegida ? elegida.etiqueta : placeholder}</span>
         {elegida?.detalle && <span className="shrink-0 text-sm font-bold text-texto-2">{elegida.detalle}</span>}
         <span
           aria-hidden="true"
-          className={`flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon text-teal-oscuro transition-transform duration-150 ${abierta ? "rotate-180" : ""}`}
+          className={`flex shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon text-teal-oscuro transition-transform duration-150 ${compacto ? "size-6" : "size-8"} ${abierta ? "rotate-180" : ""}`}
         >
           <Icon nombre="flecha" className="size-4" strokeWidth={2.5} />
         </span>

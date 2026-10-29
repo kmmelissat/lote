@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Monito } from "@/components/ui/Monito";
-import { StatusChip } from "@/components/ui/StatusChip";
 import {
   explorarCategorias,
   explorarProductos,
@@ -12,6 +11,7 @@ import {
   type OrdenExplorar,
 } from "@/features/catalog/explorar";
 import { colorDeMarca } from "@/features/catalog/marca";
+import { ListaDesplegable } from "@/features/catalog/ui/camposCompra";
 import { LogoTienda } from "@/features/catalog/ui/MarcaTienda";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
@@ -23,14 +23,27 @@ import { leerDolares } from "@/domain";
 
 const t = textos.explorar;
 
-export const metadata: Metadata = {
-  title: { absolute: t.tituloPagina },
-  description: t.descripcion,
-  alternates: { canonical: "/explorar" },
-  openGraph: { title: t.tituloPagina, description: t.descripcion, url: "/explorar", type: "website" },
-};
+/** El título y la descripción cambian con la categoría; lo que es una búsqueda o un filtro de precio no se indexa (son páginas sueltas). */
+export async function generateMetadata({ searchParams }: PageProps<"/explorar">): Promise<Metadata> {
+  const params = await searchParams;
+  const texto = (k: string) => (typeof params[k] === "string" ? (params[k] as string).trim().slice(0, 80) : "");
+  const categoria = texto("categoria");
+  const esFiltro = Boolean(texto("q") || texto("min") || texto("max") || texto("orden") || texto("vista") || texto("pagina"));
+  const titulo = categoria ? t.tituloCategoria(categoria) : t.tituloPagina;
+  const descripcion = categoria ? t.descripcionCategoria(categoria) : t.descripcion;
+  const url = categoria ? `/explorar?categoria=${encodeURIComponent(categoria)}` : "/explorar";
+  return {
+    title: { absolute: titulo },
+    description: descripcion,
+    alternates: { canonical: url },
+    robots: esFiltro ? { index: false, follow: true } : undefined,
+    openGraph: { title: titulo, description: descripcion, url, type: "website" },
+  };
+}
 
 const POR_PAGINA = 24;
+// Hasta cuántas unidades se muestra "Últimas N" en una tarjeta
+const POCAS_UNIDADES = 5;
 
 type Vista = "productos" | "tiendas";
 type Filtros = { vista: Vista; busqueda: string; categoria: string; orden: OrdenExplorar; min: string; max: string; pagina?: number };
@@ -130,20 +143,24 @@ async function Contenido({ searchParams }: Pick<PageProps<"/explorar">, "searchP
               {t.buscarBoton}
             </button>
           </form>
+          {/* Búsquedas sugeridas: las categorías con más productos ahora mismo */}
+          {categorias.filter((c) => c.productos >= 2).length > 0 && !busqueda && (
+            <ul aria-label={t.sugeridas} className="flex flex-wrap items-center gap-2">
+              <li className="text-sm font-bold">{t.sugeridas}</li>
+              {categorias.filter((c) => c.productos >= 2).slice(0, 4).map((c) => (
+                <li key={c.categoria}>
+                  <Link
+                    href={enlace({ ...f, categoria: c.categoria, vista: "productos", pagina: 1 })}
+                    className="inline-flex h-9 items-center rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold hover:bg-crema"
+                  >
+                    {c.categoria}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
-
-      <nav aria-label={t.vistas}>
-        <ul className="flex gap-2">
-          {(["productos", "tiendas"] as const).map((v) => (
-            <li key={v}>
-              <Link href={enlace({ ...f, vista: v, pagina: 1 })} aria-current={v === vista ? "page" : undefined} className={chip(v === vista)}>
-                {t[v]}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
 
       {vista === "productos" && tiendas.length > 0 && !filtrando && (
         <section aria-labelledby="tiendas-fila" className="flex flex-col gap-2">
@@ -171,77 +188,71 @@ async function Contenido({ searchParams }: Pick<PageProps<"/explorar">, "searchP
         </section>
       )}
 
-      <div className={vista === "productos" ? "grid grid-cols-1 items-start gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]" : ""}>
+      <div className="flex flex-col gap-4">
         {vista === "productos" && (
-          <aside aria-label={t.filtros} className="flex flex-col gap-5 rounded-[24px] border-2 border-teal-oscuro bg-white p-4 lg:sticky lg:top-4">
+          <section aria-label={t.filtros} className="flex flex-col gap-3">
             {categorias.length > 0 && (
-              <section className="flex flex-col gap-2">
-                <h2 className="font-bold">{t.categorias}</h2>
-                <ul className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
-                  <li>
+              <ul aria-label={t.categorias} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+                <li className="shrink-0">
+                  <Link href={enlace({ ...f, categoria: "", pagina: 1 })} aria-current={!categoria ? "true" : undefined} className={chip(!categoria)}>
+                    {t.todo}
+                  </Link>
+                </li>
+                {categorias.map((c) => (
+                  <li key={c.categoria} className="shrink-0">
                     <Link
-                      href={enlace({ ...f, categoria: "", pagina: 1 })}
-                      aria-current={!categoria ? "true" : undefined}
-                      className={`flex items-center justify-between rounded-lg px-2 py-1 text-sm ${!categoria ? "bg-limon font-bold" : "hover:bg-teal-fondo"}`}
+                      href={enlace({ ...f, categoria: c.categoria, pagina: 1 })}
+                      aria-current={categoria === c.categoria ? "true" : undefined}
+                      className={chip(categoria === c.categoria)}
                     >
-                      {t.todo}
+                      {c.categoria}
+                      <span className="ml-2 text-xs font-medium opacity-70">{c.productos}</span>
                     </Link>
                   </li>
-                  {categorias.map((c) => (
-                    <li key={c.categoria}>
-                      <Link
-                        href={enlace({ ...f, categoria: c.categoria, pagina: 1 })}
-                        aria-current={categoria === c.categoria ? "true" : undefined}
-                        className={`flex items-center justify-between gap-3 rounded-lg px-2 py-1 text-sm ${categoria === c.categoria ? "bg-limon font-bold" : "hover:bg-teal-fondo"}`}
-                      >
-                        {c.categoria}
-                        <span className="text-xs text-texto-2">{c.productos}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
+                ))}
+              </ul>
             )}
 
-            <form action="/explorar" className="flex flex-col gap-4">
+            {/* Precio y orden en una sola fila: la grilla se queda con todo el ancho */}
+            <form action="/explorar" className="flex flex-wrap items-end gap-3">
               {busqueda && <input type="hidden" name="q" value={busqueda} />}
               {categoria && <input type="hidden" name="categoria" value={categoria} />}
-              <fieldset className="flex flex-col gap-2">
-                <legend className="mb-1 font-bold">{t.precio}</legend>
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="flex flex-col gap-1 text-xs text-texto-2">
-                    {t.precioMin}
-                    <input name="min" inputMode="decimal" defaultValue={min} placeholder="$0" className={campo} />
-                  </label>
-                  <label className="flex flex-col gap-1 text-xs text-texto-2">
-                    {t.precioMax}
-                    <input name="max" inputMode="decimal" defaultValue={max} placeholder="$100" className={campo} />
-                  </label>
-                </div>
-              </fieldset>
-              <label className="flex flex-col gap-1.5">
-                <span className="font-bold">{t.ordenar}</span>
-                <select name="orden" defaultValue={orden} className={campo}>
-                  {ORDENES_EXPLORAR.map((o) => (
-                    <option key={o} value={o}>
-                      {t.ordenes[o]}
-                    </option>
-                  ))}
-                </select>
+              <label className="flex w-28 flex-col gap-1 text-xs text-texto-2">
+                {t.precioMin}
+                <input name="min" inputMode="decimal" defaultValue={min} placeholder="$0" className={campo} />
               </label>
+              <label className="flex w-28 flex-col gap-1 text-xs text-texto-2">
+                {t.precioMax}
+                <input name="max" inputMode="decimal" defaultValue={max} placeholder="$100" className={campo} />
+              </label>
+              <div className="flex w-full flex-col gap-1 text-xs text-texto-2 sm:w-60">
+                {t.ordenar}
+                <ListaDesplegable
+                  name="orden"
+                  valorInicial={orden}
+                  opciones={ORDENES_EXPLORAR.map((o) => ({ valor: o, etiqueta: t.ordenes[o] }))}
+                  placeholder={t.ordenar}
+                  compacto
+                />
+              </div>
               <button type="submit" className="inline-flex h-10 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold">
                 {t.aplicar}
               </button>
               {filtrando && (
-                <Link href="/explorar" className="text-center text-sm font-bold text-teal underline">
+                <Link href="/explorar" className="inline-flex h-10 items-center text-sm font-bold text-teal underline">
                   {t.limpiar}
                 </Link>
               )}
             </form>
-          </aside>
+          </section>
         )}
 
         <div className="flex min-w-0 flex-col gap-4">
+          {vista === "tiendas" && (
+            <Link href={enlace({ ...f, vista: "productos", pagina: 1 })} className="inline-flex min-h-11 items-center self-start text-sm font-bold text-teal underline">
+              ← {t.volverProductos}
+            </Link>
+          )}
           {vacio ? (
             <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-teal-oscuro bg-white px-6 py-12 text-center">
               <Monito nombre="caja" className="w-20 text-teal/50" />
@@ -292,9 +303,9 @@ async function Contenido({ searchParams }: Pick<PageProps<"/explorar">, "searchP
           ) : (
             <>
               <p className="text-sm text-texto-2">{t.resultadosPagina(visibles.length)}</p>
-              <ul className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 xl:grid-cols-4">
+              <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
                 {visibles.map((p) => (
-                  <li key={`${p.tiendaSlug}-${p.codigo}`}>
+                  <li key={`${p.tiendaSlug}-${p.codigo}`} className="h-full">
                     <Link
                       href={`/c/${p.tiendaSlug}/${p.codigo}`}
                       className="group flex h-full flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-white p-2 pb-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura"
@@ -308,15 +319,18 @@ async function Contenido({ searchParams }: Pick<PageProps<"/explorar">, "searchP
                           </span>
                         )}
                       </div>
-                      <div className="flex flex-col items-start gap-1 px-2">
-                        <p className="line-clamp-2 font-bold leading-tight">{p.nombre}</p>
+                      <div className="flex flex-1 flex-col items-start gap-1 px-2">
+                        {/* El nombre ocupa siempre dos líneas de alto: así las tarjetas de una fila quedan parejas */}
+                        <p className="line-clamp-2 min-h-[2.5em] font-bold leading-tight">{p.nombre}</p>
                         <p className="text-xl font-bold tabular-nums">
                           {p.precioMinimo === p.precioMaximo ? formatearDolares(p.precioMinimo) : t.desde(formatearDolares(p.precioMinimo))}
                         </p>
-                        <p className="text-sm text-texto-2">{t.de(p.tiendaNombre)}</p>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <StatusChip estado="disponible" texto={textos.productos.quedan(p.disponibles)} />
-                          {p.opciones > 1 && <span className="text-sm text-texto-2">{t.nOpciones(p.opciones)}</span>}
+                        <div className="mt-auto flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-1 pt-1">
+                          <p className="truncate text-xs text-texto-2">{t.de(p.tiendaNombre)}</p>
+                          {/* Con mucho stock es ruido: solo se avisa cuando quedan pocas */}
+                          {p.disponibles <= POCAS_UNIDADES && (
+                            <span className="rounded-full border-2 border-teal-oscuro bg-limon px-2.5 py-0.5 text-xs font-bold">{t.ultimas(p.disponibles)}</span>
+                          )}
                         </div>
                       </div>
                     </Link>
