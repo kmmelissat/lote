@@ -41,6 +41,8 @@ export const negocioActual = cache(async function negocioActual() {
       "negocio_id, rol, negocio(nombre, logo, slug, umbral_poco_stock, vitrina_activa, tiene_local, visible_en_explorar)",
     )
     .eq("usuario_id", usuarioId)
+    // Una persona tiene un solo negocio (lo exige la base); si quedara alguno de antes, siempre el primero
+    .order("creado_en")
     .limit(1);
   const miembro = data?.[0];
   if (!miembro) redirect("/crear-negocio");

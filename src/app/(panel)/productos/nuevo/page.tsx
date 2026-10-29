@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { valoresParaCopiar } from "@/features/products/copiarProducto";
@@ -31,6 +32,7 @@ export default function NuevoProductoPage({ searchParams }: PageProps<"/producto
 async function Formulario({ searchParams }: Pick<PageProps<"/productos/nuevo">, "searchParams">) {
   const copiar = Number((await searchParams).copiar);
   const { supabase, negocio } = await negocioActual();
+  if (!negocio.puedeGestionar) notFound();
 
   // "Otra igual": arranca con los datos de un producto que ya existe. Si no existe, el formulario sale vacío.
   const original =

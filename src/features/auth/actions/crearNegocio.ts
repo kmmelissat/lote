@@ -8,6 +8,7 @@ import { textos } from "@/lib/textos";
 export type EstadoCrear = { error?: string; nombre?: string; instagram?: string };
 
 const UNICO_VIOLADO = "23505";
+const YA_TIENE_NEGOCIO = "ya_tiene_negocio";
 
 export async function crearNegocio(
   _anterior: EstadoCrear,
@@ -32,6 +33,8 @@ export async function crearNegocio(
       p_usuario_instagram: instagram || undefined,
     });
     if (!error) redirect("/inicio?bienvenida=1");
+    // Volvió atrás después de crear el suyo: no se crea otro, se lo lleva al que ya tiene.
+    if (error.message === YA_TIENE_NEGOCIO) redirect("/inicio");
     // Si el enlace ya existe, se reintenta una vez con un sufijo; cualquier otro error se muestra.
     if (error.code !== UNICO_VIOLADO) break;
   }

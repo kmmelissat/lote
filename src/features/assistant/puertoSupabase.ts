@@ -10,7 +10,7 @@ import {
   type Canal,
 } from "@/features/orders/repositorio";
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
-import { rangoPeriodo } from "@/domain";
+import { fechaLocalDe, rangoPeriodo } from "@/domain";
 import { registrarGasto, resumenDePeriodo } from "@/features/profit/repositorio";
 import { crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";
@@ -109,6 +109,7 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
       const id = await registrarGasto(supabase, negocio.id, {
         categoria: g.categoria,
         monto: g.monto,
+        fecha: fechaLocalDe(new Date()),
         nota: g.nota ?? undefined,
       });
       return id === null ? falla("desconocido") : ok({ id });

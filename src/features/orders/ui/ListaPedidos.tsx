@@ -43,7 +43,7 @@ function Chip({ p, mostrarEstado }: { p: Pedido; mostrarEstado: boolean }) {
 
 function Avisos({ p, ahora }: { p: Pedido; ahora: Date }) {
   const vence = p.estado === "pendiente" && !p.contraEntrega ? p.venceEn : null;
-  const debe = p.estado !== "pendiente" && p.saldo > 0;
+  const debe = p.estado !== "pendiente" && p.estado !== "cancelado" && p.saldo > 0;
   return (
     <>
       {vence && (

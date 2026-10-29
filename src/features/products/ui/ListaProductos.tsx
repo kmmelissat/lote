@@ -123,11 +123,14 @@ export function ListaProductos({
   umbral,
   textoInicial,
   estadoInicial,
+  puedeGestionar,
 }: {
   productos: Producto[];
   umbral: number;
   textoInicial: string;
   estadoInicial: FiltroEstado;
+  /** Crear e importar son de dueña y administradora: al resto no se le ofrecen */
+  puedeGestionar: boolean;
 }) {
   const [texto, setTexto] = useState(textoInicial);
   const [estado, setEstado] = useState(estadoInicial);
@@ -182,12 +185,14 @@ export function ListaProductos({
             guardarEnUrl(e.target.value, estado);
           }}
         />
-        <div className="flex flex-wrap gap-2 md:ml-auto">
-          <ButtonLink href="/productos/importar" variante="secundario">
-            {t.importar.boton}
-          </ButtonLink>
-          <ButtonLink href="/productos/nuevo" variante="mango">{t.agregar}</ButtonLink>
-        </div>
+        {puedeGestionar && (
+          <div className="flex flex-wrap gap-2 md:ml-auto">
+            <ButtonLink href="/productos/importar" variante="secundario">
+              {t.importar.boton}
+            </ButtonLink>
+            <ButtonLink href="/productos/nuevo" variante="mango">{t.agregar}</ButtonLink>
+          </div>
+        )}
       </div>
 
       <div role="group" aria-label={t.buscar.estados} className="flex flex-wrap gap-2">

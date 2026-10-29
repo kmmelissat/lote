@@ -16,9 +16,6 @@ export function tiempoRestante(hasta: Date, ahora: Date): string {
   return h > 0 ? `${h} h ${m} min` : `${m} min`;
 }
 
-const fechaCorta = new Intl.DateTimeFormat("es-SV", { day: "numeric", month: "short" });
-export const formatearFecha = (d: Date): string => fechaCorta.format(d);
-
 // El negocio vende en El Salvador: la hora se muestra siempre ahí, igual en el servidor que en el navegador.
 // Se arma a mano (no con el formato del idioma): Node y cada navegador escriben distinto "p. m." y el espacio,
 // y esa diferencia rompe la hidratación de la pantalla.
@@ -38,6 +35,12 @@ function enSalvador(d: Date) {
   return { dia: Number(p.day), mes: Number(p.month), hora24, minutos: p.minute };
 }
 
+/** "28 oct", en la fecha de El Salvador (en el servidor, que está en UTC, de noche ya sería mañana). */
+export function formatearFecha(d: Date): string {
+  const { dia, mes } = enSalvador(d);
+  return `${dia} ${MESES[mes - 1]}`;
+}
+
 /** "11:23 p. m." */
 export function formatearHora(d: Date): string {
   const { hora24, minutos } = enSalvador(d);
@@ -46,6 +49,5 @@ export function formatearHora(d: Date): string {
 
 /** "28 oct, 11:23 p. m." */
 export function formatearDiaYHora(d: Date): string {
-  const { dia, mes } = enSalvador(d);
-  return `${dia} ${MESES[mes - 1]}, ${formatearHora(d)}`;
+  return `${formatearFecha(d)}, ${formatearHora(d)}`;
 }

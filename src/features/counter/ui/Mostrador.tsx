@@ -203,6 +203,7 @@ export function Mostrador({
     if (cobrando || !detalle.length || descuentoInvalido) return;
     setCobrando(true);
     setError("");
+    // Si se cae la red o la sesión, el botón no puede quedar en "Cobrando…" para siempre
     const r = await cobrarVenta({
       items: detalle.map((l) => ({
         productoId: l.productoId,
@@ -210,8 +211,9 @@ export function Mostrador({
       })),
       descuento,
       metodo,
-    });
-    setCobrando(false);
+    })
+      .catch(() => ({ ok: false as const, error: t.errores.general }))
+      .finally(() => setCobrando(false));
     if (!r.ok) {
       setError(r.error);
       return;

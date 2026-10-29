@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { textos } from "@/lib/textos";
 import { ImportarCsv } from "@/features/import/ui/ImportarCsv";
+import { negocioActual } from "@/lib/negocio";
 
 export const metadata: Metadata = { title: textos.productos.importar.titulo };
 
-export default function ImportarPage() {
+export default async function ImportarPage() {
+  const { negocio } = await negocioActual();
+  if (!negocio.puedeGestionar) notFound();
   return (
     <>
       <PageHeader

@@ -27,7 +27,8 @@ export type Gasto = {
 export type NuevoGasto = {
   categoria: CategoriaGasto;
   monto: Centavos;
-  fecha?: string;
+  /** Fecha local (AAAA-MM-DD). Obligatoria: el current_date de la base es de UTC y de noche ya es mañana. */
+  fecha: string;
   nota?: string;
   pedidoId?: string;
 };

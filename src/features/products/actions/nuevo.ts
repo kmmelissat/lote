@@ -54,6 +54,10 @@ export async function nuevoProducto(
   formData: FormData,
 ): Promise<EstadoNuevo> {
   const valores = valoresDe(formData);
+  // La base también lo rechaza, pero acá se avisa bien (con variantes saldría "se crearon 0 de N").
+  const { supabase, negocio } = await negocioActual();
+  if (!negocio.puedeGestionar) return { errores: { general: t.errorPermiso }, valores };
+
   const { nombre, precio, errores: erroresBasicos } = leerNombreYPrecio(valores);
   const errores: NonNullable<EstadoNuevo["errores"]> = { ...erroresBasicos };
 
@@ -77,8 +81,6 @@ export async function nuevoProducto(
 
   if (Object.keys(errores).length) return { errores, valores };
 
-  // La autorización real la hace crear_producto en la base; acá solo se resuelve el negocio.
-  const { supabase, negocio } = await negocioActual();
   const comun = {
     nombre,
     precio: precio!,

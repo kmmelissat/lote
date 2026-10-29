@@ -5,7 +5,6 @@ import { costoPromedio, leerDolares } from "@/domain/index";
 import { MAXIMO_FOTOS } from "../limites";
 import {
   guardarFotos,
-  listarGrupo,
   obtenerProducto,
   reponerProducto,
 } from "../repositorio";
@@ -25,10 +24,8 @@ export async function agregarFotos(
 
   const nuevas = rutas.filter((r) => esRutaFoto(r, negocio.id));
   const fotos = [...new Set([...producto.fotos, ...nuevas])].slice(0, MAXIMO_FOTOS);
-  // Las fotos son del producto, no de cada variante: se guardan en todas.
-  const destinos = producto.grupo ? await listarGrupo(supabase, negocio.id, producto.grupo, false) : [producto];
-  const ok = (await Promise.all(destinos.map((d) => guardarFotos(supabase, d.id, fotos)))).every(Boolean);
-  if (!ok) return { error: textos.productos.fotos.errorGuardar };
+  // Igual que en Editar: cada variante tiene sus fotos, así que se guardan solo en esta.
+  if (!(await guardarFotos(supabase, producto.id, fotos))) return { error: textos.productos.fotos.errorGuardar };
   revalidatePath("/", "layout");
   return {};
 }

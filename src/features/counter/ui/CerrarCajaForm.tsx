@@ -52,8 +52,9 @@ export function CerrarCajaForm({
     });
     if (!si) return;
     setCerrando(true);
-    const r = await cerrarLaCaja(cajaId, contadoTexto, nota);
-    setCerrando(false);
+    const r = await cerrarLaCaja(cajaId, contadoTexto, nota)
+      .catch(() => ({ error: t.errores.general }))
+      .finally(() => setCerrando(false));
     if (r.error) return setError(r.error);
     avisar(t.cierre.listo, { tipo: "exito" });
   }

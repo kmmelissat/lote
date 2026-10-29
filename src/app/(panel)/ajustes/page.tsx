@@ -8,7 +8,7 @@ import { textos } from "@/lib/textos";
 
 export const metadata: Metadata = { title: textos.ajustes.titulo };
 
-type Opcion = { href: string; icono: NombreIcono; tono: string; titulo: string; texto: string; soloDuena?: boolean };
+type Opcion = { href: string; icono: NombreIcono; tono: string; titulo: string; texto: string; soloDuena?: boolean; soloGestion?: boolean };
 
 const GRUPOS: { titulo: string; opciones: Opcion[] }[] = [
   {
@@ -30,7 +30,7 @@ const GRUPOS: { titulo: string; opciones: Opcion[] }[] = [
   {
     titulo: textos.ajustes.grupos.datos,
     opciones: [
-      { href: "/ajustes/exportar", icono: "subir", tono: "bg-teal-fondo", titulo: textos.exportar.enlace, texto: textos.exportar.enlaceTexto },
+      { href: "/ajustes/exportar", icono: "subir", tono: "bg-teal-fondo", titulo: textos.exportar.enlace, texto: textos.exportar.enlaceTexto, soloGestion: true },
       { href: "/ajustes/ayuda", icono: "info", tono: "bg-rosa", titulo: textos.ayuda.enlace, texto: textos.ayuda.enlaceTexto },
     ],
   },
@@ -44,7 +44,7 @@ export default async function Page() {
       <PageHeader titulo={textos.ajustes.titulo} descripcion={textos.ajustes.descripcion} />
       <div className="flex flex-col gap-6">
         {GRUPOS.map((g) => {
-          const opciones = g.opciones.filter((o) => !o.soloDuena || esDuena);
+          const opciones = g.opciones.filter((o) => (!o.soloDuena || esDuena) && (!o.soloGestion || negocio.puedeGestionar));
           return (
             <section key={g.titulo} aria-labelledby={`ajustes-${g.titulo}`} className="flex flex-col gap-2">
               <h2 id={`ajustes-${g.titulo}`} className="text-sm font-bold uppercase tracking-wide text-texto-2">

@@ -50,6 +50,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
       umbral={negocio.umbralPocoStock}
       textoInicial={texto}
       estadoInicial={estado}
+      puedeGestionar={negocio.puedeGestionar}
     />
   );
 }
