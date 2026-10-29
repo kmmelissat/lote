@@ -2,14 +2,19 @@
 
 import { redirect } from "next/navigation";
 import { contactoDe, huellaDelDispositivo } from "../dispositivo";
+import { apartarSchema, camposDe, comprarCarritoSchema, comprarSchema, leerFormulario } from "../formularios";
 import { apartarDesdeVitrina, comprarCarritoDesdeVitrina, comprarDesdeVitrina, type ErrorApartar } from "../repositorio";
-import { esDepartamento } from "@/lib/departamentos";
-import { createPublicClient } from "@/lib/supabase/publico";
+import { createServiceClient } from "@/lib/supabase/servicio";
 import { textos } from "@/lib/textos";
 
 const t = textos.vitrina.apartar;
 
-export type EstadoApartar = { error?: string; valores?: { nombre?: string; contacto?: string } };
+export type EstadoApartar = {
+  error?: string;
+  /** El mensaje de cada campo que está mal (por ejemplo `nombre`, `contacto`, `direccion`) */
+  errores?: Record<string, string>;
+  valores?: { nombre?: string; contacto?: string };
+};
 
 const TEXTO_ERROR: Record<ErrorApartar, string> = {
   datos_invalidos: t.errorDatos,
@@ -24,39 +29,38 @@ const TEXTO_ERROR: Record<ErrorApartar, string> = {
   desconocido: t.errorGeneral,
 };
 
+// Un campo escondido que una persona no ve: si viene con algo, es un robot y no se crea nada
+const esRobot = (formData: FormData) => String(formData.get("sitio_web") ?? "").trim() !== "";
+
+/** Los campos del formulario, con el WhatsApp ya armado (+503 y el número). */
+const camposDelFormulario = (formData: FormData): Record<string, string> => ({ ...camposDe(formData), contacto: contactoDe(formData) });
+
 export async function apartarProducto(
   slug: string,
   codigo: number,
   _anterior: EstadoApartar,
   formData: FormData,
 ): Promise<EstadoApartar> {
-  // Un campo escondido que una persona no ve: si viene con algo, es un robot y no se crea nada
-  if (String(formData.get("sitio_web") ?? "").trim()) return { error: t.errorGeneral };
-  const nombre = String(formData.get("nombre") ?? "").trim();
-  const contacto = contactoDe(formData);
-  const cantidad = Number(String(formData.get("cantidad") ?? "1").trim() || "1");
-  const valores = { nombre, contacto };
-  if (!nombre || contacto.length < 3 || !Number.isInteger(cantidad) || cantidad < 1) {
-    return { error: t.errorDatos, valores };
-  }
-  if (formData.get("acepta") !== "on") return { error: t.errorAcepta, valores };
+  if (esRobot(formData)) return { error: t.errorGeneral };
+  const campos = camposDelFormulario(formData);
+  const valores = { nombre: campos.nombre?.trim(), contacto: campos.contacto };
 
-  const r = await apartarDesdeVitrina(createPublicClient(), {
+  const r = leerFormulario(apartarSchema, campos);
+  if (!r.ok) return { error: r.error, errores: r.errores, valores };
+
+  const resultado = await apartarDesdeVitrina(createServiceClient(), {
     slug,
     codigo,
-    nombre,
-    contacto,
-    cantidad,
-    aceptaWhatsapp: formData.get("acepta") === "on",
+    nombre: r.datos.nombre,
+    contacto: r.datos.contacto,
+    cantidad: r.datos.cantidad,
+    aceptaWhatsapp: true,
     huella: await huellaDelDispositivo(),
   });
-  if (!r.ok) return { error: TEXTO_ERROR[r.error], valores };
+  if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
-  redirect(`/c/${slug}/apartado/${r.pedidoId}`);
+  redirect(`/c/${slug}/apartado/${resultado.pedidoId}`);
 }
-
-
-const METODOS = ["transferencia", "billetera", "efectivo", "contra_entrega"] as const;
 
 /** Comprar: lo mismo que apartar, más cómo se recibe (recoger o envío con dirección) y cómo se piensa pagar. */
 export async function comprarProducto(
@@ -65,92 +69,65 @@ export async function comprarProducto(
   _anterior: EstadoApartar,
   formData: FormData,
 ): Promise<EstadoApartar> {
-  // Un campo escondido que una persona no ve: si viene con algo, es un robot y no se crea nada
-  if (String(formData.get("sitio_web") ?? "").trim()) return { error: t.errorGeneral };
-  const texto = (k: string) => String(formData.get(k) ?? "").trim();
-  const nombre = texto("nombre");
-  const contacto = contactoDe(formData);
-  const cantidad = Number(texto("cantidad") || "1");
-  const entrega = texto("entrega") === "retiro" ? "retiro" : "envio";
-  const departamento = texto("departamento");
-  const metodo = METODOS.find((m) => m === texto("metodo"));
-  const valores = { nombre, contacto };
+  if (esRobot(formData)) return { error: t.errorGeneral };
+  const campos = camposDelFormulario(formData);
+  const valores = { nombre: campos.nombre?.trim(), contacto: campos.contacto };
 
-  if (!nombre || contacto.length < 3 || !Number.isInteger(cantidad) || cantidad < 1 || !metodo) {
-    return { error: t.errorDatos, valores };
-  }
-  if (formData.get("acepta") !== "on") return { error: t.errorAcepta, valores };
-  if (entrega === "envio" && (!esDepartamento(departamento) || !texto("direccion"))) {
-    return { error: textos.vitrina.compra.errorEntrega, valores };
-  }
+  const r = leerFormulario(comprarSchema, campos);
+  if (!r.ok) return { error: r.error, errores: r.errores, valores };
+  const d = r.datos;
 
-  const r = await comprarDesdeVitrina(createPublicClient(), {
+  const resultado = await comprarDesdeVitrina(createServiceClient(), {
     slug,
     codigo,
-    nombre,
-    contacto,
-    cantidad,
-    aceptaWhatsapp: formData.get("acepta") === "on",
+    nombre: d.nombre,
+    contacto: d.contacto,
+    cantidad: d.cantidad,
+    aceptaWhatsapp: true,
     huella: await huellaDelDispositivo(),
-    entrega,
-    departamento: entrega === "envio" ? departamento : "",
-    municipio: entrega === "envio" ? texto("municipio") : "",
-    direccion: entrega === "envio" ? texto("direccion") : "",
-    referencia: entrega === "envio" ? texto("referencia") : "",
-    metodo,
+    entrega: d.entrega,
+    ...datosDeEntrega(d),
+    metodo: d.metodo,
   });
-  if (!r.ok) return { error: TEXTO_ERROR[r.error], valores };
+  if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
-  redirect(`/c/${slug}/apartado/${r.pedidoId}`);
+  redirect(`/c/${slug}/apartado/${resultado.pedidoId}`);
 }
 
 /** Comprar el carrito: varios productos en un solo pedido, con los mismos datos de entrega y pago que una compra. */
 export async function comprarCarrito(slug: string, _anterior: EstadoApartar, formData: FormData): Promise<EstadoApartar> {
-  if (String(formData.get("sitio_web") ?? "").trim()) return { error: t.errorGeneral };
-  const texto = (k: string) => String(formData.get(k) ?? "").trim();
-  const nombre = texto("nombre");
-  const contacto = contactoDe(formData);
-  const entrega = texto("entrega") === "retiro" ? "retiro" : "envio";
-  const departamento = texto("departamento");
-  const metodo = METODOS.find((m) => m === texto("metodo"));
-  const valores = { nombre, contacto };
+  if (esRobot(formData)) return { error: t.errorGeneral };
+  const campos = camposDelFormulario(formData);
+  const valores = { nombre: campos.nombre?.trim(), contacto: campos.contacto };
 
-  // Lo que viene del navegador no se cree: se revisa cada línea y se vuelve a armar
-  let items: { codigo: number; cantidad: number }[] = [];
-  try {
-    const crudo: unknown = JSON.parse(texto("items"));
-    if (Array.isArray(crudo)) {
-      items = crudo
-        .map((i) => ({ codigo: Number((i as { codigo?: unknown }).codigo), cantidad: Number((i as { cantidad?: unknown }).cantidad) }))
-        .filter((i) => Number.isInteger(i.codigo) && Number.isInteger(i.cantidad) && i.cantidad >= 1 && i.cantidad <= 20);
-    }
-  } catch {
-    // JSON roto: la lista queda vacía y más abajo se responde "datos incompletos"
-  }
-  items = items.filter((i, k) => items.findIndex((o) => o.codigo === i.codigo) === k).slice(0, 10);
+  const r = leerFormulario(comprarCarritoSchema, campos);
+  if (!r.ok) return { error: r.error, errores: r.errores, valores };
+  const d = r.datos;
 
-  if (!items.length || !nombre || contacto.length < 3 || !metodo) return { error: t.errorDatos, valores };
-  if (formData.get("acepta") !== "on") return { error: t.errorAcepta, valores };
-  if (entrega === "envio" && (!esDepartamento(departamento) || !texto("direccion"))) {
-    return { error: textos.vitrina.compra.errorEntrega, valores };
-  }
-
-  const r = await comprarCarritoDesdeVitrina(createPublicClient(), {
+  const resultado = await comprarCarritoDesdeVitrina(createServiceClient(), {
     slug,
-    items,
-    nombre,
-    contacto,
+    items: d.items,
+    nombre: d.nombre,
+    contacto: d.contacto,
     aceptaWhatsapp: true,
     huella: await huellaDelDispositivo(),
-    entrega,
-    departamento: entrega === "envio" ? departamento : "",
-    municipio: entrega === "envio" ? texto("municipio") : "",
-    direccion: entrega === "envio" ? texto("direccion") : "",
-    referencia: entrega === "envio" ? texto("referencia") : "",
-    metodo,
+    entrega: d.entrega,
+    ...datosDeEntrega(d),
+    metodo: d.metodo,
   });
-  if (!r.ok) return { error: TEXTO_ERROR[r.error], valores };
+  if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
   // ?carrito=1: la pantalla de confirmación vacía el carrito del navegador
-  redirect(`/c/${slug}/apartado/${r.pedidoId}?carrito=1`);
+  redirect(`/c/${slug}/apartado/${resultado.pedidoId}?carrito=1`);
+}
+
+/** La dirección solo viaja si el pedido es con envío: recoger no deja dirección guardada. */
+function datosDeEntrega(d: { entrega: "retiro" | "envio"; departamento: string; municipio: string; direccion: string; referencia: string }) {
+  const conEnvio = d.entrega === "envio";
+  return {
+    departamento: conEnvio ? d.departamento : "",
+    municipio: conEnvio ? d.municipio : "",
+    direccion: conEnvio ? d.direccion : "",
+    referencia: conEnvio ? d.referencia : "",
+  };
 }

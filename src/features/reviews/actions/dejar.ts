@@ -1,7 +1,7 @@
 "use server";
 
 import { dejarResena } from "@/features/catalog/repositorio";
-import { createPublicClient } from "@/lib/supabase/publico";
+import { createServiceClient } from "@/lib/supabase/servicio";
 import { textos } from "@/lib/textos";
 import { esUuid } from "@/lib/uuid";
 
@@ -16,7 +16,7 @@ export async function dejarMiResena(pedido: string, codigo: number, _anterior: E
   if (!esUuid(pedido) || !Number.isInteger(codigo) || !Number.isInteger(estrellas) || estrellas < 1 || estrellas > 5 || texto.length > 500) {
     return { error: t.errorDatos };
   }
-  const r = await dejarResena(createPublicClient(), { pedido, codigo, estrellas, texto });
+  const r = await dejarResena(createServiceClient(), { pedido, codigo, estrellas, texto });
   if (r.ok) return { listo: true };
   if (r.error === "ya_opino") return { listo: true };
   if (r.error === "no_entregado") return { error: t.errorNoEntregado };

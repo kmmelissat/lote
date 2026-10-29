@@ -2,7 +2,7 @@
 
 import { contactoDe, huellaDelDispositivo } from "../dispositivo";
 import { pedirAvisoStock } from "../repositorio";
-import { createPublicClient } from "@/lib/supabase/publico";
+import { createServiceClient } from "@/lib/supabase/servicio";
 import { textos } from "@/lib/textos";
 
 const t = textos.vitrina.aviso;
@@ -17,7 +17,7 @@ export async function pedirAviso(slug: string, codigo: number, _anterior: Estado
   const contacto = contactoDe(formData);
   if (!nombre || contacto.length < 3) return { error: t.errorDatos };
 
-  const r = await pedirAvisoStock(createPublicClient(), { slug, codigo, nombre, contacto, huella: await huellaDelDispositivo() });
+  const r = await pedirAvisoStock(createServiceClient(), { slug, codigo, nombre, contacto, huella: await huellaDelDispositivo() });
   if (r.ok) return { listo: true };
   return { error: r.error === "hay_stock" ? t.errorHayStock : r.error === "demasiados_intentos" ? t.errorIntentos : r.error === "datos_invalidos" ? t.errorDatos : t.errorGeneral };
 }
