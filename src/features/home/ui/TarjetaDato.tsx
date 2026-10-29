@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "./estilo";
+import { TARJETA } from "@/components/ui/tarjeta";
 
 const tonos = {
   teal: "bg-teal-fondo text-teal",

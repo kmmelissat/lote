@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { TARJETA } from "@/components/ui/tarjeta";
 import { MensajeError } from "@/components/ui/MensajeError";
 import type { EstadoPedido } from "@/domain/index";
 import type { Pago } from "@/features/orders/repositorio";
@@ -52,7 +52,7 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
   }
 
   return (
-    <Card className="flex flex-col gap-4 border border-borde md:col-span-2">
+    <section className={`${TARJETA} flex flex-col gap-4 bg-superficie`}>
       <h2 className="font-bold">{t.titulo}</h2>
 
       <div>
@@ -124,6 +124,6 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
           <MensajeError>{errorContra}</MensajeError>
         </div>
       )}
-    </Card>
+    </section>
   );
 }

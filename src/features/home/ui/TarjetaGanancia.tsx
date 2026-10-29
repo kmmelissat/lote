@@ -3,7 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import type { Centavos } from "@/domain/dinero";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "./estilo";
+import { TARJETA } from "@/components/ui/tarjeta";
 
 const t = textos.inicio;
 

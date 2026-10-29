@@ -4,7 +4,7 @@ import { Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Toolt
 import type { SemanaResumen } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "./estilo";
+import { TARJETA } from "@/components/ui/tarjeta";
 
 const t = textos.inicio;
 

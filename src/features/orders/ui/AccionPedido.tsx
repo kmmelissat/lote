@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useElegir } from "@/components/ui/Confirmar";
 import { useToast } from "@/components/ui/Toast";
@@ -31,6 +31,7 @@ export function AccionPedido({
   estado,
   contraEntrega,
   saldo,
+  grande = false,
 }: {
   pedidoId: string;
   codigo: number;
@@ -38,27 +39,37 @@ export function AccionPedido({
   estado: EstadoPedido;
   contraEntrega: boolean;
   saldo: number;
+  /** En el detalle del pedido, donde es la acción principal */
+  grande?: boolean;
 }) {
-  const [pendiente, empezar] = useTransition();
+  // No se usa useTransition: una acción asíncrona retiene las actualizaciones de estado hasta terminar, y el modal
+  // de abajo tiene que abrirse mientras la función espera la respuesta (si no, el botón queda sin hacer nada).
+  const [pendiente, setPendiente] = useState(false);
   const elegir = useElegir();
   const { avisar } = useToast();
   const paso = siguientePaso(estado, contraEntrega);
   if (!paso) return null;
 
   async function avanzar() {
-    if (!paso) return;
-    let error: string | undefined;
+    if (!paso || pendiente) return;
+    let metodo: string | null = null;
     if (paso === "pagado") {
-      const metodo = await elegir({
+      metodo = await elegir({
         titulo: t.cobroTitulo,
         texto: t.cobroTexto(formatearDolares(saldo), cliente),
         confirmar: t.cobroConfirmar,
         opciones: METODOS_DE_COBRO.map((m) => ({ valor: m, etiqueta: textos.cobro.metodos[m] })),
       });
       if (!metodo) return;
-      error = (await pagarCompleto(pedidoId, metodo)).error;
-    } else {
-      error = (await cambiarEstado(pedidoId, paso)).error;
+    }
+    setPendiente(true);
+    let error: string | undefined;
+    try {
+      error = (paso === "pagado" ? await pagarCompleto(pedidoId, metodo!) : await cambiarEstado(pedidoId, paso)).error;
+    } catch {
+      error = textos.pedidos.acciones.errorGeneral;
+    } finally {
+      setPendiente(false);
     }
     avisar(error ?? t.hecho[paso](codigo), { tipo: error ? "error" : "exito" });
   }
@@ -67,9 +78,9 @@ export function AccionPedido({
     // z-10: queda por encima del enlace que cubre toda la fila
     <Button
       type="button"
-      className="relative z-10 h-9 border-2 border-teal-oscuro px-4 text-sm"
+      className={`relative z-10 border-2 border-teal-oscuro ${grande ? "" : "h-9 px-4 text-sm"}`}
       disabled={pendiente}
-      onClick={() => empezar(avanzar)}
+      onClick={avanzar}
     >
       {t.acciones[paso]}
     </Button>

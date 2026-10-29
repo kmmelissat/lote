@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { TARJETA } from "@/components/ui/tarjeta";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
@@ -70,7 +70,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
   }
 
   return (
-    <Card className="flex flex-col gap-4 border border-borde md:col-span-2">
+    <section className={`${TARJETA} flex flex-col gap-4 bg-superficie`}>
       <h2 className="font-bold">{t.titulo}</h2>
 
       {envio && (
@@ -207,6 +207,6 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
       )}
 
       {cerrado && !envio && <p className="text-texto-2">{t.cerrado}</p>}
-    </Card>
+    </section>
   );
 }

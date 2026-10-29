@@ -96,6 +96,9 @@ export const productos = {
   },
   fotos: {
     etiqueta: "Fotos",
+    // Donde Lotito no lee la foto (el detalle de un producto que ya existe): solo se guardan.
+    zonaTituloSimple: "Sumá más fotos a este producto",
+    zonaTextoSimple: "Arrastralas acá o elegilas de tu galería.",
     elegir: "Elegir fotos",
     subiendo: "Subiendo…",
     quitar: (n: number) => `Quitar foto ${n}`,

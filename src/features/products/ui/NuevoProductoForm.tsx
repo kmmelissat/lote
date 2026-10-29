@@ -242,7 +242,7 @@ export function NuevoProductoForm({
     >
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_21rem]">
       <div className="flex min-w-0 flex-col gap-5">
-        <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotos} />
+        <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotos} conLotito />
         <input type="hidden" name="fotos" value={JSON.stringify(rutas)} />
         <CartelLotito estado={estadoLotito} />
         {ofertaVar && !estadoVar && (

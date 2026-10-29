@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "./estilo";
+import { TARJETA } from "@/components/ui/tarjeta";
 import { HORAS_APARTADO_FRIO, type ResumenInicio } from "../resumen";
 
 const t = textos.inicio;

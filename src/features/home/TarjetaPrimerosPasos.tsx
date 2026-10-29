@@ -3,7 +3,7 @@ import { Gorila } from "@/components/ui/Gorila";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 import type { PasoInicial } from "./primerosPasos";
-import { TARJETA } from "./ui/estilo";
+import { TARJETA } from "@/components/ui/tarjeta";
 
 const t = textos.inicio.primerosPasos;
 

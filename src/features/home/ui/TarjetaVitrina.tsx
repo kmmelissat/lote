@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "./estilo";
+import { TARJETA } from "@/components/ui/tarjeta";
 
 const t = textos.inicio.vitrina;
 const n = textos.nav;

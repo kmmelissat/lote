@@ -64,6 +64,11 @@ export const pedidos = {
     saldo: "Saldo por cobrar",
     productos: "Productos",
     unidades: (n: number) => (n === 1 ? "1 unidad" : `${n} unidades`),
+    resumen: "Resumen",
+    pagadoDe: (pagado: string, total: string) => `Pagado ${pagado} de ${total}`,
+    cancelado: "Este pedido está cancelado. Las unidades volvieron a estar disponibles.",
+    pasos: "Avance del pedido",
+    pasoActual: "Paso actual",
   },
   envio: {
     titulo: "Envío",

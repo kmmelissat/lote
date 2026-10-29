@@ -4,7 +4,7 @@ import { StatusChip } from "@/components/ui/StatusChip";
 import type { Pedido } from "@/features/orders/repositorio";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "./estilo";
+import { TARJETA } from "@/components/ui/tarjeta";
 
 const t = textos.inicio;
 

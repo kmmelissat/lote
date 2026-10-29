@@ -3,9 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { Card } from "@/components/ui/Card";
+import { TARJETA } from "@/components/ui/tarjeta";
 import { StatusChip } from "@/components/ui/StatusChip";
-import { puedeCancelarse, siguienteEstado, type EstadoPedido } from "@/domain";
+import { puedeCancelarse } from "@/domain";
 import { listarPagos, obtenerPedido } from "@/features/orders/repositorio";
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
 import { obtenerEnvio, obtenerTarifas } from "@/features/shipping/repositorio";
@@ -14,6 +14,8 @@ import { formatearDolares, formatearFecha, tiempoRestante } from "@/lib/formato"
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { AccionesPedido } from "@/features/orders/ui/AccionesPedido";
+import { AccionPedido } from "@/features/orders/ui/AccionPedido";
+import { ProgresoPedido } from "@/features/orders/ui/ProgresoPedido";
 import { CobroPedido } from "@/features/payments/ui/CobroPedido";
 import { EnvioPedido } from "@/features/shipping/ui/EnvioPedido";
 
@@ -43,104 +45,148 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
     mensajeDeCobro(supabase, negocio.id, p, ahora),
   ]);
 
-  // A "pagado" se llega registrando el pago. Un contra entrega salta de pendiente a preparando.
-  const siguiente: EstadoPedido | null =
-    p.estado === "pendiente" ? (p.contraEntrega ? "preparando" : null) : siguienteEstado(p.estado);
+  const pagado = p.total - p.saldo;
+  const avance = p.total > 0 ? Math.min(100, Math.max(0, Math.round((pagado / p.total) * 100))) : 0;
+  const cliente = p.cliente ?? t.sinCliente;
 
   return (
     <>
-      <PageHeader titulo={t.pedido(p.codigo)} descripcion={p.cliente ?? t.sinCliente} />
+      <PageHeader
+        titulo={t.pedido(p.codigo)}
+        descripcion={cliente}
+        accion={
+          negocio.puedeVender && (
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusChip estado={p.estado} />
+              <AccionPedido
+                grande
+                pedidoId={p.id}
+                codigo={p.codigo}
+                cliente={cliente}
+                estado={p.estado}
+                contraEntrega={p.contraEntrega}
+                saldo={p.saldo}
+              />
+            </div>
+          )
+        }
+      />
       <Link href="/pedidos" className="mb-4 inline-flex min-h-11 items-center text-teal underline">
         {t.volver}
       </Link>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Card className="flex flex-col gap-3 border border-borde">
-          <div className="flex flex-wrap items-center gap-3">
-            <StatusChip estado={p.estado} />
-            {p.estado === "pendiente" && p.venceEn && (
-              <span className="text-sm text-ambar-texto">
-                {p.venceEn > ahora ? t.vence(tiempoRestante(p.venceEn, ahora)) : t.venceVencido}
-              </span>
-            )}
-          </div>
-          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
-            <dt className="text-texto-2">{t.detalle.cliente}</dt>
-            <dd className="text-right font-medium">{p.cliente ?? t.sinCliente}</dd>
-            <dt className="text-texto-2">{t.detalle.canal}</dt>
-            <dd className="text-right font-medium">{t.canales[p.canal]}</dd>
-            <dt className="text-texto-2">{t.detalle.creado}</dt>
-            <dd className="text-right font-medium">{formatearFecha(p.creadoEn)}</dd>
-            <dt className="text-texto-2">{t.detalle.total}</dt>
-            <dd className="text-right font-bold">{formatearDolares(p.total)}</dd>
-            {p.saldo > 0 && p.estado !== "cancelado" && (
-              <>
-                <dt className="text-texto-2">{t.detalle.saldo}</dt>
-                <dd className="text-right font-medium">{formatearDolares(p.saldo)}</dd>
-              </>
-            )}
-          </dl>
-          {p.estado === "pendiente" && !p.contraEntrega && negocio.puedeVender && (
-            <p className="text-sm text-texto-2">{t.cobrar.avisoPendiente}</p>
-          )}
-          {negocio.puedeVender && (
-            <AccionesPedido
-              pedidoId={p.id}
-              siguiente={siguiente as "pagado" | "preparando" | "enviado" | "entregado" | null}
-              puedeCancelar={puedeCancelarse(p.estado)}
-            />
-          )}
-        </Card>
+      <div className="flex flex-col gap-4">
+        <ProgresoPedido estado={p.estado} contraEntrega={p.contraEntrega} />
 
-        <CobroPedido
-          pedidoId={p.id}
-          estado={p.estado}
-          total={p.total}
-          saldo={p.saldo}
-          pagos={pagos}
-          contraEntrega={p.contraEntrega}
-          mensaje={mensaje}
-          puedeVender={negocio.puedeVender}
-        />
-
-        <EnvioPedido
-          pedidoId={p.id}
-          estado={p.estado}
-          cliente={p.cliente}
-          envio={envio}
-          tarifas={tarifas}
-          puedeVender={negocio.puedeVender}
-        />
-
-        <Card className="border border-borde md:col-span-2">
-          <h2 className="mb-3 font-bold">{t.detalle.productos}</h2>
-          <ul className="flex flex-col gap-3">
-            {p.items.map((i) => (
-              <li key={i.codigo} className="flex items-center gap-3">
-                {i.foto ? (
-                  <Image
-                    src={urlFoto(i.foto)}
-                    alt={i.nombre}
-                    width={56}
-                    height={56}
-                    className="size-14 shrink-0 rounded-xl object-cover"
-                  />
-                ) : (
-                  <span aria-hidden="true" className="size-14 shrink-0 rounded-xl bg-perla" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {/* En el celular el resumen va primero; en escritorio queda a la derecha */}
+          <aside className="order-first flex min-w-0 flex-col gap-4 lg:order-none lg:col-start-3 lg:row-start-1">
+            <section aria-labelledby="resumen" className={`${TARJETA} flex flex-col gap-4 bg-crema`}>
+              <h2 id="resumen" className="font-bold">
+                {t.detalle.resumen}
+              </h2>
+              <div>
+                <p className="text-4xl font-bold tabular-nums">{formatearDolares(p.total)}</p>
+                {p.estado !== "cancelado" && p.total > 0 && (
+                  <div className="mt-3 flex flex-col gap-1.5">
+                    <div
+                      role="progressbar"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={avance}
+                      aria-label={t.detalle.pagadoDe(formatearDolares(pagado), formatearDolares(p.total))}
+                      className="h-3 overflow-hidden rounded-full border-2 border-teal-oscuro bg-white"
+                    >
+                      <div className="h-full bg-teal" style={{ width: `${avance}%` }} />
+                    </div>
+                    <p className="text-sm text-texto-2">{t.detalle.pagadoDe(formatearDolares(pagado), formatearDolares(p.total))}</p>
+                  </div>
                 )}
-                <div className="min-w-0 flex-1">
-                  <Link href={`/productos/${i.codigo}`} className="truncate font-medium underline">
-                    {i.nombre}
-                  </Link>
-                  <p className="text-sm text-texto-2">
-                    #{i.codigo} · {t.detalle.unidades(i.cantidad)}
-                  </p>
-                </div>
-                <p className="font-medium">{formatearDolares(i.precioFinal * i.cantidad)}</p>
-              </li>
-            ))}
-          </ul>
-        </Card>
+              </div>
+              {p.estado === "pendiente" && p.venceEn && (
+                <p className={`rounded-xl border-2 border-teal-oscuro bg-limon px-3 py-2 text-sm font-medium ${p.venceEn > ahora ? "" : "bg-rosa-palido"}`}>
+                  {p.venceEn > ahora ? t.vence(tiempoRestante(p.venceEn, ahora)) : t.venceVencido}
+                </p>
+              )}
+              <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
+                <dt className="text-texto-2">{t.detalle.cliente}</dt>
+                <dd className="text-right font-medium">{cliente}</dd>
+                <dt className="text-texto-2">{t.detalle.canal}</dt>
+                <dd className="text-right font-medium">{t.canales[p.canal]}</dd>
+                <dt className="text-texto-2">{t.detalle.creado}</dt>
+                <dd className="text-right font-medium">{formatearFecha(p.creadoEn)}</dd>
+                {p.saldo > 0 && p.estado !== "cancelado" && (
+                  <>
+                    <dt className="text-texto-2">{t.detalle.saldo}</dt>
+                    <dd className="text-right font-bold">{formatearDolares(p.saldo)}</dd>
+                  </>
+                )}
+              </dl>
+              {p.estado === "pendiente" && !p.contraEntrega && negocio.puedeVender && (
+                <p className="text-sm text-texto-2">{t.cobrar.avisoPendiente}</p>
+              )}
+              {negocio.puedeVender && <AccionesPedido pedidoId={p.id} siguiente={null} puedeCancelar={puedeCancelarse(p.estado)} />}
+            </section>
+          </aside>
+
+          <div className="flex min-w-0 flex-col gap-4 lg:col-span-2 lg:col-start-1 lg:row-start-1">
+            <section aria-labelledby="productos" className={`${TARJETA} bg-superficie`}>
+              <h2 id="productos" className="mb-3 font-bold">
+                {t.detalle.productos}
+              </h2>
+              <ul className="flex flex-col gap-3">
+                {p.items.map((i) => (
+                  <li key={i.codigo} className="flex items-center gap-3">
+                    {i.foto ? (
+                      <Image
+                        src={urlFoto(i.foto)}
+                        alt={i.nombre}
+                        width={56}
+                        height={56}
+                        className="size-14 shrink-0 rounded-xl border-2 border-teal-oscuro object-cover"
+                      />
+                    ) : (
+                      <span aria-hidden="true" className="size-14 shrink-0 rounded-xl border-2 border-teal-oscuro bg-perla" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <Link href={`/productos/${i.codigo}`} className="block truncate font-medium underline">
+                        {i.nombre}
+                      </Link>
+                      <p className="text-sm text-texto-2">
+                        #{i.codigo} · {t.detalle.unidades(i.cantidad)}
+                      </p>
+                    </div>
+                    <p className="font-medium tabular-nums">{formatearDolares(i.precioFinal * i.cantidad)}</p>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 flex justify-between border-t border-borde pt-3 font-bold">
+                <span>{t.detalle.total}</span>
+                <span className="tabular-nums">{formatearDolares(p.total)}</span>
+              </p>
+            </section>
+
+            <CobroPedido
+              pedidoId={p.id}
+              estado={p.estado}
+              total={p.total}
+              saldo={p.saldo}
+              pagos={pagos}
+              contraEntrega={p.contraEntrega}
+              mensaje={mensaje}
+              puedeVender={negocio.puedeVender}
+            />
+
+            <EnvioPedido
+              pedidoId={p.id}
+              estado={p.estado}
+              cliente={p.cliente}
+              envio={envio}
+              tarifas={tarifas}
+              puedeVender={negocio.puedeVender}
+            />
+          </div>
+        </div>
       </div>
     </>
   );

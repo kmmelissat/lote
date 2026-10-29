@@ -21,10 +21,13 @@ export function ZonaFotos({
   negocioId,
   rutas,
   onCambio,
+  conLotito = false,
 }: {
   negocioId: string;
   rutas: string[];
   onCambio: (rutas: string[]) => void;
+  /** Solo donde Lotito de verdad lee la foto y llena la ficha: así la zona no promete lo que no hace */
+  conLotito?: boolean;
 }) {
   const id = useId();
   const galeria = useRef<HTMLInputElement>(null);
@@ -81,8 +84,8 @@ export function ZonaFotos({
       >
         <Monito nombre="celular" className={`shrink-0 text-teal ${rutas.length ? "w-12" : "w-16"}`} />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="text-lg font-bold leading-snug">{rutas.length ? l.agregarOtra : l.zonaTitulo}</p>
-          {!rutas.length && <p className="text-sm text-texto-2">{l.zonaTexto}</p>}
+          <p className="text-lg font-bold leading-snug">{rutas.length ? l.agregarOtra : conLotito ? l.zonaTitulo : t.zonaTituloSimple}</p>
+          {!rutas.length && <p className="text-sm text-texto-2">{conLotito ? l.zonaTexto : t.zonaTextoSimple}</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-2">
           <button type="button" disabled={subiendo || lleno} onClick={() => galeria.current?.click()} className={`${boton} bg-mango`}>
