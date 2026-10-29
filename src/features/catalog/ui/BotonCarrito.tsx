@@ -27,6 +27,8 @@ function Boton({ slug }: { slug: string }) {
   const unidades = lineas.reduce((n, l) => n + l.cantidad, 0);
   // En el carrito y en su compra ya está a la vista
   if (pathname?.startsWith(`/c/${slug}/carrito`)) return null;
+  // En la confirmación de un pedido el carrito ya se usó y está vacío
+  if (pathname?.startsWith(`/c/${slug}/apartado`)) return null;
   return (
     <Link
       href={`/c/${slug}/carrito`}
