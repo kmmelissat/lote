@@ -119,7 +119,7 @@ export function ListaDesplegable({
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       elegir(activa);
-    } else if (e.key.length === 1 && /\S/.test(e.key)) {
+    } else if (e.key?.length === 1 && /\S/.test(e.key)) {
       // Una letra salta a la siguiente opción que empieza con ella
       const letra = e.key.toLowerCase();
       const desde = activa + 1;

@@ -430,10 +430,13 @@ export function Nav({ datos }: { datos: DatosMenu }) {
   // Atajos: ⌘K / Ctrl+K abre el buscador y N la acción rápida (salvo que estés escribiendo).
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      // El autocompletar del navegador y los gestores de contraseñas disparan eventos "keydown" sin tecla: se ignoran
+      const letra = e.key?.toLowerCase();
+      if (!letra) return;
+      if ((e.metaKey || e.ctrlKey) && letra === "k") {
         e.preventDefault();
         setPaleta((p) => !p);
-      } else if (e.key.toLowerCase() === "n" && !e.metaKey && !e.ctrlKey && !e.altKey && !escribiendoEnCampo(e.target)) {
+      } else if (letra === "n" && !e.metaKey && !e.ctrlKey && !e.altKey && !escribiendoEnCampo(e.target)) {
         e.preventDefault();
         setRapida((r) => !r);
       }

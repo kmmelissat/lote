@@ -11,6 +11,7 @@ import type { DesgloseCosto } from "@/domain";
 import { estadoVisible } from "@/features/products/estadoVisible";
 import { listarAvisosDeStock, listarGrupo, obtenerProducto } from "@/features/products/repositorio";
 import { AvisosDeStock } from "@/features/products/ui/AvisosDeStock";
+import { BorrarProducto } from "@/features/products/ui/BorrarProducto";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
 import { nombreBase } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
@@ -256,6 +257,12 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
           <AgregarFotos codigo={p.codigo} negocioId={negocio.id} />
         )}
       </div>
+
+      {negocio.puedeGestionar && (
+        <div className="mt-6">
+          <BorrarProducto codigo={p.codigo} nombre={nombreBase(p.nombre, p.variante)} esVariante={p.grupo !== null && p.variante !== null} />
+        </div>
+      )}
     </>
   );
 }

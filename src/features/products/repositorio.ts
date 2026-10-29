@@ -492,3 +492,13 @@ export async function borrarCategoria(supabase: Cliente, negocioId: string, nomb
   const { error } = await supabase.from("categoria").delete().eq("negocio_id", negocioId).eq("nombre", nombre);
   return !error;
 }
+
+/**
+ * Borra un producto (sus costos y su existencia se borran con él). Si ya tiene pedidos no se puede: la base lo impide
+ * para no perder el historial ni la ganancia. Solo gestiona (RLS: sin permiso no toca ninguna fila).
+ */
+export async function eliminarProducto(supabase: Cliente, productoId: string): Promise<"ok" | "con_pedidos" | "sin_permiso" | "desconocido"> {
+  const { data, error } = await supabase.from("producto").delete().eq("id", productoId).select("id");
+  if (error) return error.code === "23503" ? "con_pedidos" : "desconocido";
+  return data.length > 0 ? "ok" : "sin_permiso";
+}
