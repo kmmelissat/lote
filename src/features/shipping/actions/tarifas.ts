@@ -28,10 +28,13 @@ export async function guardarTarifasDeEnvio(
     porDepartamento[departamento] = monto;
   }
 
+  const retiro = String(formData.get("retiro") ?? "").trim();
+  if (retiro.length > 200) return { error: t.errorRetiro };
+
   // Solo la dueña puede guardar: lo exige la política de la base (es_duena).
   const { supabase, negocio } = await negocioActual();
   if (negocio.rol !== "duena") return { error: t.soloDuena };
-  if (!(await guardarTarifas(supabase, negocio.id, { defecto, porDepartamento }))) {
+  if (!(await guardarTarifas(supabase, negocio.id, { defecto, porDepartamento, retiro: retiro || null }))) {
     return { error: t.errorGeneral };
   }
 

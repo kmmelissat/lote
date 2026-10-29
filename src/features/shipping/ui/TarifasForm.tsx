@@ -17,6 +17,11 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
 
   return (
     <form action={accion} className="flex max-w-xl flex-col gap-5">
+      <div className="flex flex-col gap-1 rounded-2xl border-2 border-teal-oscuro bg-crema p-4">
+        <Field etiqueta={t.retiro} name="retiro" maxLength={200} placeholder={t.retiroPlaceholder} defaultValue={tarifas.retiro ?? ""} />
+        <p className="text-sm text-texto-2">{t.retiroAyuda}</p>
+      </div>
+
       <div className="flex flex-col gap-1">
         <Field etiqueta={t.defecto} name="defecto" inputMode="decimal" defaultValue={dolares(tarifas.defecto)} />
         <p className="text-sm text-texto-2">{t.defectoAyuda}</p>

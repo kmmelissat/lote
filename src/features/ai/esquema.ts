@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { ayuda } from "@/lib/textos/ayuda";
+
+/** Los temas de las preguntas frecuentes: la IA solo elige uno, la respuesta es el texto fijo. */
+export const TEMAS_AYUDA = ayuda.preguntas.map((p) => p.id) as [string, ...string[]];
 
 export const INTENCIONES = [
   "crear_producto",
@@ -14,6 +18,7 @@ export const INTENCIONES = [
   "consultar",
   "deshacer",
   "ayuda",
+  "pregunta",
   "no_entiendo",
 ] as const;
 
@@ -40,6 +45,8 @@ export const SalidaEntender = z.object({
   categoria: z.enum(["empaque", "publicidad", "transporte", "local", "comisiones", "otros"]).nullable(),
   /** Solo para gasto: lo que dijo que compró o pagó ("bolsas") */
   nota: z.string().nullable(),
+  /** Solo para "pregunta": el tema de ayuda que mejor responde. Null si ninguno calza. */
+  tema: z.enum(TEMAS_AYUDA).nullable(),
   /** Solo si dudó entre dos intenciones: la segunda más probable. El sistema le pregunta a la persona. */
   alternativa: z.enum(INTENCIONES).nullable(),
 });
@@ -63,6 +70,7 @@ export const salidaVacia = (intencion: SalidaEntender["intencion"]): SalidaEnten
   estado: null,
   categoria: null,
   nota: null,
+  tema: null,
   alternativa: null,
 });
 

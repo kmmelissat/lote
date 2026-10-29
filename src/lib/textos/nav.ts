@@ -33,7 +33,7 @@ export const nav = {
     atajo: "N",
     producto: "Nuevo producto",
     pedido: "Registrar apartado o venta",
-    asistente: "Hablar con el asistente",
+    asistente: "Hablar con Lotito",
     chat: "Pegar un chat de cliente",
   },
   paleta: {

@@ -6,6 +6,7 @@ import type { Deps, Entrada, Extras, Respuesta } from "./tipos";
 import { respuestaDeElegir } from "./ayudas";
 import { deshacer, deshacerUltima } from "./deshacer";
 import { ejecutar } from "./ejecutar";
+import { respuestaDeAyuda } from "./faq";
 
 export type { Boton, Comando, Entrada, Estado, Extras, Respuesta } from "./tipos";
 
@@ -31,6 +32,7 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
 
   if (comando?.tipo === "deshacer") return deshacer(d, comando.accionId);
   if (comando?.tipo === "descartar") return { texto: t.descartado };
+  if (comando?.tipo === "faq") return respuestaDeAyuda(comando.id);
 
   let salida: SalidaEntender | null = null;
   let extras: Extras | undefined;

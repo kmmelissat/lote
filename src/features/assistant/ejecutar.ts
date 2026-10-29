@@ -3,6 +3,7 @@ import type { SalidaEntender } from "../ai/esquema";
 import type { Intencion } from "./intencion";
 import type { Deps, Entrada, Extras, Respuesta } from "./tipos";
 import { deshacerUltima } from "./deshacer";
+import { respuestaDeAyuda } from "./faq";
 import { apartarOVender, enviar, liberar } from "./intenciones/pedido";
 import { consultar, consultarEstado, consultarGanancia, consultarProducto } from "./intenciones/consulta";
 import { crearProducto, reponer } from "./intenciones/producto";
@@ -24,6 +25,8 @@ export async function ejecutar(
   switch (intencion.tipo) {
     case "ayuda":
       return { texto: t.ayuda };
+    case "pregunta":
+      return respuestaDeAyuda(intencion.tema);
     case "no_entiendo":
       return { texto: t.noEntendi };
     case "deshacer":

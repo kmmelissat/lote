@@ -43,11 +43,12 @@ export async function obtenerEnvio(supabase: Cliente, pedidoId: string): Promise
   };
 }
 
-export type Tarifas = { defecto: Centavos; porDepartamento: Record<string, Centavos> };
+/** `retiro` es la dirección donde se recoge; sin ella, la vitrina no ofrece "recoger en la tienda". */
+export type Tarifas = { defecto: Centavos; porDepartamento: Record<string, Centavos>; retiro: string | null };
 
 export async function obtenerTarifas(supabase: Cliente, negocioId: string): Promise<Tarifas> {
   const [{ data: negocio, error: e1 }, { data: filas, error: e2 }] = await Promise.all([
-    supabase.from("negocio").select("tarifa_envio_defecto").eq("id", negocioId).single(),
+    supabase.from("negocio").select("tarifa_envio_defecto, direccion_retiro").eq("id", negocioId).single(),
     supabase.from("tarifa_envio").select("departamento, precio").eq("negocio_id", negocioId),
   ]);
   if (e1) throw e1;
@@ -55,6 +56,7 @@ export async function obtenerTarifas(supabase: Cliente, negocioId: string): Prom
   return {
     defecto: aCentavos(negocio.tarifa_envio_defecto),
     porDepartamento: Object.fromEntries(filas.map((f) => [f.departamento, aCentavos(f.precio)])),
+    retiro: negocio.direccion_retiro,
   };
 }
 
@@ -71,7 +73,7 @@ export async function guardarTarifas(
   const conPrecio = Object.entries(t.porDepartamento);
   const { error: e1 } = await supabase
     .from("negocio")
-    .update({ tarifa_envio_defecto: t.defecto / 100 })
+    .update({ tarifa_envio_defecto: t.defecto / 100, direccion_retiro: t.retiro })
     .eq("id", negocioId);
   if (e1) return false;
 

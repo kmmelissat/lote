@@ -18,7 +18,7 @@ const COLORES = new Set([
 const esColor = (v: string) => COLORES.has(v.trim().toLowerCase());
 
 /** Cómo se llama una opción, mirando sus valores: no se guarda el nombre, así que se deduce (colores → "Color"). */
-function tituloDe(valores: string[], posicion: number): string {
+export function tituloDe(valores: string[], posicion: number): string {
   if (valores.every(esColor)) return "Color";
   if (valores.every((v) => /^(xxs|xs|s|m|l|xl|xxl|\d+)$/i.test(v.trim()))) return "Talla";
   return `Opción ${posicion + 1}`;

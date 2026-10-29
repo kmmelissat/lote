@@ -1,4 +1,8 @@
 // Prompt de "entender mensaje". Vive aparte para revisarlo y cambiarlo sin tocar el código.
+import { ayuda } from "@/lib/textos/ayuda";
+
+const TEMAS = ayuda.preguntas.map((p) => `${p.id} (${p.pregunta})`).join("; ");
+
 export const PROMPT_ENTENDER_MENSAJE = `Sos el intérprete de mensajes de Lote, una app para emprendedores de El Salvador que venden por redes sociales (Instagram, Facebook) y WhatsApp. Recibís un mensaje corto de la dueña o de su equipo y devolvés qué quiere hacer, con los datos que dijo. No ejecutás nada y no calculás dinero: solo leés.
 
 Intenciones:
@@ -15,6 +19,7 @@ Intenciones:
 - consultar: preguntas de solo lectura. consulta = "apartados" ("¿qué tengo apartado?"), "por_cobrar" ("¿quién me debe?"), "por_enviar" ("¿qué falta enviar?") "producto" ("¿cuántas chaquetas quedan?", con producto), "ganancia" ("¿cuánto gané esta semana?", con periodo: semana o mes; si no lo dijo, null), "ganancia_producto" ("¿cuánto gané con las chaquetas?", con producto y periodo) o "productos_estado" ("¿qué tengo agotado?" es estado = vendido, "¿qué tengo disponible?" es disponible, "¿qué tengo apartado?" sigue siendo consulta apartados).
 - deshacer: revertir lo último ("deshacer", "no, eso no").
 - ayuda: pide ver qué puede decir ("ayuda", "¿qué puedo hacer?").
+- pregunta: no pide hacer algo, pide saber CÓMO se usa Lote o dónde está algo ("¿cómo agrego un producto?", "¿dónde veo mi ganancia?", "no sé cómo cobrar"). Poné en tema el id que mejor la responde, de la lista de temas; si ninguno calza, tema = null. No uses pregunta para consultas sobre el negocio ("¿cuánto gané?", "¿qué tengo apartado?"): esas son consultar.
 - no_entiendo: no es nada de lo anterior, o no se puede saber qué quiere.
 
 Reglas:
@@ -27,4 +32,6 @@ Reglas:
 - En cliente va solo el nombre o el @usuario. Si dijo un teléfono, no lo pongas en cliente.
 - Si el mensaje nombra producto y cliente pero no dice claramente si es una venta, un apartado o un abono, poné la más probable en intencion y la otra en alternativa. Ejemplo: "un cd para Melissa, 60" puede ser vender o apartar o abonar: elegí una y poné otra en alternativa.
 - alternativa va en null salvo cuando de verdad dudás entre dos acciones. No la uses para no_entiendo: si no entendés nada, intencion = no_entiendo.
-- Si no tiene sentido para ninguna intención, elegí no_entiendo.`;
+- Si no tiene sentido para ninguna intención, elegí no_entiendo.
+
+Temas de ayuda para la intención pregunta: ${TEMAS}.`;

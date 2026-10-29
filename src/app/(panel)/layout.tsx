@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Migas } from "@/components/nav/Migas";
 import { NavConDatos, NavSinDatos } from "@/components/nav/NavConDatos";
+import { AsistenteFlotante } from "@/features/assistant/ui/AsistenteFlotante";
 import { RequiereNegocio } from "@/components/nav/RequiereNegocio";
 import { textos } from "@/lib/textos";
 
@@ -28,6 +29,9 @@ export default function PanelLayout({ children }: LayoutProps<"/">) {
           {children}
         </div>
       </main>
+      <Suspense fallback={null}>
+        <AsistenteFlotante />
+      </Suspense>
     </div>
   );
 }

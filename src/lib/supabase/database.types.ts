@@ -532,6 +532,7 @@ export type Database = {
           umbral_poco_stock: number
           usuario_instagram: string | null
           visible_en_explorar: boolean
+          direccion_retiro: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -553,6 +554,7 @@ export type Database = {
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           visible_en_explorar?: boolean
+          direccion_retiro?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -574,6 +576,7 @@ export type Database = {
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           visible_en_explorar?: boolean
+          direccion_retiro?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -636,6 +639,7 @@ export type Database = {
           cliente_id: string | null
           codigo: number
           contra_entrega: boolean
+          metodo_preferido: string | null
           creado_en: string
           descuento: number
           envio_absorbido: number
@@ -654,6 +658,7 @@ export type Database = {
           cliente_id?: string | null
           codigo: number
           contra_entrega?: boolean
+          metodo_preferido?: string | null
           creado_en?: string
           descuento?: number
           envio_absorbido?: number
@@ -672,6 +677,7 @@ export type Database = {
           cliente_id?: string | null
           codigo?: number
           contra_entrega?: boolean
+          metodo_preferido?: string | null
           creado_en?: string
           descuento?: number
           envio_absorbido?: number
@@ -1017,6 +1023,33 @@ export type Database = {
         Args: { p_guia: string; p_paquetera: string; p_pedido: string }
         Returns: undefined
       }
+      comprar_desde_vitrina: {
+        Args: {
+          p_acepta_whatsapp: boolean
+          p_cantidad: number
+          p_codigo: number
+          p_contacto: string
+          p_departamento: string
+          p_direccion: string
+          p_entrega: string
+          p_huella: string
+          p_metodo: string
+          p_municipio: string
+          p_nombre: string
+          p_referencia: string
+          p_slug: string
+        }
+        Returns: Json
+      }
+      vitrina_entrega: {
+        Args: { p_slug: string }
+        Returns: {
+          direccion_retiro: string | null
+          metodos: Json
+          tarifa_defecto: number
+          tarifas: Json
+        }[]
+      }
       apartar_desde_vitrina: {
         Args: {
           p_acepta_whatsapp: boolean
@@ -1227,8 +1260,14 @@ export type Database = {
         Args: { p_pedido: string; p_slug: string }
         Returns: {
           codigo: number
+          contra_entrega: boolean
+          direccion_retiro: string | null
+          entrega: string | null
+          envio_costo: number
+          envio_direccion: string | null
           estado: string
           items: Json
+          metodo_preferido: string | null
           metodos: Json
           negocio: string
           saldo: number

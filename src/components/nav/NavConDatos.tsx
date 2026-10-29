@@ -12,7 +12,7 @@ const SIN_DATOS: DatosMenu = {
   perfil: { nombre: textos.perfil.nombre, detalle: textos.perfil.detalle, logo: null },
 };
 
-const ENLACES_DE_PASOS = { producto: "/nuevo", pago: "/ajustes/pagos", pedido: "/pedidos/nuevo" } as const;
+const ENLACES_DE_PASOS = { producto: "/productos/nuevo", pago: "/ajustes/pagos", pedido: "/pedidos/nuevo" } as const;
 
 /** El menú con sus datos (contador de Pedidos, primeros pasos, perfil). Mientras llegan, se ve el menú sin ellos. */
 export function NavSinDatos() {

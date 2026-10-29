@@ -8,7 +8,9 @@ export type Comando =
   | { tipo: "confirmar" }
   | { tipo: "descartar" }
   | { tipo: "deshacer"; accionId: string }
-  | { tipo: "elegir"; indice: number };
+  | { tipo: "elegir"; indice: number }
+  /** Una pregunta frecuente tocada en un atajo: se responde con el texto fijo, sin IA */
+  | { tipo: "faq"; id: string };
 
 /** Lo que salió de la foto de un producto y hay que acordarse hasta crearlo. */
 export type Extras = { fotoRuta?: string; descripcion?: string | null; categoria?: string | null };
@@ -27,6 +29,8 @@ export type Respuesta = {
   estado?: Estado;
   /** Texto listo para copiar (por ejemplo el mensaje de cobro) */
   copiar?: string;
+  /** Pantallas a las que la respuesta lleva (por ejemplo desde una pregunta frecuente) */
+  enlaces?: { etiqueta: string; href: string }[];
 };
 
 export type Entrada = {

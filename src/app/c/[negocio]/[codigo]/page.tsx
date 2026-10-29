@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { GaleriaVitrina } from "@/features/catalog/ui/GaleriaVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
-import { filasDeOpciones } from "@/features/catalog/opciones";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
-import { listarProductosPublicos, obtenerNegocioPublico, obtenerProductoPublico } from "@/features/catalog/repositorio";
-import { nombreBase } from "@/features/products/variantes";
+import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra, obtenerProductoPublico } from "@/features/catalog/repositorio";
+import { agruparParaVitrina, nombreBase } from "@/features/products/variantes";
 import { formatearDolares } from "@/lib/formato";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
-import { ApartarForm } from "@/features/catalog/ui/ApartarForm";
+import { LogoTienda } from "@/features/catalog/ui/MarcaTienda";
+import { ProductosRelacionados } from "@/features/catalog/ui/ProductosRelacionados";
+import { partesDe, ZonaDeCompra, type VarianteCompra } from "@/features/catalog/ui/ZonaDeCompra";
 
 const t = textos.vitrina;
 
@@ -59,23 +59,26 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
   ]);
   if (!negocio || !p) notFound();
 
-  // Si es una variante, las opciones hermanas que todavía se ven en la vitrina (las agotadas no).
-  const opciones = p.grupo
-    ? (await listarProductosPublicos(supabase, slug)).filter((o) => o.grupo === p.grupo && o.variante)
-    : [];
-  if (p.grupo && !opciones.some((o) => o.codigo === p.codigo)) opciones.push(p);
-  opciones.sort((a, b) => a.codigo - b.codigo);
+  // Todo lo que la tienda tiene a la vista: de ahí salen las variantes de este producto y los que se le parecen.
+  const todos = await listarProductosPublicos(supabase, slug);
+  // Las variantes hermanas con unidades o apartadas; el producto de esta página siempre cuenta.
+  const hermanas = p.grupo ? todos.filter((o) => o.grupo === p.grupo && o.variante) : [];
+  if (p.grupo && !hermanas.some((o) => o.codigo === p.codigo)) hermanas.push(p);
+  hermanas.sort((a, b) => a.codigo - b.codigo);
+  const variantes: VarianteCompra[] = p.grupo
+    ? hermanas.map((o) => ({ codigo: o.codigo, partes: partesDe(o.variante), disponibles: o.disponibles, precio: o.precio }))
+    : [{ codigo: p.codigo, partes: [], disponibles: p.disponibles, precio: p.precio }];
 
-  const disponible = p.disponibles > 0;
-  const filas = filasDeOpciones(
-    opciones.map((o) => ({ codigo: o.codigo, variante: o.variante ?? "", disponibles: o.disponibles })),
-    p.codigo,
-    p.opciones,
-  );
-  const detalles: [string, string][] = [];
-  if (p.categoria) detalles.push([t.detalle.categoria, p.categoria]);
-  if (p.marca) detalles.push([t.detalle.marca, p.marca]);
-  detalles.push([t.detalle.condicion, p.condicion === "usado" ? textos.productos.form.usado : textos.productos.form.nuevo]);
+  const disponible = hermanas.length ? hermanas.some((o) => o.disponibles > 0) : p.disponibles > 0;
+  const opcionesDeCompra = await obtenerOpcionesDeCompra(supabase, slug);
+
+  // Más de la tienda: primero lo de la misma categoría, después lo demás (sin repetir este producto ni sus variantes)
+  const otros = agruparParaVitrina(todos.filter((o) => (p.grupo ? o.grupo !== p.grupo : o.codigo !== p.codigo)));
+  const parecidos = p.categoria ? otros.filter((o) => o.categoria === p.categoria).slice(0, 4) : [];
+  const masDe = otros.filter((o) => !parecidos.includes(o)).slice(0, 4);
+
+  const base = nombreBase(p.nombre, p.variante);
+  const meta = [p.categoria, p.marca, p.condicion === "usado" ? textos.productos.form.usado : textos.productos.form.nuevo].filter(Boolean).join(" · ");
 
   return (
     <MarcaTienda color={negocio.color}>
@@ -83,7 +86,7 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
         datos={{
           "@context": "https://schema.org",
           "@type": "Product",
-          name: nombreBase(p.nombre, p.variante),
+          name: base,
           description: p.descripcion ?? undefined,
           image: p.fotos.map((f) => urlFoto(f)),
           sku: String(p.codigo),
@@ -100,104 +103,86 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
           },
         }}
       />
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8">
+        {/* La tienda: su logo y su nombre, y de ahí se vuelve a su vitrina */}
         <Link
           href={`/c/${slug}`}
-          className="inline-flex h-10 items-center gap-2 self-start rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica"
+          className="inline-flex items-center gap-3 self-start rounded-full border-2 border-teal-oscuro bg-white py-1.5 pl-1.5 pr-5 transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica"
         >
-          <span aria-hidden="true">←</span>
-          {negocio.nombre}
-          <span className="sr-only"> · {t.verTodos}</span>
+          <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-10 !rounded-full" />
+          <span className="flex flex-col leading-tight">
+            <span className="text-xs text-texto-2">{t.verTodos}</span>
+            <span className="font-bold">{negocio.nombre}</span>
+          </span>
         </Link>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <GaleriaVitrina fotos={p.fotos} nombre={p.nombre} />
-
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col items-start gap-3">
-              <h1 className="text-3xl font-bold leading-tight">{nombreBase(p.nombre, p.variante)}</h1>
-              <p className="text-4xl font-bold tabular-nums">{formatearDolares(p.precio)}</p>
-              <StatusChip
-                estado={disponible ? "disponible" : p.apartado ? "apartado" : "vendido"}
-                texto={disponible ? textos.productos.quedan(p.disponibles) : undefined}
-              />
+            <GaleriaVitrina fotos={p.fotos} nombre={p.nombre} />
+            <section aria-labelledby="como-comprar" className="flex flex-col gap-3 rounded-[20px] border-2 border-teal-oscuro/20 bg-white p-4 text-sm">
+              <h2 id="como-comprar" className="font-bold">
+                {textos.vitrina.compra.comoComprarTitulo}
+              </h2>
+              <dl className="flex flex-col gap-2">
+                {opcionesDeCompra.metodos.length > 0 && (
+                  <div>
+                    <dt className="font-bold">{textos.vitrina.compra.comoPagas}</dt>
+                    <dd className="text-texto-2">{opcionesDeCompra.metodos.map((m) => textos.cobro.metodos[m]).join(" · ")}</dd>
+                  </div>
+                )}
+                <div>
+                  <dt className="font-bold">{textos.vitrina.compra.comoRecibis}</dt>
+                  <dd className="text-texto-2">
+                    {[opcionesDeCompra.direccionRetiro ? textos.vitrina.compra.retiro : null, textos.vitrina.compra.envio].filter(Boolean).join(" · ")}
+                    {". "}
+                    {textos.vitrina.compra.coordina}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-bold">{textos.vitrina.compra.comoApartas}</dt>
+                  <dd className="text-texto-2">{textos.vitrina.compra.apartarExplica(negocio.plazoHoras)}</dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+
+          <div className="flex flex-col gap-5 md:sticky md:top-4 md:max-h-[calc(100dvh-2rem)] md:self-start md:overflow-y-auto md:pr-1">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-bold leading-tight">{base}</h1>
+              {meta && <p className="text-sm text-texto-2">{meta}</p>}
+              {p.descripcion &&
+                (p.descripcion.length > 220 ? (
+                  <details className="group">
+                    <summary className="cursor-pointer list-none leading-relaxed [&::-webkit-details-marker]:hidden">
+                      <span className="line-clamp-3 group-open:line-clamp-none">{p.descripcion}</span>
+                      <span className="mt-1 block text-sm font-bold text-teal underline group-open:hidden">{t.verMas}</span>
+                    </summary>
+                  </details>
+                ) : (
+                  <p className="leading-relaxed">{p.descripcion}</p>
+                ))}
             </div>
 
-            {opciones.length > 1 && (
-              <nav aria-label={t.opciones} className="flex flex-col gap-3">
-                {filas ? (
-                  // Un cruce (modelo × color): una fila de fichas por opción
-                  filas.map((fila) => (
-                    <div key={fila.titulo} className="flex flex-col gap-2">
-                      <h2 className="text-sm font-bold">{fila.titulo}</h2>
-                      <ul className="flex flex-wrap gap-2">
-                        {fila.fichas.map((f) => (
-                          <li key={f.valor}>
-                            <Link
-                              href={`/c/${slug}/${f.codigo}`}
-                              aria-current={f.actual ? "true" : undefined}
-                              className={`inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold transition-colors ${
-                                f.actual ? "bg-mango" : "bg-white hover:bg-limon"
-                              } ${f.disponible ? "" : "opacity-60 line-through"}`}
-                            >
-                              {f.valor}
-                              {!f.disponible && <span className="sr-only"> ({t.noDisponibleCorto})</span>}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))
-                ) : (
-                  <>
-                    <h2 className="text-sm font-bold">{t.opciones}</h2>
-                    <ul className="flex flex-wrap gap-2">
-                      {opciones.map((o) => (
-                        <li key={o.codigo}>
-                          <Link
-                            href={`/c/${slug}/${o.codigo}`}
-                            aria-current={o.codigo === p.codigo ? "page" : undefined}
-                            className={`inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold transition-colors ${
-                              o.codigo === p.codigo ? "bg-mango" : "bg-white hover:bg-limon"
-                            } ${o.disponibles > 0 ? "" : "opacity-70"}`}
-                          >
-                            {o.disponibles > 0 ? o.variante : t.opcionApartada(o.variante ?? "")}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-              </nav>
-            )}
-
-            {p.descripcion && <p className="text-lg leading-relaxed">{p.descripcion}</p>}
-            <ul className="flex flex-wrap gap-2">
-              {detalles.map(([k, v]) => (
-                <li key={k} className="rounded-full border-2 border-teal-oscuro/30 bg-white px-3 py-1 text-sm">
-                  <span className="text-texto-2">{k}: </span>
-                  <span className="font-bold">{v}</span>
-                </li>
-              ))}
-            </ul>
-
-            {disponible && negocio.apartarDesdeVitrina && (
-              <ApartarForm slug={slug} codigo={codigo} disponibles={p.disponibles} plazoHoras={negocio.plazoHoras} />
-            )}
-            {disponible && !negocio.apartarDesdeVitrina && <p className="text-texto-2">{t.apartarApagado}</p>}
-            {!disponible && (
-              <p role="status" className="rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-3 font-medium">
-                {p.apartado ? t.apartadoAviso : t.noDisponible}
-              </p>
-            )}
+            <ZonaDeCompra
+              slug={slug}
+              nombresOpciones={p.opciones}
+              variantes={variantes}
+              opciones={opcionesDeCompra}
+              plazoHoras={negocio.plazoHoras}
+              apartarActivo={negocio.apartarDesdeVitrina}
+            />
 
             <BotonesChat
+              discreto={negocio.nombre}
               whatsapp={negocio.whatsapp}
               instagram={negocio.usuarioInstagram}
               mensaje={mensajePedirProducto(negocio.nombre, p.nombre, p.codigo, formatearDolares(p.precio))}
             />
           </div>
         </div>
+
+        <ProductosRelacionados titulo={textos.vitrina.compra.parecidos} slug={slug} productos={parecidos} />
+        <ProductosRelacionados titulo={textos.vitrina.compra.masDe(negocio.nombre)} slug={slug} productos={masDe} />
       </div>
     </MarcaTienda>
   );

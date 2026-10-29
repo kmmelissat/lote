@@ -25,7 +25,6 @@ import { clientes } from "./clientes";
 import { pedidos } from "./pedidos";
 import { ganancia } from "./ganancia";
 import { ajustes } from "./ajustes";
-import { nuevo } from "./nuevo";
 import { estadosProducto } from "./estadosProducto";
 import { estadosPedido } from "./estadosPedido";
 import { explorar } from "./explorar";
@@ -60,7 +59,6 @@ export const textos = {
   pedidos,
   ganancia,
   ajustes,
-  nuevo,
   estadosProducto,
   estadosPedido,
   explorar,

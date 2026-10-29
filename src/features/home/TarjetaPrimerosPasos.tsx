@@ -7,7 +7,7 @@ import type { PasoInicial } from "./primerosPasos";
 const t = textos.inicio.primerosPasos;
 
 const enlaces: Record<PasoInicial["clave"], string> = {
-  producto: "/nuevo",
+  producto: "/productos/nuevo",
   pago: "/ajustes/pagos",
   pedido: "/pedidos/nuevo",
 };

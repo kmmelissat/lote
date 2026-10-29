@@ -7,6 +7,7 @@ export type RefPedido = { cliente: string | null; codigo: number | null };
 // Lo que el asistente va a hacer, ya validado: con montos en centavos y sin datos que falten.
 export type Intencion =
   | { tipo: "ayuda" | "deshacer" | "no_entiendo" }
+  | { tipo: "pregunta"; tema: string | null }
   | { tipo: "consultar"; consulta: "apartados" | "por_cobrar" | "por_enviar" }
   | { tipo: "consultar_producto"; producto: string }
   | { tipo: "consultar_ganancia"; periodo: TipoPeriodo; producto: string | null }
@@ -46,6 +47,8 @@ export function aIntencion(s: SalidaEntender): ResultadoIntencion {
     case "deshacer":
     case "no_entiendo":
       return ok({ tipo: s.intencion });
+    case "pregunta":
+      return ok({ tipo: "pregunta", tema: s.tema });
     case "consultar":
       if (s.consulta === null) return ok({ tipo: "no_entiendo" });
       if (s.consulta === "producto") {

@@ -10,14 +10,35 @@ export function BotonesChat({
   whatsapp,
   instagram,
   mensaje,
+  discreto,
 }: {
   whatsapp: string | null;
   instagram: string | null;
   mensaje: string;
+  /** En vez de dos botones, una línea con enlaces: "¿Preferís escribirle a Velvet? WhatsApp · Instagram". Se pasa el nombre de la tienda. */
+  discreto?: string;
 }) {
   const wa = enlaceWhatsApp(whatsapp, mensaje);
   const ig = enlaceInstagram(instagram);
   if (!wa && !ig) return null;
+  if (discreto) {
+    return (
+      <p className="text-sm text-texto-2">
+        {textos.vitrina.compra.escribirle(discreto)}{" "}
+        {wa && (
+          <a href={wa} target="_blank" rel="noreferrer" className="font-bold text-teal underline">
+            WhatsApp
+          </a>
+        )}
+        {wa && ig && " · "}
+        {ig && (
+          <a href={ig} target="_blank" rel="noreferrer" className="font-bold text-teal underline">
+            Instagram
+          </a>
+        )}
+      </p>
+    );
+  }
   return (
     <div className="flex flex-wrap gap-3">
       {wa && (

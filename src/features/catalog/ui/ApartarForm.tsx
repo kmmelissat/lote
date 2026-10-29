@@ -1,62 +1,60 @@
 "use client";
 
 import { useActionState } from "react";
-import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
 import { apartarProducto, type EstadoApartar } from "../actions/apartar";
+import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados } from "./camposCompra";
 
 const t = textos.vitrina.apartar;
+const c = textos.vitrina.compra;
 
-type Props = { slug: string; codigo: number; disponibles: number; plazoHoras: number };
+type Props = {
+  slug: string;
+  codigo: number;
+  /** Cuántas unidades se aparta: se elige antes, junto al precio */
+  unidades: number;
+  plazoHoras: number;
+};
 
-export function ApartarForm({ slug, codigo, disponibles, plazoHoras }: Props) {
-  const [estado, accion, pendiente] = useActionState<EstadoApartar, FormData>(
-    apartarProducto.bind(null, slug, codigo),
-    {},
-  );
+/** Apartar es de un solo paso: tu nombre y tu WhatsApp. No se paga nada y no hay que elegir envío. */
+export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
+  const [estado, accion, pendiente] = useActionState<EstadoApartar, FormData>(apartarProducto.bind(null, slug, codigo), {});
+  const guardados = useDatosGuardados();
   const v = estado.valores ?? {};
 
   return (
-    <div className="rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura">
-      <form action={accion} className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-lg font-bold">{t.titulo}</h2>
-          <p className="text-texto-2">{t.ayuda(plazoHoras)}</p>
-        </div>
-        <Field etiqueta={t.nombre} name="nombre" autoComplete="name" required defaultValue={v.nombre} />
-        <Field
-          etiqueta={t.contacto}
-          name="contacto"
-          autoComplete="off"
-          autoCapitalize="none"
-          required
-          defaultValue={v.contacto}
-        />
-        {disponibles > 1 && (
-          <Field
-            etiqueta={t.cantidad}
-            name="cantidad"
-            type="number"
-            min={1}
-            max={disponibles}
-            inputMode="numeric"
-            defaultValue={1}
-          />
-        )}
-        <label className="flex min-h-11 items-start gap-3">
-          <input type="checkbox" name="acepta" className="mt-1 size-5 shrink-0 accent-teal" />
-          <span>{t.acepta}</span>
+    <form
+      action={accion}
+      onSubmit={(e) => {
+        const f = new FormData(e.currentTarget);
+        guardarDatos(String(f.get("nombre") ?? ""), String(f.get("telefono") ?? ""));
+      }}
+      className="relative flex flex-col gap-4"
+    >
+      <p className="rounded-2xl bg-limon px-4 py-2 text-sm font-medium">{c.apartarExplica(plazoHoras)}</p>
+      <Honeypot />
+      <input type="hidden" name="cantidad" value={unidades} />
+      {/* La key vuelve a pintar los campos cuando llegan los datos guardados de la compra anterior */}
+      <div key={guardados.clave} className="flex flex-col gap-4">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-bold">{t.nombre}</span>
+          <input name="nombre" autoComplete="name" required defaultValue={v.nombre ?? guardados.nombre} placeholder="Ana Martínez" className={campoCompra} />
         </label>
-        <MensajeError>{estado.error}</MensajeError>
-        <button
-          type="submit"
-          disabled={pendiente}
-          className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal px-8 font-bold text-white shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
-        >
-          {pendiente ? t.apartando : t.boton}
-        </button>
-      </form>
-    </div>
+        <CampoWhatsApp defecto={guardados.telefono} />
+      </div>
+      <label className="flex min-h-11 items-start gap-3">
+        <input type="checkbox" name="acepta" className="mt-1 size-5 shrink-0 accent-teal" />
+        <span>{t.acepta}</span>
+      </label>
+      <MensajeError>{estado.error}</MensajeError>
+      <button
+        type="submit"
+        disabled={pendiente}
+        className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+      >
+        {pendiente ? t.apartando : c.apartarListo}
+      </button>
+    </form>
   );
 }

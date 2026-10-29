@@ -17,5 +17,5 @@ export default function AsistentePage() {
 
 async function ChatDelNegocio() {
   const { negocio } = await negocioActual();
-  return <Chat negocioId={negocio.id} />;
+  return <div className="h-[calc(100dvh-14rem)] min-h-96 md:h-[calc(100dvh-16rem)]"><Chat negocioId={negocio.id} /></div>;
 }

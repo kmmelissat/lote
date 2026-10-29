@@ -95,6 +95,13 @@ export type ApartadoPublico = {
   venceEn: Date | null;
   items: { nombre: string; cantidad: number; precio: Centavos }[];
   metodos: { tipo: TipoMetodo; datos: string | null }[];
+  /** Cómo se recibe: en la tienda ("retiro") o a domicilio ("propio" o "paquetera"); null si es un apartado sin elegir */
+  entrega: "retiro" | "envio" | null;
+  envioCosto: Centavos;
+  envioDireccion: string | null;
+  direccionRetiro: string | null;
+  metodoPreferido: TipoMetodo | null;
+  contraEntrega: boolean;
 };
 
 export async function obtenerApartadoPublico(
@@ -116,11 +123,19 @@ export async function obtenerApartadoPublico(
     venceEn: a.vence_en ? new Date(a.vence_en) : null,
     items: items.map((i) => ({ nombre: i.nombre, cantidad: i.cantidad, precio: aCentavos(i.precio) })),
     metodos: a.metodos as { tipo: TipoMetodo; datos: string | null }[],
+    entrega: a.entrega === null ? null : a.entrega === "retiro" ? "retiro" : "envio",
+    envioCosto: aCentavos(a.envio_costo),
+    envioDireccion: a.envio_direccion,
+    direccionRetiro: a.direccion_retiro,
+    metodoPreferido: (a.metodo_preferido as TipoMetodo | null) ?? null,
+    contraEntrega: a.contra_entrega,
   };
 }
 
 export type ErrorApartar =
   | "datos_invalidos"
+  | "entrega_invalida"
+  | "metodo_invalido"
   | "sin_disponibilidad"
   | "limite_apartados"
   | "demasiados_intentos"
@@ -130,6 +145,8 @@ export type ErrorApartar =
 
 const ERRORES: ErrorApartar[] = [
   "datos_invalidos",
+  "entrega_invalida",
+  "metodo_invalido",
   "sin_disponibilidad",
   "limite_apartados",
   "demasiados_intentos",
@@ -157,6 +174,71 @@ export async function apartarDesdeVitrina(
     p_cantidad: p.cantidad,
     p_acepta_whatsapp: p.aceptaWhatsapp,
     p_huella: p.huella,
+  });
+  if (error) return { ok: false, error: "desconocido" };
+
+  const r = data as { pedido?: string; error?: string };
+  if (r.pedido) return { ok: true, pedidoId: r.pedido };
+  return { ok: false, error: ERRORES.find((e) => e === r.error) ?? "desconocido" };
+}
+
+/** Lo que la vitrina ofrece al comprar: dónde se recoge, cuánto cuesta el envío a cada departamento y con qué se puede pagar. */
+export type OpcionesDeCompra = {
+  direccionRetiro: string | null;
+  tarifaDefecto: Centavos;
+  tarifas: Record<string, Centavos>;
+  metodos: TipoMetodo[];
+};
+
+export async function obtenerOpcionesDeCompra(supabase: Cliente, slug: string): Promise<OpcionesDeCompra> {
+  const { data, error } = await supabase.rpc("vitrina_entrega", { p_slug: slug });
+  if (error) throw error;
+  const o = data[0];
+  const tarifas = (o?.tarifas ?? []) as { departamento: string; precio: number }[];
+  return {
+    direccionRetiro: o?.direccion_retiro ?? null,
+    tarifaDefecto: aCentavos(o?.tarifa_defecto ?? 0),
+    tarifas: Object.fromEntries(tarifas.map((t) => [t.departamento, aCentavos(t.precio)])),
+    metodos: (o?.metodos ?? []) as TipoMetodo[],
+  };
+}
+
+/** Lo que elige quien compra: cómo lo recibe y cómo piensa pagar. */
+export type DatosDeCompra = {
+  entrega: "retiro" | "envio";
+  departamento: string;
+  municipio: string;
+  direccion: string;
+  referencia: string;
+  metodo: TipoMetodo;
+};
+
+export async function comprarDesdeVitrina(
+  supabase: Cliente,
+  p: {
+    slug: string;
+    codigo: number;
+    nombre: string;
+    contacto: string;
+    cantidad: number;
+    aceptaWhatsapp: boolean;
+    huella: string;
+  } & DatosDeCompra,
+): Promise<{ ok: true; pedidoId: string } | { ok: false; error: ErrorApartar }> {
+  const { data, error } = await supabase.rpc("comprar_desde_vitrina", {
+    p_slug: p.slug,
+    p_codigo: p.codigo,
+    p_nombre: p.nombre,
+    p_contacto: p.contacto,
+    p_cantidad: p.cantidad,
+    p_acepta_whatsapp: p.aceptaWhatsapp,
+    p_huella: p.huella,
+    p_entrega: p.entrega,
+    p_departamento: p.departamento,
+    p_municipio: p.municipio,
+    p_direccion: p.direccion,
+    p_referencia: p.referencia,
+    p_metodo: p.metodo,
   });
   if (error) return { ok: false, error: "desconocido" };
 

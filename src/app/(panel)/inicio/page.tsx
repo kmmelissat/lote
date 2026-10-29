@@ -46,7 +46,7 @@ async function Contenido() {
       titulo={t.saludo(negocio.nombre)}
       descripcion={t.resumenDisponibles(unidades.disponibles)}
       accion={
-        <ButtonLink variante="mango" href="/nuevo">
+        <ButtonLink variante="mango" href="/productos/nuevo">
           {t.nuevoProducto}
         </ButtonLink>
       }
@@ -61,7 +61,7 @@ async function Contenido() {
         <EmptyState
           titulo={t.vacioTitulo}
           texto={t.vacioTexto}
-          accion={<ButtonLink href="/nuevo">{t.vacioAccion}</ButtonLink>}
+          accion={<ButtonLink href="/productos/nuevo">{t.vacioAccion}</ButtonLink>}
         />
       </>
     );
