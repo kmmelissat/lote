@@ -140,6 +140,8 @@ export const vitrina = {
     hojaApartar: "Apartar",
     volver: "Volver",
     volverAlProducto: "Volver al producto",
+    tuPedido: "Tu pedido",
+    todaviaNoPagas: "Todavía no pagás nada.",
     comprarAyuda: "Tres pasos cortos: tus datos, cómo lo recibís y el pago. Todavía no pagás nada.",
     modoComprar: "Comprar ahora",
     modoApartar: "Solo apartar",

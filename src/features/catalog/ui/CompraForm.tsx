@@ -144,22 +144,25 @@ export function CompraForm({
             <input type="hidden" name="cantidad" value={lineas[0].cantidad} />
           )}
           {/* Dónde vas: "Paso 1 de 3" con tres puntos gruesos, para que no parezcan campos */}
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-bold">
-              {t.paso(paso + 1, t.pasos.length)} · {t.pasos[paso]}
-            </p>
-            <ol aria-label={t.pasosAria} className="flex gap-1.5">
-              {t.pasos.map((nombre, i) => (
-                <li
-                  key={nombre}
-                  aria-current={i === paso ? "step" : undefined}
-                  className={`size-3.5 rounded-full border-2 border-teal-oscuro ${i <= paso ? "bg-accion" : "bg-white"}`}
+          <p className="sr-only" aria-live="polite">
+            {t.paso(paso + 1, t.pasos.length)} · {t.pasos[paso]}
+          </p>
+          <ol aria-label={t.pasosAria} className="flex items-center gap-2">
+            {t.pasos.map((nombre, i) => (
+              <li key={nombre} aria-current={i === paso ? "step" : undefined} className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className={`grid size-9 place-items-center rounded-full border-2 border-teal-oscuro text-sm font-bold transition-colors ${
+                    i < paso ? "bg-teal text-white" : i === paso ? "bg-accion text-accion-texto shadow-dura-chica" : "bg-white text-texto-2"
+                  }`}
                 >
-                  <span className="sr-only">{nombre}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
+                  {i < paso ? <Icon nombre="check" className="size-4" /> : i + 1}
+                </span>
+                <span className={`text-sm font-bold ${i === paso ? "" : "hidden text-texto-2 sm:inline"}`}>{nombre}</span>
+                {i < t.pasos.length - 1 && <span aria-hidden="true" className="h-0.5 w-3 rounded-full bg-teal-oscuro/30 sm:w-8" />}
+              </li>
+            ))}
+          </ol>
 
           <section hidden={paso !== 0} data-paso="0" className="flex animate-desliza flex-col gap-3">
             <h2 className="font-bold">{t.tusDatos}</h2>
@@ -288,7 +291,7 @@ export function CompraForm({
 
           <MensajeError>{estado.error}</MensajeError>
           {/* Anclado abajo: el total, "Volver" y el botón principal siempre se ven, sea cual sea el paso */}
-          <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t-2 border-teal-oscuro bg-crema px-4 py-3">
+          <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex flex-col gap-2 rounded-b-[22px] border-t-2 border-teal-oscuro bg-crema px-5 py-3 md:-mx-6 md:-mb-6 md:px-6">
             {paso === 2 && !acepta && (
               <p role="status" className="text-sm font-medium text-ambar-texto">
                 {ta.aceptaFalta}
