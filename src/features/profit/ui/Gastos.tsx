@@ -120,6 +120,31 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
   );
 }
 
+/** Cuánto se fue en cada categoría, de la que más a la que menos, con una barra contra el total. */
+export function DesgloseGastos({ porCategoria }: { porCategoria: Partial<Record<CategoriaGasto, number>> }) {
+  const filas = (Object.entries(porCategoria) as [CategoriaGasto, number][]).filter(([, m]) => m > 0).sort((a, b) => b[1] - a[1]);
+  const total = filas.reduce((suma, [, m]) => suma + m, 0);
+  if (!filas.length) return null;
+  return (
+    <ul aria-label={t.gastosDesglose} className="flex flex-col gap-2">
+      {filas.map(([c, monto]) => (
+        <li key={c} className="flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="flex items-center gap-2 font-medium">
+              <Icon nombre={ICONOS[c]} className="size-4" />
+              {t.categorias[c]}
+            </span>
+            <span className="font-bold tabular-nums">{formatearDolares(monto)}</span>
+          </div>
+          <span aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-fondo">
+            <span className="block h-full rounded-full bg-mango" style={{ width: `${(monto / total) * 100}%` }} />
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function ListaGastos({ gastos }: { gastos: Gasto[] }) {
   const [error, setError] = useState("");
   const [pendiente, empezar] = useTransition();

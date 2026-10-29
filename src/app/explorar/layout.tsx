@@ -10,7 +10,7 @@ export default function ExplorarLayout({ children }: LayoutProps<"/explorar">) {
       <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-4 py-6">
         <header className="mb-8 flex items-center justify-between gap-3">
           <Link href="/" aria-label={textos.nombre}>
-            <Logo oscuro />
+            <Logo />
           </Link>
           <Link
             href="/login"

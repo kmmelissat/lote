@@ -47,6 +47,15 @@ export const ganancia = {
   rankingMenos: "Lo que menos te deja",
   margen: (pct: number) => `${pct} % de margen`,
   principal: "Ganancia después de gastos",
+  datos: "Datos del periodo",
+  kpiVendido: "Vendiste",
+  kpiPedidos: "Pedidos",
+  kpiMargen: "Margen",
+  kpiTicket: "Ticket promedio",
+  gastosTotal: (monto: string) => `${monto} en total`,
+  gastosDesglose: "En qué se fue",
+  fueraDelPeriodo: "Lo que viene y lo que tenés",
+  fueraDelPeriodoAyuda: "Esto no depende del periodo que elegiste.",
   incompleta: "Incompleta",
   comparacion: {
     mas: (pct: number, anterior: string) => `${pct} % más que ${anterior}`,
@@ -85,7 +94,6 @@ export const ganancia = {
   sinCosto: "Sin costo",
   gastosTitulo: "Gastos del periodo",
   sinGastos: "No registraste gastos en este periodo.",
-  sinGastosTitulo: "Sin gastos por ahora",
   registrarGasto: "Registrar gasto",
   categorias: {
     empaque: "Empaque",

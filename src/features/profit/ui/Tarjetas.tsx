@@ -45,8 +45,27 @@ export function TarjetaPrincipal({
         )}
         <span className="rounded-full bg-white/70 px-3 py-0.5 font-medium">{comparacion}</span>
       </div>
+      <dl aria-label={t.datos} className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {datosRapidos(r).map((d) => (
+          <div key={d.etiqueta} className="flex flex-col rounded-2xl border-2 border-teal-oscuro/15 bg-white/70 px-3 py-2">
+            <dt className="text-xs font-medium text-teal-oscuro/70">{d.etiqueta}</dt>
+            <dd className="text-lg font-bold tabular-nums">{d.valor}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
+}
+
+/** Lo que acompaña al número grande: cuánto entró, en cuántos pedidos, qué parte quedó y cuánto deja cada pedido. */
+function datosRapidos(r: ResumenPeriodo): { etiqueta: string; valor: string }[] {
+  const margen = r.vendido > 0 ? Math.round((r.gananciaDespuesDeGastos / r.vendido) * 100) : 0;
+  return [
+    { etiqueta: t.kpiVendido, valor: formatearDolares(r.vendido) },
+    { etiqueta: t.kpiPedidos, valor: String(r.pedidos) },
+    { etiqueta: t.kpiMargen, valor: `${margen} %` },
+    { etiqueta: t.kpiTicket, valor: formatearDolares(r.pedidos > 0 ? Math.round(r.vendido / r.pedidos) : 0) },
+  ];
 }
 
 /** Vendiste − costo − descuentos − envío − gastos = te quedó, con una barra por cada paso. */
@@ -65,7 +84,7 @@ export function Cascada({ r }: { r: ResumenPeriodo }) {
       <h2 id="cascada" className="font-bold">
         {c.titulo}
       </h2>
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-1 flex-col gap-3">
         {filas.map((f) => (
           <li key={f.etiqueta} className="flex flex-col gap-1">
             <div className="flex items-baseline justify-between gap-3 text-sm">
@@ -79,7 +98,7 @@ export function Cascada({ r }: { r: ResumenPeriodo }) {
             </span>
           </li>
         ))}
-        <li className="flex items-baseline justify-between gap-3 border-t-2 border-teal-oscuro pt-3">
+        <li className="mt-auto flex items-baseline justify-between gap-3 border-t-2 border-teal-oscuro pt-3">
           <span className="font-bold">= {c.queda}</span>
           <span className="text-xl font-bold tabular-nums">{formatearDolares(r.gananciaDespuesDeGastos)}</span>
         </li>
@@ -146,7 +165,7 @@ export function TarjetaInventario({ valor, sinCosto }: { valor: number; sinCosto
 export function CajaLotito({ frases }: { frases: string[] }) {
   if (!frases.length) return null;
   return (
-    <section aria-labelledby="lotito-resume" className="relative flex flex-col gap-2 rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-5 pr-24">
+    <section aria-labelledby="lotito-resume" className="relative flex flex-col justify-center gap-2 rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-5 pr-24">
       <Monito nombre="thumbsup" className="absolute -top-6 right-5 w-16 text-rosa" />
       <h2 id="lotito-resume" className="font-bold">
         {t.lotitoTitulo}
@@ -160,18 +179,27 @@ export function CajaLotito({ frases }: { frases: string[] }) {
   );
 }
 
-function FilaRanking({ p }: { p: GananciaProducto }) {
+/** Un producto del ranking; la barra compara su ganancia con la del que más dejó. */
+function FilaRanking({ p, tope }: { p: GananciaProducto; tope: number }) {
   const margen = p.vendido > 0 ? Math.round((p.ganancia / p.vendido) * 100) : 0;
   return (
-    <li className="flex items-center justify-between gap-3 py-3">
-      <div className="min-w-0">
-        <p className="truncate font-bold">{p.nombre}</p>
-        <p className="text-sm text-texto-2">
-          {t.unidades(p.unidades)} · {t.margen(margen)}
-          {p.sinCosto && ` · ${t.sinCosto}`}
-        </p>
+    <li className="flex flex-col gap-2 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate font-bold">{p.nombre}</p>
+          <p className="text-sm text-texto-2">
+            {t.unidades(p.unidades)} · {t.margen(margen)}
+            {p.sinCosto && ` · ${t.sinCosto}`}
+          </p>
+        </div>
+        <p className={`font-bold tabular-nums ${p.ganancia < 0 ? "text-error" : ""}`}>{formatearDolares(p.ganancia)}</p>
       </div>
-      <p className={`font-bold tabular-nums ${p.ganancia < 0 ? "text-error" : ""}`}>{formatearDolares(p.ganancia)}</p>
+      <span aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-fondo">
+        <span
+          className={`block h-full rounded-full ${p.ganancia < 0 ? "bg-error" : "bg-teal"}`}
+          style={{ width: `${Math.min(100, (Math.abs(p.ganancia) / tope) * 100)}%` }}
+        />
+      </span>
     </li>
   );
 }
@@ -181,30 +209,53 @@ export function Ranking({ ranking }: { ranking: GananciaProducto[] }) {
   if (!ranking.length) return null;
   const arriba = ranking.slice(0, 5);
   const abajo = ranking.length > 5 ? ranking.slice(-3).reverse() : ranking.filter((p) => p.ganancia <= 0).reverse();
-  const lista = "flex flex-col divide-y divide-borde rounded-[24px] border-2 border-teal-oscuro bg-superficie px-4";
+  const lista = "flex flex-1 flex-col divide-y divide-borde rounded-[24px] border-2 border-teal-oscuro bg-superficie px-4";
+  const tope = Math.max(...ranking.map((p) => Math.abs(p.ganancia)), 1);
+
+  // Sin "lo que menos te deja", la lista ocupa todo el ancho repartida en columnas: no queda media fila vacía
+  if (!abajo.length) {
+    return (
+      <section className="flex flex-col gap-2">
+        <h2 className="font-bold">{t.ranking}</h2>
+        <ol className={`grid grid-cols-1 gap-x-8 rounded-[24px] border-2 border-teal-oscuro bg-superficie px-4 ${COLUMNAS[arriba.length]}`}>
+          {arriba.map((p) => (
+            <FilaRanking key={p.productoId} p={p} tope={tope} />
+          ))}
+        </ol>
+      </section>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <section className="flex flex-col gap-2">
         <h2 className="font-bold">{t.ranking}</h2>
         <ol className={lista}>
           {arriba.map((p) => (
-            <FilaRanking key={p.productoId} p={p} />
+            <FilaRanking key={p.productoId} p={p} tope={tope} />
           ))}
         </ol>
       </section>
-      {abajo.length > 0 && (
-        <section className="flex flex-col gap-2">
-          <h2 className="font-bold">{t.rankingMenos}</h2>
-          <ol className={lista}>
-            {abajo.map((p) => (
-              <FilaRanking key={p.productoId} p={p} />
-            ))}
-          </ol>
-        </section>
-      )}
+      <section className="flex flex-col gap-2">
+        <h2 className="font-bold">{t.rankingMenos}</h2>
+        <ol className={lista}>
+          {abajo.map((p) => (
+            <FilaRanking key={p.productoId} p={p} tope={tope} />
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }
+
+// Cuántas columnas según cuántos productos hay, para que las filas queden llenas (4 va en 2 × 2)
+const COLUMNAS: Record<number, string> = {
+  1: "",
+  2: "sm:grid-cols-2",
+  3: "sm:grid-cols-3",
+  4: "sm:grid-cols-2",
+  5: "sm:grid-cols-2 lg:grid-cols-3",
+};
 
 export function EnlaceResumen() {
   return (

@@ -14,7 +14,7 @@ import {
   ventasDelPeriodo,
   ventasPorEntrar,
 } from "@/features/profit/repositorio";
-import { ListaGastos, RegistrarGasto } from "@/features/profit/ui/Gastos";
+import { DesgloseGastos, ListaGastos, RegistrarGasto } from "@/features/profit/ui/Gastos";
 import {
   AvisoSinCosto,
   CajaLotito,
@@ -25,6 +25,7 @@ import {
   TarjetaPorCobrar,
   TarjetaPrincipal,
 } from "@/features/profit/ui/Tarjetas";
+import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -92,7 +93,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
         descripcion={t.descripcion}
         accion={<RegistrarGasto hoy={fechaLocalDe(ahora)} />}
       />
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Pestanas
             etiqueta={t.periodos}
@@ -106,17 +107,15 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
             </ButtonLink>
           </div>
         </div>
-        {clave === "semana" && <p className="-mt-3 text-sm text-texto-2">{t.semanaAyuda}</p>}
+        {clave === "semana" && <p className="-mt-2 text-sm text-texto-2">{t.semanaAyuda}</p>}
 
         <AvisoSinCosto n={vendidosSinCosto} />
 
+        {/* Primero el número y lo que Lotito ve en él */}
         {r.pedidos ? (
-          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <div className="flex min-w-0 flex-col gap-4">
-              <TarjetaPrincipal r={r} anterior={anterior} clave={clave} />
-              <CajaLotito frases={frases} />
-            </div>
-            <Cascada r={r} />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+            <TarjetaPrincipal r={r} anterior={anterior} clave={clave} />
+            <CajaLotito frases={frases} />
           </div>
         ) : (
           <EmptyState
@@ -131,20 +130,48 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
           />
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <TarjetaPorCobrar porCobrar={debido} gananciaPorEntrar={entrar.gananciaDespuesDeGastos} estimada={entrar.estimada} />
-          <TarjetaInventario valor={valorInventario} sinCosto={sinCostoEnStock} />
+        {/* Después, cómo se armó: la cascada y, al lado, los gastos que le restan */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {r.pedidos > 0 && <Cascada r={r} />}
+          <section
+            aria-labelledby="gastos-periodo"
+            className={`flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5 ${r.pedidos ? "" : "lg:col-span-2"}`}
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="gastos-periodo" className="font-bold">
+                {t.gastosTitulo}
+              </h2>
+              {gastos.length > 0 && <span className="text-sm font-bold tabular-nums">{t.gastosTotal(formatearDolares(r.gastos))}</span>}
+            </div>
+            {gastos.length ? (
+              <>
+                <DesgloseGastos porCategoria={r.gastosPorCategoria} />
+                {/* Con muchos gastos la lista se desplaza adentro: así no estira la fila */}
+                <div className="max-h-72 overflow-y-auto pr-1">
+                  <ListaGastos gastos={gastos} />
+                </div>
+              </>
+            ) : (
+              <p className="text-texto-2">{t.sinGastos}</p>
+            )}
+          </section>
         </div>
 
+        {/* Qué productos explican el número */}
         <Ranking ranking={r.ranking} />
 
-        <section className="flex flex-col gap-2">
-          <h2 className="font-bold">{t.gastosTitulo}</h2>
-          {gastos.length ? (
-            <ListaGastos gastos={gastos} />
-          ) : (
-            <EmptyState monito="moneda" titulo={t.sinGastosTitulo} texto={t.sinGastos} />
-          )}
+        {/* Lo que no depende del periodo, separado para que no se mezcle con la historia de arriba */}
+        <section aria-labelledby="fuera-periodo" className="mt-2 flex flex-col gap-3 border-t-2 border-dashed border-teal-oscuro/20 pt-4">
+          <div>
+            <h2 id="fuera-periodo" className="font-bold">
+              {t.fueraDelPeriodo}
+            </h2>
+            <p className="text-sm text-texto-2">{t.fueraDelPeriodoAyuda}</p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <TarjetaPorCobrar porCobrar={debido} gananciaPorEntrar={entrar.gananciaDespuesDeGastos} estimada={entrar.estimada} />
+            <TarjetaInventario valor={valorInventario} sinCosto={sinCostoEnStock} />
+          </div>
         </section>
 
         <p className="text-sm text-texto-2">{t.regla}</p>
