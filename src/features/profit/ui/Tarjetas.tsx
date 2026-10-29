@@ -104,7 +104,7 @@ export function AvisoSinCosto({ n }: { n: number }) {
   );
 }
 
-/** Lo que esperan los pedidos abiertos: la plata por cobrar y la ganancia que traen cuando se cobren. */
+/** Lo que esperan los pedidos abiertos: el dinero por cobrar y la ganancia que traen cuando se cobren. */
 export function TarjetaPorCobrar({ porCobrar, gananciaPorEntrar, estimada }: { porCobrar: number; gananciaPorEntrar: number; estimada: boolean }) {
   return (
     <section aria-labelledby="por-cobrar" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura-chica">

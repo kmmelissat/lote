@@ -18,7 +18,7 @@ export type ResumenInicio = {
   seEnfrian: Pedido[];
 };
 
-/** Los números de Inicio, sacados del conteo de unidades y de los pedidos abiertos. Sin plata: eso lo calcula `domain/`. */
+/** Los números de Inicio, sacados del conteo de unidades y de los pedidos abiertos. Sin dinero: eso lo calcula `domain/`. */
 export function resumenInicio(unidades: Unidades, pedidos: Pedido[], ahora: Date): ResumenInicio {
   const limite = ahora.getTime() + HORAS_APARTADO_FRIO * HORA_MS;
   // Un apartado vencido ya no retiene unidades: no cuenta como pendiente (igual que en el asistente).

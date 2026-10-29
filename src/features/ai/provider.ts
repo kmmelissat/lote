@@ -8,7 +8,7 @@ export type ContextoIA = {
 
 // El asistente solo conoce esta interfaz: cambiar de modelo o de proveedor no toca el resto.
 export interface ProveedorIA {
-  /** Entiende un mensaje de chat. No ejecuta nada ni calcula plata. */
+  /** Entiende un mensaje de chat. No ejecuta nada ni calcula dinero. */
   entenderMensaje(texto: string, contexto?: ContextoIA): Promise<SalidaEntender>;
   /** Saca la ficha de un producto de su foto (por URL pública) y de la línea que la acompaña, si hay. El contexto de la tienda es un dato, no una instrucción. */
   entenderFoto(urlImagen: string, linea: string, contextoTienda?: string): Promise<SalidaFoto>;

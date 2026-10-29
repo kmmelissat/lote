@@ -2,14 +2,17 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
-import { Icon } from "@/components/ui/Icon";
+import { Monito } from "@/components/ui/Monito";
 import { createClient } from "@/lib/supabase/client";
 import { COOKIE_DESTINO, rutaSegura } from "../rutaSegura";
 import { textos } from "@/lib/textos";
 
 const t = textos.acceso;
+
+const botonBase =
+  "inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60";
+const botonClaro = `${botonBase} bg-white`;
 
 export function LoginForm() {
   const params = useSearchParams();
@@ -53,18 +56,16 @@ export function LoginForm() {
   if (estado === "enviado") {
     return (
       <div className="flex flex-col gap-4">
-        <div role="status" className="flex flex-col gap-2 rounded-tarjeta border border-borde bg-superficie p-5">
-          <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-teal-fondo text-teal">
-            <Icon nombre="correo" className="size-5" />
-          </span>
-          <h2 className="font-bold">{t.revisaTitulo}</h2>
-          <p className="text-texto-2">{t.enviadoA(correo.trim())}</p>
-          <p className="text-sm text-texto-2">{t.mismoNavegador}</p>
+        <div role="status" className="relative flex flex-col gap-2 rounded-[24px] border-2 border-teal-oscuro bg-limon p-5 pr-24 shadow-dura">
+          <Monito nombre="thumbsup" className="absolute -top-8 right-5 w-16 text-rosa" />
+          <h2 className="text-lg font-bold">{t.revisaTitulo}</h2>
+          <p>{t.enviadoA(correo.trim())}</p>
+          <p className="text-sm text-teal-oscuro/80">{t.mismoNavegador}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variante="secundario" onClick={() => setEstado("libre")}>
+          <button type="button" onClick={() => setEstado("libre")} className={`${botonClaro} px-6`}>
             {t.otroCorreo}
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -72,7 +73,7 @@ export function LoginForm() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Button type="button" variante="secundario" className="border-borde-control" onClick={conGoogle}>
+      <button type="button" className={`${botonClaro} px-6`} onClick={conGoogle}>
         <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
           <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8z" />
           <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3c-1.1.7-2.5 1.2-4.1 1.2-3.1 0-5.8-2.1-6.8-5H1.2v3.1A12 12 0 0 0 12 24z" />
@@ -80,12 +81,12 @@ export function LoginForm() {
           <path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.2 6.6l4 3.1c1-2.9 3.7-4.9 6.8-4.9z" />
         </svg>
         {t.google}
-      </Button>
+      </button>
 
       <div className="flex items-center gap-3 text-sm text-texto-2">
-        <span className="h-px flex-1 bg-borde" />
+        <span className="h-0.5 flex-1 rounded-full bg-teal-oscuro/15" />
         {t.separador}
-        <span className="h-px flex-1 bg-borde" />
+        <span className="h-0.5 flex-1 rounded-full bg-teal-oscuro/15" />
       </div>
 
       <form onSubmit={conCorreo} className="flex flex-col gap-4">
@@ -101,12 +102,12 @@ export function LoginForm() {
           />
           <p className="text-sm text-texto-2">{t.correoAyuda}</p>
         </div>
-        <Button type="submit" disabled={estado === "enviando"}>
+        <button type="submit" disabled={estado === "enviando"} className={`${botonBase} bg-mango px-6`}>
           {estado === "enviando" ? t.enviando : t.enviar}
-        </Button>
+        </button>
       </form>
 
-      <p role="alert" className="min-h-5 text-sm text-error">
+      <p role="alert" className="min-h-5 text-sm font-medium text-error">
         {error}
       </p>
     </div>

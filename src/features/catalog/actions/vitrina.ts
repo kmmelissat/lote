@@ -45,6 +45,7 @@ export async function guardarVitrina(_anterior: EstadoVitrina, formData: FormDat
     umbralPocoStock,
     whatsapp: whatsapp || null,
     usuarioInstagram: instagram || null,
+    visibleEnExplorar: formData.get("explorar") === "on",
   });
   if (!ok) return { error: t.errorGeneral };
 

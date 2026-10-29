@@ -56,7 +56,7 @@ Las pruebas contra la IA real se saltan salvo con `RUN_LIVE_AI=1`. Después de `
 Organizado por funcionalidad. `src/app/` solo tiene rutas delgadas.
 
 - `src/features/<tema>/`: todo lo de un tema (`repositorio.ts`, `ui/`, `actions/`). Temas: `products`, `orders`, `payments`, `shipping`, `profit`, `catalog`, `customers`, `import`, `export`, `assistant`, `ai`, `auth`, `team`, `tracking`, `whatsapp`, `home`.
-- `src/domain/`: reglas de plata y estados, funciones puras con pruebas. No importa de nada fuera de sí mismo.
+- `src/domain/`: reglas de dinero y estados, funciones puras con pruebas. No importa de nada fuera de sí mismo.
 - `src/components/` y `src/lib/`: piezas compartidas; los textos en español salvadoreño están en `src/lib/textos.ts`.
 - `supabase/*.sql`: esquema y funciones.
 

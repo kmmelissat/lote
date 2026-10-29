@@ -11,6 +11,7 @@ const MAXIMO_TIENDAS = 200;
 
 const fijas: MetadataRoute.Sitemap = [
   { url: urlSitio, changeFrequency: "monthly", priority: 1 },
+  { url: `${urlSitio}/explorar`, changeFrequency: "daily", priority: 0.8 },
   { url: `${urlSitio}/privacidad`, changeFrequency: "yearly", priority: 0.3 },
 ];
 

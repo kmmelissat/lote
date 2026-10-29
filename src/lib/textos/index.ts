@@ -28,6 +28,7 @@ import { ajustes } from "./ajustes";
 import { nuevo } from "./nuevo";
 import { estadosProducto } from "./estadosProducto";
 import { estadosPedido } from "./estadosPedido";
+import { explorar } from "./explorar";
 
 export const textos = {
   nombre: "Lote",
@@ -62,4 +63,5 @@ export const textos = {
   nuevo,
   estadosProducto,
   estadosPedido,
+  explorar,
 } as const;

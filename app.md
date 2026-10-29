@@ -39,7 +39,7 @@ Salen de lo que la usuaria dijo que le daría hueva o ganas.
 
 ## 4. Funcionalidades
 
-Prioridad: P0 imprescindible, P1 importante, P2 si sobra tiempo, P3 etapa 3 (negocio con local y equipo). P3 se construye al final, en el orden de la sección 14, y lo que no alcance queda pendiente. Las funciones están agrupadas por el momento de uso, de punta a punta: meter productos, vender, cobrar, mostrar, enviar, cuadrar la plata y cuidar al cliente.
+Prioridad: P0 imprescindible, P1 importante, P2 si sobra tiempo, P3 etapa 3 (negocio con local y equipo). P3 se construye al final, en el orden de la sección 14, y lo que no alcance queda pendiente. Las funciones están agrupadas por el momento de uso, de punta a punta: meter productos, vender, cobrar, mostrar, enviar, cuadrar el dinero y cuidar al cliente.
 
 ### 4.1 Meter productos (lo que más fácil tiene que ser)
 
@@ -89,7 +89,7 @@ Prioridad: P0 imprescindible, P1 importante, P2 si sobra tiempo, P3 etapa 3 (neg
 - **Texto sugerido para el post** (P1): al crear un producto, deja listo el texto para publicar.
 - **Sticker "VENDIDO"** (P1): imagen generada con la foto del producto para las stories.
 
-### 4.5 Plata
+### 4.5 Dinero
 
 - **Ganancia por producto, por pedido y por semana** (P0), marcada como estimada si falta el costo.
 - **Costo real** (P0): compra, envío, importación, otros. Con reparto del envío entre varios productos (caso Capo).
@@ -189,7 +189,7 @@ Para ver y corregir, no para trabajar ahí. Lista de productos, pedidos, cliente
 - **Interés contra ventas** (P2, caso MG Vinyls): productos con muchas vistas o consultas y pocas ventas.
 - **Margen por categoría y por marca** (P3).
 - **Por ubicación y por persona** (P3).
-- **Inventario valorizado** (P3): cuánta plata hay parada en stock, a costo.
+- **Inventario valorizado** (P3): cuánto dinero hay parado en stock, a costo.
 - **Exportar** cualquier reporte a CSV (P2).
 
 ### 4.15 Tienda web, API y otras conexiones (P3)
@@ -829,7 +829,7 @@ flowchart TB
   NUCLEO --> MX["Mixpanel<br/>un solo track"]
 ```
 
-La IA nunca calcula plata: propone, y `domain/` hace las cuentas.
+La IA nunca calcula dinero: propone, y `domain/` hace las cuentas.
 
 ## 18. Cómo crece Lote
 

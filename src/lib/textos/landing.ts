@@ -13,6 +13,7 @@ export const landing = {
   saltar: "Saltar al contenido",
   menu: "Secciones",
   enlaces: [
+    { href: "/explorar", etiqueta: "Explorar tiendas" },
     { href: "#como", etiqueta: "Cómo funciona" },
     { href: "#funciones", etiqueta: "Funciones" },
     { href: "#precios", etiqueta: "Precios" },
@@ -156,7 +157,7 @@ export const landing = {
       },
       {
         titulo: "Números sin inventos",
-        texto: "La plata la calcula el programa con reglas fijas. Vos confirmás lo delicado.",
+        texto: "El dinero lo calcula el programa con reglas fijas. Vos confirmás lo delicado.",
         cita: "Tranquila, yo llevo la cuenta.",
         quien: "Lote",
       },
@@ -205,7 +206,7 @@ export const landing = {
         r: "Lo dejás vacío. Lote marca la ganancia como estimada y te lo pregunta después, sin frenarte.",
       },
       {
-        p: "¿La IA calcula mi plata?",
+        p: "¿La IA calcula mi dinero?",
         r: "No. Los números los calcula el programa con reglas fijas. La IA solo lee fotos y mensajes para proponerte la acción, y vos confirmás lo delicado.",
       },
       {

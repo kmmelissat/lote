@@ -65,6 +65,10 @@ export const ajustes = {
     miEnlace: "Tu vitrina",
     verVitrina: "Ver mi vitrina",
     apartar: "Dejar que aparten desde la vitrina",
+    explorar: "Aparecer en Explorar",
+    explorarAyuda:
+      "Explorar es el escaparate con las vitrinas de todas las tiendas de Lote. Si lo prendés, tu tienda y tus productos disponibles se pueden descubrir ahí. Empieza apagado.",
+    verExplorar: "Ver Explorar",
     apartarAyuda: "Si lo apagás, la vitrina solo muestra los productos y el botón para escribirte.",
     plazo: "Horas para pagar un apartado",
     plazoAyuda: "Pasado ese tiempo, el apartado vence y el producto vuelve a estar disponible.",

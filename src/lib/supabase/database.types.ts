@@ -531,6 +531,7 @@ export type Database = {
           tarifa_envio_defecto: number
           umbral_poco_stock: number
           usuario_instagram: string | null
+          visible_en_explorar: boolean
           whatsapp: string | null
         }
         Insert: {
@@ -551,6 +552,7 @@ export type Database = {
           tarifa_envio_defecto?: number
           umbral_poco_stock?: number
           usuario_instagram?: string | null
+          visible_en_explorar?: boolean
           whatsapp?: string | null
         }
         Update: {
@@ -571,6 +573,7 @@ export type Database = {
           tarifa_envio_defecto?: number
           umbral_poco_stock?: number
           usuario_instagram?: string | null
+          visible_en_explorar?: boolean
           whatsapp?: string | null
         }
         Relationships: []
@@ -1245,6 +1248,46 @@ export type Database = {
           usuario_instagram: string
           whatsapp: string
         }[]
+      }
+      explorar_tiendas: {
+        Args: { p_busqueda?: string; p_categoria?: string }
+        Returns: {
+          categorias: string[] | null
+          color: string | null
+          descripcion: string | null
+          fotos: string[] | null
+          logo: string | null
+          nombre: string
+          piezas: number
+          slug: string
+        }[]
+      }
+      explorar_productos: {
+        Args: {
+          p_busqueda?: string
+          p_categoria?: string
+          p_desde?: number
+          p_limite?: number
+          p_orden?: string
+          p_precio_max?: number
+          p_precio_min?: number
+        }
+        Returns: {
+          categoria: string | null
+          codigo: number
+          disponibles: number
+          foto: string | null
+          nombre: string
+          opciones: number
+          precio: number
+          precio_maximo: number
+          tienda_nombre: string
+          tienda_slug: string
+        }[]
+      }
+      explorar_categorias: {
+        Args: never
+        Returns: { categoria: string; productos: number }[]
       }
       vitrina_productos: {
         Args: { p_codigo?: number; p_slug: string }

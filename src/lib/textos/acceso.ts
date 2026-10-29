@@ -22,6 +22,8 @@ export const acceso = {
     "Aparta, cobrá y enviá sin llevar el control dos veces.",
     "Sabé cuánto ganás con cada producto.",
   ],
+  volver: "Volver al inicio",
+  explorar: "¿Solo querés mirar? Explorá las tiendas",
   privacidad: "Al entrar aceptás el",
   privacidadEnlace: "aviso de privacidad",
 } as const;

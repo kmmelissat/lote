@@ -34,6 +34,17 @@ export function VitrinaForm({ ajustes }: { ajustes: AjustesVitrina }) {
           <p className="text-sm text-texto-2">{t.apartarAyuda}</p>
         </div>
 
+        <div className="flex flex-col gap-1 rounded-2xl border-2 border-teal-oscuro bg-crema p-4">
+          <label className="flex min-h-11 items-center gap-3 font-bold">
+            <input type="checkbox" name="explorar" defaultChecked={ajustes.visibleEnExplorar} className="size-5 accent-teal" />
+            {t.explorar}
+          </label>
+          <p className="text-sm text-texto-2">{t.explorarAyuda}</p>
+          <Link href="/explorar" target="_blank" className="inline-flex min-h-11 items-center text-teal underline">
+            {t.verExplorar}
+          </Link>
+        </div>
+
         <div className="flex flex-col gap-1">
           <Field etiqueta={t.plazo} name="plazo" type="number" min={1} max={168} inputMode="numeric" defaultValue={ajustes.plazoHoras} />
           <p className="text-sm text-texto-2">{t.plazoAyuda}</p>

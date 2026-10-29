@@ -77,7 +77,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
   const r = resumenDelPeriodo(ventas, gastos.map(aGastoPeriodo));
   const entrar = resumenDelPeriodo(porEntrar, []);
 
-  // La plata en inventario es lo que costó lo que sigue disponible; sin costo no se puede contar.
+  // El dinero en inventario es lo que costó lo que sigue disponible; sin costo no se puede contar.
   const enStock = productos.filter((p) => p.disponibles > 0);
   const valorInventario = enStock.reduce((suma, p) => suma + (p.costoUnitario ?? 0) * p.disponibles, 0);
   const sinCostoEnStock = enStock.filter((p) => p.costoUnitario === null).length;
