@@ -3,13 +3,17 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Monito } from "@/components/ui/Monito";
+import { Tira } from "@/components/ui/Tira";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos;
 
-/** La foto grande y, abajo, las miniaturas para cambiar de una a otra. */
-export function GaleriaProducto({ fotos, nombre }: { fotos: string[]; nombre: string }) {
+/**
+ * La foto grande y, abajo, las miniaturas para cambiar de una a otra. `de` dice de qué variante es cada foto
+ * (las que no están son de todas): se muestra sobre la foto grande y en la miniatura.
+ */
+export function GaleriaProducto({ fotos, nombre, de = {} }: { fotos: string[]; nombre: string; de?: Record<string, string> }) {
   const [actual, setActual] = useState(0);
   if (!fotos.length) {
     return (
@@ -30,15 +34,21 @@ export function GaleriaProducto({ fotos, nombre }: { fotos: string[]; nombre: st
           priority
           className="object-cover"
         />
+        {de[fotos[actual]] && (
+          <span className="absolute bottom-3 left-3 rounded-full border-2 border-teal-oscuro bg-superficie px-3 py-1 text-sm font-bold text-teal-oscuro shadow-dura-chica">
+            {de[fotos[actual]]}
+          </span>
+        )}
       </div>
       {fotos.length > 1 && (
-        <ul className="flex flex-wrap gap-2">
+        <Tira etiqueta={t.fotos.etiqueta} activo={actual}>
           {fotos.map((ruta, i) => (
-            <li key={ruta}>
               <button
+                key={ruta}
                 type="button"
                 onClick={() => setActual(i)}
-                aria-label={t.fotos.foto(i + 1)}
+                aria-label={de[ruta] ? `${t.fotos.foto(i + 1)} · ${de[ruta]}` : t.fotos.foto(i + 1)}
+                title={de[ruta]}
                 aria-current={i === actual ? "true" : undefined}
                 className={`relative block size-16 overflow-hidden rounded-xl border-2 transition-transform hover:-translate-y-0.5 ${
                   i === actual ? "border-teal-oscuro ring-2 ring-mango" : "border-borde"
@@ -46,9 +56,8 @@ export function GaleriaProducto({ fotos, nombre }: { fotos: string[]; nombre: st
               >
                 <Image src={urlFoto(ruta)} alt="" fill sizes="64px" className="object-cover" />
               </button>
-            </li>
           ))}
-        </ul>
+        </Tira>
       )}
     </div>
   );

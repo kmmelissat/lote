@@ -17,3 +17,22 @@ export function separarFotos(variantes: readonly (readonly string[])[]): { gener
   const generales = primera.filter((f) => variantes.every((v) => v.includes(f)));
   return { generales, propias: variantes.map((v) => v.filter((f) => !generales.includes(f))) };
 }
+
+/**
+ * Todas las fotos de un producto con variantes, para verlas juntas: las generales primero y después las de cada
+ * variante, sin repetir. `de` dice de qué variante es cada foto propia (si la comparten algunas, sus nombres juntos).
+ */
+export function fotosDelGrupo(variantes: readonly { fotos: readonly string[]; variante: string | null }[]): {
+  fotos: string[];
+  de: Record<string, string>;
+} {
+  const { generales, propias } = separarFotos(variantes.map((v) => v.fotos));
+  const de: Record<string, string> = {};
+  propias.forEach((suyas, i) =>
+    suyas.forEach((f) => {
+      const nombre = variantes[i].variante ?? "";
+      de[f] = de[f] ? `${de[f]}, ${nombre}` : nombre;
+    }),
+  );
+  return { fotos: [...new Set([...generales, ...propias.flat()])], de };
+}

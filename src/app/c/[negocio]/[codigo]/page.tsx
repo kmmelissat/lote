@@ -21,6 +21,7 @@ import {
 import { nombreBase } from "@/domain";
 import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
 import { formatearDolares } from "@/lib/formato";
+import { fotosDelGrupo } from "@/features/products/fotosVariantes";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
@@ -137,6 +138,8 @@ async function Producto({
 
   // Lo que se cuenta de todo el producto: sus variantes juntas
   const familia = hermanas.length ? hermanas : [p];
+  // La galería muestra las fotos de todas las variantes; al elegir una, salta a la suya
+  const galeria = hermanas.length ? fotosDelGrupo(hermanas) : { fotos: p.fotos, de: {} };
   const disponiblesTotal = familia.reduce((n, o) => n + o.disponibles, 0);
   const vendidasTotal = familia.reduce((n, o) => n + o.vendidas, 0);
   const creado = familia
@@ -235,7 +238,7 @@ async function Producto({
         <ProveedorFotos>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div className="flex flex-col gap-5 md:sticky md:top-4 md:self-start">
-              <GaleriaVitrina fotos={p.fotos} nombre={p.nombre} />
+              <GaleriaVitrina fotos={galeria.fotos} de={galeria.de} nombre={base} />
             </div>
 
             <div className="flex min-w-0 flex-col gap-5">

@@ -10,7 +10,7 @@ import { nombreBase } from "@/domain";
 import { codigoDeBarrasDe } from "@/features/counter/repositorio";
 import { CodigoDeBarrasForm } from "@/features/counter/ui/CodigoDeBarrasForm";
 import { estadoVisible } from "@/features/products/estadoVisible";
-import { separarFotos } from "@/features/products/fotosVariantes";
+import { fotosDelGrupo } from "@/features/products/fotosVariantes";
 import { listarAvisosDeStock, listarGrupo, obtenerProducto, type Producto } from "@/features/products/repositorio";
 import { AccionesProducto } from "@/features/products/ui/AccionesProducto";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
@@ -155,9 +155,8 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
   const [bajo, alto] = [Math.min(...precios), Math.max(...precios)];
   const precioTexto = general ? (bajo === alto ? formatearDolares(bajo) : t.detalle.entre(formatearDolares(bajo), formatearDolares(alto))) : formatearDolares(p.precio);
   const estadoGeneral: Estado = disponibles > 0 ? "disponible" : suma("apartadas") > 0 ? "apartado" : "vendido";
-  // En la vista general, las fotos que comparten todas; si no hay ninguna en común, las de la primera
-  const generales = general ? separarFotos(variantes.map((v) => v.fotos)).generales : [];
-  const fotos = !general ? p.fotos : generales.length ? generales : variantes[0].fotos;
+  // En la vista general van todas las fotos, las de cada variante marcadas con su nombre (como en la vitrina)
+  const { fotos, de: deVariante } = general ? fotosDelGrupo(variantes) : { fotos: p.fotos, de: {} };
 
   const etiquetas = [p.categoria, p.marca, p.condicion === "usado" ? t.form.usado : t.form.nuevo].filter((x): x is string => !!x);
 
@@ -209,7 +208,7 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <GaleriaProducto fotos={fotos} nombre={general ? base : p.nombre} />
+        <GaleriaProducto key={general ? "todas" : p.codigo} fotos={fotos} nombre={general ? base : p.nombre} de={deVariante} />
 
         <div className="flex min-w-0 flex-col gap-4">
           <Card className="flex flex-col gap-4">
