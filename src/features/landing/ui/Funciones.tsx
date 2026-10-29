@@ -10,7 +10,7 @@ const h3 = "text-[22px] font-bold leading-tight";
 // Un bento: tarjetas de distinto tamaño y color, cada una con un pedacito de la pantalla de verdad adentro.
 export function Funciones() {
   return (
-    <section id="funciones" className="scroll-mt-16 bg-superficie py-12 md:py-24" aria-labelledby="funciones-titulo">
+    <section id="funciones" className="scroll-mt-24 bg-superficie py-12 md:py-24" aria-labelledby="funciones-titulo">
       <div className={`${contenedor} revelar flex flex-col gap-10`}>
         <h2 id="funciones-titulo" className={tituloSeccion}>
           {t.titulo}

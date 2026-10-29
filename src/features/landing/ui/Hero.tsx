@@ -16,7 +16,7 @@ const ETIQUETAS = [
 export function Hero({ conSesion }: { conSesion: boolean }) {
   return (
     <section className="overflow-hidden bg-crema">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 py-12 md:grid-cols-[1.05fr_1fr] md:gap-8 md:px-8 md:py-20">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 pb-12 pt-28 md:grid-cols-[1.05fr_1fr] md:gap-8 md:px-8 md:pb-20 md:pt-32">
         <div className="flex flex-col items-start gap-6">
           <span className="rounded-full border-2 border-teal-oscuro bg-rosa-palido px-4 py-1.5 text-sm font-bold text-teal-oscuro">
             {t.etiqueta}

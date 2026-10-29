@@ -19,7 +19,7 @@ function Lista({ items }: { items: readonly string[] }) {
 
 export function Precios() {
   return (
-    <section id="precios" className="scroll-mt-16 bg-superficie py-12 md:py-24" aria-labelledby="precios-titulo">
+    <section id="precios" className="scroll-mt-24 bg-superficie py-12 md:py-24" aria-labelledby="precios-titulo">
       <div className={`${contenedor} revelar flex flex-col gap-12`}>
         <div className="flex max-w-2xl flex-col gap-3">
           <h2 id="precios-titulo" className={tituloSeccion}>
