@@ -138,6 +138,7 @@ export type ErrorApartar =
   | "metodo_invalido"
   | "sin_disponibilidad"
   | "limite_apartados"
+  | "limite_compras"
   | "demasiados_intentos"
   | "apartado_apagado"
   | "no_existe"
@@ -149,6 +150,7 @@ const ERRORES: ErrorApartar[] = [
   "metodo_invalido",
   "sin_disponibilidad",
   "limite_apartados",
+  "limite_compras",
   "demasiados_intentos",
   "apartado_apagado",
   "no_existe",

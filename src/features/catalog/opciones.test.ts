@@ -11,9 +11,9 @@ describe("filasDeOpciones", () => {
     o(4, "iPhone 17 · Celeste", 0),
   ];
 
-  it("separa el cruce en una fila por opción y deduce el color", () => {
+  it("separa el cruce en una fila por opción y deduce el modelo y el color", () => {
     const filas = filasDeOpciones(cruce, 1)!;
-    expect(filas.map((f) => f.titulo)).toEqual(["Opción 1", "Color"]);
+    expect(filas.map((f) => f.titulo)).toEqual(["Modelo", "Color"]);
     expect(filas[0].fichas.map((f) => f.valor)).toEqual(["iPhone 16", "iPhone 17"]);
     expect(filas[1].fichas.map((f) => f.valor)).toEqual(["Rosa", "Celeste"]);
   });
@@ -37,7 +37,9 @@ describe("filasDeOpciones", () => {
   });
 
   it("si los nombres no coinciden con las partes, deduce", () => {
-    expect(filasDeOpciones(cruce, 1, ["Modelo"])!.map((f) => f.titulo)).toEqual(["Opción 1", "Color"]);
+    expect(filasDeOpciones(cruce, 1, ["Modelo"])!.map((f) => f.titulo)).toEqual(["Modelo", "Color"]);
+    // Lo que no se reconoce sigue llamándose Opción N
+    expect(filasDeOpciones([o(1, "Pequeño · Rosa"), o(2, "Grande · Rosa")], 1)!.map((f) => f.titulo)).toEqual(["Opción 1", "Color"]);
   });
 
   it("si no es un cruce devuelve null", () => {

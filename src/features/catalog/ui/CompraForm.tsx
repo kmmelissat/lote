@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
@@ -8,7 +9,7 @@ import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { comprarProducto, type EstadoApartar } from "../actions/apartar";
 import type { OpcionesDeCompra } from "../repositorio";
-import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados } from "./camposCompra";
+import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, ListaDesplegable, useDatosGuardados } from "./camposCompra";
 
 const t = textos.vitrina.compra;
 const ta = textos.vitrina.apartar;
@@ -65,6 +66,7 @@ export function CompraForm({
   precio,
   unidades,
   opciones,
+  volverHref,
 }: {
   slug: string;
   codigo: number;
@@ -72,11 +74,16 @@ export function CompraForm({
   /** Cuántas unidades compra: se elige antes, junto al precio */
   unidades: number;
   opciones: OpcionesDeCompra;
+  /** A dónde lleva "Volver" en el primer paso: la página del producto */
+  volverHref: string;
 }) {
   const [estado, accion, pendiente] = useActionState<EstadoApartar, FormData>(comprarProducto.bind(null, slug, codigo), {});
   const puedeRecoger = opciones.direccionRetiro !== null;
   const [entrega, setEntrega] = useState<Entrega>(puedeRecoger ? "retiro" : "envio");
   const [departamento, setDepartamento] = useState("");
+  // Si intenta seguir sin elegir el departamento, la lista se abre sola y avisa
+  const [faltaDepartamento, setFaltaDepartamento] = useState(false);
+  const [intentos, setIntentos] = useState(0);
   const [metodo, setMetodo] = useState<Metodo | "">("");
   // La compra va de a un paso: datos, entrega y pago. Los tres siguen en el formulario (solo se esconden) para que todo se envíe junto.
   const [paso, setPaso] = useState(0);
@@ -90,11 +97,18 @@ export function CompraForm({
   );
   const metodoElegido = metodosDisponibles.find((m) => m === metodo) ?? metodosDisponibles[0] ?? "";
 
-  const tarifa = entrega === "envio" && departamento ? (opciones.tarifas[departamento] ?? opciones.tarifaDefecto) : 0;
+  const costoDe = (d: string) => opciones.tarifas[d] ?? opciones.tarifaDefecto;
+  const tarifa = entrega === "envio" && departamento ? costoDe(departamento) : 0;
   const subtotal = precio * unidades;
 
   /** Pasa al paso siguiente solo si lo de este paso está completo; si no, muestra qué falta. */
   function siguiente() {
+    // La lista propia no es un <select>: su "falta elegir" se revisa acá
+    if (paso === 1 && entrega === "envio" && !departamento) {
+      setFaltaDepartamento(true);
+      setIntentos((n) => n + 1);
+      return;
+    }
     const actual = formulario.current?.querySelector<HTMLElement>(`[data-paso="${paso}"]`);
     const campos = actual?.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input, select") ?? [];
     for (const c of campos) {
@@ -135,7 +149,7 @@ export function CompraForm({
             </ol>
           </div>
 
-          <section hidden={paso !== 0} data-paso="0" className="flex flex-col gap-3">
+          <section hidden={paso !== 0} data-paso="0" className="flex animate-desliza flex-col gap-3">
             <h2 className="font-bold">{t.tusDatos}</h2>
             {/* La key vuelve a pintar los campos cuando llegan los datos guardados de la compra anterior */}
             <div key={guardados.clave} className="flex flex-col gap-3">
@@ -147,7 +161,8 @@ export function CompraForm({
             </div>
           </section>
 
-          <fieldset hidden={paso !== 1} data-paso="1" className="flex flex-col gap-2">
+          {/* z-20: la lista de departamentos se abre por encima de la barra de abajo */}
+          <fieldset hidden={paso !== 1} data-paso="1" className="relative z-20 flex animate-desliza flex-col gap-2">
             <legend className="mb-1 font-bold">{t.recibirTitulo}</legend>
             {puedeRecoger && (
               <Opcion
@@ -172,17 +187,21 @@ export function CompraForm({
             />
             {entrega === "envio" && (
               <div className="mt-1 flex animate-entra flex-col gap-3 rounded-2xl bg-white p-3">
-                <label className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-1.5">
                   <span className="text-sm font-bold">{t.departamento}</span>
-                  <select name="departamento" required value={departamento} onChange={(e) => setDepartamento(e.target.value)} className={campoCompra}>
-                    <option value="">{t.elegirDepartamento}</option>
-                    {DEPARTAMENTOS.map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  <ListaDesplegable
+                    name="departamento"
+                    valor={departamento}
+                    alCambiar={(d) => {
+                      setDepartamento(d);
+                      setFaltaDepartamento(false);
+                    }}
+                    opciones={DEPARTAMENTOS.map((d) => ({ valor: d, etiqueta: d, detalle: costoDe(d) === 0 ? t.envioGratis : formatearDolares(costoDe(d)) }))}
+                    placeholder={t.elegirDepartamento}
+                    error={faltaDepartamento ? t.elegirDepartamento : undefined}
+                    abrirAlFallar={intentos}
+                  />
+                </div>
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-bold">{t.municipio}</span>
                   <input name="municipio" autoComplete="address-level2" className={campoCompra} />
@@ -191,15 +210,22 @@ export function CompraForm({
                   <span className="text-sm font-bold">{t.direccion}</span>
                   <input name="direccion" required autoComplete="street-address" placeholder={t.direccionPlaceholder} className={campoCompra} />
                 </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-sm font-bold">{t.referencia}</span>
-                  <input name="referencia" placeholder={t.referenciaPlaceholder} className={campoCompra} />
-                </label>
+                {/* El punto de referencia es opcional: no estorba hasta que se necesita */}
+                <details className="group">
+                  <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-bold text-teal underline [&::-webkit-details-marker]:hidden">
+                    <Icon nombre="mas" className="size-4 group-open:hidden" />
+                    {t.agregarReferencia}
+                  </summary>
+                  <label className="mt-1 flex flex-col gap-1.5">
+                    <span className="text-sm font-bold">{t.referencia}</span>
+                    <input name="referencia" placeholder={t.referenciaPlaceholder} className={campoCompra} />
+                  </label>
+                </details>
               </div>
             )}
           </fieldset>
 
-          <div hidden={paso !== 2} data-paso="2" className="flex flex-col gap-5">
+          <div hidden={paso !== 2} data-paso="2" className="flex animate-desliza flex-col gap-5">
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-1 font-bold">{t.pagarTitulo}</legend>
             {metodosDisponibles.length === 0 && <p className="text-sm text-texto-2">{t.sinMetodos}</p>}
@@ -225,7 +251,7 @@ export function CompraForm({
             </div>
           </fieldset>
 
-          <section aria-live="polite" className="flex flex-col gap-1 rounded-2xl border-2 border-teal-oscuro bg-white p-4">
+          <section aria-live="polite" className="flex flex-col gap-1 rounded-2xl border border-teal-oscuro/20 bg-white p-4">
             <h2 className="mb-1 font-bold">{t.resumenTitulo}</h2>
             <p className="flex justify-between text-sm">
               <span className="text-texto-2">{t.subtotal}</span>
@@ -248,38 +274,48 @@ export function CompraForm({
           </div>
 
           <MensajeError>{estado.error}</MensajeError>
-          <div className="flex items-center gap-2">
-            {paso > 0 && (
-              <button
-                type="button"
-                onClick={() => setPaso(paso - 1)}
-                className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
-              >
-                {t.atras}
-              </button>
-            )}
-            {paso < 2 ? (
-              <button
-                type="button"
-                onClick={siguiente}
-                className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
-              >
-                {t.siguiente}
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={pendiente || !metodoElegido}
-                className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal px-8 font-bold text-white shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
-              >
-                {pendiente ? t.confirmando : t.confirmar}
-              </button>
-            )}
+          {/* Anclado abajo: el total, "Volver" y el botón principal siempre se ven, sea cual sea el paso */}
+          <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t-2 border-teal-oscuro bg-crema px-4 py-3">
+            <p className="flex justify-between text-sm" aria-live="polite">
+              <span className="text-texto-2">{t.total}</span>
+              <span className="font-bold tabular-nums">{formatearDolares(subtotal + tarifa)}</span>
+            </p>
+            <div className="flex items-center gap-2">
+              {paso > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setPaso(paso - 1)}
+                  className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
+                >
+                  {t.volver}
+                </button>
+              ) : (
+                <Link
+                  href={volverHref}
+                  className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
+                >
+                  {t.volver}
+                </Link>
+              )}
+              {paso < 2 ? (
+                <button
+                  type="button"
+                  onClick={siguiente}
+                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+                >
+                  {t.siguiente}
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={pendiente || !metodoElegido}
+                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal px-8 font-bold text-white shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+                >
+                  {pendiente ? t.confirmando : t.confirmar}
+                </button>
+              )}
+            </div>
           </div>
-          <p className="flex justify-between text-sm" aria-live="polite">
-            <span className="text-texto-2">{t.total}</span>
-            <span className="font-bold tabular-nums">{formatearDolares(subtotal + tarifa)}</span>
-          </p>
         </form>
       )}
     </div>

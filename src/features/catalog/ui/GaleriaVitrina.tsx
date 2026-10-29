@@ -12,7 +12,7 @@ export function GaleriaVitrina({ fotos, nombre }: { fotos: string[]; nombre: str
   const ampliada = useRef<HTMLDialogElement>(null);
   if (!fotos.length) {
     return (
-      <div aria-hidden="true" className="flex aspect-square items-center justify-center rounded-[24px] border-2 border-teal-oscuro bg-teal-fondo">
+      <div aria-hidden="true" className="flex aspect-square items-center justify-center rounded-[24px] border border-teal-oscuro/20 bg-teal-fondo">
         <Monito nombre="caja" className="w-1/4 text-teal/40" />
       </div>
     );
@@ -23,7 +23,7 @@ export function GaleriaVitrina({ fotos, nombre }: { fotos: string[]; nombre: str
         type="button"
         onClick={() => ampliada.current?.showModal()}
         aria-label={textos.vitrina.compra.ampliar}
-        className="relative aspect-square cursor-zoom-in overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-teal-fondo shadow-dura"
+        className="relative aspect-square cursor-zoom-in overflow-hidden rounded-[24px] border border-teal-oscuro/20 bg-teal-fondo"
       >
         <Image
           src={urlFoto(fotos[actual])}

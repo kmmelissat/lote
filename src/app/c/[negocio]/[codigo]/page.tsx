@@ -16,7 +16,8 @@ import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 import { LogoTienda } from "@/features/catalog/ui/MarcaTienda";
 import { ProductosRelacionados } from "@/features/catalog/ui/ProductosRelacionados";
-import { partesDe, ZonaDeCompra, type VarianteCompra } from "@/features/catalog/ui/ZonaDeCompra";
+import { partesDe } from "@/features/catalog/opciones";
+import { ZonaDeCompra, type VarianteCompra } from "@/features/catalog/ui/ZonaDeCompra";
 
 const t = textos.vitrina;
 
@@ -117,9 +118,42 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
         </Link>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5 md:sticky md:top-4 md:self-start">
             <GaleriaVitrina fotos={p.fotos} nombre={p.nombre} />
-            <section aria-labelledby="como-comprar" className="flex flex-col gap-3 rounded-[20px] border-2 border-teal-oscuro/20 bg-white p-4 text-sm">
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-bold leading-tight">{base}</h1>
+              {meta && <p className="text-sm text-texto-2">{meta}</p>}
+              {p.descripcion &&
+                (p.descripcion.length > 220 ? (
+                  <details className="group">
+                    <summary className="cursor-pointer list-none leading-relaxed [&::-webkit-details-marker]:hidden">
+                      <span className="line-clamp-3 group-open:line-clamp-none">{p.descripcion}</span>
+                      <span className="mt-1 block text-sm font-bold text-teal underline group-open:hidden">{t.verMas}</span>
+                    </summary>
+                  </details>
+                ) : (
+                  <p className="leading-relaxed">{p.descripcion}</p>
+                ))}
+            </div>
+
+            <ZonaDeCompra
+              slug={slug}
+              nombresOpciones={p.opciones}
+              variantes={variantes}
+              apartarActivo={negocio.apartarDesdeVitrina}
+            />
+
+            <BotonesChat
+              discreto={negocio.nombre}
+              whatsapp={negocio.whatsapp}
+              instagram={negocio.usuarioInstagram}
+              mensaje={mensajePedirProducto(negocio.nombre, p.nombre, p.codigo, formatearDolares(p.precio))}
+            />
+
+            <section aria-labelledby="como-comprar" className="flex flex-col gap-3 rounded-[20px] border border-teal-oscuro/20 bg-white p-4 text-sm">
               <h2 id="como-comprar" className="font-bold">
                 {textos.vitrina.compra.comoComprarTitulo}
               </h2>
@@ -144,40 +178,6 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
                 </div>
               </dl>
             </section>
-          </div>
-
-          <div className="flex flex-col gap-5 md:sticky md:top-4 md:max-h-[calc(100dvh-2rem)] md:self-start md:overflow-y-auto md:pr-1">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-bold leading-tight">{base}</h1>
-              {meta && <p className="text-sm text-texto-2">{meta}</p>}
-              {p.descripcion &&
-                (p.descripcion.length > 220 ? (
-                  <details className="group">
-                    <summary className="cursor-pointer list-none leading-relaxed [&::-webkit-details-marker]:hidden">
-                      <span className="line-clamp-3 group-open:line-clamp-none">{p.descripcion}</span>
-                      <span className="mt-1 block text-sm font-bold text-teal underline group-open:hidden">{t.verMas}</span>
-                    </summary>
-                  </details>
-                ) : (
-                  <p className="leading-relaxed">{p.descripcion}</p>
-                ))}
-            </div>
-
-            <ZonaDeCompra
-              slug={slug}
-              nombresOpciones={p.opciones}
-              variantes={variantes}
-              opciones={opcionesDeCompra}
-              plazoHoras={negocio.plazoHoras}
-              apartarActivo={negocio.apartarDesdeVitrina}
-            />
-
-            <BotonesChat
-              discreto={negocio.nombre}
-              whatsapp={negocio.whatsapp}
-              instagram={negocio.usuarioInstagram}
-              mensaje={mensajePedirProducto(negocio.nombre, p.nombre, p.codigo, formatearDolares(p.precio))}
-            />
           </div>
         </div>
 

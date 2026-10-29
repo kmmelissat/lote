@@ -18,6 +18,7 @@ const TEXTO_ERROR: Record<ErrorApartar, string> = {
   metodo_invalido: textos.vitrina.compra.errorMetodo,
   sin_disponibilidad: t.errorSinDisponibilidad,
   limite_apartados: t.errorLimite,
+  limite_compras: t.errorLimiteCompras,
   demasiados_intentos: t.errorIntentos,
   apartado_apagado: t.errorApagado,
   no_existe: t.errorGeneral,

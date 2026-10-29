@@ -3,6 +3,9 @@
 
 const SEPARADOR = " · ";
 
+/** Las partes de la etiqueta de una variante ("iPhone 17 · Rosa"); vacío si el producto no tiene variantes. */
+export const partesDe = (variante: string | null): string[] => (variante ? variante.split(SEPARADOR) : []);
+
 export type OpcionVariante = { codigo: number; variante: string; disponibles: number };
 
 export type FilaOpciones = {
@@ -16,10 +19,12 @@ const COLORES = new Set([
 ]);
 
 const esColor = (v: string) => COLORES.has(v.trim().toLowerCase());
+const esModelo = (v: string) => /\b(iphone|ipad|galaxy|samsung|pixel|xiaomi|redmi|poco|huawei|motorola|moto|oppo|honor|realme|tecno|infinix|zte|oneplus|nokia)\b/i.test(v);
 
 /** Cómo se llama una opción, mirando sus valores: no se guarda el nombre, así que se deduce (colores → "Color"). */
 export function tituloDe(valores: string[], posicion: number): string {
   if (valores.every(esColor)) return "Color";
+  if (valores.every(esModelo)) return "Modelo";
   if (valores.every((v) => /^(xxs|xs|s|m|l|xl|xxl|\d+)$/i.test(v.trim()))) return "Talla";
   return `Opción ${posicion + 1}`;
 }
