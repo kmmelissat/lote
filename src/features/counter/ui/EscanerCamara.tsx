@@ -8,12 +8,17 @@ const t = textos.mostrador.barras;
 
 // BarcodeDetector todavía no viene en los tipos de TypeScript.
 type CodigoDetectado = { rawValue: string };
-type DetectorDeCodigos = { detect: (fuente: HTMLVideoElement) => Promise<CodigoDetectado[]> };
-type ConstructorDetector = new (opciones?: { formats?: string[] }) => DetectorDeCodigos;
+type DetectorDeCodigos = {
+  detect: (fuente: HTMLVideoElement) => Promise<CodigoDetectado[]>;
+};
+type ConstructorDetector = new (opciones?: {
+  formats?: string[];
+}) => DetectorDeCodigos;
 
 const detectorDelNavegador = (): ConstructorDetector | null =>
   typeof window !== "undefined" && "BarcodeDetector" in window
-    ? (window as unknown as { BarcodeDetector: ConstructorDetector }).BarcodeDetector
+    ? (window as unknown as { BarcodeDetector: ConstructorDetector })
+        .BarcodeDetector
     : null;
 
 /** ¿Este navegador puede leer códigos de barras con la cámara? (Chrome y Edge sí; Safari y Firefox todavía no). */
@@ -27,7 +32,13 @@ const INTERVALO_LECTURA = 250;
  * La cámara abierta leyendo códigos de barras. Sigue leyendo hasta que se cierra, para poder escanear varios
  * productos seguidos; cada código nuevo se avisa con `alLeer`.
  */
-export function EscanerCamara({ alLeer, cerrar }: { alLeer: (codigo: string) => void; cerrar: () => void }) {
+export function EscanerCamara({
+  alLeer,
+  cerrar,
+}: {
+  alLeer: (codigo: string) => void;
+  cerrar: () => void;
+}) {
   const video = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState(false);
   // La función de afuera cambia en cada pintura; se guarda aparte para que la cámara no se reinicie.
@@ -71,7 +82,11 @@ export function EscanerCamara({ alLeer, cerrar }: { alLeer: (codigo: string) => 
             const [primero] = await detector.detect(el);
             const codigo = primero?.rawValue;
             const ahora = Date.now();
-            if (codigo && (codigo !== ultimo.codigo || ahora - ultimo.en > ESPERA_MISMO_CODIGO)) {
+            if (
+              codigo &&
+              (codigo !== ultimo.codigo ||
+                ahora - ultimo.en > ESPERA_MISMO_CODIGO)
+            ) {
               ultimo = { codigo, en: ahora };
               aviso.current(codigo);
             }
@@ -104,7 +119,12 @@ export function EscanerCamara({ alLeer, cerrar }: { alLeer: (codigo: string) => 
           {t.camaraError}
         </p>
       ) : (
-        <video ref={video} muted playsInline className="aspect-[4/3] w-full rounded-2xl bg-black object-cover" />
+        <video
+          ref={video}
+          muted
+          playsInline
+          className="aspect-[4/3] w-full rounded-2xl bg-black object-cover"
+        />
       )}
       <Button type="button" variante="secundario" onClick={cerrar}>
         {t.camaraCerrar}

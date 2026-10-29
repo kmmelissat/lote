@@ -1,9 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { aDolares } from "@/domain";
 import { paginaDeClientes } from "@/features/customers/repositorio";
 import { paginaDePedidos } from "@/features/orders/repositorio";
 import { listarProductos } from "@/features/products/repositorio";
 import { paginaDeGastos } from "@/features/profit/repositorio";
+import { dolaresTexto as dinero } from "@/lib/formato";
 import type { Database } from "@/lib/supabase/database.types";
 import { textos } from "@/lib/textos";
 import { aCsv } from "./csv";
@@ -20,7 +20,6 @@ export const esTipoExportacion = (s: string): s is TipoExportacion =>
 const t = textos.exportar.columnas;
 
 // Dinero con punto y dos decimales y sin símbolo: así las hojas de cálculo lo suman.
-const dinero = (centavos: number) => aDolares(centavos).toFixed(2);
 // La fecha en hora de El Salvador (año-mes-día), no en UTC, para que un pedido de la noche no caiga al día siguiente.
 const fecha = (d: Date) => d.toLocaleDateString("sv-SE", { timeZone: "America/El_Salvador" });
 

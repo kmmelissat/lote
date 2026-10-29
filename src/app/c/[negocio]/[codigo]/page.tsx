@@ -13,7 +13,7 @@ import { Resenas } from "@/features/catalog/ui/Resenas";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra, obtenerProductoPublico, obtenerResenas } from "@/features/catalog/repositorio";
 import { agruparParaVitrina, nombreBase } from "@/features/products/variantes";
-import { formatearDolares } from "@/lib/formato";
+import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
@@ -109,7 +109,7 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
           offers: {
             "@type": "Offer",
             url: `${urlSitio}/c/${slug}/${p.codigo}`,
-            price: (p.precio / 100).toFixed(2),
+            price: dolaresTexto(p.precio),
             priceCurrency: "USD",
             availability: disponible ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
             seller: { "@type": "Organization", name: negocio.nombre },

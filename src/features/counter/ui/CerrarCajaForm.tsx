@@ -35,14 +35,21 @@ export function CerrarCajaForm({
   const [cerrando, setCerrando] = useState(false);
 
   const contado = contadoTexto.trim() ? leerDolares(contadoTexto) : null;
-  const cuadre = contado === null ? null : cuadreDeCaja({ inicial, ventasEnEfectivo: resumen.efectivo, contado });
+  const cuadre =
+    contado === null
+      ? null
+      : cuadreDeCaja({ inicial, ventasEnEfectivo: resumen.efectivo, contado });
 
   async function cerrar() {
     if (cerrando) return;
     if (contado === null) return setError(t.errores.monto);
     setError("");
     // El modal se abre antes de empezar a guardar (nunca dentro de una transición).
-    const si = await confirmar({ titulo: t.cierre.confirmarTitulo, texto: t.cierre.confirmarTexto, confirmar: t.cierre.cerrar });
+    const si = await confirmar({
+      titulo: t.cierre.confirmarTitulo,
+      texto: t.cierre.confirmarTexto,
+      confirmar: t.cierre.cerrar,
+    });
     if (!si) return;
     setCerrando(true);
     const r = await cerrarLaCaja(cajaId, contadoTexto, nota);
@@ -106,13 +113,24 @@ export function CerrarCajaForm({
                 : t.cierre.falta(formatearDolares(-cuadre.diferencia))}
           </p>
         )}
-        <Field etiqueta={t.cierre.nota} value={nota} onChange={(e) => setNota(e.target.value)} placeholder={t.cierre.notaAyuda} maxLength={300} />
+        <Field
+          etiqueta={t.cierre.nota}
+          value={nota}
+          onChange={(e) => setNota(e.target.value)}
+          placeholder={t.cierre.notaAyuda}
+          maxLength={300}
+        />
         {error && (
           <p role="alert" className="text-sm text-error">
             {error}
           </p>
         )}
-        <Button type="button" variante="mango" onClick={cerrar} disabled={cerrando || contado === null}>
+        <Button
+          type="button"
+          variante="mango"
+          onClick={cerrar}
+          disabled={cerrando || contado === null}
+        >
           {cerrando ? t.cierre.cerrando : t.cierre.cerrar}
         </Button>
       </section>

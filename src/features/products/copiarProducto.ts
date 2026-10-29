@@ -1,7 +1,6 @@
-import { aDolares, type DesgloseCosto } from "@/domain";
+import type { DesgloseCosto } from "@/domain";
+import { dolaresTexto as dolares } from "@/lib/formato";
 import type { Producto } from "./repositorio";
-
-const dolares = (centavos: number) => aDolares(centavos).toFixed(2);
 
 /**
  * Los valores con los que arranca el formulario de "otra igual": precio, costo, categoría, marca y

@@ -14,16 +14,24 @@ export function HistorialDeCaja({ cierres }: { cierres: CierrePasado[] }) {
       ) : (
         <ul className="mt-3 flex flex-col divide-y divide-borde">
           {cierres.map((c) => (
-            <li key={c.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3">
+            <li
+              key={c.id}
+              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3"
+            >
               <div>
                 <p className="font-medium">{formatearDiaYHora(c.cerradaEn)}</p>
                 <p className="text-sm text-texto-2">
-                  {t.esperado} {formatearDolares(c.esperado)} · {t.contado} {formatearDolares(c.contado)}
+                  {t.esperado} {formatearDolares(c.esperado)} · {t.contado}{" "}
+                  {formatearDolares(c.contado)}
                 </p>
                 {c.nota && <p className="text-sm text-texto-2">{c.nota}</p>}
               </div>
-              <p className={`rounded-full px-3 py-1 text-sm font-bold ${c.diferencia === 0 ? "bg-teal-fondo text-teal" : "bg-limon text-teal-oscuro"}`}>
-                {c.diferencia === 0 ? t.cuadra : `${c.diferencia > 0 ? "+" : "−"}${formatearDolares(Math.abs(c.diferencia))}`}
+              <p
+                className={`rounded-full px-3 py-1 text-sm font-bold ${c.diferencia === 0 ? "bg-teal-fondo text-teal" : "bg-limon text-teal-oscuro"}`}
+              >
+                {c.diferencia === 0
+                  ? t.cuadra
+                  : `${c.diferencia > 0 ? "+" : "−"}${formatearDolares(Math.abs(c.diferencia))}`}
               </p>
             </li>
           ))}

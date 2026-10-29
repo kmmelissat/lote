@@ -26,7 +26,10 @@ function textoDeError(e: ErrorMostrador): string {
   }
 }
 
-export async function abrirLaCaja(_anterior: EstadoCaja, formData: FormData): Promise<EstadoCaja> {
+export async function abrirLaCaja(
+  _anterior: EstadoCaja,
+  formData: FormData,
+): Promise<EstadoCaja> {
   const inicial = leerDolares(String(formData.get("inicial") ?? ""));
   if (inicial === null) return { error: t.monto };
 
@@ -40,12 +43,21 @@ export async function abrirLaCaja(_anterior: EstadoCaja, formData: FormData): Pr
   redirect("/mostrador");
 }
 
-export async function cerrarLaCaja(cajaId: string, contadoTexto: string, nota: string): Promise<EstadoCaja> {
+export async function cerrarLaCaja(
+  cajaId: string,
+  contadoTexto: string,
+  nota: string,
+): Promise<EstadoCaja> {
   const contado = leerDolares(contadoTexto);
   if (contado === null) return { error: t.monto };
 
   const { supabase } = await negocioActual();
-  const r = await cerrarCaja(supabase, cajaId, contado, nota.trim().slice(0, 300));
+  const r = await cerrarCaja(
+    supabase,
+    cajaId,
+    contado,
+    nota.trim().slice(0, 300),
+  );
   if (!r.ok) return { error: textoDeError(r.error) };
 
   revalidatePath("/", "layout");

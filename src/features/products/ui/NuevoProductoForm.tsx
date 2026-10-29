@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useActionState, useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { costoUnitario, leerDolares, MARGEN_POR_DEFECTO, precioSugerido } from "@/domain/index";
-import { Monito } from "@/components/ui/Monito";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } from "../actions/nuevo";
 import { BarraGuardar } from "@/components/ui/BarraGuardar";
+import { CartelLotito, type EstadoLotito } from "./CartelLotito";
 import { DetallesProducto } from "./DetallesProducto";
 import { leerDetalles, type Detalle } from "../infoExtra";
 import { atajosDeFormulario, Campo, CampoDinero, Cantidad, Etiqueta, estiloCampo, Seccion } from "./campos";
@@ -27,8 +27,6 @@ const ORDEN_LOTITO: CampoLotito[] = ["nombre", "categoria", "marca", "descripcio
 /** Lo que tarda Lotito en "escribir" cada campo, para que se sienta que va llenando uno por uno */
 const PAUSA_MS = 380;
 
-type EstadoLotito = "quieto" | "leyendo" | "listo" | "borrosa" | "sin_ia";
-
 function costoDe(valores: Record<string, string> | undefined): number | null {
   const rubros = Object.fromEntries(
     campoCosto.flatMap((k) => {
@@ -37,32 +35,6 @@ function costoDe(valores: Record<string, string> | undefined): number | null {
     }),
   );
   return costoUnitario(rubros);
-}
-
-/** Lotito en pose y con una frase corta: lo que está haciendo con la foto. */
-function CartelLotito({ estado }: { estado: EstadoLotito }) {
-  const [frase, setFrase] = useState(0);
-  useEffect(() => {
-    if (estado !== "leyendo") return;
-    const id = setInterval(() => setFrase((f) => (f + 1) % 2), 1600);
-    return () => clearInterval(id);
-  }, [estado]);
-  if (estado === "quieto") return null;
-  const contenido = {
-    leyendo: { pose: "asoma" as const, texto: frase === 0 ? l.mirando : l.buscando, tono: "bg-limon" },
-    listo: { pose: "thumbsup" as const, texto: l.listo, tono: "bg-teal-fondo" },
-    borrosa: { pose: "asoma" as const, texto: l.borrosa, tono: "bg-rosa-palido" },
-    sin_ia: { pose: "asoma" as const, texto: l.sinIA, tono: "bg-crema" },
-  }[estado];
-  return (
-    <p
-      role="status"
-      className={`flex animate-entra items-center gap-3 rounded-2xl border-2 border-teal-oscuro px-4 py-3 font-medium ${contenido.tono}`}
-    >
-      <Monito nombre={contenido.pose} className={`w-12 shrink-0 text-teal ${estado === "leyendo" ? "animate-pulse" : ""}`} />
-      {contenido.texto}
-    </p>
-  );
 }
 
 type Modo =

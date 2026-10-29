@@ -22,7 +22,9 @@ const MAXIMO_LINEAS = 50;
 function textoDeError(e: ErrorMostrador): string {
   switch (e.tipo) {
     case "sin_disponibilidad":
-      return e.quien ? t.errores.yaApartado(e.quien) : t.errores.sinDisponibilidad;
+      return e.quien
+        ? t.errores.yaApartado(e.quien)
+        : t.errores.sinDisponibilidad;
     case "sin_permiso":
       return t.errores.permiso;
     case "descuento_invalido":
@@ -39,24 +41,38 @@ export type EntradaVenta = {
   metodo: string;
 };
 
-export type ResultadoVenta = { ok: true; codigo: number } | { ok: false; error: string };
+export type ResultadoVenta =
+  | { ok: true; codigo: number }
+  | { ok: false; error: string };
 
 /** Cobra una venta de mostrador: pedido entregado y pagado. Los precios y la disponibilidad los decide la base. */
-export async function cobrarVenta(entrada: EntradaVenta): Promise<ResultadoVenta> {
-  const metodo = METODOS_MOSTRADOR.includes(entrada.metodo as MetodoMostrador) ? (entrada.metodo as MetodoMostrador) : null;
+export async function cobrarVenta(
+  entrada: EntradaVenta,
+): Promise<ResultadoVenta> {
+  const metodo = METODOS_MOSTRADOR.includes(entrada.metodo as MetodoMostrador)
+    ? (entrada.metodo as MetodoMostrador)
+    : null;
   const items = Array.isArray(entrada.items) ? entrada.items : [];
   const valido =
     metodo &&
     items.length >= 1 &&
     items.length <= MAXIMO_LINEAS &&
-    items.every((i) => esUuid(String(i?.productoId)) && Number.isInteger(i?.cantidad) && i.cantidad >= 1) &&
+    items.every(
+      (i) =>
+        esUuid(String(i?.productoId)) &&
+        Number.isInteger(i?.cantidad) &&
+        i.cantidad >= 1,
+    ) &&
     Number.isInteger(entrada.descuento) &&
     entrada.descuento >= 0;
   if (!valido) return { ok: false, error: t.errores.sinProductos };
 
   const { supabase, negocio } = await negocioActual();
   const r = await venderEnMostrador(supabase, negocio.id, {
-    items: items.map((i) => ({ productoId: i.productoId, cantidad: i.cantidad })),
+    items: items.map((i) => ({
+      productoId: i.productoId,
+      cantidad: i.cantidad,
+    })),
     descuento: entrada.descuento,
     metodo,
   });
@@ -67,7 +83,9 @@ export async function cobrarVenta(entrada: EntradaVenta): Promise<ResultadoVenta
 }
 
 /** Busca un producto por su código de barras cuando no está entre los que ya cargó la pantalla. */
-export async function buscarPorCodigoDeBarras(texto: string): Promise<ProductoMostrador | null> {
+export async function buscarPorCodigoDeBarras(
+  texto: string,
+): Promise<ProductoMostrador | null> {
   const codigo = limpiarCodigoDeBarras(texto);
   if (!codigo) return null;
   const { supabase, negocio } = await negocioActual();
@@ -77,16 +95,22 @@ export async function buscarPorCodigoDeBarras(texto: string): Promise<ProductoMo
 export type ResultadoAsociar = { ok: true } | { ok: false; error: string };
 
 /** Asocia (o quita, con null) el código de barras de un producto. Es editar el producto: solo dueña y administradora. */
-export async function asociarCodigoDeBarras(productoId: string, texto: string | null): Promise<ResultadoAsociar> {
+export async function asociarCodigoDeBarras(
+  productoId: string,
+  texto: string | null,
+): Promise<ResultadoAsociar> {
   const f = textos.mostrador.ficha;
   const codigo = texto === null ? null : limpiarCodigoDeBarras(texto);
-  if (!esUuid(productoId) || (texto !== null && !codigo)) return { ok: false, error: f.invalido };
+  if (!esUuid(productoId) || (texto !== null && !codigo))
+    return { ok: false, error: f.invalido };
 
   const { supabase } = await negocioActual();
   const r = await asignarCodigoDeBarras(supabase, productoId, codigo);
   if (!r.ok) {
-    if (r.error.tipo === "codigo_repetido") return { ok: false, error: t.barras.repetido };
-    if (r.error.tipo === "sin_permiso") return { ok: false, error: t.barras.soloGestion };
+    if (r.error.tipo === "codigo_repetido")
+      return { ok: false, error: t.barras.repetido };
+    if (r.error.tipo === "sin_permiso")
+      return { ok: false, error: t.barras.soloGestion };
     return { ok: false, error: t.errores.general };
   }
 

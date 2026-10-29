@@ -11,7 +11,13 @@ import { asociarCodigoDeBarras } from "../actions/vender";
 const t = textos.mostrador.ficha;
 
 /** En la ficha del producto: ver, escribir (o escanear con un lector, que escribe solo) y quitar el código de barras. */
-export function CodigoDeBarrasForm({ productoId, actual }: { productoId: string; actual: string | null }) {
+export function CodigoDeBarrasForm({
+  productoId,
+  actual,
+}: {
+  productoId: string;
+  actual: string | null;
+}) {
   const { avisar } = useToast();
   const [codigo, setCodigo] = useState(actual ?? "");
   const [guardado, setGuardado] = useState(actual);
@@ -58,11 +64,20 @@ export function CodigoDeBarrasForm({ productoId, actual }: { productoId: string;
           error={error}
         />
         <div className="flex flex-wrap items-center gap-3">
-          <Button type="submit" variante="mango" disabled={pendiente || !codigo.trim() || codigo.trim() === guardado}>
+          <Button
+            type="submit"
+            variante="mango"
+            disabled={pendiente || !codigo.trim() || codigo.trim() === guardado}
+          >
             {pendiente ? t.guardando : t.guardar}
           </Button>
           {guardado && (
-            <Button type="button" variante="secundario" disabled={pendiente} onClick={() => void guardar(null)}>
+            <Button
+              type="button"
+              variante="secundario"
+              disabled={pendiente}
+              onClick={() => void guardar(null)}
+            >
               {t.quitar}
             </Button>
           )}

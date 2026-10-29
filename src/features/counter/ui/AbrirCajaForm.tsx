@@ -11,7 +11,10 @@ import { abrirLaCaja, type EstadoCaja } from "../actions/caja";
 const t = textos.caja;
 
 export function AbrirCajaForm() {
-  const [estado, accion, pendiente] = useActionState<EstadoCaja, FormData>(abrirLaCaja, {});
+  const [estado, accion, pendiente] = useActionState<EstadoCaja, FormData>(
+    abrirLaCaja,
+    {},
+  );
   return (
     <form action={accion} className={`${TARJETA} flex flex-col gap-4 bg-crema`}>
       <div className="flex items-center gap-4">
