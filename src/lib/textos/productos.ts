@@ -288,7 +288,7 @@ export const productos = {
     nombreVariantesAyuda: "Se cambia en todas las variantes.",
     variante: "Nombre de esta variante",
     precioVariante: "Precio de esta variante",
-    avisoVariantes: "La descripción, la categoría, la marca y la condición también se cambian en todas las variantes. El precio es solo de esta.",
+    avisoVariantes: "La descripción, la categoría, la marca y la condición también se cambian en todas las variantes. El precio, el costo y las fotos son solo de esta.",
     errorCantidad: "La cantidad tiene que ser un número entero, de 0 en adelante.",
     errorCantidadMinima: (n: number) =>
       `Hay ${n} ${n === 1 ? "unidad apartada o vendida" : "unidades apartadas o vendidas"}: la cantidad no puede ser menor.`,
@@ -403,6 +403,9 @@ export const productos = {
       ayuda: "Cada variante queda con su propio código, su stock y su ganancia. La vitrina las muestra juntas para elegir.",
       etiqueta: (n: number) => `Variante ${n} (por ejemplo M o rosa)`,
       cantidad: (n: number) => `Cantidad de la variante ${n}`,
+      costo: (c: string) => `Costo de compra de ${c}`,
+      costoPlaceholder: "Costo",
+      costoAyuda: "El costo de compra es opcional: si lo dejás vacío, usa el de Costos.",
       agregar: "Agregar otra variante",
       quitar: (n: number) => `Quitar la variante ${n}`,
       opcionesTitulo: "Opciones",
@@ -431,6 +434,7 @@ export const productos = {
       etiqueta: "Cada variante necesita un nombre corto, por ejemplo M o rosa.",
       repetida: "Hay dos variantes con el mismo nombre.",
       cantidad: "La cantidad de cada variante tiene que ser un número entero, de 1 en adelante.",
+      costo: "El costo de una variante no se entiende. Escribilo como 5.99, o dejalo vacío.",
     },
     errorVariantesParcial: (creadas: number, total: number) =>
       `Se crearon ${creadas} de ${total} variantes. Revisá Productos antes de intentar de nuevo, para no repetir las que ya quedaron.`,

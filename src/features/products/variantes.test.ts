@@ -5,7 +5,7 @@ describe("validarVariantes", () => {
   const ok = [{ etiqueta: " M ", cantidad: "2" }, { etiqueta: "L", cantidad: 3 }];
 
   it("acepta y limpia lo escrito", () => {
-    expect(validarVariantes(ok)).toEqual({ ok: true, variantes: [{ etiqueta: "M", cantidad: 2 }, { etiqueta: "L", cantidad: 3 }] });
+    expect(validarVariantes(ok)).toEqual({ ok: true, variantes: [{ etiqueta: "M", cantidad: 2, compra: null }, { etiqueta: "L", cantidad: 3, compra: null }] });
   });
 
   it("pide al menos dos y no más de doce", () => {
@@ -23,6 +23,12 @@ describe("validarVariantes", () => {
     for (const cantidad of ["0", "-1", "1.5", "", "abc"]) {
       expect(validarVariantes([ok[0], { etiqueta: "XL", cantidad }])).toEqual({ ok: false, error: "cantidad" });
     }
+  });
+
+  it("lee el costo de compra de cada variante, y vacío usa el del producto", () => {
+    const r = validarVariantes([{ ...ok[0], compra: "5.99" }, { ...ok[1], compra: " " }]);
+    expect(r.ok && r.variantes.map((v) => v.compra)).toEqual([599, null]);
+    expect(validarVariantes([{ ...ok[0], compra: "abc" }, ok[1]])).toEqual({ ok: false, error: "costo" });
   });
 });
 

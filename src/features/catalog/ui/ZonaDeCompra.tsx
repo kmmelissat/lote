@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { formatearDolares } from "@/lib/formato";
@@ -9,6 +9,7 @@ import { textos } from "@/lib/textos";
 import { agregarAlCarrito } from "../carrito";
 import { AvisameCuandoHaya } from "./AvisameCuandoHaya";
 import { tituloDe } from "../opciones";
+import { useFotosElegidas } from "./FotosPorVariante";
 
 const t = textos.vitrina.compra;
 
@@ -20,6 +21,8 @@ export type VarianteCompra = {
   precio: number;
   /** El precio de antes (centavos), para mostrar la oferta; null si no hay */
   precioAnterior: number | null;
+  /** Las fotos propias de la variante; vacío si usa las del producto */
+  fotos: string[];
 };
 
 /**
@@ -53,6 +56,9 @@ export function ZonaDeCompra({
       : elegido.every((e) => e !== null)
         ? variantes.find((v) => v.partes.every((x, i) => x === elegido[i]))
         : undefined;
+  const { poner: ponerFotos } = useFotosElegidas();
+  const fotosElegidas = seleccionada && dims > 0 ? seleccionada.fotos : null;
+  useEffect(() => ponerFotos(fotosElegidas), [fotosElegidas, ponerFotos]);
   const hayStock = (seleccionada?.disponibles ?? 0) > 0;
   const tope = seleccionada?.disponibles ?? 0;
   const unidades = Math.min(Math.max(cantidad, 1), Math.max(tope, 1));

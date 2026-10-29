@@ -74,10 +74,10 @@ export async function editarProducto(
     if (miembros.some((m) => m.id !== producto.id && m.variante?.toLowerCase() === etiqueta.toLowerCase())) {
       return { errores: { variante: t.errorVariantes.repetida }, valores };
     }
-    // El nombre base, la ficha y las fotos son de todas; el precio, el stock y el costo son solo de esta variante.
+    // El nombre base y la ficha son de todas; el precio, el stock, el costo y las fotos son solo de esta variante.
     const todas = miembros.map((m) => (m.id === producto.id ? { ...m, variante: etiqueta } : m));
     const okFicha = await actualizarFichaDelGrupo(supabase, todas, nombre, ficha, nombreConVariante);
-    const okFotos = (await Promise.all(miembros.map((m) => guardarFotos(supabase, m.id, fotos)))).every(Boolean);
+    const okFotos = await guardarFotos(supabase, producto.id, fotos);
     const okPrecio = await actualizarProducto(supabase, producto.id, { nombre: nombreConVariante(nombre, etiqueta), precio: precio!, ...ficha });
     const okVariante = await guardarVariante(supabase, producto.id, {
       grupo: producto.grupo,

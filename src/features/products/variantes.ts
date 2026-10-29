@@ -1,4 +1,4 @@
-import { nombreBase, SEPARADOR_VARIANTE as SEPARADOR } from "@/domain";
+import { leerDolares, nombreBase, SEPARADOR_VARIANTE as SEPARADOR, type Centavos } from "@/domain";
 import type { Producto } from "./repositorio";
 
 // Cada variante es un producto hermano (ver supabase/variantes.sql). Estas funciones son las reglas
@@ -22,13 +22,17 @@ export function combinarOpciones(opciones: string[][]): string[] {
   return listas.reduce<string[]>((acum, valores) => acum.flatMap((a) => valores.map((v) => (a ? `${a}${SEPARADOR}${v}` : v))), [""]);
 }
 
-export type FilaVariante = { etiqueta: string; cantidad: number };
+/** `compra`: el costo de compra propio de la variante; null si usa el del producto. */
+export type FilaVariante = { etiqueta: string; cantidad: number; compra: Centavos | null };
 
-export type ErrorVariantes = "pocas" | "muchas" | "etiqueta" | "repetida" | "cantidad";
+export type ErrorVariantes = "pocas" | "muchas" | "etiqueta" | "repetida" | "cantidad" | "costo";
 
-/** Valida lo que escribió la persona: entre 2 y 30 variantes, sin etiquetas repetidas y con cantidades enteras de 1 en adelante. */
+/**
+ * Valida lo que escribió la persona: entre 2 y 30 variantes, sin etiquetas repetidas, con cantidades enteras de 1 en
+ * adelante y, si se puso, un costo de compra que se entienda.
+ */
 export function validarVariantes(
-  filas: { etiqueta: unknown; cantidad: unknown }[],
+  filas: { etiqueta: unknown; cantidad: unknown; compra?: unknown }[],
 ): { ok: true; variantes: FilaVariante[] } | { ok: false; error: ErrorVariantes } {
   if (filas.length < MINIMO_VARIANTES) return { ok: false, error: "pocas" };
   if (filas.length > MAXIMO_VARIANTES) return { ok: false, error: "muchas" };
@@ -42,7 +46,10 @@ export function validarVariantes(
     vistas.add(clave);
     const cantidad = Number(typeof f.cantidad === "string" ? f.cantidad.trim() || "NaN" : f.cantidad);
     if (!Number.isInteger(cantidad) || cantidad < 1) return { ok: false, error: "cantidad" };
-    variantes.push({ etiqueta, cantidad });
+    const textoCompra = typeof f.compra === "string" ? f.compra.trim() : "";
+    const compra = textoCompra ? leerDolares(textoCompra) : null;
+    if (textoCompra && compra === null) return { ok: false, error: "costo" };
+    variantes.push({ etiqueta, cantidad, compra });
   }
   return { ok: true, variantes };
 }

@@ -5,9 +5,16 @@ import { useRef, useState } from "react";
 import { Monito } from "@/components/ui/Monito";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
+import { useFotosElegidas } from "./FotosPorVariante";
 
-/** La foto grande del producto y miniaturas para cambiar de una a otra. */
+/** La foto grande del producto y miniaturas para cambiar de una a otra. Si la variante elegida tiene fotos propias, se ven esas. */
 export function GaleriaVitrina({ fotos, nombre }: { fotos: string[]; nombre: string }) {
+  const { fotos: elegidas } = useFotosElegidas();
+  const lista = elegidas?.length ? elegidas : fotos;
+  return <Galeria key={lista.join("|")} fotos={lista} nombre={nombre} />;
+}
+
+function Galeria({ fotos, nombre }: { fotos: string[]; nombre: string }) {
   const [actual, setActual] = useState(0);
   const ampliada = useRef<HTMLDialogElement>(null);
   if (!fotos.length) {

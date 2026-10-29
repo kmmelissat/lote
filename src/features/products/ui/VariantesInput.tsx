@@ -17,6 +17,8 @@ export type EstadoVariantes = {
   grupos: GrupoOpciones[];
   /** Cantidades cambiadas a mano, por combinación */
   cantidades: Record<string, string>;
+  /** Costos de compra propios, por combinación; las que no tienen usan el del producto */
+  costos: Record<string, string>;
   /** Combinaciones que la persona sacó del cruce */
   quitadas: string[];
   /** La cantidad de las que no se cambiaron a mano */
@@ -24,13 +26,14 @@ export type EstadoVariantes = {
 };
 
 /** Una fila lista para el servidor: la etiqueta es la combinación completa ("iPhone 17 · Rosa"). */
-export type FilaForm = { id: string; etiqueta: string; cantidad: string };
+export type FilaForm = { id: string; etiqueta: string; cantidad: string; compra: string };
 
 export const grupoNuevo = (nombre = "", valores: string[] = []): GrupoOpciones => ({ id: crypto.randomUUID(), nombre, valores });
 
 export const estadoNuevo = (): EstadoVariantes => ({
   grupos: [grupoNuevo(t.opcionNombres[0]), grupoNuevo(t.opcionNombres[1])],
   cantidades: {},
+  costos: {},
   quitadas: [],
   cantidadBase: "1",
 });
@@ -39,7 +42,7 @@ export const estadoNuevo = (): EstadoVariantes => ({
 export function filasDe(e: EstadoVariantes): FilaForm[] {
   return combinarOpciones(e.grupos.map((g) => g.valores))
     .filter((c) => !e.quitadas.includes(c))
-    .map((c) => ({ id: c, etiqueta: c, cantidad: e.cantidades[c] ?? e.cantidadBase }));
+    .map((c) => ({ id: c, etiqueta: c, cantidad: e.cantidades[c] ?? e.cantidadBase, compra: e.costos[c] ?? "" }));
 }
 
 /** Valores como fichas: se agregan con Enter o coma, y al pegar una lista (por línea o separada por comas) se parte sola. */
@@ -157,7 +160,7 @@ export function VariantesInput({ valor, onCambio, error }: Props) {
         name="opcionesNombres"
         value={JSON.stringify(abiertas ? e.grupos.filter((g) => g.valores.length).map((g) => g.nombre.trim()) : [])}
       />
-      <input type="hidden" name="variantes" value={JSON.stringify(abiertas ? filas.map(({ etiqueta, cantidad }) => ({ etiqueta, cantidad })) : [])} />
+      <input type="hidden" name="variantes" value={JSON.stringify(abiertas ? filas.map(({ etiqueta, cantidad, compra }) => ({ etiqueta, cantidad, compra })) : [])} />
 
       <div className={`grid transition-[grid-template-rows] duration-200 ease-out ${abiertas ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
         <div className="overflow-hidden" inert={!abiertas}>
@@ -212,6 +215,7 @@ export function VariantesInput({ valor, onCambio, error }: Props) {
                 <div>
                   <h3 className="font-bold">{t.combinaciones(filas.length)}</h3>
                   <p className="text-sm text-texto-2">{t.combinacionesAyuda}</p>
+                  <p className="text-sm text-texto-2">{t.costoAyuda}</p>
                 </div>
                 <label className="flex items-center gap-2 text-sm font-bold">
                   {t.cantidadTodas}
@@ -231,6 +235,14 @@ export function VariantesInput({ valor, onCambio, error }: Props) {
                   {filas.map((f) => (
                     <li key={f.id} className="flex items-center gap-2 rounded-xl border-2 border-teal-oscuro/15 px-3 py-1.5">
                       <span className="min-w-0 flex-1 truncate text-sm font-medium">{f.etiqueta}</span>
+                      <input
+                        inputMode="decimal"
+                        aria-label={t.costo(f.etiqueta)}
+                        placeholder={t.costoPlaceholder}
+                        value={f.compra}
+                        onChange={(ev) => poner({ ...e, costos: { ...e.costos, [f.etiqueta]: ev.target.value } })}
+                        className="h-9 max-md:min-h-11 w-20 rounded-lg border-2 border-borde-control px-2 text-center text-sm tabular-nums"
+                      />
                       <input
                         inputMode="numeric"
                         aria-label={textos.productos.form.variantes.cantidad(filas.indexOf(f) + 1)}

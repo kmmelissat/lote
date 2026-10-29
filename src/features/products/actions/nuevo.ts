@@ -20,10 +20,12 @@ export type EstadoNuevo = {
   valores?: Record<string, string>;
 };
 
-function listaDeFilas(json: string | undefined): { etiqueta: unknown; cantidad: unknown }[] {
+type FilaCruda = { etiqueta: unknown; cantidad: unknown; compra?: unknown };
+
+function listaDeFilas(json: string | undefined): FilaCruda[] {
   try {
     const lista: unknown = JSON.parse(json || "[]");
-    return Array.isArray(lista) ? lista.filter((f): f is { etiqueta: unknown; cantidad: unknown } => typeof f === "object" && f !== null) : [];
+    return Array.isArray(lista) ? lista.filter((f): f is FilaCruda => typeof f === "object" && f !== null) : [];
   } catch {
     return [];
   }
@@ -92,6 +94,7 @@ export async function nuevoProducto(
 
   if (validadas?.ok) {
     // Cada variante es un producto hermano: su código, su stock y su costo; comparten grupo y foto.
+    // Si la variante trae su costo de compra, reemplaza al del producto; los demás rubros son de todas.
     const grupo = crypto.randomUUID();
     const opcionesVariante = nombresDeOpciones(valores.opcionesNombres);
     const hechos = await Promise.allSettled(
@@ -100,6 +103,7 @@ export async function nuevoProducto(
           ...comun,
           nombre: nombreConVariante(nombre, v.etiqueta),
           cantidad: v.cantidad,
+          costos: v.compra === null ? costos : [{ tipo: "compra" as const, monto: v.compra }, ...costos.filter((c) => c.tipo !== "compra")],
           grupo,
           variante: v.etiqueta,
           opcionesVariante,
