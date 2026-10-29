@@ -28,6 +28,9 @@ export type ProductoExplorar = {
   opciones: number;
 };
 
+/** La página de una categoría tiene dirección propia, sin parámetros: es la que se indexa. */
+export const rutaCategoria = (categoria: string) => `/explorar/categoria/${encodeURIComponent(categoria)}`;
+
 export const ORDENES_EXPLORAR = ["recientes", "precio_asc", "precio_desc"] as const;
 export type OrdenExplorar = (typeof ORDENES_EXPLORAR)[number];
 

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   // Las imágenes de vista previa leen sus fuentes y el gorila del disco: que viajen con esas rutas al desplegar.
   outputFileTracingIncludes: {
     "/**/opengraph-image*": ["./assets/fuentes/**/*", "./public/lote-iso.svg"],
+    "/apple-icon*": ["./public/lote-iso.svg"],
   },
   /* config options here */
   images: {

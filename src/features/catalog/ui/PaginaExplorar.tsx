@@ -10,9 +10,11 @@ import {
   explorarTiendas,
   ORDENES_EXPLORAR,
   type OrdenExplorar,
+  rutaCategoria,
 } from "../explorar";
 import { colorDeMarca } from "../marca";
 import { LogoTienda } from "./MarcaTienda";
+import { SobreExplorar } from "./SobreExplorar";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { JsonLd } from "@/lib/jsonld";
@@ -44,18 +46,29 @@ type Filtros = {
   pagina?: number;
 };
 
-/** Arma la dirección de Explorar con los filtros que estén puestos (lo que está por defecto no se escribe). */
+/**
+ * Arma la dirección de Explorar con los filtros que estén puestos (lo que está por defecto no se escribe).
+ * La categoría va en la ruta; búsqueda, precio, orden y página van como parámetros.
+ */
 function enlace(f: Filtros): string {
   const p = new URLSearchParams();
+  const enRuta = f.vista === "productos" && f.categoria;
   if (f.vista !== "productos") p.set("vista", f.vista);
   if (f.busqueda) p.set("q", f.busqueda);
-  if (f.categoria) p.set("categoria", f.categoria);
+  if (f.categoria && !enRuta) p.set("categoria", f.categoria);
   if (f.orden !== "recientes") p.set("orden", f.orden);
   if (f.min) p.set("min", f.min);
   if (f.max) p.set("max", f.max);
   if (f.pagina && f.pagina > 1) p.set("pagina", String(f.pagina));
   const s = p.toString();
-  return s ? `/explorar?${s}` : "/explorar";
+  const base = enRuta ? rutaCategoria(f.categoria) : "/explorar";
+  return s ? `${base}?${s}` : base;
+}
+
+/** El enlace y su rel: lo que lleva parámetros (filtros, orden, páginas) no lo siguen los buscadores. */
+function enlaceExplorar(f: Filtros): { href: string; rel?: string } {
+  const href = enlace(f);
+  return href.includes("?") ? { href, rel: "nofollow" } : { href };
 }
 
 const chip = (activo: boolean) =>
@@ -74,14 +87,18 @@ function dolares(texto: string): number | undefined {
 
 export async function PaginaExplorar({
   searchParams,
-}: Pick<PageProps<"/explorar">, "searchParams">) {
+  categoriaRuta,
+}: Pick<PageProps<"/explorar">, "searchParams"> & {
+  /** La categoría de /explorar/categoria/<nombre>; manda sobre ?categoria= */
+  categoriaRuta?: string;
+}) {
   await connection();
   const params = await searchParams;
   const texto = (k: string) =>
     typeof params[k] === "string" ? (params[k] as string).slice(0, 80) : "";
   const vista: Vista = texto("vista") === "tiendas" ? "tiendas" : "productos";
   const busqueda = texto("q").trim();
-  const categoria = texto("categoria").trim();
+  const categoria = (categoriaRuta ?? texto("categoria")).slice(0, 80).trim();
   const orden = (ORDENES_EXPLORAR as readonly string[]).includes(texto("orden"))
     ? (texto("orden") as OrdenExplorar)
     : "recientes";
@@ -118,12 +135,17 @@ export async function PaginaExplorar({
   const vacio =
     vista === "tiendas" ? tiendas.length === 0 : visibles.length === 0;
   const sugeridas = categorias.filter((c) => c.productos >= 2).slice(0, 4);
+  // Cada foto con su nombre, para el texto alternativo
   const destacadas = [
-    ...new Set([
-      ...visibles.flatMap((p) => (p.foto ? [p.foto] : [])),
-      ...tiendas.flatMap((x) => x.fotos),
-    ]),
-  ].slice(0, STICKERS.length);
+    ...visibles.flatMap((p) =>
+      p.foto ? [{ foto: p.foto, nombre: p.nombre }] : [],
+    ),
+    ...tiendas.flatMap((x) =>
+      x.fotos.map((foto) => ({ foto, nombre: t.productoDe(x.nombre) })),
+    ),
+  ]
+    .filter((d, i, todas) => todas.findIndex((o) => o.foto === d.foto) === i)
+    .slice(0, STICKERS.length);
   const precioActivo = Boolean(min || max);
   // El color y el logo de cada tienda, para que sus productos se distingan en la grilla
   const marcas = new Map(
@@ -155,6 +177,10 @@ export async function PaginaExplorar({
           <div
             className={`relative flex max-w-2xl flex-col gap-4 ${destacadas.length ? "sm:mr-56 md:mr-72" : ""}`}
           >
+            {/* Lo que dice el título de la pestaña, a la vista: en una categoría, su nombre primero */}
+            <p className="-mb-2 text-sm font-bold uppercase tracking-wide text-crema/80">
+              {categoria ? `${categoria} · ${t.antetitulo}` : t.antetitulo}
+            </p>
             <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-4xl">
               {t.encabezadoInicio}{" "}
               <span className="whitespace-nowrap bg-[linear-gradient(transparent_72%,var(--color-limon)_72%,var(--color-limon)_92%,transparent_92%)] [box-decoration-break:clone]">
@@ -188,6 +214,7 @@ export async function PaginaExplorar({
                 {t.buscarBoton}
               </button>
             </form>
+            <p className="max-w-xl text-crema/90">{categoria ? t.introCategoria(categoria) : t.intro}</p>
             {/* En tiendas no hay fila de categorías: ahí se sugieren las que tienen más productos */}
             {vista === "tiendas" && sugeridas.length > 0 && !busqueda && (
               <ul
@@ -200,7 +227,7 @@ export async function PaginaExplorar({
                 {sugeridas.map((c) => (
                   <li key={c.categoria}>
                     <Link
-                      href={enlace({
+                      {...enlaceExplorar({
                         ...f,
                         categoria: c.categoria,
                         vista: "productos",
@@ -217,18 +244,15 @@ export async function PaginaExplorar({
           </div>
           {/* Fotos de productos de verdad, pegadas como stickers: muestran de una lo que hay para ver */}
           {destacadas.length > 0 && (
-            <ul
-              aria-hidden="true"
-              className="absolute -bottom-7 -top-7 right-6 hidden w-48 sm:block md:right-10 md:w-60"
-            >
-              {destacadas.map((foto, i) => (
+            <ul className="absolute -bottom-7 -top-7 right-6 hidden w-48 sm:block md:right-10 md:w-60">
+              {destacadas.map(({ foto, nombre }, i) => (
                 <li
                   key={foto}
                   className={`absolute size-24 overflow-hidden rounded-2xl border-[3px] border-white shadow-[4px_4px_0_0_var(--color-rosa)] md:size-28 ${STICKERS[i]}`}
                 >
                   <Image
                     src={urlFoto(foto)}
-                    alt=""
+                    alt={nombre}
                     fill
                     loading="eager"
                     sizes="112px"
@@ -248,7 +272,7 @@ export async function PaginaExplorar({
               {t.tiendasParaRecorrer}
             </h2>
             <Link
-              href={enlace({ ...f, vista: "tiendas" })}
+              {...enlaceExplorar({ ...f, vista: "tiendas" })}
               className="inline-flex min-h-11 items-center text-sm font-bold text-teal underline"
             >
               {t.verTodasTiendas}
@@ -284,7 +308,7 @@ export async function PaginaExplorar({
               >
                 <li className="shrink-0">
                   <Link
-                    href={enlace({ ...f, categoria: "", pagina: 1 })}
+                    {...enlaceExplorar({ ...f, categoria: "", pagina: 1 })}
                     aria-current={!categoria ? "true" : undefined}
                     className={chip(!categoria)}
                   >
@@ -294,7 +318,11 @@ export async function PaginaExplorar({
                 {categorias.map((c) => (
                   <li key={c.categoria} className="shrink-0">
                     <Link
-                      href={enlace({ ...f, categoria: c.categoria, pagina: 1 })}
+                      {...enlaceExplorar({
+                        ...f,
+                        categoria: c.categoria,
+                        pagina: 1,
+                      })}
                       aria-current={
                         categoria === c.categoria ? "true" : undefined
                       }
@@ -367,7 +395,12 @@ export async function PaginaExplorar({
                     <div className="flex items-center justify-between gap-2">
                       {precioActivo ? (
                         <Link
-                          href={enlace({ ...f, min: "", max: "", pagina: 1 })}
+                          {...enlaceExplorar({
+                            ...f,
+                            min: "",
+                            max: "",
+                            pagina: 1,
+                          })}
                           className="text-sm font-bold text-teal underline"
                         >
                           {t.limpiar}
@@ -395,7 +428,7 @@ export async function PaginaExplorar({
                     {ORDENES_EXPLORAR.map((o) => (
                       <li key={o}>
                         <Link
-                          href={enlace({ ...f, orden: o, pagina: 1 })}
+                          {...enlaceExplorar({ ...f, orden: o, pagina: 1 })}
                           aria-current={o === orden ? "true" : undefined}
                           className="flex min-h-11 items-center rounded-xl px-3 text-sm font-medium hover:bg-crema aria-[current=true]:bg-limon aria-[current=true]:font-bold"
                         >
@@ -413,7 +446,7 @@ export async function PaginaExplorar({
         <div className="flex min-w-0 flex-col gap-4">
           {vista === "tiendas" && (
             <Link
-              href={enlace({ ...f, vista: "productos", pagina: 1 })}
+              {...enlaceExplorar({ ...f, vista: "productos", pagina: 1 })}
               className="inline-flex min-h-11 items-center self-start text-sm font-bold text-teal underline"
             >
               ← {t.volverProductos}
@@ -456,7 +489,7 @@ export async function PaginaExplorar({
                         >
                           <Image
                             src={urlFoto(foto)}
-                            alt=""
+                            alt={t.productoDe(tienda.nombre)}
                             fill
                             loading={i < 3 ? "eager" : "lazy"}
                             sizes="(min-width: 1024px) 130px, 25vw"
@@ -605,7 +638,7 @@ export async function PaginaExplorar({
                 >
                   {pagina > 1 ? (
                     <Link
-                      href={enlace({ ...f, pagina: pagina - 1 })}
+                      {...enlaceExplorar({ ...f, pagina: pagina - 1 })}
                       className={chip(false)}
                     >
                       {t.anterior}
@@ -618,7 +651,7 @@ export async function PaginaExplorar({
                   </span>
                   {hayMas ? (
                     <Link
-                      href={enlace({ ...f, pagina: pagina + 1 })}
+                      {...enlaceExplorar({ ...f, pagina: pagina + 1 })}
                       className={chip(false)}
                     >
                       {t.siguiente}
@@ -632,6 +665,8 @@ export async function PaginaExplorar({
           )}
         </div>
       </div>
+
+      <SobreExplorar categoria={categoria} categorias={categorias} />
     </div>
   );
 }

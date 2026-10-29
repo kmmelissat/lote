@@ -116,6 +116,7 @@ export const vitrina = {
   agotadoSticker: "Agotado",
   volver: "Volver a la tienda",
   fotoDe: (nombre: string, n: number) => `${nombre}, foto ${n}`,
+  logoDe: (tienda: string) => `Logo de ${tienda}`,
   pieMarca: "Vitrina hecha con",
   pedirWhatsApp: "Pedir por WhatsApp",
   pedirInstagram: "Escribir por Instagram",
