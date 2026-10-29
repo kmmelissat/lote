@@ -14,7 +14,7 @@ export default function ExplorarLayout({ children }: LayoutProps<"/explorar">) {
           </Link>
           <Link
             href="/login"
-            className="inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+            className="inline-flex min-h-11 max-w-[13rem] items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-4 py-1.5 text-center text-sm font-bold leading-tight sm:max-w-none sm:px-5 text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
           >
             {textos.explorar.quieroMiTienda}
           </Link>

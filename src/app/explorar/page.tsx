@@ -168,7 +168,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/explorar">, "searchP
             <h2 id="tiendas-fila" className="font-bold">
               {t.tiendasParaRecorrer}
             </h2>
-            <Link href={enlace({ ...f, vista: "tiendas" })} className="text-sm font-bold text-teal underline">
+            <Link href={enlace({ ...f, vista: "tiendas" })} className="inline-flex min-h-11 items-center text-sm font-bold text-teal underline">
               {t.verTodasTiendas}
             </Link>
           </div>

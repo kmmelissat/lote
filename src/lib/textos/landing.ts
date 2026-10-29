@@ -35,7 +35,7 @@ export const landing = {
     emprendimientos: ["Ternuritos", "Koa", "Capo", "Mims", "MG Vinyls"],
     mock: {
       productos: "Productos",
-      disponibles: (n: number) => `Disponibles: ${n}`,
+      disponibles: (n: number) => `Disponibles:\u00a0${n}`,
       filas: [
         { nombre: "Chaqueta negra M", precio: "$25.00", icono: "camisa" as const, texto: "Queda 1" },
         { nombre: "CD Michael Jackson · Rose", precio: "$33.50", icono: "disco" as const, texto: "Quedan 12" },
@@ -109,6 +109,12 @@ export const landing = {
       titulo: "Un estado por pieza",
       texto: "Disponible, apartada o vendida. Si alguien intenta apartar algo que ya no está, Lote te avisa para quién es.",
       aviso: "Ya está apartada para @ana",
+      contadores: [
+        ["12", "Disponibles"],
+        ["3", "Apartadas"],
+        ["8", "Vendidas"],
+      ],
+      cuenta: "Tus unidades siempre cuadran: lo apartado no se vende dos veces.",
     },
     vitrina: {
       titulo: "Vitrina con tu enlace",
@@ -136,8 +142,31 @@ export const landing = {
       archivo: "mis-productos.csv",
       filas: "12 productos listos",
     },
+    foto: {
+      titulo: "Una foto y listo",
+      texto: "Sacá la foto del producto y Lotito llena el nombre, la categoría, la marca y la descripción. Vos confirmás o corregís.",
+      campos: ["Chaqueta negra M", "Ropa", "Descripción lista"],
+    },
+    mostrador: {
+      etiqueta: "Si tenés un local",
+      titulo: "Cobrá en el mostrador",
+      texto: "Escaneá el código de barras, aplicá un descuento y cobrá en pocos toques. Al cerrar, la caja te dice si el efectivo cuadra.",
+      lineas: [
+        ["Llaveros × 2", "$6.00"],
+        ["Descuento", "−$1.00"],
+      ],
+      total: "Total $5.00",
+      cobrar: "Cobrar",
+      cuadra: "La caja cuadra",
+    },
+    descubrir: {
+      titulo: "Que te descubran",
+      texto: "Aparecé en Explorar si querés, y mostrá las reseñas de quienes ya te compraron.",
+      cita: "Llegó rapidísimo y tal cual la foto.",
+      quien: "Una clienta",
+    },
     tambien:
-      "También: variantes (talla, tono, color), resumen semanal, ayudante con permisos, y exportar tus datos cuando quieras.",
+      "También: variantes (talla, tono, color), carrito de varios productos en tu vitrina, resumen semanal, ayudante con permisos, y exportar tus datos cuando quieras.",
   },
   principios: {
     titulo: "Hecha para que no la abandones",

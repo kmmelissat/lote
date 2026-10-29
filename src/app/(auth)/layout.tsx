@@ -40,7 +40,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
             <Link href="/" aria-label={textos.nombre} className="md:hidden">
               <Logo />
             </Link>
-            <Link href="/" className="ml-auto text-sm font-bold text-teal underline">
+            <Link href="/" className="ml-auto inline-flex min-h-11 items-center text-sm font-bold text-teal underline">
               ← {textos.acceso.volver}
             </Link>
           </div>

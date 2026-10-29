@@ -24,7 +24,7 @@ export function CheckoutCarrito({ slug, opciones }: { slug: string; opciones: Op
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
         <p className="text-texto-2">{t.vacioTexto}</p>
-        <Link href={`/c/${slug}`} className="font-bold text-teal underline">
+        <Link href={`/c/${slug}`} className="inline-flex min-h-11 items-center font-bold text-teal underline">
           {t.seguir}
         </Link>
       </div>

@@ -17,14 +17,14 @@ export function Pie() {
         <div className="flex flex-col gap-3 text-sm text-teal-oscuro/80 md:items-end">
           <Logo />
           <p>{t.pie.proyecto}</p>
-          <nav aria-label={t.menu} className="flex gap-5 font-medium">
-            <Link href="/explorar" className="hover:text-teal hover:underline">
+          <nav aria-label={t.menu} className="flex flex-wrap gap-x-5 font-medium">
+            <Link href="/explorar" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">
               {textos.explorar.enlaceMenu}
             </Link>
-            <Link href="/privacidad" className="hover:text-teal hover:underline">
+            <Link href="/privacidad" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">
               {t.pie.privacidad}
             </Link>
-            <Link href="/login" className="hover:text-teal hover:underline">
+            <Link href="/login" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">
               {t.entrar}
             </Link>
           </nav>

@@ -21,6 +21,15 @@ export function Funciones() {
           <article className={`${tarjeta} flex flex-col gap-4 bg-teal-fondo md:col-span-3 md:row-span-2`}>
             <h3 className={h3}>{t.estado.titulo}</h3>
             <p className={parrafo}>{t.estado.texto}</p>
+            <dl aria-hidden="true" className="grid grid-cols-3 gap-2">
+              {t.estado.contadores.map(([n, etiqueta]) => (
+                <div key={etiqueta} className="flex flex-col items-center rounded-2xl border-2 border-teal-oscuro bg-superficie py-3">
+                  <dd className="text-3xl font-bold leading-none tabular-nums">{n}</dd>
+                  <dt className="mt-1 text-xs font-medium text-texto-2">{etiqueta}</dt>
+                </div>
+              ))}
+            </dl>
+            <p className="text-[15px] leading-snug text-texto-2">{t.estado.cuenta}</p>
             <div aria-hidden="true" className="mt-auto flex flex-col gap-3 pt-2">
               <ul className="flex flex-col gap-2 rounded-2xl border-2 border-teal-oscuro bg-superficie p-3">
                 {(
@@ -28,6 +37,8 @@ export function Funciones() {
                     ["camisa", "rosa", "Chaqueta negra M", "apartado"],
                     ["disco", "limon", "CD Michael Jackson", "disponible"],
                     ["llave", "teal", "Llaveros", "vendido"],
+                    ["camisa", "limon", "Gorra azul", "disponible"],
+                    ["disco", "rosa", "Vinilo Fleetwood Mac", "apartado"],
                   ] as const
                 ).map(([icono, tono, nombre, estado]) => (
                   <li key={nombre} className="flex items-center gap-3">
@@ -72,7 +83,7 @@ export function Funciones() {
           </article>
 
           {/* Ganancia */}
-          <article className={`${tarjeta} flex flex-col gap-3 bg-limon md:col-span-2`}>
+          <article className={`${tarjeta} flex flex-col gap-3 bg-limon md:col-span-3`}>
             <h3 className={h3}>{t.ganancia.titulo}</h3>
             <p className="text-[56px] font-bold leading-none tracking-tight tabular-nums" aria-hidden="true">
               {t.ganancia.valor}
@@ -82,6 +93,24 @@ export function Funciones() {
             </span>
             <p className="text-[17px] leading-relaxed">{t.ganancia.texto}</p>
             <Monito nombre="moneda" className="mt-auto w-24 self-end text-teal-oscuro" />
+          </article>
+
+          {/* Foto a ficha */}
+          <article className={`${tarjeta} flex flex-col gap-4 bg-rosa-palido md:col-span-4`}>
+            <h3 className={h3}>{t.foto.titulo}</h3>
+            <p className="text-[17px] leading-relaxed">{t.foto.texto}</p>
+            <div aria-hidden="true" className="mt-auto flex items-center gap-3 pt-2">
+              <Miniatura icono="camisa" tono="rosa" className="size-20 shrink-0" />
+              <Icon nombre="flecha" className="size-6 shrink-0 -rotate-90" />
+              <ul className="flex min-w-0 flex-1 flex-col gap-1.5">
+                {t.foto.campos.map((c) => (
+                  <li key={c} className="flex items-center gap-2 rounded-xl border-2 border-teal-oscuro bg-superficie px-3 py-1 text-sm font-medium">
+                    <Icon nombre="check" className="size-4 shrink-0 text-teal" />
+                    <span className="truncate">{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </article>
 
           {/* Pedidos */}
@@ -109,8 +138,48 @@ export function Funciones() {
             <p className="text-[17px] leading-relaxed text-white/80">{t.asistente.texto}</p>
           </article>
 
+          {/* Mostrador */}
+          <article className={`${tarjeta} flex flex-col gap-4 bg-superficie md:col-span-4 md:flex-row md:items-center md:justify-between`}>
+            <div className="flex max-w-sm flex-col gap-2">
+              <span className="self-start rounded-full border-2 border-teal-oscuro bg-rosa-palido px-3 py-0.5 text-sm font-bold">{t.mostrador.etiqueta}</span>
+              <h3 className={h3}>{t.mostrador.titulo}</h3>
+              <p className={parrafo}>{t.mostrador.texto}</p>
+            </div>
+            <div aria-hidden="true" className="flex w-full flex-col gap-2 rounded-2xl border-2 border-dashed border-teal-oscuro/50 bg-crema p-3 md:w-60 md:shrink-0">
+              {t.mostrador.lineas.map(([nombre, monto]) => (
+                <p key={nombre} className="flex justify-between text-sm text-texto-2">
+                  <span>{nombre}</span>
+                  <span className="tabular-nums">{monto}</span>
+                </p>
+              ))}
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-lg font-bold tabular-nums">{t.mostrador.total}</span>
+                <span className="rounded-full border-2 border-teal-oscuro bg-mango px-4 py-1 text-sm font-bold shadow-dura-chica">{t.mostrador.cobrar}</span>
+              </div>
+              <p className="flex items-center gap-2 self-start rounded-full bg-teal-fondo px-3 py-0.5 text-sm font-bold text-teal">
+                <Icon nombre="check" className="size-4" />
+                {t.mostrador.cuadra}
+              </p>
+            </div>
+          </article>
+
+          {/* Descubrir: Explorar y reseñas */}
+          <article className={`${tarjeta} flex flex-col gap-3 bg-teal-fondo md:col-span-2`}>
+            <h3 className={h3}>{t.descubrir.titulo}</h3>
+            <figure aria-hidden="true" className="flex flex-col gap-1 rounded-2xl border-2 border-teal-oscuro bg-superficie p-3">
+              <span className="flex gap-0.5 text-mango">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Icon key={i} nombre="estrella" className="size-4 fill-current" />
+                ))}
+              </span>
+              <blockquote className="text-sm font-medium">{t.descubrir.cita}</blockquote>
+              <figcaption className="text-xs text-texto-2">{t.descubrir.quien}</figcaption>
+            </figure>
+            <p className={parrafo}>{t.descubrir.texto}</p>
+          </article>
+
           {/* Importar */}
-          <article className={`${tarjeta} flex flex-col gap-4 bg-crema md:col-span-6 md:flex-row md:items-center md:justify-between`}>
+          <article className={`${tarjeta} flex flex-col gap-4 bg-crema md:col-span-4`}>
             <div className="flex max-w-xl flex-col gap-2">
               <h3 className={h3}>{t.importar.titulo}</h3>
               <p className={parrafo}>{t.importar.texto}</p>

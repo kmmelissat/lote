@@ -3,7 +3,7 @@ export const mostrador = {
   descripcion: "Vendé en persona en pocos toques.",
   errorPermiso: "Tu rol no puede registrar ventas.",
 
-  buscar: "Buscá por nombre o código, o escaneá",
+  buscar: "Buscá o escaneá",
   buscarEtiqueta: "Buscar un producto",
   escanear: "Escanear con la cámara",
   sinProductos: "Todavía no hay productos disponibles para vender.",
@@ -129,7 +129,7 @@ export const caja = {
     titulo: "Cerrar caja",
     contado: "Efectivo que contaste",
     nota: "Nota (opcional)",
-    notaAyuda: "Por ejemplo: faltó cambio, retiré para comprar bolsas",
+    notaAyuda: "Ej.: faltó cambio",
     cerrar: "Cerrar caja",
     cerrando: "Cerrando…",
     confirmarTitulo: "¿Cerrar la caja?",
