@@ -267,6 +267,30 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
           )}
         </Grupo>
 
+        <Grupo icono="info" className={vitrina ? "" : "hidden"} titulo={v.confianza.titulo} texto={v.confianza.texto}>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="flex flex-col gap-1">
+              <Field etiqueta={v.confianza.tiempo} name="tiempo_entrega" maxLength={80} placeholder={v.confianza.tiempoPlaceholder} defaultValue={ajustes.tiempoEntrega ?? ""} />
+              <p className="text-sm text-texto-2">{v.confianza.tiempoAyuda}</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="politica-cambios" className="text-sm font-medium">
+                {v.confianza.cambios}
+              </label>
+              <textarea
+                id="politica-cambios"
+                name="politica_cambios"
+                rows={3}
+                maxLength={300}
+                defaultValue={ajustes.politicaCambios ?? ""}
+                placeholder={v.confianza.cambiosPlaceholder}
+                className="rounded-[14px] border-2 border-borde-control bg-superficie px-4 py-3 text-base placeholder:text-texto-2/60 focus:border-teal"
+              />
+              <p className="text-sm text-texto-2">{v.confianza.cambiosAyuda}</p>
+            </div>
+          </div>
+        </Grupo>
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Grupo icono="buscar" className={vitrina ? "" : "hidden"} titulo={v.grupos.explorar.titulo} texto={v.grupos.explorar.texto}>
             <Interruptor name="explorar" titulo={v.explorar} ayuda={v.explorarAyuda} activo={explorar} onCambio={setExplorar} />

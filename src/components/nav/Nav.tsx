@@ -479,6 +479,13 @@ export function Nav({ datos }: { datos: DatosMenu }) {
               </li>
             )}
             <li>
+              <Link href="/explorar" target="_blank" className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
+                <Icon nombre="buscar" className="size-6 shrink-0 text-teal" />
+                {t.explorar}
+                <Icon nombre="enlace" className="size-4 text-texto-2" />
+              </Link>
+            </li>
+            <li>
               <CerrarSesion variante="menu" />
             </li>
           </ul>
@@ -525,6 +532,19 @@ export function Nav({ datos }: { datos: DatosMenu }) {
                     <Vitrina slug={datos.slug} />
                   </li>
                 )}
+                <li>
+                  <Link
+                    href="/explorar"
+                    target="_blank"
+                    title={t.explorar}
+                    className="group/item flex min-h-11 items-center gap-3 rounded-xl px-3 font-medium text-texto-2 transition-colors duration-150 hover:bg-white/70 hover:text-teal-oscuro group-data-[cerrado]:justify-center"
+                  >
+                    <Icon nombre="buscar" className="size-6 shrink-0 transition-transform duration-150 group-hover/item:translate-x-0.5" />
+                    <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">{t.explorar}</span>
+                    <Icon nombre="enlace" className="size-4 shrink-0 group-data-[cerrado]:hidden" />
+                    <span className="sr-only">(se abre en una pestaña nueva)</span>
+                  </Link>
+                </li>
               </ul>
             )}
           />

@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { aDolares } from "@/domain/index";
 import { editarProducto } from "@/features/products/actions/editar";
-import { listarCategorias, listarProductos, obtenerProducto } from "@/features/products/repositorio";
+import { listarCategorias, listarProductos, obtenerInfoExtra, obtenerProducto } from "@/features/products/repositorio";
 import { NuevoProductoForm } from "@/features/products/ui/NuevoProductoForm";
 import { nombreBase } from "@/features/products/variantes";
 import { negocioActual } from "@/lib/negocio";
@@ -46,6 +46,7 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
   const unicos = (valores: (string | null)[]) => [...new Set(valores.filter((x): x is string => !!x?.trim()))].sort();
   const sugerencias = { categorias: await listarCategorias(supabase, negocio.id), marcas: unicos(existentes.map((x) => x.marca)) };
 
+  const extra = await obtenerInfoExtra(supabase, p.id);
   const conVariante = p.grupo !== null && p.variante !== null;
   const dolares = (c: number | undefined) => (c === undefined ? "" : String(aDolares(c)));
   const inicial: Record<string, string> = {
@@ -61,6 +62,9 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
     envio: dolares(p.desglose?.envio),
     importacion: dolares(p.desglose?.importacion),
     otro: dolares(p.desglose?.otro),
+    detalles: JSON.stringify(extra.detalles),
+    estado_detalle: extra.estadoDetalle ?? "",
+    precio_anterior: dolares(extra.precioAnterior ?? undefined),
   };
 
   return (

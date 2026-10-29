@@ -3,12 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain/index";
+import { leerInfoExtra, tieneInfoExtra } from "../infoExtra";
 import { fotosValidas, TIPOS_COSTO } from "../leerFormulario";
 import {
   actualizarFichaDelGrupo,
   actualizarProducto,
   ajustarExistencia,
   guardarFotos,
+  guardarInfoExtra,
   guardarVariante,
   listarCategorias,
   listarGrupo,
@@ -51,6 +53,9 @@ export async function editarProducto(
   if (categoria && !(await listarCategorias(clienteCategorias, negocioCategorias.id)).some((c) => c.toLowerCase() === categoria.toLowerCase())) {
     errores.categoria = t.categorias.errorNoExiste;
   }
+
+  const { info, errorPrecioAnterior } = leerInfoExtra(valores, precio);
+  if (errorPrecioAnterior) errores.precio_anterior = t.precioAnterior.error;
 
   const cantidad = Number(texto("cantidad") || "NaN");
   if (!Number.isInteger(cantidad) || cantidad < 0) errores.cantidad = te.errorCantidad;
@@ -108,6 +113,12 @@ export async function editarProducto(
 
   if (cantidad !== producto.cantidad && (await ajustarExistencia(supabase, producto.id, cantidad)) !== "ok") return general;
   if (!(await reemplazarCostos(supabase, negocio.id, producto.id, costos))) return general;
+
+  // Detalles, estado y precio de antes: los dos primeros son de todas las variantes; el precio, de esta.
+  // Sin ficha_producto.sql esto falla: solo se avisa si la persona de verdad llenó algo.
+  const todas = producto.grupo ? (await listarGrupo(supabase, negocio.id, producto.grupo, false)).map((m) => m.id) : [producto.id];
+  const okInfo = await guardarInfoExtra(supabase, { todas, esta: producto.id }, info);
+  if (!okInfo && tieneInfoExtra(info)) return general;
 
   revalidatePath("/", "layout");
   redirect(`/productos/${codigo}?guardado=${encodeURIComponent(nombre)}`);

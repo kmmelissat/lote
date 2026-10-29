@@ -10,7 +10,8 @@ export type Seguimiento = {
   codigo: number;
   estado: EstadoPedido;
   creadoEn: Date;
-  items: { nombre: string; cantidad: number }[];
+  /** `codigo` solo viene después de correr ficha_producto.sql: sirve para dejar una reseña de cada producto */
+  items: { nombre: string; cantidad: number; codigo?: number }[];
   modo: "retiro" | "propio" | "paquetera" | null;
   paquetera: string | null;
   guia: string | null;
@@ -28,7 +29,7 @@ export async function obtenerSeguimiento(supabase: Cliente, pedidoId: string): P
     codigo: s.codigo,
     estado: s.estado as EstadoPedido,
     creadoEn: new Date(s.creado_en),
-    items: s.items as { nombre: string; cantidad: number }[],
+    items: s.items as { nombre: string; cantidad: number; codigo?: number }[],
     // La base restringe estos valores con un check.
     modo: s.modo as Seguimiento["modo"],
     paquetera: s.paquetera,

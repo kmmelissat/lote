@@ -7,6 +7,9 @@ import { GraficoSemanas } from "@/features/home/ui/GraficoSemanas";
 import { PedidosRecientes } from "@/features/home/ui/PedidosRecientes";
 import { TarjetaAtencion } from "@/features/home/ui/TarjetaAtencion";
 import { TarjetaDato } from "@/features/home/ui/TarjetaDato";
+import { TarjetaExplorar } from "@/features/home/ui/TarjetaExplorar";
+import { contarPendientes } from "@/features/reviews/repositorio";
+import { AvisoResenas } from "@/features/reviews/ui/AvisoResenas";
 import { TarjetaVitrina } from "@/features/home/ui/TarjetaVitrina";
 import { TarjetaGanancia } from "@/features/home/ui/TarjetaGanancia";
 import { faltanPasos, primerosPasos } from "@/features/home/primerosPasos";
@@ -91,6 +94,8 @@ async function Contenido() {
       <div className="flex flex-col gap-3">
         {faltanPasos(pasos) && <TarjetaPrimerosPasos pasos={pasos} />}
 
+        {negocio.puedeGestionar && <AvisoResenas pendientes={await contarPendientes(supabase, negocio.id)} />}
+
         <section aria-labelledby="contadores" className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           <h2 id="contadores" className="sr-only">
             {t.contadores}
@@ -118,6 +123,7 @@ async function Contenido() {
         </section>
 
         {negocio.vitrinaActiva && <TarjetaVitrina slug={negocio.slug} />}
+        {negocio.vitrinaActiva && <TarjetaExplorar visible={negocio.visibleEnExplorar} />}
 
         {sinMovimiento ? (
           <TarjetaAtencion r={r} ahora={ahora} />

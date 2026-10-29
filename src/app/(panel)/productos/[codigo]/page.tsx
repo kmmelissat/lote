@@ -9,7 +9,8 @@ import { Icon } from "@/components/ui/Icon";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { DesgloseCosto } from "@/domain";
 import { estadoVisible } from "@/features/products/estadoVisible";
-import { listarGrupo, obtenerProducto } from "@/features/products/repositorio";
+import { listarAvisosDeStock, listarGrupo, obtenerProducto } from "@/features/products/repositorio";
+import { AvisosDeStock } from "@/features/products/ui/AvisosDeStock";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
 import { nombreBase } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
@@ -46,6 +47,8 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
   const p = await obtenerProducto(supabase, negocio.id, codigo, negocio.puedeGestionar);
   if (!p) notFound();
   const variantes = p.grupo ? await listarGrupo(supabase, negocio.id, p.grupo, negocio.puedeGestionar) : [];
+  // Quiénes esperan este producto (o cualquiera de sus variantes)
+  const avisos = await listarAvisosDeStock(supabase, p.grupo ? variantes.map((v) => v.id) : [p.id]);
 
   const ganancia =
     p.costoUnitario === undefined || p.costoUnitario === null ? null : p.precio - p.costoUnitario;
@@ -175,6 +178,10 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
             </section>
           )}
         </div>
+      </div>
+
+      <div className="mt-6">
+        <AvisosDeStock avisos={avisos} producto={nombreBase(p.nombre, p.variante)} />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">

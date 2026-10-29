@@ -59,6 +59,14 @@ export const inicio = {
   contraSemana: (cambio: string) => `${cambio} que la semana pasada`,
   sinMovimiento: "Todavía no hay ventas. Cuando apartés algo, aparece acá.",
   nuevoProducto: "Nuevo producto",
+  explorar: {
+    tituloSi: "Tu tienda aparece en Explorar",
+    textoSi: "Otras personas te pueden descubrir ahí, junto a las demás tiendas de Lote.",
+    tituloNo: "Que más gente te descubra",
+    textoNo: "Explorar es el escaparate con las tiendas de Lote. Es opcional: lo prendés en Mi tienda y lo apagás cuando quieras.",
+    ver: "Ver Explorar",
+    activar: "Aparecer en Explorar",
+  },
   vitrina: {
     titulo: "Tu vitrina",
     texto: "Compartí este enlace donde vendés: tus clientes ven lo disponible y compran o apartan solos.",

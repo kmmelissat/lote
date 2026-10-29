@@ -43,6 +43,11 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
 
   const vitrinaActiva = formData.get("vitrina") === "on";
 
+  const tiempoEntrega = texto("tiempo_entrega");
+  if (tiempoEntrega.length > 80) return { error: v.errorTiempoEntrega };
+  const politicaCambios = texto("politica_cambios");
+  if (politicaCambios.length > 300) return { error: v.errorPoliticaCambios };
+
   const color = texto("color");
   if (!COLORES_MARCA.some((c) => c.hex === color)) return { error: t.errorColor };
 
@@ -68,6 +73,8 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
     // Sin vitrina no se puede aparecer en Explorar
     visibleEnExplorar: vitrinaActiva && formData.get("explorar") === "on",
     vitrinaActiva,
+    tiempoEntrega: tiempoEntrega || null,
+    politicaCambios: politicaCambios || null,
   });
   if (!ok) return { error: t.errorGeneral };
 

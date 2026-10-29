@@ -139,12 +139,18 @@ async function Confirmacion({ params, searchParams }: Pick<PageProps<"/c/[negoci
         </section>
       )}
 
-      <Link
-        href={`/c/${slug}`}
-        className="inline-flex h-11 items-center self-start rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
-      >
-        ← {textos.vitrina.verTodos}
-      </Link>
+      <div className="flex flex-wrap items-center gap-3">
+        <Link
+          href={`/c/${slug}`}
+          className="inline-flex h-11 items-center rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
+        >
+          ← {textos.vitrina.verTodos}
+        </Link>
+        {/* Ya terminó con esta tienda: es el momento de mostrarle que hay más */}
+        <Link href="/explorar" className="text-sm font-bold text-teal underline">
+          {t.seguirDescubriendo}
+        </Link>
+      </div>
     </div>
     </MarcaTienda>
   );

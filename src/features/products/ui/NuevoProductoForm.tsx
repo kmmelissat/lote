@@ -9,6 +9,8 @@ import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } from "../actions/nuevo";
 import { BarraGuardar } from "@/components/ui/BarraGuardar";
+import { DetallesProducto } from "./DetallesProducto";
+import { leerDetalles, type Detalle } from "../infoExtra";
 import { atajosDeFormulario, Campo, CampoDinero, Cantidad, Etiqueta, estiloCampo, Seccion } from "./campos";
 import { SelectorCategoria } from "./SelectorCategoria";
 import { estadoNuevo, filasDe, grupoNuevo, VariantesInput, type EstadoVariantes } from "./VariantesInput";
@@ -20,7 +22,7 @@ const l = t.lotito;
 
 const dolaresTexto = (centavos: number) => (centavos / 100).toFixed(2);
 const campoCosto = ["compra", "envio", "importacion", "otro"] as const;
-type CampoLotito = Exclude<keyof FichaSugerida, "opciones">;
+type CampoLotito = Exclude<keyof FichaSugerida, "opciones" | "detalles">;
 const ORDEN_LOTITO: CampoLotito[] = ["nombre", "categoria", "marca", "descripcion"];
 /** Lo que tarda Lotito en "escribir" cada campo, para que se sienta que va llenando uno por uno */
 const PAUSA_MS = 380;
@@ -110,6 +112,8 @@ export function NuevoProductoForm({
   const [marca, setMarca] = useState(v.marca ?? "");
   const [descripcion, setDescripcion] = useState(v.descripcion ?? "");
   const [condicion, setCondicion] = useState<"nuevo" | "usado">(v.condicion === "usado" ? "usado" : "nuevo");
+  // Lo que le da confianza a quien compra: detalles en lista y, si es usado, cómo está
+  const [detalles, setDetalles] = useState<Detalle[]>(() => leerDetalles(v.detalles));
   const [estadoVar, setEstadoVar] = useState<EstadoVariantes | null>(null);
   const variantes = estadoVar ? filasDe(estadoVar) : null;
   // Lo que Lotito vio en la foto como posibles variantes, a la espera de que la persona diga sí o no
@@ -159,6 +163,11 @@ export function NuevoProductoForm({
       );
     });
     if (!llenar.length) setEstadoLotito("listo");
+    // Los detalles que ve en la foto: solo si la persona todavía no puso ninguno
+    if (visto.detalles.length && !detalles.length) {
+      setDetalles(visto.detalles);
+      setDetallesAbiertos(true);
+    }
     const oferta = f.opciones[0];
     if (oferta && !estadoVar && !editando) setOfertaVar(oferta);
   }
@@ -411,6 +420,28 @@ export function NuevoProductoForm({
             <legend className="mb-1.5 text-sm font-bold">{t.condicion}</legend>
             <div className="flex gap-3">{(["nuevo", "usado"] as const).map(chip)}</div>
           </fieldset>
+
+          {condicion === "usado" && (
+            <div className="flex flex-col gap-1.5">
+              <Etiqueta htmlFor={`${id}-estado`}>{t.estadoDetalle.etiqueta}</Etiqueta>
+              <input
+                id={`${id}-estado`}
+                name="estado_detalle"
+                maxLength={200}
+                defaultValue={v.estado_detalle}
+                placeholder={t.estadoDetalle.placeholder}
+                className={estiloCampo}
+              />
+              <p className="text-sm text-texto-2">{t.estadoDetalle.ayuda}</p>
+            </div>
+          )}
+
+          <DetallesProducto filas={detalles} onCambio={setDetalles} />
+
+          <div className="flex max-w-xs flex-col gap-1">
+            <CampoDinero etiqueta={t.precioAnterior.etiqueta} name="precio_anterior" defaultValue={v.precio_anterior} error={e.precio_anterior} />
+            <p className="text-sm text-texto-2">{t.precioAnterior.ayuda}</p>
+          </div>
         </Seccion>
 
         <MensajeError>{e.general}</MensajeError>

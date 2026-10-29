@@ -17,6 +17,7 @@ import { equipo } from "./equipo";
 import { invitacion } from "./invitacion";
 import { chatCliente } from "./chatCliente";
 import { ayuda } from "./ayuda";
+import { resenas } from "./resenas";
 import { exportar } from "./exportar";
 import { seguimiento } from "./seguimiento";
 import { mensajeEnvio } from "./mensajeEnvio";
@@ -51,6 +52,7 @@ export const textos = {
   invitacion,
   chatCliente,
   ayuda,
+  resenas,
   exportar,
   seguimiento,
   mensajeEnvio,

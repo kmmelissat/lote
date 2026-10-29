@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain/index";
 import { proveedorIA } from "@/features/ai/index";
+import { leerDetalles, leerInfoExtra } from "../infoExtra";
 import { fotosValidas, TIPOS_COSTO } from "../leerFormulario";
 import { crearProducto, listarCategorias, type NuevoProducto } from "../repositorio";
 import { nombreConVariante, validarVariantes } from "../variantes";
@@ -15,7 +16,7 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 
 export type EstadoNuevo = {
-  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "categoria" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
+  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "categoria" | "compra" | "envio" | "importacion" | "otro" | "precio_anterior" | "general", string>>;
   valores?: Record<string, string>;
 };
 
@@ -74,6 +75,9 @@ export async function nuevoProducto(
   const validadas = conVariantes ? validarVariantes(crudas) : null;
   if (validadas && !validadas.ok) errores.variantes = t.errorVariantes[validadas.error];
 
+  const { info, errorPrecioAnterior } = leerInfoExtra(valores, precio);
+  if (errorPrecioAnterior) errores.precio_anterior = t.precioAnterior.error;
+
   const cantidad = Number((valores.cantidad ?? "1").trim() || "1");
   if (!conVariantes && (!Number.isInteger(cantidad) || cantidad < 1)) errores.cantidad = t.errorCantidad;
 
@@ -100,6 +104,7 @@ export async function nuevoProducto(
     condicion: valores.condicion === "usado" ? ("usado" as const) : ("nuevo" as const),
     fotos: fotosValidas(valores.fotos, negocio.id),
     costos,
+    info,
   };
 
   if (validadas?.ok) {
@@ -141,6 +146,8 @@ export type FichaSugerida = {
   marca: string | null;
   /** Versiones que Lotito ve en la foto, por ejemplo los colores de una misma funda */
   opciones: { nombre: string; valores: string[] }[];
+  /** Pares para la lista de detalles ("Material" → "Silicón") que Lotito ve en la foto */
+  detalles: { nombre: string; valor: string }[];
 };
 
 /** "Completar con la foto": la IA lee la foto y propone nombre, descripción y categoría. Todo editable. */
@@ -156,7 +163,7 @@ export async function sugerirFicha(
   try {
     const f = await ia.entenderFoto(urlFoto(ruta), "", await contextoDeLaTienda(supabase, negocio.id).catch(() => ""));
     const detalle = f.detalle && !f.descripcion.toLowerCase().includes(f.detalle.toLowerCase()) ? ` (${f.detalle})` : "";
-    return { ficha: { nombre: f.nombre, descripcion: f.descripcion + detalle, categoria: f.categoria, marca: f.marca, opciones: f.opciones.filter((o) => o.valores.length > 1) } };
+    return { ficha: { nombre: f.nombre, descripcion: f.descripcion + detalle, categoria: f.categoria, marca: f.marca, opciones: f.opciones.filter((o) => o.valores.length > 1), detalles: leerDetalles(JSON.stringify(f.detalles)) } };
   } catch {
     return { error: "no_se_pudo" };
   }

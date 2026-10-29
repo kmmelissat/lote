@@ -14,6 +14,12 @@ export type NegocioPublico = {
   usuarioInstagram: string | null;
   apartarDesdeVitrina: boolean;
   plazoHoras: number;
+  /** "Sale en 24 h": lo que la tienda tarda en entregar. Vacío si no lo dijo. */
+  tiempoEntrega: string | null;
+  /** Cambios y devoluciones, en una frase */
+  politicaCambios: string | null;
+  /** Con cuántas unidades se marca "Últimas unidades" */
+  umbralPocoStock: number;
 };
 
 export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Promise<NegocioPublico | null> {
@@ -30,6 +36,10 @@ export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Pr
     usuarioInstagram: n.usuario_instagram,
     apartarDesdeVitrina: n.apartar_desde_vitrina,
     plazoHoras: n.plazo_apartado_horas,
+    // Los campos nuevos pueden no venir si todavía no se corrió ficha_producto.sql
+    tiempoEntrega: n.tiempo_entrega ?? null,
+    politicaCambios: n.politica_cambios ?? null,
+    umbralPocoStock: n.umbral_poco_stock ?? 2,
   };
 }
 
@@ -50,7 +60,28 @@ export type ProductoPublico = {
   variante: string | null;
   /** Cómo se llama cada opción de la variante ("Modelo", "Color"), en el orden de la etiqueta; vacío si no se guardó */
   opciones: string[];
+  /** Lo que la tienda cuenta del producto: Material, Medidas, Compatible con… */
+  detalles: { nombre: string; valor: string }[];
+  /** Cómo está, para lo usado ("sin detalles", "una marquita en la esquina") */
+  estadoDetalle: string | null;
+  /** El precio de antes, en centavos, para mostrar la oferta; null si no hay */
+  precioAnterior: Centavos | null;
+  /** Cuándo se creó, para marcar "Nuevo" */
+  creadoEn: Date | null;
+  /** Unidades vendidas (pagadas) */
+  vendidas: number;
 };
+
+/** Los detalles vienen como JSON: se revisan uno por uno y se descarta lo que no tenga la forma esperada. */
+export function detallesDe(crudo: unknown): { nombre: string; valor: string }[] {
+  if (!Array.isArray(crudo)) return [];
+  return crudo.flatMap((d) => {
+    const { nombre, valor } = (d ?? {}) as { nombre?: unknown; valor?: unknown };
+    return typeof nombre === "string" && typeof valor === "string" && nombre.trim() && valor.trim()
+      ? [{ nombre: nombre.trim().slice(0, 40), valor: valor.trim().slice(0, 120) }]
+      : [];
+  });
+}
 
 type FilaProducto = Database["public"]["Functions"]["vitrina_productos"]["Returns"][number];
 
@@ -68,6 +99,11 @@ const aProductoPublico = (f: FilaProducto): ProductoPublico => ({
   grupo: f.grupo,
   variante: f.variante,
   opciones: f.opciones_variante ?? [],
+  detalles: detallesDe(f.detalles),
+  estadoDetalle: f.estado_detalle ?? null,
+  precioAnterior: f.precio_anterior ? aCentavos(f.precio_anterior) : null,
+  creadoEn: f.creado_en ? new Date(f.creado_en) : null,
+  vendidas: f.vendidas ?? 0,
 });
 
 export async function listarProductosPublicos(supabase: Cliente, slug: string): Promise<ProductoPublico[]> {
@@ -286,6 +322,10 @@ export type AjustesVitrina = {
   slug: string;
   /** La vitrina pública es opcional: apagada, /c/<tienda> no existe y no se aparece en Explorar */
   vitrinaActiva: boolean;
+  /** Lo que tarda la tienda en entregar ("Sale en 24 h"); vacío si no lo dice */
+  tiempoEntrega: string | null;
+  /** Cambios y devoluciones, en una frase */
+  politicaCambios: string | null;
   apartarDesdeVitrina: boolean;
   plazoHoras: number;
   limitePorContacto: number;
@@ -305,9 +345,13 @@ export async function obtenerAjustesVitrina(supabase: Cliente, negocioId: string
   if (error) throw error;
   // Aparte: si todavía no existe la columna (falta correr vitrina_opcional.sql), cuenta como prendida
   const { data: v } = await supabase.from("negocio").select("vitrina_activa").eq("id", negocioId).maybeSingle();
+  // Igual con lo que cuenta la tienda (falta correr ficha_producto.sql)
+  const { data: info } = await supabase.from("negocio").select("tiempo_entrega, politica_cambios").eq("id", negocioId).maybeSingle();
   return {
     slug: data.slug,
     vitrinaActiva: v?.vitrina_activa ?? true,
+    tiempoEntrega: info?.tiempo_entrega ?? null,
+    politicaCambios: info?.politica_cambios ?? null,
     visibleEnExplorar: data.visible_en_explorar,
     apartarDesdeVitrina: data.apartar_desde_vitrina,
     plazoHoras: data.plazo_apartado_horas,
@@ -353,7 +397,7 @@ export async function guardarTienda(
   negocioId: string,
   a: Omit<IdentidadTienda, "slug"> & Omit<AjustesVitrina, "slug" | "whatsapp" | "usuarioInstagram">,
 ): Promise<boolean> {
-  const cambios = {
+  const base = {
       nombre: a.nombre,
       descripcion: a.descripcion,
       logo: a.logo,
@@ -367,11 +411,72 @@ export async function guardarTienda(
       umbral_poco_stock: a.umbralPocoStock,
       visible_en_explorar: a.visibleEnExplorar,
   };
-  const { error } = await supabase.from("negocio").update({ ...cambios, vitrina_activa: a.vitrinaActiva }).eq("id", negocioId);
+  // Las columnas más nuevas (vitrina opcional, tiempo de entrega y cambios) existen solo después de correr su SQL.
+  const nuevas = { vitrina_activa: a.vitrinaActiva, tiempo_entrega: a.tiempoEntrega, politica_cambios: a.politicaCambios };
+  const { error } = await supabase.from("negocio").update({ ...base, ...nuevas }).eq("id", negocioId);
   if (!error) return true;
-  // Sin la columna nueva (falta correr vitrina_opcional.sql) se guarda todo lo demás, y solo se pierde la vitrina opcional.
-  if (a.vitrinaActiva && /vitrina_activa/.test(error.message)) {
-    return !(await supabase.from("negocio").update(cambios).eq("id", negocioId)).error;
+  // Si falta alguna, se guarda todo lo demás en vez de perder el cambio entero.
+  if (/vitrina_activa|tiempo_entrega|politica_cambios/.test(error.message)) {
+    return !(await supabase.from("negocio").update(base).eq("id", negocioId)).error;
   }
   return false;
+}
+
+export type ResenaPublica = { nombre: string; estrellas: number; texto: string | null; origen: "cliente" | "tienda"; creadoEn: Date };
+export type ResumenResenas = { promedio: number; total: number; resenas: ResenaPublica[] };
+
+/** Las reseñas publicadas de un producto (con sus variantes) o, sin código, de toda la tienda. Si falla, no hay reseñas. */
+export async function obtenerResenas(supabase: Cliente, slug: string, codigo?: number): Promise<ResumenResenas> {
+  try {
+    const { data, error } = await supabase.rpc("vitrina_resenas", { p_slug: slug, p_codigo: codigo });
+    if (error || !data?.length) return { promedio: 0, total: 0, resenas: [] };
+    return {
+      promedio: Number(data[0].promedio),
+      total: data[0].total,
+      resenas: data.map((r) => ({
+        nombre: r.nombre,
+        estrellas: r.estrellas,
+        texto: r.texto,
+        origen: r.origen === "tienda" ? "tienda" : "cliente",
+        creadoEn: new Date(r.creado_en),
+      })),
+    };
+  } catch {
+    return { promedio: 0, total: 0, resenas: [] };
+  }
+}
+
+/** "Avisame cuando haya": deja el contacto para un producto agotado. */
+export async function pedirAvisoStock(
+  supabase: Cliente,
+  p: { slug: string; codigo: number; nombre: string; contacto: string; huella: string },
+): Promise<{ ok: true } | { ok: false; error: "hay_stock" | "demasiados_intentos" | "datos_invalidos" | "desconocido" }> {
+  const { data, error } = await supabase.rpc("pedir_aviso_stock", {
+    p_slug: p.slug,
+    p_codigo: p.codigo,
+    p_nombre: p.nombre,
+    p_contacto: p.contacto,
+    p_huella: p.huella,
+  });
+  if (error) return { ok: false, error: "desconocido" };
+  const r = data as { ok?: boolean; error?: string };
+  if (r.ok) return { ok: true };
+  return { ok: false, error: r.error === "hay_stock" || r.error === "demasiados_intentos" || r.error === "datos_invalidos" ? r.error : "desconocido" };
+}
+
+/** Quien compró deja su reseña (queda pendiente hasta que la tienda la publica). Necesita ficha_producto.sql. */
+export async function dejarResena(
+  supabase: Cliente,
+  p: { pedido: string; codigo: number; estrellas: number; texto: string },
+): Promise<{ ok: true } | { ok: false; error: "no_entregado" | "ya_opino" | "datos_invalidos" | "no_existe" | "desconocido" }> {
+  const { data, error } = await supabase.rpc("dejar_resena", {
+    p_pedido: p.pedido,
+    p_codigo: p.codigo,
+    p_estrellas: p.estrellas,
+    p_texto: p.texto,
+  });
+  if (error) return { ok: false, error: "desconocido" };
+  const r = data as { ok?: boolean; error?: string };
+  if (r.ok) return { ok: true };
+  return { ok: false, error: r.error === "no_entregado" || r.error === "ya_opino" || r.error === "datos_invalidos" || r.error === "no_existe" ? r.error : "desconocido" };
 }

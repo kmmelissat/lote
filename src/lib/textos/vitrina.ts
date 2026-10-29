@@ -8,6 +8,61 @@ export const vitrina = {
   vacioTexto: "Aquí van a aparecer las piezas disponibles. Volvé a mirar en un rato.",
   piezas: (n: number) => (n === 1 ? "1 pieza" : `${n} piezas`),
   productos: (n: number) => (n === 1 ? "1 producto" : `${n} productos`),
+  resenas: {
+    titulo: "Lo que dicen quienes ya compraron",
+    cuantas: (n: number) => (n === 1 ? "1 reseña" : `${n} reseñas`),
+    lectura: (promedio: string, n: number) => `Promedio ${promedio} de 5, en ${n === 1 ? "1 reseña" : `${n} reseñas`}`,
+    estrellasDe: (n: number) => `${n} de 5 estrellas`,
+  },
+  ficha: {
+    titulo: "Detalles",
+    estado: "Estado",
+  },
+  etiquetas: {
+    nuevo: "Nuevo",
+    ultimas: "Últimas unidades",
+    ultima: "Última unidad",
+    vendidas: (n: number) => (n === 1 ? "1 vendida" : `${n} vendidas`),
+    oferta: (porcentaje: number) => `${porcentaje} % menos`,
+  },
+  envioResumen: {
+    desde: (monto: string) => `Envío desde ${monto}`,
+    gratis: "Envío gratis",
+    tiempo: (t: string) => t,
+    retiro: "o retiro en la tienda",
+  },
+  aviso: {
+    titulo: "¿Se agotó? Te avisamos",
+    texto: "Dejá tu WhatsApp y la tienda te escribe cuando vuelva a haber.",
+    nombre: "Tu nombre",
+    boton: "Avisame cuando haya",
+    enviando: "Guardando…",
+    listo: "Listo. Te escribimos apenas vuelva a haber.",
+    errorDatos: "Poné tu nombre y tu WhatsApp para poder avisarte.",
+    errorHayStock: "Este producto ya está disponible. Recargá la página.",
+    errorIntentos: "Hiciste varios intentos seguidos. Probá de nuevo en un rato.",
+    errorGeneral: "No pudimos guardar tu aviso. Probá de nuevo.",
+  },
+  comoComprar: {
+    titulo: "Así de fácil",
+    subtitulo: "Tres cosas que conviene saber antes de pedir.",
+    pagar: {
+      titulo: "Pagás como te quede cómodo",
+      con: (metodos: string) => `Podés pagar con ${metodos}. Primero confirmás el pedido y después pagás.`,
+      coordinar: "Confirmás el pedido y la tienda coordina el pago con vos por WhatsApp.",
+    },
+    recibir: {
+      titulo: "Te lo llevamos a tu casa",
+      texto: "Envío a domicilio. La tienda coordina la entrega con vos por WhatsApp.",
+      tituloConRetiro: "Te lo llevamos o pasás por él",
+      textoConRetiro: "Envío a domicilio o retiro en la tienda. Lo coordinás por WhatsApp.",
+    },
+    cambios: { titulo: "Cambios y devoluciones" },
+    apartar: {
+      titulo: "¿Todavía lo estás pensando?",
+      texto: (horas: number) => `Apartalo y te lo guardamos ${horas} ${horas === 1 ? "hora" : "horas"} sin pagar. Pensalo con calma.`,
+    },
+  },
   carrito: {
     titulo: "Tu carrito",
     ayuda: "Revisá lo que llevás. Los precios y las unidades son los de ahora.",
@@ -71,6 +126,8 @@ export const vitrina = {
   nOpciones: (n: number) => `${n} opciones`,
   compra: {
     comprarAhora: "Comprar ahora",
+    dudas: "¿Todavía no te decidís?",
+    apartarEnlace: (horas: number) => `Apartalo ${horas} ${horas === 1 ? "hora" : "horas"} sin pagar`,
     soloApartar: "o solo apartar sin pagar",
     hojaComprar: "Comprar",
     hojaApartar: "Apartar",
@@ -197,5 +254,6 @@ export const vitrina = {
     datosPago: "Datos para pagar",
     sinDatos: "Escribile al negocio para coordinar el pago.",
     avisar: "Cuando pagués, mandale el comprobante al negocio por WhatsApp o Instagram.",
+    seguirDescubriendo: "Seguí descubriendo tiendas",
   },
 } as const;

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { DejarResena } from "@/features/reviews/ui/DejarResena";
 import { obtenerSeguimiento } from "@/features/tracking/repositorio";
 import { formatearFecha } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
@@ -104,6 +105,19 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
           ))}
         </ul>
       </Card>
+
+      {/* Ya lo recibió: es el momento de contar cómo le fue */}
+      {s.estado === "entregado" && s.items.some((i) => i.codigo !== undefined) && (
+        <section aria-labelledby="dejar-resena" className="flex flex-col gap-3">
+          <div>
+            <h2 id="dejar-resena" className="text-lg font-bold">
+              {textos.resenas.cliente.titulo}
+            </h2>
+            <p className="text-sm text-texto-2">{textos.resenas.cliente.ayuda}</p>
+          </div>
+          {s.items.map((i) => (i.codigo === undefined ? null : <DejarResena key={i.codigo} pedido={pedido} codigo={i.codigo} nombre={i.nombre} />))}
+        </section>
+      )}
 
       <Link href={`/c/${s.slug}`} className="inline-flex min-h-11 items-center self-start text-teal underline">
         {t.verVitrina(s.negocio)}

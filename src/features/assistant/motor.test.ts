@@ -64,7 +64,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     deshacerAccion: vi.fn(async () => ({ ok: true as const, valor: "apartado de Chaqueta" })),
     ...opciones.puerto,
   };
-  const fichaBase: SalidaFoto = { nombre: "Producto", descripcion: "", categoria: null, marca: null, opciones: [], detalle: null, precio: null, costo: null, cantidad: null };
+  const fichaBase: SalidaFoto = { nombre: "Producto", descripcion: "", categoria: null, marca: null, opciones: [], detalle: null, detalles: [], precio: null, costo: null, cantidad: null };
   const ia = (salida?: Partial<SalidaEntender> & Pick<SalidaEntender, "intencion">, foto?: Partial<SalidaFoto> | Error) => ({
     entenderMensaje: async () => ({ ...salidaVacia(salida?.intencion ?? "no_entiendo"), ...salida }),
     entenderFoto: async () => {

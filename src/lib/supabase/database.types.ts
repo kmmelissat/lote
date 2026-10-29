@@ -533,6 +533,8 @@ export type Database = {
           usuario_instagram: string | null
           visible_en_explorar: boolean
           vitrina_activa: boolean
+          tiempo_entrega?: string | null
+          politica_cambios?: string | null
           direccion_retiro: string | null
           whatsapp: string | null
         }
@@ -556,6 +558,8 @@ export type Database = {
           usuario_instagram?: string | null
           visible_en_explorar?: boolean
           vitrina_activa?: boolean
+          tiempo_entrega?: string | null
+          politica_cambios?: string | null
           direccion_retiro?: string | null
           whatsapp?: string | null
         }
@@ -579,6 +583,8 @@ export type Database = {
           usuario_instagram?: string | null
           visible_en_explorar?: boolean
           vitrina_activa?: boolean
+          tiempo_entrega?: string | null
+          politica_cambios?: string | null
           direccion_retiro?: string | null
           whatsapp?: string | null
         }
@@ -834,6 +840,73 @@ export type Database = {
         }
         Relationships: []
       }
+      resena: {
+        Row: {
+          creado_en: string
+          estado: string
+          estrellas: number
+          id: string
+          negocio_id: string
+          nombre: string
+          origen: string
+          pedido_id: string | null
+          producto_id: string | null
+          texto: string | null
+        }
+        Insert: {
+          creado_en?: string
+          estado?: string
+          estrellas: number
+          id?: string
+          negocio_id: string
+          nombre: string
+          origen: string
+          pedido_id?: string | null
+          producto_id?: string | null
+          texto?: string | null
+        }
+        Update: {
+          estado?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resena_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aviso_stock: {
+        Row: {
+          avisado_en: string | null
+          contacto: string
+          creado_en: string
+          id: string
+          negocio_id: string
+          nombre: string
+          producto_id: string
+        }
+        Insert: {
+          contacto: string
+          negocio_id: string
+          nombre: string
+          producto_id: string
+        }
+        Update: {
+          avisado_en?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aviso_stock_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       producto: {
         Row: {
           categoria: string | null
@@ -853,6 +926,9 @@ export type Database = {
           opciones_variante: string[] | null
           precio: number
           variante: string | null
+          detalles?: Json
+          estado_detalle?: string | null
+          precio_anterior?: number | null
         }
         Insert: {
           categoria?: string | null
@@ -872,6 +948,9 @@ export type Database = {
           opciones_variante?: string[] | null
           precio: number
           variante?: string | null
+          detalles?: Json
+          estado_detalle?: string | null
+          precio_anterior?: number | null
         }
         Update: {
           categoria?: string | null
@@ -891,6 +970,9 @@ export type Database = {
           opciones_variante?: string[] | null
           precio?: number
           variante?: string | null
+          detalles?: Json
+          estado_detalle?: string | null
+          precio_anterior?: number | null
         }
         Relationships: [
           {
@@ -1306,6 +1388,9 @@ export type Database = {
           plazo_apartado_horas: number
           usuario_instagram: string
           whatsapp: string
+          tiempo_entrega?: string | null
+          politica_cambios?: string | null
+          umbral_poco_stock?: number
         }[]
       }
       explorar_tiendas: {
@@ -1364,7 +1449,44 @@ export type Database = {
           opciones_variante: string[] | null
           precio: number
           variante: string | null
+          detalles?: Json
+          estado_detalle?: string | null
+          precio_anterior?: number | null
+          creado_en?: string
+          vendidas?: number
         }[]
+      }
+      vitrina_resenas: {
+        Args: { p_slug: string; p_codigo?: number }
+        Returns: {
+          nombre: string
+          estrellas: number
+          texto: string | null
+          origen: string
+          creado_en: string
+          promedio: number
+          total: number
+        }[]
+      }
+      dejar_resena: {
+        Args: { p_pedido: string; p_codigo: number; p_estrellas: number; p_texto: string }
+        Returns: Json
+      }
+      pedir_aviso_stock: {
+        Args: { p_slug: string; p_codigo: number; p_nombre: string; p_contacto: string; p_huella: string }
+        Returns: Json
+      }
+      resena_moderar: {
+        Args: { p_id: string; p_estado: string }
+        Returns: undefined
+      }
+      resena_eliminar: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
+      resena_agregar: {
+        Args: { p_negocio: string; p_codigo: number; p_nombre: string; p_estrellas: number; p_texto: string }
+        Returns: string
       }
     }
     Enums: {

@@ -7,6 +7,7 @@ import { StatusChip } from "@/components/ui/StatusChip";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { agregarAlCarrito } from "../carrito";
+import { AvisameCuandoHaya } from "./AvisameCuandoHaya";
 import { tituloDe } from "../opciones";
 
 const t = textos.vitrina.compra;
@@ -17,6 +18,8 @@ export type VarianteCompra = {
   partes: string[];
   disponibles: number;
   precio: number;
+  /** El precio de antes (centavos), para mostrar la oferta; null si no hay */
+  precioAnterior: number | null;
 };
 
 /**
@@ -28,11 +31,14 @@ export function ZonaDeCompra({
   slug,
   nombresOpciones,
   variantes,
+  plazoHoras,
   apartarActivo,
 }: {
   slug: string;
   nombresOpciones: string[];
   variantes: VarianteCompra[];
+  /** Cuánto tiempo se guarda un apartado sin pagar */
+  plazoHoras: number;
   apartarActivo: boolean;
 }) {
   const dims = variantes[0]?.partes.length ?? 0;
@@ -79,6 +85,9 @@ export function ZonaDeCompra({
   const precios = variantes.map((v) => v.precio);
   const desde = Math.min(...precios);
   const precio = seleccionada ? seleccionada.precio : desde;
+  // El precio de antes solo se muestra si de verdad era más alto
+  const anterior = seleccionada ? seleccionada.precioAnterior : dims === 0 ? (variantes[0]?.precioAnterior ?? null) : null;
+  const oferta = anterior && anterior > precio ? { antes: anterior, porcentaje: Math.round(((anterior - precio) / anterior) * 100) } : null;
   const faltan = filas.filter((_, i) => elegido[i] === null).map((f) => f.titulo.toLowerCase());
 
   // Las dos pantallas llevan el código de la variante elegida y la cantidad
@@ -126,6 +135,12 @@ export function ZonaDeCompra({
             <p className="text-4xl font-bold tabular-nums">
               {!seleccionada && dims > 0 && Math.max(...precios) !== desde ? textos.vitrina.desde(formatearDolares(desde)) : formatearDolares(precio)}
             </p>
+            {oferta && (
+              <p className="flex items-center gap-2 text-sm">
+                <span className="text-texto-2 line-through tabular-nums">{formatearDolares(oferta.antes)}</span>
+                <span className="rounded-full border-2 border-teal-oscuro bg-limon px-2.5 py-0.5 text-xs font-bold">{textos.vitrina.etiquetas.oferta(oferta.porcentaje)}</span>
+              </p>
+            )}
             {seleccionada ? (
               hayStock ? (
                 <StatusChip estado="disponible" texto={textos.productos.quedan(seleccionada.disponibles)} />
@@ -166,16 +181,34 @@ export function ZonaDeCompra({
           )}
         </div>
 
+        {/* Apartar ya no es un botón más: es la salida tranquila para quien todavía no se decide */}
+        {apartarActivo && (
+          <p className="text-sm text-texto-2">
+            {t.dudas}{" "}
+            {listo ? (
+              <Link href={`${base}/apartar?n=${unidades}`} className="font-bold text-teal underline">
+                {t.apartarEnlace(plazoHoras)}
+              </Link>
+            ) : (
+              <span className="font-bold">{t.apartarEnlace(plazoHoras)}</span>
+            )}
+          </p>
+        )}
+
         {!apartarActivo ? (
           <p className="text-texto-2">{textos.vitrina.apartarApagado}</p>
         ) : seleccionada && !hayStock ? (
-          <p role="status" className="rounded-2xl bg-limon px-4 py-3 font-medium">
-            {textos.vitrina.noDisponible}
-          </p>
+          <>
+            <p role="status" className="rounded-2xl bg-limon px-4 py-3 font-medium">
+              {textos.vitrina.noDisponible}
+            </p>
+            {/* Se perdía la venta: ahora se deja el WhatsApp y la tienda avisa cuando vuelva */}
+            <AvisameCuandoHaya key={seleccionada.codigo} slug={slug} codigo={seleccionada.codigo} />
+          </>
         ) : null}
       </div>
 
-      {/* Los tres botones, siempre a mano abajo: agregar al carrito (y seguir mirando), apartar y comprar. */}
+      {/* Siempre a mano abajo: comprar es lo principal, y el carrito acompaña para seguir mirando. Apartar vive en la tarjeta. */}
       {apartarActivo && (
         <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl">
           {aviso && (
@@ -214,23 +247,13 @@ export function ZonaDeCompra({
                 <span className="hidden sm:ml-2 sm:inline">{textos.vitrina.carrito.agregarCorto}</span>
               </button>
               {listo ? (
-                <>
-                  <Link href={`${base}/apartar?n=${unidades}`} className={`${boton} flex-1 bg-white hover:-translate-y-0.5 hover:shadow-dura-chica sm:flex-none`}>
-                    {t.modoApartar}
-                  </Link>
-                  <Link href={`${base}/comprar?n=${unidades}`} className={`${boton} flex-1 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none`}>
-                    {t.modoComprar}
-                  </Link>
-                </>
+                <Link href={`${base}/comprar?n=${unidades}`} className={`${boton} flex-1 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none sm:px-8`}>
+                  {t.modoComprar}
+                </Link>
               ) : (
-                <>
-                  <span aria-disabled="true" className={`${boton} flex-1 bg-white opacity-50 sm:flex-none`}>
-                    {t.modoApartar}
-                  </span>
-                  <span aria-disabled="true" className={`${boton} flex-1 bg-accion text-accion-texto opacity-50 sm:flex-none`}>
-                    {t.modoComprar}
-                  </span>
-                </>
+                <span aria-disabled="true" className={`${boton} flex-1 bg-accion text-accion-texto opacity-50 sm:flex-none sm:px-8`}>
+                  {t.modoComprar}
+                </span>
               )}
             </div>
           </div>

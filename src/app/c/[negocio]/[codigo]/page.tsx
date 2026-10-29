@@ -5,8 +5,13 @@ import { connection } from "next/server";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { GaleriaVitrina } from "@/features/catalog/ui/GaleriaVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
+import { ComoComprar } from "@/features/catalog/ui/ComoComprar";
+import { DIAS_NUEVO, Etiquetas } from "@/features/catalog/ui/Etiquetas";
+import { FichaDelProducto } from "@/features/catalog/ui/FichaDelProducto";
+import { ResumenEnvio } from "@/features/catalog/ui/ResumenEnvio";
+import { Resenas } from "@/features/catalog/ui/Resenas";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
-import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra, obtenerProductoPublico } from "@/features/catalog/repositorio";
+import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra, obtenerProductoPublico, obtenerResenas } from "@/features/catalog/repositorio";
 import { agruparParaVitrina, nombreBase } from "@/features/products/variantes";
 import { formatearDolares } from "@/lib/formato";
 import { urlFoto } from "@/lib/fotos";
@@ -67,11 +72,18 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
   if (p.grupo && !hermanas.some((o) => o.codigo === p.codigo)) hermanas.push(p);
   hermanas.sort((a, b) => a.codigo - b.codigo);
   const variantes: VarianteCompra[] = p.grupo
-    ? hermanas.map((o) => ({ codigo: o.codigo, partes: partesDe(o.variante), disponibles: o.disponibles, precio: o.precio }))
-    : [{ codigo: p.codigo, partes: [], disponibles: p.disponibles, precio: p.precio }];
+    ? hermanas.map((o) => ({ codigo: o.codigo, partes: partesDe(o.variante), disponibles: o.disponibles, precio: o.precio, precioAnterior: o.precioAnterior }))
+    : [{ codigo: p.codigo, partes: [], disponibles: p.disponibles, precio: p.precio, precioAnterior: p.precioAnterior }];
 
   const disponible = hermanas.length ? hermanas.some((o) => o.disponibles > 0) : p.disponibles > 0;
-  const opcionesDeCompra = await obtenerOpcionesDeCompra(supabase, slug);
+  const [opcionesDeCompra, resenas] = await Promise.all([obtenerOpcionesDeCompra(supabase, slug), obtenerResenas(supabase, slug, p.codigo)]);
+
+  // Lo que se cuenta de todo el producto: sus variantes juntas
+  const familia = hermanas.length ? hermanas : [p];
+  const disponiblesTotal = familia.reduce((n, o) => n + o.disponibles, 0);
+  const vendidasTotal = familia.reduce((n, o) => n + o.vendidas, 0);
+  const creado = familia.map((o) => o.creadoEn?.getTime() ?? 0).reduce((a, b) => Math.max(a, b), 0);
+  const nuevo = creado > 0 && new Date().getTime() - creado < DIAS_NUEVO * 86_400_000;
 
   // Más de la tienda: primero lo de la misma categoría, después lo demás (sin repetir este producto ni sus variantes)
   const otros = agruparParaVitrina(todos.filter((o) => (p.grupo ? o.grupo !== p.grupo : o.codigo !== p.codigo)));
@@ -126,6 +138,7 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
             <div className="flex flex-col gap-2">
               <h1 className="text-3xl font-bold leading-tight">{base}</h1>
               {meta && <p className="text-sm text-texto-2">{meta}</p>}
+              <Etiquetas disponibles={disponiblesTotal} umbral={negocio.umbralPocoStock} vendidas={vendidasTotal} nuevo={nuevo} />
               {p.descripcion &&
                 (p.descripcion.length > 220 ? (
                   <details className="group">
@@ -139,12 +152,17 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
                 ))}
             </div>
 
+            <FichaDelProducto detalles={p.detalles} estado={p.estadoDetalle} usado={p.condicion === "usado"} />
+
             <ZonaDeCompra
               slug={slug}
               nombresOpciones={p.opciones}
               variantes={variantes}
+              plazoHoras={negocio.plazoHoras}
               apartarActivo={negocio.apartarDesdeVitrina}
             />
+
+            <ResumenEnvio opciones={opcionesDeCompra} tiempo={negocio.tiempoEntrega} />
 
             <BotonesChat
               discreto={negocio.nombre}
@@ -153,33 +171,19 @@ async function Producto({ params }: Pick<PageProps<"/c/[negocio]/[codigo]">, "pa
               mensaje={mensajePedirProducto(negocio.nombre, p.nombre, p.codigo, formatearDolares(p.precio))}
             />
 
-            <section aria-labelledby="como-comprar" className="flex flex-col gap-3 rounded-[20px] border border-teal-oscuro/20 bg-white p-4 text-sm">
-              <h2 id="como-comprar" className="font-bold">
-                {textos.vitrina.compra.comoComprarTitulo}
-              </h2>
-              <dl className="flex flex-col gap-2">
-                {opcionesDeCompra.metodos.length > 0 && (
-                  <div>
-                    <dt className="font-bold">{textos.vitrina.compra.comoPagas}</dt>
-                    <dd className="text-texto-2">{opcionesDeCompra.metodos.map((m) => textos.cobro.metodos[m]).join(" · ")}</dd>
-                  </div>
-                )}
-                <div>
-                  <dt className="font-bold">{textos.vitrina.compra.comoRecibis}</dt>
-                  <dd className="text-texto-2">
-                    {[opcionesDeCompra.direccionRetiro ? textos.vitrina.compra.retiro : null, textos.vitrina.compra.envio].filter(Boolean).join(" · ")}
-                    {". "}
-                    {textos.vitrina.compra.coordina}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-bold">{textos.vitrina.compra.comoApartas}</dt>
-                  <dd className="text-texto-2">{textos.vitrina.compra.apartarExplica(negocio.plazoHoras)}</dd>
-                </div>
-              </dl>
-            </section>
           </div>
         </div>
+
+        <ComoComprar
+          metodos={opcionesDeCompra.metodos}
+          direccionRetiro={opcionesDeCompra.direccionRetiro}
+          plazoHoras={negocio.plazoHoras}
+          apartarActivo={negocio.apartarDesdeVitrina}
+          tiempoEntrega={negocio.tiempoEntrega}
+          politicaCambios={negocio.politicaCambios}
+        />
+
+        <Resenas resumen={resenas} />
 
         <ProductosRelacionados titulo={textos.vitrina.compra.parecidos} slug={slug} productos={parecidos} />
         <ProductosRelacionados titulo={textos.vitrina.compra.masDe(negocio.nombre)} slug={slug} productos={masDe} />

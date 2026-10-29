@@ -94,6 +94,12 @@ export const productos = {
     errorPermiso: "Tu rol no puede importar productos.",
     errorGeneral: "No pudimos importar los productos. No se creó nada. Probá de nuevo.",
   },
+  avisos: {
+    titulo: (n: number) => (n === 1 ? "1 persona espera este producto" : `${n} personas esperan este producto`),
+    ayuda: "Dejaron su WhatsApp para que les avises cuando vuelva a haber.",
+    escribir: "Escribirle",
+    mensaje: (nombre: string, producto: string) => `Hola ${nombre}, ya volvió ${producto}. ¿Te lo aparto?`,
+  },
   fotos: {
     etiqueta: "Fotos",
     // Donde Lotito no lee la foto (el detalle de un producto que ya existe): solo se guardan.
@@ -276,7 +282,26 @@ export const productos = {
     cantidadMas: "Una más",
     requerido: "obligatorio",
     masDetalles: "Más detalles",
-    masDetallesAyuda: "Categoría, marca, descripción y condición",
+    masDetallesAyuda: "Categoría, marca, descripción, condición y lo que le da confianza a quien compra",
+    detalles: {
+      titulo: "Detalles del producto",
+      ayuda: "Material, medidas, compatibilidad… Quien compra los ve en una lista, antes de leer la descripción.",
+      nombre: "Detalle",
+      valor: "Valor",
+      agregar: "Agregar un detalle",
+      quitar: (n: number) => `Quitar el detalle ${n}`,
+      sugeridos: ["Material", "Medidas", "Compatible con", "Peso", "Talla", "Color", "Origen", "Cuidado"],
+    },
+    estadoDetalle: {
+      etiqueta: "Cómo está",
+      placeholder: "Sin detalles, una marquita en la esquina…",
+      ayuda: "Solo para lo usado: quien compra lo ve destacado.",
+    },
+    precioAnterior: {
+      etiqueta: "Precio de antes (opcional)",
+      ayuda: "Si es más alto que el de venta, la vitrina lo muestra tachado como oferta.",
+      error: "El precio de antes tiene que ser un monto más alto que el de venta.",
+    },
     categorias: {
       sinCategoria: "Sin categoría",
       nueva: "Crear una categoría",

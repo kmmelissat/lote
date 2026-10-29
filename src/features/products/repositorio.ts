@@ -11,6 +11,8 @@ import {
   type EstadoPedido,
   type EstadoProducto,
 } from "@/domain";
+import { detallesDe } from "@/features/catalog/repositorio";
+import { type InfoExtra, tieneInfoExtra } from "./infoExtra";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -246,6 +248,8 @@ export type NuevoProducto = {
   variante?: string;
   /** Los nombres de las opciones del cruce ("Modelo", "Color"), en el orden de la etiqueta */
   opcionesVariante?: string[];
+  /** Detalles, estado y precio de antes: se guardan aparte, para que la ficha se cree aunque falte el SQL de esto */
+  info?: InfoExtra;
 };
 
 /** Crea la ficha, la existencia y los costos en una sola operación. Devuelve el código corto. */
@@ -274,6 +278,7 @@ export async function crearProducto(
     ...(p.grupo && p.opcionesVariante?.length ? { opciones_variante: p.opcionesVariante } : {}),
   };
   if (Object.keys(extras).length) await supabase.from("producto").update(extras).eq("id", id);
+  if (p.info && tieneInfoExtra(p.info)) await guardarInfoExtra(supabase, { todas: [id], esta: id }, p.info);
 
   const { data } = await supabase.from("producto").select("codigo").eq("id", id).single();
   return data ? { id, codigo: data.codigo } : { error: "desconocido" };
@@ -410,4 +415,49 @@ export async function listarHermanas(
     .order("codigo");
   if (error) throw error;
   return data.flatMap((h) => (h.variante ? [{ codigo: h.codigo, variante: h.variante }] : []));
+}
+
+/** Lo que la tienda agrega a un producto: detalles, cómo está si es usado y el precio de antes. */
+export type InfoExtraGuardada = { detalles: { nombre: string; valor: string }[]; estadoDetalle: string | null; precioAnterior: Centavos | null };
+
+/** Se lee aparte de la ficha: si todavía no se corrió ficha_producto.sql, no existe y la ficha sigue funcionando sin esto. */
+export async function obtenerInfoExtra(supabase: Cliente, productoId: string): Promise<InfoExtraGuardada> {
+  try {
+    const { data } = await supabase.from("producto").select("detalles, estado_detalle, precio_anterior").eq("id", productoId).maybeSingle();
+    if (!data) return { detalles: [], estadoDetalle: null, precioAnterior: null };
+    return { detalles: detallesDe(data.detalles), estadoDetalle: data.estado_detalle ?? null, precioAnterior: data.precio_anterior ? aCentavos(data.precio_anterior) : null };
+  } catch {
+    return { detalles: [], estadoDetalle: null, precioAnterior: null };
+  }
+}
+
+/** Guarda la información extra. Los detalles y el estado son de todas las variantes; el precio de antes, de la que se edita. */
+export async function guardarInfoExtra(
+  supabase: Cliente,
+  ids: { todas: string[]; esta: string },
+  info: { detalles: { nombre: string; valor: string }[]; estadoDetalle: string | null; precioAnterior: Centavos | null },
+): Promise<boolean> {
+  const ficha = await supabase.from("producto").update({ detalles: info.detalles, estado_detalle: info.estadoDetalle }).in("id", ids.todas);
+  const precio = await supabase.from("producto").update({ precio_anterior: info.precioAnterior === null ? null : info.precioAnterior / 100 }).eq("id", ids.esta);
+  return !ficha.error && !precio.error;
+}
+
+export type AvisoDeStock = { id: string; nombre: string; contacto: string; creadoEn: Date };
+
+/** Quiénes esperan un producto agotado ("avisame cuando haya"). Si todavía no existe la tabla (falta ficha_producto.sql), nadie. */
+export async function listarAvisosDeStock(supabase: Cliente, productoIds: string[]): Promise<AvisoDeStock[]> {
+  if (!productoIds.length) return [];
+  try {
+    const { data, error } = await supabase
+      .from("aviso_stock")
+      .select("id, nombre, contacto, creado_en")
+      .in("producto_id", productoIds)
+      .is("avisado_en", null)
+      .order("creado_en", { ascending: true })
+      .limit(50);
+    if (error || !data) return [];
+    return data.map((a) => ({ id: a.id, nombre: a.nombre, contacto: a.contacto, creadoEn: new Date(a.creado_en) }));
+  } catch {
+    return [];
+  }
 }
