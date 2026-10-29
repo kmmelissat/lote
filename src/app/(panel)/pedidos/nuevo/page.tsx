@@ -31,6 +31,8 @@ async function Formulario() {
       nombre: p.nombre,
       disponibles: p.disponibles,
       precio: p.precio,
+      foto: p.fotos[0] ?? null,
+      variante: p.variante,
     }));
 
   return <NuevoPedidoForm productos={productos} />;

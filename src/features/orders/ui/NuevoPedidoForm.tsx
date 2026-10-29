@@ -1,15 +1,25 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useActionState, useMemo, useState } from "react";
+import { normalizarTelefono } from "@/domain";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
+import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { Select } from "@/components/ui/Select";
+import { Monito } from "@/components/ui/Monito";
+import { TARJETA } from "@/components/ui/tarjeta";
+import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoPedido, type EstadoNuevoPedido } from "../actions/nuevo";
 
 const t = textos.pedidos.form;
+
+// Lo mismo que acepta la acción del servidor
+const MAXIMO_PRODUCTOS = 20;
 
 export type OpcionProducto = {
   id: string;
@@ -18,154 +28,332 @@ export type OpcionProducto = {
   disponibles: number;
   /** centavos */
   precio: number;
+  foto: string | null;
+  variante: string | null;
 };
 
-type Fila = { clave: number; productoId: string; cantidad: string };
+const nombreCompleto = (p: OpcionProducto) => (p.variante ? `${p.nombre} (${p.variante})` : p.nombre);
 
+const CANALES = ["instagram", "whatsapp", "presencial"] as const;
+const METODOS: { clave: "efectivo" | "transferencia" | "billetera"; icono: NombreIcono }[] = [
+  { clave: "efectivo", icono: "efectivo" },
+  { clave: "transferencia", icono: "banco" },
+  { clave: "billetera", icono: "billetera" },
+];
 
 export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoNuevoPedido, FormData>(nuevoPedido, {});
   const v = estado.valores ?? {};
-  const [tipo, setTipo] = useState(v.tipo ?? "apartado");
-  const [filas, setFilas] = useState<Fila[]>([{ clave: 0, productoId: "", cantidad: "1" }]);
-  const [siguienteClave, setSiguienteClave] = useState(1);
+  const [tipo, setTipo] = useState<"apartado" | "venta">(v.tipo === "venta" ? "venta" : "apartado");
+  const [canalElegido, setCanalElegido] = useState<string | null>(v.canal ?? null);
+  const [metodo, setMetodo] = useState<string>("efectivo");
+  const [contacto, setContacto] = useState(v.contacto ?? "");
+  const [busqueda, setBusqueda] = useState("");
+  // id del producto -> cantidad (solo los que están en el pedido)
+  const [cantidades, setCantidades] = useState<Record<string, number>>({});
 
-  const porId = new Map(productos.map((p) => [p.id, p]));
-  const total = filas.reduce((suma, f) => {
-    const p = porId.get(f.productoId);
-    const n = Number(f.cantidad);
-    return p && Number.isInteger(n) && n > 0 ? suma + p.precio * n : suma;
-  }, 0);
+  // Solo a un teléfono se le puede escribir por WhatsApp: ahí tiene sentido preguntar si acepta avisos
+  const esTelefono = normalizarTelefono(contacto) !== null;
+  const canal = canalElegido ?? (tipo === "venta" ? "presencial" : "instagram");
+  const porId = useMemo(() => new Map(productos.map((p) => [p.id, p])), [productos]);
 
-  const cambiar = (clave: number, cambio: Partial<Fila>) =>
-    setFilas((fs) => fs.map((f) => (f.clave === clave ? { ...f, ...cambio } : f)));
+  const items = Object.entries(cantidades)
+    .filter(([, n]) => n > 0)
+    .map(([productoId, cantidad]) => ({ productoId, cantidad }));
+  const unidades = items.reduce((suma, i) => suma + i.cantidad, 0);
+  const total = items.reduce((suma, i) => suma + (porId.get(i.productoId)?.precio ?? 0) * i.cantidad, 0);
 
-  if (!productos.length) return <p className="text-texto-2">{t.sinProductos}</p>;
+  const filtrados = useMemo(() => {
+    const q = busqueda.trim().toLowerCase();
+    if (!q) return productos;
+    return productos.filter((p) => nombreCompleto(p).toLowerCase().includes(q) || String(p.codigo).includes(q));
+  }, [productos, busqueda]);
 
-  const items = filas
-    .filter((f) => f.productoId)
-    .map((f) => ({ productoId: f.productoId, cantidad: Number(f.cantidad) }));
+  function cambiar(p: OpcionProducto, diferencia: number) {
+    setCantidades((actual) => {
+      const nueva = Math.min(p.disponibles, Math.max(0, (actual[p.id] ?? 0) + diferencia));
+      if (nueva > 0 && !(p.id in actual) && Object.keys(actual).length >= MAXIMO_PRODUCTOS) return actual;
+      const { [p.id]: _quitado, ...resto } = actual;
+      void _quitado;
+      return nueva > 0 ? { ...resto, [p.id]: nueva } : resto;
+    });
+  }
+
+  if (!productos.length) {
+    return (
+      <EmptyState
+        titulo={t.sinProductosTitulo}
+        texto={t.sinProductos}
+        accion={
+          <Link
+            href="/productos/nuevo"
+            className="inline-flex h-12 items-center rounded-full border-2 border-teal-oscuro bg-mango px-6 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+          >
+            {t.sinProductosAccion}
+          </Link>
+        }
+      />
+    );
+  }
 
   return (
-    <form action={accion} className="flex max-w-xl flex-col gap-5">
-      <fieldset className="flex gap-6">
-        <legend className="mb-1.5 text-sm font-medium">{t.tipo}</legend>
-        {(["apartado", "venta"] as const).map((o) => (
-          <label key={o} className="flex min-h-11 items-center gap-2">
-            <input
-              type="radio"
-              name="tipo"
-              value={o}
-              checked={tipo === o}
-              onChange={() => setTipo(o)}
-              className="size-5 accent-teal"
-            />
-            {t[o]}
-          </label>
-        ))}
-      </fieldset>
-
+    <form action={accion} className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
       <input type="hidden" name="items" value={JSON.stringify(items)} />
-      <ul className="flex flex-col gap-3">
-        {filas.map((f, i) => {
-          const p = porId.get(f.productoId);
-          return (
-            <li key={f.clave} className="flex items-end gap-3">
-              <label className="flex min-w-0 flex-1 flex-col gap-1.5">
-                <span className="text-sm font-medium">{i === 0 ? t.producto : `${t.producto} ${i + 1}`}</span>
-                <Select
-                  value={f.productoId}
-                  onChange={(e) => cambiar(f.clave, { productoId: e.target.value, cantidad: "1" })}
-                >
-                  <option value="">{t.elegirProducto}</option>
-                  {productos.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {t.disponiblesOpcion(o.nombre, o.codigo, o.disponibles)}
-                    </option>
-                  ))}
-                </Select>
-              </label>
-              <label className="flex w-20 flex-col gap-1.5">
-                <span className="text-sm font-medium">{t.cantidad}</span>
+
+      <div className="flex min-w-0 flex-col gap-5">
+        {/* 1. Qué se registra */}
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-3 text-lg font-bold">{t.tipo}</legend>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {(["apartado", "venta"] as const).map((o) => (
+              <label
+                key={o}
+                className={`${TARJETA} flex cursor-pointer items-start gap-3 transition-[transform,box-shadow] duration-150 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal ${
+                  tipo === o ? "bg-limon shadow-dura-chica" : "bg-superficie hover:-translate-y-0.5"
+                }`}
+              >
                 <input
-                  type="number"
-                  min={1}
-                  max={p?.disponibles}
-                  inputMode="numeric"
-                  value={f.cantidad}
-                  onChange={(e) => cambiar(f.clave, { cantidad: e.target.value })}
-                  className="h-12 rounded-xl border border-borde-control bg-superficie px-3 text-base"
+                  type="radio"
+                  name="tipo"
+                  value={o}
+                  checked={tipo === o}
+                  onChange={() => setTipo(o)}
+                  className="sr-only"
                 />
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie">
+                  <Icon nombre={o === "apartado" ? "reloj" : "moneda"} className="size-5" />
+                </span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="font-bold">{t[o]}</span>
+                  <span className="text-sm">{o === "apartado" ? t.apartadoAyuda : t.ventaAyuda}</span>
+                </span>
               </label>
-              {filas.length > 1 && (
-                <button
-                  type="button"
-                  aria-label={t.quitar(i + 1)}
-                  onClick={() => setFilas((fs) => fs.filter((x) => x.clave !== f.clave))}
-                  className="flex size-12 shrink-0 items-center justify-center rounded-xl text-texto-2 hover:bg-teal-fondo"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-      <button
-        type="button"
-        onClick={() => {
-          setFilas((fs) => [...fs, { clave: siguienteClave, productoId: "", cantidad: "1" }]);
-          setSiguienteClave((n) => n + 1);
-        }}
-        className="inline-flex min-h-11 items-center self-start text-teal underline"
-      >
-        {t.otroProducto}
-      </button>
-
-      <Field
-        etiqueta={tipo === "apartado" ? t.cliente : t.clienteOpcional}
-        name="cliente"
-        autoComplete="off"
-        autoCapitalize="none"
-        defaultValue={v.cliente}
-      />
-
-      <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium">{t.canal}</span>
-        <Select
-          name="canal"
-          defaultValue={v.canal ?? (tipo === "venta" ? "presencial" : "instagram")}
-          key={tipo}
-        >
-          {(["instagram", "whatsapp", "presencial"] as const).map((c) => (
-            <option key={c} value={c}>
-              {textos.pedidos.canales[c]}
-            </option>
-          ))}
-        </Select>
-      </label>
-
-      {tipo === "venta" && (
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.pago}</span>
-          <Select name="metodo" defaultValue="efectivo">
-            {(["efectivo", "transferencia", "billetera"] as const).map((m) => (
-              <option key={m} value={m}>
-                {textos.cobro.metodos[m]}
-              </option>
             ))}
-          </Select>
-        </label>
-      )}
+          </div>
+        </fieldset>
 
-      <p className="text-lg">
-        {t.total}: <strong>{formatearDolares(total)}</strong>
-      </p>
+        {/* 2. Qué se lleva */}
+        <section aria-labelledby="productos-titulo" className={`${TARJETA} flex flex-col gap-3 bg-superficie`}>
+          <h2 id="productos-titulo" className="text-lg font-bold">
+            {t.productos}
+          </h2>
+          <div className="relative">
+            <Icon nombre="buscar" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-texto-2" />
+            <input
+              type="search"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder={t.buscar}
+              aria-label={t.buscar}
+              className="h-12 w-full rounded-full border-2 border-teal-oscuro bg-superficie pl-12 pr-4 text-base"
+            />
+          </div>
 
-      <MensajeError>{estado.error}</MensajeError>
-      <Button type="submit" disabled={pendiente || !items.length}>
-        {pendiente ? t.registrando : t.registrar}
-      </Button>
+          {filtrados.length === 0 ? (
+            <p className="py-6 text-center text-texto-2">{t.sinResultados}</p>
+          ) : (
+            <ul className="-mx-1 flex max-h-[26rem] flex-col gap-2 overflow-y-auto px-1 py-1">
+              {filtrados.map((p) => {
+                const n = cantidades[p.id] ?? 0;
+                return (
+                  <li
+                    key={p.id}
+                    className={`flex items-center gap-3 rounded-[20px] border-2 p-2 pr-3 ${
+                      n > 0 ? "border-teal-oscuro bg-crema" : "border-borde bg-superficie"
+                    }`}
+                  >
+                    <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border-2 border-teal-oscuro bg-teal-fondo">
+                      {p.foto ? (
+                        <Image src={urlFoto(p.foto)} alt="" fill sizes="56px" className="object-cover" />
+                      ) : (
+                        <div className="grid size-full place-items-center text-teal">
+                          <Icon nombre="productos" className="size-6" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-2 text-sm font-medium">{nombreCompleto(p)}</p>
+                      <p className="text-sm">
+                        <span className="font-bold tabular-nums">{formatearDolares(p.precio)}</span>
+                        <span className="text-texto-2">
+                          {" · #"}
+                          {p.codigo}
+                          {" · "}
+                          {p.disponibles === 1 ? "queda 1" : `quedan ${p.disponibles}`}
+                        </span>
+                      </p>
+                    </div>
+                    {n === 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => cambiar(p, 1)}
+                        className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border-2 border-teal-oscuro bg-superficie px-4 text-sm font-bold hover:bg-limon"
+                      >
+                        <Icon nombre="mas" className="size-4" />
+                        {t.agregar}
+                      </button>
+                    ) : (
+                      <div className="flex shrink-0 items-center gap-1">
+                        <button
+                          type="button"
+                          aria-label={t.menosDe(nombreCompleto(p))}
+                          onClick={() => cambiar(p, -1)}
+                          className="grid size-11 place-items-center rounded-full border-2 border-teal-oscuro bg-superficie text-lg font-bold"
+                        >
+                          <span aria-hidden="true">−</span>
+                        </button>
+                        <span aria-live="polite" className="w-7 text-center font-bold tabular-nums">
+                          {n}
+                        </span>
+                        <button
+                          type="button"
+                          aria-label={t.masDe(nombreCompleto(p))}
+                          title={n >= p.disponibles ? t.tope(p.disponibles) : undefined}
+                          disabled={n >= p.disponibles}
+                          onClick={() => cambiar(p, 1)}
+                          className="grid size-11 place-items-center rounded-full border-2 border-teal-oscuro bg-mango text-lg font-bold disabled:opacity-40"
+                        >
+                          <span aria-hidden="true">+</span>
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        {/* 3. Para quién y cómo */}
+        <section aria-labelledby="quien-titulo" className={`${TARJETA} flex flex-col gap-4 bg-superficie`}>
+          <h2 id="quien-titulo" className="text-lg font-bold">
+            {t.quien}
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field
+              etiqueta={tipo === "apartado" ? t.cliente : t.clienteOpcional}
+              name="cliente"
+              autoComplete="off"
+              defaultValue={v.cliente}
+            />
+            <Field
+              etiqueta={t.contacto}
+              name="contacto"
+              autoComplete="off"
+              autoCapitalize="none"
+              maxLength={60}
+              value={contacto}
+              onChange={(e) => setContacto(e.target.value)}
+            />
+          </div>
+          <p className="-mt-2 text-sm text-texto-2">{t.contactoAyuda}</p>
+          {esTelefono && (
+            <label className="flex cursor-pointer items-start gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema p-3 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal">
+              <input type="checkbox" name="acepta" defaultChecked={v.acepta} className="mt-0.5 size-5 shrink-0 accent-teal" />
+              <span className="flex flex-col">
+                <span className="font-bold">{t.acepta}</span>
+                <span className="text-sm text-texto-2">{t.aceptaAyuda}</span>
+              </span>
+            </label>
+          )}
+
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1.5 text-sm font-medium">{t.canal}</legend>
+            <div className="flex flex-wrap gap-2">
+              {CANALES.map((c) => (
+                <Opcion key={c} activa={canal === c}>
+                  <input
+                    type="radio"
+                    name="canal"
+                    value={c}
+                    checked={canal === c}
+                    onChange={() => setCanalElegido(c)}
+                    className="sr-only"
+                  />
+                  {textos.pedidos.canales[c]}
+                </Opcion>
+              ))}
+            </div>
+          </fieldset>
+
+          {tipo === "venta" && (
+            <fieldset className="flex flex-col gap-2">
+              <legend className="mb-1.5 text-sm font-medium">{t.pago}</legend>
+              <div className="flex flex-wrap gap-2">
+                {METODOS.map((m) => (
+                  <Opcion key={m.clave} activa={metodo === m.clave}>
+                    <input
+                      type="radio"
+                      name="metodo"
+                      value={m.clave}
+                      checked={metodo === m.clave}
+                      onChange={() => setMetodo(m.clave)}
+                      className="sr-only"
+                    />
+                    <Icon nombre={m.icono} className="size-4" />
+                    {textos.cobro.metodos[m.clave]}
+                  </Opcion>
+                ))}
+              </div>
+            </fieldset>
+          )}
+        </section>
+      </div>
+
+      {/* Resumen: a un lado en pantalla ancha, al final en el celular */}
+      <aside className="relative mt-8 lg:sticky lg:top-4 lg:mt-10">
+        <Monito nombre="calculadora" className="pointer-events-none absolute -top-[4.6rem] right-5 w-16 text-rosa" />
+        <div className={`${TARJETA} flex flex-col gap-4 bg-limon shadow-dura`}>
+          <h2 className="text-lg font-bold">{t.resumen}</h2>
+
+          {items.length === 0 ? (
+            <p>{t.resumenVacio}</p>
+          ) : (
+            <ul className="flex flex-col gap-1.5">
+              {items.map((i) => {
+                const p = porId.get(i.productoId);
+                if (!p) return null;
+                return (
+                  <li key={i.productoId} className="flex items-baseline justify-between gap-3 text-sm">
+                    <span className="min-w-0 truncate">
+                      {i.cantidad} × {nombreCompleto(p)}
+                    </span>
+                    <span className="shrink-0 font-medium tabular-nums">{formatearDolares(p.precio * i.cantidad)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <div className="flex items-end justify-between gap-3 border-t-2 border-teal-oscuro pt-3">
+            <div>
+              <p className="text-sm font-medium">{t.total}</p>
+              {unidades > 0 && <p className="text-sm">{t.unidades(unidades)}</p>}
+            </div>
+            <p className="text-3xl font-bold tabular-nums" aria-live="polite">
+              {formatearDolares(total)}
+            </p>
+          </div>
+
+          <MensajeError>{estado.error}</MensajeError>
+          <Button type="submit" variante="mango" disabled={pendiente || !items.length} className="w-full">
+            {pendiente ? t.registrando : t.registrar}
+          </Button>
+        </div>
+      </aside>
     </form>
+  );
+}
+
+/** Una opción en forma de píldora: el radio va escondido adentro y la píldora se pinta cuando está elegido. */
+function Opcion({ activa, children }: { activa: boolean; children: React.ReactNode }) {
+  return (
+    <label
+      className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal ${
+        activa ? "bg-limon shadow-dura-chica" : "bg-superficie hover:bg-teal-fondo"
+      }`}
+    >
+      {children}
+    </label>
   );
 }

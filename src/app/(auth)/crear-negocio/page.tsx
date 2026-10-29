@@ -8,7 +8,7 @@ export default function CrearNegocioPage() {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold">{textos.crearNegocio.titulo}</h1>
+        <h1 className="text-3xl font-bold leading-tight">{textos.crearNegocio.titulo}</h1>
         <p className="text-texto-2">{textos.crearNegocio.descripcion}</p>
       </div>
       <CrearNegocioForm />

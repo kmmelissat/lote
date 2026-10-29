@@ -1298,8 +1298,10 @@ export type Database = {
       }
       registrar_pedido: {
         Args: {
+          p_acepta_whatsapp?: boolean
           p_canal: string
           p_cliente: string
+          p_contacto?: string
           p_items: Json
           p_metodo?: string
           p_negocio: string

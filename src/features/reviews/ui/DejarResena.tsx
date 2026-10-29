@@ -14,13 +14,13 @@ export function DejarResena({ pedido, codigo, nombre }: { pedido: string; codigo
 
   if (estado.listo) {
     return (
-      <p role="status" className="rounded-2xl bg-limon px-4 py-3 font-medium">
+      <p role="status" className="rounded-[24px] border-2 border-teal-oscuro bg-limon px-5 py-4 font-medium text-teal-oscuro">
         {t.gracias}
       </p>
     );
   }
   return (
-    <form action={accion} className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro/20 bg-white p-4">
+    <form action={accion} className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-white p-5">
       <p className="font-bold">{t.producto(nombre)}</p>
       <EstrellasInput etiqueta="Estrellas" />
       <label className="flex flex-col gap-1.5">

@@ -182,6 +182,10 @@ export async function registrarPedido(
     items: { productoId: string; cantidad: number }[];
     /** Cómo pagó una venta en persona; por defecto efectivo */
     metodo?: MetodoPago;
+    /** WhatsApp o @usuario del cliente */
+    contacto?: string;
+    /** Que el cliente aceptó recibir avisos por WhatsApp */
+    aceptaWhatsapp?: boolean;
   },
 ): Promise<{ ok: true; id: string; codigo: number } | { ok: false; error: ErrorPedido }> {
   const { data: id, error } = await supabase.rpc("registrar_pedido", {
@@ -191,6 +195,8 @@ export async function registrarPedido(
     p_tipo: p.tipo,
     p_items: p.items.map((i) => ({ producto_id: i.productoId, cantidad: i.cantidad })),
     p_metodo: p.metodo,
+    // Solo se mandan si hay algo: así sigue funcionando aunque falte correr pedido_cliente.sql
+    ...(p.contacto ? { p_contacto: p.contacto, p_acepta_whatsapp: p.aceptaWhatsapp ?? false } : {}),
   });
   if (error) return { ok: false, error: aErrorPedido(error) };
 

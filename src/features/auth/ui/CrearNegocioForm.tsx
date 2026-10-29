@@ -29,7 +29,7 @@ export function CrearNegocioForm() {
         autoCapitalize="none"
         defaultValue={estado.instagram}
       />
-      <Button type="submit" disabled={pendiente}>
+      <Button type="submit" variante="mango" disabled={pendiente}>
         {pendiente ? t.creando : t.crear}
       </Button>
       <MensajeError>{estado.error !== t.errorNombre && estado.error}</MensajeError>

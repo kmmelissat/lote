@@ -6,6 +6,7 @@ import { leerDolares, repartirCostoTotal } from "@/domain/index";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { TARJETA } from "@/components/ui/tarjeta";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -73,7 +74,7 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
 
       {rutas.length > 0 && (
         <>
-          <section aria-labelledby="piezas" className="flex flex-col gap-3">
+          <section aria-labelledby="piezas" className={`${TARJETA} flex flex-col gap-3 bg-superficie`}>
             <h2 id="piezas" className="font-bold">
               {t.piezas(rutas.length)}
             </h2>
@@ -94,7 +95,7 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
                     alt={textos.productos.fotos.foto(i + 1)}
                     width={56}
                     height={56}
-                    className="size-14 shrink-0 rounded-xl border border-borde object-cover"
+                    className="size-14 shrink-0 rounded-xl border-2 border-teal-oscuro object-cover"
                   />
                   <div className="min-w-0 flex-1">
                     <Field
@@ -111,7 +112,8 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
             </ul>
           </section>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`${TARJETA} flex flex-col gap-3 bg-crema`}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field etiqueta={t.precio} name="precio" inputMode="decimal" required />
             <Field
               etiqueta={t.costoTotal}
@@ -121,11 +123,12 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
               onChange={(ev) => setCosto(ev.target.value)}
             />
           </div>
-          <p className="text-sm text-texto-2" aria-live="polite">
+          <p className="text-sm font-medium" aria-live="polite">
             {porPieza.length ? t.reparto(formatearDolares(porPieza[0]), rutas.length) : t.repartoAyuda}
           </p>
+          </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field etiqueta={f.categoria} name="categoria" />
             <fieldset className="flex flex-col">
               <legend className="mb-1.5 text-sm font-medium">{f.condicion}</legend>
@@ -141,7 +144,7 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
           </div>
 
           <MensajeError>{estado.error}</MensajeError>
-          <Button type="submit" disabled={pendiente}>
+          <Button type="submit" variante="mango" disabled={pendiente}>
             {pendiente ? t.creando : t.crear(rutas.length)}
           </Button>
         </>

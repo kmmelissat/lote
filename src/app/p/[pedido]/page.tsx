@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { Monito } from "@/components/ui/Monito";
+import { TARJETA } from "@/components/ui/tarjeta";
 import { DejarResena } from "@/features/reviews/ui/DejarResena";
 import { obtenerSeguimiento } from "@/features/tracking/repositorio";
 import { formatearFecha } from "@/lib/formato";
@@ -35,20 +36,23 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <p className="text-texto-2">{s.negocio}</p>
-        <h1 className="text-2xl font-bold">{t.titulo}</h1>
-        <p className="text-texto-2">
-          {t.pedido(s.codigo)} · {formatearFecha(s.creadoEn)}
-        </p>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="font-medium text-texto-2">{s.negocio}</p>
+          <h1 className="text-3xl font-bold leading-tight">{t.titulo}</h1>
+          <p className="text-texto-2">
+            {t.pedido(s.codigo)} · {formatearFecha(s.creadoEn)}
+          </p>
+        </div>
+        {s.estado === "entregado" && <Monito nombre="thumbsup" className="-mb-5 w-20 shrink-0 text-rosa" />}
       </div>
 
       {cancelado ? (
-        <p role="status" className="rounded-xl bg-perla px-4 py-3 font-medium text-ambar-texto">
+        <p role="status" className="rounded-[24px] border-2 border-teal-oscuro bg-limon px-5 py-4 font-medium text-teal-oscuro">
           {t.cancelado}
         </p>
       ) : (
-        <Card className="border border-borde">
+        <div className={`${TARJETA} bg-superficie shadow-dura-chica`}>
           <h2 className="mb-3 font-bold">{t.estado}</h2>
           <ol className="flex flex-col gap-3">
             {PASOS.map((paso, i) => {
@@ -63,7 +67,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
                   <span
                     aria-hidden="true"
                     className={`flex size-8 shrink-0 items-center justify-center rounded-full ${
-                      hecho || esActual ? "bg-teal text-white" : "border border-borde-control"
+                      hecho || esActual ? "border-2 border-teal-oscuro bg-mango text-teal-oscuro" : "border-2 border-borde-control"
                     }`}
                   >
                     {hecho || esActual ? <Icon nombre="check" className="size-4" /> : i + 1}
@@ -76,11 +80,11 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
               );
             })}
           </ol>
-        </Card>
+        </div>
       )}
 
       {mostrarGuia && (
-        <Card className="border border-borde">
+        <div className={`${TARJETA} bg-teal-fondo`}>
           <h2 className="mb-2 font-bold">{t.envio}</h2>
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
             {s.paquetera && (
@@ -92,10 +96,10 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
             <dt className="text-texto-2">{t.guia}</dt>
             <dd className="text-right font-medium">{s.guia}</dd>
           </dl>
-        </Card>
+        </div>
       )}
 
-      <Card className="border border-borde">
+      <div className={`${TARJETA} bg-superficie`}>
         <h2 className="mb-3 font-bold">{t.productos}</h2>
         <ul className="flex flex-col gap-2">
           {s.items.map((i) => (
@@ -104,7 +108,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
             </li>
           ))}
         </ul>
-      </Card>
+      </div>
 
       {/* Ya lo recibió: es el momento de contar cómo le fue */}
       {s.estado === "entregado" && s.items.some((i) => i.codigo !== undefined) && (
@@ -119,7 +123,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
         </section>
       )}
 
-      <Link href={`/c/${s.slug}`} className="inline-flex min-h-11 items-center self-start text-teal underline">
+      <Link href={`/c/${s.slug}`} className="inline-flex min-h-11 items-center self-start font-bold text-teal underline">
         {t.verVitrina(s.negocio)}
       </Link>
     </div>

@@ -9,6 +9,7 @@ import {
   type ErrorPedido,
   type MetodoPago,
 } from "../repositorio";
+import { normalizarTelefono } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -16,7 +17,7 @@ const t = textos.pedidos.form;
 
 export type EstadoNuevoPedido = {
   error?: string;
-  valores?: { tipo?: string; cliente?: string; canal?: string };
+  valores?: { tipo?: string; cliente?: string; contacto?: string; acepta?: boolean; canal?: string };
 };
 
 const CANALES: Canal[] = ["instagram", "whatsapp", "presencial", "vitrina"];
@@ -56,7 +57,10 @@ export async function nuevoPedido(
   const cliente = String(formData.get("cliente") ?? "").trim();
   const canalPedido = String(formData.get("canal") ?? "");
   const canal: Canal = CANALES.includes(canalPedido as Canal) ? (canalPedido as Canal) : "presencial";
-  const valores = { tipo, cliente, canal };
+  const contacto = String(formData.get("contacto") ?? "").trim().slice(0, 60);
+  // Solo se puede avisar a un teléfono; un @usuario no recibe WhatsApp.
+  const acepta = formData.get("acepta") === "on" && normalizarTelefono(contacto) !== null;
+  const valores = { tipo, cliente, contacto, acepta, canal };
   const metodoPedido = String(formData.get("metodo") ?? "");
   const metodo: MetodoPago | undefined = METODOS_DE_COBRO.includes(metodoPedido as MetodoPago)
     ? (metodoPedido as MetodoPago)
@@ -65,6 +69,8 @@ export async function nuevoPedido(
   const items = leerItems(String(formData.get("items") ?? ""));
   if (!items) return { error: t.errorProductos, valores };
   if (tipo === "apartado" && !cliente) return { error: t.errorCliente, valores };
+  // Un contacto sin nombre no se guarda en ningún lado
+  if (contacto && !cliente) return { error: t.errorContactoSinNombre, valores };
 
   // El permiso y la disponibilidad los decide la base; acá solo se resuelve el negocio.
   const { supabase, negocio } = await negocioActual();
@@ -74,6 +80,8 @@ export async function nuevoPedido(
     tipo,
     items,
     metodo: tipo === "venta" ? metodo : undefined,
+    contacto: contacto || undefined,
+    aceptaWhatsapp: acepta,
   });
   if (!r.ok) return { error: textoDeError(r.error), valores };
 

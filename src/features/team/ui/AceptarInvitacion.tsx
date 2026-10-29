@@ -13,7 +13,7 @@ export function AceptarInvitacion({ token, negocio }: { token: string; negocio: 
   return (
     <form action={accion} className="flex flex-col gap-3">
       <MensajeError>{estado.error}</MensajeError>
-      <Button type="submit" disabled={pendiente} className="self-start">
+      <Button type="submit" variante="mango" disabled={pendiente} className="self-start">
         {pendiente ? t.uniendo : t.unirme(negocio)}
       </Button>
     </form>

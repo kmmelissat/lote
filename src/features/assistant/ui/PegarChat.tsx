@@ -2,7 +2,7 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { TARJETA } from "@/components/ui/tarjeta";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Sugerido } from "@/components/ui/Sugerido";
 import type { SalidaEntender } from "@/features/ai/esquema";
@@ -68,12 +68,12 @@ export function PegarChat() {
           rows={10}
           maxLength={MAXIMO_CHAT}
           placeholder={t.placeholder}
-          className="rounded-xl border border-borde-control bg-superficie px-4 py-3 text-base"
+          className="rounded-[14px] border-2 border-borde-control bg-superficie px-4 py-3 text-base focus:border-teal"
         />
       </label>
       <p className="text-sm text-texto-2">{t.privacidad}</p>
       <MensajeError>{error}</MensajeError>
-      <Button type="submit" className="self-start" disabled={leyendo || !chat.trim()}>
+      <Button type="submit" variante="mango" className="self-start" disabled={leyendo || !chat.trim()}>
         {leyendo ? t.revisando : t.revisar}
       </Button>
     </form>
@@ -114,21 +114,21 @@ function TarjetaPropuesta({ propuesta }: { propuesta: Propuesta }) {
 
   if (descartada) {
     return (
-      <Card className="border border-borde text-texto-2">
+      <div className={`${TARJETA} bg-fondo text-texto-2`}>
         <p role="status">{t.descartada}</p>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="flex flex-col gap-3 border border-borde">
+    <div className={`${TARJETA} flex flex-col gap-3 bg-superficie`}>
       <p className="font-medium">
         <Sugerido /> {propuesta.descripcion}
       </p>
 
       {!respuesta ? (
         <div className="flex flex-wrap gap-3">
-          <Button type="button" disabled={pendiente} onClick={confirmar}>
+          <Button type="button" variante="mango" disabled={pendiente} onClick={confirmar}>
             {t.confirmar}
           </Button>
           <Button type="button" variante="secundario" disabled={pendiente} onClick={() => setDescartada(true)}>
@@ -137,7 +137,7 @@ function TarjetaPropuesta({ propuesta }: { propuesta: Propuesta }) {
         </div>
       ) : (
         <div className="flex flex-col gap-3" aria-live="polite">
-          <p className="whitespace-pre-line rounded-xl bg-fondo px-4 py-3">{respuesta.texto}</p>
+          <p className="whitespace-pre-line rounded-2xl bg-crema px-4 py-3">{respuesta.texto}</p>
           {respuesta.botones?.length ? (
             <div className="flex flex-wrap gap-2">
               {respuesta.botones.map((b) => (
@@ -154,7 +154,7 @@ function TarjetaPropuesta({ propuesta }: { propuesta: Propuesta }) {
                 <input
                   value={texto}
                   onChange={(ev) => setTexto(ev.target.value)}
-                  className="h-12 rounded-xl border border-borde-control bg-superficie px-4 text-base"
+                  className="h-12 rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal"
                 />
               </label>
               <Button type="submit" variante="secundario" disabled={pendiente || !texto.trim()}>
@@ -164,6 +164,6 @@ function TarjetaPropuesta({ propuesta }: { propuesta: Propuesta }) {
           )}
         </div>
       )}
-    </Card>
+    </div>
   );
 }
