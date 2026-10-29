@@ -1,4 +1,5 @@
 import { datosNavegacion } from "@/features/home/navegacion";
+import { ENLACES_PASOS } from "@/features/home/primerosPasos";
 import { urlFoto } from "@/lib/fotos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -12,8 +13,6 @@ const SIN_DATOS: DatosMenu = {
   tieneLocal: false,
   perfil: { nombre: textos.perfil.nombre, detalle: textos.perfil.detalle, logo: null },
 };
-
-const ENLACES_DE_PASOS = { producto: "/productos/nuevo", pago: "/ajustes/pagos", pedido: "/pedidos/nuevo" } as const;
 
 /** El menú con sus datos (contador de Pedidos, primeros pasos, perfil). Mientras llegan, se ve el menú sin ellos. */
 export function NavSinDatos() {
@@ -32,7 +31,7 @@ export async function NavConDatos() {
         ? {
             hechos: d.pasos.filter((p) => p.hecho).length,
             total: d.pasos.length,
-            siguiente: { titulo: textos.inicio.primerosPasos.pasos[siguiente.clave].titulo, href: ENLACES_DE_PASOS[siguiente.clave] },
+            siguiente: { titulo: textos.inicio.primerosPasos.pasos[siguiente.clave].titulo, href: ENLACES_PASOS[siguiente.clave] },
           }
         : null,
     // Sin vitrina no hay enlace que mostrar

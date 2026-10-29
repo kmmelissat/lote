@@ -31,7 +31,7 @@ export async function crearNegocio(
       p_slug: slug,
       p_usuario_instagram: instagram || undefined,
     });
-    if (!error) redirect("/inicio");
+    if (!error) redirect("/inicio?bienvenida=1");
     // Si el enlace ya existe, se reintenta una vez con un sufijo; cualquier otro error se muestra.
     if (error.code !== UNICO_VIOLADO) break;
   }

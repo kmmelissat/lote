@@ -29,6 +29,7 @@ import {
   ShoppingBag,
   Store,
   Settings,
+  SlidersHorizontal,
   Star,
   TrendingUp,
   Upload,
@@ -78,6 +79,7 @@ const iconos = {
   mas_opciones: Ellipsis,
   usuario: User,
   panel: PanelLeft,
+  filtros: SlidersHorizontal,
 } as const;
 
 export type NombreIcono = keyof typeof iconos;

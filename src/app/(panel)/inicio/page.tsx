@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -12,7 +13,8 @@ import { contarPendientes } from "@/features/reviews/repositorio";
 import { AvisoResenas } from "@/features/reviews/ui/AvisoResenas";
 import { TarjetaVitrina } from "@/features/home/ui/TarjetaVitrina";
 import { TarjetaGanancia } from "@/features/home/ui/TarjetaGanancia";
-import { faltanPasos, primerosPasos } from "@/features/home/primerosPasos";
+import { COOKIE_COMPARTIO, COOKIE_PASOS_VISTOS, mostrarPasos, pasosVistos, primerosPasos } from "@/features/home/primerosPasos";
+import { TarjetaBienvenida } from "@/features/home/ui/TarjetaBienvenida";
 import { resumenInicio } from "@/features/home/resumen";
 import { buscarPedidos, paginaDePedidos } from "@/features/orders/repositorio";
 import { listarMetodos } from "@/features/payments/repositorio";
@@ -27,12 +29,14 @@ const SEMANAS_DEL_GRAFICO = 6;
 
 export const metadata: Metadata = { title: t.titulo };
 
-export default function InicioPage() {
-  return <Contenido />;
+export default async function InicioPage({ searchParams }: PageProps<"/inicio">) {
+  const { bienvenida } = await searchParams;
+  return <Contenido bienvenida={bienvenida === "1"} />;
 }
 
-async function Contenido() {
+async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   const { supabase, negocio } = await negocioActual();
+  const galletas = await cookies();
   const ahora = new Date();
 
   const [unidades, pedidos, recientes, semanas, metodos] = await Promise.all([
@@ -58,15 +62,41 @@ async function Contenido() {
   );
 
   // Sin unidades de ningún tipo es que todavía no hay productos.
-  if (unidades.disponibles + unidades.apartadas + unidades.vendidas === 0) {
+  const sinProductos = unidades.disponibles + unidades.apartadas + unidades.vendidas === 0;
+  const r = resumenInicio(unidades, pedidos, ahora);
+  const pasos = metodos
+    ? primerosPasos({
+        tieneProductos: !sinProductos,
+        tieneLogo: negocio.logo !== null,
+        tieneMetodoPago: metodos.some((m) => m.activo),
+        compartio: galletas.get(COOKIE_COMPARTIO)?.value === negocio.id,
+        tienePedidos: r.apartadas + r.vendidas > 0 || pedidos.length > 0,
+        vitrinaActiva: negocio.vitrinaActiva,
+      })
+    : [];
+  const vistos = pasosVistos(galletas.get(COOKIE_PASOS_VISTOS)?.value, negocio.id);
+  const tarjetaPasos = mostrarPasos(pasos, vistos) && (
+    <TarjetaPrimerosPasos pasos={pasos} vistos={vistos} negocioId={negocio.id} slug={negocio.slug} />
+  );
+  const tarjetaBienvenida = bienvenida && (
+    <TarjetaBienvenida nombre={negocio.nombre} negocioId={negocio.id} slug={negocio.slug} conVitrina={negocio.vitrinaActiva} />
+  );
+
+  if (sinProductos) {
     return (
       <>
         <PageHeader titulo={t.saludo(negocio.nombre)} descripcion={t.resumenDisponibles(0)} />
-        <EmptyState
-          titulo={t.vacioTitulo}
-          texto={t.vacioTexto}
-          accion={<ButtonLink href="/productos/nuevo">{t.vacioAccion}</ButtonLink>}
-        />
+        <div className="flex flex-col gap-3">
+          {tarjetaBienvenida}
+          {/* Quien configura el negocio ve los pasos (el primero es agregar un producto); el resto, el aviso de siempre */}
+          {tarjetaPasos || (
+            <EmptyState
+              titulo={t.vacioTitulo}
+              texto={t.vacioTexto}
+              accion={negocio.puedeGestionar ? <ButtonLink href="/productos/nuevo">{t.vacioAccion}</ButtonLink> : undefined}
+            />
+          )}
+        </div>
       </>
     );
   }
@@ -75,14 +105,6 @@ async function Contenido() {
   const ganancia = semanas?.at(-1)?.resumen ?? null;
   const anterior = semanas?.at(-2)?.resumen.gananciaDespuesDeGastos ?? null;
 
-  const r = resumenInicio(unidades, pedidos, ahora);
-  const pasos = metodos
-    ? primerosPasos({
-        tieneProductos: true,
-        tieneMetodoPago: metodos.some((m) => m.activo),
-        tienePedidos: r.apartadas + r.vendidas > 0 || pedidos.length > 0,
-      })
-    : [];
   // Sin ningún pedido todavía no hay nada que graficar ni listar: se esconde en vez de mostrar widgets vacíos.
   const sinMovimiento = recientes.length === 0;
   // Sin nada que atender la tarjeta no existe: el gráfico ocupa su lugar para que no quede un hueco.
@@ -92,7 +114,8 @@ async function Contenido() {
     <>
       {encabezado}
       <div className="flex flex-col gap-3">
-        {faltanPasos(pasos) && <TarjetaPrimerosPasos pasos={pasos} />}
+        {tarjetaBienvenida}
+        {tarjetaPasos}
 
         {negocio.puedeGestionar && <AvisoResenas pendientes={await contarPendientes(supabase, negocio.id)} />}
 

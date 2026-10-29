@@ -68,9 +68,9 @@ export default async function Landing() {
       <Encabezado conSesion={conSesion} />
       <main id="contenido">
         <Hero conSesion={conSesion} />
-        <Marquesina />
         <Problema />
         <ComoFunciona />
+        <Marquesina />
         <Funciones />
         <Principios />
         <Precios />

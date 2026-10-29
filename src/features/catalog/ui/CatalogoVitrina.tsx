@@ -160,6 +160,7 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
                         src={urlFoto(p.fotos[0])}
                         alt={p.nombre}
                         fill
+                        loading={i < 4 ? "eager" : "lazy"}
                         sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
                         className={`object-cover ${libre ? "" : "opacity-70"}`}
                       />

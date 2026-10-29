@@ -36,7 +36,7 @@ function Galeria({ fotos, nombre }: { fotos: string[]; nombre: string }) {
           src={urlFoto(fotos[actual])}
           alt={actual === 0 ? nombre : textos.vitrina.fotoDe(nombre, actual + 1)}
           fill
-          priority
+          preload
           sizes="(min-width: 768px) 50vw, 100vw"
           className="object-cover"
         />
