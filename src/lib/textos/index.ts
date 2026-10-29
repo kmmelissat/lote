@@ -30,6 +30,7 @@ import { estadosProducto } from "./estadosProducto";
 import { estadosPedido } from "./estadosPedido";
 import { explorar } from "./explorar";
 import { mostrador, caja } from "./mostrador";
+import { errores } from "./errores";
 
 export const textos = {
   nombre: "Lote",
@@ -66,5 +67,6 @@ export const textos = {
   estadosPedido,
   explorar,
   mostrador,
+  errores,
   caja,
 } as const;

@@ -10,12 +10,11 @@ import { leerDolares, repartirEnvio, type EstadoPedido, type QuienPagaEnvio } fr
 import { armarMensajeEnvio } from "../mensajeEnvio";
 import { tarifaDe, type Envio, type ModoEntrega, type Tarifas } from "../repositorio";
 import { DEPARTAMENTOS } from "@/lib/departamentos";
-import { formatearDolares } from "@/lib/formato";
+import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { guardarEnvioDelPedido, type EstadoEnvio } from "../actions/envio";
 
 const t = textos.pedidos.envio;
-const dolares = (c: number) => (c / 100).toFixed(2);
 
 type Props = {
   pedidoId: string;
@@ -33,7 +32,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
   );
   const [modo, setModo] = useState<ModoEntrega>(envio?.modo ?? "retiro");
   const [departamento, setDepartamento] = useState(envio?.departamento ?? "");
-  const [costo, setCosto] = useState(envio ? dolares(envio.costo) : "");
+  const [costo, setCosto] = useState(envio ? dolaresTexto(envio.costo) : "");
   const [paga, setPaga] = useState<QuienPagaEnvio>(envio?.paga ?? "cliente");
   const [aviso, setAviso] = useState("");
 
@@ -48,7 +47,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
   function elegirDepartamento(d: string) {
     setDepartamento(d);
     // Propone la tarifa del departamento mientras el costo no esté cerrado.
-    if (d && !costoCerrado) setCosto(dolares(tarifaDe(tarifas, d)));
+    if (d && !costoCerrado) setCosto(dolaresTexto(tarifaDe(tarifas, d)));
   }
 
   async function copiarMensaje() {

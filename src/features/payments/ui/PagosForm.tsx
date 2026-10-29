@@ -8,6 +8,8 @@ import type { TipoMetodo } from "../mensajeCobro";
 import { TIPOS_METODO, type MetodoPagoNegocio } from "../repositorio";
 import { textos } from "@/lib/textos";
 import { guardarDatosDePago, type EstadoPagos } from "../actions/ajustes";
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Textarea";
 
 const t = textos.ajustes.pagos;
 
@@ -81,14 +83,13 @@ export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
                 <label htmlFor={`${id}-${tipo}`} className="text-sm font-medium">
                   {t.datos}
                 </label>
-                <textarea
+                <Textarea
                   id={`${id}-${tipo}`}
                   name={`${tipo}_datos`}
                   rows={2}
                   value={v.datos}
                   onChange={(e) => cambiar(tipo, { datos: e.target.value })}
                   aria-describedby={`${id}-${tipo}-ayuda`}
-                  className="rounded-xl border border-borde-control bg-superficie px-4 py-3 text-base"
                 />
                 <p id={`${id}-${tipo}-ayuda`} className="text-sm text-texto-2">
                   {t.ayuda[tipo]}
@@ -99,13 +100,9 @@ export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
         })}
 
         <div className="flex flex-wrap items-center gap-3 pt-1">
-          <button
-            type="submit"
-            disabled={pendiente}
-            className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50"
-          >
+          <Button type="submit" variante="mango" disabled={pendiente}>
             {pendiente ? t.guardando : t.guardar}
-          </button>
+          </Button>
           {estado.listo && (
             <p role="status" className="rounded-full bg-teal-fondo px-4 py-2 text-sm font-bold text-teal-oscuro">
               {t.guardado}

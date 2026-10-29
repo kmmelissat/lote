@@ -8,12 +8,12 @@ import { obtenerCliente } from "@/features/customers/repositorio";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
+import { esUuid } from "@/lib/uuid";
 
 const t = textos.clientes;
 
 export const metadata: Metadata = { title: t.titulo };
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default function ClientePage({ params }: PageProps<"/clientes/[id]">) {
   return (
@@ -23,7 +23,7 @@ export default function ClientePage({ params }: PageProps<"/clientes/[id]">) {
 
 async function Ficha({ params }: Pick<PageProps<"/clientes/[id]">, "params">) {
   const id = (await params).id;
-  if (!UUID.test(id)) notFound();
+  if (!esUuid(id)) notFound();
 
   const { supabase, negocio } = await negocioActual();
   const c = await obtenerCliente(supabase, negocio.id, id);
@@ -44,7 +44,7 @@ async function Ficha({ params }: Pick<PageProps<"/clientes/[id]">, "params">) {
       </Link>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Card className="flex flex-col gap-3 border border-borde">
+        <Card className="flex flex-col gap-3">
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
             {filas.map(([k, v]) => (
               <div key={k} className="contents">
@@ -72,7 +72,7 @@ async function Ficha({ params }: Pick<PageProps<"/clientes/[id]">, "params">) {
               {c.pedidos.map((p) => (
                 <li key={p.codigo}>
                   <Link href={`/pedidos/${p.codigo}`} className="block">
-                    <Card className="flex flex-col gap-2 border border-borde hover:bg-teal-fondo">
+                    <Card className="flex flex-col gap-2 hover:bg-teal-fondo">
                       <div className="flex items-start justify-between gap-3">
                         <p className="font-medium">{textos.pedidos.pedido(p.codigo)}</p>
                         <p className="font-bold">{formatearDolares(p.total)}</p>

@@ -12,6 +12,7 @@ import {
 import { normalizarTelefono } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
+import { esUuid } from "@/lib/uuid";
 
 const t = textos.pedidos.form;
 
@@ -21,7 +22,6 @@ export type EstadoNuevoPedido = {
 };
 
 const CANALES: Canal[] = ["instagram", "whatsapp", "presencial", "vitrina"];
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 function textoDeError(e: ErrorPedido): string {
   switch (e.tipo) {
@@ -41,7 +41,7 @@ function leerItems(json: string): { productoId: string; cantidad: number }[] | n
     const lista: unknown = JSON.parse(json || "[]");
     if (!Array.isArray(lista) || lista.length < 1 || lista.length > 20) return null;
     const items = lista.map((i) => ({ productoId: String(i?.productoId), cantidad: Number(i?.cantidad) }));
-    return items.every((i) => UUID.test(i.productoId) && Number.isInteger(i.cantidad) && i.cantidad >= 1)
+    return items.every((i) => esUuid(i.productoId) && Number.isInteger(i.cantidad) && i.cantidad >= 1)
       ? items
       : null;
   } catch {

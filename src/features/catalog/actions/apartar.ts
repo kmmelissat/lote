@@ -124,7 +124,9 @@ export async function comprarCarrito(slug: string, _anterior: EstadoApartar, for
         .map((i) => ({ codigo: Number((i as { codigo?: unknown }).codigo), cantidad: Number((i as { cantidad?: unknown }).cantidad) }))
         .filter((i) => Number.isInteger(i.codigo) && Number.isInteger(i.cantidad) && i.cantidad >= 1 && i.cantidad <= 20);
     }
-  } catch {}
+  } catch {
+    // JSON roto: la lista queda vacía y más abajo se responde "datos incompletos"
+  }
   items = items.filter((i, k) => items.findIndex((o) => o.codigo === i.codigo) === k).slice(0, 10);
 
   if (!items.length || !nombre || contacto.length < 3 || !metodo) return { error: t.errorDatos, valores };

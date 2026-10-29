@@ -101,7 +101,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
         <GaleriaProducto fotos={p.fotos} nombre={p.nombre} />
 
         <div className="flex min-w-0 flex-col gap-4">
-          <Card className="flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro p-5">
+          <Card className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-4xl font-bold tabular-nums">{formatearDolares(p.precio)}</p>
               <StatusChip estado={estadoVisible(p, negocio.umbralPocoStock)} texto={p.disponibles > 0 ? t.quedan(p.disponibles) : undefined} />
@@ -145,7 +145,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
           {p.costoUnitario !== undefined && (
             <section
               aria-labelledby="ganancia-producto"
-              className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-limon p-5 text-teal-oscuro shadow-dura"
+              className="flex flex-col gap-3 bg-limon p-5 text-teal-oscuro shadow-dura"
             >
               <h2 id="ganancia-producto" className="font-bold">
                 {t.detalle.gananciaTitulo}
@@ -191,7 +191,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         {variantes.length > 1 && (
-          <section className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5 shadow-dura md:col-span-2">
+          <section className="flex flex-col gap-3 bg-superficie p-5 shadow-dura md:col-span-2">
             <div className="flex items-start gap-3">
               <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-mango text-teal-oscuro">
                 <Icon nombre="productos" className="size-6" />

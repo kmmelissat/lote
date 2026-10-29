@@ -2,6 +2,9 @@ import { aDolares, type Centavos } from "@/domain";
 
 const moneda = new Intl.NumberFormat("es-SV", { style: "currency", currency: "USD" });
 
+/** Dólares con dos decimales y sin símbolo, para escribirlos en un campo: 1250 -> "12.50". */
+export const dolaresTexto = (c: Centavos): string => aDolares(c).toFixed(2);
+
 export const formatearDolares = (c: Centavos): string => moneda.format(aDolares(c));
 
 /** "3 h 20 min", "45 min" o "Vencido". */

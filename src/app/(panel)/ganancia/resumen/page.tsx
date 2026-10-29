@@ -26,7 +26,7 @@ export default function Page() {
 
 function Tarjeta({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
-    <Card className="flex flex-col gap-1 border border-borde">
+    <Card className="flex flex-col gap-1">
       <h2 className="text-sm text-texto-2">{titulo}</h2>
       {children}
     </Card>

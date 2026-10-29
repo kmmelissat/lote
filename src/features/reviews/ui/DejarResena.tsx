@@ -5,6 +5,8 @@ import { EstrellasInput } from "@/components/ui/EstrellasInput";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
 import { dejarMiResena, type EstadoDejar } from "../actions/dejar";
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Textarea";
 
 const t = textos.resenas.cliente;
 
@@ -25,22 +27,17 @@ export function DejarResena({ pedido, codigo, nombre }: { pedido: string; codigo
       <EstrellasInput etiqueta="Estrellas" />
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">{t.texto}</span>
-        <textarea
+        <Textarea
           name="texto"
           rows={3}
           maxLength={500}
           placeholder={t.textoPlaceholder}
-          className="rounded-[14px] border-2 border-borde-control bg-superficie px-4 py-3 text-base placeholder:text-texto-2/60 focus:border-teal"
         />
       </label>
       <MensajeError>{estado.error}</MensajeError>
-      <button
-        type="submit"
-        disabled={pendiente}
-        className="inline-flex h-12 items-center justify-center self-start rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura disabled:opacity-60"
-      >
+      <Button type="submit" variante="mango" disabled={pendiente} className="self-start">
         {pendiente ? t.enviando : t.boton}
-      </button>
+      </Button>
     </form>
   );
 }

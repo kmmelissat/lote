@@ -14,6 +14,7 @@ import { formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { agregarResenaManual, borrarResena, cambiarEstadoResena, type EstadoResenaForm } from "../actions/resenas";
 import type { ResenaPanel } from "../repositorio";
+import { Textarea } from "@/components/ui/Textarea";
 
 const t = textos.resenas;
 
@@ -101,12 +102,11 @@ function NuevaResena({ productos }: { productos: { codigo: number; nombre: strin
         <EstrellasInput etiqueta={n.estrellas} />
         <label className="flex flex-col gap-1.5 md:col-span-2">
           <span className="text-sm font-medium">{n.texto}</span>
-          <textarea
+          <Textarea
             name="texto"
             rows={3}
             maxLength={500}
             placeholder={n.textoPlaceholder}
-            className="rounded-[14px] border-2 border-borde-control bg-superficie px-4 py-3 text-base placeholder:text-texto-2/60 focus:border-teal"
           />
         </label>
         <div className="flex flex-wrap items-center gap-3 md:col-span-2">

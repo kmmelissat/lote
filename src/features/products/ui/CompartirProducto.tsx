@@ -34,7 +34,7 @@ export function CompartirProducto({ slug, producto }: Props) {
     "inline-flex h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
 
   return (
-    <Card className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-5 md:col-span-2">
+    <Card className="flex flex-col gap-3 bg-rosa-palido md:col-span-2">
       <div>
         <h2 className="text-lg font-bold">{t.titulo}</h2>
         <p className="text-sm text-texto-2">{t.ayuda}</p>

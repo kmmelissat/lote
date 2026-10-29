@@ -75,7 +75,7 @@ export function EquipoPanel({ miembros, invitaciones, yo }: Props) {
           <ul className="flex flex-col gap-2">
             {invitaciones.map((i) => (
               <li key={i.id}>
-                <Card className="flex flex-wrap items-center justify-between gap-3 border border-borde">
+                <Card className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{textos.perfil.roles[i.rol]}</p>
                     <p className="text-sm text-texto-2">{t.vence(formatearFecha(i.venceEn))}</p>
@@ -155,7 +155,7 @@ function FilaMiembro({
   const editable = m.rol !== "duena" && !esYo;
 
   return (
-    <Card className="flex flex-col gap-3 border border-borde">
+    <Card className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="min-w-0 truncate font-medium">
           {m.correo ?? t.sinCorreo}

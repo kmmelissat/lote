@@ -37,26 +37,22 @@ export const negocioActual = cache(async function negocioActual() {
 
   const { data } = await supabase
     .from("miembro")
-    .select("negocio_id, rol, negocio(nombre, logo, slug, umbral_poco_stock)")
+    .select(
+      "negocio_id, rol, negocio(nombre, logo, slug, umbral_poco_stock, vitrina_activa, tiene_local, visible_en_explorar)",
+    )
     .eq("usuario_id", usuarioId)
     .limit(1);
   const miembro = data?.[0];
   if (!miembro) redirect("/crear-negocio");
-
-  // Aparte y sin romper nada: si todavía no existe la columna (falta correr vitrina_opcional.sql), cuenta como prendida.
-  const { data: v } = await supabase.from("negocio").select("vitrina_activa").eq("id", miembro.negocio_id).maybeSingle();
-  // Igual con el local (falta correr local.sql): sin la columna cuenta como apagado.
-  const { data: loc } = await supabase.from("negocio").select("tiene_local").eq("id", miembro.negocio_id).maybeSingle();
-  const { data: ex } = await supabase.from("negocio").select("visible_en_explorar").eq("id", miembro.negocio_id).maybeSingle();
 
   const negocio: NegocioActual = {
     id: miembro.negocio_id,
     nombre: miembro.negocio?.nombre ?? "",
     logo: miembro.negocio?.logo ?? null,
     slug: miembro.negocio?.slug ?? "",
-    vitrinaActiva: v?.vitrina_activa ?? true,
-    tieneLocal: loc?.tiene_local ?? false,
-    visibleEnExplorar: ex?.visible_en_explorar ?? false,
+    vitrinaActiva: miembro.negocio?.vitrina_activa ?? true,
+    tieneLocal: miembro.negocio?.tiene_local ?? false,
+    visibleEnExplorar: miembro.negocio?.visible_en_explorar ?? false,
     umbralPocoStock: miembro.negocio?.umbral_poco_stock ?? 2,
     usuarioId,
     rol: miembro.rol,

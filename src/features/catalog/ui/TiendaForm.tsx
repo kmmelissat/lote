@@ -20,6 +20,7 @@ import { textos } from "@/lib/textos";
 import { guardarTienda, type EstadoTienda } from "../actions/tienda";
 import { COLORES_MARCA, colorDeMarca, estiloDeMarca, LIMITE_CONTEXTO } from "../marca";
 import type { AjustesVitrina, IdentidadTienda } from "../repositorio";
+import { Textarea } from "@/components/ui/Textarea";
 
 const t = textos.ajustes.tienda;
 const v = textos.ajustes.vitrina;
@@ -325,14 +326,13 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
               <label htmlFor="politica-cambios" className="text-sm font-medium">
                 {v.confianza.cambios}
               </label>
-              <textarea
+              <Textarea
                 id="politica-cambios"
                 name="politica_cambios"
                 rows={3}
                 maxLength={300}
                 defaultValue={ajustes.politicaCambios ?? ""}
                 placeholder={v.confianza.cambiosPlaceholder}
-                className="rounded-[14px] border-2 border-borde-control bg-superficie px-4 py-3 text-base placeholder:text-texto-2/60 focus:border-teal"
               />
               <p className="text-sm text-texto-2">{v.confianza.cambiosAyuda}</p>
             </div>
@@ -363,7 +363,7 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
             <label htmlFor={idContexto} className="text-sm font-bold">
               {t.contexto}
             </label>
-            <textarea
+            <Textarea
               id={idContexto}
               name="contexto"
               rows={5}
@@ -371,7 +371,6 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
               value={contexto}
               onChange={(e) => setContexto(e.target.value)}
               placeholder={t.contextoPlaceholder}
-              className="rounded-[14px] border-2 border-borde-control bg-superficie px-4 py-3 text-base placeholder:text-texto-2/60 focus:border-teal"
             />
             <p className="text-right text-xs tabular-nums text-texto-2" aria-live="polite">
               {t.contextoContador(contexto.length, LIMITE_CONTEXTO)}

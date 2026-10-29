@@ -70,7 +70,7 @@ export function StickerVendido({ foto, nombre, codigo, negocio }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-3 border border-borde md:col-span-2">
+    <Card className="flex flex-col gap-3 md:col-span-2">
       <h2 className="font-bold">{t.titulo}</h2>
       <p className="text-sm text-texto-2">{t.ayuda}</p>
       <div className="flex items-center gap-4">

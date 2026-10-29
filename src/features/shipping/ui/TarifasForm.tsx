@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
+import { dolaresTexto } from "@/lib/formato";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import type { Tarifas } from "../repositorio";
@@ -10,7 +11,6 @@ import { textos } from "@/lib/textos";
 import { guardarTarifasDeEnvio, type EstadoTarifas } from "../actions/tarifas";
 
 const t = textos.ajustes.envios;
-const dolares = (c: number) => (c / 100).toFixed(2);
 
 export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
   const [estado, accion, pendiente] = useActionState<EstadoTarifas, FormData>(guardarTarifasDeEnvio, {});
@@ -23,7 +23,7 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <Field etiqueta={t.defecto} name="defecto" inputMode="decimal" defaultValue={dolares(tarifas.defecto)} />
+        <Field etiqueta={t.defecto} name="defecto" inputMode="decimal" defaultValue={dolaresTexto(tarifas.defecto)} />
         <p className="text-sm text-texto-2">{t.defectoAyuda}</p>
       </div>
 
@@ -34,7 +34,7 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
             etiqueta={t.departamento(d)}
             name={`departamento_${i}`}
             inputMode="decimal"
-            defaultValue={d in tarifas.porDepartamento ? dolares(tarifas.porDepartamento[d]) : ""}
+            defaultValue={d in tarifas.porDepartamento ? dolaresTexto(tarifas.porDepartamento[d]) : ""}
           />
         ))}
       </div>

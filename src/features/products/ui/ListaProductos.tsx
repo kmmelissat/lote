@@ -14,6 +14,7 @@ import { textos } from "@/lib/textos";
 import { filtrarProductos, FILTROS_ESTADO, type FiltroEstado } from "../filtro";
 import type { Producto } from "../repositorio";
 import { agruparProductos, type GrupoProducto } from "../variantes";
+import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
 
 const t = textos.productos;
 
@@ -170,21 +171,17 @@ export function ListaProductos({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-48 flex-1 md:max-w-md">
-          <Icon nombre="buscar" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-texto-2" />
-          <input
-            type="search"
-            role="searchbox"
-            aria-label={t.buscar.etiqueta}
-            placeholder={t.buscar.placeholder}
-            value={texto}
-            onChange={(e) => {
-              setTexto(e.target.value);
-              guardarEnUrl(e.target.value, estado);
-            }}
-            className="h-12 w-full rounded-full border-2 border-borde-control bg-superficie pl-11 pr-4 text-base focus:border-teal"
-          />
-        </div>
+        <CampoBusqueda
+          className="min-w-48 flex-1 md:max-w-md"
+          role="searchbox"
+          aria-label={t.buscar.etiqueta}
+          placeholder={t.buscar.placeholder}
+          value={texto}
+          onChange={(e) => {
+            setTexto(e.target.value);
+            guardarEnUrl(e.target.value, estado);
+          }}
+        />
         <div className="flex flex-wrap gap-2 md:ml-auto">
           <ButtonLink href="/productos/importar" variante="secundario">
             {t.importar.boton}

@@ -11,6 +11,7 @@ import { enviarAlAsistente } from "../actions/enviar";
 import { proponerDesdeChat } from "../actions/chat";
 import { MAXIMO_CHAT } from "../chatCliente";
 import type { Comando, Estado, Respuesta } from "../motor";
+import { Textarea } from "@/components/ui/Textarea";
 
 const t = textos.chatCliente;
 
@@ -62,13 +63,12 @@ export function PegarChat() {
     <form onSubmit={revisar} className="flex max-w-xl flex-col gap-3">
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">{t.etiqueta}</span>
-        <textarea
+        <Textarea
           value={chat}
           onChange={(ev) => setChat(ev.target.value)}
           rows={10}
           maxLength={MAXIMO_CHAT}
           placeholder={t.placeholder}
-          className="rounded-[14px] border-2 border-borde-control bg-superficie px-4 py-3 text-base focus:border-teal"
         />
       </label>
       <p className="text-sm text-texto-2">{t.privacidad}</p>

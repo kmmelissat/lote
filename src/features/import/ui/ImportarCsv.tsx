@@ -113,7 +113,7 @@ export function ImportarCsv() {
 
   if (resultado) {
     return (
-      <Card className="flex max-w-xl flex-col gap-4 border border-borde">
+      <Card className="flex max-w-xl flex-col gap-4">
         <h2 className="text-lg font-bold">{deshecha ? t.deshechaTitulo : t.listoTitulo}</h2>
         <p role="status">{deshecha || t.listoTexto(resultado.creados, resultado.saltadas)}</p>
         <MensajeError>{error}</MensajeError>
@@ -182,7 +182,7 @@ export function ImportarCsv() {
         <section className="flex flex-col gap-3">
           <h2 className="text-lg font-bold">{t.vistaPrevia}</h2>
           <p role="status">{t.resumen(buenas, malas)}</p>
-          <div className="overflow-x-auto rounded-tarjeta border border-borde bg-superficie">
+          <div className="overflow-x-auto rounded-tarjeta bg-superficie">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-borde text-texto-2">
                 <tr>

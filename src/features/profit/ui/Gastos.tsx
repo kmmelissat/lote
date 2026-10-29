@@ -8,6 +8,7 @@ import type { Gasto } from "../repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { agregarGasto, quitarGasto, type EstadoGasto } from "../actions/gastos";
+import { Button } from "@/components/ui/Button";
 
 const t = textos.ganancia;
 
@@ -110,13 +111,9 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
           </div>
 
           <MensajeError>{estado.error}</MensajeError>
-          <button
-            type="submit"
-            disabled={pendiente}
-            className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura disabled:opacity-60"
-          >
+          <Button type="submit" variante="mango" disabled={pendiente}>
             {pendiente ? t.form.guardando : t.form.guardar}
-          </button>
+          </Button>
         </form>
       </dialog>
     </>

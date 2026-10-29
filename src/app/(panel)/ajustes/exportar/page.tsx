@@ -34,7 +34,7 @@ async function Lista() {
           <li key={tipo}>
             {/* Un enlace normal (no <Link>): es una descarga, no una navegación de la app */}
             <a href={`/api/exportar/${tipo}`} download className="block">
-              <Card className="flex flex-col gap-1 border border-borde hover:bg-teal-fondo">
+              <Card className="flex flex-col gap-1 hover:bg-teal-fondo">
                 <span className="font-medium">{t.temas[tipo].titulo}</span>
                 <span className="text-sm text-texto-2">{t.temas[tipo].texto}</span>
               </Card>

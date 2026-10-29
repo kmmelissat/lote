@@ -20,7 +20,7 @@ export default function AyudaPage() {
         {t.preguntas.map((p) => (
           <li key={p.pregunta}>
             {/* <details> ya se abre con teclado y lo leen los lectores de pantalla */}
-            <Card className="border border-borde p-0">
+            <Card className="p-0">
               <details className="group">
                 <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-medium [&::-webkit-details-marker]:hidden">
                   {p.pregunta}

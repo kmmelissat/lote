@@ -10,10 +10,10 @@ import {
 } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
+import { esUuid } from "@/lib/uuid";
 
 const t = textos.equipo;
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export type Resultado = { ok: true; token?: string } | { ok: false; error: string };
 
@@ -35,7 +35,7 @@ export async function crearInvitacionAction(rol: string): Promise<Resultado> {
 }
 
 export async function revocarInvitacionAction(invitacionId: string): Promise<Resultado> {
-  if (!UUID.test(invitacionId)) return { ok: false, error: t.errorGeneral };
+  if (!esUuid(invitacionId)) return { ok: false, error: t.errorGeneral };
   const ctx = await comoDuena();
   if (!ctx) return { ok: false, error: t.soloDuena };
   if (!(await revocarInvitacion(ctx.supabase, invitacionId))) return { ok: false, error: t.errorGeneral };
@@ -45,7 +45,7 @@ export async function revocarInvitacionAction(invitacionId: string): Promise<Res
 
 export async function cambiarRolAction(usuarioId: string, rol: string): Promise<Resultado> {
   if (!esRolInvitable(rol)) return { ok: false, error: t.errorRol };
-  if (!UUID.test(usuarioId)) return { ok: false, error: t.errorGeneral };
+  if (!esUuid(usuarioId)) return { ok: false, error: t.errorGeneral };
   const ctx = await comoDuena();
   if (!ctx) return { ok: false, error: t.soloDuena };
   if (usuarioId === ctx.negocio.usuarioId) return { ok: false, error: t.errorGeneral };
@@ -55,7 +55,7 @@ export async function cambiarRolAction(usuarioId: string, rol: string): Promise<
 }
 
 export async function quitarMiembroAction(usuarioId: string): Promise<Resultado> {
-  if (!UUID.test(usuarioId)) return { ok: false, error: t.errorGeneral };
+  if (!esUuid(usuarioId)) return { ok: false, error: t.errorGeneral };
   const ctx = await comoDuena();
   if (!ctx) return { ok: false, error: t.soloDuena };
   if (usuarioId === ctx.negocio.usuarioId) return { ok: false, error: t.errorGeneral };

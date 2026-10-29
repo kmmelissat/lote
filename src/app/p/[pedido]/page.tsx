@@ -10,9 +10,9 @@ import { obtenerSeguimiento } from "@/features/tracking/repositorio";
 import { formatearFecha } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
+import { esUuid } from "@/lib/uuid";
 
 const t = textos.seguimiento;
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PASOS = ["pendiente", "pagado", "preparando", "enviado", "entregado"] as const;
 
 // El enlace es privado: no debe aparecer en buscadores.
@@ -25,7 +25,7 @@ export default function SeguimientoPage({ params }: PageProps<"/p/[pedido]">) {
 async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">) {
   await connection();
   const { pedido } = await params;
-  if (!UUID.test(pedido)) notFound();
+  if (!esUuid(pedido)) notFound();
 
   const s = await obtenerSeguimiento(createPublicClient(), pedido);
   if (!s) notFound();

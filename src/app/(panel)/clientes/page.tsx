@@ -58,7 +58,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/clientes">, "searchParam
             type="search"
             defaultValue={texto}
             placeholder={t.placeholder}
-            className="h-12 rounded-xl border border-borde-control bg-superficie px-4 text-base"
+            className="h-12 rounded-xl-control bg-superficie px-4 text-base"
           />
         </div>
         <Button type="submit" variante="secundario">
@@ -92,7 +92,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/clientes">, "searchParam
           {clientes.map((c) => (
             <li key={c.id}>
               <Link href={`/clientes/${c.id}`} className="block">
-                <Card className="flex flex-col gap-1 border border-borde hover:bg-teal-fondo">
+                <Card className="flex flex-col gap-1 hover:bg-teal-fondo">
                   <div className="flex items-start justify-between gap-3">
                     <p className="min-w-0 truncate font-medium">{c.nombre}</p>
                     {c.resumen.saldo > 0 && (

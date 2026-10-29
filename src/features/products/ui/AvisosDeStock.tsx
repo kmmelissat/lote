@@ -9,7 +9,7 @@ const t = textos.productos.avisos;
 export function AvisosDeStock({ avisos, producto }: { avisos: AvisoDeStock[]; producto: string }) {
   if (!avisos.length) return null;
   return (
-    <Card className="flex flex-col gap-3 border border-borde">
+    <Card className="flex flex-col gap-3">
       <div>
         <h2 className="font-bold">{t.titulo(avisos.length)}</h2>
         <p className="text-sm text-texto-2">{t.ayuda}</p>

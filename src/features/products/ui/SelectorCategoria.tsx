@@ -6,6 +6,7 @@ import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { textos } from "@/lib/textos";
 import { crearCategoria } from "../actions/categoria";
 import { ChipLotito, estiloCampo, MensajeCampo } from "./campos";
+import { Button } from "@/components/ui/Button";
 
 const t = textos.productos.form.categorias;
 
@@ -115,14 +116,9 @@ export function SelectorCategoria({
               }}
               className={estiloCampo}
             />
-            <button
-              type="button"
-              disabled={pendiente || !nombre.trim()}
-              onClick={() => crear(nombre)}
-              className="inline-flex h-12 shrink-0 items-center rounded-full border-2 border-teal-oscuro bg-mango px-5 font-bold disabled:opacity-50"
-            >
+            <Button type="button" variante="mango" disabled={pendiente || !nombre.trim()} onClick={() => crear(nombre)} className="shrink-0">
               {pendiente ? t.creando : t.crear}
-            </button>
+            </Button>
             <button
               type="button"
               onClick={() => {

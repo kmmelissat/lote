@@ -10,9 +10,9 @@ import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
+import { esUuid } from "@/lib/uuid";
 
 const t = textos.vitrina.confirmacion;
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export const metadata: Metadata = { title: t.titulo, robots: { index: false, follow: false } };
 
@@ -25,7 +25,7 @@ async function Confirmacion({ params, searchParams }: Pick<PageProps<"/c/[negoci
   const { negocio: slug, id } = await params;
   // Una compra del carrito llega con ?carrito=1: ahí el carrito del navegador ya se usó y se vacía
   const vieneDelCarrito = (await searchParams).carrito === "1";
-  if (!UUID.test(id)) notFound();
+  if (!esUuid(id)) notFound();
 
   const supabase = createPublicClient();
   const [a, tienda] = await Promise.all([obtenerApartadoPublico(supabase, slug, id), obtenerNegocioPublico(supabase, slug)]);

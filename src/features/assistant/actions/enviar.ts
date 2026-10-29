@@ -8,8 +8,8 @@ import { crearPuertoSupabase } from "../puertoSupabase";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
+import { esUuid } from "@/lib/uuid";
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const MAX_TEXTO = 1000;
 // Memoria corta: unos pocos mensajes, recortados. Llegan del navegador, así que se limpian y solo orientan a la IA.
 const MAX_TURNOS = 6;
@@ -32,7 +32,7 @@ export async function enviarAlAsistente(entrada: {
   estado?: Estado | null;
   historial?: Turno[];
 }): Promise<Respuesta> {
-  if (!UUID.test(entrada.mensajeId)) return { texto: textos.asistente.errorGeneral };
+  if (!esUuid(entrada.mensajeId)) return { texto: textos.asistente.errorGeneral };
 
   // El permiso real de cada acción lo verifica la base; acá solo se resuelve quién escribe.
   const { supabase, negocio } = await negocioActual();

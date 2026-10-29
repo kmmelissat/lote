@@ -1,10 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
 import { normalizarTelefono } from "@/domain";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
@@ -15,6 +14,7 @@ import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoPedido, type EstadoNuevoPedido } from "../actions/nuevo";
+import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
 
 const t = textos.pedidos.form;
 
@@ -85,12 +85,9 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
         titulo={t.sinProductosTitulo}
         texto={t.sinProductos}
         accion={
-          <Link
-            href="/productos/nuevo"
-            className="inline-flex h-12 items-center rounded-full border-2 border-teal-oscuro bg-mango px-6 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
-          >
+          <ButtonLink href="/productos/nuevo" variante="mango">
             {t.sinProductosAccion}
-          </Link>
+          </ButtonLink>
         }
       />
     );
@@ -137,17 +134,12 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
           <h2 id="productos-titulo" className="text-lg font-bold">
             {t.productos}
           </h2>
-          <div className="relative">
-            <Icon nombre="buscar" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-texto-2" />
-            <input
-              type="search"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder={t.buscar}
-              aria-label={t.buscar}
-              className="h-12 w-full rounded-full border-2 border-teal-oscuro bg-superficie pl-12 pr-4 text-base"
-            />
-          </div>
+          <CampoBusqueda
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder={t.buscar}
+            aria-label={t.buscar}
+          />
 
           {filtrados.length === 0 ? (
             <p className="py-6 text-center text-texto-2">{t.sinResultados}</p>

@@ -13,10 +13,10 @@ import {
   type MetodoMostrador,
   type ProductoMostrador,
 } from "../repositorio";
+import { esUuid } from "@/lib/uuid";
 
 const t = textos.mostrador;
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const MAXIMO_LINEAS = 50;
 
 function textoDeError(e: ErrorMostrador): string {
@@ -49,7 +49,7 @@ export async function cobrarVenta(entrada: EntradaVenta): Promise<ResultadoVenta
     metodo &&
     items.length >= 1 &&
     items.length <= MAXIMO_LINEAS &&
-    items.every((i) => UUID.test(String(i?.productoId)) && Number.isInteger(i?.cantidad) && i.cantidad >= 1) &&
+    items.every((i) => esUuid(String(i?.productoId)) && Number.isInteger(i?.cantidad) && i.cantidad >= 1) &&
     Number.isInteger(entrada.descuento) &&
     entrada.descuento >= 0;
   if (!valido) return { ok: false, error: t.errores.sinProductos };
@@ -80,7 +80,7 @@ export type ResultadoAsociar = { ok: true } | { ok: false; error: string };
 export async function asociarCodigoDeBarras(productoId: string, texto: string | null): Promise<ResultadoAsociar> {
   const f = textos.mostrador.ficha;
   const codigo = texto === null ? null : limpiarCodigoDeBarras(texto);
-  if (!UUID.test(productoId) || (texto !== null && !codigo)) return { ok: false, error: f.invalido };
+  if (!esUuid(productoId) || (texto !== null && !codigo)) return { ok: false, error: f.invalido };
 
   const { supabase } = await negocioActual();
   const r = await asignarCodigoDeBarras(supabase, productoId, codigo);

@@ -5,7 +5,7 @@ import { useActionState, useEffect, useId, useRef, useState, useTransition, type
 import { costoUnitario, leerDolares, MARGEN_POR_DEFECTO, precioSugerido } from "@/domain/index";
 import { Monito } from "@/components/ui/Monito";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { formatearDolares } from "@/lib/formato";
+import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoProducto, sugerirFicha, type EstadoNuevo, type FichaSugerida } from "../actions/nuevo";
 import { BarraGuardar } from "@/components/ui/BarraGuardar";
@@ -16,11 +16,11 @@ import { SelectorCategoria } from "./SelectorCategoria";
 import { estadoNuevo, filasDe, grupoNuevo, VariantesInput, type EstadoVariantes } from "./VariantesInput";
 import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { ZonaFotos } from "./ZonaFotos";
+import { Button } from "@/components/ui/Button";
 
 const t = textos.productos.form;
 const l = t.lotito;
 
-const dolaresTexto = (centavos: number) => (centavos / 100).toFixed(2);
 const campoCosto = ["compra", "envio", "importacion", "otro"] as const;
 type CampoLotito = Exclude<keyof FichaSugerida, "opciones">;
 const ORDEN_LOTITO: CampoLotito[] = ["nombre", "categoria", "marca", "descripcion"];
@@ -456,13 +456,9 @@ export function NuevoProductoForm({
 
       {/* La barra de guardar flota abajo de la pantalla siempre; en el celular queda sobre el menú */}
       <BarraGuardar>
-        <button
-          type="submit"
-          disabled={pendiente}
-          className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango px-8 font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60 sm:flex-none"
-        >
+        <Button type="submit" variante="mango" disabled={pendiente} className="flex-1 sm:flex-none">
           {pendiente ? (editando ? textos.productos.editar.guardando : t.guardando) : editando ? textos.productos.editar.guardar : t.guardar}
-        </button>
+        </Button>
         {editando ? (
           <Link
             href={`/productos/${modo.codigo}`}

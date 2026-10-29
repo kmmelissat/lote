@@ -6,7 +6,7 @@ import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
 import { Sugerido } from "@/components/ui/Sugerido";
-import { formatearDolares } from "@/lib/formato";
+import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { leerComprobante, type ResultadoComprobante } from "../actions/comprobante";
 import { pagar, type EstadoPago } from "../actions/cobro";
@@ -17,7 +17,6 @@ const c = t.comprobante;
 
 type Lectura = Extract<ResultadoComprobante, { ok: true }>;
 
-const dolares = (centavos: number) => (centavos / 100).toFixed(2);
 
 /**
  * Registrar un pago o abono. Si la persona sube el comprobante, la IA lee el monto y lo deja puesto en el
@@ -25,7 +24,7 @@ const dolares = (centavos: number) => (centavos / 100).toFixed(2);
  */
 export function PagoForm({ pedidoId, saldo }: { pedidoId: string; saldo: number }) {
   const [estado, accion, pendiente] = useActionState<EstadoPago, FormData>(pagar.bind(null, pedidoId), {});
-  const [monto, setMonto] = useState(dolares(saldo));
+  const [monto, setMonto] = useState(dolaresTexto(saldo));
   const [metodo, setMetodo] = useState("transferencia");
   const [lectura, setLectura] = useState<Lectura | null>(null);
   const [error, setError] = useState("");
@@ -42,7 +41,7 @@ export function PagoForm({ pedidoId, saldo }: { pedidoId: string; saldo: number 
         const r = await leerComprobante(pedidoId, await comprimirComprobante(archivo));
         if (!r.ok) return setError(r.error);
         setLectura(r);
-        if (r.monto !== null) setMonto(dolares(Math.min(r.monto, r.saldo)));
+        if (r.monto !== null) setMonto(dolaresTexto(Math.min(r.monto, r.saldo)));
         setMetodo("transferencia");
       } catch {
         setError(c.errorImagen);
