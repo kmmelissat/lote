@@ -1,5 +1,6 @@
 "use client";
 
+import { totalDeLineas } from "@/domain";
 import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { MensajeError } from "@/components/ui/MensajeError";
@@ -104,7 +105,7 @@ export function CompraForm({
 
   const costoDe = (d: string) => opciones.tarifas[d] ?? opciones.tarifaDefecto;
   const tarifa = entrega === "envio" && departamento ? costoDe(departamento) : 0;
-  const subtotal = lineas.reduce((n, l) => n + l.precio * l.cantidad, 0);
+  const subtotal = totalDeLineas(lineas);
 
   /** Pasa al paso siguiente solo si lo de este paso está completo; si no, muestra qué falta. */
   function siguiente() {

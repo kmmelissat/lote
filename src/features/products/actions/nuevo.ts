@@ -2,12 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { leerDolares } from "@/domain/index";
 import { proveedorIA } from "@/features/ai/index";
 import { leerInfoExtra } from "../infoExtra";
-import { fotosValidas, TIPOS_COSTO } from "../leerFormulario";
-import { crearProducto, listarCategorias, type NuevoProducto } from "../repositorio";
-import { nombreConVariante, validarVariantes } from "../variantes";
+import { categoriaNoExiste, fotosValidas, leerCostos, leerNombreYPrecio, valoresDe } from "../leerFormulario";
+import { crearProducto } from "../repositorio";
+import { validarVariantes } from "../variantes";
+import { nombreConVariante } from "@/domain";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
 import { contextoDeLaTienda } from "@/features/catalog/repositorio";
 import { negocioActual } from "@/lib/negocio";
@@ -51,23 +51,12 @@ export async function nuevoProducto(
   _anterior: EstadoNuevo,
   formData: FormData,
 ): Promise<EstadoNuevo> {
-  const valores = Object.fromEntries(
-    [...formData.entries()].filter(([k, v]) => typeof v === "string" && !k.startsWith("$")),
-  ) as Record<string, string>;
-  const errores: NonNullable<EstadoNuevo["errores"]> = {};
+  const valores = valoresDe(formData);
+  const { nombre, precio, errores: erroresBasicos } = leerNombreYPrecio(valores);
+  const errores: NonNullable<EstadoNuevo["errores"]> = { ...erroresBasicos };
 
-  const nombre = (valores.nombre ?? "").trim();
-  if (!nombre) errores.nombre = t.errorNombre;
-
-  const precio = leerDolares(valores.precio ?? "");
-  if (precio === null) errores.precio = t.errorPrecio;
-
-  // La categoría se elige de la lista: una escrita a mano que no exista se rechaza.
-  const { supabase: clienteCategorias, negocio: negocioCategorias } = await negocioActual();
   const categoria = (valores.categoria ?? "").trim();
-  if (categoria && !(await listarCategorias(clienteCategorias, negocioCategorias.id)).some((c) => c.toLowerCase() === categoria.toLowerCase())) {
-    errores.categoria = t.categorias.errorNoExiste;
-  }
+  if (await categoriaNoExiste(categoria)) errores.categoria = t.categorias.errorNoExiste;
 
   // Con variantes, la cantidad es la de cada una y el campo general no cuenta.
   const crudas = listaDeFilas(valores.variantes);
@@ -81,14 +70,8 @@ export async function nuevoProducto(
   const cantidad = Number((valores.cantidad ?? "1").trim() || "1");
   if (!conVariantes && (!Number.isInteger(cantidad) || cantidad < 1)) errores.cantidad = t.errorCantidad;
 
-  const costos: NuevoProducto["costos"] = [];
-  for (const tipo of TIPOS_COSTO) {
-    const texto = (valores[tipo] ?? "").trim();
-    if (!texto) continue;
-    const monto = leerDolares(texto);
-    if (monto === null) errores[tipo] = t.errorCosto;
-    else costos.push({ tipo, monto });
-  }
+  const { costos, errores: erroresCostos } = leerCostos(valores);
+  Object.assign(errores, erroresCostos);
 
   if (Object.keys(errores).length) return { errores, valores };
 

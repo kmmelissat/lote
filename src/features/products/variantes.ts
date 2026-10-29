@@ -1,5 +1,4 @@
-import { modeloDe } from "@/features/catalog/opciones";
-import type { ProductoPublico } from "@/features/catalog/repositorio";
+import { nombreBase, SEPARADOR_VARIANTE as SEPARADOR } from "@/domain";
 import type { Producto } from "./repositorio";
 
 // Cada variante es un producto hermano (ver supabase/variantes.sql). Estas funciones son las reglas
@@ -7,8 +6,6 @@ import type { Producto } from "./repositorio";
 
 const MINIMO_VARIANTES = 2;
 export const MAXIMO_VARIANTES = 30;
-
-const SEPARADOR = " · ";
 
 /**
  * El cruce de varias opciones: [["iPhone 16", "iPhone 17"], ["Rosa", "Celeste"]] da las cuatro combinaciones
@@ -23,16 +20,6 @@ export function combinarOpciones(opciones: string[][]): string[] {
     .filter((valores) => valores.length);
   if (!listas.length) return [];
   return listas.reduce<string[]>((acum, valores) => acum.flatMap((a) => valores.map((v) => (a ? `${a}${SEPARADOR}${v}` : v))), [""]);
-}
-
-/** El nombre completo de una variante: "Chaqueta negra · M". Así se distingue en pedidos, listas y asistente. */
-export const nombreConVariante = (base: string, etiqueta: string): string => `${base}${SEPARADOR}${etiqueta}`;
-
-/** El nombre sin la variante, para la tarjeta de la vitrina. Si el nombre se editó a mano y ya no la lleva, queda como está. */
-export function nombreBase(nombre: string, variante: string | null): string {
-  if (!variante) return nombre;
-  const sufijo = `${SEPARADOR}${variante}`;
-  return nombre.endsWith(sufijo) ? nombre.slice(0, -sufijo.length) : nombre;
 }
 
 export type FilaVariante = { etiqueta: string; cantidad: number };
@@ -58,63 +45,6 @@ export function validarVariantes(
     variantes.push({ etiqueta, cantidad });
   }
   return { ok: true, variantes };
-}
-
-export type TarjetaVitrina = {
-  /** El código al que lleva la tarjeta: el de la primera variante con unidades libres, o el primero si no hay */
-  codigo: number;
-  nombre: string;
-  categoria: string | null;
-  fotos: string[];
-  precioMinimo: number;
-  precioMaximo: number;
-  disponibles: number;
-  /** Nada libre pero con algún apartado vigente */
-  apartado: boolean;
-  /** Cuántas opciones tiene; 1 es un producto normal */
-  opciones: number;
-  /** Los modelos de celular de sus variantes ("iPhone 16", "iPhone 17 Pro Max"), para filtrar la vitrina */
-  modelos: string[];
-};
-
-/** Junta en una sola tarjeta las variantes de un mismo grupo; los productos sin grupo van cada uno por su lado. */
-export function agruparParaVitrina(productos: ProductoPublico[]): TarjetaVitrina[] {
-  const tarjetas: TarjetaVitrina[] = [];
-  const porGrupo = new Map<string, TarjetaVitrina>();
-
-  for (const p of productos) {
-    const hay = p.disponibles > 0;
-    const modelo = modeloDe(p.variante, p.opciones);
-    const existente = p.grupo ? porGrupo.get(p.grupo) : undefined;
-    if (!existente) {
-      const t: TarjetaVitrina = {
-        codigo: p.codigo,
-        nombre: nombreBase(p.nombre, p.variante),
-        categoria: p.categoria,
-        fotos: p.fotos,
-        precioMinimo: p.precio,
-        precioMaximo: p.precio,
-        disponibles: p.disponibles,
-        apartado: !hay && p.apartado,
-        opciones: 1,
-        modelos: [],
-      };
-      if (modelo) t.modelos.push(modelo);
-      tarjetas.push(t);
-      if (p.grupo) porGrupo.set(p.grupo, t);
-      continue;
-    }
-    // La tarjeta lleva a la primera variante que se puede apartar; si ninguna, a la primera.
-    if (hay && existente.disponibles === 0) existente.codigo = p.codigo;
-    existente.disponibles += p.disponibles;
-    existente.apartado = existente.disponibles === 0 && (existente.apartado || p.apartado);
-    existente.precioMinimo = Math.min(existente.precioMinimo, p.precio);
-    existente.precioMaximo = Math.max(existente.precioMaximo, p.precio);
-    if (!existente.fotos.length) existente.fotos = p.fotos;
-    existente.opciones += 1;
-    if (modelo && !existente.modelos.some((m) => m.toLowerCase() === modelo.toLowerCase())) existente.modelos.push(modelo);
-  }
-  return tarjetas;
 }
 
 export type GrupoProducto = {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { esDepartamento } from "@/lib/departamentos";
 import { textos } from "@/lib/textos";
+import { MAX_CANTIDAD, MAX_LINEAS } from "./carritoReglas";
 
 // Lo que llega de los formularios públicos no se cree: acá se revisa una sola vez, con un mensaje por campo.
 // Apartar, comprar y comprar el carrito comparten los datos de la persona y, las dos últimas, los de entrega.
@@ -9,13 +10,11 @@ const t = textos.vitrina.apartar;
 const c = textos.vitrina.compra;
 
 const METODOS_DE_PAGO = ["transferencia", "billetera", "efectivo", "contra_entrega"] as const;
-const MAXIMO_POR_PRODUCTO = 20;
-const MAXIMO_PRODUCTOS_EN_CARRITO = 10;
 
 const nombre = z.string().trim().min(1, t.errorNombre).max(80, t.errorNombre);
 const contacto = z.string().trim().min(3, t.errorContacto).max(80, t.errorContacto);
 const acepta = z.literal("on", { error: t.errorAcepta });
-const cantidad = z.coerce.number({ error: t.errorCantidad }).int(t.errorCantidad).min(1, t.errorCantidad).max(MAXIMO_POR_PRODUCTO, t.errorCantidad);
+const cantidad = z.coerce.number({ error: t.errorCantidad }).int(t.errorCantidad).min(1, t.errorCantidad).max(MAX_CANTIDAD, t.errorCantidad);
 
 const datosDeLaPersona = { nombre, contacto, acepta };
 
@@ -51,9 +50,9 @@ const itemsDelCarrito = z
     if (!Array.isArray(lista)) return [];
     const items = lista
       .map((i: { codigo?: unknown; cantidad?: unknown }) => ({ codigo: Number(i?.codigo), cantidad: Number(i?.cantidad) }))
-      .filter((i) => Number.isInteger(i.codigo) && Number.isInteger(i.cantidad) && i.cantidad >= 1 && i.cantidad <= MAXIMO_POR_PRODUCTO);
+      .filter((i) => Number.isInteger(i.codigo) && Number.isInteger(i.cantidad) && i.cantidad >= 1 && i.cantidad <= MAX_CANTIDAD);
     // Sin repetidos y con tope
-    return items.filter((i, k) => items.findIndex((o) => o.codigo === i.codigo) === k).slice(0, MAXIMO_PRODUCTOS_EN_CARRITO);
+    return items.filter((i, k) => items.findIndex((o) => o.codigo === i.codigo) === k).slice(0, MAX_LINEAS);
   })
   .refine((items) => items.length > 0, t.errorDatos);
 

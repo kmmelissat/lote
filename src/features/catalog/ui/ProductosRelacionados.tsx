@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Monito } from "@/components/ui/Monito";
-import type { TarjetaVitrina } from "@/features/products/variantes";
+import type { TarjetaVitrina } from "../agruparVitrina";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";

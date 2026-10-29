@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aCentavos, aDolares, leerDolares, repartir } from "./dinero";
+import { aCentavos, aDolares, leerDolares, repartir, totalDeLineas } from "./dinero";
 
 describe("dinero", () => {
   it("lee montos escritos a mano", () => {
@@ -47,5 +47,15 @@ describe("dinero", () => {
     it("con n = 0 devuelve vacío", () => {
       expect(repartir(100, 0)).toEqual([]);
     });
+  });
+});
+
+describe("totalDeLineas", () => {
+  it("suma precio × cantidad en centavos", () => {
+    expect(totalDeLineas([{ precio: 1250, cantidad: 2 }, { precio: 399, cantidad: 3 }])).toBe(3697);
+  });
+
+  it("una lista vacía suma cero", () => {
+    expect(totalDeLineas([])).toBe(0);
   });
 });

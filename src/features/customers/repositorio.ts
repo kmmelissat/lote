@@ -57,7 +57,7 @@ export async function listarClientes(supabase: Cliente, negocioId: string): Prom
     .order("creado_en", { ascending: false })
     .limit(200);
   if (error) throw error;
-  return (data as unknown as Fila[]).map(aCliente).sort((a, b) => b.resumen.saldo - a.resumen.saldo);
+  return data.map(aCliente).sort((a, b) => b.resumen.saldo - a.resumen.saldo);
 }
 
 /** Una página de clientes en un orden fijo (el de la lista se reordena por saldo y no sirve para paginar). */
@@ -75,7 +75,7 @@ export async function paginaDeClientes(
     .order("id")
     .range(desde, desde + cantidad - 1);
   if (error) throw error;
-  return (data as unknown as Fila[]).map(aCliente);
+  return data.map(aCliente);
 }
 
 export async function obtenerCliente(
@@ -90,5 +90,5 @@ export async function obtenerCliente(
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
-  return data ? aCliente(data as unknown as Fila) : null;
+  return data ? aCliente(data) : null;
 }

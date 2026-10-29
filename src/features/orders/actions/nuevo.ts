@@ -2,17 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import {
-  METODOS_DE_COBRO,
-  registrarPedido,
-  type Canal,
-  type ErrorPedido,
-  type MetodoPago,
-} from "../repositorio";
-import { normalizarTelefono } from "@/domain";
+import { leerPedido } from "../formulario";
+import { registrarPedido, type ErrorPedido } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { esUuid } from "@/lib/uuid";
 
 const t = textos.pedidos.form;
 
@@ -20,8 +13,6 @@ export type EstadoNuevoPedido = {
   error?: string;
   valores?: { tipo?: string; cliente?: string; contacto?: string; acepta?: boolean; canal?: string };
 };
-
-const CANALES: Canal[] = ["instagram", "whatsapp", "presencial", "vitrina"];
 
 function textoDeError(e: ErrorPedido): string {
   switch (e.tipo) {
@@ -36,37 +27,13 @@ function textoDeError(e: ErrorPedido): string {
   }
 }
 
-function leerItems(json: string): { productoId: string; cantidad: number }[] | null {
-  try {
-    const lista: unknown = JSON.parse(json || "[]");
-    if (!Array.isArray(lista) || lista.length < 1 || lista.length > 20) return null;
-    const items = lista.map((i) => ({ productoId: String(i?.productoId), cantidad: Number(i?.cantidad) }));
-    return items.every((i) => esUuid(i.productoId) && Number.isInteger(i.cantidad) && i.cantidad >= 1)
-      ? items
-      : null;
-  } catch {
-    return null;
-  }
-}
-
 export async function nuevoPedido(
   _anterior: EstadoNuevoPedido,
   formData: FormData,
 ): Promise<EstadoNuevoPedido> {
-  const tipo = formData.get("tipo") === "venta" ? "venta" : "apartado";
-  const cliente = String(formData.get("cliente") ?? "").trim();
-  const canalPedido = String(formData.get("canal") ?? "");
-  const canal: Canal = CANALES.includes(canalPedido as Canal) ? (canalPedido as Canal) : "presencial";
-  const contacto = String(formData.get("contacto") ?? "").trim().slice(0, 60);
-  // Solo se puede avisar a un teléfono; un @usuario no recibe WhatsApp.
-  const acepta = formData.get("acepta") === "on" && normalizarTelefono(contacto) !== null;
+  const { tipo, cliente, canal, contacto, acepta, metodo, items } = leerPedido(formData);
   const valores = { tipo, cliente, contacto, acepta, canal };
-  const metodoPedido = String(formData.get("metodo") ?? "");
-  const metodo: MetodoPago | undefined = METODOS_DE_COBRO.includes(metodoPedido as MetodoPago)
-    ? (metodoPedido as MetodoPago)
-    : undefined;
 
-  const items = leerItems(String(formData.get("items") ?? ""));
   if (!items) return { error: t.errorProductos, valores };
   if (tipo === "apartado" && !cliente) return { error: t.errorCliente, valores };
   // Un contacto sin nombre no se guarda en ningún lado

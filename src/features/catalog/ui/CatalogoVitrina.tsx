@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
 import { StatusChip } from "@/components/ui/StatusChip";
-import type { TarjetaVitrina } from "@/features/products/variantes";
+import type { TarjetaVitrina } from "../agruparVitrina";
 import { urlFoto } from "@/lib/fotos";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { formatearDolares } from "@/lib/formato";

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { obtenerAjustesVitrina, obtenerIdentidad } from "@/features/catalog/repositorio";
-import { TiendaForm } from "@/features/catalog/ui/TiendaForm";
+import { TiendaForm } from "@/features/store-settings/ui/TiendaForm";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 

@@ -35,3 +35,7 @@ export function repartir(total: Centavos, n: number, pesos?: number[]): Centavos
   }
   return base;
 }
+
+/** Suma de precio × cantidad de una lista de líneas (todo en centavos). */
+export const totalDeLineas = (lineas: readonly { precio: number; cantidad: number }[]): Centavos =>
+  lineas.reduce((n, l) => n + l.precio * l.cantidad, 0);

@@ -18,8 +18,8 @@ import { slugDe } from "@/lib/slug";
 import { urlSitio } from "@/lib/sitio";
 import { textos } from "@/lib/textos";
 import { guardarTienda, type EstadoTienda } from "../actions/tienda";
-import { COLORES_MARCA, colorDeMarca, estiloDeMarca, LIMITE_CONTEXTO } from "../marca";
-import type { AjustesVitrina, IdentidadTienda } from "../repositorio";
+import { COLORES_MARCA, colorDeMarca, estiloDeMarca, LIMITE_CONTEXTO } from "@/features/catalog/marca";
+import type { AjustesVitrina, IdentidadTienda } from "@/features/catalog/repositorio";
 import { Textarea } from "@/components/ui/Textarea";
 
 const t = textos.ajustes.tienda;

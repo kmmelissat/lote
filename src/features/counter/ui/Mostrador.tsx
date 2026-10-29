@@ -16,6 +16,7 @@ import {
   descuentoEnCentavos,
   leerDolares,
   limpiarCodigoDeBarras,
+  totalDeLineas,
   type Descuento,
 } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
@@ -103,10 +104,7 @@ export function Mostrador({
     const p = porId.get(l.productoId);
     return p ? [{ ...l, producto: p }] : [];
   });
-  const subtotal = detalle.reduce(
-    (s, l) => s + l.producto.precio * l.cantidad,
-    0,
-  );
+  const subtotal = totalDeLineas(detalle.map((l) => ({ precio: l.producto.precio, cantidad: l.cantidad })));
   const unidades = detalle.reduce((s, l) => s + l.cantidad, 0);
 
   const descuentoLeido = conDescuento

@@ -1,5 +1,6 @@
 "use client";
 
+import { totalDeLineas } from "@/domain";
 import Link from "next/link";
 import { textos } from "@/lib/textos";
 import { useCarritoConDatos } from "../carritoDatos";
@@ -28,7 +29,7 @@ export function CheckoutCarrito({ slug, opciones }: { slug: string; opciones: Op
     );
   }
 
-  const total = comprables.reduce((n, l) => n + l.precio * l.cantidad, 0);
+  const total = totalDeLineas(comprables);
 
   return (
     <div className="flex flex-col gap-5">

@@ -6,7 +6,7 @@ import { aDolares } from "@/domain/index";
 import { editarProducto } from "@/features/products/actions/editar";
 import { listarCategorias, listarProductos, obtenerInfoExtra, obtenerProducto } from "@/features/products/repositorio";
 import { NuevoProductoForm } from "@/features/products/ui/NuevoProductoForm";
-import { nombreBase } from "@/features/products/variantes";
+import { nombreBase } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 

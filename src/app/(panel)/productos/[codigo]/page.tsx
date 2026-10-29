@@ -15,7 +15,7 @@ import { CodigoDeBarrasForm } from "@/features/counter/ui/CodigoDeBarrasForm";
 import { AvisosDeStock } from "@/features/products/ui/AvisosDeStock";
 import { BorrarProducto } from "@/features/products/ui/BorrarProducto";
 import { MAXIMO_FOTOS } from "@/features/products/limites";
-import { nombreBase } from "@/features/products/variantes";
+import { nombreBase } from "@/domain";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";

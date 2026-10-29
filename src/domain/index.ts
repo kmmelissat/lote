@@ -10,3 +10,4 @@ export * from "./avisos";
 export * from "./precio";
 export * from "./comprobante";
 export * from "./mostrador";
+export * from "./variante";

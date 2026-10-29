@@ -1,4 +1,5 @@
-import { nombreBase } from "@/features/products/variantes";
+import { nombreBase } from "@/domain";
+import { totalDeLineas } from "@/domain";
 import { MAX_CANTIDAD, type LineaCarrito } from "./carritoReglas";
 import type { ProductoPublico } from "./repositorio";
 
@@ -44,4 +45,4 @@ export function combinarCarrito(lineas: LineaCarrito[], productos: ProductoDelCa
 /** Lo que se compra de verdad: las líneas con unidades. */
 export const lineasComprables = (lineas: LineaConDatos[]) => lineas.filter((l) => l.cantidad > 0);
 
-export const totalDe = (lineas: LineaConDatos[]): number => lineas.reduce((n, l) => n + l.precio * l.cantidad, 0);
+export const totalDe = (lineas: LineaConDatos[]): number => totalDeLineas(lineas);

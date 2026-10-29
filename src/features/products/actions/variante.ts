@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain/index";
 import { crearProducto, guardarVariante, listarGrupo, obtenerProducto } from "../repositorio";
-import { MAXIMO_VARIANTES, nombreBase, nombreConVariante } from "../variantes";
+import { MAXIMO_VARIANTES } from "../variantes";
+import { nombreBase, nombreConVariante } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 

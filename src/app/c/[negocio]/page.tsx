@@ -8,7 +8,7 @@ import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra } from "@/features/catalog/repositorio";
-import { agruparParaVitrina } from "@/features/products/variantes";
+import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";

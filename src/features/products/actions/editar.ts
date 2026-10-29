@@ -2,9 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { leerDolares } from "@/domain/index";
 import { leerInfoExtra, tieneInfoExtra } from "../infoExtra";
-import { fotosValidas, TIPOS_COSTO } from "../leerFormulario";
+import { categoriaNoExiste, fotosValidas, leerCostos, leerNombreYPrecio, valoresDe } from "../leerFormulario";
 import {
   actualizarFichaDelGrupo,
   actualizarProducto,
@@ -12,14 +11,12 @@ import {
   guardarFotos,
   guardarInfoExtra,
   guardarVariante,
-  listarCategorias,
   listarGrupo,
   obtenerProducto,
   reemplazarCostos,
-  type NuevoProducto,
 } from "../repositorio";
 import type { EstadoNuevo } from "./nuevo";
-import { nombreConVariante } from "../variantes";
+import { nombreConVariante } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -32,25 +29,15 @@ export async function editarProducto(
   _anterior: EstadoNuevo,
   formData: FormData,
 ): Promise<EstadoNuevo> {
-  const valores = Object.fromEntries(
-    [...formData.entries()].filter(([k, v]) => typeof v === "string" && !k.startsWith("$")),
-  ) as Record<string, string>;
+  const valores = valoresDe(formData);
   const texto = (k: string) => (valores[k] ?? "").trim();
-  const errores: NonNullable<EstadoNuevo["errores"]> = {};
-
-  const nombre = texto("nombre");
-  if (!nombre) errores.nombre = t.errorNombre;
-  const precio = leerDolares(texto("precio"));
-  if (precio === null) errores.precio = t.errorPrecio;
+  const { nombre, precio, errores: erroresBasicos } = leerNombreYPrecio(valores);
+  const errores: NonNullable<EstadoNuevo["errores"]> = { ...erroresBasicos };
   // En un producto con variantes el nombre es el base y cada variante tiene su etiqueta.
   const etiqueta = texto("variante");
   if ("variante" in valores && (!etiqueta || etiqueta.length > 40)) errores.variante = t.errorVariantes.etiqueta;
 
-  const { supabase: clienteCategorias, negocio: negocioCategorias } = await negocioActual();
-  const categoria = texto("categoria");
-  if (categoria && !(await listarCategorias(clienteCategorias, negocioCategorias.id)).some((c) => c.toLowerCase() === categoria.toLowerCase())) {
-    errores.categoria = t.categorias.errorNoExiste;
-  }
+  if (await categoriaNoExiste(texto("categoria"))) errores.categoria = t.categorias.errorNoExiste;
 
   const { info, errorPrecioAnterior } = leerInfoExtra(valores, precio);
   if (errorPrecioAnterior) errores.precio_anterior = t.precioAnterior.error;
@@ -58,14 +45,8 @@ export async function editarProducto(
   const cantidad = Number(texto("cantidad") || "NaN");
   if (!Number.isInteger(cantidad) || cantidad < 0) errores.cantidad = te.errorCantidad;
 
-  const costos: NuevoProducto["costos"] = [];
-  for (const tipo of TIPOS_COSTO) {
-    const monto = texto(tipo);
-    if (!monto) continue;
-    const centavos = leerDolares(monto);
-    if (centavos === null) errores[tipo] = t.errorCosto;
-    else costos.push({ tipo, monto: centavos });
-  }
+  const { costos, errores: erroresCostos } = leerCostos(valores);
+  Object.assign(errores, erroresCostos);
   if (Object.keys(errores).length) return { errores, valores };
 
   // La autorización real la hace RLS (solo gestiona quien es dueña o administradora).

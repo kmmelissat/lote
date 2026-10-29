@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { nombreBase } from "@/features/products/variantes";
+import { nombreBase } from "@/domain";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 import { obtenerNegocioPublico, obtenerProductoPublico, type NegocioPublico, type ProductoPublico } from "./repositorio";
