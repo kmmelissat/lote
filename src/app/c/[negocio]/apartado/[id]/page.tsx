@@ -31,7 +31,8 @@ async function Confirmacion({ params, searchParams }: Pick<PageProps<"/c/[negoci
   if (!a) notFound();
 
   const ahora = new Date();
-  const vigente = a.estado === "pendiente" && a.venceEn !== null && a.venceEn > ahora;
+  // Un pedido contra entrega no vence (queda sin fecha): no se lee como vencido
+  const vigente = a.estado === "pendiente" && (a.contraEntrega || (a.venceEn !== null && a.venceEn > ahora));
   const vencido = a.estado === "cancelado" || (a.estado === "pendiente" && !vigente);
 
   const compra = a.entrega !== null;
@@ -61,7 +62,7 @@ async function Confirmacion({ params, searchParams }: Pick<PageProps<"/c/[negoci
           {t.vence(tiempoRestante(a.venceEn, ahora))}
         </p>
       )}
-      {vencido && <p role="status" className="font-medium text-error">{a.estado === "cancelado" ? t.cancelado : t.vencido}</p>}
+      {vencido && <p role="status" className="font-medium text-error">{a.estado === "cancelado" ? t.cancelado : compra ? t.vencidoCompra : t.vencido}</p>}
       {a.estado !== "pendiente" && a.estado !== "cancelado" && (
         <p role="status" className="font-medium text-teal">{t.pagado}</p>
       )}

@@ -246,6 +246,7 @@ export const vitrina = {
     pedido: (n: number) => `Pedido #${n}`,
     vence: (tiempo: string) => `Tenés ${tiempo} para pagar`,
     vencido: "Este apartado venció.",
+    vencidoCompra: "Este pedido venció: no llegó el pago a tiempo.",
     pagado: "Ya recibimos tu pago. Gracias!",
     cancelado: "Este pedido se canceló.",
     productos: "Tu pedido",
