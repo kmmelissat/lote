@@ -97,7 +97,7 @@ export function AvisoSinCosto({ n }: { n: number }) {
         <Icon nombre="alerta" className="size-5 shrink-0" />
         {t.sinCostoAviso(n)}
       </p>
-      <ButtonLink href="/productos" variante="secundario" className="h-10 px-5 text-sm">
+      <ButtonLink href="/productos" variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
         {t.sinCostoBoton}
       </ButtonLink>
     </div>
@@ -118,7 +118,7 @@ export function TarjetaPorCobrar({ porCobrar, gananciaPorEntrar, estimada }: { p
             {t.porEntrarGanancia(`+${formatearDolares(Math.max(gananciaPorEntrar, 0))}`)}
             {estimada && t.porEntrarIncompleta}
           </p>
-          <ButtonLink href="/pedidos?estado=pendiente" variante="mango" className="h-10 self-start px-5 text-sm">
+          <ButtonLink href="/pedidos?estado=pendiente" variante="mango" className="h-10 max-md:min-h-11 self-start px-5 text-sm">
             {t.verPendientes}
           </ButtonLink>
         </>
@@ -210,7 +210,7 @@ export function EnlaceResumen() {
   return (
     <Link
       href="/ganancia/resumen"
-      className="inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
+      className="inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
     >
       {t.verResumen}
     </Link>

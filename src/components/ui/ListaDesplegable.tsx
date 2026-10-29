@@ -6,7 +6,7 @@ import { Icon } from "./Icon";
 const ESTILOS = {
   panel: "h-12 w-full rounded-xl border border-borde-control bg-superficie px-3 text-base",
   campo: "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal",
-  compacto: "h-10 w-full rounded-[12px] border-2 border-borde-control bg-superficie px-3 text-sm focus:border-teal",
+  compacto: "h-10 max-md:min-h-11 w-full rounded-[12px] border-2 border-borde-control bg-superficie px-3 text-sm focus:border-teal",
 } as const;
 
 export type OpcionLista = { valor: string; etiqueta: string; /** Se muestra a la derecha, por ejemplo el costo de envío */ detalle?: string };

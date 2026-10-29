@@ -16,7 +16,7 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
           <h2 className="font-bold">{t.recientesTitulo}</h2>
           <p className="text-sm text-texto-2">{t.recientesTexto}</p>
         </div>
-        <ButtonLink href="/pedidos" variante="secundario" className="h-9 px-4 text-sm">
+        <ButtonLink href="/pedidos" variante="secundario" className="h-9 max-md:min-h-11 px-4 text-sm">
           {t.verPedidos}
         </ButtonLink>
       </div>

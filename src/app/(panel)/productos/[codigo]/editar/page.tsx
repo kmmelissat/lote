@@ -22,7 +22,7 @@ export default async function EditarProductoPage({ params }: PageProps<"/product
         titulo={t.titulo}
         descripcion={t.descripcion}
         accion={
-          <ButtonLink href={`/productos/${codigo}`} variante="secundario" className="h-10 px-5 text-sm">
+          <ButtonLink href={`/productos/${codigo}`} variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
             ← {textos.productos.form.volver}
           </ButtonLink>
         }

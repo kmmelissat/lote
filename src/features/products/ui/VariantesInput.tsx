@@ -236,7 +236,7 @@ export function VariantesInput({ valor, onCambio, error }: Props) {
                         aria-label={textos.productos.form.variantes.cantidad(filas.indexOf(f) + 1)}
                         value={f.cantidad}
                         onChange={(ev) => poner({ ...e, cantidades: { ...e.cantidades, [f.etiqueta]: ev.target.value } })}
-                        className="h-9 w-14 rounded-lg border-2 border-borde-control text-center text-sm tabular-nums"
+                        className="h-9 max-md:min-h-11 w-14 rounded-lg border-2 border-borde-control text-center text-sm tabular-nums"
                       />
                       <button
                         type="button"

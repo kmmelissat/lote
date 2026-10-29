@@ -141,7 +141,7 @@ export function ListaPedidos({
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-2">
                     <Accion p={p} puedeVender={puedeVender} />
-                    <ButtonLink href={`/pedidos/${p.codigo}`} variante="secundario" className="h-9 px-4 text-sm">
+                    <ButtonLink href={`/pedidos/${p.codigo}`} variante="secundario" className="h-9 max-md:min-h-11 px-4 text-sm">
                       {t.lista.detalles}
                     </ButtonLink>
                   </div>

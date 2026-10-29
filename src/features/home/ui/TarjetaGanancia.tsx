@@ -37,7 +37,7 @@ export function TarjetaGanancia({
         <Link
           href="/ganancia"
           aria-label={t.verGanancia}
-          className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white/60 hover:bg-white"
+          className="flex size-8 max-md:size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white/60 hover:bg-white"
         >
           <Icon nombre="diagonal" className="size-4" />
         </Link>

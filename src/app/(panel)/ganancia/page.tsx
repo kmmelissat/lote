@@ -101,7 +101,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
           />
           <div className="flex flex-wrap gap-2">
             <EnlaceResumen />
-            <ButtonLink href="/ajustes/exportar" variante="secundario" className="h-10 px-5 text-sm">
+            <ButtonLink href="/ajustes/exportar" variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
               {t.exportar}
             </ButtonLink>
           </div>
@@ -124,7 +124,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
             titulo={t.vacioTitulo}
             texto={t.vacioDetalle}
             accion={
-              <ButtonLink href="/productos" variante="secundario" className="h-10 px-5 text-sm">
+              <ButtonLink href="/productos" variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
                 {t.verProductos}
               </ButtonLink>
             }

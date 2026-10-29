@@ -39,7 +39,7 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
       <button
         type="button"
         onClick={() => ventana.current?.showModal()}
-        className="inline-flex h-10 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+        className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
       >
         <Icon nombre="mas" className="size-4" strokeWidth={2.5} />
         {t.registrarGasto}

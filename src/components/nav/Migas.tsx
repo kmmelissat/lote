@@ -24,7 +24,7 @@ function Ruta() {
   return (
     <ol className="flex min-w-0 items-center gap-2 text-sm">
       <li className="flex">
-        <Link href="/inicio" aria-label={textos.nav.inicio} className="flex size-6 items-center justify-center rounded-md text-texto-2 hover:text-teal">
+        <Link href="/inicio" aria-label={textos.nav.inicio} className="relative flex size-6 items-center justify-center rounded-md text-texto-2 after:absolute after:-inset-2.5 hover:text-teal">
           <Icon nombre="inicio" className="size-5" />
         </Link>
       </li>

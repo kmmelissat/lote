@@ -261,14 +261,14 @@ export function NuevoProductoForm({
                   setEstadoVar({ ...base, grupos: [base.grupos[0], grupoNuevo(ofertaVar.nombre, ofertaVar.valores)] });
                   setOfertaVar(null);
                 }}
-                className="inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold"
+                className="inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold"
               >
                 {textos.productos.form.variantes.lotitoSi}
               </button>
               <button
                 type="button"
                 onClick={() => setOfertaVar(null)}
-                className="inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold"
+                className="inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold"
               >
                 {textos.productos.form.variantes.lotitoNo}
               </button>

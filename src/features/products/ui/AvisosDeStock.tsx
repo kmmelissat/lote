@@ -31,7 +31,7 @@ export function AvisosDeStock({ avisos, producto }: { avisos: AvisoDeStock[]; pr
                   href={`https://wa.me/${digitos}?text=${mensaje}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
+                  className="inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
                 >
                   {t.escribir}
                 </a>

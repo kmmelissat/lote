@@ -29,7 +29,7 @@ export function TarjetaDato({
         <Link
           href={href}
           aria-label={textos.inicio.ver(etiqueta.toLowerCase())}
-          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-borde text-teal-oscuro hover:bg-teal-fondo"
+          className="flex size-8 max-md:size-11 shrink-0 items-center justify-center rounded-full border border-borde text-teal-oscuro hover:bg-teal-fondo"
         >
           <Icon nombre="diagonal" className="size-4" />
         </Link>

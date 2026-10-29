@@ -11,7 +11,7 @@ import type { CategoriaConConteo } from "../repositorio";
 
 const t = textos.productos.categoriasPanel;
 
-const boton = "inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon disabled:opacity-50";
+const boton = "inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon disabled:opacity-50";
 
 function Fila({ c }: { c: CategoriaConConteo }) {
   const [editando, setEditando] = useState(false);
@@ -83,7 +83,7 @@ function Fila({ c }: { c: CategoriaConConteo }) {
             <button type="button" disabled={pendiente} onClick={() => setEditando(true)} className={boton}>
               {t.renombrar}
             </button>
-            <button type="button" disabled={pendiente} onClick={borrar} className="inline-flex h-10 items-center rounded-full px-4 text-sm font-medium text-error hover:bg-error-fondo disabled:opacity-50">
+            <button type="button" disabled={pendiente} onClick={borrar} className="inline-flex h-10 max-md:min-h-11 items-center rounded-full px-4 text-sm font-medium text-error hover:bg-error-fondo disabled:opacity-50">
               {t.borrar}
             </button>
           </div>

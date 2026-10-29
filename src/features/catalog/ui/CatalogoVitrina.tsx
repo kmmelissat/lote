@@ -54,7 +54,7 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
   const ordenados = orden === "recientes" ? visibles : [...visibles].sort((a, b) => (orden === "precio_asc" ? a.precioMinimo - b.precioMinimo : b.precioMinimo - a.precioMinimo));
 
   const chip = (activo: boolean) =>
-    `inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors ${
+    `inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors ${
       activo ? "bg-accion text-accion-texto" : "bg-white hover:bg-limon"
     }`;
 
@@ -83,7 +83,7 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
                     type="button"
                     onClick={() => setBusqueda("")}
                     aria-label={t.limpiarBusqueda}
-                    className="absolute right-2 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full hover:bg-limon/50"
+                    className="absolute right-2 top-1/2 flex size-9 max-md:size-11 -translate-y-1/2 items-center justify-center rounded-full hover:bg-limon/50"
                   >
                     <Icon nombre="x" className="size-5" />
                   </button>

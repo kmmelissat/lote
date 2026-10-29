@@ -18,7 +18,7 @@ import type { ResenaPanel } from "../repositorio";
 const t = textos.resenas;
 
 const chip = { pendiente: "bg-limon", publicada: "bg-teal-fondo", oculta: "bg-gris-fondo" } as const;
-const boton = "inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon disabled:opacity-50";
+const boton = "inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon disabled:opacity-50";
 
 function FilaResena({ r }: { r: ResenaPanel }) {
   const [pendiente, empezar] = useTransition();
@@ -64,7 +64,7 @@ function FilaResena({ r }: { r: ResenaPanel }) {
             {t.ocultar}
           </button>
         )}
-        <button type="button" disabled={pendiente} onClick={borrar} className="inline-flex h-10 items-center rounded-full px-4 text-sm font-medium text-error hover:bg-error-fondo disabled:opacity-50">
+        <button type="button" disabled={pendiente} onClick={borrar} className="inline-flex h-10 max-md:min-h-11 items-center rounded-full px-4 text-sm font-medium text-error hover:bg-error-fondo disabled:opacity-50">
           {t.borrar}
         </button>
       </div>

@@ -17,7 +17,7 @@ export default function NuevoProductoPage({ searchParams }: PageProps<"/producto
         titulo={textos.productos.form.titulo}
         descripcion={textos.productos.form.descripcion}
         accion={
-          <ButtonLink href="/productos" variante="secundario" className="h-10 px-5 text-sm">
+          <ButtonLink href="/productos" variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
             ← {textos.productos.form.volver}
           </ButtonLink>
         }

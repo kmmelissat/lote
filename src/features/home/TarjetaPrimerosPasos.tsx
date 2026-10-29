@@ -68,7 +68,7 @@ export function TarjetaPrimerosPasos({ pasos }: { pasos: PasoInicial[] }) {
             {!p.hecho && (
               <Link
                 href={enlaces[p.clave]}
-                className={`inline-flex h-10 items-center gap-1 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica ${
+                className={`inline-flex h-10 max-md:min-h-11 items-center gap-1 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica ${
                   p.clave === siguiente ? "bg-mango" : "bg-white"
                 }`}
               >

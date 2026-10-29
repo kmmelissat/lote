@@ -73,7 +73,7 @@ function AgregarCosto({ codigo }: { codigo: number }) {
   return (
     <Link
       href={`/productos/${codigo}/editar`}
-      className="relative z-10 inline-flex min-h-8 items-center rounded-full bg-perla px-3 text-sm font-medium text-ambar-texto hover:brightness-95"
+      className="relative z-10 inline-flex min-h-8 max-md:min-h-10 items-center rounded-full bg-perla px-3 text-sm font-medium text-ambar-texto hover:brightness-95"
     >
       {t.lista.agregarCosto}
     </Link>
@@ -284,7 +284,7 @@ export function ListaProductos({
                           aria-expanded={abierto}
                           aria-controls={idLista}
                           onClick={() => alternar(g.clave)}
-                          className="relative z-10 -ml-2 inline-flex min-h-8 items-center gap-1 rounded-lg px-2 text-sm text-teal hover:bg-teal-fondo"
+                          className="relative z-10 -ml-2 inline-flex min-h-8 max-md:min-h-10 items-center gap-1 rounded-lg px-2 text-sm text-teal hover:bg-teal-fondo"
                         >
                           {t.lista.variantes(g.miembros.length)}
                           <Icon nombre="flecha" className={`size-4 transition-transform duration-150 ${abierto ? "rotate-180" : ""}`} />

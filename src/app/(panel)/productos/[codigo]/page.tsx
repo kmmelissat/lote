@@ -80,15 +80,15 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
         descripcion={`#${p.codigo}`}
         accion={
           <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/productos" variante="secundario" className="h-10 px-5 text-sm">
+            <ButtonLink href="/productos" variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
               {t.volver}
             </ButtonLink>
             {negocio.puedeGestionar && (
               <>
-                <ButtonLink href={`/productos/nuevo?copiar=${p.codigo}`} variante="secundario" className="h-10 px-5 text-sm">
+                <ButtonLink href={`/productos/nuevo?copiar=${p.codigo}`} variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
                   {t.copiar.boton}
                 </ButtonLink>
-                <ButtonLink href={`/productos/${p.codigo}/editar`} variante="mango" className="h-10 px-5 text-sm">
+                <ButtonLink href={`/productos/${p.codigo}/editar`} variante="mango" className="h-10 max-md:min-h-11 px-5 text-sm">
                   {t.editar.boton}
                 </ButtonLink>
               </>
@@ -154,7 +154,7 @@ async function Detalle({ params }: Pick<PageProps<"/productos/[codigo]">, "param
                 <div className="flex flex-col items-start gap-3">
                   <p>{t.detalle.sinCostoTexto}</p>
                   {negocio.puedeGestionar && (
-                    <ButtonLink href={`/productos/${p.codigo}/editar`} variante="secundario" className="h-10 px-5 text-sm">
+                    <ButtonLink href={`/productos/${p.codigo}/editar`} variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
                       {t.detalle.agregarCosto}
                     </ButtonLink>
                   )}
