@@ -33,6 +33,7 @@ const esquema = z.object({
 
 export type DatosTienda = z.output<typeof esquema> & {
   vitrina: boolean;
+  comprar: boolean;
   apartar: boolean;
   explorar: boolean;
   local: boolean;
@@ -48,6 +49,7 @@ export function leerTienda(formData: FormData): { ok: true; datos: DatosTienda }
     datos: {
       ...r.data,
       vitrina,
+      comprar: formData.get("comprar") === "on",
       apartar: formData.get("apartar") === "on",
       // Sin vitrina no se puede aparecer en Explorar
       explorar: vitrina && formData.get("explorar") === "on",

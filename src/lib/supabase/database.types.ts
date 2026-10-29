@@ -536,6 +536,9 @@ export type Database = {
           vitrina_activa: boolean
           tiempo_entrega?: string | null
           politica_cambios?: string | null
+          permite_comprar: boolean
+          permite_apartar: boolean
+          zonas_entrega?: Json | null
           direccion_retiro: string | null
           whatsapp: string | null
         }
@@ -562,6 +565,9 @@ export type Database = {
           vitrina_activa?: boolean
           tiempo_entrega?: string | null
           politica_cambios?: string | null
+          permite_comprar?: boolean
+          permite_apartar?: boolean
+          zonas_entrega?: Json | null
           direccion_retiro?: string | null
           whatsapp?: string | null
         }
@@ -588,6 +594,9 @@ export type Database = {
           vitrina_activa?: boolean
           tiempo_entrega?: string | null
           politica_cambios?: string | null
+          permite_comprar?: boolean
+          permite_apartar?: boolean
+          zonas_entrega?: Json | null
           direccion_retiro?: string | null
           whatsapp?: string | null
         }
@@ -1474,6 +1483,14 @@ export type Database = {
           saldo: number
           total: number
           vence_en: string
+        }[]
+      }
+      vitrina_reglas: {
+        Args: { p_slug: string }
+        Returns: {
+          permite_comprar: boolean
+          permite_apartar: boolean
+          zonas_entrega: Json | null
         }[]
       }
       vitrina_negocio: {

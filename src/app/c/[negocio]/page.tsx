@@ -26,13 +26,13 @@ export async function generateMetadata({ params }: PageProps<"/c/[negocio]">): P
   const piezas = (await listarProductosPublicos(supabase, slug)).reduce((n, p) => n + p.disponibles, 0);
   const descripcion = negocio.descripcion?.trim() || t.seo.descripcionTienda(negocio.nombre, piezas);
   const titulo = t.seo.tituloTienda(negocio.nombre);
-  const imagen = negocio.logo ? [{ url: urlFoto(negocio.logo) }] : undefined;
   return {
     title: { absolute: titulo },
     description: descripcion,
     alternates: { canonical: `/c/${slug}` },
-    openGraph: { title: titulo, description: descripcion, url: `/c/${slug}`, type: "website", images: imagen },
-    twitter: { card: imagen ? "summary" : "summary_large_image", title: titulo, description: descripcion },
+    // La imagen la dibuja opengraph-image.tsx (logo, nombre y fotos de la tienda)
+    openGraph: { title: titulo, description: descripcion, url: `/c/${slug}`, type: "website" },
+    twitter: { card: "summary_large_image", title: titulo, description: descripcion },
   };
 }
 
@@ -63,6 +63,10 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           description: negocio.descripcion ?? undefined,
           url: `${urlSitio}/c/${slug}`,
           image: negocio.logo ? urlFoto(negocio.logo) : undefined,
+          // Sus redes: así el buscador une la vitrina con el Instagram de la tienda
+          sameAs: negocio.usuarioInstagram ? [`https://www.instagram.com/${negocio.usuarioInstagram}`] : undefined,
+          areaServed: { "@type": "Country", name: "El Salvador" },
+          currenciesAccepted: "USD",
         }}
       />
       <header className="mb-8 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-superficie shadow-dura">

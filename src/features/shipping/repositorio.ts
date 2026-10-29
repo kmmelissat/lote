@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { aCentavos, type Centavos, type QuienPagaEnvio } from "@/domain";
+import { leerZonas, type ZonasEntrega } from "@/lib/departamentos";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -44,7 +45,13 @@ export async function obtenerEnvio(supabase: Cliente, pedidoId: string): Promise
 }
 
 /** `retiro` es la dirección donde se recoge; sin ella, la vitrina no ofrece "recoger en la tienda". */
-export type Tarifas = { defecto: Centavos; porDepartamento: Record<string, Centavos>; retiro: string | null };
+export type Tarifas = {
+  defecto: Centavos;
+  porDepartamento: Record<string, Centavos>;
+  retiro: string | null;
+  /** Dónde entrega; null es todo el país */
+  zonas: ZonasEntrega;
+};
 
 export async function obtenerTarifas(supabase: Cliente, negocioId: string): Promise<Tarifas> {
   const [{ data: negocio, error: e1 }, { data: filas, error: e2 }] = await Promise.all([
@@ -53,10 +60,13 @@ export async function obtenerTarifas(supabase: Cliente, negocioId: string): Prom
   ]);
   if (e1) throw e1;
   if (e2) throw e2;
+  // Aparte: sin modos_y_zonas.sql la columna no existe y se entrega en todo el país
+  const { data: z } = await supabase.from("negocio").select("zonas_entrega").eq("id", negocioId).maybeSingle();
   return {
     defecto: aCentavos(negocio.tarifa_envio_defecto),
     porDepartamento: Object.fromEntries(filas.map((f) => [f.departamento, aCentavos(f.precio)])),
     retiro: negocio.direccion_retiro,
+    zonas: leerZonas(z?.zonas_entrega ?? null),
   };
 }
 
@@ -76,6 +86,9 @@ export async function guardarTarifas(
     .update({ tarifa_envio_defecto: t.defecto / 100, direccion_retiro: t.retiro })
     .eq("id", negocioId);
   if (e1) return false;
+  // Sin modos_y_zonas.sql la columna no existe: "todo el país" igual se guarda (es lo que ya pasa sin ella)
+  const { error: eZonas } = await supabase.from("negocio").update({ zonas_entrega: t.zonas }).eq("id", negocioId);
+  if (eZonas && t.zonas !== null) return false;
 
   // Primero se guardan las que tienen precio y después se quitan las demás: si algo falla
   // a la mitad, nunca queda el negocio sin tarifas.

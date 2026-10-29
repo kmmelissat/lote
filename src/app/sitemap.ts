@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
+import { explorarCategorias } from "@/features/catalog/explorar";
 import { listarProductosPublicos } from "@/features/catalog/repositorio";
+import { codigosParaIndexar } from "@/features/catalog/seo";
 import { urlSitio } from "@/lib/sitio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { createServiceClient } from "@/lib/supabase/servicio";
@@ -15,7 +17,10 @@ const fijas: MetadataRoute.Sitemap = [
   { url: `${urlSitio}/privacidad`, changeFrequency: "yearly", priority: 0.3 },
 ];
 
-/** La landing, la privacidad y, de cada tienda con piezas a la vista, su vitrina y cada producto. Si algo falla, quedan las fijas. */
+/**
+ * La landing, la privacidad, las categorías de Explorar y, de cada tienda con piezas a la vista, su vitrina y
+ * cada producto (las variantes de un mismo producto van una sola vez). Si algo falla, quedan las fijas.
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // La lista de tiendas no es pública (RLS): solo este mapa la lee, con la clave de servicio, y solo toma el enlace.
@@ -23,15 +28,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const publico = createPublicClient();
     const paginas = await Promise.all(
       (data ?? []).map(async ({ slug }): Promise<MetadataRoute.Sitemap> => {
-        const productos = (await listarProductosPublicos(publico, slug)).filter((p) => p.disponibles > 0);
-        if (!productos.length) return [];
+        const productos = await listarProductosPublicos(publico, slug);
+        if (!productos.some((p) => p.disponibles > 0)) return [];
+        // La fecha más nueva del grupo: así el buscador sabe cuándo volver
+        const fechaDe = (codigo: number) => productos.find((p) => p.codigo === codigo)?.creadoEn ?? undefined;
         return [
           { url: `${urlSitio}/c/${slug}`, changeFrequency: "daily", priority: 0.7 },
-          ...productos.map((p) => ({ url: `${urlSitio}/c/${slug}/${p.codigo}`, changeFrequency: "daily" as const, priority: 0.5 })),
+          ...codigosParaIndexar(productos).map((codigo) => ({
+            url: `${urlSitio}/c/${slug}/${codigo}`,
+            lastModified: fechaDe(codigo),
+            changeFrequency: "daily" as const,
+            priority: 0.5,
+          })),
         ];
       }),
     );
-    return [...fijas, ...paginas.flat()];
+    const categorias = (await explorarCategorias(publico).catch(() => [])).map((c) => ({
+      url: `${urlSitio}/explorar?categoria=${encodeURIComponent(c.categoria)}`,
+      changeFrequency: "daily" as const,
+      priority: 0.6,
+    }));
+    return [...fijas, ...categorias, ...paginas.flat()];
   } catch {
     return fijas;
   }

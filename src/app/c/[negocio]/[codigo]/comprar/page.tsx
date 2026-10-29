@@ -20,7 +20,7 @@ async function Comprar({ params, searchParams }: Props) {
   await connection();
   const { negocio: slug, codigo } = await params;
   const { n } = await searchParams;
-  const { negocio, producto, unidades } = await cargarCompra(slug, codigo, n);
+  const { negocio, producto, unidades } = await cargarCompra(slug, codigo, n, "comprar");
   const opciones = await obtenerOpcionesDeCompra(createPublicClient(), slug);
 
   return (
@@ -29,6 +29,7 @@ async function Comprar({ params, searchParams }: Props) {
         slug={slug}
         lineas={[{ codigo: producto.codigo, cantidad: unidades, precio: producto.precio }]}
         opciones={opciones}
+        zonas={negocio.zonasEntrega}
         volverHref={`/c/${slug}/${producto.codigo}`}
       />
     </PantallaCompra>

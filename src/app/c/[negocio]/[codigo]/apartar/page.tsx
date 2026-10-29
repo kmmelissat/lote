@@ -18,7 +18,7 @@ async function Apartar({ params, searchParams }: Props) {
   await connection();
   const { negocio: slug, codigo } = await params;
   const { n } = await searchParams;
-  const { negocio, producto, unidades } = await cargarCompra(slug, codigo, n);
+  const { negocio, producto, unidades } = await cargarCompra(slug, codigo, n, "apartar");
 
   return (
     <PantallaCompra

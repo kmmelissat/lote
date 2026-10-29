@@ -6,12 +6,12 @@ import { createPublicClient } from "@/lib/supabase/publico";
 // Todo lo de una tienda: el carrito flotante vive acá para verse en la vitrina, en cada producto y al comprar.
 export default async function NegocioLayout({ children, params }: { children: ReactNode; params: Promise<{ negocio: string }> }) {
   const { negocio } = await params;
-  // Solo las tiendas que reciben pedidos desde la vitrina tienen carrito
+  // El carrito termina en una compra: solo lo tienen las tiendas que dejan comprar desde la vitrina
   const tienda = await obtenerNegocioPublico(createPublicClient(), negocio);
   return (
     <>
       {children}
-      {tienda?.apartarDesdeVitrina && <BotonCarrito slug={negocio} />}
+      {tienda?.permiteComprar && <BotonCarrito slug={negocio} />}
     </>
   );
 }

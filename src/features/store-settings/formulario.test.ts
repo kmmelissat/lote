@@ -15,8 +15,8 @@ const error = (campos: Record<string, string>) => {
 
 describe("leerTienda", () => {
   it("lee un formulario válido y limpia @, mayúsculas y espacios", () => {
-    const r = leerTienda(form({ nombre: "  Velvet  ", instagram: "@velvet.sv", slug: "Velvet-SV", vitrina: "on", explorar: "on", apartar: "on" }));
-    expect(r.ok && r.datos).toMatchObject({ nombre: "Velvet", instagram: "velvet.sv", slug: "velvet-sv", plazo: 24, vitrina: true, explorar: true, apartar: true, local: false });
+    const r = leerTienda(form({ nombre: "  Velvet  ", instagram: "@velvet.sv", slug: "Velvet-SV", vitrina: "on", explorar: "on", comprar: "on", apartar: "on" }));
+    expect(r.ok && r.datos).toMatchObject({ nombre: "Velvet", instagram: "velvet.sv", slug: "velvet-sv", plazo: 24, vitrina: true, explorar: true, comprar: true, apartar: true, local: false });
   });
 
   it("sin vitrina no puede aparecer en Explorar", () => {

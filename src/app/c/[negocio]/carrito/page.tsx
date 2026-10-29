@@ -24,7 +24,7 @@ async function Carrito({ params }: Props) {
   const negocio = await obtenerNegocioPublico(createPublicClient(), slug);
   if (!negocio) notFound();
   // Si la tienda no recibe pedidos desde la vitrina, no hay nada que comprar acá
-  if (!negocio.apartarDesdeVitrina) redirect(`/c/${slug}`);
+  if (!negocio.permiteComprar) redirect(`/c/${slug}`);
 
   return (
     <MarcaTienda color={negocio.color}>

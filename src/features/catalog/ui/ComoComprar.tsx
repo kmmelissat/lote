@@ -1,6 +1,7 @@
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
 import type { TipoMetodo } from "@/features/payments/mensajeCobro";
+import { resumenZonas, type ZonasEntrega } from "@/lib/departamentos";
 import { textos } from "@/lib/textos";
 
 const t = textos.vitrina.comoComprar;
@@ -18,14 +19,17 @@ export function ComoComprar({
   metodos,
   direccionRetiro,
   plazoHoras,
-  apartarActivo,
+  permiteApartar,
+  zonas,
   tiempoEntrega,
   politicaCambios,
 }: {
   metodos: TipoMetodo[];
   direccionRetiro: string | null;
   plazoHoras: number;
-  apartarActivo: boolean;
+  permiteApartar: boolean;
+  /** Dónde entrega; null es todo el país */
+  zonas: ZonasEntrega;
   tiempoEntrega: string | null;
   politicaCambios: string | null;
 }) {
@@ -42,9 +46,15 @@ export function ComoComprar({
       fondo: "bg-rosa",
       giro: "rotate-2",
       titulo: direccionRetiro ? t.recibir.tituloConRetiro : t.recibir.titulo,
-      texto: [direccionRetiro ? t.recibir.textoConRetiro : t.recibir.texto, tiempoEntrega?.trim() ? `${tiempoEntrega.trim()}.` : null].filter(Boolean).join(" "),
+      texto: [
+        direccionRetiro ? t.recibir.textoConRetiro : t.recibir.texto,
+        zonas ? t.recibir.zonas(resumenZonas(zonas)) : null,
+        tiempoEntrega?.trim() ? `${tiempoEntrega.trim()}.` : null,
+      ]
+        .filter(Boolean)
+        .join(" "),
     },
-    ...(apartarActivo
+    ...(permiteApartar
       ? [
           {
             icono: "reloj" as const,

@@ -9,6 +9,7 @@ import { textos } from "@/lib/textos";
 import { agregarAlCarrito } from "../carrito";
 import { AvisameCuandoHaya } from "./AvisameCuandoHaya";
 import { tituloDe } from "../opciones";
+import { enlaceInstagram, enlaceWhatsApp, mensajePedirProducto } from "../enlaces";
 import { useFotosElegidas } from "./FotosPorVariante";
 
 const t = textos.vitrina.compra;
@@ -35,14 +36,19 @@ export function ZonaDeCompra({
   nombresOpciones,
   variantes,
   plazoHoras,
-  apartarActivo,
+  permiteComprar,
+  permiteApartar,
+  contacto,
 }: {
   slug: string;
   nombresOpciones: string[];
   variantes: VarianteCompra[];
   /** Cuánto tiempo se guarda un apartado sin pagar */
   plazoHoras: number;
-  apartarActivo: boolean;
+  permiteComprar: boolean;
+  permiteApartar: boolean;
+  /** Para el modo catálogo: a quién se le escribe y qué producto se nombra en el mensaje */
+  contacto: { tienda: string; producto: string; whatsapp: string | null; instagram: string | null };
 }) {
   const dims = variantes[0]?.partes.length ?? 0;
   const [elegido, setElegido] = useState<(string | null)[]>(() => Array(dims).fill(null));
@@ -97,7 +103,17 @@ export function ZonaDeCompra({
   const faltan = filas.filter((_, i) => elegido[i] === null).map((f) => f.titulo.toLowerCase());
 
   // Las dos pantallas llevan el código de la variante elegida y la cantidad
-  const listo = apartarActivo && !!seleccionada && hayStock;
+  // Con las dos cosas apagadas la tienda es un catálogo: no se pide nada acá, se le escribe
+  const pedidos = permiteComprar || permiteApartar;
+  const listo = pedidos && !!seleccionada && hayStock;
+  const elegida = seleccionada ?? variantes[0];
+  const mensaje = mensajePedirProducto(
+    contacto.tienda,
+    [contacto.producto, ...(seleccionada?.partes ?? [])].join(" · "),
+    elegida?.codigo ?? 0,
+    formatearDolares(precio),
+  );
+  const meInteresa = enlaceWhatsApp(contacto.whatsapp, mensaje) ?? enlaceInstagram(contacto.instagram);
   const clave = `${seleccionada?.codigo ?? 0}-${unidades}`;
   const aviso = resultado?.clave === clave ? resultado.valor : null;
   const pista = faltan.length ? t.elegirPrimero(faltan.join(" y ")) : t.stockElegi;
@@ -188,7 +204,7 @@ export function ZonaDeCompra({
         </div>
 
         {/* Apartar ya no es un botón más: es la salida tranquila para quien todavía no se decide */}
-        {apartarActivo && (
+        {permiteComprar && permiteApartar && (
           <p className="text-sm text-texto-2">
             {t.dudas}{" "}
             {listo ? (
@@ -201,9 +217,8 @@ export function ZonaDeCompra({
           </p>
         )}
 
-        {!apartarActivo ? (
-          <p className="text-texto-2">{textos.vitrina.apartarApagado}</p>
-        ) : seleccionada && !hayStock ? (
+        {!pedidos && <p className="text-texto-2">{t.catalogoAviso}</p>}
+        {seleccionada && !hayStock ? (
           <>
             <p role="status" className="rounded-2xl bg-limon px-4 py-3 font-medium">
               {textos.vitrina.noDisponible}
@@ -215,7 +230,28 @@ export function ZonaDeCompra({
       </div>
 
       {/* Siempre a mano abajo: comprar es lo principal, y el carrito acompaña para seguir mirando. Apartar vive en la tarjeta. */}
-      {apartarActivo && (
+      {/* Catálogo: la barra solo lleva "Me interesa", que abre el chat con el producto ya escrito */}
+      {!pedidos && meInteresa && (
+        <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl">
+          <div className="pointer-events-auto flex items-center gap-2 rounded-[28px] border-2 border-teal-oscuro bg-crema p-2 shadow-dura">
+            <div className="ml-3 mr-auto hidden min-w-0 flex-col leading-tight sm:flex">
+              <span className="truncate text-xs text-texto-2">{contacto.tienda}</span>
+              <span className="text-xl font-bold tabular-nums">{formatearDolares(precio)}</span>
+            </div>
+            <a
+              href={meInteresa}
+              target="_blank"
+              rel="noreferrer"
+              className={`${boton} flex-1 gap-2 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none sm:px-8`}
+            >
+              <Icon nombre="chat" className="size-5" />
+              {t.meInteresa}
+            </a>
+          </div>
+        </div>
+      )}
+
+      {pedidos && (
         <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl">
           {aviso && (
             <p
@@ -241,6 +277,7 @@ export function ZonaDeCompra({
                 <span className="truncate text-xs text-texto-2">{seleccionada ? textos.productos.quedan(seleccionada.disponibles) : t.stockElegi}</span>
                 <span className="text-xl font-bold tabular-nums">{formatearDolares(precio * (seleccionada ? unidades : 1))}</span>
               </div>
+              {permiteComprar && (
               <button
                 type="button"
                 disabled={!listo}
@@ -252,13 +289,15 @@ export function ZonaDeCompra({
                 <Icon nombre="carrito" className="size-5" />
                 <span className="hidden sm:ml-2 sm:inline">{textos.vitrina.carrito.agregarCorto}</span>
               </button>
+              )}
+              {/* Sin comprar, el botón principal es apartar */}
               {listo ? (
-                <Link href={`${base}/comprar?n=${unidades}`} className={`${boton} flex-1 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none sm:px-8`}>
-                  {t.modoComprar}
+                <Link href={`${base}/${permiteComprar ? "comprar" : "apartar"}?n=${unidades}`} className={`${boton} flex-1 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none sm:px-8`}>
+                  {permiteComprar ? t.modoComprar : t.modoApartar}
                 </Link>
               ) : (
                 <span aria-disabled="true" className={`${boton} flex-1 bg-accion text-accion-texto opacity-50 sm:flex-none sm:px-8`}>
-                  {t.modoComprar}
+                  {permiteComprar ? t.modoComprar : t.modoApartar}
                 </span>
               )}
             </div>

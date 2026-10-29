@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { aCentavos, type Centavos, type EstadoPedido } from "@/domain";
+import { leerZonas, type ZonasEntrega } from "@/lib/departamentos";
 import type { Database } from "@/lib/supabase/database.types";
 import type { TipoMetodo } from "@/features/payments/mensajeCobro";
 
@@ -12,7 +13,12 @@ export type NegocioPublico = {
   descripcion: string | null;
   whatsapp: string | null;
   usuarioInstagram: string | null;
+  /** Llave general: con ella apagada no se puede pedir nada (modo catálogo) */
   apartarDesdeVitrina: boolean;
+  permiteComprar: boolean;
+  permiteApartar: boolean;
+  /** Dónde entrega; null es todo el país */
+  zonasEntrega: ZonasEntrega;
   plazoHoras: number;
   /** "Sale en 24 h": lo que la tienda tarda en entregar. Vacío si no lo dijo. */
   tiempoEntrega: string | null;
@@ -23,11 +29,19 @@ export type NegocioPublico = {
 };
 
 export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Promise<NegocioPublico | null> {
-  const { data, error } = await supabase.rpc("vitrina_negocio", { p_slug: slug });
+  const [{ data, error }, reglas] = await Promise.all([
+    supabase.rpc("vitrina_negocio", { p_slug: slug }),
+    supabase.rpc("vitrina_reglas", { p_slug: slug }),
+  ]);
   if (error) throw error;
   const n = data[0];
   if (!n) return null;
+  // Sin modos_y_zonas.sql la función no existe: comprar y apartar siguen la llave general y se entrega en todo el país
+  const r = reglas.error ? undefined : reglas.data[0];
   return {
+    permiteComprar: r?.permite_comprar ?? n.apartar_desde_vitrina,
+    permiteApartar: r?.permite_apartar ?? n.apartar_desde_vitrina,
+    zonasEntrega: leerZonas(r?.zonas_entrega ?? null),
     nombre: n.nombre,
     logo: n.logo,
     color: n.color,
@@ -329,6 +343,9 @@ export type AjustesVitrina = {
   /** Cambios y devoluciones, en una frase */
   politicaCambios: string | null;
   apartarDesdeVitrina: boolean;
+  /** Comprar y apartar desde la vitrina, cada uno por su lado. Con los dos apagados queda en modo catálogo. */
+  permiteComprar: boolean;
+  permiteApartar: boolean;
   plazoHoras: number;
   limitePorContacto: number;
   umbralPocoStock: number;
@@ -351,6 +368,8 @@ export async function obtenerAjustesVitrina(supabase: Cliente, negocioId: string
   const { data: loc } = await supabase.from("negocio").select("tiene_local").eq("id", negocioId).maybeSingle();
   // Igual con lo que cuenta la tienda (falta correr ficha_producto.sql)
   const { data: info } = await supabase.from("negocio").select("tiempo_entrega, politica_cambios").eq("id", negocioId).maybeSingle();
+  // Y con los modos (falta correr modos_y_zonas.sql): siguen la llave general
+  const { data: modos } = await supabase.from("negocio").select("permite_comprar, permite_apartar").eq("id", negocioId).maybeSingle();
   return {
     slug: data.slug,
     vitrinaActiva: v?.vitrina_activa ?? true,
@@ -359,6 +378,8 @@ export async function obtenerAjustesVitrina(supabase: Cliente, negocioId: string
     politicaCambios: info?.politica_cambios ?? null,
     visibleEnExplorar: data.visible_en_explorar,
     apartarDesdeVitrina: data.apartar_desde_vitrina,
+    permiteComprar: data.apartar_desde_vitrina && (modos?.permite_comprar ?? true),
+    permiteApartar: data.apartar_desde_vitrina && (modos?.permite_apartar ?? true),
     plazoHoras: data.plazo_apartado_horas,
     limitePorContacto: data.limite_apartados_por_contacto,
     umbralPocoStock: data.umbral_poco_stock,
@@ -421,7 +442,11 @@ export async function guardarTienda(
   // Las columnas más nuevas (vitrina opcional, local, tiempo de entrega y cambios) existen solo después de correr su SQL.
   const nuevas = { vitrina_activa: a.vitrinaActiva, tiene_local: a.tieneLocal, tiempo_entrega: a.tiempoEntrega, politica_cambios: a.politicaCambios };
   const { error } = await supabase.from("negocio").update({ ...base, ...nuevas }).eq("id", negocioId);
-  if (!error) return "ok";
+  if (!error) {
+    // Aparte: si todavía no se corrió modos_y_zonas.sql, lo demás se guarda igual
+    await supabase.from("negocio").update({ permite_comprar: a.permiteComprar, permite_apartar: a.permiteApartar }).eq("id", negocioId);
+    return "ok";
+  }
   // La dirección ya la usa otra tienda
   if (error.code === "23505") return "slug_repetido";
   // Si falta alguna columna nueva, se guarda todo lo demás en vez de perder el cambio entero.

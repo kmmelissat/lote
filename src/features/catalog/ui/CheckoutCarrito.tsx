@@ -8,11 +8,12 @@ import { lineasComprables } from "../lineasCarrito";
 import type { OpcionesDeCompra } from "../repositorio";
 import { CompraForm } from "./CompraForm";
 import { DosColumnas, ResumenPedido } from "./MarcoCompra";
+import type { ZonasEntrega } from "@/lib/departamentos";
 
 const t = textos.vitrina.carrito;
 
 /** Comprar el carrito: los productos a la vista y los tres pasos de siempre. Se vuelve a revisar el stock antes de empezar. */
-export function CheckoutCarrito({ slug, opciones }: { slug: string; opciones: OpcionesDeCompra }) {
+export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opciones: OpcionesDeCompra; zonas: ZonasEntrega }) {
   const { lineas, estado } = useCarritoConDatos(slug);
   const comprables = lineasComprables(lineas);
 
@@ -59,6 +60,7 @@ export function CheckoutCarrito({ slug, opciones }: { slug: string; opciones: Op
           lineas={comprables.map((l) => ({ codigo: l.codigo, cantidad: l.cantidad, precio: l.precio }))}
           carrito
           opciones={opciones}
+          zonas={zonas}
           volverHref={`/c/${slug}/carrito`}
         />
       </DosColumnas>

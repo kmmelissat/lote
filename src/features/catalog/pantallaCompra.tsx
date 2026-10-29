@@ -14,6 +14,7 @@ export async function cargarCompra(
   slug: string,
   codigoTexto: string,
   cantidadTexto: string | undefined,
+  que: "comprar" | "apartar",
 ): Promise<{ negocio: NegocioPublico; producto: ProductoPublico; unidades: number }> {
   const codigo = Number(codigoTexto);
   if (!Number.isInteger(codigo)) notFound();
@@ -24,7 +25,8 @@ export async function cargarCompra(
   // Si ya no se puede (la tienda lo apagó, se agotó o la cantidad no alcanza), se vuelve al producto a elegir de nuevo.
   const pedidas = Number(cantidadTexto ?? "1");
   const unidades = Number.isInteger(pedidas) && pedidas >= 1 ? pedidas : 1;
-  if (!negocio.apartarDesdeVitrina || producto.disponibles < unidades) redirect(`/c/${slug}/${codigo}`);
+  const permitido = que === "comprar" ? negocio.permiteComprar : negocio.permiteApartar;
+  if (!permitido || producto.disponibles < unidades) redirect(`/c/${slug}/${codigo}`);
   return { negocio, producto, unidades };
 }
 

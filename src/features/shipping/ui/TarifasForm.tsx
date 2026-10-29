@@ -9,6 +9,7 @@ import type { Tarifas } from "../repositorio";
 import { DEPARTAMENTOS } from "@/lib/departamentos";
 import { textos } from "@/lib/textos";
 import { guardarTarifasDeEnvio, type EstadoTarifas } from "../actions/tarifas";
+import { ZonasEntregaInput } from "./ZonasEntregaInput";
 
 const t = textos.ajustes.envios;
 
@@ -22,6 +23,9 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
         <p className="text-sm text-texto-2">{t.retiroAyuda}</p>
       </div>
 
+      <ZonasEntregaInput inicial={tarifas.zonas} />
+
+      <h2 className="-mb-2 font-bold">{t.tarifasTitulo}</h2>
       <div className="flex flex-col gap-1">
         <Field etiqueta={t.defecto} name="defecto" inputMode="decimal" defaultValue={dolaresTexto(tarifas.defecto)} />
         <p className="text-sm text-texto-2">{t.defectoAyuda}</p>

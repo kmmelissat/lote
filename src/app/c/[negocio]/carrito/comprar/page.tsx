@@ -24,14 +24,14 @@ async function ComprarCarrito({ params }: Props) {
   const supabase = createPublicClient();
   const negocio = await obtenerNegocioPublico(supabase, slug);
   if (!negocio) notFound();
-  if (!negocio.apartarDesdeVitrina) redirect(`/c/${slug}`);
+  if (!negocio.permiteComprar) redirect(`/c/${slug}`);
   const opciones = await obtenerOpcionesDeCompra(supabase, slug);
 
   return (
     <MarcaTienda color={negocio.color}>
       <div className="mx-auto flex max-w-4xl flex-col gap-6">
         <EncabezadoCompra volverHref={`/c/${slug}/carrito`} volverTexto={t.volver} tienda={negocio.nombre} titulo={t.compraTitulo} ayuda={t.compraAyuda} />
-        <CheckoutCarrito slug={slug} opciones={opciones} />
+        <CheckoutCarrito slug={slug} opciones={opciones} zonas={negocio.zonasEntrega} />
       </div>
     </MarcaTienda>
   );

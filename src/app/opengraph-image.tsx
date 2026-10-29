@@ -1,59 +1,55 @@
-import { ImageResponse } from "next/og";
+import { COLOR, gorilaOg, imagenOg, LogoOg, TAMANO_OG } from "@/lib/og";
 import { textos } from "@/lib/textos";
 
 export const alt = textos.landing.titulo;
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const size = TAMANO_OG;
+export const contentType = "image/jpeg";
 
-// La imagen que se ve al compartir el enlace: crema, borde y sombra duros, y el título de la landing.
-export default function Imagen() {
+// La imagen que se ve al compartir el enlace: crema, borde y sombra duros, el logo sticker y el título de la landing.
+export default async function Imagen() {
   const t = textos.landing.hero;
-  return new ImageResponse(
-    (
-      <div style={{ display: "flex", width: "100%", height: "100%", background: "#fff7e8", padding: 48 }}>
+  const gorila = await gorilaOg();
+  return imagenOg(
+    <div style={{ display: "flex", width: "100%", height: "100%", background: COLOR.crema, padding: 48, fontFamily: "Jakarta" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          width: "100%",
+          height: "100%",
+          background: COLOR.blanco,
+          border: `6px solid ${COLOR.tealOscuro}`,
+          borderRadius: 40,
+          boxShadow: `14px 14px 0 0 ${COLOR.tealOscuro}`,
+          padding: 56,
+        }}
+      >
+        <LogoOg gorila={gorila} escala={1.3} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", fontSize: 84, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, color: COLOR.tealOscuro }}>
+            <span style={{ marginRight: 20 }}>{t.tituloInicio}</span>
+            <span style={{ backgroundImage: `linear-gradient(transparent 58%, ${COLOR.limon} 58%)` }}>{t.tituloMarca}</span>
+          </div>
+          <div style={{ fontSize: 32, color: COLOR.texto2 }}>{t.etiqueta}</div>
+        </div>
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            width: "100%",
-            height: "100%",
-            background: "#ffffff",
-            border: "6px solid #003844",
-            borderRadius: 40,
-            boxShadow: "14px 14px 0 0 #003844",
-            padding: 56,
+            alignSelf: "flex-start",
+            background: COLOR.mango,
+            border: `4px solid ${COLOR.tealOscuro}`,
+            borderRadius: 999,
+            boxShadow: `5px 5px 0 0 ${COLOR.tealOscuro}`,
+            padding: "10px 32px",
+            fontSize: 30,
+            fontWeight: 700,
+            color: COLOR.tealOscuro,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ display: "flex", width: 56, height: 56, borderRadius: 28, background: "#f194b4", border: "4px solid #003844" }} />
-            <div style={{ fontSize: 44, fontWeight: 700, color: "#003844" }}>{textos.nombre}</div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ display: "flex", flexWrap: "wrap", fontSize: 86, fontWeight: 700, lineHeight: 1.05, color: "#003844" }}>
-              <span style={{ marginRight: 20 }}>{t.tituloInicio}</span>
-              <span style={{ background: "#ffe27a", padding: "0 12px" }}>{t.tituloMarca}</span>
-            </div>
-            <div style={{ fontSize: 32, color: "#4a6b73" }}>{t.etiqueta}</div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignSelf: "flex-start",
-              background: "#ff9a2e",
-              border: "4px solid #003844",
-              borderRadius: 999,
-              padding: "10px 32px",
-              fontSize: 30,
-              fontWeight: 700,
-              color: "#003844",
-            }}
-          >
-            {t.nota}
-          </div>
+          {t.nota}
         </div>
       </div>
-    ),
-    size,
+    </div>,
   );
 }

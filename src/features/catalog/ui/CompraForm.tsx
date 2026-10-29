@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
-import { DEPARTAMENTOS } from "@/lib/departamentos";
+import { DEPARTAMENTOS, entregaEn, esDepartamento, MUNICIPIOS, type ZonasEntrega } from "@/lib/departamentos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { comprarCarrito, comprarProducto, type EstadoApartar } from "../actions/apartar";
@@ -67,6 +67,7 @@ export function CompraForm({
   lineas,
   carrito = false,
   opciones,
+  zonas,
   volverHref,
 }: {
   slug: string;
@@ -75,6 +76,8 @@ export function CompraForm({
   /** Compra del carrito: un solo pedido con todas las líneas */
   carrito?: boolean;
   opciones: OpcionesDeCompra;
+  /** Dónde entrega la tienda; null es todo el país. Fuera de zona se puede pedir igual, con un aviso. */
+  zonas: ZonasEntrega;
   /** A dónde lleva "Volver" en el primer paso: la página del producto */
   volverHref: string;
 }) {
@@ -85,6 +88,8 @@ export function CompraForm({
   const puedeRecoger = opciones.direccionRetiro !== null;
   const [entrega, setEntrega] = useState<Entrega>(puedeRecoger ? "retiro" : "envio");
   const [departamento, setDepartamento] = useState("");
+  const [municipio, setMunicipio] = useState("");
+  const cobertura = departamento ? entregaEn(zonas, departamento, municipio) : "si";
   // Si intenta seguir sin elegir el departamento, la lista se abre sola y avisa
   const [faltaDepartamento, setFaltaDepartamento] = useState(false);
   const [intentos, setIntentos] = useState(0);
@@ -211,18 +216,43 @@ export function CompraForm({
                     valor={departamento}
                     alCambiar={(d) => {
                       setDepartamento(d);
+                      setMunicipio("");
                       setFaltaDepartamento(false);
                     }}
-                    opciones={DEPARTAMENTOS.map((d) => ({ valor: d, etiqueta: d, detalle: costoDe(d) === 0 ? t.envioGratis : formatearDolares(costoDe(d)) }))}
+                    opciones={DEPARTAMENTOS.map((d) => ({
+                      valor: d,
+                      etiqueta: d,
+                      detalle: entregaEn(zonas, d) === "no" ? t.sinEntrega : costoDe(d) === 0 ? t.envioGratis : formatearDolares(costoDe(d)),
+                    }))}
                     placeholder={t.elegirDepartamento}
                     error={faltaDepartamento ? t.elegirDepartamento : undefined}
                     abrirAlFallar={intentos}
                   />
                 </div>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-sm font-bold">{t.municipio}</span>
-                  <input name="municipio" autoComplete="address-level2" className={campoCompra} />
-                </label>
+                {esDepartamento(departamento) && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-sm font-bold">{t.municipio}</span>
+                    <ListaDesplegable
+                      key={departamento}
+                      name="municipio"
+                      variante="campo"
+                      valor={municipio}
+                      alCambiar={setMunicipio}
+                      opciones={MUNICIPIOS[departamento].map((m) => ({
+                        valor: m,
+                        etiqueta: m,
+                        detalle: entregaEn(zonas, departamento, m) === "no" ? t.sinEntrega : undefined,
+                      }))}
+                      placeholder={t.elegirMunicipio}
+                    />
+                  </div>
+                )}
+                {cobertura === "no" && (
+                  <p role="status" className="flex items-start gap-2 rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+                    <Icon nombre="alerta" className="mt-0.5 size-4 shrink-0" />
+                    {t.fueraDeZona}
+                  </p>
+                )}
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-bold">{t.direccion}</span>
                   <input name="direccion" required autoComplete="street-address" placeholder={t.direccionPlaceholder} className={campoCompra} />

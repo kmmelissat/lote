@@ -3,7 +3,14 @@
 import { redirect } from "next/navigation";
 import { contactoDe, huellaDelDispositivo } from "../dispositivo";
 import { apartarSchema, camposDe, comprarCarritoSchema, comprarSchema, leerFormulario } from "../formularios";
-import { apartarDesdeVitrina, comprarCarritoDesdeVitrina, comprarDesdeVitrina, type ErrorApartar } from "../repositorio";
+import {
+  apartarDesdeVitrina,
+  comprarCarritoDesdeVitrina,
+  comprarDesdeVitrina,
+  obtenerNegocioPublico,
+  type ErrorApartar,
+} from "../repositorio";
+import { createPublicClient } from "@/lib/supabase/publico";
 import { createServiceClient } from "@/lib/supabase/servicio";
 import { textos } from "@/lib/textos";
 
@@ -32,6 +39,15 @@ const TEXTO_ERROR: Record<ErrorApartar, string> = {
 // Un campo escondido que una persona no ve: si viene con algo, es un robot y no se crea nada
 const esRobot = (formData: FormData) => String(formData.get("sitio_web") ?? "").trim() !== "";
 
+/**
+ * Si la tienda deja hacer eso desde la vitrina. La base solo conoce la llave general (comprar o apartar);
+ * cuál de las dos está prendida se revisa acá.
+ */
+async function permite(slug: string, que: "comprar" | "apartar"): Promise<boolean> {
+  const negocio = await obtenerNegocioPublico(createPublicClient(), slug);
+  return !!negocio && (que === "comprar" ? negocio.permiteComprar : negocio.permiteApartar);
+}
+
 /** Los campos del formulario, con el WhatsApp ya armado (+503 y el número). */
 const camposDelFormulario = (formData: FormData): Record<string, string> => ({ ...camposDe(formData), contacto: contactoDe(formData) });
 
@@ -47,6 +63,7 @@ export async function apartarProducto(
 
   const r = leerFormulario(apartarSchema, campos);
   if (!r.ok) return { error: r.error, errores: r.errores, valores };
+  if (!(await permite(slug, "apartar"))) return { error: t.errorApagado, valores };
 
   const resultado = await apartarDesdeVitrina(createServiceClient(), {
     slug,
@@ -75,6 +92,7 @@ export async function comprarProducto(
 
   const r = leerFormulario(comprarSchema, campos);
   if (!r.ok) return { error: r.error, errores: r.errores, valores };
+  if (!(await permite(slug, "comprar"))) return { error: t.errorApagado, valores };
   const d = r.datos;
 
   const resultado = await comprarDesdeVitrina(createServiceClient(), {
@@ -102,6 +120,7 @@ export async function comprarCarrito(slug: string, _anterior: EstadoApartar, for
 
   const r = leerFormulario(comprarCarritoSchema, campos);
   if (!r.ok) return { error: r.error, errores: r.errores, valores };
+  if (!(await permite(slug, "comprar"))) return { error: t.errorApagado, valores };
   const d = r.datos;
 
   const resultado = await comprarCarritoDesdeVitrina(createServiceClient(), {

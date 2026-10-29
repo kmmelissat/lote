@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { leerDolares } from "@/domain/index";
 import { guardarTarifas } from "../repositorio";
-import { DEPARTAMENTOS } from "@/lib/departamentos";
+import { DEPARTAMENTOS, leerZonas } from "@/lib/departamentos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -31,10 +31,21 @@ export async function guardarTarifasDeEnvio(
   const retiro = String(formData.get("retiro") ?? "").trim();
   if (retiro.length > 200) return { error: t.errorRetiro };
 
+  // Las zonas viajan como JSON; "todo el país" es null. Solo se guardan departamentos y municipios reales.
+  let zonas = null;
+  if (formData.get("todo_el_pais") !== "on") {
+    try {
+      zonas = leerZonas(JSON.parse(String(formData.get("zonas") ?? "{}")));
+    } catch {
+      return { error: t.errorGeneral };
+    }
+    if (!zonas || !Object.keys(zonas).length) return { error: t.zonas.errorVacias };
+  }
+
   // Solo la dueña puede guardar: lo exige la política de la base (es_duena).
   const { supabase, negocio } = await negocioActual();
   if (negocio.rol !== "duena") return { error: t.soloDuena };
-  if (!(await guardarTarifas(supabase, negocio.id, { defecto, porDepartamento, retiro: retiro || null }))) {
+  if (!(await guardarTarifas(supabase, negocio.id, { defecto, porDepartamento, retiro: retiro || null, zonas }))) {
     return { error: t.errorGeneral };
   }
 

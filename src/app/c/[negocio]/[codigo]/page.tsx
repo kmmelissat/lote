@@ -20,7 +20,7 @@ import {
 } from "@/features/catalog/repositorio";
 import { nombreBase } from "@/domain";
 import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
-import { dolaresTexto, formatearDolares } from "@/lib/formato";
+import { formatearDolares } from "@/lib/formato";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
@@ -30,6 +30,7 @@ import { LogoTienda } from "@/features/catalog/ui/MarcaTienda";
 import { ProductosRelacionados } from "@/features/catalog/ui/ProductosRelacionados";
 import { partesDe } from "@/features/catalog/opciones";
 import { ProveedorFotos } from "@/features/catalog/ui/FotosPorVariante";
+import { codigoCanonico, ofertaDe } from "@/features/catalog/seo";
 import {
   ZonaDeCompra,
   type VarianteCompra,
@@ -46,11 +47,14 @@ export async function generateMetadata({
   if (!Number.isInteger(codigo))
     return { title: t.titulo, robots: { index: false } };
   const supabase = createPublicClient();
-  const [negocio, p] = await Promise.all([
+  const [negocio, p, todos] = await Promise.all([
     obtenerNegocioPublico(supabase, slug),
     obtenerProductoPublico(supabase, slug, codigo),
+    listarProductosPublicos(supabase, slug),
   ]);
   if (!negocio || !p) return { title: t.titulo, robots: { index: false } };
+  // Las variantes son casi la misma página: todas le dicen al buscador que la buena es la de menor código
+  const canonica = `/c/${slug}/${codigoCanonico(p, todos)}`;
   const titulo = `${nombreBase(p.nombre, p.variante)} · ${negocio.nombre}`;
   const descripcion =
     p.descripcion?.trim() ||
@@ -59,20 +63,18 @@ export async function generateMetadata({
       formatearDolares(p.precio),
       negocio.nombre,
     );
-  const imagenes = p.fotos.slice(0, 3).map((f) => ({ url: urlFoto(f) }));
   return {
     title: { absolute: titulo },
     description: descripcion,
-    alternates: { canonical: `/c/${slug}/${codigo}` },
+    alternates: { canonical: canonica },
     openGraph: {
       title: titulo,
       description: descripcion,
-      url: `/c/${slug}/${codigo}`,
+      url: canonica,
       type: "website",
-      images: imagenes,
     },
     twitter: {
-      card: imagenes.length ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: titulo,
       description: descripcion,
     },
@@ -128,9 +130,6 @@ async function Producto({
         },
       ];
 
-  const disponible = hermanas.length
-    ? hermanas.some((o) => o.disponibles > 0)
-    : p.disponibles > 0;
   const [opcionesDeCompra, resenas] = await Promise.all([
     obtenerOpcionesDeCompra(supabase, slug),
     obtenerResenas(supabase, slug, p.codigo),
@@ -158,6 +157,8 @@ async function Producto({
   const masDe = otros.filter((o) => !parecidos.includes(o)).slice(0, 4);
 
   const base = nombreBase(p.nombre, p.variante);
+  // La dirección que se le da al buscador: la de la variante principal del grupo
+  const url = `${urlSitio}/c/${slug}/${codigoCanonico(p, todos)}`;
   const meta = [
     p.categoria,
     p.marca,
@@ -184,16 +185,34 @@ async function Producto({
             p.condicion === "usado"
               ? "https://schema.org/UsedCondition"
               : "https://schema.org/NewCondition",
-          offers: {
-            "@type": "Offer",
-            url: `${urlSitio}/c/${slug}/${p.codigo}`,
-            price: dolaresTexto(p.precio),
-            priceCurrency: "USD",
-            availability: disponible
-              ? "https://schema.org/InStock"
-              : "https://schema.org/OutOfStock",
-            seller: { "@type": "Organization", name: negocio.nombre },
-          },
+          offers: ofertaDe(familia, url, negocio.nombre),
+          ...(resenas.total > 0
+            ? {
+                aggregateRating: {
+                  "@type": "AggregateRating",
+                  ratingValue: resenas.promedio.toFixed(1),
+                  reviewCount: resenas.total,
+                },
+                review: resenas.resenas.slice(0, 5).map((r) => ({
+                  "@type": "Review",
+                  author: { "@type": "Person", name: r.nombre },
+                  reviewRating: { "@type": "Rating", ratingValue: r.estrellas, bestRating: 5 },
+                  reviewBody: r.texto ?? undefined,
+                  datePublished: r.creadoEn.toISOString().slice(0, 10),
+                })),
+              }
+            : {}),
+        }}
+      />
+      {/* Las migas: así Google muestra "Tienda › Producto" en vez de la dirección */}
+      <JsonLd
+        datos={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: negocio.nombre, item: `${urlSitio}/c/${slug}` },
+            { "@type": "ListItem", position: 2, name: base, item: url },
+          ],
         }}
       />
       <div className="flex flex-col gap-8">
@@ -257,7 +276,9 @@ async function Producto({
                 nombresOpciones={p.opciones}
                 variantes={variantes}
                 plazoHoras={negocio.plazoHoras}
-                apartarActivo={negocio.apartarDesdeVitrina}
+                permiteComprar={negocio.permiteComprar}
+                permiteApartar={negocio.permiteApartar}
+                contacto={{ tienda: negocio.nombre, producto: base, whatsapp: negocio.whatsapp, instagram: negocio.usuarioInstagram }}
               />
 
               <ResumenEnvio
@@ -284,7 +305,8 @@ async function Producto({
           metodos={opcionesDeCompra.metodos}
           direccionRetiro={opcionesDeCompra.direccionRetiro}
           plazoHoras={negocio.plazoHoras}
-          apartarActivo={negocio.apartarDesdeVitrina}
+          permiteApartar={negocio.permiteApartar}
+          zonas={negocio.zonasEntrega}
           tiempoEntrega={negocio.tiempoEntrega}
           politicaCambios={negocio.politicaCambios}
         />

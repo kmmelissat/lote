@@ -124,7 +124,8 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
   const [local, setLocal] = useState(ajustes.tieneLocal);
   // La dirección de la vitrina: nace del nombre al crear la tienda y después no cambia sola, así que se puede editar acá
   const [direccion, setDireccion] = useState(identidad.slug);
-  const [apartar, setApartar] = useState(ajustes.apartarDesdeVitrina);
+  const [comprar, setComprar] = useState(ajustes.permiteComprar);
+  const [apartar, setApartar] = useState(ajustes.permiteApartar);
   const [explorar, setExplorar] = useState(ajustes.visibleEnExplorar);
   const [subiendo, setSubiendo] = useState(false);
   const [errorLogo, setErrorLogo] = useState<string>();
@@ -297,7 +298,13 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
         </Grupo>
 
         <Grupo icono="pedidos" className={vitrina ? "" : "hidden"} titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto}>
+          <Interruptor name="comprar" titulo={v.comprar} ayuda={v.comprarAyuda} activo={comprar} onCambio={setComprar} />
           <Interruptor name="apartar" titulo={v.apartar} ayuda={v.apartarAyuda} activo={apartar} onCambio={setApartar} />
+          {!comprar && !apartar && (
+            <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+              {v.modoCatalogo}
+            </p>
+          )}
           {/* Los dos campos siguen en el formulario aunque esté apagado, para no perder lo ya escrito */}
           <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${apartar ? "" : "opacity-60"}`}>
             <div className="flex flex-col gap-1">
