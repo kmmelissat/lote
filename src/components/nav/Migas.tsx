@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
-const PANEL = new Set(["inicio", "productos", "pedidos", "clientes", "ganancia", "ajustes", "asistente", "mostrador", "probar-menu"]);
+const PANEL = new Set(["inicio", "productos", "pedidos", "clientes", "ganancia", "ajustes", "asistente", "mostrador"]);
 const SALTAR = new Set(["c", "p"]);
 const SIN_MIGAS = new Set(["login", "crear-negocio", "auth", "landing-mas"]);
 
@@ -50,10 +50,10 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
   return { casa, items };
 }
 
-function Pastilla({ children, actual, href }: { children: ReactNode; actual: boolean; href?: string }) {
+function Pastilla({ children, actual, href, panel }: { children: ReactNode; actual: boolean; href?: string; panel?: boolean }) {
   const clase = actual
-    ? "inline-flex max-w-full items-center gap-1 truncate rounded-full bg-limon px-2.5 py-0.5 text-xs font-extrabold text-teal-oscuro"
-    : "inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-bold text-texto-2 hover:bg-crema hover:text-teal-oscuro";
+    ? `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-extrabold text-teal-oscuro ${panel ? "bg-teal-fondo" : "bg-limon"}`
+    : `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-bold text-texto-2 ${panel ? "hover:bg-teal-fondo hover:text-teal-oscuro" : "hover:bg-crema hover:text-teal-oscuro"}`;
   if (actual || !href) {
     return (
       <span aria-current={actual ? "page" : undefined} className={clase}>
@@ -74,12 +74,13 @@ export function Migas({ className = "mb-3" }: { className?: string }) {
   if (!ruta) return null;
   const { casa, items } = ruta;
   const casaActual = items.length === 0;
+  const panel = casa.href === "/inicio";
 
   return (
     <nav aria-label={textos.nav.migas} className={className}>
       <ol className="flex flex-wrap items-center gap-0.5">
         <li>
-          <Pastilla actual={casaActual} href={casa.href}>
+          <Pastilla actual={casaActual} href={casa.href} panel={panel}>
             <Icon nombre={casa.icono} className="size-3.5 shrink-0" />
             {casa.etiqueta}
           </Pastilla>
@@ -92,7 +93,7 @@ export function Migas({ className = "mb-3" }: { className?: string }) {
                 /
               </li>
               <li className="min-w-0">
-                <Pastilla actual={actual} href={miga.href}>
+                <Pastilla actual={actual} href={miga.href} panel={panel}>
                   {miga.etiqueta}
                 </Pastilla>
               </li>

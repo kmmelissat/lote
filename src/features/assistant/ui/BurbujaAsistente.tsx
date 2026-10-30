@@ -102,7 +102,7 @@ function Burbuja({ negocioId }: { negocioId: string }) {
         onClick={() => setAbierto((a) => !a)}
         aria-expanded={abierto}
         aria-label={t.flotante.abrir}
-        className={`group fixed bottom-[7rem] right-4 z-30 flex h-14 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-limon pl-5 pr-6 text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none md:bottom-6 md:right-6 ${abierto ? "hidden" : ""}`}
+        className={`group fixed bottom-[7rem] right-4 z-30 flex h-14 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-celeste pl-5 pr-6 text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none md:bottom-6 md:right-6 ${abierto ? "hidden" : ""}`}
       >
         {/* El monito se asoma por arriba de la cápsula y se estira un poco al pasar el mouse */}
         <Monito

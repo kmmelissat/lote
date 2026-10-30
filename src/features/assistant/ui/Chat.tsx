@@ -153,7 +153,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
     >
       {!compacto && (
         <header
-          className={`flex shrink-0 items-center gap-3 border-b-2 border-teal-oscuro bg-limon px-4 py-3 md:px-6 md:py-4 ${vacio ? "md:hidden" : ""}`}
+          className={`flex shrink-0 items-center gap-3 border-b-2 border-teal-oscuro bg-celeste-palido px-4 py-3 md:px-6 md:py-4 ${vacio ? "md:hidden" : ""}`}
         >
           <AvatarLotito className="size-11 md:size-12" enLinea />
           <div className="min-w-0 flex-1">

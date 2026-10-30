@@ -2,23 +2,30 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
+import { TARJETA } from "@/components/ui/tarjeta";
 import type { GananciaProducto, ResumenPeriodo } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { GraficoRanking } from "./GraficoRanking";
 
 const t = textos.ganancia;
 
 type ClaveEtiqueta = keyof typeof t.periodoTexto;
 
-/** El número que más importa: lo que te quedó, con su comparación y la marca de "incompleta" si faltan costos. */
+const enlaceSecundario =
+  "inline-flex h-10 max-md:min-h-11 items-center text-sm font-bold text-teal underline underline-offset-4 hover:text-teal-oscuro";
+
+/** El número que más importa: lo que te quedó, con su comparación y cuatro datos para leerlo. */
 export function TarjetaPrincipal({
   r,
   anterior,
   clave,
+  notas,
 }: {
   r: ResumenPeriodo;
   anterior: ResumenPeriodo;
   clave: ClaveEtiqueta;
+  notas: string[];
 }) {
   const antes = t.anteriorTexto[clave];
   let comparacion: string;
@@ -28,31 +35,40 @@ export function TarjetaPrincipal({
     comparacion = pct > 0 ? t.comparacion.mas(pct, antes) : pct < 0 ? t.comparacion.menos(Math.abs(pct), antes) : t.comparacion.igual(antes);
   }
   return (
-    <section
-      aria-labelledby="ganancia-principal"
-      className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-limon p-5 text-teal-oscuro shadow-dura"
-    >
-      <h2 id="ganancia-principal" className="font-medium">
-        {t.principal}
-      </h2>
-      <p className="text-5xl font-bold tabular-nums">{formatearDolares(r.gananciaDespuesDeGastos)}</p>
-      <div className="flex flex-wrap items-center gap-2 text-sm">
-        {r.estimada && (
-          <span className="inline-flex items-center gap-1 rounded-full border-2 border-teal-oscuro bg-white px-3 py-0.5 font-bold">
-            <Icon nombre="alerta" className="size-4" />
-            {t.incompleta}
-          </span>
-        )}
-        <span className="rounded-full bg-white/70 px-3 py-0.5 font-medium">{comparacion}</span>
+    <section aria-labelledby="ganancia-principal" className={`${TARJETA} flex flex-col gap-4 bg-limon`}>
+      <div className="flex flex-col gap-2">
+        <h2 id="ganancia-principal" className="font-medium text-texto-2">
+          {t.principal}
+        </h2>
+        <p className="text-5xl font-bold tabular-nums">{formatearDolares(r.gananciaDespuesDeGastos)}</p>
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          {r.estimada && (
+            <span className="inline-flex items-center gap-1 rounded-full border-2 border-teal-oscuro bg-white px-3 py-0.5 font-bold">
+              <Icon nombre="alerta" className="size-4" />
+              {t.incompleta}
+            </span>
+          )}
+          <span className="font-medium text-texto-2">{comparacion}</span>
+        </div>
       </div>
-      <dl aria-label={t.datos} className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <dl aria-label={t.datos} className="grid grid-cols-2 gap-x-4 gap-y-3 border-t-2 border-teal-oscuro/15 pt-4 sm:grid-cols-4">
         {datosRapidos(r).map((d) => (
-          <div key={d.etiqueta} className="flex flex-col rounded-2xl border-2 border-teal-oscuro/15 bg-white/70 px-3 py-2">
-            <dt className="text-xs font-medium text-teal-oscuro/70">{d.etiqueta}</dt>
+          <div key={d.etiqueta}>
+            <dt className="text-sm text-texto-2">{d.etiqueta}</dt>
             <dd className="text-lg font-bold tabular-nums">{d.valor}</dd>
           </div>
         ))}
       </dl>
+      {notas.length > 0 && (
+        <div className="flex items-start gap-3 border-t-2 border-teal-oscuro/15 pt-4">
+          <Monito nombre="thumbsup" className="mt-0.5 w-10 shrink-0 text-rosa" />
+          <ul className="flex flex-col gap-1 text-sm">
+            {notas.map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
@@ -80,7 +96,7 @@ export function Cascada({ r }: { r: ResumenPeriodo }) {
   ];
   const tope = Math.max(r.vendido, 1);
   return (
-    <section aria-labelledby="cascada" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5">
+    <section aria-labelledby="cascada" className={`${TARJETA} flex flex-col gap-3 bg-superficie`}>
       <h2 id="cascada" className="font-bold">
         {c.titulo}
       </h2>
@@ -111,8 +127,8 @@ export function Cascada({ r }: { r: ResumenPeriodo }) {
 export function AvisoSinCosto({ n }: { n: number }) {
   if (!n) return null;
   return (
-    <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-teal-oscuro bg-perla px-4 py-3">
-      <p className="flex items-center gap-2 font-medium text-ambar-texto">
+    <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-teal-oscuro bg-rosa px-4 py-3">
+      <p className="flex items-center gap-2 font-medium text-teal-oscuro">
         <Icon nombre="alerta" className="size-5 shrink-0" />
         {t.sinCostoAviso(n)}
       </p>
@@ -126,20 +142,20 @@ export function AvisoSinCosto({ n }: { n: number }) {
 /** Lo que esperan los pedidos abiertos: el dinero por cobrar y la ganancia que traen cuando se cobren. */
 export function TarjetaPorCobrar({ porCobrar, gananciaPorEntrar, estimada }: { porCobrar: number; gananciaPorEntrar: number; estimada: boolean }) {
   return (
-    <section aria-labelledby="por-cobrar" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura-chica">
-      <h2 id="por-cobrar" className="font-bold">
+    <section aria-labelledby="por-cobrar" className={`${TARJETA} flex flex-col gap-2 bg-superficie`}>
+      <h2 id="por-cobrar" className="text-sm font-medium text-texto-2">
         {t.porEntrarTitulo}
       </h2>
       {porCobrar > 0 ? (
         <>
-          <p className="text-3xl font-bold tabular-nums">{formatearDolares(porCobrar)}</p>
+          <p className="text-2xl font-bold tabular-nums">{formatearDolares(porCobrar)}</p>
           <p className="text-sm text-texto-2">
             {t.porEntrarGanancia(`+${formatearDolares(Math.max(gananciaPorEntrar, 0))}`)}
             {estimada && t.porEntrarIncompleta}
           </p>
-          <ButtonLink href="/pedidos?estado=pendiente" variante="mango" className="h-10 max-md:min-h-11 self-start px-5 text-sm">
+          <Link href="/pedidos?estado=pendiente" className={enlaceSecundario}>
             {t.verPendientes}
-          </ButtonLink>
+          </Link>
         </>
       ) : (
         <p className="text-texto-2">{t.porEntrarNada}</p>
@@ -150,120 +166,42 @@ export function TarjetaPorCobrar({ porCobrar, gananciaPorEntrar, estimada }: { p
 
 export function TarjetaInventario({ valor, sinCosto }: { valor: number; sinCosto: number }) {
   return (
-    <section aria-labelledby="inventario" className="flex flex-col gap-2 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5">
-      <h2 id="inventario" className="font-bold">
+    <section aria-labelledby="inventario" className={`${TARJETA} flex flex-col gap-2 bg-superficie`}>
+      <h2 id="inventario" className="text-sm font-medium text-texto-2">
         {t.inventarioTitulo}
       </h2>
-      <p className="text-3xl font-bold tabular-nums">{formatearDolares(valor)}</p>
+      <p className="text-2xl font-bold tabular-nums">{formatearDolares(valor)}</p>
       <p className="text-sm text-texto-2">{t.inventarioAyuda}</p>
       {sinCosto > 0 && <p className="text-sm text-ambar-texto">{t.inventarioSinCosto(sinCosto)}</p>}
     </section>
   );
 }
 
-/** Lotito cuenta la semana en pocas frases, con los mismos números de la pantalla. */
-export function CajaLotito({ frases }: { frases: string[] }) {
-  if (!frases.length) return null;
+/** Lo que más dejó, en barras: se compara de un vistazo. */
+export function Ranking({ ranking }: { ranking: GananciaProducto[] }) {
+  if (!ranking.length) return null;
   return (
-    <section aria-labelledby="lotito-resume" className="relative flex flex-col justify-center gap-2 rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-5 pr-24">
-      <Monito nombre="thumbsup" className="absolute -top-6 right-5 w-16 text-rosa" />
-      <h2 id="lotito-resume" className="font-bold">
-        {t.lotitoTitulo}
+    <section aria-labelledby="ranking" className={`${TARJETA} flex flex-col gap-3 bg-superficie`}>
+      <h2 id="ranking" className="font-bold">
+        {t.ranking}
       </h2>
-      <ul className="flex flex-col gap-1">
-        {frases.map((f) => (
-          <li key={f}>{f}</li>
-        ))}
-      </ul>
+      <GraficoRanking productos={ranking.slice(0, 5)} />
     </section>
   );
 }
 
-/** Un producto del ranking; la barra compara su ganancia con la del que más dejó. */
-function FilaRanking({ p, tope }: { p: GananciaProducto; tope: number }) {
-  const margen = p.vendido > 0 ? Math.round((p.ganancia / p.vendido) * 100) : 0;
-  return (
-    <li className="flex flex-col gap-2 py-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate font-bold">{p.nombre}</p>
-          <p className="text-sm text-texto-2">
-            {t.unidades(p.unidades)} · {t.margen(margen)}
-            {p.sinCosto && ` · ${t.sinCosto}`}
-          </p>
-        </div>
-        <p className={`font-bold tabular-nums ${p.ganancia < 0 ? "text-error" : ""}`}>{formatearDolares(p.ganancia)}</p>
-      </div>
-      <span aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-fondo">
-        <span
-          className={`block h-full rounded-full ${p.ganancia < 0 ? "bg-error" : "bg-teal"}`}
-          style={{ width: `${Math.min(100, (Math.abs(p.ganancia) / tope) * 100)}%` }}
-        />
-      </span>
-    </li>
-  );
-}
-
-/** Lo que más y lo que menos deja. "Lo que menos" solo sale si hay más productos que los de arriba o alguno da pérdida. */
-export function Ranking({ ranking }: { ranking: GananciaProducto[] }) {
-  if (!ranking.length) return null;
-  const arriba = ranking.slice(0, 5);
-  const abajo = ranking.length > 5 ? ranking.slice(-3).reverse() : ranking.filter((p) => p.ganancia <= 0).reverse();
-  const lista = "flex flex-1 flex-col divide-y divide-borde rounded-[24px] border-2 border-teal-oscuro bg-superficie px-4";
-  const tope = Math.max(...ranking.map((p) => Math.abs(p.ganancia)), 1);
-
-  // Sin "lo que menos te deja", la lista ocupa todo el ancho repartida en columnas: no queda media fila vacía
-  if (!abajo.length) {
-    return (
-      <section className="flex flex-col gap-2">
-        <h2 className="font-bold">{t.ranking}</h2>
-        <ol className={`grid grid-cols-1 gap-x-8 rounded-[24px] border-2 border-teal-oscuro bg-superficie px-4 ${COLUMNAS[arriba.length]}`}>
-          {arriba.map((p) => (
-            <FilaRanking key={p.productoId} p={p} tope={tope} />
-          ))}
-        </ol>
-      </section>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <section className="flex flex-col gap-2">
-        <h2 className="font-bold">{t.ranking}</h2>
-        <ol className={lista}>
-          {arriba.map((p) => (
-            <FilaRanking key={p.productoId} p={p} tope={tope} />
-          ))}
-        </ol>
-      </section>
-      <section className="flex flex-col gap-2">
-        <h2 className="font-bold">{t.rankingMenos}</h2>
-        <ol className={lista}>
-          {abajo.map((p) => (
-            <FilaRanking key={p.productoId} p={p} tope={tope} />
-          ))}
-        </ol>
-      </section>
-    </div>
-  );
-}
-
-// Cuántas columnas según cuántos productos hay, para que las filas queden llenas (4 va en 2 × 2)
-const COLUMNAS: Record<number, string> = {
-  1: "",
-  2: "sm:grid-cols-2",
-  3: "sm:grid-cols-3",
-  4: "sm:grid-cols-2",
-  5: "sm:grid-cols-2 lg:grid-cols-3",
-};
-
 export function EnlaceResumen() {
   return (
-    <Link
-      href="/ganancia/resumen"
-      className="inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
-    >
+    <Link href="/ganancia/resumen" className={enlaceSecundario}>
       {t.verResumen}
+    </Link>
+  );
+}
+
+export function EnlaceExportar() {
+  return (
+    <Link href="/ajustes/exportar" className={enlaceSecundario}>
+      {t.exportar}
     </Link>
   );
 }

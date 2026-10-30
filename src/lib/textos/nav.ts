@@ -27,6 +27,7 @@ export const nav = {
   enlaceNoCopiado: "No pudimos copiar. Abrí la vitrina y copiá la dirección.",
   mas: "Más",
   masTitulo: "Más opciones",
+  turno: "Tu turno",
   cerrar: "Cerrar",
   porAtender: (n: number) => (n === 1 ? "1 pedido requiere tu acción" : `${n} pedidos requieren tu acción`),
   urgente: "Hay algo urgente",
@@ -53,14 +54,4 @@ export const nav = {
     ayuda: "↑↓ para moverte, Enter para abrir, Esc para cerrar",
   },
   pasos: { titulo: "Primeros pasos", avance: (h: number, t: number) => `${h} de ${t}`, siguiente: "Siguiente" },
-  vistas: {
-    titulo: "El menú de escritorio",
-    texto: "No es solo el color: es si flota, si es redondo, si es una columna. Tocá una: el de la izquierda cambia de forma.",
-    usar: "Usar esta",
-    usando: "Esta es la de ahora",
-    isla: { nombre: "Isla", idea: "La de hoy. Un recuadro crema que flota, con cajas adentro." },
-    pildoras: { nombre: "Píldoras", idea: "Como el celular, de pie. Todo redondo, el + es un círculo." },
-    faja: { nombre: "Faja", idea: "Pegada a la izquierda, sin flotar. Más recta, fondo agua." },
-    lista: { nombre: "Lista", idea: "Sin recuadro. Solo el texto y los íconos, con aire." },
-  },
 } as const;

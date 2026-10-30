@@ -120,25 +120,17 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
   );
 }
 
-/** Cuánto se fue en cada categoría, de la que más a la que menos, con una barra contra el total. */
+/** Cuánto se fue en cada categoría, de la que más a la que menos. */
 export function DesgloseGastos({ porCategoria }: { porCategoria: Partial<Record<CategoriaGasto, number>> }) {
   const filas = (Object.entries(porCategoria) as [CategoriaGasto, number][]).filter(([, m]) => m > 0).sort((a, b) => b[1] - a[1]);
-  const total = filas.reduce((suma, [, m]) => suma + m, 0);
   if (!filas.length) return null;
   return (
-    <ul aria-label={t.gastosDesglose} className="flex flex-col gap-2">
+    <ul aria-label={t.gastosDesglose} className="flex flex-wrap gap-2">
       {filas.map(([c, monto]) => (
-        <li key={c} className="flex flex-col gap-1">
-          <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="flex items-center gap-2 font-medium">
-              <Icon nombre={ICONOS[c]} className="size-4" />
-              {t.categorias[c]}
-            </span>
-            <span className="font-bold tabular-nums">{formatearDolares(monto)}</span>
-          </div>
-          <span aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-fondo">
-            <span className="block h-full rounded-full bg-mango" style={{ width: `${(monto / total) * 100}%` }} />
-          </span>
+        <li key={c} className="inline-flex items-center gap-1.5 rounded-full bg-fondo px-3 py-1 text-sm">
+          <Icon nombre={ICONOS[c]} className="size-4" />
+          {t.categorias[c]}
+          <span className="font-bold tabular-nums">{formatearDolares(monto)}</span>
         </li>
       ))}
     </ul>
@@ -163,7 +155,7 @@ export function ListaGastos({ gastos }: { gastos: Gasto[] }) {
       <ul className="flex flex-col divide-y divide-borde">
         {gastos.map((g) => (
           <li key={g.id} className="flex items-center gap-3 py-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro bg-limon">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro bg-mango">
               <Icon nombre={ICONOS[g.categoria]} className="size-5" />
             </span>
             <div className="min-w-0 flex-1">

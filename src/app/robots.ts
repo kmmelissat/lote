@@ -21,7 +21,6 @@ export default function robots(): MetadataRoute.Robots {
         "/ganancia",
         "/ajustes",
         "/asistente",
-        "/probar-menu",
         "/mostrador",
         "/admin",
       ],

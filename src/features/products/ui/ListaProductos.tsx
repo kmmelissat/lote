@@ -210,8 +210,8 @@ export function ListaProductos({
               }}
               className={`inline-flex min-h-11 items-center gap-2 rounded-full border-2 px-4 text-sm font-bold transition-[transform,background-color] duration-150 ${
                 activo
-                  ? "border-teal-oscuro bg-mango text-teal-oscuro"
-                  : "border-teal-oscuro/20 bg-superficie text-texto-2 hover:-translate-y-0.5 hover:border-teal-oscuro hover:bg-limon/40"
+                  ? "border-teal-oscuro bg-teal-fondo text-teal-oscuro"
+                  : "border-teal-oscuro/20 bg-superficie text-texto-2 hover:-translate-y-0.5 hover:border-teal-oscuro hover:bg-teal-fondo"
               } ${vacio && !activo ? "opacity-60" : ""}`}
             >
               {nombreDelFiltro(e)}

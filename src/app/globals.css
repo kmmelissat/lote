@@ -27,7 +27,7 @@
   --color-error: #b3261e;
   --color-error-fondo: #fde8e6;
 
-  /* Solo la landing: acentos con más personalidad */
+  /* Acentos con personalidad: en el marketplace y la landing van vivos; el panel los baja (ver [data-app=panel]). */
   --color-mango: #ff9a2e;
   --color-limon: #ffe27a;
   --color-rosa-palido: #fdeaf1;
@@ -73,6 +73,15 @@ body {
   background: var(--color-fondo);
   color: var(--color-texto);
   font-family: var(--font-sans);
+}
+
+/* El panel de vendedora: mismo mango y limón, un poco más bajos, para que no se coman al teal. */
+[data-app="panel"] {
+  --color-mango: color-mix(in srgb, #ff9a2e 68%, #b56a28);
+  --color-accion: var(--color-mango);
+  --color-limon: color-mix(in srgb, #ffe27a 55%, white);
+  --color-crema: color-mix(in srgb, #fff7e8 40%, #f5f8f7);
+  --color-perla: color-mix(in srgb, #ffebc6 50%, white);
 }
 
 @keyframes entra-aviso {

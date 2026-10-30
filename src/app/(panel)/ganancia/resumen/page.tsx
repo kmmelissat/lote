@@ -53,6 +53,12 @@ async function Contenido() {
         <EmptyState texto={t.sinVentas} />
       ) : (
         <>
+          <Tarjeta titulo={t.gananciaTitulo}>
+            <p className="text-3xl font-bold">{formatearDolares(r.gananciaDespuesDeGastos)}</p>
+            <p className="text-sm text-texto-2">{t.gananciaAyuda}</p>
+            {r.estimada && <p className="text-sm text-ambar-texto">{textos.ganancia.estimada}</p>}
+          </Tarjeta>
+
           <Tarjeta titulo={t.vendisteTitulo}>
             <p className="text-3xl font-bold">{formatearDolares(r.vendido)}</p>
             <p className="text-texto-2">{t.pedidos(r.pedidos)}</p>
@@ -82,14 +88,6 @@ async function Contenido() {
       <Tarjeta titulo={t.apartadoTitulo}>
         <p className="text-lg font-medium">{apartadas ? t.apartado(apartadas) : t.nadaApartado}</p>
       </Tarjeta>
-
-      {r.pedidos > 0 && (
-        <Tarjeta titulo={t.gananciaTitulo}>
-          <p className="text-3xl font-bold">{formatearDolares(r.gananciaDespuesDeGastos)}</p>
-          <p className="text-sm text-texto-2">{t.gananciaAyuda}</p>
-          {r.estimada && <p className="text-sm text-ambar-texto">{textos.ganancia.estimada}</p>}
-        </Tarjeta>
-      )}
 
     </div>
   );

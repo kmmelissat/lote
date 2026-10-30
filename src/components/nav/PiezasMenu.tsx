@@ -2,15 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState, type ReactNode } from "react";
-import { Gorila } from "@/components/ui/Gorila";
+import { useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { useToast } from "@/components/ui/Toast";
 import { CerrarSesion } from "@/features/auth/ui/CerrarSesion";
 import { textos } from "@/lib/textos";
-import { activaEn, type DatosMenu, type Pestana } from "./menu";
+import { type DatosMenu } from "./menu";
 import { useCerrarAfuera } from "./useCerrarAfuera";
-import { itemMenu } from "./versiones";
 
 const t = textos.nav;
 
@@ -22,104 +19,48 @@ export function Insignia({ n, urgente }: { n: number; urgente: boolean }) {
         <span className="sr-only">{textos.nav.porAtender(n)}: </span>
         {n}
       </span>
-      {urgente && (
-        <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-crema bg-mango group-data-[vista=pildoras]:bg-rosa group-data-[vista=faja]:bg-rosa group-data-[vista=lista]:bg-rosa" />
-      )}
+      {urgente && <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-crema bg-rosa" />}
     </span>
   );
 }
 
-export function EnlaceLateral({
-  pestana,
-  pathname,
-  insignia,
+export function Buscar({
+  abrir,
+  className,
+  soloIcono = false,
 }: {
-  pestana: Pestana;
-  pathname: string | null;
-  insignia?: ReactNode;
+  abrir: () => void;
+  className?: string;
+  soloIcono?: boolean;
 }) {
-  const activa = pathname !== null && activaEn(pathname, pestana.href);
-  return (
-    <Link
-      href={pestana.href}
-      aria-current={activa ? "page" : undefined}
-      title={pestana.etiqueta}
-      className={`${itemMenu.base} ${activa ? itemMenu.activa : itemMenu.inactiva}`}
-    >
-      {activa && (
-        <span
-          aria-hidden="true"
-          className="absolute -left-3.5 top-2 h-7 w-1.5 rounded-r-full bg-mango group-data-[vista=pildoras]:hidden group-data-[vista=faja]:hidden group-data-[vista=lista]:hidden"
-        />
-      )}
-      <Icon nombre={pestana.icono} className="size-6 shrink-0 transition-transform duration-150 group-hover/item:translate-x-0.5" />
-      <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">{pestana.etiqueta}</span>
-      {insignia}
-    </Link>
-  );
-}
-
-export function Vitrina({ slug }: { slug: string }) {
-  const { avisar } = useToast();
-  const copiar = async () => {
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/c/${slug}`);
-      avisar(t.enlaceCopiado, { tipo: "exito" });
-    } catch {
-      avisar(t.enlaceNoCopiado, { tipo: "error" });
-    }
-  };
-  return (
-    <div className="flex items-center gap-1 group-data-[cerrado]:flex-col">
-      <Link
-        href={`/c/${slug}`}
-        target="_blank"
-        title={t.verVitrina}
-        className={`${itemMenu.base} ${itemMenu.inactiva} min-w-0 flex-1 group-data-[cerrado]:flex-none`}
-      >
-        <Icon nombre="tienda" className="size-6 shrink-0 transition-transform duration-150 group-hover/item:translate-x-0.5" />
-        <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">{t.vitrina}</span>
-        <Icon nombre="enlace" className="size-4 shrink-0 group-data-[cerrado]:hidden" />
-        <span className="sr-only">(se abre en una pestaña nueva)</span>
-      </Link>
-      <button
-        type="button"
-        onClick={copiar}
-        aria-label={t.copiarEnlace}
-        title={t.copiarEnlace}
-        className="flex size-9 shrink-0 items-center justify-center rounded-lg text-texto-2 hover:bg-white/70 hover:text-teal-oscuro group-data-[vista=pildoras]:rounded-full group-data-[vista=lista]:rounded-none"
-      >
-        <Icon nombre="copiar" className="size-4" />
-      </button>
-    </div>
-  );
-}
-
-export function Buscar({ abrir }: { abrir: () => void }) {
   return (
     <button
       type="button"
       onClick={abrir}
       aria-label={t.paleta.abrir}
       title={`${t.paleta.abrir} (${t.paleta.atajo})`}
-      className="flex min-h-11 items-center gap-3 px-3 text-texto-2 group-data-[cerrado]:justify-center group-data-[vista=isla]:rounded-xl group-data-[vista=isla]:border group-data-[vista=isla]:border-borde group-data-[vista=isla]:bg-superficie group-data-[vista=isla]:hover:border-borde-control group-data-[vista=pildoras]:rounded-full group-data-[vista=pildoras]:border-2 group-data-[vista=pildoras]:border-teal-oscuro group-data-[vista=pildoras]:bg-fondo group-data-[vista=faja]:rounded-lg group-data-[vista=faja]:bg-white/70 group-data-[vista=lista]:rounded-none group-data-[vista=lista]:border-b-2 group-data-[vista=lista]:border-teal-oscuro/25 group-data-[vista=lista]:px-1"
+      className={
+        className ??
+        "flex min-h-11 items-center gap-3 rounded-xl border border-borde bg-superficie px-3 text-texto-2 hover:border-borde-control group-data-[cerrado]:justify-center"
+      }
     >
       <Icon nombre="buscar" className="size-5 shrink-0" />
-      <span className="flex-1 text-left group-data-[cerrado]:hidden">{t.buscarCorto}</span>
-      <kbd className="rounded-md border border-borde px-1.5 py-0.5 text-xs group-data-[cerrado]:hidden group-data-[vista=pildoras]:hidden group-data-[vista=lista]:border-0">{t.paleta.atajo}</kbd>
+      <span className={`flex-1 text-left group-data-[cerrado]:hidden ${soloIcono ? "hidden" : ""}`}>{t.buscarCorto}</span>
+      <kbd className={`rounded-md border border-borde px-1.5 py-0.5 text-xs group-data-[cerrado]:hidden ${soloIcono ? "hidden" : ""}`}>
+        {t.paleta.atajo}
+      </kbd>
     </button>
   );
 }
 
 export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]> }) {
   return (
-    <Link
-      href={pasos.siguiente.href}
-      className="relative mt-auto flex flex-col gap-2 overflow-hidden p-3 text-teal-oscuro group-data-[cerrado]:hidden group-data-[vista=isla]:rounded-2xl group-data-[vista=isla]:border-2 group-data-[vista=isla]:border-teal-oscuro group-data-[vista=isla]:bg-limon group-data-[vista=isla]:transition-[transform,box-shadow] group-data-[vista=isla]:duration-150 group-data-[vista=isla]:hover:-translate-y-0.5 group-data-[vista=isla]:hover:shadow-dura-chica group-data-[vista=pildoras]:rounded-[1.75rem] group-data-[vista=pildoras]:border-2 group-data-[vista=pildoras]:border-teal-oscuro group-data-[vista=pildoras]:bg-rosa-palido group-data-[vista=faja]:rounded-lg group-data-[vista=faja]:bg-white/60 group-data-[vista=lista]:rounded-none group-data-[vista=lista]:border-0 group-data-[vista=lista]:bg-transparent group-data-[vista=lista]:px-1"
-    >
-      <Gorila className="absolute -right-1 -top-1 size-12 rotate-6 text-rosa group-data-[vista=lista]:hidden" />
-      <span className="text-sm font-bold">
-        {t.pasos.titulo} · {t.pasos.avance(pasos.hechos, pasos.total)}
+    <Link href={pasos.siguiente.href} className="mt-auto flex flex-col gap-2 pt-1 text-teal-oscuro group-data-[cerrado]:hidden">
+      <span className="flex items-center justify-between gap-2">
+        <span className="-rotate-1 rounded-sm border-2 border-teal-oscuro bg-celeste px-1.5 py-0.5 font-logo text-[10px] tracking-widest uppercase shadow-dura-chica">
+          {t.pasos.siguiente}
+        </span>
+        <span className="font-logo text-sm tabular-nums">{t.pasos.avance(pasos.hechos, pasos.total)}</span>
       </span>
       <span
         role="progressbar"
@@ -127,19 +68,34 @@ export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]
         aria-valuemax={pasos.total}
         aria-valuenow={pasos.hechos}
         aria-label={t.pasos.titulo}
-        className="h-2.5 w-3/4 overflow-hidden rounded-full border-2 border-teal-oscuro bg-white group-data-[vista=lista]:hidden"
+        className="flex gap-1"
       >
-        <span className="block h-full bg-mango group-data-[vista=pildoras]:bg-rosa group-data-[vista=faja]:bg-teal group-data-[vista=lista]:bg-rosa" style={{ width: `${(pasos.hechos / pasos.total) * 100}%` }} />
+        {Array.from({ length: pasos.total }, (_, i) => (
+          <span
+            key={i}
+            className={`size-2.5 rounded-full border-2 border-teal-oscuro ${i < pasos.hechos ? "bg-rosa" : "bg-superficie"}`}
+          />
+        ))}
       </span>
-      <span className="text-sm">
-        {t.pasos.siguiente}: {pasos.siguiente.titulo} →
-      </span>
+      <span className="text-sm font-bold leading-snug">{pasos.siguiente.titulo} →</span>
     </Link>
   );
 }
 
 /** La tarjeta de quien está: al tocarla se abre un menú con Ajustes y Cerrar sesión, así salir nunca es un toque accidental. */
-export function TarjetaPerfil({ perfil }: { perfil: DatosMenu["perfil"] }) {
+export function TarjetaPerfil({
+  perfil,
+  soloAvatar = false,
+  claro = false,
+  botonClass,
+  menuClass = "bottom-full left-0 mb-2",
+}: {
+  perfil: DatosMenu["perfil"];
+  soloAvatar?: boolean;
+  claro?: boolean;
+  botonClass?: string;
+  menuClass?: string;
+}) {
   const [abierto, setAbierto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useCerrarAfuera(abierto, () => setAbierto(false), ref);
@@ -151,7 +107,10 @@ export function TarjetaPerfil({ perfil }: { perfil: DatosMenu["perfil"] }) {
         aria-expanded={abierto}
         aria-haspopup="menu"
         aria-label={t.menuPerfil}
-        className="flex min-h-12 w-full items-center gap-3 p-1.5 text-left group-data-[cerrado]:justify-center group-data-[vista=isla]:rounded-xl group-data-[vista=isla]:border-2 group-data-[vista=isla]:border-teal-oscuro/15 group-data-[vista=isla]:bg-superficie group-data-[vista=isla]:hover:border-teal-oscuro group-data-[vista=pildoras]:rounded-full group-data-[vista=pildoras]:border-2 group-data-[vista=pildoras]:border-teal-oscuro/20 group-data-[vista=pildoras]:bg-fondo group-data-[vista=faja]:rounded-lg group-data-[vista=faja]:bg-white/50 group-data-[vista=lista]:rounded-none group-data-[vista=lista]:px-1"
+        className={
+          botonClass ??
+          "flex min-h-12 w-full items-center gap-3 rounded-xl border-2 border-teal-oscuro/15 bg-superficie p-1.5 text-left hover:border-teal-oscuro group-data-[cerrado]:justify-center group-data-[cerrado]:border-transparent"
+        }
       >
         {perfil.logo ? (
           <Image src={perfil.logo} alt="" width={80} height={80} className="size-10 shrink-0 rounded-full object-cover" />
@@ -160,17 +119,17 @@ export function TarjetaPerfil({ perfil }: { perfil: DatosMenu["perfil"] }) {
             <Icon nombre="usuario" className="size-5" />
           </span>
         )}
-        <span className="flex min-w-0 flex-1 flex-col leading-tight group-data-[cerrado]:hidden">
+        <span className={`flex min-w-0 flex-1 flex-col leading-tight group-data-[cerrado]:hidden ${soloAvatar ? "hidden" : ""}`}>
           <span className="truncate text-sm font-bold">{perfil.nombre}</span>
-          <span className="text-xs text-texto-2">{perfil.detalle}</span>
+          <span className={`text-xs ${claro ? "text-white/70" : "text-texto-2"}`}>{perfil.detalle}</span>
         </span>
-        <Icon nombre="flecha" className="size-4 shrink-0 text-texto-2 group-data-[cerrado]:hidden" />
+        <Icon
+          nombre="flecha"
+          className={`size-4 shrink-0 group-data-[cerrado]:hidden ${soloAvatar ? "hidden" : ""} ${claro ? "text-white/70" : "text-texto-2"}`}
+        />
       </button>
       {abierto && (
-        <div
-          role="menu"
-          className="absolute bottom-full left-0 z-30 mb-2 w-60 rounded-2xl border-2 border-teal-oscuro bg-superficie p-2 shadow-dura"
-        >
+        <div role="menu" className={`absolute z-30 w-60 rounded-2xl border-2 border-teal-oscuro bg-superficie p-2 shadow-dura ${menuClass}`}>
           <Link
             href={textos.ayuda.ruta}
             role="menuitem"
