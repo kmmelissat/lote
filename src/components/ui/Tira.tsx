@@ -6,11 +6,25 @@ import { Icon } from "./Icon";
 
 const t = textos.comun;
 
+// Por páginas: tantos elementos enteros como columnas tiene la grilla de productos en cada ancho (separación de 1rem)
+const COLUMNAS = "w-[calc((100%-1rem)/2)] md:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-3rem)/4)] xl:w-[calc((100%-4rem)/5)]";
+
 /**
  * Una fila que se desliza de lado si lo que tiene no cabe (las miniaturas de una galería). Las flechas aparecen
  * solo cuando hay más para ver de ese lado; `activo` mantiene a la vista el elemento elegido.
+ * `porPaginas` muestra siempre elementos enteros (como columnas de la grilla) y las flechas pasan de a una página.
  */
-export function Tira({ children, etiqueta, activo }: { children: ReactNode; etiqueta: string; activo?: number }) {
+export function Tira({
+  children,
+  etiqueta,
+  activo,
+  porPaginas = false,
+}: {
+  children: ReactNode;
+  etiqueta: string;
+  activo?: number;
+  porPaginas?: boolean;
+}) {
   const lista = useRef<HTMLUListElement>(null);
   const [hay, setHay] = useState({ antes: false, despues: false });
 
@@ -37,19 +51,25 @@ export function Tira({ children, etiqueta, activo }: { children: ReactNode; etiq
       el.scrollTo({ left: item.offsetLeft + item.offsetWidth - el.clientWidth + 4, behavior: "smooth" });
   }, [activo]);
 
-  const mover = (lado: 1 | -1) => lista.current?.scrollBy({ left: lado * lista.current.clientWidth * 0.8, behavior: "smooth" });
+  const mover = (lado: 1 | -1) => {
+    const el = lista.current;
+    if (!el) return;
+    // Una página: el ancho visible (sin el relleno de 4 px por lado) más la separación de 16 px
+    const paso = porPaginas ? el.clientWidth - 8 + 16 : el.clientWidth * 0.8;
+    el.scrollBy({ left: lado * paso, behavior: "smooth" });
+  };
   const flecha =
     "absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica hover:bg-teal-fondo";
 
   return (
-    <div className="relative">
+    <div className={`relative ${porPaginas ? "-mx-1" : ""}`}>
       <ul
         ref={lista}
         aria-label={etiqueta}
-        className="relative flex snap-x scroll-px-1 gap-2 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className={`relative flex snap-x scroll-px-1 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${porPaginas ? "snap-mandatory gap-4" : "gap-2"}`}
       >
         {Children.map(children, (hijo) => (
-          <li className="shrink-0 snap-start">{hijo}</li>
+          <li className={`shrink-0 snap-start ${porPaginas ? COLUMNAS : ""}`}>{hijo}</li>
         ))}
       </ul>
       {hay.antes && (

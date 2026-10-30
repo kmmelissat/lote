@@ -97,7 +97,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
               </li>
             )}
             <li>
-              <Link href="/explorar" target="_blank" className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
+              <Link href="/marketplace" target="_blank" className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
                 <Icon nombre="buscar" className="size-6 shrink-0 text-teal" />
                 {t.explorar}
                 <Icon nombre="enlace" className="size-4 text-texto-2" />
@@ -152,7 +152,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
                 )}
                 <li>
                   <Link
-                    href="/explorar"
+                    href="/marketplace"
                     target="_blank"
                     title={t.explorar}
                     className="group/item flex min-h-11 items-center gap-3 rounded-xl px-3 font-medium text-texto-2 transition-colors duration-150 hover:bg-white/70 hover:text-teal-oscuro group-data-[cerrado]:justify-center"

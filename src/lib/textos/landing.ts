@@ -13,7 +13,7 @@ export const landing = {
   saltar: "Saltar al contenido",
   menu: "Secciones",
   enlaces: [
-    { href: "/explorar", etiqueta: "Explorar tiendas" },
+    { href: "/marketplace", etiqueta: "Marketplace" },
     { href: "#como", etiqueta: "Cómo funciona" },
     { href: "#funciones", etiqueta: "Funciones" },
     { href: "#precios", etiqueta: "Precios" },
@@ -161,7 +161,7 @@ export const landing = {
     },
     descubrir: {
       titulo: "Que te descubran",
-      texto: "Aparecé en Explorar si querés, y mostrá las reseñas de quienes ya te compraron.",
+      texto: "Aparecé en el Marketplace si querés, y mostrá las reseñas de quienes ya te compraron.",
       cita: "Llegó rapidísimo y tal cual la foto.",
       quien: "Una clienta",
     },

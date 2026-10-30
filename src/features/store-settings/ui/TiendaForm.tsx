@@ -349,7 +349,7 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Grupo icono="buscar" className={vitrina ? "" : "hidden"} titulo={v.grupos.explorar.titulo} texto={v.grupos.explorar.texto}>
             <Interruptor name="explorar" titulo={v.explorar} ayuda={v.explorarAyuda} activo={explorar} onCambio={setExplorar} />
-            <Link href="/explorar" target="_blank" className="inline-flex min-h-11 items-center gap-2 self-start font-bold text-teal underline">
+            <Link href="/marketplace" target="_blank" className="inline-flex min-h-11 items-center gap-2 self-start font-bold text-teal underline">
               {v.verExplorar}
               <Icon nombre="enlace" className="size-4" />
               <span className="sr-only">(se abre en una pestaña nueva)</span>

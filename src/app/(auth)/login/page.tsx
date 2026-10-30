@@ -18,7 +18,7 @@ export default function LoginPage() {
         <LoginForm />
       </Suspense>
       <Link
-        href="/explorar"
+        href="/marketplace"
         className="inline-flex h-11 items-center justify-center rounded-full border-2 border-teal-oscuro/30 px-5 text-sm font-bold text-teal-oscuro hover:border-teal-oscuro hover:bg-limon/40"
       >
         {textos.acceso.explorar}

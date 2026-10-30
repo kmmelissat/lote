@@ -28,6 +28,8 @@
   --color-mango: #ff9a2e;
   --color-limon: #ffe27a;
   --color-rosa-palido: #fdeaf1;
+  --color-celeste: #8fd6f4;
+  --color-celeste-palido: #e2f4fc;
   --color-crema: #fff7e8;
   /* El color de la acción principal: mango, salvo en las páginas de una tienda que eligió su color (ver marca.ts) */
   --color-accion: #ff9a2e;
@@ -36,9 +38,13 @@
   --shadow-dura-chica: 3px 3px 0 0 var(--color-teal-oscuro);
   --animate-flotar: flotar 4s ease-in-out infinite;
   --animate-asomar: asomar 700ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-balancea: balancea 3.2s ease-in-out infinite;
+  --animate-girar-lento: girar 18s linear infinite;
   --animate-marquesina: marquesina 30s linear infinite;
   --animate-entra: entra 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-desliza: desliza 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* La calle del Marketplace: Lotito va y vuelve por la acera (los pasos van dentro de su dibujo) */
+  --animate-pasear: pasear 48s linear infinite;
 
   --font-sans: var(--font-jakarta), system-ui, sans-serif;
   --font-logo: var(--font-fredoka), var(--font-jakarta), system-ui, sans-serif;
@@ -88,6 +94,22 @@ body {
   }
   50% {
     transform: translateY(-8px) rotate(var(--giro, 0deg));
+  }
+}
+
+@keyframes balancea {
+  0%,
+  100% {
+    transform: rotate(calc(var(--giro, 0deg) - 3deg));
+  }
+  50% {
+    transform: rotate(calc(var(--giro, 0deg) + 3deg));
+  }
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -156,5 +178,29 @@ body {
 @media (min-width: 768px) {
   .barra-guardar {
     bottom: 0.75rem;
+  }
+}
+
+/* Va de punta a punta de la calle y se da vuelta en cada extremo */
+@keyframes pasear {
+  0% {
+    left: 0;
+    transform: scaleX(1);
+  }
+  49% {
+    left: calc(100% - var(--ancho-lotito, 4rem));
+    transform: scaleX(1);
+  }
+  50% {
+    left: calc(100% - var(--ancho-lotito, 4rem));
+    transform: scaleX(-1);
+  }
+  99% {
+    left: 0;
+    transform: scaleX(-1);
+  }
+  100% {
+    left: 0;
+    transform: scaleX(1);
   }
 }

@@ -19,7 +19,7 @@ export const nav = {
   detalle: "Detalle",
   asistente: "Lotito",
   vitrina: "Mi vitrina",
-  explorar: "Explorar tiendas",
+  explorar: "Marketplace",
   verVitrina: "Abrir mi vitrina",
   copiarEnlace: "Copiar enlace de mi vitrina",
   enlaceCopiado: "Enlace copiado. Pegalo donde vendés.",

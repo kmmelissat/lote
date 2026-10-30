@@ -54,7 +54,7 @@ export default function NotFound() {
               {t.volver}
             </BotonVolver>
           </div>
-          <Link href="/explorar" className="mt-4 inline-block text-sm font-bold text-teal underline underline-offset-4">
+          <Link href="/marketplace" className="mt-4 inline-block text-sm font-bold text-teal underline underline-offset-4">
             {t.explorar}
           </Link>
         </section>

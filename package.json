@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "semilla": "node --env-file=.env.local scripts/semilla.mts"
+    "semilla": "node --env-file=.env.local scripts/semilla.mts",
+    "imagenes-mercadito": "node --env-file=.env.local scripts/imagenes-mercadito.mts",
+    "fotos-sueltas": "node --env-file=.env.local scripts/fotos-sueltas.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

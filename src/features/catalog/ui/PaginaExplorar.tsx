@@ -1,22 +1,30 @@
-import Image from "next/image";
 import Link from "next/link";
+import { permanentRedirect } from "next/navigation";
 import { connection } from "next/server";
-import type { CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
 import {
-  explorarCategorias,
+  explorarDestacados,
+  explorarOfertas,
   explorarProductos,
+  explorarRubros,
   explorarTiendas,
   ORDENES_EXPLORAR,
   type OrdenExplorar,
-  rutaCategoria,
+  rutaRubro,
 } from "../explorar";
+import { esRubro } from "../rubros";
+import { ejemplosDeBusqueda, rubroDeProducto } from "../portada";
+import { AIRE, MESA } from "../mercadito";
 import { colorDeMarca } from "../marca";
-import { LogoTienda } from "./MarcaTienda";
+import { HeroMercadito } from "./HeroMercadito";
+import { SeccionCalle } from "./CalleTiendas";
+import { FilaProductos } from "./FilaProductos";
+import { Paginacion } from "./Paginacion";
 import { SobreExplorar } from "./SobreExplorar";
-import { urlFoto } from "@/lib/fotos";
-import { formatearDolares } from "@/lib/formato";
+import { TarjetaProducto } from "./TarjetaProducto";
+import { TarjetaTienda } from "./TarjetaTienda";
+import { TarjetasRubro } from "./TarjetasRubro";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
 import { createPublicClient } from "@/lib/supabase/publico";
@@ -25,20 +33,18 @@ import { leerDolares } from "@/domain";
 
 const t = textos.explorar;
 
-const POR_PAGINA = 24;
-// Hasta cuántas unidades se muestra "Últimas N" en una tarjeta
-const POCAS_UNIDADES = 5;
-// Dónde va y cuánto se tuerce cada foto del encabezado, dentro de su caja
-const STICKERS = [
-  "left-0 top-0 -rotate-6",
-  "right-0 top-1/2 -translate-y-1/2 rotate-3",
-  "bottom-0 left-1/2 -translate-x-1/2 rotate-2 z-10",
-] as const;
+// 30 llena filas enteras con 5, 3 o 2 columnas
+const POR_PAGINA = 30;
+// Cuántos productos lleva cada fila de arriba (Destacados, Ofertas), y cuántos necesita para mostrarse:
+// una fila con una o dos tarjetas se ve vacía
+const POR_FILA = 10;
+const MINIMO_FILA = 4;
 
 type Vista = "productos" | "tiendas";
 type Filtros = {
   vista: Vista;
   busqueda: string;
+  /** El rubro elegido ("ropa", "comida"…), o vacío */
   categoria: string;
   orden: OrdenExplorar;
   min: string;
@@ -48,11 +54,11 @@ type Filtros = {
 
 /**
  * Arma la dirección de Explorar con los filtros que estén puestos (lo que está por defecto no se escribe).
- * La categoría va en la ruta; búsqueda, precio, orden y página van como parámetros.
+ * El rubro va en la ruta; búsqueda, precio, orden y página van como parámetros.
  */
 function enlace(f: Filtros): string {
   const p = new URLSearchParams();
-  const enRuta = f.vista === "productos" && f.categoria;
+  const enRuta = f.vista === "productos" && esRubro(f.categoria);
   if (f.vista !== "productos") p.set("vista", f.vista);
   if (f.busqueda) p.set("q", f.busqueda);
   if (f.categoria && !enRuta) p.set("categoria", f.categoria);
@@ -61,7 +67,7 @@ function enlace(f: Filtros): string {
   if (f.max) p.set("max", f.max);
   if (f.pagina && f.pagina > 1) p.set("pagina", String(f.pagina));
   const s = p.toString();
-  const base = enRuta ? rutaCategoria(f.categoria) : "/explorar";
+  const base = enRuta && esRubro(f.categoria) ? rutaRubro(f.categoria) : "/marketplace";
   return s ? `${base}?${s}` : base;
 }
 
@@ -88,8 +94,8 @@ function dolares(texto: string): number | undefined {
 export async function PaginaExplorar({
   searchParams,
   categoriaRuta,
-}: Pick<PageProps<"/explorar">, "searchParams"> & {
-  /** La categoría de /explorar/categoria/<nombre>; manda sobre ?categoria= */
+}: Pick<PageProps<"/marketplace">, "searchParams"> & {
+  /** El rubro de /marketplace/categoria/<rubro>; manda sobre ?categoria= */
   categoriaRuta?: string;
 }) {
   await connection();
@@ -98,7 +104,8 @@ export async function PaginaExplorar({
     typeof params[k] === "string" ? (params[k] as string).slice(0, 80) : "";
   const vista: Vista = texto("vista") === "tiendas" ? "tiendas" : "productos";
   const busqueda = texto("q").trim();
-  const categoria = (categoriaRuta ?? texto("categoria")).slice(0, 80).trim();
+  const pedida = (categoriaRuta ?? texto("categoria")).slice(0, 80).trim();
+  const categoria = esRubro(pedida) ? pedida : "";
   const orden = (ORDENES_EXPLORAR as readonly string[]).includes(texto("orden"))
     ? (texto("orden") as OrdenExplorar)
     : "recientes";
@@ -108,44 +115,50 @@ export async function PaginaExplorar({
   const f: Filtros = { vista, busqueda, categoria, orden, min, max };
 
   const supabase = createPublicClient();
-  const [categorias, tiendas, productos] = await Promise.all([
-    explorarCategorias(supabase),
+  const rubros = await explorarRubros(supabase);
+  // Una dirección vieja con el nombre de una categoría ("Blusas") lleva a su rubro
+  if (pedida && !categoria) {
+    const deEsa = rubros.find((r) => r.categorias.some((c) => c.toLowerCase() === pedida.toLowerCase()));
+    permanentRedirect(enlace({ ...f, categoria: deEsa?.id ?? "" }));
+  }
+  const rubro = rubros.find((r) => r.id === categoria);
+  const nombreRubro = rubro?.nombre ?? "";
+  // Las categorías de las tiendas que caen en el rubro elegido
+  const claves = categoria ? (rubro?.claves ?? []) : undefined;
+  const filtrando = Boolean(busqueda || categoria || min || max);
+  // La portada (sin buscar ni filtrar) abre con filas que atraen: destacados, ofertas o lo nuevo
+  const portada = vista === "productos" && !filtrando && pagina === 1;
+  const [tiendas, { productos, total }, destacados, ofertas] = await Promise.all([
     // En productos las tiendas son una fila de acceso rápido; en tiendas, el contenido principal
     explorarTiendas(
       supabase,
       vista === "tiendas" ? busqueda || undefined : undefined,
-      vista === "tiendas" ? categoria || undefined : undefined,
+      vista === "tiendas" ? claves : undefined,
     ),
     vista === "productos"
       ? // Uno de más, solo para saber si hay otra página
         explorarProductos(supabase, {
           busqueda: busqueda || undefined,
-          categoria: categoria || undefined,
+          claves,
           limite: POR_PAGINA + 1,
           desde: (pagina - 1) * POR_PAGINA,
           orden,
           precioMin: dolares(min),
           precioMax: dolares(max),
         })
-      : Promise.resolve([]),
+      : Promise.resolve({ productos: [], total: null }),
+    portada ? explorarDestacados(supabase, POR_FILA) : Promise.resolve([]),
+    portada ? explorarOfertas(supabase, POR_FILA) : Promise.resolve([]),
   ]);
   const hayMas = productos.length > POR_PAGINA;
   const visibles = productos.slice(0, POR_PAGINA);
-  const filtrando = Boolean(busqueda || categoria || min || max);
   const vacio =
     vista === "tiendas" ? tiendas.length === 0 : visibles.length === 0;
-  const sugeridas = categorias.filter((c) => c.productos >= 2).slice(0, 4);
-  // Cada foto con su nombre, para el texto alternativo
-  const destacadas = [
-    ...visibles.flatMap((p) =>
-      p.foto ? [{ foto: p.foto, nombre: p.nombre }] : [],
-    ),
-    ...tiendas.flatMap((x) =>
-      x.fotos.map((foto) => ({ foto, nombre: t.productoDe(x.nombre) })),
-    ),
-  ]
-    .filter((d, i, todas) => todas.findIndex((o) => o.foto === d.foto) === i)
-    .slice(0, STICKERS.length);
+  const sugeridas = rubros.filter((r) => r.productos >= 2 && r.id !== "otros").slice(0, 4);
+  const totalProductos = rubros.reduce((n, r) => n + r.productos, 0);
+
+  // Ejemplos del buscador, de productos reales (destacados y ofertas primero): cambian en cada visita
+  const ejemplos = ejemplosDeBusqueda([...destacados, ...ofertas, ...visibles], rubroDeProducto(rubros), 3);
   const precioActivo = Boolean(min || max);
   // El color y el logo de cada tienda, para que sus productos se distingan en la grilla
   const marcas = new Map(
@@ -154,6 +167,28 @@ export async function PaginaExplorar({
       { color: colorDeMarca(x.color).hex, logo: x.logo },
     ]),
   );
+  const marcaDe = (p: { tiendaSlug: string }) => marcas.get(p.tiendaSlug) ?? { color: colorDeMarca(null).hex, logo: null };
+
+  // Las dos filas de la portada: lo que haya de destacados y ofertas; si falta alguna, lo nuevo
+  const filas = [
+    destacados.length >= MINIMO_FILA && { id: "destacados", titulo: t.destacadosTitulo, ayuda: t.destacadosAyuda, icono: "★", productos: destacados },
+    ofertas.length >= MINIMO_FILA && { id: "ofertas", titulo: t.ofertasTitulo, ayuda: t.ofertasAyuda, icono: "%", productos: ofertas },
+    { id: "nuevos", titulo: t.nuevosTitulo, ayuda: t.nuevosAyuda, icono: "✦", productos: visibles.slice(0, POR_FILA) },
+  ]
+    .filter((x) => x !== false)
+    .slice(0, 2);
+  const fila = (i: number) =>
+    filas[i] && (
+      <FilaProductos
+        id={`fila-${filas[i].id}`}
+        titulo={filas[i].titulo}
+        ayuda={filas[i].ayuda}
+        icono={<span className="text-lg font-extrabold leading-none">{filas[i].icono}</span>}
+        productos={filas[i].productos}
+        marcaDe={marcaDe}
+        eager={i === 0}
+      />
+    );
 
   return (
     <div className="flex flex-col gap-6">
@@ -163,185 +198,65 @@ export async function PaginaExplorar({
           "@type": "CollectionPage",
           name: t.titulo,
           description: t.descripcion,
-          url: `${urlSitio}/explorar`,
+          url: `${urlSitio}/marketplace`,
         }}
       />
 
-      {/* El monito se asoma por detrás del borde de arriba, como en la landing */}
-      <div className="relative pt-14 sm:mb-3">
-        <Monito
-          nombre="asoma"
-          className="absolute left-6 top-0 z-0 w-28 text-rosa motion-safe:animate-asomar md:left-10"
-        />
-        <section className="relative z-10 rounded-[28px] border-2 border-teal-oscuro bg-teal px-5 py-6 text-crema shadow-[6px_6px_0_0_var(--color-rosa)] md:px-8 md:py-7">
-          <div
-            className={`relative flex max-w-2xl flex-col gap-4 ${destacadas.length ? "sm:mr-56 md:mr-72" : ""}`}
-          >
-            {/* Lo que dice el título de la pestaña, a la vista: en una categoría, su nombre primero */}
-            <p className="-mb-2 text-sm font-bold uppercase tracking-wide text-crema/80">
-              {categoria ? `${categoria} · ${t.antetitulo}` : t.antetitulo}
-            </p>
-            <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-4xl">
-              {t.encabezadoInicio}{" "}
-              <span className="whitespace-nowrap bg-[linear-gradient(transparent_72%,var(--color-limon)_72%,var(--color-limon)_92%,transparent_92%)] [box-decoration-break:clone]">
-                {t.encabezadoDestacado}
-              </span>
-            </h1>
-            <form
-              action="/explorar"
-              role="search"
-              className="flex h-13 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-white py-1 pl-4 pr-1 text-teal-oscuro focus-within:ring-4 focus-within:ring-rosa/60"
-            >
-              {vista !== "productos" && (
-                <input type="hidden" name="vista" value={vista} />
-              )}
-              {categoria && (
-                <input type="hidden" name="categoria" value={categoria} />
-              )}
-              <Icon nombre="buscar" className="size-5 shrink-0 text-texto-2" />
-              <input
-                type="search"
-                name="q"
-                defaultValue={busqueda}
-                aria-label={t.buscar}
-                placeholder={t.buscarPlaceholder}
-                className="h-full min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-texto-2/70"
-              />
-              <button
-                type="submit"
-                className="inline-flex h-10 shrink-0 items-center rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold transition-transform duration-150 hover:-translate-y-0.5"
-              >
-                {t.buscarBoton}
-              </button>
-            </form>
-            <p className="max-w-xl text-crema/90">{categoria ? t.introCategoria(categoria) : t.intro}</p>
-            {/* En tiendas no hay fila de categorías: ahí se sugieren las que tienen más productos */}
-            {vista === "tiendas" && sugeridas.length > 0 && !busqueda && (
-              <ul
-                aria-label={t.sugeridas}
-                className="flex flex-wrap items-center gap-2"
-              >
-                <li className="text-sm font-bold text-crema/80">
-                  {t.sugeridas}
-                </li>
-                {sugeridas.map((c) => (
-                  <li key={c.categoria}>
-                    <Link
-                      {...enlaceExplorar({
-                        ...f,
-                        categoria: c.categoria,
-                        vista: "productos",
-                        pagina: 1,
-                      })}
-                      className="inline-flex h-9 items-center rounded-full border-2 border-crema/40 px-4 text-sm font-bold text-crema hover:bg-crema hover:text-teal-oscuro"
-                    >
-                      {c.categoria}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          {/* Fotos de productos de verdad, pegadas como stickers: muestran de una lo que hay para ver */}
-          {destacadas.length > 0 && (
-            <ul className="absolute -bottom-7 -top-7 right-6 hidden w-48 sm:block md:right-10 md:w-60">
-              {destacadas.map(({ foto, nombre }, i) => (
-                <li
-                  key={foto}
-                  className={`absolute size-24 overflow-hidden rounded-2xl border-[3px] border-white shadow-[4px_4px_0_0_var(--color-rosa)] md:size-28 ${STICKERS[i]}`}
-                >
-                  <Image
-                    src={urlFoto(foto)}
-                    alt={nombre}
-                    fill
-                    loading="eager"
-                    sizes="112px"
-                    className="object-cover"
-                  />
+      <HeroMercadito
+        productos={MESA}
+        aire={AIRE}
+        tiendas={tiendas.length}
+        totalProductos={rubro ? rubro.productos : totalProductos}
+        ejemplos={ejemplos}
+        busqueda={busqueda}
+        titulo={nombreRubro ? t.encabezadoRubro(nombreRubro) : undefined}
+        ocultos={
+          <>
+            {vista !== "productos" && <input type="hidden" name="vista" value={vista} />}
+            {categoria && <input type="hidden" name="categoria" value={categoria} />}
+          </>
+        }
+        extra={
+          // En tiendas no hay fila de categorías: ahí se sugieren las que tienen más productos
+          vista === "tiendas" && sugeridas.length > 0 && !busqueda ? (
+            <ul aria-label={t.sugeridas} className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              <li className="text-sm font-bold text-teal">{t.sugeridas}</li>
+              {sugeridas.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    {...enlaceExplorar({ ...f, categoria: c.id, vista: "productos", pagina: 1 })}
+                    className="inline-flex h-9 items-center rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
+                  >
+                    {c.nombre}
+                  </Link>
                 </li>
               ))}
             </ul>
-          )}
-        </section>
-      </div>
-
-      {vista === "productos" && tiendas.length > 0 && !filtrando && (
-        <section aria-labelledby="tiendas-fila" className="flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-3">
-            <h2 id="tiendas-fila" className="font-bold">
-              {t.tiendasParaRecorrer}
-            </h2>
-            <Link
-              {...enlaceExplorar({ ...f, vista: "tiendas" })}
-              className="inline-flex min-h-11 items-center text-sm font-bold text-teal underline"
-            >
-              {t.verTodasTiendas}
-            </Link>
-          </div>
-          <ul className="flex gap-3 overflow-x-auto pb-2">
-            {tiendas.slice(0, 12).map((tienda) => (
-              <li key={tienda.slug} className="shrink-0">
-                <Link
-                  href={`/c/${tienda.slug}`}
-                  className="flex items-center gap-2 rounded-full border-2 border-teal-oscuro bg-white py-1.5 pl-1.5 pr-4 transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica"
-                >
-                  <LogoTienda
-                    logo={tienda.logo}
-                    nombre={tienda.nombre}
-                    className="size-9 !rounded-full"
-                  />
-                  <span className="text-sm font-bold">{tienda.nombre}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+          ) : undefined
+        }
+      />
 
       <div className="flex flex-col gap-4">
         {vista === "productos" && (
-          <section aria-label={t.filtros} className="flex flex-col gap-3">
-            {categorias.length > 0 && (
-              <ul
-                aria-label={t.categorias}
-                className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
-              >
-                <li className="shrink-0">
-                  <Link
-                    {...enlaceExplorar({ ...f, categoria: "", pagina: 1 })}
-                    aria-current={!categoria ? "true" : undefined}
-                    className={chip(!categoria)}
-                  >
-                    {t.todo}
-                  </Link>
-                </li>
-                {categorias.map((c) => (
-                  <li key={c.categoria} className="shrink-0">
-                    <Link
-                      {...enlaceExplorar({
-                        ...f,
-                        categoria: c.categoria,
-                        pagina: 1,
-                      })}
-                      aria-current={
-                        categoria === c.categoria ? "true" : undefined
-                      }
-                      className={chip(categoria === c.categoria)}
-                    >
-                      {c.categoria}
-                      <span className="ml-2 text-xs font-medium opacity-70">
-                        {c.productos}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          <>
+            {rubros.length > 0 && (
+              <TarjetasRubro rubros={rubros} activo={categoria} enlace={(id) => enlaceExplorar({ ...f, categoria: id, pagina: 1 })} />
             )}
+            {/* Portada: las dos filas que atraen, la calle con las tiendas y después todo */}
+            {portada && (
+              <div className="flex flex-col gap-8 py-2">
+                {fila(0)}
+                {fila(1)}
+                {tiendas.length > 0 && <SeccionCalle tiendas={tiendas.slice(0, 20)} verTodas={enlaceExplorar({ ...f, vista: "tiendas" })} />}
+              </div>
+            )}
+            {!filtrando && <h2 className="-mb-1 text-xl font-bold">{t.todosTitulo}</h2>}
+            <section id="todos" aria-label={t.filtros} className="flex scroll-mt-4 flex-col gap-3">
 
             {/* Cuántos hay, y a la derecha los filtros y el orden: menús chicos que se abren, no campos sueltos */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-bold">
-                {t.resultados(visibles.length)}
+                {t.resultados(total ?? visibles.length)}
               </p>
               <div className="flex items-center gap-2">
                 <details key={`filtros-${min}-${max}`} className="relative">
@@ -357,7 +272,7 @@ export async function PaginaExplorar({
                     )}
                   </summary>
                   <form
-                    action="/explorar"
+                    action="/marketplace"
                     className="absolute right-0 z-20 mt-2 flex w-72 flex-col gap-3 rounded-[20px] border-2 border-teal-oscuro bg-white p-4 shadow-dura"
                   >
                     {busqueda && (
@@ -441,6 +356,7 @@ export async function PaginaExplorar({
               </div>
             </div>
           </section>
+          </>
         )}
 
         <div className="flex min-w-0 flex-col gap-4">
@@ -462,153 +378,32 @@ export async function PaginaExplorar({
                 {filtrando ? t.sinResultadosTexto : t.sinTiendasTexto}
               </p>
               {filtrando && (
-                <Link href="/explorar" className={chip(false)}>
+                <Link href="/marketplace" className={chip(false)}>
                   {t.limpiar}
                 </Link>
               )}
             </div>
           ) : vista === "tiendas" ? (
+            <>
+            {/* Las tiendas como una calle de El Salvador: se toca una casita y se entra. Abajo, el detalle de cada una */}
+            <SeccionCalle tiendas={tiendas} />
+            <h2 className="mt-4 text-xl font-bold">{t.calle.todas}</h2>
             <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {tiendas.map((tienda, i) => (
                 <li key={tienda.slug}>
-                  <Link
-                    href={`/c/${tienda.slug}`}
-                    className="group flex h-full flex-col overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-white transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura"
-                  >
-                    <div
-                      aria-hidden="true"
-                      className="grid h-28 grid-cols-3"
-                      style={{
-                        backgroundColor: colorDeMarca(tienda.color).hex,
-                      }}
-                    >
-                      {tienda.fotos.slice(0, 3).map((foto) => (
-                        <span
-                          key={foto}
-                          className="relative border-r-2 border-teal-oscuro last:border-r-0"
-                        >
-                          <Image
-                            src={urlFoto(foto)}
-                            alt={t.productoDe(tienda.nombre)}
-                            fill
-                            loading={i < 3 ? "eager" : "lazy"}
-                            sizes="(min-width: 1024px) 130px, 25vw"
-                            className="object-cover"
-                          />
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex flex-1 flex-col gap-2 p-4">
-                      <div className="-mt-10 flex items-end justify-between gap-3">
-                        <LogoTienda
-                          logo={tienda.logo}
-                          nombre={tienda.nombre}
-                          className="size-14 border-4 border-white ring-2 ring-teal-oscuro"
-                        />
-                        <span className="mb-1 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold">
-                          {t.piezas(tienda.piezas)}
-                        </span>
-                      </div>
-                      <h2 className="text-xl font-bold leading-tight">
-                        {tienda.nombre}
-                      </h2>
-                      {tienda.descripcion && (
-                        <p className="line-clamp-2 text-texto-2">
-                          {tienda.descripcion}
-                        </p>
-                      )}
-                      {tienda.categorias.length > 0 && (
-                        <ul className="mt-auto flex flex-wrap gap-1.5 pt-1">
-                          {tienda.categorias.slice(0, 4).map((c) => (
-                            <li
-                              key={c}
-                              className="rounded-full bg-fondo px-2.5 py-0.5 text-xs"
-                            >
-                              {c}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </Link>
+                  <TarjetaTienda tienda={tienda} eager={i < 3} />
                 </li>
               ))}
             </ul>
+            </>
           ) : (
             <>
-              <ul className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-                {visibles.map((p, i) => {
-                  const marca = marcas.get(p.tiendaSlug) ?? {
-                    color: colorDeMarca(null).hex,
-                    logo: null,
-                  };
-                  return (
-                    <li key={`${p.tiendaSlug}-${p.codigo}`} className="h-full">
-                      <Link
-                        href={`/c/${p.tiendaSlug}/${p.codigo}`}
-                        style={{ "--tienda": marca.color } as CSSProperties}
-                        className="group flex h-full flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-white p-2 pb-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura"
-                      >
-                        <div className="relative aspect-square overflow-hidden rounded-[18px] bg-[color-mix(in_srgb,var(--tienda)_12%,white)]">
-                          {p.foto ? (
-                            <Image
-                              src={urlFoto(p.foto)}
-                              alt={p.nombre}
-                              fill
-                              loading={i < 4 ? "eager" : "lazy"}
-                              sizes="(min-width: 1024px) 270px, (min-width: 768px) 30vw, 50vw"
-                              className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-                            />
-                          ) : (
-                            <span
-                              aria-hidden="true"
-                              className="flex size-full items-center justify-center"
-                            >
-                              <Monito
-                                nombre="caja"
-                                className="w-1/3 text-[var(--tienda)] opacity-40"
-                              />
-                            </span>
-                          )}
-                          {p.categoria && (
-                            <span className="absolute left-2 top-2 max-w-[75%] truncate rounded-full border-2 border-teal-oscuro bg-white px-2.5 py-0.5 text-xs font-bold">
-                              {p.categoria}
-                            </span>
-                          )}
-                          {/* Con mucho stock es ruido: solo se avisa cuando quedan pocas */}
-                          {p.disponibles <= POCAS_UNIDADES && (
-                            <span className="absolute bottom-2 left-2 -rotate-2 rounded-full border-2 border-teal-oscuro bg-rosa px-2.5 py-0.5 text-xs font-bold">
-                              {t.ultimas(p.disponibles)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex flex-1 flex-col gap-2 px-2">
-                          <p className="line-clamp-2 font-bold leading-tight">
-                            {p.nombre}
-                          </p>
-                          <p className="flex items-baseline gap-1.5 tabular-nums">
-                            {p.precioMinimo !== p.precioMaximo && (
-                              <span className="text-xs font-bold text-texto-2">
-                                {t.desdeEtiqueta}
-                              </span>
-                            )}
-                            <span className="text-2xl font-extrabold leading-none tracking-tight">
-                              {formatearDolares(p.precioMinimo)}
-                            </span>
-                          </p>
-                          <p className="mt-auto flex min-w-0 items-center gap-2 pt-1 text-xs font-bold text-[var(--tienda)]">
-                            <LogoTienda
-                              logo={marca.logo}
-                              nombre={p.tiendaNombre}
-                              className="size-6 !rounded-full !bg-[var(--tienda)] !text-xs ring-2 ring-[var(--tienda)]"
-                            />
-                            <span className="truncate">{p.tiendaNombre}</span>
-                          </p>
-                        </div>
-                      </Link>
-                    </li>
-                  );
-                })}
+              <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                {visibles.map((p, i) => (
+                  <li key={`${p.tiendaSlug}-${p.codigo}`} className="h-full">
+                    <TarjetaProducto p={p} marca={marcaDe(p)} eager={!portada && i < 5} />
+                  </li>
+                ))}
                 {/* Al final de la última página: una invitación para quien vende, que además tapa el hueco de la fila */}
                 {!hayMas && (
                   <li className="h-full">
@@ -631,42 +426,19 @@ export async function PaginaExplorar({
                   </li>
                 )}
               </ul>
-              {(pagina > 1 || hayMas) && (
-                <nav
-                  aria-label={t.productos}
-                  className="flex items-center justify-between gap-3"
-                >
-                  {pagina > 1 ? (
-                    <Link
-                      {...enlaceExplorar({ ...f, pagina: pagina - 1 })}
-                      className={chip(false)}
-                    >
-                      {t.anterior}
-                    </Link>
-                  ) : (
-                    <span />
-                  )}
-                  <span className="text-sm text-texto-2">
-                    {t.pagina(pagina)}
-                  </span>
-                  {hayMas ? (
-                    <Link
-                      {...enlaceExplorar({ ...f, pagina: pagina + 1 })}
-                      className={chip(false)}
-                    >
-                      {t.siguiente}
-                    </Link>
-                  ) : (
-                    <span />
-                  )}
-                </nav>
-              )}
+              <Paginacion
+                pagina={pagina}
+                porPagina={POR_PAGINA}
+                total={total}
+                hayMas={hayMas}
+                enlace={(n) => enlaceExplorar({ ...f, pagina: n })}
+              />
             </>
           )}
         </div>
       </div>
 
-      <SobreExplorar categoria={categoria} categorias={categorias} />
+      <SobreExplorar rubro={rubro} rubros={rubros} />
     </div>
   );
 }

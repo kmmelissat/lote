@@ -184,7 +184,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
             ← {textos.vitrina.verTodos}
           </Link>
           {/* Ya terminó con esta tienda: es el momento de mostrarle que hay más */}
-          <Link href="/explorar" className="inline-flex min-h-11 items-center text-sm font-bold text-teal underline">
+          <Link href="/marketplace" className="inline-flex min-h-11 items-center text-sm font-bold text-teal underline">
             {t.seguirDescubriendo}
           </Link>
         </div>

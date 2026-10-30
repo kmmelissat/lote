@@ -23,7 +23,7 @@ export const acceso = {
     "Sabé cuánto ganás con cada producto.",
   ],
   volver: "Volver al inicio",
-  explorar: "¿Solo querés mirar? Explorá las tiendas",
+  explorar: "¿Solo querés mirar? Entrá al Marketplace",
   privacidad: "Al entrar aceptás el",
   privacidadEnlace: "aviso de privacidad",
 } as const;

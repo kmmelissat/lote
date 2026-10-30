@@ -1,0 +1,15 @@
+export const admin = {
+  titulo: "Admin de Lote",
+  descripcion: "Elegí qué productos salen en Destacados, arriba del Marketplace. El último que destacás va primero.",
+  buscar: "Buscar producto o tienda",
+  buscarBoton: "Buscar",
+  destacados: (n: number) => (n === 1 ? "1 destacado" : `${n} destacados`),
+  destacar: "Destacar",
+  quitar: "Quitar",
+  destacado: "Destacado",
+  verMarketplace: "Ver el Marketplace",
+  vacio: "No hay productos con eso.",
+  sinSql: "Falta correr supabase/destacados.sql en Supabase.",
+  error: "No se pudo cambiar. Probá de nuevo.",
+  resenas: (estrellas: number, n: number) => `★ ${estrellas.toFixed(1)} (${n})`,
+} as const;

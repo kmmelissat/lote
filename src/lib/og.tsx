@@ -31,6 +31,7 @@ export const COLOR = {
   limon: "#ffe27a",
   rosa: "#f194b4",
   rosaPalido: "#fdeaf1",
+  celeste: "#8fd6f4",
   mango: "#ff9a2e",
   blanco: "#ffffff",
   texto2: "#4a6b73",

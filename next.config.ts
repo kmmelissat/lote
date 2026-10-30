@@ -8,7 +8,13 @@ const nextConfig: NextConfig = {
     "/**/opengraph-image*": ["./assets/fuentes/**/*", "./public/lote-iso.svg"],
     "/apple-icon*": ["./public/lote-iso.svg"],
   },
-  /* config options here */
+  // Explorar pasó a llamarse Marketplace: los enlaces viejos (y lo que ya indexaron los buscadores) siguen funcionando
+  async redirects() {
+    return [
+      { source: "/explorar", destination: "/marketplace", permanent: true },
+      { source: "/explorar/:ruta*", destination: "/marketplace/:ruta*", permanent: true },
+    ];
+  },
   images: {
     // Solo las fotos públicas de productos de nuestro Supabase.
     remotePatterns: [

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { aCentavos, type Centavos } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
+import { agruparEnRubros, type Rubro, type RubroId } from "./rubros";
 
 type Cliente = SupabaseClient<Database>;
 
@@ -26,21 +27,25 @@ export type ProductoExplorar = {
   precioMaximo: Centavos;
   disponibles: number;
   opciones: number;
+  /** Solo en las filas de arriba: el precio de antes si está rebajado, y sus reseñas */
+  precioAnterior?: Centavos | null;
+  estrellas?: number | null;
+  resenas?: number;
+  destacado?: boolean;
 };
 
-/** La página de una categoría tiene dirección propia, sin parámetros: es la que se indexa. */
-export const rutaCategoria = (categoria: string) => `/explorar/categoria/${encodeURIComponent(categoria)}`;
+/** La página de un rubro tiene dirección propia, sin parámetros: es la que se indexa. */
+export const rutaRubro = (rubro: RubroId) => `/marketplace/categoria/${rubro}`;
 
 export const ORDENES_EXPLORAR = ["recientes", "precio_asc", "precio_desc"] as const;
 export type OrdenExplorar = (typeof ORDENES_EXPLORAR)[number];
 
-export type CategoriaExplorar = { categoria: string; productos: number };
-
-/** Lo que se pide al buscar: texto vacío y categoría vacía significan "sin filtro". */
+/** Lo que se pide al buscar: texto vacío significa "sin filtro". */
 const limpio = (t: string | undefined) => (t?.trim() ? t.trim().slice(0, 80) : undefined);
 
-export async function explorarTiendas(supabase: Cliente, busqueda?: string, categoria?: string): Promise<TiendaExplorar[]> {
-  const { data, error } = await supabase.rpc("explorar_tiendas", { p_busqueda: limpio(busqueda), p_categoria: limpio(categoria) });
+/** `claves` son las categorías del rubro elegido ("tienda|categoría"); sin rubro, no se pasan. */
+export async function explorarTiendas(supabase: Cliente, busqueda?: string, claves?: string[]): Promise<TiendaExplorar[]> {
+  const { data, error } = await supabase.rpc("explorar_tiendas", { p_busqueda: limpio(busqueda), p_claves: claves });
   if (error) throw error;
   return data.map((t) => ({
     slug: t.slug,
@@ -49,7 +54,8 @@ export async function explorarTiendas(supabase: Cliente, busqueda?: string, cate
     color: t.color,
     descripcion: t.descripcion,
     piezas: t.piezas,
-    fotos: t.fotos ?? [],
+    // Las variantes comparten la foto general: sin repetir
+    fotos: [...new Set(t.fotos ?? [])],
     categorias: t.categorias ?? [],
   }));
 }
@@ -58,7 +64,8 @@ export async function explorarProductos(
   supabase: Cliente,
   opciones: {
     busqueda?: string;
-    categoria?: string;
+    /** Las categorías del rubro elegido ("tienda|categoría") */
+    claves?: string[];
     limite: number;
     desde: number;
     orden?: OrdenExplorar;
@@ -66,10 +73,10 @@ export async function explorarProductos(
     precioMin?: number;
     precioMax?: number;
   },
-): Promise<ProductoExplorar[]> {
+): Promise<{ productos: ProductoExplorar[]; total: number | null }> {
   const { data, error } = await supabase.rpc("explorar_productos", {
     p_busqueda: limpio(opciones.busqueda),
-    p_categoria: limpio(opciones.categoria),
+    p_claves: opciones.claves,
     p_limite: opciones.limite,
     p_desde: opciones.desde,
     p_orden: opciones.orden,
@@ -77,7 +84,7 @@ export async function explorarProductos(
     p_precio_max: opciones.precioMax,
   });
   if (error) throw error;
-  return data.map((p) => ({
+  const productos = data.map((p) => ({
     tiendaSlug: p.tienda_slug,
     tiendaNombre: p.tienda_nombre,
     codigo: p.codigo,
@@ -89,10 +96,44 @@ export async function explorarProductos(
     disponibles: p.disponibles,
     opciones: p.opciones,
   }));
+  // Cuántos hay con estos filtros, para numerar las páginas (null si todavía falta paginacion.sql)
+  return { productos, total: data[0]?.total ?? (data.length === 0 ? 0 : null) };
 }
 
-export async function explorarCategorias(supabase: Cliente): Promise<CategoriaExplorar[]> {
+type FilaDestacada = Database["public"]["Functions"]["explorar_destacados"]["Returns"][number];
+
+const deFilaDestacada = (p: FilaDestacada): ProductoExplorar => ({
+  tiendaSlug: p.tienda_slug,
+  tiendaNombre: p.tienda_nombre,
+  codigo: p.codigo,
+  nombre: p.nombre,
+  categoria: p.categoria,
+  foto: p.foto,
+  precioMinimo: aCentavos(p.precio),
+  precioMaximo: aCentavos(p.precio_maximo),
+  precioAnterior: p.precio_anterior === null ? null : aCentavos(p.precio_anterior),
+  disponibles: p.disponibles,
+  opciones: p.opciones,
+  destacado: p.destacado,
+  estrellas: p.estrellas,
+  resenas: p.resenas,
+});
+
+/** Los que eligió la admin y, para completar, los mejor calificados. Vacío si todavía falta su SQL. */
+export async function explorarDestacados(supabase: Cliente, limite: number): Promise<ProductoExplorar[]> {
+  const { data, error } = await supabase.rpc("explorar_destacados", { p_limite: limite });
+  return error ? [] : data.map(deFilaDestacada);
+}
+
+/** Lo rebajado, el descuento más grande primero. Vacío si todavía falta su SQL. */
+export async function explorarOfertas(supabase: Cliente, limite: number): Promise<ProductoExplorar[]> {
+  const { data, error } = await supabase.rpc("explorar_ofertas", { p_limite: limite });
+  return error ? [] : data.map(deFilaDestacada);
+}
+
+/** Los rubros con productos a la vista, armados con las categorías de todas las tiendas. */
+export async function explorarRubros(supabase: Cliente): Promise<Rubro[]> {
   const { data, error } = await supabase.rpc("explorar_categorias");
   if (error) throw error;
-  return data;
+  return agruparEnRubros(data);
 }

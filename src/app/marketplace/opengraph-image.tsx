@@ -19,7 +19,9 @@ const COLLAGE = [
 /** Explorar: el mismo encabezado de la página (teal, "te encante" subrayado) con productos reales de distintas tiendas. */
 export default async function Imagen() {
   const [productos, gorila] = await Promise.all([
-    explorarProductos(createPublicClient(), { limite: 12, desde: 0, orden: "recientes" }).catch(() => []),
+    explorarProductos(createPublicClient(), { limite: 12, desde: 0, orden: "recientes" })
+      .then((r) => r.productos)
+      .catch(() => []),
     gorilaOg(),
   ]);
   // Uno por tienda, para que se note que son varias
@@ -44,10 +46,10 @@ export default async function Imagen() {
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1 }}>
           <LogoOg gorila={gorila} escala={1.1} />
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ display: "flex", flexDirection: "column", fontSize: 64, fontWeight: 700, lineHeight: 1.05, letterSpacing: -1.5 }}>
-              <span>{t.ogExplorarTitulo}</span>
-              {/* El subrayado de marcador de la landing, en limón */}
-              <span style={{ display: "flex", alignSelf: "flex-start", backgroundImage: `linear-gradient(transparent 72%, ${COLOR.limon} 72%, ${COLOR.limon} 92%, transparent 92%)` }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 50, fontWeight: 700, lineHeight: 1.05, letterSpacing: -1.5 }}>
+              <span style={{ whiteSpace: "nowrap" }}>{t.ogExplorarTitulo}</span>
+              {/* El subrayado limón, debajo de las letras como en el encabezado del Marketplace */}
+              <span style={{ display: "flex", alignSelf: "flex-start", paddingBottom: 10, backgroundImage: `linear-gradient(transparent 86%, ${COLOR.limon} 86%, ${COLOR.limon} 100%)`, whiteSpace: "nowrap" }}>
                 {t.ogExplorarDestacado}
               </span>
             </div>

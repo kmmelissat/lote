@@ -7,6 +7,9 @@
 //                          privada, así no se pierde tu sesión) y cambiar fotos o lo que sea desde Editar
 //   pnpm semilla --fotos-ia patitas-felices
 //                          cambia las fotos y el logo de esa tienda por unos hechos con IA (OPENAI_API_KEY de .env.local)
+//   pnpm semilla --agregar [le-petit-tarte velvet]
+//                          suma productos nuevos a tiendas que ya existen (sin tocar los que tienen)
+//                          con --desde 23 solo los productos de código 23 en adelante (y no toca el logo)
 //   pnpm semilla --logo-ia patitas-felices
 //                          solo el logo
 //
@@ -419,10 +422,18 @@ async function crearTienda(t: Tienda) {
   const logo = await subirLogo(negocioId, t.nombre, t.color);
   if (logo) await supabase.from("negocio").update({ logo }).eq("id", negocioId);
 
-  const categorias = [...new Set(t.productos.map((p) => p.categoria))];
-  await supabase.from("categoria").insert(categorias.map((nombre) => ({ negocio_id: negocioId, nombre })));
+  const total = await cargarProductos(negocioId, ubicacionId, 1, t.productos);
+  console.log(`   ${total} productos → ${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"}/c/${t.slug}`);
+}
 
-  let codigo = 1;
+/** Crea categorías, productos, existencias y costos. Devuelve cuántas filas creó y deja `siguiente_codigo` al día. */
+async function cargarProductos(negocioId: string, ubicacionId: string, codigoInicial: number, productos: Producto[]): Promise<number> {
+  const { data: previas } = await supabase.from("categoria").select("nombre").eq("negocio_id", negocioId);
+  const tienen = new Set((previas ?? []).map((c) => c.nombre));
+  const nuevas = [...new Set(productos.map((p) => p.categoria))].filter((n) => !tienen.has(n));
+  if (nuevas.length) await supabase.from("categoria").insert(nuevas.map((nombre) => ({ negocio_id: negocioId, nombre })));
+
+  let codigo = codigoInicial;
   async function insertar(p: Producto, fila: { nombre: string; precio: number; cantidad: number; fotos: string[]; grupo?: string; variante?: string }) {
     const { data: creado, error: errorProducto } = await supabase
       .from("producto")
@@ -452,7 +463,7 @@ async function crearTienda(t: Tienda) {
     await supabase.from("costo_producto").insert(costos.map((c) => ({ ...c, producto_id: creado.id, negocio_id: negocioId, por_unidad: true })));
   }
 
-  for (const p of t.productos) {
+  for (const p of productos) {
     const general = await subirFoto(negocioId, p.tema);
     if (!p.variantes) {
       await insertar(p, { nombre: p.nombre, precio: p.precio, cantidad: p.cantidad ?? 1, fotos: general ? [general] : [] });
@@ -473,7 +484,126 @@ async function crearTienda(t: Tienda) {
     }
   }
   await supabase.from("negocio").update({ siguiente_codigo: codigo }).eq("id", negocioId);
-  console.log(`   ${codigo - 1} productos → ${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"}/c/${t.slug}`);
+  return codigo - codigoInicial;
+}
+
+// ---------------------------------------------------------------- agregar a tiendas que ya existen
+
+const MAS_PRODUCTOS: Record<string, Producto[]> = {
+  "le-petit-tarte": [
+    {
+      nombre: "Cheesecake individual",
+      precio: 4.5,
+      costo: 1.8,
+      categoria: "Postres",
+      descripcion: "Porción individual con base de galleta y salsa de fruta encima.",
+      tema: "individual cheesecake",
+      variantes: {
+        opcion: "Sabor",
+        valores: [
+          { etiqueta: "Fresa", cantidad: 6, tema: "strawberry cheesecake slice" },
+          { etiqueta: "Maracuyá", cantidad: 5, tema: "passion fruit cheesecake" },
+          { etiqueta: "Oreo", cantidad: 6, tema: "oreo cheesecake" },
+        ],
+      },
+    },
+    {
+      nombre: "Brownies",
+      precio: 3,
+      costo: 1,
+      categoria: "Postres",
+      descripcion: "Brownie húmedo de chocolate, cortado en cuadros grandes.",
+      tema: "chocolate brownie",
+      variantes: {
+        opcion: "Tipo",
+        valores: [
+          { etiqueta: "Clásico", cantidad: 10, tema: "chocolate brownie" },
+          { etiqueta: "Con nueces", cantidad: 8, tema: "walnut brownie" },
+          { etiqueta: "Con dulce de leche", cantidad: 6, tema: "caramel brownie" },
+        ],
+      },
+    },
+    { nombre: "Macarons (caja de 6)", precio: 9, costo: 4, cantidad: 8, categoria: "Postres", descripcion: "Seis macarons de sabores surtidos en caja de regalo.", tema: "macarons box" },
+    { nombre: "Mini pie de limón", precio: 5, costo: 2, cantidad: 7, categoria: "Postres", descripcion: "Pie de limón con merengue dorado al soplete.", tema: "lemon meringue tart" },
+    { nombre: "Tres leches individual", precio: 3.5, costo: 1.3, cantidad: 12, categoria: "Postres", descripcion: "Vasito de pastel tres leches con crema y canela.", tema: "tres leches cake" },
+    { nombre: "Alfajores de dulce de leche (6 u.)", precio: 5, costo: 2, cantidad: 9, categoria: "Postres", descripcion: "Alfajores suaves rellenos de dulce de leche y coco rallado.", tema: "alfajores" },
+    { nombre: "Cinnamon rolls", precio: 3.5, costo: 1.2, cantidad: 10, categoria: "Panadería", descripcion: "Rollos de canela con glaseado de queso crema, recién horneados.", tema: "cinnamon rolls" },
+    { nombre: "Torta de zanahoria (porción)", precio: 3.75, costo: 1.4, cantidad: 8, categoria: "Postres", descripcion: "Con nueces y frosting de queso crema.", tema: "carrot cake slice" },
+    { nombre: "Caja de postres para regalo", precio: 15, costo: 7, cantidad: 5, categoria: "Regalos", descripcion: "Selección de cuatro postres de la casa en caja decorada.", tema: "dessert gift box" },
+  ],
+  velvet: [
+    {
+      nombre: "Case iPhone transparente con brillos",
+      precio: 18,
+      costo: 6,
+      categoria: "Accesorios",
+      descripcion: "Case transparente con glitter, bordes elevados que protegen la cámara.",
+      tema: "glitter phone case",
+      variantes: {
+        opcion: "Modelo",
+        valores: ["iPhone 15", "iPhone 16", "iPhone 17", "iPhone 17 Pro Max"].map((etiqueta) => ({ etiqueta, cantidad: 4 })),
+      },
+    },
+    {
+      nombre: "Case iPhone con cadena de perlas",
+      precio: 28,
+      costo: 10,
+      categoria: "Accesorios",
+      descripcion: "Case con cadena de perlas desmontable para llevarlo cruzado.",
+      tema: "phone case pearl chain",
+      variantes: {
+        opcion: "Modelo",
+        valores: ["iPhone 16", "iPhone 17", "iPhone 17 Pro"].map((etiqueta) => ({ etiqueta, cantidad: 3 })),
+      },
+    },
+    {
+      nombre: "Case iPhone de silicón liso",
+      precio: 15,
+      costo: 4.5,
+      categoria: "Accesorios",
+      descripcion: "Silicón suave en colores pastel, interior de microfibra.",
+      tema: "silicone phone case",
+      variantes: {
+        opcion: "Color",
+        valores: [
+          { etiqueta: "Rosa", cantidad: 8, tema: "pink silicone phone case" },
+          { etiqueta: "Lila", cantidad: 6, tema: "purple silicone phone case" },
+          { etiqueta: "Celeste", cantidad: 6, tema: "light blue phone case" },
+        ],
+      },
+    },
+    { nombre: "Popsocket de flores", precio: 6, costo: 1.5, cantidad: 15, categoria: "Accesorios", descripcion: "Agarre y soporte para el celular, con diseño de flores.", tema: "popsocket" },
+    { nombre: "Argolla de agarre para celular", precio: 5, costo: 1.2, cantidad: 20, categoria: "Accesorios", descripcion: "Argolla metálica giratoria, se pega a cualquier case.", tema: "phone ring holder" },
+    { nombre: "Cordón de muñeca para celular", precio: 7, costo: 2, cantidad: 12, categoria: "Accesorios", descripcion: "Cordón tejido de colores con herraje para case.", tema: "phone wrist strap" },
+    { nombre: "Protector de pantalla vidrio templado", precio: 8, costo: 2, cantidad: 25, categoria: "Protección", descripcion: "Vidrio 9H antihuellas, incluye kit para instalarlo.", tema: "tempered glass screen protector" },
+    { nombre: "Estuche para AirPods", precio: 12, costo: 4, cantidad: 10, categoria: "Accesorios", descripcion: "Funda de silicón con llavero para AirPods.", tema: "airpods case" },
+    { nombre: "Cargador MagSafe inalámbrico", precio: 22, costo: 10, cantidad: 6, categoria: "Carga", descripcion: "Carga inalámbrica magnética de 15 W.", tema: "magsafe charger" },
+    { nombre: "Charms para case (set de 5)", precio: 9, costo: 3, cantidad: 14, categoria: "Accesorios", descripcion: "Dijes decorativos para personalizar tu case.", tema: "phone charms" },
+  ],
+};
+
+async function agregarProductos(slugs: string[]) {
+  const quienes = slugs.length ? slugs : Object.keys(MAS_PRODUCTOS);
+  for (const slug of quienes) {
+    const productos = MAS_PRODUCTOS[slug];
+    if (!productos) {
+      console.error(`No hay productos nuevos definidos para "${slug}". Hay: ${Object.keys(MAS_PRODUCTOS).join(", ")}`);
+      continue;
+    }
+    const { data: negocio } = await supabase.from("negocio").select("id, nombre, siguiente_codigo").eq("slug", slug).maybeSingle();
+    if (!negocio) {
+      console.error(`No existe la tienda "${slug}".`);
+      continue;
+    }
+    const { data: ubicacion } = await supabase.from("ubicacion").select("id").eq("negocio_id", negocio.id).order("es_principal", { ascending: false }).limit(1).maybeSingle();
+    if (!ubicacion) {
+      console.error(`${negocio.nombre} no tiene ubicación.`);
+      continue;
+    }
+    console.log(`· ${negocio.nombre}`);
+    const total = await cargarProductos(negocio.id, ubicacion.id, negocio.siguiente_codigo, productos);
+    console.log(`   ${total} filas nuevas → ${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"}/c/${slug}`);
+  }
 }
 
 // ---------------------------------------------------------------- borrar
@@ -547,7 +677,7 @@ async function logoConIa(slug: string | undefined) {
   }
 }
 
-async function fotosConIa(slug: string | undefined) {
+async function fotosConIa(slug: string | undefined, desdeCodigo = 0) {
   if (!slug) return console.log(`¿De cuál tienda? ${TIENDAS.map((t) => t.slug).join(", ")}`);
   if (!process.env.OPENAI_API_KEY) return console.error("Falta OPENAI_API_KEY en .env.local");
   const { data: negocio } = await supabase.from("negocio").select("id, nombre").eq("slug", slug).maybeSingle();
@@ -556,6 +686,7 @@ async function fotosConIa(slug: string | undefined) {
     .from("producto")
     .select("id, nombre, descripcion, categoria, variante, grupo, opciones_variante, fotos")
     .eq("negocio_id", negocio.id)
+    .gte("codigo", desdeCodigo)
     .order("codigo");
   if (error) throw error;
 
@@ -583,7 +714,7 @@ async function fotosConIa(slug: string | undefined) {
       console.log(`   ✓ ${base}`);
     }
   }
-  await Promise.all([trabajar(), trabajar(), trabajar(), logoConIa(slug)]);
+  await Promise.all([trabajar(), trabajar(), trabajar(), desdeCodigo ? null : logoConIa(slug)]);
   if (viejas.length) await supabase.storage.from("productos").remove([...new Set(viejas)]);
   console.log(`Listo → ${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"}/c/${slug}`);
 }
@@ -608,10 +739,12 @@ async function enlaceParaEntrar(slug: string | undefined) {
 
 const argumentos = process.argv.slice(2);
 const despuesDe = (bandera: string) => argumentos[argumentos.indexOf(bandera) + 1];
-if (argumentos.includes("--logo-ia")) {
+if (argumentos.includes("--agregar")) {
+  await agregarProductos(argumentos.filter((a) => a !== "--agregar"));
+} else if (argumentos.includes("--logo-ia")) {
   await logoConIa(despuesDe("--logo-ia"));
 } else if (argumentos.includes("--fotos-ia")) {
-  await fotosConIa(despuesDe("--fotos-ia"));
+  await fotosConIa(despuesDe("--fotos-ia"), Number(despuesDe("--desde")) || 0);
 } else if (argumentos.includes("--entrar")) {
   await enlaceParaEntrar(despuesDe("--entrar"));
 } else if (argumentos.includes("--borrar")) {

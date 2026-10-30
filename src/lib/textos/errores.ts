@@ -13,5 +13,5 @@ export const errores = {
     "La página se movió a otro lugar.",
   ],
   volver: "Volver atrás",
-  explorar: "Explorar tiendas",
+  explorar: "Ir al Marketplace",
 } as const;

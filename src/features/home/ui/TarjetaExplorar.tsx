@@ -24,7 +24,7 @@ export function TarjetaExplorar({ visible }: { visible: boolean }) {
         </div>
       </div>
       {visible ? (
-        <Link href="/explorar" target="_blank" className={`${boton} bg-superficie hover:bg-limon`}>
+        <Link href="/marketplace" target="_blank" className={`${boton} bg-superficie hover:bg-limon`}>
           {t.ver}
           <Icon nombre="enlace" className="size-4" />
           <span className="sr-only">(se abre en una pestaña nueva)</span>

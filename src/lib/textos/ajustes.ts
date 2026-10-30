@@ -81,7 +81,7 @@ export const ajustes = {
       texto: "Una página con tu enlace donde tus clientes ven lo disponible y compran o apartan solos.",
       interruptor: "Tener una vitrina en línea",
       ayuda: "Es opcional. Sin ella, Lote sirve igual para registrar tus ventas, ver tu ganancia y llevar tu stock.",
-      apagada: "Sin vitrina nadie ve tus productos desde afuera y no aparecés en Explorar. Tus productos, pedidos y ganancia siguen igual, y la podés prender cuando quieras.",
+      apagada: "Sin vitrina nadie ve tus productos desde afuera y no aparecés en el Marketplace. Tus productos, pedidos y ganancia siguen igual, y la podés prender cuando quieras.",
     },
     local: {
       titulo: "Local en vivo",
@@ -102,7 +102,7 @@ export const ajustes = {
     },
     grupos: {
       pedidos: { titulo: "Compras y apartados", texto: "Si tus clientes pueden pedir solos y cuánto tiempo tienen para pagar." },
-      explorar: { titulo: "Explorar", texto: "Que otras personas te descubran." },
+      explorar: { titulo: "Marketplace", texto: "Que otras personas te descubran." },
       contacto: { titulo: "Cómo te escriben", texto: "Los botones de la vitrina que llevan a tu chat." },
       stock: { titulo: "Poco stock", texto: "Cuándo te avisamos que algo se está acabando." },
     },
@@ -110,10 +110,10 @@ export const ajustes = {
     comprarAyuda: "Tus clientes eligen, ponen sus datos y te pagan. Incluye el carrito.",
     apartar: "Se puede apartar desde la vitrina",
     modoCatalogo: "Con las dos apagadas tu vitrina es un catálogo: cada producto lleva un botón grande de «Me interesa» que abre tu WhatsApp o tu Instagram.",
-    explorar: "Aparecer en Explorar",
+    explorar: "Aparecer en el Marketplace",
     explorarAyuda:
-      "Explorar es el escaparate con las vitrinas de todas las tiendas de Lote. Si lo prendés, tu tienda y tus productos disponibles se pueden descubrir ahí. Empieza apagado.",
-    verExplorar: "Ver Explorar",
+      "El Marketplace es el escaparate con las vitrinas de todas las tiendas de Lote. Si lo prendés, tu tienda y tus productos disponibles se pueden descubrir ahí. Empieza apagado.",
+    verExplorar: "Ver el Marketplace",
     apartarAyuda: "Lo guardan sin pagar por unas horas, mientras se deciden.",
     apagadoAviso: "Apartar está apagado: estos dos valores se guardan, pero no se usan hasta que lo prendas.",
     plazo: "Horas para pagar un apartado",

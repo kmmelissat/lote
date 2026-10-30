@@ -97,9 +97,9 @@ export const ayuda = {
       id: "explorar",
       enlace: { href: "/ajustes/tienda", etiqueta: "Ajustes de tu tienda" },
       donde: ["/ajustes"],
-      pregunta: "¿Mis productos salen en Explorar?",
+      pregunta: "¿Mis productos salen en el Marketplace?",
       respuesta:
-        "Solo si vos querés. En Ajustes, en Mi tienda, está el interruptor de Explorar y empieza apagado. Cuando lo prendés, tus productos aparecen junto a los de otras tiendas.",
+        "Solo si vos querés. En Ajustes, en Mi tienda, está el interruptor del Marketplace y empieza apagado. Cuando lo prendés, tus productos aparecen junto a los de otras tiendas.",
     },
     {
       id: "lotito_foto",

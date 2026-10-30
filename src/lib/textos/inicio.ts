@@ -74,12 +74,12 @@ export const inicio = {
   sinMovimiento: "Todavía no hay ventas. Cuando apartés algo, aparece acá.",
   nuevoProducto: "Nuevo producto",
   explorar: {
-    tituloSi: "Tu tienda aparece en Explorar",
+    tituloSi: "Tu tienda aparece en el Marketplace",
     textoSi: "Otras personas te pueden descubrir ahí, junto a las demás tiendas de Lote.",
     tituloNo: "Que más gente te descubra",
-    textoNo: "Explorar es el escaparate con las tiendas de Lote. Es opcional: lo prendés en Mi tienda y lo apagás cuando quieras.",
-    ver: "Ver Explorar",
-    activar: "Aparecer en Explorar",
+    textoNo: "El Marketplace es el escaparate con las tiendas de Lote. Es opcional: lo prendés en Mi tienda y lo apagás cuando quieras.",
+    ver: "Ver el Marketplace",
+    activar: "Aparecer en el Marketplace",
   },
   vitrina: {
     titulo: "Tu vitrina",

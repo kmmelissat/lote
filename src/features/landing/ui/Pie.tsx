@@ -18,7 +18,7 @@ export function Pie() {
           <Logo />
           <p>{t.pie.proyecto}</p>
           <nav aria-label={t.menu} className="flex flex-wrap gap-x-5 font-medium">
-            <Link href="/explorar" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">
+            <Link href="/marketplace" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">
               {textos.explorar.enlaceMenu}
             </Link>
             <Link href="/privacidad" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">

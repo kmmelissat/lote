@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { explorarCategorias, rutaCategoria } from "@/features/catalog/explorar";
+import { explorarRubros, rutaRubro } from "@/features/catalog/explorar";
 import { listarProductosPublicos } from "@/features/catalog/repositorio";
 import { codigosParaIndexar } from "@/features/catalog/seo";
 
@@ -14,7 +14,7 @@ const MAXIMO_TIENDAS = 200;
 
 const fijas: MetadataRoute.Sitemap = [
   { url: urlSitio, changeFrequency: "monthly", priority: 1 },
-  { url: `${urlSitio}/explorar`, changeFrequency: "daily", priority: 0.8 },
+  { url: `${urlSitio}/marketplace`, changeFrequency: "daily", priority: 0.8 },
   { url: `${urlSitio}/privacidad`, changeFrequency: "yearly", priority: 0.3 },
 ];
 
@@ -52,9 +52,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ];
       }),
     );
-    const categorias = (await explorarCategorias(publico).catch(() => [])).map(
-      (c) => ({
-        url: `${urlSitio}${rutaCategoria(c.categoria)}`,
+    const categorias = (await explorarRubros(publico).catch(() => [])).map(
+      (r) => ({
+        url: `${urlSitio}${rutaRubro(r.id)}`,
         changeFrequency: "daily" as const,
         priority: 0.6,
       }),

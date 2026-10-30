@@ -1510,7 +1510,7 @@ export type Database = {
         }[]
       }
       explorar_tiendas: {
-        Args: { p_busqueda?: string; p_categoria?: string }
+        Args: { p_busqueda?: string; p_claves?: string[] }
         Returns: {
           categorias: string[] | null
           color: string | null
@@ -1525,7 +1525,7 @@ export type Database = {
       explorar_productos: {
         Args: {
           p_busqueda?: string
-          p_categoria?: string
+          p_claves?: string[]
           p_desde?: number
           p_limite?: number
           p_orden?: string
@@ -1543,11 +1543,74 @@ export type Database = {
           precio_maximo: number
           tienda_nombre: string
           tienda_slug: string
+          /** Falta si todavía no se corrió paginacion.sql */
+          total?: number
         }[]
       }
       explorar_categorias: {
         Args: never
-        Returns: { categoria: string; productos: number }[]
+        Returns: { tienda: string; categoria: string; productos: number }[]
+      }
+      explorar_destacados: {
+        Args: { p_limite?: number }
+        Returns: {
+          tienda_slug: string
+          tienda_nombre: string
+          codigo: number
+          nombre: string
+          categoria: string | null
+          foto: string | null
+          precio: number
+          precio_maximo: number
+          precio_anterior: number | null
+          disponibles: number
+          opciones: number
+          destacado: boolean
+          estrellas: number | null
+          resenas: number
+        }[]
+      }
+      explorar_ofertas: {
+        Args: { p_limite?: number }
+        Returns: {
+          tienda_slug: string
+          tienda_nombre: string
+          codigo: number
+          nombre: string
+          categoria: string | null
+          foto: string | null
+          precio: number
+          precio_maximo: number
+          precio_anterior: number | null
+          disponibles: number
+          opciones: number
+          destacado: boolean
+          estrellas: number | null
+          resenas: number
+        }[]
+      }
+      es_admin: {
+        Args: never
+        Returns: boolean
+      }
+      admin_productos: {
+        Args: { p_busqueda?: string }
+        Returns: {
+          producto_id: string
+          tienda_slug: string
+          tienda_nombre: string
+          codigo: number
+          nombre: string
+          foto: string | null
+          precio: number
+          destacado: boolean
+          estrellas: number | null
+          resenas: number
+        }[]
+      }
+      admin_destacar: {
+        Args: { p_producto: string; p_destacar: boolean }
+        Returns: undefined
       }
       vitrina_productos: {
         Args: { p_codigo?: number; p_slug: string }
