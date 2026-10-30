@@ -111,11 +111,11 @@ export function HeroAnimadoMas() {
 
       <div className="relative z-10 ml-auto flex w-[90%] rotate-2 flex-col gap-2 rounded-[24px] border-[3px] border-teal-oscuro bg-celeste-palido p-4 shadow-dura">
         <p className={`max-w-[85%] self-end rounded-2xl rounded-br-md bg-teal px-3.5 py-2 text-sm text-white ${paso >= 1 ? "animate-entra" : "invisible"}`}>{m.tu}</p>
-        <p className={`max-w-[90%] rounded-2xl rounded-bl-md bg-fondo px-3.5 py-2 text-sm ${paso >= 2 ? "animate-entra" : "invisible"}`}>{m.lote}</p>
-        <span className={`self-start rounded-full border-2 border-teal-oscuro px-3 py-0.5 text-sm font-bold text-teal ${paso >= 3 ? "animate-entra" : "invisible"}`}>
+        <p className={`max-w-[90%] rounded-2xl rounded-bl-md bg-crema px-3.5 py-2 text-sm ${paso >= 2 ? "animate-entra" : "invisible"}`}>{m.lote}</p>
+        <span className={`self-start rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold text-teal-oscuro ${paso >= 3 ? "animate-entra" : "invisible"}`}>
           {m.deshacer}
         </span>
-        <p className="mt-0.5 rounded-full border-2 border-borde px-3.5 py-2 text-sm text-texto-2">{m.escribile}</p>
+        <p className="mt-0.5 rounded-full border-2 border-teal-oscuro bg-white px-3.5 py-2 text-sm text-texto-2">{m.escribile}</p>
       </div>
 
       <div className="relative z-10 flex -rotate-1 items-center justify-between gap-3 rounded-[24px] border-[3px] border-teal-oscuro bg-teal-oscuro px-5 py-3.5 text-white shadow-[4px_4px_0_0_var(--color-rosa)] md:mr-8">

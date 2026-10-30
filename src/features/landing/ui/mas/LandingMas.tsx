@@ -271,7 +271,7 @@ function Pasos() {
           </svg>
           {c.pasos.map((p, n) => (
             <ApareceItem key={p.titulo} className={`relative flex flex-col gap-4 rounded-[28px] border-[3px] border-teal-oscuro p-5 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] ${FONDO_PASO[n]} ${GIRO_PASO[n]}`}>
-              <span className="flex size-12 items-center justify-center rounded-full border-[3px] border-teal-oscuro bg-mango text-xl font-extrabold text-teal-oscuro shadow-dura-chica">
+              <span className={`flex size-12 items-center justify-center rounded-full border-[3px] border-teal-oscuro text-xl font-extrabold text-teal-oscuro shadow-dura-chica ${["bg-mango", "bg-rosa", "bg-limon"][n]}`}>
                 {n + 1}
               </span>
               <h3 className="text-[24px] font-extrabold leading-tight text-teal-oscuro">{p.titulo}</h3>
@@ -290,14 +290,14 @@ function Pasos() {
 // ------------------------------------------------------------------ funciones
 
 const BLOQUES = [
-  { clave: "estado", color: "bg-teal-fondo", span: "md:col-span-3" },
+  { clave: "estado", color: "bg-crema", span: "md:col-span-3" },
   { clave: "vitrina", color: "bg-rosa", span: "md:col-span-3" },
   { clave: "ganancia", color: "bg-limon", span: "md:col-span-2" },
   { clave: "pedidos", color: "bg-celeste", span: "md:col-span-2" },
   { clave: "asistente", color: "bg-mango", span: "md:col-span-2" },
-  { clave: "importar", color: "bg-white", span: "md:col-span-2" },
+  { clave: "importar", color: "bg-celeste-palido", span: "md:col-span-2" },
   { clave: "foto", color: "bg-rosa-palido", span: "md:col-span-2" },
-  { clave: "descubrir", color: "bg-teal-fondo", span: "md:col-span-2" },
+  { clave: "descubrir", color: "bg-crema", span: "md:col-span-2" },
 ] as const;
 
 /** Recorte chiquito adentro de cada tarjeta, para que no sean solo título y párrafo. */
@@ -307,7 +307,7 @@ function Recorte({ de }: { de: (typeof BLOQUES)[number]["clave"] }) {
     return (
       <dl className="mt-auto grid grid-cols-3 gap-2">
         {f.estado.contadores.map(([n, etiqueta]) => (
-          <div key={etiqueta} className="flex flex-col items-center rounded-2xl border-2 border-teal-oscuro bg-white py-2">
+          <div key={etiqueta} className="flex flex-col items-center rounded-2xl border-2 border-teal-oscuro bg-celeste-palido py-2">
             <dd className="text-2xl font-extrabold leading-none tabular-nums">{n}</dd>
             <dt className="mt-1 text-[11px] font-bold text-texto-2">{etiqueta}</dt>
           </div>
@@ -409,7 +409,7 @@ function Buscar() {
       <div aria-hidden="true" className={`pointer-events-none absolute inset-0 opacity-[0.08] ${PUNTOS}`} />
       <div className={`${contenedor} relative grid grid-cols-1 items-center gap-12 md:grid-cols-[1.2fr_0.8fr]`}>
         <Aparece className="flex flex-col items-start gap-6">
-          <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-white px-4 py-1.5 text-sm font-bold text-teal-oscuro shadow-dura-chica">
+          <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-celeste px-4 py-1.5 text-sm font-bold text-teal-oscuro shadow-dura-chica">
             {b.etiqueta}
           </span>
           <h2 id="buscar-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">
@@ -528,7 +528,7 @@ function Cierre({ conSesion }: { conSesion: boolean }) {
 
 // ------------------------------------------------------------------ nombres (las que entrevistamos)
 
-const ETIQUETAS = ["-rotate-2 bg-limon", "rotate-2 bg-rosa", "-rotate-1 bg-celeste", "rotate-1 bg-mango", "-rotate-2 bg-white"];
+const ETIQUETAS = ["-rotate-2 bg-limon", "rotate-2 bg-rosa", "-rotate-1 bg-celeste", "rotate-1 bg-mango", "-rotate-2 bg-crema"];
 
 function Nombres() {
   return (
@@ -628,7 +628,7 @@ function Precios({ conSesion }: { conSesion: boolean }) {
             <LotitoMas nombre="thumbsup" className="absolute -bottom-3 right-4 w-20 md:w-28" />
           </ApareceCaja>
           <ApareceCaja as="article" className="relative flex flex-col gap-6 rounded-[32px] border-[3px] border-dashed border-teal-oscuro bg-crema p-8 md:rotate-1">
-            <span className="absolute -top-5 left-6 rotate-2 rounded-full border-[3px] border-teal-oscuro bg-white px-4 py-1 text-sm font-extrabold text-teal-oscuro shadow-dura-chica">
+            <span className="absolute -top-5 left-6 rotate-2 rounded-full border-[3px] border-teal-oscuro bg-celeste px-4 py-1 text-sm font-extrabold text-teal-oscuro shadow-dura-chica">
               {p.proximamente}
             </span>
             <p className="mt-4 font-extrabold text-teal-oscuro">{p.pago.nombre}</p>

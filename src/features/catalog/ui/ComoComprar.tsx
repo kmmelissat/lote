@@ -58,7 +58,7 @@ export function ComoComprar({
       ? [
           {
             icono: "reloj" as const,
-            fondo: "bg-teal-fondo",
+            fondo: "bg-celeste",
             giro: "-rotate-2",
             titulo: t.apartar.titulo,
             texto: t.apartar.texto(plazoHoras),
@@ -86,7 +86,7 @@ export function ComoComprar({
               <Icon nombre={p.icono} className="size-6" />
               <span
                 aria-hidden="true"
-                className="absolute -left-2 -top-2 flex size-6 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-xs font-bold"
+                className="absolute -left-2 -top-2 flex size-6 items-center justify-center rounded-full border-2 border-teal-oscuro bg-crema text-xs font-bold"
               >
                 {i + 1}
               </span>

@@ -138,7 +138,7 @@ export function ZonaDeCompra({
                       disabled={!disponible && !activo}
                       onClick={() => elegir(d, valor)}
                       className={`inline-flex min-h-11 items-center rounded-full border-2 px-5 text-sm font-bold transition-colors ${
-                        activo ? "border-teal-oscuro bg-accion text-accion-texto" : "border-teal-oscuro bg-white hover:bg-limon"
+                        activo ? "border-teal-oscuro bg-mango text-teal-oscuro" : "border-teal-oscuro bg-crema hover:bg-limon"
                       } ${disponible || activo ? "" : "border-teal-oscuro/30 text-texto-2 line-through opacity-60"}`}
                     >
                       {valor}

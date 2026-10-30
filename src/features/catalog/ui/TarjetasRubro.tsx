@@ -7,15 +7,15 @@ const t = textos.explorar;
 
 /** Cada rubro con su ícono y su color, para reconocerlo de un vistazo (como en un marketplace). */
 const ESTILO: Record<RubroId, { Icono: LucideIcon; fondo: string }> = {
-  ropa: { Icono: Shirt, fondo: "bg-rosa-palido" },
-  belleza: { Icono: Sparkles, fondo: "bg-rosa-fondo" },
-  comida: { Icono: CakeSlice, fondo: "bg-perla" },
-  hogar: { Icono: Sprout, fondo: "bg-teal-fondo" },
+  ropa: { Icono: Shirt, fondo: "bg-rosa" },
+  belleza: { Icono: Sparkles, fondo: "bg-rosa-palido" },
+  comida: { Icono: CakeSlice, fondo: "bg-limon" },
+  hogar: { Icono: Sprout, fondo: "bg-celeste" },
   tecnologia: { Icono: Smartphone, fondo: "bg-celeste-palido" },
-  musica: { Icono: Disc3, fondo: "bg-limon" },
-  mascotas: { Icono: PawPrint, fondo: "bg-ambar/30" },
-  ninos: { Icono: Baby, fondo: "bg-rosa/30" },
-  otros: { Icono: Shapes, fondo: "bg-gris-fondo" },
+  musica: { Icono: Disc3, fondo: "bg-mango" },
+  mascotas: { Icono: PawPrint, fondo: "bg-crema" },
+  ninos: { Icono: Baby, fondo: "bg-rosa-palido" },
+  otros: { Icono: Shapes, fondo: "bg-crema" },
 };
 
 // En escritorio se ven estas y el resto va en "Más"; en el celular se desliza la fila entera

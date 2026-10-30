@@ -55,7 +55,7 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
 
   const chip = (activo: boolean) =>
     `inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors ${
-      activo ? "bg-accion text-accion-texto" : "bg-white hover:bg-limon"
+      activo ? "bg-mango text-teal-oscuro" : "bg-crema hover:bg-limon"
     }`;
 
   return (

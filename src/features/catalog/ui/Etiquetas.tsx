@@ -10,9 +10,9 @@ const MIN_VENDIDAS = 5;
 export function Etiquetas({ disponibles, umbral, vendidas, nuevo }: { disponibles: number; umbral: number; vendidas: number; nuevo: boolean }) {
   const ultimas = disponibles > 0 && disponibles <= umbral;
   const etiquetas = [
-    nuevo ? { texto: t.nuevo, fondo: "bg-rosa-palido" } : null,
+    nuevo ? { texto: t.nuevo, fondo: "bg-rosa" } : null,
     ultimas ? { texto: disponibles === 1 ? t.ultima : t.ultimas, fondo: "bg-limon" } : null,
-    vendidas >= MIN_VENDIDAS ? { texto: t.vendidas(vendidas), fondo: "bg-teal-fondo" } : null,
+    vendidas >= MIN_VENDIDAS ? { texto: t.vendidas(vendidas), fondo: "bg-celeste" } : null,
   ].filter((e) => e !== null);
   if (!etiquetas.length) return null;
   return (

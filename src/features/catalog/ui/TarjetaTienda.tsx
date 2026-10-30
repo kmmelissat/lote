@@ -64,7 +64,7 @@ export function TarjetaTienda({ tienda, eager = false }: { tienda: TiendaExplora
         <div className="mt-auto flex items-end justify-between gap-3 pt-1">
           <ul className="flex min-w-0 flex-wrap gap-1.5">
             {tienda.categorias.slice(0, 3).map((c) => (
-              <li key={c} className="rounded-full border border-teal-oscuro/20 bg-fondo px-2.5 py-0.5 text-xs font-medium">
+              <li key={c} className="rounded-full border-2 border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
                 {c}
               </li>
             ))}

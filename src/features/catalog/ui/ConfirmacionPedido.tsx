@@ -52,9 +52,9 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
           <p className="text-sm font-medium">{a.negocio}</p>
           <h1 className="text-3xl font-bold leading-tight md:text-4xl">{compra ? t.tituloCompra : t.titulo}</h1>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border-2 border-teal-oscuro bg-superficie px-3 py-0.5 text-sm font-bold">{t.pedido(a.codigo)}</span>
+            <span className="rounded-full border-2 border-teal-oscuro bg-crema px-3 py-0.5 text-sm font-bold">{t.pedido(a.codigo)}</span>
             {vigente && a.venceEn && !a.contraEntrega && (
-              <span role="status" className="inline-flex items-center gap-1.5 rounded-full border-2 border-teal-oscuro bg-perla px-3 py-0.5 text-sm font-bold text-ambar-texto">
+              <span role="status" className="inline-flex items-center gap-1.5 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold text-teal-oscuro">
                 <Icon nombre="reloj" className="size-4" />
                 {t.vence(tiempoRestante(a.venceEn, ahora))}
               </span>
@@ -69,7 +69,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
           </p>
         )}
         {a.estado !== "pendiente" && a.estado !== "cancelado" && (
-          <p role="status" className="rounded-2xl border-2 border-teal-oscuro bg-teal-fondo px-4 py-3 font-bold text-teal">
+          <p role="status" className="rounded-2xl border-2 border-teal-oscuro bg-celeste px-4 py-3 font-bold text-teal-oscuro">
             {t.pagado}
           </p>
         )}
@@ -84,7 +84,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
                   <li key={i.nombre} className="flex justify-between gap-3 py-2.5 first:pt-0">
                     <span className="min-w-0">
                       {i.nombre}
-                      <span className="ml-1.5 rounded-full bg-teal-fondo px-2 py-0.5 text-sm font-bold">×{i.cantidad}</span>
+                      <span className="ml-1.5 rounded-full border-2 border-teal-oscuro bg-celeste px-2 py-0.5 text-sm font-bold">×{i.cantidad}</span>
                     </span>
                     <span className="font-medium tabular-nums">{formatearDolares(i.precio * i.cantidad)}</span>
                   </li>

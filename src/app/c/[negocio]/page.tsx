@@ -85,12 +85,12 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           {/* Lo que da confianza antes de mirar: cómo se paga y cómo llega */}
           <ul className="flex flex-wrap gap-2 text-sm">
             {metodos.length > 0 && (
-              <li className="inline-flex items-center gap-2 rounded-full border border-teal-oscuro/25 px-3 py-1.5">
-                <Icon nombre="banco" className="size-4 text-teal" />
+              <li className="inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro bg-celeste px-3 py-1.5 font-bold">
+                <Icon nombre="banco" className="size-4 text-teal-oscuro" />
                 {t.infoPagas(metodos.join(", "))}
               </li>
             )}
-            <li className="inline-flex items-center gap-2 rounded-full border border-teal-oscuro/25 px-3 py-1.5">
+            <li className="inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-1.5 font-bold">
               <Icon nombre="camion" className="size-4 text-teal" />
               {opciones.direccionRetiro ? t.infoEnvioRetiro : t.infoEnvio}
             </li>

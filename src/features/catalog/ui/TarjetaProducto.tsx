@@ -40,7 +40,7 @@ export function TarjetaProducto({ p, marca, eager = false }: { p: ProductoExplor
           </span>
         )}
         {p.categoria && (
-          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-full border-2 border-teal-oscuro bg-white px-2.5 py-0.5 text-xs font-bold">
+          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-full border-2 border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
             {p.categoria}
           </span>
         )}

@@ -8,7 +8,7 @@ import type { Rubro } from "../rubros";
 const t = textos.explorar.sobre;
 
 const boton =
-  "inline-flex h-10 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
+  "inline-flex h-10 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-crema px-4 text-sm font-bold transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
 
 /**
  * El pie de Explorar: qué es, los rubros como enlaces limpios y compartir.

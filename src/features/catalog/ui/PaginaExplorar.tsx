@@ -79,7 +79,7 @@ function enlaceExplorar(f: Filtros): { href: string; rel?: string } {
 
 const chip = (activo: boolean) =>
   `inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors ${
-    activo ? "bg-mango" : "bg-white hover:bg-limon"
+    activo ? "bg-mango" : "bg-crema hover:bg-limon"
   }`;
 
 const campo =
@@ -225,7 +225,7 @@ export async function PaginaExplorar({
                 <li key={c.id}>
                   <Link
                     {...enlaceExplorar({ ...f, categoria: c.id, vista: "productos", pagina: 1 })}
-                    className="inline-flex h-9 items-center rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
+                    className="inline-flex h-9 items-center rounded-full border-2 border-teal-oscuro bg-crema px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
                   >
                     {c.nombre}
                   </Link>
@@ -419,7 +419,7 @@ export async function PaginaExplorar({
                         {t.armaTitulo}
                       </p>
                       <p className="text-sm text-texto-2">{t.armaTexto}</p>
-                      <span className="mt-1 inline-flex h-10 items-center self-start rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold">
+                      <span className="mt-1 inline-flex h-10 items-center self-start rounded-full border-2 border-teal-oscuro bg-mango px-4 text-sm font-bold">
                         {t.armaBoton}
                       </span>
                     </Link>

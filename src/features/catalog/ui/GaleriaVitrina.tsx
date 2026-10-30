@@ -49,7 +49,7 @@ export function GaleriaVitrina({ fotos, nombre, de = {} }: { fotos: string[]; no
           className="object-cover"
         />
         {de[foto] && (
-          <span className="absolute bottom-3 left-3 rounded-full border-2 border-teal-oscuro bg-white px-3 py-1 text-sm font-bold text-teal-oscuro">
+          <span className="absolute bottom-3 left-3 rounded-full border-2 border-teal-oscuro bg-crema px-3 py-1 text-sm font-bold text-teal-oscuro">
             {de[foto]}
           </span>
         )}
