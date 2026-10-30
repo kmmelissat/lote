@@ -24,14 +24,14 @@ export const inicio = {
       },
       pago: {
         titulo: "Poné cómo te pagan",
-        texto: "Así tus clientes ven a dónde transferir cuando aparten.",
-        gana: "Lote arma el mensaje de cobro por vos.",
+        texto: "Transferencia, billetera o efectivo: con eso Lote arma el mensaje de cobro.",
+        gana: "Cobrás sin tener que explicar cada vez a dónde pagar.",
         tiempo: "2 min",
         accion: "Agregar método de pago",
       },
       tienda: {
         titulo: "Personalizá tu tienda",
-        texto: "Logo, color y tu WhatsApp o Instagram para que te escriban.",
+        texto: "Logo, color y alguna red (WhatsApp, Instagram, Facebook o TikTok) para que te escriban.",
         gana: "Tu vitrina se reconoce de un vistazo y las preguntas llegan a tu chat.",
         tiempo: "3 min",
         accion: "Personalizar",
@@ -52,7 +52,7 @@ export const inicio = {
       },
       pedido: {
         titulo: "Registrá tu primer apartado o venta",
-        texto: "También se aparta solo desde tu vitrina.",
+        texto: "Anotá algo que ya vendiste o apartaste para que Lote lleve la cuenta.",
         gana: "Empieza a correr tu ganancia y tu historial de clientes.",
         tiempo: "1 min",
         accion: "Registrar venta",
