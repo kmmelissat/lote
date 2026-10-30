@@ -33,7 +33,7 @@ export const productos = {
   importar: {
     boton: "Importar",
     titulo: "Importar productos",
-    descripcion: "Subí tu Excel, tu CSV o el enlace de Google Sheets. Lote arma los productos y, si el mismo nombre va en varias filas con talla o color, las variantes.",
+    descripcion: "Subí tu Excel, tu CSV o el enlace de Google Sheets. Lote arma los productos y vos revisás.",
     etiqueta: "De tu lista a la vitrina",
     plantilla: "Descargar plantilla",
     archivo: "Archivo de productos",
@@ -69,8 +69,20 @@ export const productos = {
       estado: "Cómo está",
       precioAnterior: "Precio de antes",
     },
+    guiaVariantes: {
+      titulo: "¿El mismo producto en M y en L?",
+      texto: "Repetí el nombre en cada fila y cambiá la talla o el color. Lote las junta: en la vitrina tu cliente elige la que quiere.",
+      ejemplo: "Así en tu lista",
+      encabezados: ["Nombre", "Talla", "Color"],
+      filas: [
+        ["Chaqueta negra", "M", "Negro"],
+        ["Chaqueta negra", "L", "Negro"],
+      ],
+      queda: "Queda 1 producto, con 2 variantes.",
+      compacta: "Si el mismo nombre va en varias filas con talla o color, Lote las junta como variantes.",
+    },
     columnasTitulo: "Qué lleva tu lista",
-    columnasAyuda: "Nombre y precio van sí o sí. Si el mismo producto va en varias filas con talla o color, Lote las junta como variantes.",
+    columnasAyuda: "Nombre y precio van sí o sí. Lo demás llena la ficha que ve quien compra.",
     columnas: {
       nombre: "Cómo lo llamás vos",
       precio: "Lo que cobrás, en dólares",
@@ -90,7 +102,7 @@ export const productos = {
     despues: {
       titulo: "Y después",
       mapear: { titulo: "Lote adivina las columnas", texto: "Vos corregís si alguna no calza." },
-      revisar: { titulo: "Revisás antes de crear", texto: "Las filas con error se saltan. Las del mismo nombre con talla o color se juntan como variantes." },
+      revisar: { titulo: "Revisás antes de crear", texto: "Las filas con error se saltan, no se mezclan." },
       deshacer: { titulo: "Se puede deshacer", texto: "Un botón quita todo lo que se acaba de crear." },
     },
     requeridos: "Elegí al menos las columnas de nombre y precio.",
@@ -100,7 +112,9 @@ export const productos = {
         ? `${buenas} listos para importar. ${malas} con errores se van a saltar.`
         : `${buenas} listos para importar.`,
     resumenVariantes: (n: number) =>
-      n === 1 ? "1 producto queda con variantes." : `${n} productos quedan con variantes.`,
+      n === 1
+        ? "Lote va a juntar las filas del mismo nombre: queda 1 producto con variantes."
+        : `Lote va a juntar las filas del mismo nombre: quedan ${n} productos con variantes.`,
     todas: "Todas",
     soloErrores: "Con errores",
     truncado: (n: number) => `Mostrando las primeras ${n} filas.`,

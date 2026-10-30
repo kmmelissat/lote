@@ -225,6 +225,7 @@ export function ImportarCsv() {
       <div className="flex flex-col gap-6">
         <Pasos actual={1} />
         <ZonaCarga pendiente={pendiente} error={error} alElegir={elegidas} alLeer={leerArchivo} alTraer={traerHoja} />
+        <GuiaVariantes />
         <GuiaColumnas />
         <QueSigue />
       </div>
@@ -253,6 +254,7 @@ export function ImportarCsv() {
         <div>
           <h2 className="text-lg font-extrabold">{t.pasoColumnas}</h2>
           <p className="mt-1 text-texto-2">{t.pasoColumnasAyuda}</p>
+          <p className={`${TARJETA_BASE} mt-3 bg-limon px-3 py-2 text-sm font-medium`}>{t.guiaVariantes.compacta}</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {CAMPOS.map((campo) => {
@@ -291,7 +293,6 @@ export function ImportarCsv() {
               <h2 className="text-lg font-extrabold">{t.vistaPrevia}</h2>
               <p role="status" className="mt-1 text-texto-2">
                 {t.resumen(buenas, malas)}
-                {grupos > 0 ? ` ${t.resumenVariantes(grupos)}` : ""}
               </p>
             </div>
             {malas > 0 && (
@@ -313,6 +314,11 @@ export function ImportarCsv() {
               </div>
             )}
           </div>
+          {grupos > 0 && (
+            <p role="status" className={`${TARJETA_BASE} bg-limon px-4 py-3 font-medium`}>
+              {t.resumenVariantes(grupos)}
+            </p>
+          )}
           <div className="overflow-x-auto rounded-[18px] border-2 border-teal-oscuro">
             <table className="w-full text-left text-sm">
               <thead className="bg-crema text-texto-2">
@@ -524,6 +530,50 @@ const ESTILO_CAMPO: Record<Campo, { tono: string; icono: NombreIcono }> = {
   estado: { tono: "bg-rosa-palido", icono: "info" },
   precioAnterior: { tono: "bg-mango", icono: "moneda" },
 };
+
+function GuiaVariantes() {
+  const g = t.guiaVariantes;
+  return (
+    <section
+      aria-labelledby="guia-variantes"
+      className={`${TARJETA} relative overflow-hidden bg-limon shadow-dura-chica lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)] lg:items-center lg:gap-x-6`}
+    >
+      <Monito nombre="asoma" className="absolute -bottom-2 right-3 w-20 text-teal lg:hidden" />
+      <div className="relative z-10 max-w-xl pr-16 lg:pr-0">
+        <h2 id="guia-variantes" className="text-lg font-extrabold leading-snug">
+          {g.titulo}
+        </h2>
+        <p className="mt-1 text-texto-2">{g.texto}</p>
+      </div>
+      <div className="relative z-10 mt-4 overflow-hidden rounded-[18px] border-2 border-teal-oscuro bg-white lg:mt-0">
+        <p className="bg-crema px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-texto-2">{g.ejemplo}</p>
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr>
+              {g.encabezados.map((h) => (
+                <th key={h} className="px-3 py-2 font-bold">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {g.filas.map((fila) => (
+              <tr key={fila.join("-")} className="border-t border-borde">
+                {fila.map((c, i) => (
+                  <td key={`${c}-${i}`} className={`px-3 py-2 ${i === 0 ? "font-medium" : ""}`}>
+                    {c}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="relative z-10 mt-3 font-bold lg:col-span-2 lg:mt-4">{g.queda}</p>
+    </section>
+  );
+}
 
 function GuiaColumnas() {
   return (

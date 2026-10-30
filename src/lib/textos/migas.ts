@@ -8,7 +8,7 @@ export const migas = {
   ajustes: "Ajustes",
   nuevo: "Nuevo",
   asistente: "Asistente",
-  "pegar-chat": "Pegar chat",
+  "probar-menu": "Probar menú",
   importar: "Importar",
   lote: "Lote de fotos",
   editar: "Editar",

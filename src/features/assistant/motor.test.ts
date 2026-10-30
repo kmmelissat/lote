@@ -78,7 +78,6 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     },
     leerComprobante: async () => ({ esComprobante: false, monto: null, fecha: null, referencia: null }),
     responder: async () => "Respuesta de Lotito",
-    proponerAcciones: async () => [],
   });
   const turno = (
     entrada: Partial<Entrada> & { mensajeId: string },
@@ -524,7 +523,7 @@ describe("cuando la IA duda", () => {
     const { puerto } = montar({ pedidos: [pedido(1, "Ana")] });
     await procesar(
       { mensajeId: "m1", texto: "hola" },
-      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder: vi.fn(), proponerAcciones: vi.fn() }, puerto, ahora },
+      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder: vi.fn() }, puerto, ahora },
     );
     expect(entenderMensaje).toHaveBeenCalledWith("hola", {
       productos: [
@@ -545,7 +544,7 @@ describe("cuando la IA duda", () => {
     ];
     await procesar(
       { mensajeId: "m1", texto: "¿y el mes pasado?", historial },
-      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder: vi.fn(), proponerAcciones: vi.fn() }, puerto, ahora },
+      { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder: vi.fn() }, puerto, ahora },
     );
     expect(entenderMensaje).toHaveBeenCalledWith("¿y el mes pasado?", expect.objectContaining({ conversacion: historial }));
   });
@@ -597,7 +596,7 @@ describe("conversar", () => {
     const r = await procesar(
       { mensajeId: "m1", texto: "¿qué se vende más?" },
       {
-        ia: { entenderMensaje: async () => salidaVacia("conversar"), entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder, proponerAcciones: vi.fn() },
+        ia: { entenderMensaje: async () => salidaVacia("conversar"), entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder },
         puerto,
         ahora,
       },
@@ -616,7 +615,7 @@ describe("conversar", () => {
     const r = await procesar(
       { mensajeId: "m1", texto: "asdf" },
       {
-        ia: { entenderMensaje: async () => salidaVacia("no_entiendo"), entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder, proponerAcciones: vi.fn() },
+        ia: { entenderMensaje: async () => salidaVacia("no_entiendo"), entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder },
         puerto,
         ahora,
       },
@@ -636,7 +635,6 @@ describe("conversar", () => {
           responder: vi.fn(async () => {
             throw new Error("caída");
           }),
-          proponerAcciones: vi.fn(),
         },
         puerto,
         ahora,

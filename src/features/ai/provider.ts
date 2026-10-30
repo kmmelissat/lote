@@ -23,8 +23,6 @@ export interface ProveedorIA {
    * consejo o un texto para publicar. Solo con los datos que recibe; no ejecuta nada.
    */
   responder(mensaje: string, datosNegocio: string, conversacion?: Turno[]): Promise<string>;
-  /** Lee un chat pegado y propone las acciones que la conversación deja claras. No ejecuta nada. */
-  proponerAcciones(chat: string, contexto?: ContextoIA): Promise<SalidaEntender[]>;
 }
 
 export class IANoDisponible extends Error {

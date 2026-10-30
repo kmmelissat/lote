@@ -38,7 +38,6 @@ export const nav = {
     pedido: "Registrar apartado o venta",
     mostrador: "Vender en el Mostrador",
     asistente: "Hablar con Lotito",
-    chat: "Pegar un chat de cliente",
   },
   paleta: {
     abrir: "Buscar",
@@ -54,4 +53,14 @@ export const nav = {
     ayuda: "↑↓ para moverte, Enter para abrir, Esc para cerrar",
   },
   pasos: { titulo: "Primeros pasos", avance: (h: number, t: number) => `${h} de ${t}`, siguiente: "Siguiente" },
+  vistas: {
+    titulo: "El menú de escritorio",
+    texto: "No es solo el color: es si flota, si es redondo, si es una columna. Tocá una: el de la izquierda cambia de forma.",
+    usar: "Usar esta",
+    usando: "Esta es la de ahora",
+    isla: { nombre: "Isla", idea: "La de hoy. Un recuadro crema que flota, con cajas adentro." },
+    pildoras: { nombre: "Píldoras", idea: "Como el celular, de pie. Todo redondo, el + es un círculo." },
+    faja: { nombre: "Faja", idea: "Pegada a la izquierda, sin flotar. Más recta, fondo agua." },
+    lista: { nombre: "Lista", idea: "Sin recuadro. Solo el texto y los íconos, con aire." },
+  },
 } as const;

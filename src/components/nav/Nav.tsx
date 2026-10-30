@@ -14,6 +14,7 @@ import { BarraMovil, Hoja } from "./MenuMovil";
 import { Paleta } from "./Paleta";
 import { Buscar, EnlaceLateral, Insignia, PrimerosPasos, TarjetaPerfil, Vitrina } from "./PiezasMenu";
 import { ConRuta } from "./RutaActiva";
+import { anchoDeVista, marcoDeVista, itemMenu, suscribirVista, vistaMenu, type VistaMenu } from "./versiones";
 
 export type { DatosMenu };
 
@@ -27,6 +28,8 @@ export function Nav({ datos }: { datos: DatosMenu }) {
 
   // El menú recuerda si lo dejaste cerrado. El servidor lo dibuja abierto y el navegador lo ajusta al hidratar.
   const cerrado = useSyncExternalStore(suscribirMenu, menuCerrado, () => false);
+  const vista = useSyncExternalStore(suscribirVista, vistaMenu, (): VistaMenu => "isla");
+  const pildorasAbierta = vista === "pildoras" && !cerrado;
   const alternarMenu = () => {
     try {
       localStorage.setItem(CLAVE_CERRADO, cerrado ? "0" : "1");
@@ -118,11 +121,12 @@ export function Nav({ datos }: { datos: DatosMenu }) {
 
       {paleta && <Paleta cerrar={() => setPaleta(false)} tieneLocal={datos.tieneLocal} />}
 
-      {/* Escritorio: menú flotante color crema, con borde y sombra dura, que se cierra a una tira de íconos */}
+      {/* Escritorio: `data-vista` prueba otras formas (isla, píldoras, faja, lista). El celular no cambia. */}
       <aside
         data-cerrado={cerrado ? "" : undefined}
-        className={`group sticky top-3 m-3 hidden h-[calc(100dvh-1.5rem)] shrink-0 flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-crema p-3 shadow-dura-chica transition-[width] duration-200 md:flex ${
-          cerrado ? "w-[4.75rem]" : "w-64"
+        data-vista={vista}
+        className={`group sticky hidden shrink-0 flex-col transition-[width] duration-200 md:flex ${marcoDeVista[vista]} ${
+          cerrado ? anchoDeVista[vista].cerrado : anchoDeVista[vista].abierto
         }`}
       >
         <div className="flex items-center justify-between gap-2 group-data-[cerrado]:flex-col">
@@ -135,13 +139,29 @@ export function Nav({ datos }: { datos: DatosMenu }) {
             aria-expanded={!cerrado}
             aria-label={cerrado ? t.abrirMenu : t.cerrarMenu}
             title={cerrado ? t.abrirMenu : t.cerrarMenu}
-            className="flex size-9 shrink-0 items-center justify-center rounded-lg text-texto-2 hover:bg-white/70 hover:text-teal-oscuro"
+            className="flex size-9 shrink-0 items-center justify-center rounded-lg text-texto-2 hover:bg-white/70 hover:text-teal-oscuro group-data-[vista=pildoras]:rounded-full group-data-[vista=lista]:rounded-none"
           >
             <Icon nombre="panel" className="size-5" />
           </button>
         </div>
-        <Buscar abrir={() => setPaleta(true)} />
-        <AccionRapida abierta={rapida} alternar={(abrir) => setRapida((r) => abrir ?? !r)} tieneLocal={datos.tieneLocal} />
+        {pildorasAbierta ? (
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <Buscar abrir={() => setPaleta(true)} />
+            </div>
+            <AccionRapida
+              abierta={rapida}
+              alternar={(abrir) => setRapida((r) => abrir ?? !r)}
+              tieneLocal={datos.tieneLocal}
+              compacta
+            />
+          </div>
+        ) : (
+          <>
+            <Buscar abrir={() => setPaleta(true)} />
+            <AccionRapida abierta={rapida} alternar={(abrir) => setRapida((r) => abrir ?? !r)} tieneLocal={datos.tieneLocal} />
+          </>
+        )}
         <nav aria-label="Principal">
           <ConRuta
             hijos={(ruta) => (
@@ -161,7 +181,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
                     href="/marketplace"
                     target="_blank"
                     title={t.explorar}
-                    className="group/item flex min-h-11 items-center gap-3 rounded-xl px-3 font-medium text-texto-2 transition-colors duration-150 hover:bg-white/70 hover:text-teal-oscuro group-data-[cerrado]:justify-center"
+                    className={`${itemMenu.base} ${itemMenu.inactiva}`}
                   >
                     <Icon nombre="buscar" className="size-6 shrink-0 transition-transform duration-150 group-hover/item:translate-x-0.5" />
                     <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">{t.explorar}</span>
@@ -174,7 +194,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
           />
         </nav>
         {datos.pasos ? <PrimerosPasos pasos={datos.pasos} /> : <div className="mt-auto" />}
-        <div className="flex flex-col gap-1 border-t-2 border-teal-oscuro/15 pt-3">
+        <div className="flex flex-col gap-1 border-t-2 border-teal-oscuro/15 pt-3 group-data-[vista=lista]:border-t group-data-[vista=pildoras]:mx-1">
           <TarjetaPerfil perfil={datos.perfil} />
         </div>
       </aside>

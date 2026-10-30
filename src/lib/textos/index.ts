@@ -15,7 +15,6 @@ import { vitrina } from "./vitrina";
 import { privacidad } from "./privacidad";
 import { equipo } from "./equipo";
 import { invitacion } from "./invitacion";
-import { chatCliente } from "./chatCliente";
 import { ayuda } from "./ayuda";
 import { resenas } from "./resenas";
 import { exportar } from "./exportar";
@@ -53,7 +52,6 @@ export const textos = {
   privacidad,
   equipo,
   invitacion,
-  chatCliente,
   ayuda,
   resenas,
   exportar,

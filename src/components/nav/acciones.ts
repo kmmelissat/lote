@@ -9,7 +9,6 @@ const ACCIONES: { href: string; etiqueta: string; icono: NombreIcono; tono: stri
   { href: "/pedidos/nuevo", etiqueta: r.pedido, icono: "pedidos", tono: "bg-rosa" },
   { href: "/mostrador", etiqueta: r.mostrador, icono: "efectivo", tono: "bg-mango/40" },
   { href: "/asistente", etiqueta: r.asistente, icono: "chat", tono: "bg-teal-fondo" },
-  { href: "/pegar-chat", etiqueta: r.chat, icono: "copiar", tono: "bg-crema" },
 ];
 
 /** Las acciones que le tocan a este negocio: el Mostrador solo aparece si tiene un local. */

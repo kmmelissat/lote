@@ -10,6 +10,7 @@ import { CerrarSesion } from "@/features/auth/ui/CerrarSesion";
 import { textos } from "@/lib/textos";
 import { activaEn, type DatosMenu, type Pestana } from "./menu";
 import { useCerrarAfuera } from "./useCerrarAfuera";
+import { itemMenu } from "./versiones";
 
 const t = textos.nav;
 
@@ -22,7 +23,7 @@ export function Insignia({ n, urgente }: { n: number; urgente: boolean }) {
         {n}
       </span>
       {urgente && (
-        <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-crema bg-mango" />
+        <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-crema bg-mango group-data-[vista=pildoras]:bg-rosa group-data-[vista=faja]:bg-rosa group-data-[vista=lista]:bg-rosa" />
       )}
     </span>
   );
@@ -43,11 +44,14 @@ export function EnlaceLateral({
       href={pestana.href}
       aria-current={activa ? "page" : undefined}
       title={pestana.etiqueta}
-      className={`group/item relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-base transition-colors duration-150 group-data-[cerrado]:justify-center ${
-        activa ? "bg-teal-fondo font-bold text-teal-oscuro" : "font-medium text-texto-2 hover:bg-white/70 hover:text-teal-oscuro"
-      }`}
+      className={`${itemMenu.base} ${activa ? itemMenu.activa : itemMenu.inactiva}`}
     >
-      {activa && <span aria-hidden="true" className="absolute -left-3.5 top-2 h-7 w-1.5 rounded-r-full bg-mango" />}
+      {activa && (
+        <span
+          aria-hidden="true"
+          className="absolute -left-3.5 top-2 h-7 w-1.5 rounded-r-full bg-mango group-data-[vista=pildoras]:hidden group-data-[vista=faja]:hidden group-data-[vista=lista]:hidden"
+        />
+      )}
       <Icon nombre={pestana.icono} className="size-6 shrink-0 transition-transform duration-150 group-hover/item:translate-x-0.5" />
       <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">{pestana.etiqueta}</span>
       {insignia}
@@ -71,7 +75,7 @@ export function Vitrina({ slug }: { slug: string }) {
         href={`/c/${slug}`}
         target="_blank"
         title={t.verVitrina}
-        className="group/item flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-xl px-3 font-medium text-texto-2 transition-colors duration-150 hover:bg-white/70 hover:text-teal-oscuro group-data-[cerrado]:flex-none group-data-[cerrado]:justify-center"
+        className={`${itemMenu.base} ${itemMenu.inactiva} min-w-0 flex-1 group-data-[cerrado]:flex-none`}
       >
         <Icon nombre="tienda" className="size-6 shrink-0 transition-transform duration-150 group-hover/item:translate-x-0.5" />
         <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">{t.vitrina}</span>
@@ -83,7 +87,7 @@ export function Vitrina({ slug }: { slug: string }) {
         onClick={copiar}
         aria-label={t.copiarEnlace}
         title={t.copiarEnlace}
-        className="flex size-9 shrink-0 items-center justify-center rounded-lg text-texto-2 hover:bg-white/70 hover:text-teal-oscuro"
+        className="flex size-9 shrink-0 items-center justify-center rounded-lg text-texto-2 hover:bg-white/70 hover:text-teal-oscuro group-data-[vista=pildoras]:rounded-full group-data-[vista=lista]:rounded-none"
       >
         <Icon nombre="copiar" className="size-4" />
       </button>
@@ -98,11 +102,11 @@ export function Buscar({ abrir }: { abrir: () => void }) {
       onClick={abrir}
       aria-label={t.paleta.abrir}
       title={`${t.paleta.abrir} (${t.paleta.atajo})`}
-      className="flex min-h-11 items-center gap-3 rounded-xl border border-borde bg-superficie px-3 text-texto-2 hover:border-borde-control group-data-[cerrado]:justify-center"
+      className="flex min-h-11 items-center gap-3 px-3 text-texto-2 group-data-[cerrado]:justify-center group-data-[vista=isla]:rounded-xl group-data-[vista=isla]:border group-data-[vista=isla]:border-borde group-data-[vista=isla]:bg-superficie group-data-[vista=isla]:hover:border-borde-control group-data-[vista=pildoras]:rounded-full group-data-[vista=pildoras]:border-2 group-data-[vista=pildoras]:border-teal-oscuro group-data-[vista=pildoras]:bg-fondo group-data-[vista=faja]:rounded-lg group-data-[vista=faja]:bg-white/70 group-data-[vista=lista]:rounded-none group-data-[vista=lista]:border-b-2 group-data-[vista=lista]:border-teal-oscuro/25 group-data-[vista=lista]:px-1"
     >
       <Icon nombre="buscar" className="size-5 shrink-0" />
       <span className="flex-1 text-left group-data-[cerrado]:hidden">{t.buscarCorto}</span>
-      <kbd className="rounded-md border border-borde px-1.5 py-0.5 text-xs group-data-[cerrado]:hidden">{t.paleta.atajo}</kbd>
+      <kbd className="rounded-md border border-borde px-1.5 py-0.5 text-xs group-data-[cerrado]:hidden group-data-[vista=pildoras]:hidden group-data-[vista=lista]:border-0">{t.paleta.atajo}</kbd>
     </button>
   );
 }
@@ -111,9 +115,9 @@ export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]
   return (
     <Link
       href={pasos.siguiente.href}
-      className="relative mt-auto flex flex-col gap-2 overflow-hidden rounded-2xl border-2 border-teal-oscuro bg-limon p-3 text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica group-data-[cerrado]:hidden"
+      className="relative mt-auto flex flex-col gap-2 overflow-hidden p-3 text-teal-oscuro group-data-[cerrado]:hidden group-data-[vista=isla]:rounded-2xl group-data-[vista=isla]:border-2 group-data-[vista=isla]:border-teal-oscuro group-data-[vista=isla]:bg-limon group-data-[vista=isla]:transition-[transform,box-shadow] group-data-[vista=isla]:duration-150 group-data-[vista=isla]:hover:-translate-y-0.5 group-data-[vista=isla]:hover:shadow-dura-chica group-data-[vista=pildoras]:rounded-[1.75rem] group-data-[vista=pildoras]:border-2 group-data-[vista=pildoras]:border-teal-oscuro group-data-[vista=pildoras]:bg-rosa-palido group-data-[vista=faja]:rounded-lg group-data-[vista=faja]:bg-white/60 group-data-[vista=lista]:rounded-none group-data-[vista=lista]:border-0 group-data-[vista=lista]:bg-transparent group-data-[vista=lista]:px-1"
     >
-      <Gorila className="absolute -right-1 -top-1 size-12 rotate-6 text-rosa" />
+      <Gorila className="absolute -right-1 -top-1 size-12 rotate-6 text-rosa group-data-[vista=lista]:hidden" />
       <span className="text-sm font-bold">
         {t.pasos.titulo} · {t.pasos.avance(pasos.hechos, pasos.total)}
       </span>
@@ -123,9 +127,9 @@ export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]
         aria-valuemax={pasos.total}
         aria-valuenow={pasos.hechos}
         aria-label={t.pasos.titulo}
-        className="h-2.5 w-3/4 overflow-hidden rounded-full border-2 border-teal-oscuro bg-white"
+        className="h-2.5 w-3/4 overflow-hidden rounded-full border-2 border-teal-oscuro bg-white group-data-[vista=lista]:hidden"
       >
-        <span className="block h-full bg-mango" style={{ width: `${(pasos.hechos / pasos.total) * 100}%` }} />
+        <span className="block h-full bg-mango group-data-[vista=pildoras]:bg-rosa group-data-[vista=faja]:bg-teal group-data-[vista=lista]:bg-rosa" style={{ width: `${(pasos.hechos / pasos.total) * 100}%` }} />
       </span>
       <span className="text-sm">
         {t.pasos.siguiente}: {pasos.siguiente.titulo} →
@@ -147,7 +151,7 @@ export function TarjetaPerfil({ perfil }: { perfil: DatosMenu["perfil"] }) {
         aria-expanded={abierto}
         aria-haspopup="menu"
         aria-label={t.menuPerfil}
-        className="flex min-h-12 w-full items-center gap-3 rounded-xl border-2 border-teal-oscuro/15 bg-superficie p-1.5 text-left hover:border-teal-oscuro group-data-[cerrado]:justify-center group-data-[cerrado]:border-transparent"
+        className="flex min-h-12 w-full items-center gap-3 p-1.5 text-left group-data-[cerrado]:justify-center group-data-[vista=isla]:rounded-xl group-data-[vista=isla]:border-2 group-data-[vista=isla]:border-teal-oscuro/15 group-data-[vista=isla]:bg-superficie group-data-[vista=isla]:hover:border-teal-oscuro group-data-[vista=pildoras]:rounded-full group-data-[vista=pildoras]:border-2 group-data-[vista=pildoras]:border-teal-oscuro/20 group-data-[vista=pildoras]:bg-fondo group-data-[vista=faja]:rounded-lg group-data-[vista=faja]:bg-white/50 group-data-[vista=lista]:rounded-none group-data-[vista=lista]:px-1"
       >
         {perfil.logo ? (
           <Image src={perfil.logo} alt="" width={80} height={80} className="size-10 shrink-0 rounded-full object-cover" />

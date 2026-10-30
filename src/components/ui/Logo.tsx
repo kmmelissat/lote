@@ -8,7 +8,7 @@ export function Logo({ className = "" }: { className?: string }) {
     <span className={`inline-flex ${className}`}>
       <span
         aria-hidden="true"
-        className="inline-flex -rotate-2 items-center gap-1 rounded-xl border-2 border-teal-oscuro bg-limon py-0.5 pl-2 pr-3 text-teal-oscuro shadow-dura-chica group-data-[cerrado]:px-1"
+        className="inline-flex -rotate-2 items-center gap-1 rounded-xl border-2 border-teal-oscuro bg-limon py-0.5 pl-2 pr-3 text-teal-oscuro shadow-dura-chica group-data-[cerrado]:px-1 group-data-[vista=pildoras]:rounded-full group-data-[vista=pildoras]:bg-celeste-palido group-data-[vista=faja]:rotate-0 group-data-[vista=faja]:bg-superficie group-data-[vista=lista]:rotate-0 group-data-[vista=lista]:border-0 group-data-[vista=lista]:bg-transparent group-data-[vista=lista]:px-0 group-data-[vista=lista]:py-0 group-data-[vista=lista]:shadow-none"
       >
         <Gorila className="size-7 shrink-0" />
         <span className="font-logo text-[26px] font-semibold leading-none tracking-tight group-data-[cerrado]:hidden">lote</span>
