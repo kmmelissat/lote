@@ -33,6 +33,7 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
     whatsapp: d.whatsapp || null,
     usuarioInstagram: d.instagram || null,
     usuarioFacebook: d.facebook || null,
+    usuarioTiktok: d.tiktok || null,
     contextoIa: d.contexto || null,
     // La llave general queda prendida si se puede hacer al menos una de las dos
     apartarDesdeVitrina: d.comprar || d.apartar,

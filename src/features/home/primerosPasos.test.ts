@@ -1,23 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { faltanPasos, mostrarPasos, pasosVistos, primerosPasos } from "./primerosPasos";
 
-const nada = { tieneProductos: false, tieneLogo: false, tieneMetodoPago: false, compartio: false, tienePedidos: false, vitrinaActiva: true };
-const todo = { tieneProductos: true, tieneLogo: true, tieneMetodoPago: true, compartio: true, tienePedidos: true, vitrinaActiva: true };
+const nada = { tieneProductos: false, tieneLogo: false, tieneContacto: false, tieneMetodoPago: false, tieneEnvios: false, compartio: false, tienePedidos: false, vitrinaActiva: true };
+const todo = { tieneProductos: true, tieneLogo: true, tieneContacto: true, tieneMetodoPago: true, tieneEnvios: true, compartio: true, tienePedidos: true, vitrinaActiva: true };
 
 describe("primerosPasos", () => {
-  it("un negocio sin nada tiene los cinco pasos por hacer, en orden", () => {
+  it("un negocio sin nada tiene los seis pasos por hacer, en orden", () => {
     const pasos = primerosPasos(nada);
-    expect(pasos.map((p) => p.clave)).toEqual(["producto", "tienda", "pago", "compartir", "pedido"]);
+    expect(pasos.map((p) => p.clave)).toEqual(["producto", "pago", "pedido", "tienda", "envio", "compartir"]);
     expect(pasos.every((p) => !p.hecho)).toBe(true);
     expect(faltanPasos(pasos)).toBe(true);
   });
 
   it("marca como hecho lo que ya existe", () => {
     const pasos = primerosPasos({ ...nada, tieneProductos: true, tieneLogo: true });
-    expect(pasos.map((p) => p.hecho)).toEqual([true, true, false, false, false]);
+    expect(pasos.map((p) => p.hecho)).toEqual([true, false, false, false, false, false]);
   });
 
-  it("sin vitrina no pide la tienda ni compartirla", () => {
+  it("sin vitrina no pide la tienda, los envíos ni compartirla", () => {
     expect(primerosPasos({ ...nada, vitrinaActiva: false }).map((p) => p.clave)).toEqual(["producto", "pago", "pedido"]);
   });
 
@@ -46,7 +46,7 @@ describe("mostrarPasos", () => {
   it("con todo hecho se muestra una vez más para despedirse, y después ya no", () => {
     const pasos = primerosPasos(todo);
     expect(mostrarPasos(pasos, ["producto", "tienda", "pago"])).toBe(true);
-    expect(mostrarPasos(pasos, ["producto", "tienda", "pago", "compartir", "pedido"])).toBe(false);
+    expect(mostrarPasos(pasos, ["producto", "pago", "pedido", "tienda", "envio", "compartir"])).toBe(false);
   });
 
   it("sin pasos (quien no gestiona) no se muestra", () => {

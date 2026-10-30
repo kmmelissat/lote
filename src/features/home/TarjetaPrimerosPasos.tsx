@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
-import { COOKIE_PASOS_VISTOS, ENLACES_PASOS, type ClavePaso, type PasoInicial } from "./primerosPasos";
+import { COOKIE_PASOS_VISTOS, ENLACES_PASOS, type ClavePaso, SOLO_CON_VITRINA, type PasoInicial } from "./primerosPasos";
 import { useCompartirVitrina } from "./useCompartirVitrina";
 import { TARJETA } from "@/components/ui/tarjeta";
 
@@ -143,10 +143,13 @@ export function TarjetaPrimerosPasos({
       </div>
 
       <ol className="flex flex-col">
-        {pasos.map((p) => {
+        {pasos.map((p, i) => {
           const esSiguiente = p.clave === siguiente;
+          // Un rótulo antes del primer paso de la vitrina, para que se vea qué es de todas y qué solo de quien la usa
+          const abreVitrina = SOLO_CON_VITRINA.includes(p.clave) && !SOLO_CON_VITRINA.includes(pasos[i - 1]?.clave);
           return (
             <li key={p.clave} className="flex flex-col gap-2 border-t border-borde py-3 first:border-t-0 first:pt-0 last:pb-0">
+              {abreVitrina && <span className="text-xs font-bold uppercase tracking-wide text-texto-2">{t.seccionVitrina}</span>}
               {esSiguiente && (
                 <span className="self-start rounded-full bg-teal-fondo px-2.5 py-0.5 text-xs font-bold text-teal-oscuro">
                   {textos.nav.pasos.siguiente}
@@ -157,8 +160,14 @@ export function TarjetaPrimerosPasos({
                   <span className={p.hecho ? "text-texto-2 line-through" : esSiguiente ? "font-bold" : "font-medium"}>
                     {t.pasos[p.clave].titulo}
                     {p.hecho && <span className="sr-only"> ({t.listo})</span>}
+                    {!p.hecho && <span className="ml-2 text-xs font-medium text-texto-2">· {t.pasos[p.clave].tiempo}</span>}
                   </span>
                   {!p.hecho && <span className="text-sm text-texto-2">{t.pasos[p.clave].texto}</span>}
+                  {esSiguiente && (
+                    <span className="mt-1 text-sm text-teal-oscuro">
+                      <span className="font-bold">{t.ganas}:</span> {t.pasos[p.clave].gana}
+                    </span>
+                  )}
                 </span>
                 {!p.hecho && accionesDe(p.clave, esSiguiente)}
               </div>

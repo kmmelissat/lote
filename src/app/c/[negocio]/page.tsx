@@ -6,7 +6,7 @@ import { Monito } from "@/components/ui/Monito";
 import { CatalogoVitrina } from "@/features/catalog/ui/CatalogoVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
-import { enlaceFacebook, mensajePedirVitrina } from "@/features/catalog/enlaces";
+import { enlaceFacebook, enlaceTiktok, mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra } from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
 import { urlFoto } from "@/lib/fotos";
@@ -63,10 +63,11 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           description: negocio.descripcion ?? undefined,
           url: `${urlSitio}/c/${slug}`,
           image: negocio.logo ? urlFoto(negocio.logo) : undefined,
-          // Sus redes: así el buscador une la vitrina con Instagram y Facebook
+          // Sus redes: así el buscador une la vitrina con Instagram, Facebook y TikTok
           sameAs: [
             negocio.usuarioInstagram ? `https://www.instagram.com/${negocio.usuarioInstagram}` : null,
             enlaceFacebook(negocio.usuarioFacebook),
+            enlaceTiktok(negocio.usuarioTiktok),
           ].filter((u): u is string => !!u),
           areaServed: { "@type": "Country", name: "El Salvador" },
           currenciesAccepted: "USD",
@@ -102,6 +103,7 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
             whatsapp={negocio.whatsapp}
             instagram={negocio.usuarioInstagram}
             facebook={negocio.usuarioFacebook}
+            tiktok={negocio.usuarioTiktok}
             mensaje={mensajePedirVitrina(negocio.nombre)}
           />
         </div>

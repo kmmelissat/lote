@@ -14,6 +14,7 @@ import { AvisoResenas } from "@/features/reviews/ui/AvisoResenas";
 import { TarjetaVitrina } from "@/features/home/ui/TarjetaVitrina";
 import { TarjetaGanancia } from "@/features/home/ui/TarjetaGanancia";
 import { COOKIE_COMPARTIO, COOKIE_PASOS_VISTOS, mostrarPasos, pasosVistos, primerosPasos } from "@/features/home/primerosPasos";
+import { leerConfiguracion } from "@/features/home/configuracion";
 import { TarjetaBienvenida } from "@/features/home/ui/TarjetaBienvenida";
 import { resumenInicio } from "@/features/home/resumen";
 import { buscarPedidos, paginaDePedidos } from "@/features/orders/repositorio";
@@ -39,7 +40,7 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   const galletas = await cookies();
   const ahora = new Date();
 
-  const [unidades, pedidos, recientes, semanas, metodos] = await Promise.all([
+  const [unidades, pedidos, recientes, semanas, metodos, config] = await Promise.all([
     contarUnidades(supabase, negocio.id),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     paginaDePedidos(supabase, negocio.id, 0, 5),
@@ -47,6 +48,7 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
     negocio.puedeGestionar ? resumenPorSemana(supabase, negocio.id, ahora, SEMANAS_DEL_GRAFICO) : null,
     // Los primeros pasos son para quien configura el negocio.
     negocio.puedeGestionar ? listarMetodos(supabase, negocio.id) : null,
+    negocio.puedeGestionar ? leerConfiguracion(supabase, negocio.id) : null,
   ]);
 
   const encabezado = (
@@ -64,11 +66,13 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   // Sin unidades de ningún tipo es que todavía no hay productos.
   const sinProductos = unidades.disponibles + unidades.apartadas + unidades.vendidas === 0;
   const r = resumenInicio(unidades, pedidos, ahora);
-  const pasos = metodos
+  const pasos = metodos && config
     ? primerosPasos({
         tieneProductos: !sinProductos,
         tieneLogo: negocio.logo !== null,
+        tieneContacto: config.tieneContacto,
         tieneMetodoPago: metodos.some((m) => m.activo),
+        tieneEnvios: config.tieneEnvios,
         compartio: galletas.get(COOKIE_COMPARTIO)?.value === negocio.id,
         tienePedidos: r.apartadas + r.vendidas > 0 || pedidos.length > 0,
         vitrinaActiva: negocio.vitrinaActiva,

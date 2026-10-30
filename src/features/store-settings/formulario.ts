@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { telefonoElSalvador } from "@/domain";
-import { esFacebook, facebookDe } from "@/features/catalog/enlaces";
+import {
+  esFacebook,
+  esTiktok,
+  facebookDe,
+  tiktokDe,
+} from "@/features/catalog/enlaces";
 import { esHex, LIMITE_CONTEXTO } from "@/features/catalog/marca";
 import { textos } from "@/lib/textos";
 
@@ -10,14 +15,29 @@ const t = textos.ajustes.tienda;
 const v = textos.ajustes.vitrina;
 
 const texto = z.string().trim();
-const entero = (min: number, max: number, mensaje: string) => z.coerce.number({ error: mensaje }).int(mensaje).min(min, mensaje).max(max, mensaje);
+const entero = (min: number, max: number, mensaje: string) =>
+  z.coerce
+    .number({ error: mensaje })
+    .int(mensaje)
+    .min(min, mensaje)
+    .max(max, mensaje);
 
 const esquema = z.object({
   nombre: texto.min(1, t.errorNombre).max(60, t.errorNombre),
   frase: texto.max(120, t.errorFrase),
-  whatsapp: texto.refine((w) => !w || telefonoElSalvador(w) !== null, t.errorWhatsapp).transform((w) => (w ? telefonoElSalvador(w)! : "")),
-  instagram: texto.transform((s) => s.replace(/^@/, "")).refine((s) => !s || /^[A-Za-z0-9._]{1,30}$/.test(s), t.errorInstagram),
-  facebook: texto.transform(facebookDe).refine((s) => !s || esFacebook(s), t.errorFacebook),
+  whatsapp: texto
+    .refine((w) => !w || telefonoElSalvador(w) !== null, t.errorWhatsapp)
+    .transform((w) => (w ? telefonoElSalvador(w)! : "")),
+  instagram: texto
+    .transform((s) => s.replace(/^@/, ""))
+    .refine((s) => !s || /^[A-Za-z0-9._]{1,30}$/.test(s), t.errorInstagram),
+  facebook: texto
+    .transform(facebookDe)
+    .refine((s) => !s || esFacebook(s), t.errorFacebook),
+  // Se valida lo que pegaron, no el resultado: un enlace corto (vm.tiktok.com) no dice de quién es y no debe pasar como vacío
+  tiktok: texto
+    .refine((s) => !s || esTiktok(tiktokDe(s)), t.errorTiktok)
+    .transform(tiktokDe),
   contexto: texto.max(LIMITE_CONTEXTO, t.errorContexto),
   plazo: entero(1, 168, v.errorPlazo),
   limite: entero(1, 20, v.errorLimite),
@@ -25,8 +45,15 @@ const esquema = z.object({
   tiempo_entrega: texto.max(80, v.errorTiempoEntrega),
   politica_cambios: texto.max(300, v.errorPoliticaCambios),
   // La dirección de la vitrina (/c/<dirección>): la misma regla que la base, y nunca vacía
-  slug: texto.transform((s) => s.toLowerCase()).refine((s) => /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(s), t.slug.errorFormato),
-  color: texto.transform((s) => s.toLowerCase()).refine((c) => esHex(c), t.errorColor),
+  slug: texto
+    .transform((s) => s.toLowerCase())
+    .refine(
+      (s) => /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(s),
+      t.slug.errorFormato,
+    ),
+  color: texto
+    .transform((s) => s.toLowerCase())
+    .refine((c) => esHex(c), t.errorColor),
   logo: texto,
 });
 
@@ -38,8 +65,12 @@ export type DatosTienda = z.output<typeof esquema> & {
   local: boolean;
 };
 
-export function leerTienda(formData: FormData): { ok: true; datos: DatosTienda } | { ok: false; error: string } {
-  const crudo = Object.fromEntries(Object.keys(esquema.shape).map((k) => [k, String(formData.get(k) ?? "")]));
+export function leerTienda(
+  formData: FormData,
+): { ok: true; datos: DatosTienda } | { ok: false; error: string } {
+  const crudo = Object.fromEntries(
+    Object.keys(esquema.shape).map((k) => [k, String(formData.get(k) ?? "")]),
+  );
   const r = esquema.safeParse(crudo);
   if (!r.success) return { ok: false, error: r.error.issues[0].message };
   const vitrina = formData.get("vitrina") === "on";

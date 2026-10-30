@@ -281,7 +281,7 @@ async function Producto({
                 plazoHoras={negocio.plazoHoras}
                 permiteComprar={negocio.permiteComprar}
                 permiteApartar={negocio.permiteApartar}
-                contacto={{ tienda: negocio.nombre, producto: base, whatsapp: negocio.whatsapp, instagram: negocio.usuarioInstagram, facebook: negocio.usuarioFacebook }}
+                contacto={{ tienda: negocio.nombre, producto: base, whatsapp: negocio.whatsapp, instagram: negocio.usuarioInstagram, facebook: negocio.usuarioFacebook, tiktok: negocio.usuarioTiktok }}
               />
 
               <ResumenEnvio
@@ -294,6 +294,7 @@ async function Producto({
                 whatsapp={negocio.whatsapp}
                 instagram={negocio.usuarioInstagram}
                 facebook={negocio.usuarioFacebook}
+                tiktok={negocio.usuarioTiktok}
                 mensaje={mensajePedirProducto(
                   negocio.nombre,
                   p.nombre,

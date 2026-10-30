@@ -6,6 +6,7 @@ import { contarUnidades } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";
 import type { Database } from "@/lib/supabase/database.types";
 import { COOKIE_COMPARTIO, faltanPasos, primerosPasos, type PasoInicial } from "./primerosPasos";
+import { leerConfiguracion } from "./configuracion";
 import { resumenInicio } from "./resumen";
 
 export type DatosNavegacion = {
@@ -23,18 +24,21 @@ export async function datosNavegacion(
   negocio: Pick<NegocioActual, "id" | "puedeGestionar" | "logo" | "vitrinaActiva">,
 ): Promise<DatosNavegacion> {
   const ahora = new Date();
-  const [unidades, pedidos, metodos, galletas] = await Promise.all([
+  const [unidades, pedidos, metodos, config, galletas] = await Promise.all([
     contarUnidades(supabase, negocio.id),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     negocio.puedeGestionar ? listarMetodos(supabase, negocio.id) : null,
+    negocio.puedeGestionar ? leerConfiguracion(supabase, negocio.id) : null,
     cookies(),
   ]);
   const r = resumenInicio(unidades, pedidos, ahora);
-  const pasos = metodos
+  const pasos = metodos && config
     ? primerosPasos({
         tieneProductos: unidades.disponibles + unidades.apartadas + unidades.vendidas > 0,
         tieneLogo: negocio.logo !== null,
+        tieneContacto: config.tieneContacto,
         tieneMetodoPago: metodos.some((m) => m.activo),
+        tieneEnvios: config.tieneEnvios,
         compartio: galletas.get(COOKIE_COMPARTIO)?.value === negocio.id,
         tienePedidos: unidades.apartadas + unidades.vendidas > 0 || pedidos.length > 0,
         vitrinaActiva: negocio.vitrinaActiva,

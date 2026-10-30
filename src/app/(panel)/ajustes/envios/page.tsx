@@ -1,26 +1,6 @@
-import type { Metadata } from "next";
-import { PageHeader } from "@/components/nav/PageHeader";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { obtenerTarifas } from "@/features/shipping/repositorio";
-import { negocioActual } from "@/lib/negocio";
-import { textos } from "@/lib/textos";
-import { TarifasForm } from "@/features/shipping/ui/TarifasForm";
+import { redirect } from "next/navigation";
 
-const t = textos.ajustes.envios;
-
-export const metadata: Metadata = { title: t.titulo };
-
-export default function EnviosPage() {
-  return (
-    <>
-      <PageHeader titulo={t.titulo} descripcion={t.descripcion} volver={{ href: "/ajustes", etiqueta: t.volver }} />
-      <Formulario />
-    </>
-  );
-}
-
-async function Formulario() {
-  const { supabase, negocio } = await negocioActual();
-  if (negocio.rol !== "duena") return <EmptyState titulo={t.soloDuenaTitulo} texto={t.soloDuena} />;
-  return <TarifasForm tarifas={await obtenerTarifas(supabase, negocio.id)} />;
+// Esto ahora se configura en Mi tienda. Esta dirección queda para los enlaces y marcadores viejos.
+export default function EnviosAjustesPage() {
+  redirect("/ajustes/tienda?seccion=envios");
 }

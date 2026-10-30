@@ -121,6 +121,7 @@ export const vitrina = {
   pedirWhatsApp: "Pedir por WhatsApp",
   pedirInstagram: "Escribir por Instagram",
   pedirFacebook: "Escribir por Facebook",
+  pedirTiktok: "Escribir por TikTok",
   verTodos: "Ver todos los productos",
   seo: {
     tituloTienda: (negocio: string) => `${negocio} · Vitrina`,

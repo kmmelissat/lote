@@ -31,8 +31,6 @@ export const pestanas: Pestana[] = [
 /** Lo que se configura y se vuelve a tocar: en escritorio va en la barra, en celular en Más. */
 export const ajustesEscritorio: Pestana[] = [
   { href: "/ajustes/tienda", etiqueta: t.tienda, icono: "tienda" },
-  { href: "/ajustes/pagos", etiqueta: t.pagos, icono: "moneda" },
-  { href: "/ajustes/envios", etiqueta: t.envios, icono: "camion" },
 ];
 
 export const CLAVE_CERRADO = "lote_menu_cerrado";

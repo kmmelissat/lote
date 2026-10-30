@@ -532,6 +532,7 @@ export type Database = {
           umbral_poco_stock: number
           usuario_instagram: string | null
           usuario_facebook?: string | null
+          usuario_tiktok?: string | null
           visible_en_explorar: boolean
           tiene_local: boolean
           vitrina_activa: boolean
@@ -562,6 +563,7 @@ export type Database = {
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           usuario_facebook?: string | null
+          usuario_tiktok?: string | null
           visible_en_explorar?: boolean
           tiene_local?: boolean
           vitrina_activa?: boolean
@@ -592,6 +594,7 @@ export type Database = {
           umbral_poco_stock?: number
           usuario_instagram?: string | null
           usuario_facebook?: string | null
+          usuario_tiktok?: string | null
           visible_en_explorar?: boolean
           tiene_local?: boolean
           vitrina_activa?: boolean
@@ -1488,6 +1491,7 @@ export type Database = {
           vence_en: string
         }[]
       }
+      vitrina_tiktok: { Args: { p_slug: string }; Returns: string | null }
       vitrina_reglas: {
         Args: { p_slug: string }
         Returns: {

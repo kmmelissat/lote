@@ -9,7 +9,7 @@ import { textos } from "@/lib/textos";
 import { agregarAlCarrito } from "../carrito";
 import { AvisameCuandoHaya } from "./AvisameCuandoHaya";
 import { tituloDe } from "../opciones";
-import { enlaceFacebook, enlaceInstagram, enlaceWhatsApp, mensajePedirProducto } from "../enlaces";
+import { enlaceFacebook, enlaceInstagram, enlaceTiktok, enlaceWhatsApp, mensajePedirProducto } from "../enlaces";
 import { useFotosElegidas } from "./FotosPorVariante";
 
 const t = textos.vitrina.compra;
@@ -48,7 +48,7 @@ export function ZonaDeCompra({
   permiteComprar: boolean;
   permiteApartar: boolean;
   /** Para el modo catálogo: a quién se le escribe y qué producto se nombra en el mensaje */
-  contacto: { tienda: string; producto: string; whatsapp: string | null; instagram: string | null; facebook?: string | null };
+  contacto: { tienda: string; producto: string; whatsapp: string | null; instagram: string | null; facebook?: string | null; tiktok?: string | null };
 }) {
   const dims = variantes[0]?.partes.length ?? 0;
   const [elegido, setElegido] = useState<(string | null)[]>(() => Array(dims).fill(null));
@@ -113,7 +113,7 @@ export function ZonaDeCompra({
     elegida?.codigo ?? 0,
     formatearDolares(precio),
   );
-  const meInteresa = enlaceWhatsApp(contacto.whatsapp, mensaje) ?? enlaceInstagram(contacto.instagram) ?? enlaceFacebook(contacto.facebook ?? null);
+  const meInteresa = enlaceWhatsApp(contacto.whatsapp, mensaje) ?? enlaceInstagram(contacto.instagram) ?? enlaceFacebook(contacto.facebook ?? null) ?? enlaceTiktok(contacto.tiktok ?? null);
   const clave = `${seleccionada?.codigo ?? 0}-${unidades}`;
   const aviso = resultado?.clave === clave ? resultado.valor : null;
   const pista = faltan.length ? t.elegirPrimero(faltan.join(" y ")) : t.stockElegi;

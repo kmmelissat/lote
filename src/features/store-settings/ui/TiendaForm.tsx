@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useActionState, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { BarraGuardar } from "@/components/ui/BarraGuardar";
 import { Button } from "@/components/ui/Button";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
@@ -12,7 +12,7 @@ import { Interruptor } from "@/components/ui/Interruptor";
 import { Monito } from "@/components/ui/Monito";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useToast } from "@/components/ui/Toast";
-import { TARJETA } from "@/components/ui/tarjeta";
+import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
 import { subirLogo } from "@/features/products/subirFotos";
 import { urlFoto } from "@/lib/fotos";
 import { slugDe } from "@/lib/slug";
@@ -23,27 +23,11 @@ import { digitosLocales, telefonoElSalvador } from "@/domain";
 import { COLORES_MARCA, colorDeMarca, estiloDeMarca, LIMITE_CONTEXTO, textoSobre } from "@/features/catalog/marca";
 import type { AjustesVitrina, IdentidadTienda } from "@/features/catalog/repositorio";
 import { Textarea } from "@/components/ui/Textarea";
+import type { IdSeccion } from "./SeccionesTienda";
 import { coloresDeArchivo, coloresDeUrl } from "./coloresDeImagen";
 
 const t = textos.ajustes.tienda;
 const v = textos.ajustes.vitrina;
-
-const SECCIONES = [
-  { id: "tienda", etiqueta: t.indice.tienda, ayuda: t.indice.tiendaAyuda },
-  { id: "ventas", etiqueta: t.indice.ventas, ayuda: t.indice.ventasAyuda },
-  { id: "lotito", etiqueta: t.indice.lotito, ayuda: t.indice.lotitoAyuda },
-] as const;
-
-export type IdSeccion = (typeof SECCIONES)[number]["id"];
-
-/** `/ajustes/tienda` o `/ajustes/tienda?seccion=ventas`. Si el valor no cuadra, cae en tu tienda. */
-export function idSeccion(valor: unknown): IdSeccion {
-  return SECCIONES.some((s) => s.id === valor) ? (valor as IdSeccion) : "tienda";
-}
-
-function hrefSeccion(id: IdSeccion) {
-  return id === "tienda" ? "/ajustes/tienda" : `/ajustes/tienda?seccion=${id}`;
-}
 
 function Logo({ ruta, nombre, className, color }: { ruta: string; nombre: string; className: string; color: string }) {
   return (
@@ -83,74 +67,6 @@ function Muestra({ hex, nombre, elegido, onElegir }: { hex: string; nombre: stri
   );
 }
 
-function Seccion({
-  id,
-  fondo = "bg-superficie",
-  className = "",
-  children,
-}: {
-  id: string;
-  fondo?: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <section
-      id={`panel-${id}`}
-      role="tabpanel"
-      aria-labelledby={`tab-${id}`}
-      className={`${TARJETA} relative flex flex-col gap-6 ${fondo} ${className}`}
-    >
-      {children}
-    </section>
-  );
-}
-
-const SUBRAYADO = {
-  limon: "bg-[linear-gradient(transparent_86%,var(--color-limon)_86%,var(--color-limon)_100%)]",
-  mango: "bg-[linear-gradient(transparent_86%,var(--color-mango)_86%,var(--color-mango)_100%)]",
-  rosa: "bg-[linear-gradient(transparent_86%,var(--color-rosa)_86%,var(--color-rosa)_100%)]",
-  celeste: "bg-[linear-gradient(transparent_86%,var(--color-celeste)_86%,var(--color-celeste)_100%)]",
-} as const;
-
-function Bloque({
-  titulo,
-  texto,
-  tono = "limon",
-  className = "",
-  children,
-}: {
-  titulo: string;
-  texto: string;
-  tono?: keyof typeof SUBRAYADO;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className={`flex flex-col gap-3 ${className}`}>
-      <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-bold leading-tight">
-          <span className={`${SUBRAYADO[tono]} box-decoration-clone pb-0.5`}>{titulo}</span>
-        </h3>
-        <p className="max-w-xl text-sm text-texto-2">{texto}</p>
-      </div>
-      <div className="flex flex-col gap-4 rounded-2xl bg-fondo p-4">{children}</div>
-    </div>
-  );
-}
-
-function Replegable({ titulo, children }: { titulo: string; children: ReactNode }) {
-  return (
-    <details className="group">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 font-bold [&::-webkit-details-marker]:hidden">
-        {titulo}
-        <Icon nombre="flecha" className="size-4 shrink-0 text-texto-2 transition-transform group-open:rotate-180" />
-      </summary>
-      <div className="mt-3 flex flex-col gap-3">{children}</div>
-    </details>
-  );
-}
-
 export function TiendaForm({
   identidad,
   ajustes,
@@ -160,7 +76,7 @@ export function TiendaForm({
   identidad: IdentidadTienda;
   ajustes: AjustesVitrina;
   negocioId: string;
-  seccion?: string;
+  seccion: IdSeccion;
 }) {
   const { avisar } = useToast();
   const [estado, accion, pendiente] = useActionState<EstadoTienda, FormData>(guardarTienda, {});
@@ -173,6 +89,7 @@ export function TiendaForm({
   );
   const [instagram, setInstagram] = useState(identidad.usuarioInstagram ?? "");
   const [facebook, setFacebook] = useState(identidad.usuarioFacebook ?? "");
+  const [tiktok, setTiktok] = useState(identidad.usuarioTiktok ?? "");
   const [contexto, setContexto] = useState(identidad.contextoIa ?? "");
   const [vitrina, setVitrina] = useState(ajustes.vitrinaActiva);
   const [local, setLocal] = useState(ajustes.tieneLocal);
@@ -183,11 +100,10 @@ export function TiendaForm({
   const [subiendo, setSubiendo] = useState(false);
   const [errorLogo, setErrorLogo] = useState<string>();
   const [delLogo, setDelLogo] = useState<string[]>([]);
-  const activa = idSeccion(seccion);
+  const activa = seccion;
   const entrada = useRef<HTMLInputElement>(null);
   const idContexto = useId();
   const propio = !COLORES_MARCA.some((c) => c.hex === color) && !delLogo.includes(color);
-  const indice = SECCIONES;
 
   useEffect(() => {
     if (!identidad.logo) return;
@@ -230,28 +146,6 @@ export function TiendaForm({
     <form action={accion} className="flex min-w-0 flex-col gap-4">
       <input type="hidden" name="logo" value={logo} />
       <input type="hidden" name="color" value={color} />
-
-      <div
-        role="tablist"
-        aria-label={t.indice.etiqueta}
-        className={`grid gap-1.5 rounded-[20px] border-2 border-teal-oscuro bg-white p-1.5 ${indice.length > 3 ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-3"}`}
-      >
-        {indice.map((s) => (
-          <Link
-            key={s.id}
-            href={hrefSeccion(s.id)}
-            scroll={false}
-            role="tab"
-            id={`tab-${s.id}`}
-            aria-selected={activa === s.id}
-            aria-controls={`panel-${s.id}`}
-            className="flex flex-col items-start rounded-2xl px-3 py-2.5 text-left transition-colors hover:bg-crema aria-selected:bg-teal-oscuro aria-selected:text-white aria-selected:hover:bg-teal-oscuro"
-          >
-            <span className="font-bold">{s.etiqueta}</span>
-            <span className="text-xs opacity-70">{s.ayuda}</span>
-          </Link>
-        ))}
-      </div>
 
       <div className="flex min-w-0 flex-col">
           <Seccion id="tienda" className={activa === "tienda" ? "" : "hidden"}>
@@ -309,6 +203,10 @@ export function TiendaForm({
                 <div className="flex flex-col gap-1">
                   <Field etiqueta={t.facebook} name="facebook" autoComplete="off" placeholder={t.facebookPlaceholder} value={facebook} onChange={(e) => setFacebook(e.target.value)} />
                   <p className="text-sm text-texto-2">{t.facebookAyuda}</p>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Field etiqueta={t.tiktok} name="tiktok" autoComplete="off" placeholder={t.tiktokPlaceholder} value={tiktok} onChange={(e) => setTiktok(e.target.value)} />
+                  <p className="text-sm text-texto-2">{t.tiktokAyuda}</p>
                 </div>
               </div>
             </Bloque>

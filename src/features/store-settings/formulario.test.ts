@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { COLORES_MARCA } from "@/features/catalog/marca";
 import { leerTienda } from "./formulario";
 
-const valido = { nombre: "Velvet", frase: "", whatsapp: "", instagram: "", facebook: "", contexto: "", plazo: "24", limite: "3", umbral: "2", tiempo_entrega: "", politica_cambios: "", slug: "velvet", color: COLORES_MARCA[0].hex, logo: "" };
+const valido = { nombre: "Velvet", frase: "", whatsapp: "", instagram: "", facebook: "", tiktok: "", contexto: "", plazo: "24", limite: "3", umbral: "2", tiempo_entrega: "", politica_cambios: "", slug: "velvet", color: COLORES_MARCA[0].hex, logo: "" };
 const form = (campos: Record<string, string>) => {
   const f = new FormData();
   for (const [k, v] of Object.entries({ ...valido, ...campos })) f.set(k, v);
@@ -25,7 +25,7 @@ describe("leerTienda", () => {
   });
 
   it("rechaza lo que no cuadra, cada campo con su mensaje", () => {
-    const malos: Record<string, string>[] = [{ nombre: "" }, { nombre: "a".repeat(61) }, { frase: "a".repeat(121) }, { whatsapp: "123" }, { whatsapp: "abc12345678" }, { instagram: "con espacio" }, { facebook: "con espacio" }, { plazo: "0" }, { plazo: "169" }, { limite: "21" }, { umbral: "51" }, { umbral: "1.5" }, { slug: "a" }, { slug: "-malo" }, { color: "rojo" }];
+    const malos: Record<string, string>[] = [{ nombre: "" }, { nombre: "a".repeat(61) }, { frase: "a".repeat(121) }, { whatsapp: "123" }, { whatsapp: "abc12345678" }, { instagram: "con espacio" }, { facebook: "con espacio" }, { tiktok: "con espacio" }, { tiktok: "https://vm.tiktok.com/ZMabc/" }, { plazo: "0" }, { plazo: "169" }, { limite: "21" }, { umbral: "51" }, { umbral: "1.5" }, { slug: "a" }, { slug: "-malo" }, { color: "rojo" }];
     const mensajes = new Set(malos.map(error));
     expect(mensajes.has(null)).toBe(false);
     expect(mensajes.size).toBeGreaterThan(8);

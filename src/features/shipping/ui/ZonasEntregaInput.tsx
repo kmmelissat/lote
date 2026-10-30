@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
 import { DEPARTAMENTOS, MUNICIPIOS, type Departamento, type ZonasEntrega } from "@/lib/departamentos";
 import { textos } from "@/lib/textos";
@@ -55,53 +56,48 @@ export function ZonasEntregaInput({
       <input type="hidden" name="zonas" value={JSON.stringify(marcadas)} />
 
       {todo ? (
+        <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+          {t.todoElPaisNota}
+        </p>
+      ) : (
         <>
-          <p className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">{t.todoElPaisNota}</p>
+          <p className="text-sm font-bold text-teal" aria-live="polite">
+            {t.elegidos(elegidos)}
+          </p>
           <ul className="flex flex-wrap gap-2">
             {DEPARTAMENTOS.map((d) => (
-              <li key={d} className="rounded-full border-2 border-teal-oscuro bg-white px-3 py-1 text-sm font-bold">
-                {d}
+              <li key={d}>
+                <label className={ficha(!!marcadas[d])}>
+                  <input type="checkbox" checked={!!marcadas[d]} onChange={() => alternarDepartamento(d)} className="sr-only" />
+                  {marcadas[d] && <Icon nombre="check" className="mr-1.5 size-4" />}
+                  {d}
+                </label>
               </li>
             ))}
           </ul>
-        </>
-      ) : (
-        <>
-          <p className="text-sm font-bold text-teal">{t.elegidos(elegidos)}</p>
-          <ul className="flex flex-col gap-2">
-            {DEPARTAMENTOS.map((d) => {
-              const lista = marcadas[d];
-              const todos = lista?.length === MUNICIPIOS[d].length;
-              return (
-                <li
-                  key={d}
-                  className={`rounded-2xl border-2 p-3 transition-colors ${
-                    lista ? "border-teal-oscuro bg-crema shadow-dura-chica" : "border-teal-oscuro/15 bg-white"
-                  }`}
-                >
-                  <label className="flex min-h-9 cursor-pointer items-center gap-3 font-bold">
-                    <input type="checkbox" checked={!!lista} onChange={() => alternarDepartamento(d)} className="size-5 accent-teal" />
-                    {d}
-                    {lista && (
-                      <span className="text-sm font-medium text-texto-2">
-                        · {todos ? t.departamentoEntero : t.parcial(lista.length, MUNICIPIOS[d].length)}
-                      </span>
-                    )}
-                  </label>
-                  {lista && (
-                    <div role="group" aria-label={t.municipios(d)} className="mt-2 flex flex-wrap gap-2 pl-8">
-                      {MUNICIPIOS[d].map((m) => (
-                        <label key={m} className={ficha(lista.includes(m))}>
-                          <input type="checkbox" checked={lista.includes(m)} onChange={() => alternarMunicipio(d, m)} className="sr-only" />
-                          {m.slice(d.length).trim() || m}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+
+          {elegidos === 0 && <p className="text-sm text-texto-2">{t.ningunoElegido}</p>}
+
+          {DEPARTAMENTOS.filter((d) => marcadas[d]).map((d) => {
+            const lista = marcadas[d] ?? [];
+            const todos = lista.length === MUNICIPIOS[d].length;
+            return (
+              <div key={d} role="group" aria-label={t.municipios(d)} className="flex flex-col gap-2 rounded-2xl border-2 border-teal-oscuro bg-white p-3">
+                <p className="text-sm">
+                  <span className="font-bold">{d}</span>
+                  <span className="text-texto-2"> · {todos ? t.departamentoEntero : t.parcial(lista.length, MUNICIPIOS[d].length)}</span>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {MUNICIPIOS[d].map((m) => (
+                    <label key={m} className={ficha(lista.includes(m))}>
+                      <input type="checkbox" checked={lista.includes(m)} onChange={() => alternarMunicipio(d, m)} className="sr-only" />
+                      {m.slice(d.length).trim() || m}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </>
       )}
     </fieldset>

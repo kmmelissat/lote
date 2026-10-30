@@ -1,4 +1,4 @@
-export type ClavePaso = "producto" | "tienda" | "pago" | "compartir" | "pedido";
+export type ClavePaso = "producto" | "pago" | "pedido" | "tienda" | "envio" | "compartir";
 
 export type PasoInicial = {
   clave: ClavePaso;
@@ -9,7 +9,8 @@ export type PasoInicial = {
 export const ENLACES_PASOS: Record<ClavePaso, string> = {
   producto: "/productos/nuevo",
   tienda: "/ajustes/tienda",
-  pago: "/ajustes/pagos",
+  envio: "/ajustes/tienda?seccion=envios",
+  pago: "/ajustes/tienda?seccion=pagos",
   compartir: "/inicio",
   pedido: "/pedidos/nuevo",
 };
@@ -18,27 +19,33 @@ export const ENLACES_PASOS: Record<ClavePaso, string> = {
 export const COOKIE_COMPARTIO = "lote-compartio";
 export const COOKIE_PASOS_VISTOS = "lote-pasos-vistos";
 
+/** Los pasos de la vitrina van al final y solo existen si la tienda la usa: hay quien lleva solo inventario, gastos y ganancia. */
+export const SOLO_CON_VITRINA: ClavePaso[] = ["tienda", "envio", "compartir"];
+
 /**
  * Los primeros pasos de un negocio nuevo, en el orden en que conviene hacerlos. Se marcan solos
- * según lo que ya existe: nadie tiene que tildar nada. Sin vitrina, los pasos de la tienda y de
- * compartirla no aplican.
+ * según lo que ya existe: nadie tiene que tildar nada. Sin vitrina, los pasos de la tienda, los
+ * envíos y compartirla no aplican.
  */
 export function primerosPasos(estado: {
   tieneProductos: boolean;
   tieneLogo: boolean;
+  tieneContacto: boolean;
   tieneMetodoPago: boolean;
+  tieneEnvios: boolean;
   compartio: boolean;
   tienePedidos: boolean;
   vitrinaActiva: boolean;
 }): PasoInicial[] {
   const pasos: PasoInicial[] = [
     { clave: "producto", hecho: estado.tieneProductos },
-    { clave: "tienda", hecho: estado.tieneLogo },
     { clave: "pago", hecho: estado.tieneMetodoPago },
-    { clave: "compartir", hecho: estado.compartio },
     { clave: "pedido", hecho: estado.tienePedidos },
+    { clave: "tienda", hecho: estado.tieneLogo && estado.tieneContacto },
+    { clave: "envio", hecho: estado.tieneEnvios },
+    { clave: "compartir", hecho: estado.compartio },
   ];
-  return estado.vitrinaActiva ? pasos : pasos.filter((p) => p.clave !== "tienda" && p.clave !== "compartir");
+  return estado.vitrinaActiva ? pasos : pasos.filter((p) => !SOLO_CON_VITRINA.includes(p.clave));
 }
 
 export const faltanPasos = (pasos: PasoInicial[]): boolean => pasos.some((p) => !p.hecho);

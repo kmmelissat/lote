@@ -1,25 +1,6 @@
-import type { Metadata } from "next";
-import { PageHeader } from "@/components/nav/PageHeader";
-import { listarMetodos } from "@/features/payments/repositorio";
-import { negocioActual } from "@/lib/negocio";
-import { textos } from "@/lib/textos";
-import { PagosForm } from "@/features/payments/ui/PagosForm";
+import { redirect } from "next/navigation";
 
-const t = textos.ajustes.pagos;
-
-export const metadata: Metadata = { title: t.titulo };
-
-export default function PagosPage() {
-  return (
-    <>
-      <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
-      <Formulario />
-    </>
-  );
-}
-
-async function Formulario() {
-  const { supabase, negocio } = await negocioActual();
-  if (negocio.rol !== "duena") return <p className="text-texto-2">{t.soloDuena}</p>;
-  return <PagosForm metodos={await listarMetodos(supabase, negocio.id)} />;
+// Esto ahora se configura en Mi tienda. Esta dirección queda para los enlaces y marcadores viejos.
+export default function PagosAjustesPage() {
+  redirect("/ajustes/tienda?seccion=pagos");
 }

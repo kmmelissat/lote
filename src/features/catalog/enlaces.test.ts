@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { enlaceFacebook, enlaceInstagram, enlaceWhatsApp, facebookDe, mensajePedirProducto } from "./enlaces";
+import { enlaceFacebook, enlaceInstagram, enlaceTiktok, enlaceWhatsApp, facebookDe, mensajePedirProducto, tiktokDe } from "./enlaces";
 
 describe("enlaceWhatsApp", () => {
   it("deja solo los dígitos del número y codifica el mensaje", () => {
@@ -54,5 +54,27 @@ describe("mensajePedirProducto", () => {
     expect(m).toContain("Chaqueta negra");
     expect(m).toContain("#12");
     expect(m).toContain("$25.00");
+  });
+});
+
+describe("tiktokDe", () => {
+  it("acepta el usuario, el arroba o el enlace del perfil", () => {
+    expect(tiktokDe("velvet.sv")).toBe("velvet.sv");
+    expect(tiktokDe("@velvet.sv")).toBe("velvet.sv");
+    expect(tiktokDe("https://www.tiktok.com/@velvet.sv")).toBe("velvet.sv");
+    expect(tiktokDe("tiktok.com/@velvet.sv?lang=es")).toBe("velvet.sv");
+  });
+
+  it("no adivina de quién es un enlace corto", () => {
+    expect(tiktokDe("https://vm.tiktok.com/ZMabc123/")).toBe("");
+  });
+});
+
+describe("enlaceTiktok", () => {
+  it("arma el enlace del perfil", () => {
+    expect(enlaceTiktok("velvet.sv")).toBe("https://www.tiktok.com/@velvet.sv");
+    expect(enlaceTiktok("con espacio")).toBeNull();
+    expect(enlaceTiktok("a")).toBeNull();
+    expect(enlaceTiktok(null)).toBeNull();
   });
 });

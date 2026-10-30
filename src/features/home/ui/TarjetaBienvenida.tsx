@@ -44,7 +44,7 @@ export function TarjetaBienvenida({ nombre, negocioId, slug, conVitrina }: { nom
         <h2 id="bienvenida" className="text-2xl font-bold leading-tight md:text-3xl">
           {t.titulo(nombre)}
         </h2>
-        <p className="max-w-xl text-crema/90">{t.texto}</p>
+        <p className="max-w-xl text-crema/90">{conVitrina ? t.texto : t.textoSinVitrina}</p>
         {conVitrina && (
           <div className="flex flex-wrap items-center gap-2">
             <p className="flex min-w-0 items-center gap-1 rounded-full border-2 border-teal-oscuro bg-white px-4 py-2 text-sm text-teal-oscuro">

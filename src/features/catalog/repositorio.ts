@@ -14,6 +14,7 @@ export type NegocioPublico = {
   whatsapp: string | null;
   usuarioInstagram: string | null;
   usuarioFacebook: string | null;
+  usuarioTiktok: string | null;
   /** Llave general: con ella apagada no se puede pedir nada (modo catálogo) */
   apartarDesdeVitrina: boolean;
   permiteComprar: boolean;
@@ -30,9 +31,11 @@ export type NegocioPublico = {
 };
 
 export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Promise<NegocioPublico | null> {
-  const [{ data, error }, reglas] = await Promise.all([
+  const [{ data, error }, reglas, tiktok] = await Promise.all([
     supabase.rpc("vitrina_negocio", { p_slug: slug }),
     supabase.rpc("vitrina_reglas", { p_slug: slug }),
+    // Sin tiktok.sql la función no existe: la tienda no tiene TikTok
+    supabase.rpc("vitrina_tiktok", { p_slug: slug }),
   ]);
   if (error) throw error;
   const n = data[0];
@@ -50,6 +53,7 @@ export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Pr
     whatsapp: n.whatsapp,
     usuarioInstagram: n.usuario_instagram,
     usuarioFacebook: n.usuario_facebook ?? null,
+    usuarioTiktok: tiktok.error ? null : tiktok.data,
     apartarDesdeVitrina: n.apartar_desde_vitrina,
     plazoHoras: n.plazo_apartado_horas,
     // Los campos nuevos pueden no venir si todavía no se corrió ficha_producto.sql
@@ -399,6 +403,7 @@ export type IdentidadTienda = {
   whatsapp: string | null;
   usuarioInstagram: string | null;
   usuarioFacebook: string | null;
+  usuarioTiktok: string | null;
   /** Lo que Lotito debe saber de la tienda cuando lee una foto */
   contextoIa: string | null;
 };
@@ -413,7 +418,9 @@ export async function obtenerIdentidad(supabase: Cliente, negocioId: string): Pr
   const { usuario_instagram, contexto_ia, ...resto } = data;
   // Si todavía no se corrió facebook.sql, no hay columna y cuenta como vacío
   const { data: fb } = await supabase.from("negocio").select("usuario_facebook").eq("id", negocioId).maybeSingle();
-  return { ...resto, usuarioInstagram: usuario_instagram, usuarioFacebook: fb?.usuario_facebook ?? null, contextoIa: contexto_ia };
+  // Igual con tiktok.sql
+  const { data: tk } = await supabase.from("negocio").select("usuario_tiktok").eq("id", negocioId).maybeSingle();
+  return { ...resto, usuarioInstagram: usuario_instagram, usuarioFacebook: fb?.usuario_facebook ?? null, usuarioTiktok: tk?.usuario_tiktok ?? null, contextoIa: contexto_ia };
 }
 
 /** Solo el contexto para la IA; lo pide quien va a leer una foto. Vacío si no hay o no se pudo leer. */
@@ -452,6 +459,8 @@ export async function guardarTienda(
     await supabase.from("negocio").update({ permite_comprar: a.permiteComprar, permite_apartar: a.permiteApartar }).eq("id", negocioId);
     // Y facebook.sql: si no está la columna, este update falla callado y no pierde el resto
     await supabase.from("negocio").update({ usuario_facebook: a.usuarioFacebook }).eq("id", negocioId);
+    // Y tiktok.sql
+    await supabase.from("negocio").update({ usuario_tiktok: a.usuarioTiktok }).eq("id", negocioId);
     return "ok";
   }
   // La dirección ya la usa otra tienda
