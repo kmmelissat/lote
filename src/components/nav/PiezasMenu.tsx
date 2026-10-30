@@ -168,6 +168,15 @@ export function TarjetaPerfil({ perfil }: { perfil: DatosMenu["perfil"] }) {
           className="absolute bottom-full left-0 z-30 mb-2 w-60 rounded-2xl border-2 border-teal-oscuro bg-superficie p-2 shadow-dura"
         >
           <Link
+            href={textos.ayuda.ruta}
+            role="menuitem"
+            onClick={() => setAbierto(false)}
+            className="flex min-h-11 items-center gap-3 rounded-xl px-3 font-medium hover:bg-teal-fondo"
+          >
+            <Icon nombre="info" className="size-5 shrink-0" />
+            {t.ayuda}
+          </Link>
+          <Link
             href="/ajustes"
             role="menuitem"
             onClick={() => setAbierto(false)}

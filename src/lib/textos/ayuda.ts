@@ -1,9 +1,26 @@
 export const ayuda = {
   titulo: "Ayuda",
-  descripcion: "Respuestas a lo que más se pregunta.",
+  descripcion: "Respuestas cortas a lo que más se pregunta. Si no está acá, escribile a Lotito.",
+  ruta: "/ayuda",
   enlace: "Ayuda",
   enlaceTexto: "Preguntas frecuentes sobre cómo usar Lote.",
-  volver: "Volver a ajustes",
+  heroEtiqueta: "Lotito te explica",
+  heroTitulo: "¿En qué te ayudo?",
+  hablarConLotito: "Preguntale a Lotito",
+  atajosTitulo: "Lo más buscado",
+  grupos: [
+    { id: "productos", titulo: "Tus productos", temas: ["producto_nuevo", "importar", "variantes", "categorias", "lotito_foto"] },
+    { id: "ventas", titulo: "Cobrar y enviar", temas: ["apartado_vitrina", "cobrar", "pagar_pedido", "seguimiento"] },
+    { id: "vitrina", titulo: "Tu vitrina", temas: ["vitrina", "explorar"] },
+    { id: "negocio", titulo: "Tu negocio", temas: ["ganancia", "permisos", "equipo", "exportar"] },
+    { id: "lotito", titulo: "Hablar con Lotito", temas: ["asistente", "deshacer"] },
+  ],
+  cierreTitulo: "¿No encontrás lo que buscás?",
+  cierreTexto: "Escribile a Lotito como le escribirías a una ayudante: apartá, cobrá o preguntale cuánto ganaste.",
+  cierreAccion: "Hablar con Lotito",
+  cierreTituloFuera: "¿Querés que Lotito te ayude en tu negocio?",
+  cierreTextoFuera: "Creá tu cuenta con Google o con tu correo. Gratis para empezar, sin tarjeta.",
+  empezar: "Empezar gratis",
   /** Preguntas que se muestran como atajos cuando el chat está vacío y la pantalla no tiene las suyas */
   atajos: ["producto_nuevo", "cobrar", "ganancia", "vitrina"],
   preguntas: [
@@ -14,6 +31,14 @@ export const ayuda = {
       pregunta: "¿Cómo agrego un producto?",
       respuesta:
         "Tocá el botón + y elegí Nuevo producto. Con el nombre y el precio ya queda; el costo lo podés poner después. Si subís una foto, \"Completar con la foto\" te propone nombre, descripción y categoría para que los corrijas. Si ya tenés una lista en Excel, usá Importar en Productos.",
+    },
+    {
+      id: "importar",
+      enlace: { href: "/productos/importar", etiqueta: "Importar productos" },
+      donde: ["/productos", "/productos/importar"],
+      pregunta: "¿Cómo importo los productos que ya tengo en Excel?",
+      respuesta:
+        "En Productos tocá Importar. Subí tu Excel o tu CSV, pegá las filas o el enlace de Google Sheets. Además del nombre y el precio podés traer descripción, condición y el resto de la ficha. Si el mismo producto va en varias filas con talla o color, Lote las junta como variantes. Si algo sale mal, hay un botón para deshacer.",
     },
     {
       id: "apartado_vitrina",
@@ -83,7 +108,7 @@ export const ayuda = {
       donde: ["/productos/nuevo"],
       pregunta: "¿Cómo vendo un producto con tallas o colores?",
       respuesta:
-        "En Nuevo producto abrí la sección de variantes y escribí las opciones, por ejemplo modelos y colores. Lote arma las combinaciones y cada una lleva su precio, su costo y sus unidades. En la vitrina tu cliente elige la que quiere.",
+        "En Nuevo producto abrí la sección de variantes y escribí las opciones, por ejemplo modelos y colores. Lote arma las combinaciones y cada una lleva su precio, su costo y sus unidades. En la vitrina tu cliente elige la que quiere. Si ya las tenés en Excel, importalas: repetí el nombre del producto y cambiá la talla o el color en cada fila.",
     },
     {
       id: "vitrina",

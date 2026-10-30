@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
 
@@ -13,6 +14,7 @@ export default function SeguimientoLayout({ children }: LayoutProps<"/p">) {
         <header className="pb-5">
           <Logo />
         </header>
+        <Migas />
         <main className="flex-1">{children}</main>
         <footer className="pt-10 text-center text-sm font-medium text-teal-oscuro/80">{textos.vitrina.marca}</footer>
       </div>

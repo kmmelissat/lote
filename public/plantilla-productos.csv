@@ -1,3 +1,4 @@
-nombre,precio,cantidad,costo,categoria,marca
-Chaqueta negra M,25,1,10,Ropa,
-Llavero de gato,3.50,5,1,Accesorios,Ternuritos
+nombre,precio,cantidad,costo,categoria,marca,descripcion,condicion,variante,talla,color,material,estado,precio_anterior
+Chaqueta negra,25,1,10,Ropa,,"Chaqueta de paca, poco uso. El cierre anda bien.",usado,,M,Negro,Algodón,Una marquita en el puño,35
+Chaqueta negra,25,2,10,Ropa,,"Chaqueta de paca, poco uso. El cierre anda bien.",usado,,L,Negro,Algodón,,35
+Llavero de gato,3.50,5,1,Accesorios,Ternuritos,Llavero de acrílico con carita de gato.,nuevo,,,,,Acrílico,,

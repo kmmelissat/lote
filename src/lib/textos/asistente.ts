@@ -7,12 +7,12 @@ export const asistente = {
   pensando: "Pensando…",
   vacioTitulo: "Contame qué pasó",
   vacioFlotante: "¿En qué te ayudo?",
-  preguntasTitulo: "¿No sabés cómo se hace algo?",
+  preguntasTitulo: "¿Cómo se hace algo?",
   sugerenciasTitulo: "Pedime algo",
   flotanteSubtitulo: "Yo llevo la cuenta",
   flotanteEtiqueta: "Preguntale a Lotito",
   flotante: { abrir: "Hablar con Lotito", cerrar: "Cerrar el chat", ampliar: "Abrir el chat en grande" },
-  saludoInicial: "¡Hola! Soy Lotito. Contame qué pasó en tu negocio y lo anoto, o preguntame lo que quieras: cómo vas, qué reponer, quién te debe.",
+  saludoInicial: "Anoto lo que vendiste, apartaste o cobraste. También preguntame cómo vas.",
   enLinea: "En línea",
   vacioTexto: "Escribí como si le mandaras un mensaje a una ayudante. Probá una de estas:",
   /** Lo que se ofrece en el chat vacío. "mandar" lo envía, "escribir" lo deja listo para completar, "foto" abre la cámara. */
@@ -125,6 +125,7 @@ export const asistente = {
     `Listo. #${codigo} ${nombre} a ${precio}${costo ? `, costó ${costo}` : ""}. Cantidad: ${cantidad}.${
       costo ? "" : " Falta el costo para calcular tu ganancia."
     }`,
+  verProducto: (codigo: number) => `Ver #${codigo}`,
   repuesto: (cantidad: number, producto: string, disponibles: number) =>
     `Listo. Se sumaron ${cantidad} de ${producto}. Disponibles: ${disponibles}.`,
   apartado: (producto: string, cliente: string, disponibles: number) =>

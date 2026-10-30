@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
 import { Monito } from "@/components/ui/Monito";
 import { textos } from "@/lib/textos";
@@ -20,6 +21,7 @@ export default function ExplorarLayout({ children }: LayoutProps<"/marketplace">
             {textos.explorar.quieroMiTienda}
           </Link>
         </header>
+        <Migas />
         <main className="flex-1">{children}</main>
         <footer className="flex items-center justify-center gap-2 pt-12 text-sm font-medium text-teal-oscuro">
           <Monito nombre="saluda" className="w-6 text-rosa" />

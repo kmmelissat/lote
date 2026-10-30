@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { obtenerTarifas } from "@/features/shipping/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -12,7 +13,7 @@ export const metadata: Metadata = { title: t.titulo };
 export default function EnviosPage() {
   return (
     <>
-      <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
+      <PageHeader titulo={t.titulo} descripcion={t.descripcion} volver={{ href: "/ajustes", etiqueta: t.volver }} />
       <Formulario />
     </>
   );
@@ -20,6 +21,6 @@ export default function EnviosPage() {
 
 async function Formulario() {
   const { supabase, negocio } = await negocioActual();
-  if (negocio.rol !== "duena") return <p className="text-texto-2">{t.soloDuena}</p>;
+  if (negocio.rol !== "duena") return <EmptyState titulo={t.soloDuenaTitulo} texto={t.soloDuena} />;
   return <TarifasForm tarifas={await obtenerTarifas(supabase, negocio.id)} />;
 }

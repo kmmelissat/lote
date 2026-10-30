@@ -79,7 +79,13 @@ export function Nav({ datos }: { datos: DatosMenu }) {
       {mas && (
         <Hoja titulo={t.masTitulo} cerrar={() => setMas(false)}>
           <ul className="flex flex-col gap-1">
-            {[pestanas[3], pestanas[4], pestanas[5], { href: "/ajustes", etiqueta: t.ajustes, icono: "ajustes" as const }].map((p) => (
+            {[
+              pestanas[3],
+              pestanas[4],
+              pestanas[5],
+              { href: textos.ayuda.ruta, etiqueta: t.ayuda, icono: "info" as const },
+              { href: "/ajustes", etiqueta: t.ajustes, icono: "ajustes" as const },
+            ].map((p) => (
               <li key={p.href}>
                 <Link href={p.href} className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
                   <Icon nombre={p.icono} className="size-6 shrink-0 text-teal" />

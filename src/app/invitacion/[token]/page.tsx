@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { ButtonLink } from "@/components/ui/Button";
 import { Monito } from "@/components/ui/Monito";
 import { TARJETA } from "@/components/ui/tarjeta";
+import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
 import { esTokenInvitacion, verInvitacion } from "@/features/team/repositorio";
 import { AceptarInvitacion } from "@/features/team/ui/AceptarInvitacion";
@@ -29,6 +30,7 @@ async function Invitacion({ params }: Pick<PageProps<"/invitacion/[token]">, "pa
     <main className="min-h-dvh bg-crema px-4 py-10">
       <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-6">
         <Logo />
+        <Migas />
         {/* El monito se asoma por encima del borde de la tarjeta */}
         <div className="relative mt-10">
           <Monito nombre="saluda" className="absolute -top-[4.25rem] right-6 w-24 text-rosa" />

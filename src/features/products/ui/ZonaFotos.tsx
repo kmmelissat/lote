@@ -22,12 +22,15 @@ export function ZonaFotos({
   rutas,
   onCambio,
   conLotito = false,
+  compacto = false,
 }: {
   negocioId: string;
   rutas: string[];
   onCambio: (rutas: string[]) => void;
   /** Solo donde Lotito de verdad lee la foto y llena la ficha: así la zona no promete lo que no hace */
   conLotito?: boolean;
+  /** Sin monito ni título grande: la foto de un diseño, no la ficha del producto */
+  compacto?: boolean;
 }) {
   const id = useId();
   const galeria = useRef<HTMLInputElement>(null);
@@ -78,16 +81,21 @@ export function ZonaFotos({
         }}
         onDragLeave={() => setEncima(false)}
         onDrop={soltadas}
-        className={`flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-teal-oscuro p-5 text-center transition-colors duration-150 ${
-          encima ? "bg-limon" : "bg-crema"
-        } ${rutas.length ? "sm:flex-row sm:text-left" : ""}`}
+        className={`flex flex-col items-center gap-3 border-2 border-dashed border-teal-oscuro text-center transition-colors duration-150 ${
+          compacto ? "rounded-2xl p-3 sm:flex-row sm:text-left" : "rounded-[24px] p-5"
+        } ${encima ? "bg-limon" : "bg-crema"} ${rutas.length && !compacto ? "sm:flex-row sm:text-left" : ""}`}
       >
-        <Monito nombre="celular" className={`shrink-0 text-teal ${rutas.length ? "w-12" : "w-16"}`} />
+        {!compacto && <Monito nombre="celular" className={`shrink-0 text-teal ${rutas.length ? "w-12" : "w-16"}`} />}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="text-lg font-bold leading-snug">{rutas.length ? l.agregarOtra : conLotito ? l.zonaTitulo : t.zonaTituloSimple}</p>
-          {!rutas.length && <p className="text-sm text-texto-2">{conLotito ? l.zonaTexto : t.zonaTextoSimple}</p>}
+          {!compacto && (
+            <>
+              <p className="text-lg font-bold leading-snug">{rutas.length ? l.agregarOtra : conLotito ? l.zonaTitulo : t.zonaTituloSimple}</p>
+              {!rutas.length && <p className="text-sm text-texto-2">{conLotito ? l.zonaTexto : t.zonaTextoSimple}</p>}
+            </>
+          )}
+          {compacto && <p className="text-sm text-texto-2">{rutas.length ? l.agregarOtra : t.zonaTextoSimple}</p>}
         </div>
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className={`flex flex-wrap justify-center gap-2 ${compacto ? "w-full sm:w-auto" : ""}`}>
           <button type="button" disabled={subiendo || lleno} onClick={() => galeria.current?.click()} className={`${boton} bg-white`}>
             <Icon nombre="subir" className="size-4" />
             {l.elegir}
@@ -102,9 +110,11 @@ export function ZonaFotos({
         <input ref={camara} type="file" accept="image/*" capture="environment" hidden onChange={elegidas} aria-label={l.sacar} />
       </div>
 
-      <p role="status" className="min-h-5 text-sm text-texto-2">
-        {subiendo ? t.subiendo : ""}
-      </p>
+      {(!compacto || subiendo) && (
+        <p role="status" className={`text-sm text-texto-2 ${compacto ? "" : "min-h-5"}`}>
+          {subiendo ? t.subiendo : ""}
+        </p>
+      )}
 
       {rutas.length > 0 && (
         <ul className="flex flex-wrap gap-3">

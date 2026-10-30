@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { textos } from "@/lib/textos";
-import { Globo } from "../comun";
+import { Globo, Mini } from "../comun";
 import { LotitoMas } from "./LotitoMas";
 
 const m = textos.landing.hero.mock;
@@ -13,9 +12,9 @@ const GANANCIA_ANTES = 117.5;
 const GANANCIA_DESPUES = 142.5;
 
 const FOTOS = {
-  camisa: { src: "/landing/chaqueta.webp", alt: "Chaqueta" },
-  disco: { src: "/landing/disco.webp", alt: "Disco" },
-  llave: { src: "/landing/llaveros.webp", alt: "Llaveros" },
+  camisa: "/landing/chaqueta.webp",
+  disco: "/landing/disco.webp",
+  llave: "/landing/llaveros.webp",
 } as const;
 
 const TIEMPOS = [700, 1700, 2600, 3500];
@@ -27,17 +26,7 @@ const suscribir = (aviso: () => void) => {
   return () => lista.removeEventListener("change", aviso);
 };
 
-/** Miniatura ilustrada, del mismo estilo sticker que el mercadito. */
-function Foto({ de }: { de: keyof typeof FOTOS }) {
-  const f = FOTOS[de];
-  return (
-    <span className="relative size-11 shrink-0 overflow-hidden">
-      <Image src={f.src} alt="" fill sizes="44px" className="object-contain" />
-    </span>
-  );
-}
-
-/** El mockup del hero de la versión más: mismos tres bloques (productos, chat, ganancia), con ilustraciones nuevas. */
+/** El mockup del hero: productos, chat y ganancia. */
 export function HeroAnimadoMas() {
   const [pasoAnimado, setPaso] = useState(0);
   const [gananciaAnimada, setGanancia] = useState(GANANCIA_ANTES);
@@ -102,7 +91,7 @@ export function HeroAnimadoMas() {
         <ul className="flex flex-col">
           {m.filas.map((f, i) => (
             <li key={f.nombre} className="flex items-center gap-3 border-t-2 border-borde py-2.5 first:border-t-0">
-              <Foto de={f.icono} />
+              <Mini src={FOTOS[f.icono]} className="size-11" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-bold">{f.nombre}</span>
                 <span className="text-sm text-texto-2">

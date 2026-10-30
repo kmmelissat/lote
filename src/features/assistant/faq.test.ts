@@ -17,7 +17,7 @@ describe("respuestaDeAyuda", () => {
     for (const tema of [null, "inventado"]) {
       const r = respuestaDeAyuda(tema);
       expect(r.texto).toBe(textos.asistente.sinRespuesta);
-      expect(r.enlaces?.[0].href).toBe("/ajustes/ayuda");
+      expect(r.enlaces?.[0].href).toBe("/ayuda");
     }
   });
 
@@ -25,5 +25,11 @@ describe("respuestaDeAyuda", () => {
     const ids = textos.ayuda.preguntas.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const a of textos.ayuda.atajos) expect(ids).toContain(a);
+  });
+
+  it("cada pregunta está en un grupo y no se repite", () => {
+    const ids = [...textos.ayuda.preguntas.map((p) => p.id)].sort();
+    const deGrupos = [...textos.ayuda.grupos.flatMap((g) => g.temas)].sort();
+    expect(deGrupos).toEqual(ids);
   });
 });

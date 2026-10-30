@@ -7,6 +7,7 @@ export const nav = {
   clientes: "Clientes",
   ganancia: "Ganancia",
   ajustes: "Ajustes",
+  ayuda: "Ayuda",
   perfil: "Mi perfil y ajustes",
   buscar: "Buscar productos",
   buscarCorto: "Buscar",

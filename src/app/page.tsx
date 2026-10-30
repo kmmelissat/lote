@@ -63,19 +63,19 @@ export default async function Landing() {
         <M.Hero conSesion={conSesion} />
         <M.Cinta />
         <M.Problema />
-        <M.Ola de="var(--color-rosa-palido)" a="var(--color-celeste-palido)" />
+        <M.Ola de="var(--color-rosa-palido, #fdeaf1)" a="var(--color-celeste-palido, #e2f4fc)" />
         <M.Pasos />
-        <M.Ola de="var(--color-celeste-palido)" a="white" />
+        <M.Ola de="var(--color-celeste-palido, #e2f4fc)" a="white" />
         <M.Funciones />
-        <M.Ola de="white" a="var(--color-mango)" />
+        <M.Ola de="white" a="var(--color-mango, #ff9a2e)" />
         <M.Buscar />
-        <M.Ola de="var(--color-mango)" a="var(--color-crema)" />
+        <M.Ola de="var(--color-mango, #ff9a2e)" a="var(--color-crema, #fff7e8)" />
         <M.Principios />
-        <M.Ola de="var(--color-crema)" a="var(--color-limon)" />
+        <M.Ola de="var(--color-crema, #fff7e8)" a="var(--color-limon, #ffe27a)" />
         <M.Precios conSesion={conSesion} />
-        <M.Ola de="var(--color-limon)" a="var(--color-celeste-palido)" />
+        <M.Ola de="var(--color-limon, #ffe27a)" a="var(--color-celeste-palido, #e2f4fc)" />
         <M.Preguntas />
-        <M.Ola de="var(--color-celeste-palido)" a="var(--color-teal-oscuro)" />
+        <M.Ola de="var(--color-celeste-palido, #e2f4fc)" a="var(--color-teal-oscuro, #003844)" />
         <M.Cierre conSesion={conSesion} />
       </main>
       <Pie />

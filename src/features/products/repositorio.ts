@@ -12,6 +12,7 @@ import {
   type EstadoProducto,
 } from "@/domain";
 import { detallesDe } from "@/features/catalog/repositorio";
+import { nombreParaGuardar, type FilaImportable } from "@/features/import/mapeo";
 import { type InfoExtra, tieneInfoExtra } from "./infoExtra";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -296,19 +297,27 @@ export async function importarProductos(
   negocioId: string,
   archivo: string,
   mapeo: Record<string, number>,
-  filas: { nombre: string; precio: Centavos; cantidad: number; costo: Centavos | null; categoria?: string; marca?: string }[],
+  filas: FilaImportable[],
 ): Promise<ResultadoEscritura<string>> {
   const { data, error } = await supabase.rpc("importar_productos", {
     p_negocio: negocioId,
     p_archivo: archivo,
     p_mapeo: mapeo,
     p_filas: filas.map((f) => ({
-      nombre: f.nombre,
+      nombre: nombreParaGuardar(f),
       precio: f.precio / 100,
       cantidad: f.cantidad,
       costo: f.costo === null ? null : f.costo / 100,
+      descripcion: f.descripcion ?? null,
+      condicion: f.condicion,
       categoria: f.categoria ?? null,
       marca: f.marca ?? null,
+      estado: f.estadoDetalle,
+      precio_anterior: f.precioAnterior === null ? null : f.precioAnterior / 100,
+      detalles: f.detalles,
+      ...(f.grupo && f.etiqueta
+        ? { grupo: f.grupo, variante: f.etiqueta, opciones: f.opcionesVariante ?? [] }
+        : {}),
     })),
   });
   return error ? falla(error.code) : { ok: true, valor: data };

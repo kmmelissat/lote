@@ -15,6 +15,7 @@ export default async function ImportarPage() {
       <PageHeader
         titulo={textos.productos.importar.titulo}
         descripcion={textos.productos.importar.descripcion}
+        volver={{ href: "/productos", etiqueta: textos.productos.volver }}
       />
       <ImportarCsv />
     </>

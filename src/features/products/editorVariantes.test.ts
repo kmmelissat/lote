@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest";
 import {
   aplicarCruce,
+  aplicarFotosAlGrupo,
   combinaciones,
   estadoDesdeVariantes,
   estadoVacio,
   filasParaGuardar,
+  fotosDelGrupoFilas,
+  fotosPropiasPorFila,
+  gruposDe,
+  hermanasDe,
+  unificarFotosDeGrupos,
   huerfanas,
   nombresDeOpciones,
+  restoDe,
+  seAgrupaPorPrimera,
   type DatosFila,
   type EstadoEditor,
 } from "./editorVariantes";
@@ -33,6 +41,49 @@ describe("cruce", () => {
 
   it("solo nombra las opciones que tienen valores", () => {
     expect(nombresDeOpciones(conValores(estadoVacio(base), ["Rosa"], []))).toEqual(["Color"]);
+  });
+});
+
+describe("fotos del mismo diseño", () => {
+  it("las hermanas son las otras combinaciones del mismo primer valor", () => {
+    const e = conValores(estadoVacio(base), ["Hearts", "Kisses"], ["17 Pro", "18"]);
+    expect(seAgrupaPorPrimera(e)).toBe(true);
+    expect(restoDe("Hearts · 17 Pro")).toBe("17 Pro");
+    expect(hermanasDe(e, "Hearts · 17 Pro")).toEqual(["Hearts · 18"]);
+    expect(hermanasDe(e, "Kisses · 18")).toEqual(["Kisses · 17 Pro"]);
+    expect(gruposDe(e)).toEqual([
+      { clave: "Hearts", filas: ["Hearts · 17 Pro", "Hearts · 18"] },
+      { clave: "Kisses", filas: ["Kisses · 17 Pro", "Kisses · 18"] },
+    ]);
+  });
+
+  it("con una sola opción no hay hermanas", () => {
+    const e = conValores(aplicarCruce(estadoVacio(base), ["Sabor"]), ["Chocolate", "Vainilla"]);
+    expect(seAgrupaPorPrimera(e)).toBe(false);
+    expect(hermanasDe(e, "Chocolate")).toEqual([]);
+  });
+
+  it("la foto se copia a las hermanas y cada una conserva su precio", () => {
+    const e = {
+      ...conValores(estadoVacio(base), ["Hearts"], ["17 Pro", "18"]),
+      filas: { "Hearts · 18": datos({ precio: "28" }) },
+    };
+    const conFoto = aplicarFotosAlGrupo(e, ["Hearts · 17 Pro", "Hearts · 18"], ["case.webp"]);
+    expect(fotosDelGrupoFilas(conFoto, ["Hearts · 17 Pro", "Hearts · 18"])).toEqual(["case.webp"]);
+    expect(filasParaGuardar(conFoto)).toEqual([
+      { id: null, etiqueta: "Hearts · 17 Pro", precio: "10", cantidad: "1", compra: "", fotos: ["case.webp"] },
+      { id: null, etiqueta: "Hearts · 18", precio: "28", cantidad: "2", compra: "", fotos: ["case.webp"] },
+    ]);
+  });
+
+  it("si un modelo tiene otra foto, el modo es una por combinación; unificar deja la del diseño", () => {
+    const e = {
+      ...conValores(estadoVacio(base), ["Hearts"], ["17 Pro", "18"]),
+      filas: { "Hearts · 17 Pro": datos({ fotos: ["a.webp"] }), "Hearts · 18": datos({ fotos: ["b.webp"], precio: "28" }) },
+    };
+    expect(fotosPropiasPorFila(e)).toBe(true);
+    expect(fotosPropiasPorFila(unificarFotosDeGrupos(e))).toBe(false);
+    expect(filasParaGuardar(unificarFotosDeGrupos(e)).map((f) => f.fotos)).toEqual([["a.webp"], ["a.webp"]]);
   });
 });
 

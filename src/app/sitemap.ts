@@ -16,10 +16,11 @@ const fijas: MetadataRoute.Sitemap = [
   { url: urlSitio, changeFrequency: "monthly", priority: 1 },
   { url: `${urlSitio}/marketplace`, changeFrequency: "daily", priority: 0.8 },
   { url: `${urlSitio}/privacidad`, changeFrequency: "yearly", priority: 0.3 },
+  { url: `${urlSitio}/ayuda`, changeFrequency: "monthly", priority: 0.4 },
 ];
 
 /**
- * La landing, la privacidad, las categorías de Explorar y, de cada tienda con piezas a la vista, su vitrina y
+ * La landing, la ayuda, la privacidad, las categorías de Explorar y, de cada tienda con piezas a la vista, su vitrina y
  * cada producto (las variantes de un mismo producto van una sola vez). Si algo falla, quedan las fijas.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -23,6 +23,7 @@ export const PANTALLAS: { href: string; etiqueta: string; icono: NombreIcono }[]
   { href: "/clientes", etiqueta: textos.nav.clientes, icono: "clientes" },
   { href: "/ganancia", etiqueta: textos.nav.ganancia, icono: "ganancia" },
   { href: "/asistente", etiqueta: textos.nav.asistente, icono: "chat" },
+  { href: textos.ayuda.ruta, etiqueta: textos.nav.ayuda, icono: "info" },
   { href: "/ajustes", etiqueta: textos.nav.ajustes, icono: "ajustes" },
 ];
 

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import {
   CAMPOS,
   MAXIMO_FILAS,
+  resolverVariantes,
   validarFila,
   type FilaImportable,
   type Mapeo,
@@ -32,11 +33,9 @@ export async function importarCsv(
     if (Number.isInteger(indice) && indice! >= 0) mapeoLimpio[campo] = indice;
   }
 
-  const buenas: FilaImportable[] = [];
-  for (const celdas of filas) {
-    const r = validarFila(celdas, mapeoLimpio);
-    if (r.ok) buenas.push(r.fila);
-  }
+  const buenas: FilaImportable[] = resolverVariantes(filas.map((celdas) => validarFila(celdas, mapeoLimpio)))
+    .filter((r): r is { ok: true; fila: FilaImportable } => r.ok)
+    .map((r) => r.fila);
   if (!buenas.length) return { ok: false, error: t.errorVacio };
 
   const { supabase, negocio } = await negocioActual();

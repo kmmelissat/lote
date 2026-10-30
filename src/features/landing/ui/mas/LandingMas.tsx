@@ -1,9 +1,8 @@
-import Image from "next/image";
 import { Gorila } from "@/components/ui/Gorila";
 import { Icon } from "@/components/ui/Icon";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { textos } from "@/lib/textos";
-import { BotonLanding, contenedor, Globo } from "../comun";
+import { BotonLanding, contenedor, Globo, Mini } from "../comun";
 import { Aparece, ApareceCaja, ApareceGrupo, ApareceItem } from "./Aparece";
 import { HeroAnimadoMas } from "./HeroAnimadoMas";
 import { LotitoMas } from "./LotitoMas";
@@ -12,15 +11,6 @@ const t = textos.landing;
 
 // Los puntitos del fondo, como un papel de cuaderno de recortes
 const PUNTOS = "bg-[radial-gradient(var(--color-teal-oscuro)_1.2px,transparent_1.3px)] [background-size:22px_22px]";
-
-/** Miniatura sticker para los mocks (chaqueta, disco, llaveros). */
-function Mini({ src }: { src: string }) {
-  return (
-    <span className="relative size-12 shrink-0">
-      <Image src={src} alt="" fill sizes="48px" className="object-contain" />
-    </span>
-  );
-}
 
 /** Un sello redondo que gira despacito. */
 function Sello({ texto, className = "", color = "var(--color-mango)", clave = "a" }: { texto: string; className?: string; color?: string; clave?: string }) {
@@ -44,7 +34,7 @@ function Sello({ texto, className = "", color = "var(--color-mango)", clave = "a
 /** El borde ondulado entre secciones: una ola suave que se corre despacito. */
 function Ola({ de, a }: { de: string; a: string }) {
   return (
-    <div aria-hidden="true" className="overflow-hidden" style={{ background: a }}>
+    <div aria-hidden="true" className="overflow-hidden" style={{ backgroundColor: a }}>
       <svg viewBox="0 0 2880 120" preserveAspectRatio="none" className="block h-16 w-[200%] max-w-none motion-safe:animate-ola md:h-28">
         <path
           fill={de}
@@ -82,7 +72,7 @@ function Hero({ conSesion }: { conSesion: boolean }) {
           </h1>
           <p className="max-w-lg text-[18px] font-medium leading-relaxed text-teal-oscuro md:text-[21px]">{t.hero.texto}</p>
           <div className="flex flex-wrap items-center gap-4">
-            <BotonLanding href={conSesion ? "/inicio" : "/login"} className="!h-14 !px-8 !text-lg !bg-teal !text-white">
+            <BotonLanding href={conSesion ? "/inicio" : "/login"} variante="teal" className="!h-14 !px-8 !text-lg">
               {conSesion ? t.irAlPanel : t.empezar}
             </BotonLanding>
             <BotonLanding href="#como" variante="claro" className="!h-14 !px-7 !text-lg">
@@ -90,7 +80,7 @@ function Hero({ conSesion }: { conSesion: boolean }) {
             </BotonLanding>
           </div>
           <p className="text-sm font-medium text-teal-oscuro/80">{t.hero.nota}</p>
-          <Sello clave="hero" texto="GRATIS PARA EMPEZAR" color="var(--color-celeste)" className="absolute right-2 top-0 hidden size-20 rotate-12 md:block lg:-right-2 lg:-top-6 lg:size-24" />
+          <Sello clave="hero" texto="GRATIS PARA EMPEZAR" color="var(--color-celeste, #8fd6f4)" className="absolute right-2 top-0 hidden size-20 rotate-12 md:block lg:-right-2 lg:-top-6 lg:size-24" />
         </Aparece>
         <Aparece alCargar delay={0.15} className="relative min-w-0">
           <HeroAnimadoMas />
@@ -188,9 +178,7 @@ const FONDO_PASO = ["bg-celeste", "bg-rosa", "bg-limon"] as const;
 function Sticker({ src, className }: { src: string; className?: string }) {
   return (
     <span className={`pointer-events-none absolute ${className ?? ""}`}>
-      <span className="relative block aspect-square w-full">
-        <Image src={src} alt="" fill sizes="64px" className="object-contain drop-shadow-[0_3px_0_rgba(0,56,68,0.25)]" />
-      </span>
+      <Mini src={src} className="aspect-square w-full" />
     </span>
   );
 }
@@ -340,9 +328,7 @@ function Recorte({ de }: { de: (typeof BLOQUES)[number]["clave"] }) {
     return (
       <div className="mt-auto flex items-end justify-between gap-2">
         <span className="text-[40px] font-extrabold leading-none tracking-tight">{f.ganancia.valor}</span>
-        <span className="relative size-14 shrink-0">
-          <Image src="/landing/ganancia.webp" alt="" fill sizes="56px" className="object-contain" />
-        </span>
+        <Mini src="/landing/ganancia.webp" className="size-14" />
       </div>
     );
   }
@@ -531,16 +517,8 @@ function Cierre({ conSesion }: { conSesion: boolean }) {
           </div>
         </Aparece>
         <Aparece delay={0.12} className="relative mx-auto flex h-52 w-full max-w-sm items-end justify-center md:h-72">
-          <span className="absolute left-6 top-2 w-16 -rotate-12 md:w-20">
-            <span className="relative block aspect-square">
-              <Image src="/landing/chaqueta.webp" alt="" fill sizes="80px" className="object-contain" />
-            </span>
-          </span>
-          <span className="absolute right-4 top-8 w-14 rotate-12 md:w-16">
-            <span className="relative block aspect-square">
-              <Image src="/landing/disco.webp" alt="" fill sizes="64px" className="object-contain" />
-            </span>
-          </span>
+          <Mini src="/landing/chaqueta.webp" className="absolute left-6 top-2 aspect-square w-16 -rotate-12 md:w-20" />
+          <Mini src="/landing/disco.webp" className="absolute right-4 top-8 aspect-square w-14 rotate-12 md:w-16" />
           <LotitoMas nombre="thumbsup" className="relative z-10 w-48 animate-asomar md:w-72" />
         </Aparece>
       </div>
@@ -711,4 +689,4 @@ function Preguntas() {
   );
 }
 
-export const LandingMas = { Hero, Cinta, Nombres, Problema, Pasos, Funciones, Buscar, Principios, Precios, Preguntas, Cierre, Ola };
+export const LandingMas = { Hero, Cinta, Problema, Pasos, Funciones, Buscar, Principios, Precios, Preguntas, Cierre, Ola };

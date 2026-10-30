@@ -328,6 +328,7 @@ describe("crear y reponer", () => {
     );
     expect(r.texto).toContain("Galletas con 4 sabores");
     expect(r.texto).toContain("#12 Red velvet");
+    expect(r.enlaces).toEqual([{ etiqueta: "Ver #10", href: "/productos/10" }]);
     expect(r.estado).toBeUndefined();
   });
 
@@ -365,6 +366,7 @@ describe("crear y reponer", () => {
     const { puerto, turno } = montar();
     const r = await turno({ mensajeId: "m1" }, { intencion: "crear_producto", producto: "Gorra", precio: 8, cantidad: 4 });
     expect(r.texto).toMatch(/#9 Gorra a .*8.*Cantidad: 4\. Falta el costo/);
+    expect(r.enlaces).toEqual([{ etiqueta: "Ver #9", href: "/productos/9" }]);
     expect(puerto.crearProducto).toHaveBeenCalledWith({
       nombre: "Gorra",
       precio: 800,

@@ -5,6 +5,8 @@ import { Children, cloneElement, isValidElement, type ReactElement, type ReactNo
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const vista = { once: true, amount: 0.2, margin: "0px 0px -48px 0px" } as const;
+const entrada = { opacity: 0, y: 44, rotate: -2, scale: 0.96 };
+const visible = { opacity: 1, y: 0, rotate: 0, scale: 1 };
 
 /** Un bloque que entra al scrollear (o al cargar, en el hero). */
 export function Aparece({
@@ -19,15 +21,14 @@ export function Aparece({
   alCargar?: boolean;
 }) {
   const reducido = useReducedMotion();
-  const inicio = reducido ? { opacity: 0 } : { opacity: 0, y: 40, rotate: -2, scale: 0.97 };
-  const fin = { opacity: 1, y: 0, rotate: 0, scale: 1 };
+  const inicio = reducido ? { opacity: 0 } : entrada;
   const paso = { duration: reducido ? 0.25 : 0.65, delay, ease };
   return (
     <motion.div
       className={className}
       initial={inicio}
-      animate={alCargar ? fin : undefined}
-      whileInView={alCargar ? undefined : fin}
+      animate={alCargar ? visible : undefined}
+      whileInView={alCargar ? undefined : visible}
       viewport={alCargar ? undefined : vista}
       transition={paso}
     >
@@ -66,8 +67,8 @@ export function ApareceItem({ children, className, delay = 0 }: { children: Reac
   return (
     <motion.li
       className={className}
-      initial={reducido ? { opacity: 0 } : { opacity: 0, y: 44, rotate: -2, scale: 0.96 }}
-      whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
+      initial={reducido ? { opacity: 0 } : entrada}
+      whileInView={visible}
       viewport={vista}
       transition={{ duration: reducido ? 0.25 : 0.6, delay, ease }}
     >
@@ -92,8 +93,8 @@ export function ApareceCaja({
   return (
     <Comp
       className={className}
-      initial={reducido ? { opacity: 0 } : { opacity: 0, y: 44, rotate: -2, scale: 0.96 }}
-      whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
+      initial={reducido ? { opacity: 0 } : entrada}
+      whileInView={visible}
       viewport={vista}
       transition={{ duration: reducido ? 0.25 : 0.6, delay, ease }}
     >

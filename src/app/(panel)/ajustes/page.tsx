@@ -31,7 +31,6 @@ const GRUPOS: { titulo: string; opciones: Opcion[] }[] = [
     titulo: textos.ajustes.grupos.datos,
     opciones: [
       { href: "/ajustes/exportar", icono: "subir", tono: "bg-teal-fondo", titulo: textos.exportar.enlace, texto: textos.exportar.enlaceTexto, soloGestion: true },
-      { href: "/ajustes/ayuda", icono: "info", tono: "bg-rosa", titulo: textos.ayuda.enlace, texto: textos.ayuda.enlaceTexto },
     ],
   },
 ];
@@ -45,6 +44,7 @@ export default async function Page() {
       <div className="flex flex-col gap-6">
         {GRUPOS.map((g) => {
           const opciones = g.opciones.filter((o) => (!o.soloDuena || esDuena) && (!o.soloGestion || negocio.puedeGestionar));
+          if (!opciones.length) return null;
           return (
             <section key={g.titulo} aria-labelledby={`ajustes-${g.titulo}`} className="flex flex-col gap-2">
               <h2 id={`ajustes-${g.titulo}`} className="text-sm font-bold uppercase tracking-wide text-texto-2">
@@ -73,6 +73,19 @@ export default async function Page() {
           );
         })}
       </div>
+      <Link
+        href={textos.ayuda.ruta}
+        className="group mt-6 flex min-h-20 items-center gap-4 rounded-[20px] border-2 border-teal-oscuro bg-limon p-4 shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura"
+      >
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-superficie text-teal-oscuro">
+          <Icon nombre="info" className="size-6" />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-bold">{textos.ayuda.enlace}</span>
+          <span className="text-sm text-texto-2">{textos.ayuda.enlaceTexto}</span>
+        </span>
+        <Icon nombre="diagonal" className="size-5 shrink-0 text-texto-2 transition-colors group-hover:text-teal-oscuro" />
+      </Link>
       <div className="mt-6 md:hidden">
         <CerrarSesion variante="completo" />
       </div>

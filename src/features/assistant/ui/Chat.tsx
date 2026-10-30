@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { Monito } from "@/components/ui/Monito";
 import type { Boton, Comando, Estado, Respuesta } from "../motor";
 import { textos } from "@/lib/textos";
 import { subirFotos } from "@/features/products/subirFotos";
@@ -34,17 +35,15 @@ function historialDe(ms: Mensaje[]): Turno[] {
 const pildora =
   "min-h-11 rounded-full border-2 border-teal-oscuro bg-superficie px-4 text-sm font-medium text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-50";
 
-/** Las preguntas de "cómo se hace" que tocan en esta pantalla; si no hay, los atajos de siempre. */
-function preguntasParaMostrar(ruta: string | null, max: number) {
-  const todas = textos.ayuda.preguntas;
-  const deAca = ruta ? todas.filter((p) => p.donde.some((d) => ruta === d || ruta.startsWith(`${d}/`))) : [];
-  const atajos = textos.ayuda.atajos.map((id) => todas.find((p) => p.id === id)).filter((p) => !!p);
-  return [...new Map([...deAca, ...atajos].map((p) => [p.id, p])).values()].slice(0, max);
-}
-
 function sugerenciasPara(ruta: string | null) {
   const clave = Object.keys(t.sugerencias).find((k) => k !== "inicio" && ruta && (ruta === k || ruta.startsWith(`${k}/`)));
   return t.sugerencias[clave ?? "inicio"];
+}
+
+function tonoSugerencia(modo: "mandar" | "escribir" | "foto") {
+  if (modo === "foto") return "bg-mango";
+  if (modo === "mandar") return "bg-teal-fondo";
+  return "bg-limon";
 }
 
 type Props = {
@@ -68,6 +67,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
   const [pendiente, empezar] = useTransition();
   const lista = useRef<HTMLDivElement>(null);
   const archivoRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Baja solo la lista del chat. scrollIntoView movería también la página entera.
   useEffect(() => {
@@ -134,64 +134,71 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
     }
   }
 
-  const preguntas = preguntasParaMostrar(ruta, compacto ? 3 : 5);
   const sugerencias = sugerenciasPara(ruta);
 
   function usarSugerencia(sg: (typeof sugerencias)[number]) {
     if (sg.modo === "mandar") mandar({ texto: sg.texto }, sg.texto);
     else if (sg.modo === "foto") archivoRef.current?.click();
-    else setTexto(sg.texto);
+    else {
+      setTexto(sg.texto);
+      inputRef.current?.focus();
+    }
   }
 
+  const vacio = !mensajes.length && !pendiente;
+
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div ref={lista} className={`flex-1 overflow-y-auto px-1 pb-2 ${compacto ? "" : "rounded-[24px] border-2 border-teal-oscuro bg-crema p-4"}`}>
+    <div
+      className={`flex h-full min-h-0 flex-col ${compacto ? "" : "overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-crema shadow-dura"}`}
+    >
+      {!compacto && (
+        <header
+          className={`flex shrink-0 items-center gap-3 border-b-2 border-teal-oscuro bg-limon px-4 py-3 md:px-6 md:py-4 ${vacio ? "md:hidden" : ""}`}
+        >
+          <AvatarLotito className="size-11 md:size-12" enLinea />
+          <div className="min-w-0 flex-1">
+            {vacio ? (
+              <p className="font-logo text-xl leading-none md:text-2xl">{t.titulo}</p>
+            ) : (
+              <h1 className="font-logo text-xl leading-none md:text-2xl">{t.titulo}</h1>
+            )}
+            <p className="mt-0.5 truncate text-sm text-texto-2">
+              <span className="font-medium text-teal">{t.enLinea}</span> · {t.flotanteSubtitulo}
+            </p>
+          </div>
+        </header>
+      )}
+
+      <div ref={lista} className={`min-h-0 flex-1 overflow-y-auto ${compacto ? "px-1 pb-2" : "px-4 py-3 md:px-10 md:py-6"}`}>
         {/* Cada respuesta nueva se anuncia a quien usa lector de pantalla */}
-        <ol className="flex flex-col gap-4" aria-live="polite" aria-label={t.titulo}>
-          {/* Sin mensajes, Lotito arranca la charla y ofrece por dónde empezar */}
-          {!mensajes.length && (
+        <ol
+          className={`flex flex-col gap-4 ${vacio && !compacto ? "min-h-full" : compacto ? "" : "md:mx-auto md:w-full md:max-w-2xl"}`}
+          aria-live="polite"
+          aria-label={t.titulo}
+        >
+          {vacio && compacto && (
             <li className="flex items-start gap-2">
               <AvatarLotito />
               <div className="flex min-w-0 flex-col gap-3">
                 <div className="max-w-[92%] rounded-2xl rounded-bl-md border-2 border-teal-oscuro bg-white px-4 py-2.5 shadow-dura-chica">
-                  {!compacto && <p className="mb-1 font-bold">{t.vacioTitulo}</p>}
-                  <p>{t.saludoInicial}</p>
+                  <p>{t.vacioFlotante}</p>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs font-bold uppercase tracking-wide text-texto-2">{t.sugerenciasTitulo}</p>
-                  <ul className="flex flex-wrap gap-2">
-                    {sugerencias.map((sg) => (
-                      <li key={sg.texto}>
-                        <button
-                          type="button"
-                          disabled={pendiente || subiendo}
-                          onClick={() => usarSugerencia(sg)}
-                          className="min-h-10 rounded-full border-2 border-teal-oscuro bg-limon px-4 text-left text-sm font-bold text-teal-oscuro transition-transform duration-150 hover:-translate-y-0.5 disabled:opacity-50"
-                        >
-                          {sg.modo === "foto" && <Icon nombre="camara" className="mr-1.5 inline size-4 align-[-3px]" />}
-                          {sg.texto}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                <Sugerencias sugerencias={sugerencias} pendiente={pendiente} subiendo={subiendo} alElegir={usarSugerencia} />
+                <LinkAyuda alSeguir={alSeguirEnlace} />
+              </div>
+            </li>
+          )}
+
+          {vacio && !compacto && (
+            <li className="flex min-h-full flex-col items-center justify-center gap-5 px-2 py-6 text-center md:flex-row-reverse md:items-center md:justify-center md:gap-16 md:px-4 md:text-left">
+              <Monito nombre="saluda" className="w-28 shrink-0 text-rosa motion-safe:animate-asomar md:w-52 lg:w-60" />
+              <div className="flex max-w-md flex-col items-center gap-4 md:max-w-xl md:items-start">
+                <div>
+                  <h1 className="font-logo text-3xl leading-none tracking-tight md:text-5xl">{t.vacioTitulo}</h1>
+                  <p className="mt-2 text-texto-2 md:mt-3 md:text-lg">{t.saludoInicial}</p>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs font-bold uppercase tracking-wide text-texto-2">{t.preguntasTitulo}</p>
-                  <ul className="flex flex-wrap gap-2">
-                    {preguntas.map((p) => (
-                      <li key={p.id}>
-                        <button
-                          type="button"
-                          disabled={pendiente}
-                          onClick={() => mandar({ comando: { tipo: "faq", id: p.id } }, p.pregunta)}
-                          className="min-h-10 rounded-full border border-borde-control bg-white px-4 text-left text-sm text-teal-oscuro hover:bg-teal-fondo disabled:opacity-50"
-                        >
-                          {p.pregunta}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <Sugerencias sugerencias={sugerencias} pendiente={pendiente} subiendo={subiendo} alElegir={usarSugerencia} centradas />
+                <LinkAyuda />
               </div>
             </li>
           )}
@@ -259,11 +266,11 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
         </ol>
       </div>
 
-      <p role="status" className={`px-2 text-sm text-texto-2 ${aviso ? "py-1" : ""}`}>
+      <p role="status" className={`px-3 text-sm text-texto-2 ${aviso ? "py-1" : ""}`}>
         {aviso}
       </p>
       {(foto || subiendo) && (
-        <div className="mb-2 flex items-center gap-3 px-1">
+        <div className={`mb-2 flex items-center gap-3 ${compacto ? "px-1" : "px-4 md:mx-auto md:w-full md:max-w-2xl"}`}>
           {foto ? (
             <>
               <Image
@@ -285,36 +292,86 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
         </div>
       )}
       {/* Todo en una sola cápsula: la cámara, lo que se escribe y el botón de mandar */}
-      <form
-        onSubmit={enviar}
-        className="flex items-center gap-1 rounded-full border-2 border-teal-oscuro bg-white p-1 shadow-dura-chica focus-within:ring-4 focus-within:ring-rosa/50"
-      >
-        <label className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-teal-oscuro hover:bg-teal-fondo has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-teal">
-          <span className="sr-only">{t.adjuntar}</span>
-          <Icon nombre="camara" className="size-5" />
-          <input ref={archivoRef} type="file" accept="image/*" capture="environment" onChange={adjuntar} disabled={subiendo || pendiente} className="sr-only" />
-        </label>
-        <label htmlFor={compacto ? "asistente-texto-flotante" : "asistente-texto"} className="sr-only">
-          {t.titulo}
-        </label>
-        <input
-          id={compacto ? "asistente-texto-flotante" : "asistente-texto"}
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          placeholder={compacto ? t.placeholderCorto : t.placeholder}
-          autoComplete="off"
-          maxLength={1000}
-          className="h-10 min-w-0 flex-1 bg-transparent px-2 text-base outline-none placeholder:text-texto-2/70"
-        />
-        <button
-          type="submit"
-          aria-label={t.enviar}
-          disabled={pendiente || subiendo || (!texto.trim() && !foto)}
-          className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango text-teal-oscuro transition-transform duration-150 enabled:hover:-translate-y-0.5 disabled:border-transparent disabled:bg-teal-fondo disabled:text-texto-2"
+      <div className={compacto ? "" : "px-3 pb-3 md:flex md:justify-center md:px-10 md:pb-6"}>
+        <form
+          onSubmit={enviar}
+          className={`flex items-center gap-1 rounded-full border-2 border-teal-oscuro bg-white p-1 shadow-dura-chica focus-within:ring-4 focus-within:ring-rosa/50 md:p-1.5 ${compacto ? "" : "md:w-full md:max-w-2xl"}`}
         >
-          <Icon nombre="enviar" className="size-5" strokeWidth={2.5} />
-        </button>
-      </form>
+          <label className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-teal-oscuro hover:bg-teal-fondo has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-teal md:size-12">
+            <span className="sr-only">{t.adjuntar}</span>
+            <Icon nombre="camara" className="size-5" />
+            <input ref={archivoRef} type="file" accept="image/*" capture="environment" onChange={adjuntar} disabled={subiendo || pendiente} className="sr-only" />
+          </label>
+          <label htmlFor={compacto ? "asistente-texto-flotante" : "asistente-texto"} className="sr-only">
+            {t.titulo}
+          </label>
+          <input
+            ref={inputRef}
+            id={compacto ? "asistente-texto-flotante" : "asistente-texto"}
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            placeholder={compacto ? t.placeholderCorto : t.placeholder}
+            autoComplete="off"
+            maxLength={1000}
+            className="h-10 min-w-0 flex-1 bg-transparent px-2 text-base outline-none placeholder:text-texto-2/70 md:h-12 md:text-lg"
+          />
+          <button
+            type="submit"
+            aria-label={t.enviar}
+            disabled={pendiente || subiendo || (!texto.trim() && !foto)}
+            className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango text-teal-oscuro transition-transform duration-150 enabled:hover:-translate-y-0.5 disabled:border-transparent disabled:bg-teal-fondo disabled:text-texto-2 md:size-12"
+          >
+            <Icon nombre="enviar" className="size-5" strokeWidth={2.5} />
+          </button>
+        </form>
+      </div>
     </div>
+  );
+}
+
+function Sugerencias({
+  sugerencias,
+  pendiente,
+  subiendo,
+  alElegir,
+  centradas = false,
+}: {
+  sugerencias: { texto: string; modo: "mandar" | "escribir" | "foto" }[];
+  pendiente: boolean;
+  subiendo: boolean;
+  alElegir: (sg: { texto: string; modo: "mandar" | "escribir" | "foto" }) => void;
+  centradas?: boolean;
+}) {
+  return (
+    <ul className={`flex flex-wrap gap-2 ${centradas ? "justify-center md:grid md:w-full md:grid-cols-2 md:gap-3" : ""}`}>
+      {sugerencias.map((sg) => (
+        <li key={sg.texto} className={centradas ? "md:min-w-0" : ""}>
+          <button
+            type="button"
+            disabled={pendiente || subiendo}
+            onClick={() => alElegir(sg)}
+            className={`min-h-11 rounded-full border-2 border-teal-oscuro px-4 text-left text-sm font-bold text-teal-oscuro transition-transform duration-150 hover:-translate-y-0.5 disabled:opacity-50 ${tonoSugerencia(sg.modo)} ${centradas ? "md:h-14 md:w-full md:rounded-2xl md:px-5 md:text-base" : ""}`}
+          >
+            {sg.modo === "foto" && <Icon nombre="camara" className="mr-1.5 inline size-4 align-[-3px]" />}
+            {sg.texto}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function LinkAyuda({ alSeguir }: { alSeguir?: () => void }) {
+  return (
+    <p className="text-sm text-texto-2">
+      {t.preguntasTitulo}{" "}
+      <Link
+        href={textos.ayuda.ruta}
+        onClick={alSeguir}
+        className="font-bold text-teal-oscuro underline decoration-2 underline-offset-2 hover:text-teal"
+      >
+        {t.verAyuda}
+      </Link>
+    </p>
   );
 }

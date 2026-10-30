@@ -29,6 +29,7 @@ export async function crearProducto(c: Ctx<"crear_producto">): Promise<Respuesta
           intencion.cantidad,
           intencion.costo === null ? null : formatearDolares(intencion.costo),
         ),
+        enlaces: [{ etiqueta: t.verProducto(r.valor.codigo), href: `/productos/${r.valor.codigo}` }],
       },
       inverso: { tipo: "producto", producto_id: r.valor.id },
       descripcion: t.descProducto(intencion.nombre),
@@ -53,6 +54,7 @@ async function crearConVariantes({ d, entrada, intencion, salida, extras }: Ctx<
       const v = intencion.variantes[i];
       return t.lineaVariante(p.codigo, p.etiqueta, formatearDolares(v.precio), v.cantidad);
     });
+    const primero = r.valor.productos[0];
     return {
       respuesta: {
         texto: [
@@ -60,6 +62,7 @@ async function crearConVariantes({ d, entrada, intencion, salida, extras }: Ctx<
           ...lineas,
           intencion.costo === null ? t.faltaCostoVariantes : t.costoVariantes(formatearDolares(intencion.costo)),
         ].join("\n"),
+        enlaces: primero ? [{ etiqueta: t.verProducto(primero.codigo), href: `/productos/${primero.codigo}` }] : undefined,
       },
       inverso: { tipo: "grupo", grupo: r.valor.grupo },
       descripcion: t.descProducto(intencion.nombre),

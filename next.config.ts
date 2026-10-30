@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/explorar", destination: "/marketplace", permanent: true },
       { source: "/explorar/:ruta*", destination: "/marketplace/:ruta*", permanent: true },
+      { source: "/ajustes/ayuda", destination: "/ayuda", permanent: true },
     ];
   },
   images: {

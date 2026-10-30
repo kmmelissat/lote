@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
 import { estiloBoton } from "@/components/ui/Button";
 import { alternarDestacado } from "@/features/admin/actions/destacar";
@@ -38,6 +39,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
             {t.verMarketplace}
           </Link>
         </header>
+        <Migas />
 
         <div>
           <h1 className="text-2xl font-bold">{t.titulo}</h1>

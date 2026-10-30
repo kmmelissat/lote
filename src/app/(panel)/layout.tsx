@@ -9,7 +9,7 @@ import { textos } from "@/lib/textos";
 // El panel es privado: los buscadores no lo indexan.
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
-// Sin encabezado: el menú lleva la búsqueda, la acción rápida y el perfil, y las migas dicen dónde estás.
+// Sin encabezado: el menú lleva la búsqueda, la acción rápida y el perfil; las migas dicen dónde estás.
 // `relative` en el contenedor y en main: los elementos sr-only son `absolute` y, sin un ancestro posicionado,
 // escapan del recorte y le suman altura a la página entera (la ventana se desplaza y queda un hueco abajo).
 export default function PanelLayout({ children }: LayoutProps<"/">) {

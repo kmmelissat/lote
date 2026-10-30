@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
-@theme {
+/* static + source: el build de Vercel tree-shakea tokens que solo se ven en SVG/inline */
+@source inline("bg-celeste bg-celeste-palido text-celeste fill-celeste");
+
+@theme static {
   --color-teal-oscuro: #003844;
   --color-teal: #006c67;
   --color-rosa: #f194b4;

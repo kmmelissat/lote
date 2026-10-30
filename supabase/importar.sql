@@ -23,7 +23,9 @@ drop policy if exists importacion_ver on public.importacion;
 create policy importacion_ver on public.importacion
   for select to authenticated using (public.puede_gestionar(negocio_id));
 
--- p_filas: [{"nombre": "...", "precio": 3.5, "cantidad": 2, "costo": 1, "categoria": "...", "marca": "..."}]
+-- p_filas: nombre, precio, cantidad, costo, descripcion, condicion, categoria, marca,
+-- estado, precio_anterior, detalles ([{nombre, valor}, ...]),
+-- grupo, variante, opciones (text[]) si es una variante.
 -- Todo o nada: si una fila falla, no se crea nada. Máximo 500 filas.
 create or replace function public.importar_productos(
   p_negocio uuid,
@@ -58,16 +60,32 @@ begin
       v_fila->>'nombre',
       (v_fila->>'precio')::numeric,
       coalesce((v_fila->>'cantidad')::int, 1),
-      null,
+      v_fila->>'descripcion',
       v_fila->>'categoria',
       v_fila->>'marca',
-      'nuevo',
+      coalesce(nullif(v_fila->>'condicion', ''), 'nuevo'),
       case when v_fila->>'costo' is null then '[]'::jsonb
         else jsonb_build_array(jsonb_build_object(
           'tipo', 'compra', 'monto', (v_fila->>'costo')::numeric, 'por_unidad', true))
       end
     );
-    update public.producto set importacion_id = v_importacion where id = v_producto;
+    update public.producto set
+      importacion_id = v_importacion,
+      estado_detalle = nullif(left(coalesce(v_fila->>'estado', ''), 200), ''),
+      precio_anterior = nullif(v_fila->>'precio_anterior', '')::numeric,
+      detalles = case
+        when jsonb_typeof(v_fila->'detalles') = 'array' then v_fila->'detalles'
+        else '[]'::jsonb
+      end,
+      grupo = nullif(v_fila->>'grupo', '')::uuid,
+      variante = nullif(left(coalesce(v_fila->>'variante', ''), 40), ''),
+      opciones_variante = case
+        when nullif(v_fila->>'grupo', '') is null then null
+        when jsonb_typeof(v_fila->'opciones') = 'array'
+          then array(select jsonb_array_elements_text(v_fila->'opciones'))
+        else null
+      end
+    where id = v_producto;
     v_creadas := v_creadas + 1;
   end loop;
 

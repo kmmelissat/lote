@@ -27,6 +27,7 @@ export const MAXIMO_OPCIONES = 3;
 export const CRUCES: { id: string; nombres: string[] }[] = [
   { id: "color_talla", nombres: ["Color", "Talla"] },
   { id: "color_modelo", nombres: ["Color", "Modelo"] },
+  { id: "diseno_modelo", nombres: ["Diseño", "Modelo"] },
   { id: "sabor", nombres: ["Sabor"] },
   { id: "talla", nombres: ["Talla"] },
   { id: "color", nombres: ["Color"] },
@@ -50,6 +51,71 @@ export function aplicarCruce(e: EstadoEditor, nombres: string[]): EstadoEditor {
 /** Todas las combinaciones del cruce, menos las quitadas, en orden. */
 export function combinaciones(e: EstadoEditor): string[] {
   return combinarOpciones(e.opciones.map((o) => o.valores)).filter((c) => !e.quitadas.includes(c));
+}
+
+const partesDe = (etiqueta: string) => etiqueta.split(SEPARADOR_VARIANTE).map((p) => p.trim());
+
+/** Lo que queda después del primer valor: "Hearts · iPhone 18" → "iPhone 18". */
+export function restoDe(etiqueta: string): string {
+  const i = etiqueta.indexOf(SEPARADOR_VARIANTE);
+  return i === -1 ? etiqueta : etiqueta.slice(i + SEPARADOR_VARIANTE.length);
+}
+
+/** Hay un cruce (diseño × modelo): la foto se pone una vez por el primer valor. */
+export const seAgrupaPorPrimera = (e: EstadoEditor) => e.opciones.filter((o) => o.valores.length).length >= 2;
+
+export type GrupoCombinaciones = { clave: string; filas: string[] };
+
+/** Si hay cruce, las combinaciones van juntas por el primer valor: Hearts con sus tres iPhone. */
+export function gruposDe(e: EstadoEditor): GrupoCombinaciones[] {
+  const filas = combinaciones(e);
+  if (!seAgrupaPorPrimera(e)) return filas.length ? [{ clave: "", filas }] : [];
+  const grupos: GrupoCombinaciones[] = [];
+  const indice = new Map<string, GrupoCombinaciones>();
+  for (const etiqueta of filas) {
+    const clave = partesDe(etiqueta)[0] ?? etiqueta;
+    const g = indice.get(clave);
+    if (g) g.filas.push(etiqueta);
+    else {
+      const n = { clave, filas: [etiqueta] };
+      grupos.push(n);
+      indice.set(clave, n);
+    }
+  }
+  return grupos;
+}
+
+/** Las otras combinaciones del mismo diseño o color: "Hearts · 17 Pro" → "Hearts · 18". */
+export function hermanasDe(e: EstadoEditor, etiqueta: string): string[] {
+  if (!seAgrupaPorPrimera(e)) return [];
+  const clave = partesDe(etiqueta)[0];
+  return combinaciones(e).filter((c) => c !== etiqueta && partesDe(c)[0] === clave);
+}
+
+/** La primera fila del grupo que ya tiene fotos: esas son las del diseño. */
+export function fotosDelGrupoFilas(e: EstadoEditor, etiquetas: string[]): string[] {
+  for (const etiqueta of etiquetas) {
+    const fotos = filaDe(e, etiqueta).fotos;
+    if (fotos.length) return fotos;
+  }
+  return [];
+}
+
+/** La misma foto para varias combinaciones (los modelos de un diseño). */
+export function aplicarFotosAlGrupo(e: EstadoEditor, etiquetas: string[], fotos: string[]): EstadoEditor {
+  const filas = { ...e.filas };
+  for (const etiqueta of etiquetas) filas[etiqueta] = { ...filaDe(e, etiqueta), fotos };
+  return { ...e, filas };
+}
+
+/** Algún diseño tiene fotos distintas entre sus modelos: conviene el modo "una por combinación". */
+export function fotosPropiasPorFila(e: EstadoEditor): boolean {
+  return gruposDe(e).some((g) => new Set(g.filas.map((etiqueta) => filaDe(e, etiqueta).fotos.join("\0"))).size > 1);
+}
+
+/** Deja cada diseño con una sola foto (la primera que ya tenga) en todos sus modelos. */
+export function unificarFotosDeGrupos(e: EstadoEditor): EstadoEditor {
+  return gruposDe(e).reduce((acc, g) => aplicarFotosAlGrupo(acc, g.filas, fotosDelGrupoFilas(acc, g.filas)), e);
 }
 
 export function filaDe(e: EstadoEditor, etiqueta: string): DatosFila {

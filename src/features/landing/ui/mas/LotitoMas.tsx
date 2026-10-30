@@ -1,10 +1,9 @@
 import Image from "next/image";
 import { MONITOS } from "@/components/ui/Monito";
 
-const POSES = ["asoma", "saluda", "thumbsup", "calculadora", "celular"] as const;
-export type PoseLotito = (typeof POSES)[number];
+type PoseLotito = "asoma" | "saluda" | "thumbsup" | "calculadora" | "celular";
 
-/** Lotito a color para la landing más: misma pose que el monito original. */
+/** Lotito a color: misma pose que el monito original. */
 export function LotitoMas({ nombre, className = "w-24" }: { nombre: PoseLotito; className?: string }) {
   const [ancho, alto] = MONITOS[nombre];
   return (

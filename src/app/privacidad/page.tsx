@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { textos } from "@/lib/textos";
@@ -17,6 +18,7 @@ export default function PrivacidadPage() {
     <div className="min-h-dvh bg-crema">
       <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-8">
         <Logo />
+        <Migas />
         <div>
           <h1 className="text-3xl font-bold leading-tight">{t.titulo}</h1>
           <p className="text-texto-2">{t.actualizado}</p>
