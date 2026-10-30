@@ -8,7 +8,7 @@ export function AvisoResenas({ pendientes }: { pendientes: number }) {
   return (
     <Link
       href="/ajustes/resenas"
-      className="flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-3 font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica"
+      className="flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro bg-rosa px-4 py-3 font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica"
     >
       <Icon nombre="estrella" className="size-5 shrink-0" />
       <span className="flex-1">{textos.resenas.pendientes(pendientes)}</span>

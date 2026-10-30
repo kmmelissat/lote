@@ -26,7 +26,7 @@ export function Ventana({
     <dialog
       ref={ref}
       aria-labelledby={id}
-      className="m-auto w-[min(32rem,calc(100vw-1.5rem))] rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
+      className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
       onClick={(e) => e.target === e.currentTarget && cerrar()}
     >
       <div className="flex flex-col gap-4 p-5">

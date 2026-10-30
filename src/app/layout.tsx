@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fredoka, Plus_Jakarta_Sans } from "next/font/google";
+import { IosGuard } from "@/components/IosGuard";
 import { ConfirmarProvider } from "@/components/ui/Confirmar";
 import { ToastProvider } from "@/components/ui/Toast";
 import { urlSitio } from "@/lib/sitio";
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es" className={`${jakarta.variable} ${fredoka.variable} h-full antialiased`}>
       <body className="min-h-full">
+        <IosGuard />
         <ToastProvider>
           <ConfirmarProvider>{children}</ConfirmarProvider>
         </ToastProvider>

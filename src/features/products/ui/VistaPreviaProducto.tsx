@@ -51,9 +51,17 @@ export function VistaPreviaProducto({
           <p className="text-2xl font-bold tabular-nums">{precio || "$0.00"}</p>
           <div className="flex flex-wrap items-center gap-2">
             <StatusChip estado="disponible" />
-            <span className="rounded-full bg-fondo px-3 py-1 text-sm">{variantes > 0 ? t.variantesChip(variantes) : t.unidades(unidades)}</span>
-            {condicion === "usado" && <span className="rounded-full bg-perla px-3 py-1 text-sm text-ambar-texto">{t.usado}</span>}
-            {categoria.trim() && <span className="rounded-full bg-fondo px-3 py-1 text-sm">{categoria.trim()}</span>}
+            <span className="rounded-full border-2 border-teal-oscuro bg-crema px-3 py-1 text-sm font-bold">
+              {variantes > 0 ? t.variantesChip(variantes) : t.unidades(unidades)}
+            </span>
+            {condicion === "usado" && (
+              <span className="rounded-full border-2 border-teal-oscuro bg-limon px-3 py-1 text-sm font-bold text-teal-oscuro">
+                {t.usado}
+              </span>
+            )}
+            {categoria.trim() && (
+              <span className="rounded-full border-2 border-teal-oscuro bg-rosa-palido px-3 py-1 text-sm font-bold">{categoria.trim()}</span>
+            )}
           </div>
         </div>
       </div>

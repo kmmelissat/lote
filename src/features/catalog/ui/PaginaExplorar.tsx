@@ -273,7 +273,7 @@ export async function PaginaExplorar({
                   </summary>
                   <form
                     action="/marketplace"
-                    className="absolute right-0 z-20 mt-2 flex w-72 flex-col gap-3 rounded-[20px] border-2 border-teal-oscuro bg-white p-4 shadow-dura"
+                    className="absolute right-0 z-20 mt-2 flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-[20px] border-2 border-teal-oscuro bg-white p-4 shadow-dura max-md:fixed max-md:inset-x-4 max-md:top-auto max-md:w-auto"
                   >
                     {busqueda && (
                       <input type="hidden" name="q" value={busqueda} />
@@ -339,7 +339,7 @@ export async function PaginaExplorar({
                     {t.ordenActual(t.ordenes[orden])}
                     <Icon nombre="flecha" className="size-4" />
                   </summary>
-                  <ul className="absolute right-0 z-20 mt-2 flex w-64 flex-col rounded-[20px] border-2 border-teal-oscuro bg-white p-2 shadow-dura">
+                  <ul className="absolute right-0 z-20 mt-2 flex w-64 max-w-[calc(100vw-2rem)] flex-col rounded-[20px] border-2 border-teal-oscuro bg-white p-2 shadow-dura max-md:fixed max-md:inset-x-4 max-md:top-auto max-md:w-auto">
                     {ORDENES_EXPLORAR.map((o) => (
                       <li key={o}>
                         <Link

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Icon } from "./Icon";
 
 const ESTILOS = {
@@ -59,6 +59,7 @@ export function ListaDesplegable({
   const raiz = useRef<HTMLDivElement>(null);
   const lista = useRef<HTMLUListElement>(null);
   const [abierta, setAbierta] = useState(false);
+  const [arriba, setArriba] = useState(false);
   const [activa, setActiva] = useState(-1);
   const [interno, setInterno] = useState(valorInicial);
   const valor = valorControlado ?? interno;
@@ -86,10 +87,22 @@ export function ListaDesplegable({
     return () => document.removeEventListener("mousedown", afuera);
   }, [abierta]);
 
-  // Al abrir, el campo sube hasta arriba de la pantalla: así la lista entera cabe sin quedar tapada por la barra de abajo
+  // En escritorio el campo sube un poco para que la lista quepa. En el celular se abre hacia arriba si no hay lugar.
   useEffect(() => {
-    if (abierta) raiz.current?.scrollIntoView({ block: variante === "campo" ? "start" : "center", behavior: "smooth" });
+    if (!abierta) return;
+    if (window.matchMedia("(max-width: 767px)").matches) return;
+    raiz.current?.scrollIntoView({ block: variante === "campo" ? "start" : "center", behavior: "smooth" });
   }, [abierta, variante]);
+
+  useLayoutEffect(() => {
+    if (!abierta || !lista.current) {
+      setArriba(false);
+      return;
+    }
+    const r = lista.current.getBoundingClientRect();
+    const reserva = window.matchMedia("(max-width: 767px)").matches ? 112 : 24;
+    setArriba(r.bottom > window.innerHeight - reserva);
+  }, [abierta, opciones.length]);
 
   // La opción activa siempre se ve dentro de la lista
   useEffect(() => {
@@ -187,7 +200,9 @@ export function ListaDesplegable({
           id={`${id}-lista`}
           role="listbox"
           aria-label={placeholder}
-          className="absolute inset-x-0 top-full z-20 mt-2 max-h-64 animate-entra overflow-y-auto rounded-2xl border-2 border-teal-oscuro bg-white p-1.5 shadow-dura"
+          className={`absolute inset-x-0 z-20 max-h-[min(16rem,45dvh)] animate-entra overflow-y-auto rounded-2xl border-2 border-teal-oscuro bg-white p-1.5 shadow-dura md:max-h-64 ${
+            arriba ? "bottom-full mb-2" : "top-full mt-2"
+          }`}
         >
           {opciones.map((o, i) => {
             const marcada = o.valor === valor;

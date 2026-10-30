@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useActionState, useState, useTransition } from "react";
 import { leerDolares, repartirCostoTotal } from "@/domain/index";
+import { BarraGuardar } from "@/components/ui/BarraGuardar";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
@@ -144,9 +145,11 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
           </div>
 
           <MensajeError>{estado.error}</MensajeError>
-          <Button type="submit" variante="mango" disabled={pendiente}>
-            {pendiente ? t.creando : t.crear(rutas.length)}
-          </Button>
+          <BarraGuardar>
+            <Button type="submit" variante="mango" disabled={pendiente}>
+              {pendiente ? t.creando : t.crear(rutas.length)}
+            </Button>
+          </BarraGuardar>
         </>
       )}
     </form>

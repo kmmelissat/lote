@@ -24,7 +24,7 @@ export function TarjetaVitrina({ slug }: { slug: string }) {
     }
   }
   return (
-    <section aria-labelledby="vitrina-inicio" className={`${TARJETA} flex flex-wrap items-center justify-between gap-4 bg-teal-fondo`}>
+    <section aria-labelledby="vitrina-inicio" className={`${TARJETA} flex h-full flex-wrap items-center justify-between gap-3 bg-teal-fondo`}>
       <div className="flex min-w-0 flex-1 basis-64 items-start gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro">
           <Icon nombre="tienda" className="size-5" />

@@ -68,7 +68,7 @@ function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (r: boolean | st
       }}
       // Tocar el fondo oscuro (el propio dialog, no su contenido) también cancela.
       onClick={(e) => e.target === e.currentTarget && cerrar(false)}
-      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-3xl border border-borde bg-superficie p-0 text-texto shadow-xl backdrop:bg-teal-oscuro/40"
+      className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[calc(100%-2rem)] max-w-sm overflow-y-auto rounded-3xl border border-borde bg-superficie p-0 text-texto shadow-xl backdrop:bg-teal-oscuro/40"
     >
       <div className="flex flex-col gap-2 p-6">
         <h2 id="confirmar-titulo" className="text-lg font-bold">

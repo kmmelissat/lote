@@ -58,15 +58,9 @@
 
 html {
   background: var(--color-fondo);
-}
-
-/* En escritorio la base es de 14 px (todo va en rem, así que el espaciado y los títulos bajan a la par).
-   Sigue siendo un porcentaje del tamaño del navegador, así que el zoom y los ajustes de la persona se respetan.
-   En móvil se queda en 16 px: ahí los toques necesitan su área de 44 px. */
-@media (min-width: 48rem) {
-  html {
-    font-size: 87.5%;
-  }
+  /* 14 px de base (todo va en rem). Es un porcentaje del tamaño del navegador, así que el zoom y los
+     ajustes de la persona se respetan. */
+  font-size: 87.5%;
 }
 
 body {
@@ -132,6 +126,19 @@ body {
   }
 }
 
+@keyframes asomar-movil {
+  from {
+    transform: translateY(32%);
+  }
+}
+
+@keyframes entra-movil {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
 @keyframes marquesina {
   to {
     transform: translateX(-50%);
@@ -170,6 +177,21 @@ body {
   }
 }
 
+/* En el celular el rebote y el scale de `entra` se comen el ancho y pelean con el giro de las tarjetas.
+   Las entradas por scroll de Motion se apagan: si no, las secciones quedan en blanco hasta el observer. */
+@media (max-width: 47.99rem) {
+  .animate-entra {
+    animation: entra-movil 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-asomar {
+    animation: asomar-movil 550ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .aparece {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -183,14 +205,20 @@ body {
   }
 }
 
-/* La barra de guardar de los formularios: pegada abajo de la pantalla mientras se desplaza. En el celular queda sobre el menú. */
+/* En el celular sticky no se pega (Safari) y el menú le queda encima: va fija, arriba del boleto. */
 .barra-guardar {
-  position: sticky;
-  bottom: 6rem;
+  position: fixed;
+  right: 1rem;
+  bottom: calc(4.5rem + max(0.75rem, env(safe-area-inset-bottom, 0px)));
+  left: 1rem;
+  z-index: 20;
 }
 @media (min-width: 768px) {
   .barra-guardar {
+    position: sticky;
+    right: auto;
     bottom: 0.75rem;
+    left: auto;
   }
 }
 

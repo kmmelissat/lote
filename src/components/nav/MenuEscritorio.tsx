@@ -20,7 +20,7 @@ export type PropsEscritorio = {
   setRapida: (v: boolean | ((r: boolean) => boolean)) => void;
 };
 
-/** Escritorio: ticket de mercado, flotando a la izquierda. El celular no cambia. */
+/** Escritorio: ticket de mercado, flotando a la izquierda. */
 export function MenuEscritorio({ datos, cerrado, alternarMenu, abrirPaleta, rapida, setRapida }: PropsEscritorio) {
   return (
     <aside

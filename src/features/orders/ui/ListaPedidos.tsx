@@ -23,10 +23,10 @@ const clasesUrgencia = {
 function chipDe(p: Pedido) {
   if (p.estado === "pendiente") {
     return p.contraEntrega
-      ? { texto: t.lista.contraEntrega, clase: "bg-azul-fondo text-teal-oscuro", icono: "camion" as const }
-      : { texto: t.lista.esperandoPago, clase: "bg-perla text-ambar-texto", icono: "reloj" as const };
+      ? { texto: t.lista.contraEntrega, clase: "bg-celeste text-teal-oscuro", icono: "camion" as const }
+      : { texto: t.lista.esperandoPago, clase: "bg-limon text-teal-oscuro", icono: "reloj" as const };
   }
-  return { texto: t.canales[p.canal], clase: "bg-gris-fondo text-texto-2", icono: null };
+  return { texto: t.canales[p.canal], clase: "bg-crema text-teal-oscuro", icono: null };
 }
 
 function Chip({ p, mostrarEstado }: { p: Pedido; mostrarEstado: boolean }) {
@@ -34,7 +34,7 @@ function Chip({ p, mostrarEstado }: { p: Pedido; mostrarEstado: boolean }) {
   if (mostrarEstado) return <StatusChip estado={p.estado} />;
   const chip = chipDe(p);
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ${chip.clase}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full border-2 border-teal-oscuro px-3 py-1 text-sm font-bold ${chip.clase}`}>
       {chip.icono && <Icon nombre={chip.icono} className="size-4" />}
       {chip.texto}
     </span>

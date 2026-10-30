@@ -4,8 +4,8 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
 import { textos } from "@/lib/textos";
+import { LotitoMas } from "@/features/landing/ui/mas/LotitoMas";
 import { Chat } from "./Chat";
 import { AvatarLotito } from "./PiezasChat";
 
@@ -60,7 +60,7 @@ function Burbuja({ negocioId }: { negocioId: string }) {
         aria-label={t.titulo}
         tabIndex={-1}
         hidden={!abierto}
-        className="fixed inset-x-3 bottom-[7.5rem] top-14 z-40 flex animate-entra flex-col overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-crema shadow-[6px_6px_0_0_var(--color-teal-oscuro)] outline-none motion-reduce:animate-none md:inset-x-auto md:bottom-6 md:right-6 md:top-auto md:h-[38rem] md:max-h-[calc(100dvh-3rem)] md:w-[27rem]"
+        className="fixed inset-x-4 bottom-[7.75rem] top-16 z-40 flex animate-entra flex-col overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-crema shadow-[6px_6px_0_0_var(--color-teal-oscuro)] outline-none motion-reduce:animate-none md:inset-x-auto md:bottom-6 md:right-6 md:top-auto md:h-[38rem] md:max-h-[calc(100dvh-3rem)] md:w-[27rem]"
       >
         <header className="flex items-center gap-3 border-b-2 border-teal-oscuro bg-white px-4 py-3">
           <AvatarLotito className="size-11" enLinea />
@@ -102,15 +102,25 @@ function Burbuja({ negocioId }: { negocioId: string }) {
         onClick={() => setAbierto((a) => !a)}
         aria-expanded={abierto}
         aria-label={t.flotante.abrir}
-        className={`group fixed bottom-[7rem] right-4 z-30 flex h-14 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-celeste pl-5 pr-6 text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none md:bottom-6 md:right-6 ${abierto ? "hidden" : ""}`}
+        className={`fixed right-4 bottom-[6rem] z-30 transition-transform duration-150 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 md:right-6 md:bottom-6 ${abierto ? "invisible pointer-events-none" : ""}`}
       >
-        {/* El monito se asoma por arriba de la cápsula y se estira un poco al pasar el mouse */}
-        <Monito
-          nombre="asoma"
-          className="pointer-events-none absolute -top-[30px] right-5 w-14 text-rosa transition-transform duration-200 group-hover:-translate-y-1 motion-safe:animate-asomar"
-        />
-        <span aria-hidden="true" className="size-2.5 rounded-full bg-teal ring-2 ring-white" />
-        <span className="text-sm font-bold">{t.flotanteEtiqueta}</span>
+        <span className="relative block md:hidden">
+          <LotitoMas nombre="saluda" className="w-14 motion-safe:animate-asomar" />
+          <span className="absolute -left-1 top-0 flex h-8 w-10 items-center justify-center gap-0.5 rounded-2xl rounded-br-md border-2 border-teal-oscuro bg-celeste shadow-dura-chica">
+            {[0, 150, 300].map((demora) => (
+              <span
+                key={demora}
+                aria-hidden="true"
+                className="size-1.5 rounded-full bg-teal-oscuro/70 motion-safe:animate-bounce"
+                style={{ animationDelay: `${demora}ms` }}
+              />
+            ))}
+          </span>
+        </span>
+        <span className="group relative hidden h-14 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-celeste py-1 pl-2 pr-5 text-teal-oscuro shadow-dura-chica md:flex">
+          <LotitoMas nombre="saluda" className="-mb-1 w-11" />
+          <span className="text-sm font-bold">{t.flotanteEtiqueta}</span>
+        </span>
       </button>
     </div>
   );

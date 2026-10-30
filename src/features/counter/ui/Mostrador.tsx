@@ -8,6 +8,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { BarraGuardar } from "@/components/ui/BarraGuardar";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
@@ -421,15 +422,17 @@ export function Mostrador({
 
                 <MensajeError>{error}</MensajeError>
 
-                <Button
-                  type="button"
-                  variante="mango"
-                  onClick={cobrar}
-                  disabled={cobrando || descuentoInvalido}
-                  className="w-full"
-                >
-                  {cobrando ? t.cobrando : t.cobrar(formatearDolares(total))}
-                </Button>
+                <BarraGuardar>
+                  <Button
+                    type="button"
+                    variante="mango"
+                    onClick={cobrar}
+                    disabled={cobrando || descuentoInvalido}
+                    className="w-full"
+                  >
+                    {cobrando ? t.cobrando : t.cobrar(formatearDolares(total))}
+                  </Button>
+                </BarraGuardar>
                 <p
                   className="text-center text-xs text-texto-2"
                   aria-live="polite"

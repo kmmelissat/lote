@@ -148,7 +148,7 @@ function Problema() {
           {p.items.map((i, n) => (
             <ApareceItem
               key={i.titulo}
-              className={`relative flex flex-col gap-4 rounded-[28px] border-[3px] border-teal-oscuro bg-white p-6 shadow-[8px_8px_0_0_var(--color-teal-oscuro)] transition-transform duration-200 hover:rotate-0 hover:-translate-y-1 ${TARJETAS[n]}`}
+              className={`relative flex flex-col gap-4 rounded-[28px] border-[3px] border-teal-oscuro bg-white p-6 shadow-[8px_8px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:rotate-0 md:hover:-translate-y-1 ${TARJETAS[n]}`}
             >
               <span className="absolute -top-6 right-5 rotate-6 rounded-2xl border-[3px] border-teal-oscuro bg-mango px-4 py-1 text-[34px] font-extrabold leading-tight text-teal-oscuro shadow-dura-chica">
                 {i.dato}
@@ -249,7 +249,7 @@ function MockPaso({ n }: { n: 0 | 1 | 2 }) {
 function Pasos() {
   const c = t.como;
   return (
-    <section id="como" className="relative scroll-mt-24 overflow-x-hidden bg-celeste-palido py-16 md:py-28" aria-labelledby="como-mas">
+    <section id="como" className="relative scroll-mt-24 overflow-x-clip bg-celeste-palido py-16 md:py-28" aria-labelledby="como-mas">
       <div className={`${contenedor} relative flex flex-col gap-12`}>
         <Aparece className="flex items-end justify-between gap-4">
           <h2 id="como-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">
@@ -370,7 +370,7 @@ function Recorte({ de }: { de: (typeof BLOQUES)[number]["clave"] }) {
 function Funciones() {
   const f = t.funciones;
   return (
-    <section id="funciones" className="relative scroll-mt-24 overflow-x-hidden bg-white py-16 md:py-28" aria-labelledby="funciones-mas">
+    <section id="funciones" className="relative scroll-mt-24 overflow-x-clip bg-white py-16 md:py-28" aria-labelledby="funciones-mas">
       <div className={`${contenedor} flex flex-col gap-12`}>
         <Aparece>
           <h2 id="funciones-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">
@@ -383,7 +383,7 @@ function Funciones() {
             return (
               <ApareceItem
                 key={b.clave}
-                className={`flex min-h-44 flex-col gap-3 rounded-[28px] border-[3px] border-teal-oscuro p-6 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] transition-transform duration-200 hover:-translate-y-1 ${b.color} ${b.span} ${n % 2 ? "hover:rotate-1" : "hover:-rotate-1"}`}
+                className={`flex min-h-44 flex-col gap-3 rounded-[28px] border-[3px] border-teal-oscuro p-6 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:-translate-y-1 ${b.color} ${b.span} ${n % 2 ? "md:hover:rotate-1" : "md:hover:-rotate-1"}`}
               >
                 <h3 className="text-[26px] font-extrabold leading-[1.05] tracking-tight text-teal-oscuro">{x.titulo}</h3>
                 <p className="text-[16px] font-medium leading-relaxed text-teal-oscuro/90">{x.texto}</p>
@@ -405,7 +405,7 @@ function Funciones() {
 function Buscar() {
   const b = t.buscar;
   return (
-    <section id="marketplace" className="relative scroll-mt-24 overflow-x-hidden bg-mango py-16 md:py-28" aria-labelledby="buscar-mas">
+    <section id="marketplace" className="relative scroll-mt-24 overflow-x-clip bg-mango py-16 md:py-28" aria-labelledby="buscar-mas">
       <div aria-hidden="true" className={`pointer-events-none absolute inset-0 opacity-[0.08] ${PUNTOS}`} />
       <div className={`${contenedor} relative grid grid-cols-1 items-center gap-12 md:grid-cols-[1.2fr_0.8fr]`}>
         <Aparece className="flex flex-col items-start gap-6">
@@ -495,7 +495,7 @@ function Buscar() {
 
 function Cierre({ conSesion }: { conSesion: boolean }) {
   return (
-    <section className="relative overflow-x-hidden bg-teal-oscuro py-16 text-white md:py-28" aria-labelledby="cierre-mas">
+    <section className="relative overflow-x-clip bg-teal-oscuro py-16 text-white md:py-28" aria-labelledby="cierre-mas">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.12] bg-[radial-gradient(var(--color-limon)_1.2px,transparent_1.3px)] [background-size:22px_22px]"
@@ -562,7 +562,7 @@ const PRINCIPIO = [
 function Principios() {
   const p = t.principios;
   return (
-    <section className="relative overflow-x-hidden bg-crema py-16 md:py-28" aria-labelledby="principios-mas">
+    <section className="relative overflow-x-clip bg-crema py-16 md:py-28" aria-labelledby="principios-mas">
       <div className={`${contenedor} relative flex flex-col gap-14`}>
         <Aparece className="flex max-w-2xl flex-col gap-3">
           <h2 id="principios-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">
@@ -597,7 +597,7 @@ function Principios() {
 function Precios({ conSesion }: { conSesion: boolean }) {
   const p = t.precios;
   return (
-    <section id="precios" className="relative scroll-mt-24 overflow-x-hidden bg-limon py-16 md:py-28" aria-labelledby="precios-mas">
+    <section id="precios" className="relative scroll-mt-24 overflow-x-clip bg-limon py-16 md:py-28" aria-labelledby="precios-mas">
       <div className={`${contenedor} relative flex flex-col gap-14`}>
         <Aparece className="flex max-w-2xl flex-col gap-3">
           <h2 id="precios-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">
@@ -655,7 +655,7 @@ function Precios({ conSesion }: { conSesion: boolean }) {
 function Preguntas() {
   const p = t.preguntas;
   return (
-    <section id="preguntas" className="relative scroll-mt-24 overflow-x-hidden bg-celeste-palido py-16 md:py-28" aria-labelledby="preguntas-mas">
+    <section id="preguntas" className="relative scroll-mt-24 overflow-x-clip bg-celeste-palido py-16 md:py-28" aria-labelledby="preguntas-mas">
       <div className={`${contenedor} grid grid-cols-1 gap-12 md:grid-cols-[1fr_1.4fr] md:gap-16`}>
         <Aparece className="flex flex-col gap-4 md:sticky md:top-24 md:self-start">
           <h2 id="preguntas-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">

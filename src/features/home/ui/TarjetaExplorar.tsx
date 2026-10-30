@@ -11,7 +11,7 @@ const boton =
 /** Explorar es donde otras personas descubren tu tienda. Acá se ve si estás y, si no, cómo entrar. */
 export function TarjetaExplorar({ visible }: { visible: boolean }) {
   return (
-    <section aria-labelledby="explorar-inicio" className={`${TARJETA} flex flex-wrap items-center justify-between gap-4 ${visible ? "bg-superficie" : "bg-rosa-palido"}`}>
+    <section aria-labelledby="explorar-inicio" className={`${TARJETA} flex h-full flex-wrap items-center justify-between gap-3 ${visible ? "bg-superficie" : "bg-rosa-palido"}`}>
       <div className="flex min-w-0 flex-1 basis-64 items-start gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon text-teal-oscuro">
           <Icon nombre="buscar" className="size-5" />

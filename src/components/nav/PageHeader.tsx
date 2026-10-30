@@ -35,7 +35,7 @@ export function PageHeader({
           <p className="text-texto-2">{descripcion}</p>
         </div>
       </div>
-      {accion}
+      {accion ? <div className="flex w-full shrink-0 justify-end md:w-auto">{accion}</div> : null}
     </header>
   );
 }

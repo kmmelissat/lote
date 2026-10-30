@@ -24,7 +24,7 @@ export default function PanelLayout({ children }: LayoutProps<"/">) {
       <Suspense fallback={<NavSinDatos />}>
         <NavConDatos />
       </Suspense>
-      <main id="contenido" tabIndex={-1} className="relative w-full px-4 pb-28 pt-4 md:flex-1 md:overflow-y-auto md:px-6 md:pb-8 md:pt-5">
+      <main id="contenido" tabIndex={-1} className="relative w-full px-4 pb-32 pt-4 md:flex-1 md:overflow-y-auto md:px-6 md:pb-8 md:pt-5">
         <div className="mx-auto max-w-[1100px]">
           <Migas />
           <RequiereNegocio />

@@ -123,7 +123,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContexto.Provider value={contexto}>
       {children}
       {/* En móvil sube para no tapar la barra inferior. El contenedor deja pasar los toques; cada aviso los recibe. */}
-      <ul className="pointer-events-none fixed inset-x-4 bottom-24 z-50 mx-auto flex max-w-md flex-col gap-2 md:bottom-6">
+      <ul className="pointer-events-none fixed inset-x-4 bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] z-50 mx-auto flex max-w-md flex-col gap-2 md:bottom-6">
         {avisos.map((a) => (
           <AvisoVista key={a.id} aviso={a} cerrar={() => quitar(a.id)} />
         ))}

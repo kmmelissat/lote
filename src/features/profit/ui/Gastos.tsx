@@ -48,7 +48,7 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
       <dialog
         ref={ventana}
         aria-labelledby="titulo-gasto"
-        className="m-auto w-[min(32rem,calc(100vw-1.5rem))] rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
+        className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
         onClick={(e) => e.target === ventana.current && ventana.current?.close()}
       >
         {/* La key reinicia los campos después de cada gasto guardado. */}
@@ -90,7 +90,7 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
                     onChange={() => setCategoria(c)}
                     className="peer sr-only"
                   />
-                  <span className="inline-flex h-10 items-center gap-2 rounded-full border-2 border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
+                  <span className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
                     <Icon nombre={ICONOS[c]} className="size-4" />
                     {t.categorias[c]}
                   </span>

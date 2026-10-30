@@ -94,11 +94,16 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ganancia">, "searchP
       <PageHeader titulo={t.titulo} descripcion={t.descripcion} />
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-start md:justify-between">
             <Pestanas
               etiqueta={t.periodos}
               activa={clave}
-              pestanas={CLAVES.map((p) => ({ valor: p, etiqueta: t[p], href: `/ganancia?periodo=${p}` }))}
+              pestanas={CLAVES.map((p) => ({
+                valor: p,
+                etiqueta: t[p],
+                etiquetaCorta: t.cortos[p],
+                href: `/ganancia?periodo=${p}`,
+              }))}
             />
             <RegistrarGasto hoy={fechaLocalDe(ahora)} />
           </div>

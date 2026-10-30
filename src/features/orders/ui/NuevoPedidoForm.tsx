@@ -14,6 +14,7 @@ import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoPedido, type EstadoNuevoPedido } from "../actions/nuevo";
+import { BarraGuardar } from "@/components/ui/BarraGuardar";
 import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
 
 const t = textos.pedidos.form;
@@ -328,11 +329,16 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
           </div>
 
           <MensajeError>{estado.error}</MensajeError>
-          <Button type="submit" variante="mango" disabled={pendiente || !items.length} className="w-full">
-            {pendiente ? t.registrando : t.registrar}
-          </Button>
         </div>
       </aside>
+      <div className="lg:col-span-2">
+        <BarraGuardar>
+          <p className="mr-auto text-sm font-bold tabular-nums">{formatearDolares(total)}</p>
+          <Button type="submit" variante="mango" disabled={pendiente || !items.length} className="w-full md:w-auto">
+            {pendiente ? t.registrando : t.registrar}
+          </Button>
+        </BarraGuardar>
+      </div>
     </form>
   );
 }

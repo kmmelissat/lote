@@ -104,29 +104,37 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   // La semana actual es la última del gráfico: no hace falta pedirla aparte.
   const ganancia = semanas?.at(-1)?.resumen ?? null;
   const anterior = semanas?.at(-2)?.resumen.gananciaDespuesDeGastos ?? null;
+  const pendientesResenas = negocio.puedeGestionar ? await contarPendientes(supabase, negocio.id) : 0;
 
   // Sin ningún pedido todavía no hay nada que graficar ni listar: se esconde en vez de mostrar widgets vacíos.
   const sinMovimiento = recientes.length === 0;
+  const hayGanancia = Boolean(ganancia && !sinMovimiento);
   // Sin nada que atender la tarjeta no existe: el gráfico ocupa su lugar para que no quede un hueco.
   const hayAtencion = r.porPagar > 0 || r.porEnviar > 0 || r.seEnfrian.length > 0;
 
   return (
     <>
       {encabezado}
-      <div className="flex flex-col gap-3">
-        {tarjetaBienvenida}
-        {tarjetaPasos}
+      <div className="flex flex-col gap-3 md:gap-6">
+        {(tarjetaBienvenida || tarjetaPasos) && (
+          <div className="flex flex-col gap-3">
+            {tarjetaBienvenida}
+            {tarjetaPasos}
+          </div>
+        )}
 
-        {negocio.puedeGestionar && <AvisoResenas pendientes={await contarPendientes(supabase, negocio.id)} />}
+        <AvisoResenas pendientes={pendientesResenas} />
 
-        <section aria-labelledby="contadores" className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <section aria-labelledby="contadores">
           <h2 id="contadores" className="sr-only">
             {t.contadores}
           </h2>
-          {ganancia && !sinMovimiento && (
-            <TarjetaGanancia ganancia={ganancia.gananciaDespuesDeGastos} anterior={anterior} estimada={ganancia.estimada} />
-          )}
-          <div className={`grid grid-cols-1 gap-3 sm:grid-cols-3 ${ganancia && !sinMovimiento ? "lg:col-span-2" : "lg:col-span-3"}`}>
+          <div className={`grid grid-cols-3 gap-3 ${hayGanancia ? "xl:grid-cols-4" : ""}`}>
+            {hayGanancia && ganancia && (
+              <div className="col-span-3 xl:col-span-1">
+                <TarjetaGanancia ganancia={ganancia.gananciaDespuesDeGastos} anterior={anterior} estimada={ganancia.estimada} />
+              </div>
+            )}
             <TarjetaDato
               etiqueta={t.disponibles}
               valor={r.disponibles}
@@ -145,13 +153,10 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
           </div>
         </section>
 
-        {negocio.vitrinaActiva && <TarjetaVitrina slug={negocio.slug} />}
-        {negocio.vitrinaActiva && <TarjetaExplorar visible={negocio.visibleEnExplorar} />}
-
         {sinMovimiento ? (
           <TarjetaAtencion r={r} ahora={ahora} />
         ) : (
-          <>
+          <div className="flex flex-col gap-3">
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
               <div className={`min-w-0 ${hayAtencion ? "lg:col-span-2" : "lg:col-span-3"}`}>
                 {semanas ? <GraficoSemanas semanas={semanas} /> : <PedidosRecientes pedidos={recientes} />}
@@ -159,7 +164,14 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
               <TarjetaAtencion r={r} ahora={ahora} />
             </div>
             {semanas && <PedidosRecientes pedidos={recientes} />}
-          </>
+          </div>
+        )}
+
+        {negocio.vitrinaActiva && (
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <TarjetaVitrina slug={negocio.slug} />
+            <TarjetaExplorar visible={negocio.visibleEnExplorar} />
+          </div>
         )}
       </div>
     </>

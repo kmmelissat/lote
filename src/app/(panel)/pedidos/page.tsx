@@ -49,7 +49,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-start md:justify-between">
         <Pestanas
           etiqueta={t.pestanas}
           activa={estado}

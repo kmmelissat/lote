@@ -59,7 +59,7 @@ export default async function Landing() {
         {textos.landing.saltar}
       </a>
       <Encabezado conSesion={conSesion} />
-      <main id="contenido" className="overflow-x-hidden">
+      <main id="contenido" className="overflow-x-clip">
         <M.Hero conSesion={conSesion} />
         <M.Cinta />
         <M.Problema />

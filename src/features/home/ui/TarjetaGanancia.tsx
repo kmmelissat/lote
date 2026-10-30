@@ -28,7 +28,7 @@ export function TarjetaGanancia({
   return (
     <section
       aria-labelledby="ganancia-semana"
-      className={`${TARJETA} flex h-full flex-col justify-between gap-3 bg-limon text-teal-oscuro`}
+      className={`${TARJETA} flex h-full flex-col justify-between gap-2 bg-limon text-teal-oscuro md:gap-3`}
     >
       <div className="flex items-center justify-between gap-2">
         <h2 id="ganancia-semana" className="font-medium">
@@ -42,7 +42,7 @@ export function TarjetaGanancia({
           <Icon nombre="diagonal" className="size-4" />
         </Link>
       </div>
-      <p className="text-4xl font-bold tabular-nums">{formatearDolares(ganancia)}</p>
+      <p className="text-3xl font-bold tabular-nums md:text-4xl">{formatearDolares(ganancia)}</p>
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {vs && <span className="rounded-full bg-white/70 px-3 py-1 font-bold">{t.contraSemana(vs)}</span>}
         {estimada && <span className="rounded-full bg-white/70 px-3 py-1 font-medium">{t.gananciaEstimada}</span>}

@@ -10,7 +10,7 @@ const t = textos.inicio;
 
 export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
   return (
-    <div className={`${TARJETA} flex flex-col gap-2 bg-superficie`}>
+    <div className={`${TARJETA} flex flex-col gap-3 bg-superficie`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-bold">{t.recientesTitulo}</h2>

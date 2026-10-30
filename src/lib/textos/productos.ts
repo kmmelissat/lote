@@ -10,6 +10,7 @@ export const productos = {
     estados: "Filtrar por estado",
     todos: "Todos",
     poco: "Poco stock",
+    pocoCorto: "Poco",
     sinResultados: "No encontramos productos con esa búsqueda.",
     limpiar: "Quitar filtros",
   },

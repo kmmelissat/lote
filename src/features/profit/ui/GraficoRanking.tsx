@@ -20,7 +20,7 @@ type Punto = {
 };
 
 function etiquetaDe(nombre: string) {
-  return nombre.length > 18 ? `${nombre.slice(0, 17)}…` : nombre;
+  return nombre.length > 12 ? `${nombre.slice(0, 11)}…` : nombre;
 }
 
 function Detalle({ active, payload }: TooltipContentProps) {
@@ -59,7 +59,7 @@ export function GraficoRanking({ productos }: { productos: GananciaProducto[] })
     <>
       <div className="w-full min-w-0" style={{ height: alto }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart layout="vertical" data={datos} margin={{ top: 4, right: 12, bottom: 0, left: 4 }} accessibilityLayer>
+          <BarChart layout="vertical" data={datos} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} accessibilityLayer>
             <CartesianGrid horizontal={false} stroke="var(--color-borde)" />
             <XAxis
               type="number"
@@ -71,10 +71,10 @@ export function GraficoRanking({ productos }: { productos: GananciaProducto[] })
             <YAxis
               type="category"
               dataKey="etiqueta"
-              width={108}
+              width={76}
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 12, fill: "var(--color-texto)" }}
+              tick={{ fontSize: 11, fill: "var(--color-texto)" }}
             />
             <Tooltip cursor={{ fill: "var(--color-teal-fondo)" }} content={(props) => <Detalle {...props} />} />
             <Bar dataKey="ganancia" radius={[0, 6, 6, 0]} maxBarSize={22}>

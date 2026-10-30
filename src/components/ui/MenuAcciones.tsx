@@ -8,7 +8,7 @@ export type AccionMenu = { etiqueta: string; icono: NombreIcono } & ({ href: str
 
 /**
  * Las acciones que no se usan siempre, guardadas en un cuadrito "⋯" para no llenar la pantalla de botones.
- * Se cierra al elegir, con Escape o tocando afuera.
+ * Se cierra al elegir, con Escape o tocando afuera. En el celular es una hoja, para que no se salga de la pantalla.
  */
 export function MenuAcciones({ etiqueta, acciones }: { etiqueta: string; acciones: AccionMenu[] }) {
   const [abierto, setAbierto] = useState(false);
@@ -62,36 +62,43 @@ export function MenuAcciones({ etiqueta, acciones }: { etiqueta: string; accione
         <Icon nombre="mas_opciones" className="size-5" />
       </button>
       {abierto && (
-        <div
-          id={id}
-          role="menu"
-          aria-label={etiqueta}
-          onKeyDown={mover}
-          className="absolute right-0 top-full z-30 mt-2 flex w-60 flex-col gap-0.5 rounded-2xl border-2 border-teal-oscuro bg-superficie p-1.5 shadow-dura"
-        >
-          {acciones.map((a) =>
-            "href" in a ? (
-              <Link key={a.etiqueta} href={a.href} role="menuitem" className={claseItem} onClick={() => setAbierto(false)}>
-                <Icon nombre={a.icono} className="size-5 shrink-0 text-teal" />
-                {a.etiqueta}
-              </Link>
-            ) : (
-              <button
-                key={a.etiqueta}
-                type="button"
-                role="menuitem"
-                className={claseItem}
-                onClick={() => {
-                  setAbierto(false);
-                  a.alElegir();
-                }}
-              >
-                <Icon nombre={a.icono} className="size-5 shrink-0 text-teal" />
-                {a.etiqueta}
-              </button>
-            ),
-          )}
-        </div>
+        <>
+          <div
+            aria-hidden="true"
+            className="fixed inset-0 z-40 bg-teal-oscuro/40 md:hidden"
+            onClick={() => setAbierto(false)}
+          />
+          <div
+            id={id}
+            role="menu"
+            aria-label={etiqueta}
+            onKeyDown={mover}
+            className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-50 flex max-h-[min(20rem,calc(100dvh-8rem))] w-auto flex-col gap-0.5 overflow-y-auto rounded-2xl border-2 border-teal-oscuro bg-superficie p-1.5 shadow-dura md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-full md:z-30 md:mt-2 md:max-h-none md:w-60"
+          >
+            {acciones.map((a) =>
+              "href" in a ? (
+                <Link key={a.etiqueta} href={a.href} role="menuitem" className={claseItem} onClick={() => setAbierto(false)}>
+                  <Icon nombre={a.icono} className="size-5 shrink-0 text-teal" />
+                  {a.etiqueta}
+                </Link>
+              ) : (
+                <button
+                  key={a.etiqueta}
+                  type="button"
+                  role="menuitem"
+                  className={claseItem}
+                  onClick={() => {
+                    setAbierto(false);
+                    a.alElegir();
+                  }}
+                >
+                  <Icon nombre={a.icono} className="size-5 shrink-0 text-teal" />
+                  {a.etiqueta}
+                </button>
+              ),
+            )}
+          </div>
+        </>
       )}
     </div>
   );

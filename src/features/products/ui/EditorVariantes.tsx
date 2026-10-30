@@ -274,7 +274,7 @@ export function EditorVariantes({
                       setFotosDe(null);
                       onCambio(unificarFotosDeGrupos(e));
                     }}
-                    className="h-10 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors aria-checked:bg-teal-oscuro aria-checked:text-white hover:bg-teal-fondo aria-checked:hover:bg-teal-oscuro"
+                    className="h-10 max-md:min-h-11 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors aria-checked:bg-teal-oscuro aria-checked:text-white hover:bg-teal-fondo aria-checked:hover:bg-teal-oscuro"
                   >
                     {t.fotosModoGrupo(opcion1)}
                   </button>
@@ -283,7 +283,7 @@ export function EditorVariantes({
                     role="radio"
                     aria-checked={porCombinacion}
                     onClick={() => setFotoPorFila(true)}
-                    className="h-10 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors aria-checked:bg-teal-oscuro aria-checked:text-white hover:bg-teal-fondo aria-checked:hover:bg-teal-oscuro"
+                    className="h-10 max-md:min-h-11 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors aria-checked:bg-teal-oscuro aria-checked:text-white hover:bg-teal-fondo aria-checked:hover:bg-teal-oscuro"
                   >
                     {t.fotosModoCada}
                   </button>

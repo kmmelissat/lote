@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/Textarea";
 
 const t = textos.resenas;
 
-const chip = { pendiente: "bg-limon", publicada: "bg-teal-fondo", oculta: "bg-gris-fondo" } as const;
+const chip = { pendiente: "bg-limon", publicada: "bg-celeste", oculta: "bg-crema" } as const;
 const boton = "inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon disabled:opacity-50";
 
 function FilaResena({ r }: { r: ResenaPanel }) {
@@ -47,7 +47,7 @@ function FilaResena({ r }: { r: ResenaPanel }) {
         <Estrellas valor={r.estrellas} className="size-4" />
         <span className="sr-only">{textos.vitrina.resenas.estrellasDe(r.estrellas)}</span>
         <span className="font-bold">{r.nombre}</span>
-        <span className={`rounded-full border border-teal-oscuro/40 px-2.5 py-0.5 text-xs font-bold ${chip[r.estado]}`}>{t.estados[r.estado]}</span>
+        <span className={`rounded-full border-2 border-teal-oscuro px-2.5 py-0.5 text-xs font-bold ${chip[r.estado]}`}>{t.estados[r.estado]}</span>
         <span className="text-xs text-texto-2">
           {t.origen[r.origen]} · {formatearFecha(r.creadoEn)}
         </span>

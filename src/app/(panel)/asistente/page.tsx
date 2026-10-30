@@ -12,7 +12,7 @@ export default function AsistentePage() {
 async function ChatDelNegocio() {
   const { negocio } = await negocioActual();
   return (
-    <div className="flex h-[calc(100dvh-8.5rem)] min-h-112 w-full flex-col md:h-[calc(100dvh-3.5rem)]">
+    <div className="flex h-[calc(100dvh-11rem)] min-h-112 w-full flex-col md:h-[calc(100dvh-3.5rem)]">
       <Chat negocioId={negocio.id} />
     </div>
   );

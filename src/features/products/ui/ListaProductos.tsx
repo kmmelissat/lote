@@ -31,7 +31,7 @@ function Stock({ disponibles, apartadas, poco }: ResumenStock) {
   if (disponibles === 0) {
     return (
       <span className="flex flex-col items-start gap-0.5">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-error-fondo px-3 py-1 text-sm font-medium text-error">
+        <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-teal-oscuro bg-error-fondo px-3 py-1 text-sm font-bold text-error">
           <span aria-hidden="true" className="size-2 rounded-full bg-error" />
           {t.lista.agotado}
         </span>
@@ -41,11 +41,11 @@ function Stock({ disponibles, apartadas, poco }: ResumenStock) {
   }
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${
-        poco ? "bg-perla text-ambar-texto" : "bg-teal-fondo text-teal"
+      className={`inline-flex items-center gap-1.5 rounded-full border-2 border-teal-oscuro px-3 py-1 text-sm font-bold ${
+        poco ? "bg-mango text-teal-oscuro" : "bg-celeste text-teal-oscuro"
       }`}
     >
-      <span aria-hidden="true" className={`size-2 rounded-full ${poco ? "bg-ambar" : "bg-teal"}`} />
+      <span aria-hidden="true" className={`size-2 rounded-full ${poco ? "bg-teal-oscuro" : "bg-teal"}`} />
       {t.quedan(disponibles)}
     </span>
   );
@@ -74,7 +74,7 @@ function AgregarCosto({ codigo }: { codigo: number }) {
   return (
     <Link
       href={`/productos/${codigo}/editar`}
-      className="relative z-10 inline-flex min-h-8 max-md:min-h-10 items-center rounded-full bg-perla px-3 text-sm font-medium text-ambar-texto hover:brightness-95"
+      className="relative z-10 inline-flex min-h-8 max-md:min-h-10 items-center rounded-full border-2 border-teal-oscuro bg-limon px-3 text-sm font-bold text-teal-oscuro hover:brightness-95"
     >
       {t.lista.agregarCosto}
     </Link>
@@ -195,30 +195,43 @@ export function ListaProductos({
         )}
       </div>
 
-      <div role="group" aria-label={t.buscar.estados} className="flex flex-wrap gap-2">
-        {FILTROS_ESTADO.map((e) => {
-          const activo = e === estado;
-          const vacio = cantidades[e] === 0;
-          return (
-            <button
-              key={e}
-              type="button"
-              aria-pressed={activo}
-              onClick={() => {
-                setEstado(e);
-                guardarEnUrl(texto, e);
-              }}
-              className={`inline-flex min-h-11 items-center gap-2 rounded-full border-2 px-4 text-sm font-bold transition-[transform,background-color] duration-150 ${
-                activo
-                  ? "border-teal-oscuro bg-teal-fondo text-teal-oscuro"
-                  : "border-teal-oscuro/20 bg-superficie text-texto-2 hover:-translate-y-0.5 hover:border-teal-oscuro hover:bg-teal-fondo"
-              } ${vacio && !activo ? "opacity-60" : ""}`}
-            >
-              {nombreDelFiltro(e)}
-              <span className={`rounded-full px-2 text-xs ${activo ? "bg-white/70" : "bg-gris-fondo"}`}>{cantidades[e]}</span>
-            </button>
-          );
-        })}
+      <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
+        <div role="group" aria-label={t.buscar.estados} className="flex min-w-full gap-1 border-b-2 border-teal-oscuro/25 md:min-w-0 md:flex-wrap md:gap-2 md:border-0">
+          {FILTROS_ESTADO.map((e) => {
+            const activo = e === estado;
+            const vacio = cantidades[e] === 0;
+            const etiqueta = e === "poco" ? t.buscar.poco : nombreDelFiltro(e);
+            return (
+              <button
+                key={e}
+                type="button"
+                aria-pressed={activo}
+                title={etiqueta}
+                onClick={() => {
+                  setEstado(e);
+                  guardarEnUrl(texto, e);
+                }}
+                className={`inline-flex shrink-0 items-center gap-1.5 px-3 text-sm font-bold max-md:min-h-11 md:min-h-11 md:gap-2 md:rounded-full md:border-2 md:px-4 md:transition-[transform,background-color] md:duration-150 ${
+                  activo
+                    ? "-mb-0.5 border-b-2 border-rosa text-teal-oscuro md:mb-0 md:border-2 md:border-teal-oscuro md:bg-teal-fondo"
+                    : "text-texto-2 md:border-teal-oscuro/20 md:bg-superficie md:hover:-translate-y-0.5 md:hover:border-teal-oscuro md:hover:bg-teal-fondo"
+                } ${vacio && !activo ? "opacity-60" : ""}`}
+              >
+                {e === "poco" ? (
+                  <>
+                    <span className="md:hidden">{t.buscar.pocoCorto}</span>
+                    <span className="hidden md:inline">{t.buscar.poco}</span>
+                  </>
+                ) : (
+                  nombreDelFiltro(e)
+                )}
+                <span className={`text-xs tabular-nums md:rounded-full md:px-2 ${activo ? "md:bg-white/70" : "md:bg-crema"}`}>
+                  {cantidades[e]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {!grupos.length ? (

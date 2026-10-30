@@ -8,6 +8,7 @@ export const ganancia = {
   semana: "Esta semana",
   mes: "Este mes",
   mesPasado: "Mes pasado",
+  cortos: { dia: "Hoy", semana: "Semana", mes: "Mes", mesPasado: "Pasado" },
   periodoTexto: { dia: "hoy", semana: "esta semana", mes: "este mes", mesPasado: "el mes pasado" },
   anteriorTexto: { dia: "ayer", semana: "la semana pasada", mes: "el mes pasado", mesPasado: "el mes anterior" },
   semanaAyuda: "La semana va de lunes a domingo.",
