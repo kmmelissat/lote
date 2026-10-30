@@ -6,7 +6,7 @@ import { Monito } from "@/components/ui/Monito";
 import { CatalogoVitrina } from "@/features/catalog/ui/CatalogoVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
-import { mensajePedirVitrina } from "@/features/catalog/enlaces";
+import { enlaceFacebook, mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra } from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
 import { urlFoto } from "@/lib/fotos";
@@ -63,14 +63,17 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           description: negocio.descripcion ?? undefined,
           url: `${urlSitio}/c/${slug}`,
           image: negocio.logo ? urlFoto(negocio.logo) : undefined,
-          // Sus redes: así el buscador une la vitrina con el Instagram de la tienda
-          sameAs: negocio.usuarioInstagram ? [`https://www.instagram.com/${negocio.usuarioInstagram}`] : undefined,
+          // Sus redes: así el buscador une la vitrina con Instagram y Facebook
+          sameAs: [
+            negocio.usuarioInstagram ? `https://www.instagram.com/${negocio.usuarioInstagram}` : null,
+            enlaceFacebook(negocio.usuarioFacebook),
+          ].filter((u): u is string => !!u),
           areaServed: { "@type": "Country", name: "El Salvador" },
           currenciesAccepted: "USD",
         }}
       />
       <header className="mb-8 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-superficie shadow-dura">
-        <div aria-hidden="true" className="h-10 bg-teal md:h-14" />
+        <div aria-hidden="true" className="h-10 bg-accion md:h-14" />
         <div className="flex flex-col gap-4 px-5 pb-5 md:px-8 md:pb-7">
           <div className="-mt-7 flex items-end gap-4 md:-mt-9">
             <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-[4.5rem] border-4 border-superficie ring-2 ring-teal-oscuro md:size-24" />
@@ -98,6 +101,7 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           <BotonesChat
             whatsapp={negocio.whatsapp}
             instagram={negocio.usuarioInstagram}
+            facebook={negocio.usuarioFacebook}
             mensaje={mensajePedirVitrina(negocio.nombre)}
           />
         </div>

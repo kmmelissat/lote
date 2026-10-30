@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { COLORES_MARCA, LIMITE_CONTEXTO } from "@/features/catalog/marca";
+import { telefonoElSalvador } from "@/domain";
+import { esFacebook, facebookDe } from "@/features/catalog/enlaces";
+import { esHex, LIMITE_CONTEXTO } from "@/features/catalog/marca";
 import { textos } from "@/lib/textos";
 
 // Lo que llega del formulario de ajustes de la tienda. El orden de los campos es el orden en que se avisa el primer error.
@@ -13,12 +15,9 @@ const entero = (min: number, max: number, mensaje: string) => z.coerce.number({ 
 const esquema = z.object({
   nombre: texto.min(1, t.errorNombre).max(60, t.errorNombre),
   frase: texto.max(120, t.errorFrase),
-  whatsapp: texto.refine((w) => {
-    if (!w) return true;
-    const digitos = w.replace(/\D/g, "").length;
-    return /^\+?[\d\s-]+$/.test(w) && digitos >= 8 && digitos <= 15;
-  }, t.errorWhatsapp),
+  whatsapp: texto.refine((w) => !w || telefonoElSalvador(w) !== null, t.errorWhatsapp).transform((w) => (w ? telefonoElSalvador(w)! : "")),
   instagram: texto.transform((s) => s.replace(/^@/, "")).refine((s) => !s || /^[A-Za-z0-9._]{1,30}$/.test(s), t.errorInstagram),
+  facebook: texto.transform(facebookDe).refine((s) => !s || esFacebook(s), t.errorFacebook),
   contexto: texto.max(LIMITE_CONTEXTO, t.errorContexto),
   plazo: entero(1, 168, v.errorPlazo),
   limite: entero(1, 20, v.errorLimite),
@@ -27,7 +26,7 @@ const esquema = z.object({
   politica_cambios: texto.max(300, v.errorPoliticaCambios),
   // La dirección de la vitrina (/c/<dirección>): la misma regla que la base, y nunca vacía
   slug: texto.transform((s) => s.toLowerCase()).refine((s) => /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(s), t.slug.errorFormato),
-  color: texto.refine((c) => COLORES_MARCA.some((x) => x.hex === c), t.errorColor),
+  color: texto.transform((s) => s.toLowerCase()).refine((c) => esHex(c), t.errorColor),
   logo: texto,
 });
 

@@ -531,6 +531,7 @@ export type Database = {
           tarifa_envio_defecto: number
           umbral_poco_stock: number
           usuario_instagram: string | null
+          usuario_facebook?: string | null
           visible_en_explorar: boolean
           tiene_local: boolean
           vitrina_activa: boolean
@@ -560,6 +561,7 @@ export type Database = {
           tarifa_envio_defecto?: number
           umbral_poco_stock?: number
           usuario_instagram?: string | null
+          usuario_facebook?: string | null
           visible_en_explorar?: boolean
           tiene_local?: boolean
           vitrina_activa?: boolean
@@ -589,6 +591,7 @@ export type Database = {
           tarifa_envio_defecto?: number
           umbral_poco_stock?: number
           usuario_instagram?: string | null
+          usuario_facebook?: string | null
           visible_en_explorar?: boolean
           tiene_local?: boolean
           vitrina_activa?: boolean
@@ -1503,6 +1506,7 @@ export type Database = {
           nombre: string
           plazo_apartado_horas: number
           usuario_instagram: string
+          usuario_facebook?: string | null
           whatsapp: string
           tiempo_entrega?: string | null
           politica_cambios?: string | null

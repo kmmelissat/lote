@@ -176,9 +176,9 @@ export function CompraForm({
             <div key={guardados.clave} className="flex flex-col gap-3">
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-bold">{ta.nombre}</span>
-                <input name="nombre" autoComplete="name" required defaultValue={v.nombre ?? guardados.nombre} placeholder="Ana Martínez" className={campoCompra} />
+                <input name="nombre" autoComplete="name" required maxLength={80} defaultValue={v.nombre ?? guardados.nombre} placeholder="Ana Martínez" className={campoCompra} />
               </label>
-              <CampoWhatsApp defecto={guardados.telefono} />
+              <CampoWhatsApp defecto={v.contacto || guardados.telefono} />
             </div>
           </section>
 
@@ -255,7 +255,7 @@ export function CompraForm({
                 )}
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-bold">{t.direccion}</span>
-                  <input name="direccion" required autoComplete="street-address" placeholder={t.direccionPlaceholder} className={campoCompra} />
+                  <input name="direccion" required maxLength={200} autoComplete="street-address" placeholder={t.direccionPlaceholder} className={campoCompra} />
                 </label>
                 {/* El punto de referencia es opcional: no estorba hasta que se necesita */}
                 <details className="group">
@@ -265,7 +265,7 @@ export function CompraForm({
                   </summary>
                   <label className="mt-1 flex flex-col gap-1.5">
                     <span className="text-sm font-bold">{t.referencia}</span>
-                    <input name="referencia" placeholder={t.referenciaPlaceholder} className={campoCompra} />
+                    <input name="referencia" maxLength={200} placeholder={t.referenciaPlaceholder} className={campoCompra} />
                   </label>
                 </details>
               </div>
@@ -363,7 +363,7 @@ export function CompraForm({
                   key="confirmar"
                   type="submit"
                   disabled={pendiente || !metodoElegido || !acepta}
-                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal px-8 font-bold text-white shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
                 >
                   {pendiente ? t.confirmando : t.confirmar}
                 </button>

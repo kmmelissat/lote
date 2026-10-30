@@ -13,6 +13,7 @@ export type NegocioPublico = {
   descripcion: string | null;
   whatsapp: string | null;
   usuarioInstagram: string | null;
+  usuarioFacebook: string | null;
   /** Llave general: con ella apagada no se puede pedir nada (modo catálogo) */
   apartarDesdeVitrina: boolean;
   permiteComprar: boolean;
@@ -48,6 +49,7 @@ export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Pr
     descripcion: n.descripcion,
     whatsapp: n.whatsapp,
     usuarioInstagram: n.usuario_instagram,
+    usuarioFacebook: n.usuario_facebook ?? null,
     apartarDesdeVitrina: n.apartar_desde_vitrina,
     plazoHoras: n.plazo_apartado_horas,
     // Los campos nuevos pueden no venir si todavía no se corrió ficha_producto.sql
@@ -396,6 +398,7 @@ export type IdentidadTienda = {
   color: string | null;
   whatsapp: string | null;
   usuarioInstagram: string | null;
+  usuarioFacebook: string | null;
   /** Lo que Lotito debe saber de la tienda cuando lee una foto */
   contextoIa: string | null;
 };
@@ -408,7 +411,9 @@ export async function obtenerIdentidad(supabase: Cliente, negocioId: string): Pr
     .single();
   if (error) throw error;
   const { usuario_instagram, contexto_ia, ...resto } = data;
-  return { ...resto, usuarioInstagram: usuario_instagram, contextoIa: contexto_ia };
+  // Si todavía no se corrió facebook.sql, no hay columna y cuenta como vacío
+  const { data: fb } = await supabase.from("negocio").select("usuario_facebook").eq("id", negocioId).maybeSingle();
+  return { ...resto, usuarioInstagram: usuario_instagram, usuarioFacebook: fb?.usuario_facebook ?? null, contextoIa: contexto_ia };
 }
 
 /** Solo el contexto para la IA; lo pide quien va a leer una foto. Vacío si no hay o no se pudo leer. */
@@ -445,6 +450,8 @@ export async function guardarTienda(
   if (!error) {
     // Aparte: si todavía no se corrió modos_y_zonas.sql, lo demás se guarda igual
     await supabase.from("negocio").update({ permite_comprar: a.permiteComprar, permite_apartar: a.permiteApartar }).eq("id", negocioId);
+    // Y facebook.sql: si no está la columna, este update falla callado y no pierde el resto
+    await supabase.from("negocio").update({ usuario_facebook: a.usuarioFacebook }).eq("id", negocioId);
     return "ok";
   }
   // La dirección ya la usa otra tienda

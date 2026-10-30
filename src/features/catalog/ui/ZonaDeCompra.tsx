@@ -9,7 +9,7 @@ import { textos } from "@/lib/textos";
 import { agregarAlCarrito } from "../carrito";
 import { AvisameCuandoHaya } from "./AvisameCuandoHaya";
 import { tituloDe } from "../opciones";
-import { enlaceInstagram, enlaceWhatsApp, mensajePedirProducto } from "../enlaces";
+import { enlaceFacebook, enlaceInstagram, enlaceWhatsApp, mensajePedirProducto } from "../enlaces";
 import { useFotosElegidas } from "./FotosPorVariante";
 
 const t = textos.vitrina.compra;
@@ -48,7 +48,7 @@ export function ZonaDeCompra({
   permiteComprar: boolean;
   permiteApartar: boolean;
   /** Para el modo catálogo: a quién se le escribe y qué producto se nombra en el mensaje */
-  contacto: { tienda: string; producto: string; whatsapp: string | null; instagram: string | null };
+  contacto: { tienda: string; producto: string; whatsapp: string | null; instagram: string | null; facebook?: string | null };
 }) {
   const dims = variantes[0]?.partes.length ?? 0;
   const [elegido, setElegido] = useState<(string | null)[]>(() => Array(dims).fill(null));
@@ -113,7 +113,7 @@ export function ZonaDeCompra({
     elegida?.codigo ?? 0,
     formatearDolares(precio),
   );
-  const meInteresa = enlaceWhatsApp(contacto.whatsapp, mensaje) ?? enlaceInstagram(contacto.instagram);
+  const meInteresa = enlaceWhatsApp(contacto.whatsapp, mensaje) ?? enlaceInstagram(contacto.instagram) ?? enlaceFacebook(contacto.facebook ?? null);
   const clave = `${seleccionada?.codigo ?? 0}-${unidades}`;
   const aviso = resultado?.clave === clave ? resultado.valor : null;
   const pista = faltan.length ? t.elegirPrimero(faltan.join(" y ")) : t.stockElegi;
@@ -138,7 +138,7 @@ export function ZonaDeCompra({
                       disabled={!disponible && !activo}
                       onClick={() => elegir(d, valor)}
                       className={`inline-flex min-h-11 items-center rounded-full border-2 px-5 text-sm font-bold transition-colors ${
-                        activo ? "border-teal-oscuro bg-mango text-teal-oscuro" : "border-teal-oscuro bg-crema hover:bg-limon"
+                        activo ? "border-teal-oscuro bg-teal-fondo text-teal" : "border-teal-oscuro bg-crema hover:bg-limon"
                       } ${disponible || activo ? "" : "border-teal-oscuro/30 text-texto-2 line-through opacity-60"}`}
                     >
                       {valor}
@@ -154,7 +154,7 @@ export function ZonaDeCompra({
         {/* Precio, cuántos quedan y la cantidad: lo primero que se mira al comprar */}
         <div className="flex flex-wrap items-end justify-between gap-3 border-t border-teal-oscuro/20 pt-4">
           <div className="flex flex-col gap-1">
-            <p className="text-4xl font-bold tabular-nums">
+            <p className="text-4xl font-bold tabular-nums text-teal">
               {!seleccionada && dims > 0 && Math.max(...precios) !== desde ? textos.vitrina.desde(formatearDolares(desde)) : formatearDolares(precio)}
             </p>
             {oferta && (

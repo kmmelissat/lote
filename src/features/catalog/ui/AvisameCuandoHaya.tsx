@@ -28,7 +28,7 @@ export function AvisameCuandoHaya({ slug, codigo }: { slug: string; codigo: numb
       <Honeypot />
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-bold">{t.nombre}</span>
-        <input name="nombre" autoComplete="name" required className={campoCompra} />
+        <input name="nombre" autoComplete="name" required maxLength={80} className={campoCompra} />
       </label>
       <CampoWhatsApp />
       <MensajeError>{estado.error}</MensajeError>

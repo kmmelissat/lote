@@ -113,9 +113,9 @@ export function Hoja({ titulo, cerrar, children }: { titulo: string; cerrar: () 
         aria-modal="true"
         aria-label={titulo}
         onClick={(e) => e.stopPropagation()}
-        className="w-full overflow-hidden rounded-t-[28px] border-2 border-b-0 border-teal-oscuro bg-crema"
+        className="flex max-h-[min(85dvh,100dvh-2rem)] w-full flex-col overflow-hidden rounded-t-[28px] border-2 border-b-0 border-teal-oscuro bg-crema"
       >
-        <div className="flex items-start justify-between gap-3 bg-celeste-palido px-5 pt-5 pb-4">
+        <div className="flex shrink-0 items-start justify-between gap-3 bg-celeste-palido px-5 pt-5 pb-4">
           <div className="flex min-w-0 flex-col gap-2">
             <span className="-rotate-1 self-start rounded-sm border-2 border-teal-oscuro bg-rosa px-2 py-0.5 font-logo text-[10px] tracking-widest text-teal-oscuro uppercase shadow-dura-chica">
               {t.turno}
@@ -126,8 +126,8 @@ export function Hoja({ titulo, cerrar, children }: { titulo: string; cerrar: () 
             <Icon nombre="x" className="size-5" />
           </button>
         </div>
-        <div className="border-b-2 border-dashed border-teal-oscuro" />
-        <div className="p-5 pb-10">{children}</div>
+        <div className="shrink-0 border-b-2 border-dashed border-teal-oscuro" />
+        <div className="min-h-0 overflow-y-auto p-5 pb-10">{children}</div>
       </div>
     </div>
   );

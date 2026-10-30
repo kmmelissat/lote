@@ -12,6 +12,8 @@ export type DatosMenu = {
   slug: string;
   /** Si tiene un local: entonces el menú de acción rápida ofrece el Mostrador */
   tieneLocal: boolean;
+  /** Solo la dueña configura tienda, pagos y envíos: en escritorio salen en la barra */
+  esDuena: boolean;
   perfil: { nombre: string; detalle: string; logo: string | null };
 };
 
@@ -24,6 +26,13 @@ export const pestanas: Pestana[] = [
   { href: "/clientes", etiqueta: t.clientes, icono: "clientes" },
   { href: "/ganancia", etiqueta: t.ganancia, icono: "ganancia" },
   { href: "/asistente", etiqueta: t.asistente, icono: "chat" },
+];
+
+/** Lo que se configura y se vuelve a tocar: en escritorio va en la barra, en celular en Más. */
+export const ajustesEscritorio: Pestana[] = [
+  { href: "/ajustes/tienda", etiqueta: t.tienda, icono: "tienda" },
+  { href: "/ajustes/pagos", etiqueta: t.pagos, icono: "moneda" },
+  { href: "/ajustes/envios", etiqueta: t.envios, icono: "camion" },
 ];
 
 export const CLAVE_CERRADO = "lote_menu_cerrado";

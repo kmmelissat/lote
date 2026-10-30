@@ -5,7 +5,7 @@ export function BarraGuardar({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="h-20 shrink-0 md:hidden" aria-hidden="true" />
-      <div className="barra-guardar z-20 mt-auto flex flex-wrap items-center gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema p-3 shadow-dura max-md:pr-16">
+      <div className="barra-guardar z-20 mx-auto mt-auto flex w-full max-w-sm flex-wrap items-center justify-center gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema px-4 py-3 shadow-dura">
         {children}
       </div>
     </>

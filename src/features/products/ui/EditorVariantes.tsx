@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, type ClipboardEvent, type KeyboardEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { soloNumero } from "@/lib/entrada";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 import { MAXIMO_VARIANTES_GRUPO } from "../edicionGrupo";
@@ -231,7 +232,7 @@ export function EditorVariantes({
                   <input
                     value={e.base[k]}
                     inputMode={k === "cantidad" ? "numeric" : "decimal"}
-                    onChange={(ev) => onCambio({ ...e, base: { ...e.base, [k]: ev.target.value } })}
+                    onChange={(ev) => onCambio({ ...e, base: { ...e.base, [k]: soloNumero(ev.target.value, k !== "cantidad") } })}
                     className={`${campo} bg-white tabular-nums`}
                   />
                 </label>
@@ -330,7 +331,7 @@ export function EditorVariantes({
                             inputMode={k === "cantidad" ? "numeric" : "decimal"}
                             placeholder={k === "compra" ? "–" : undefined}
                             aria-label={`${g[k]}: ${etiqueta}`}
-                            onChange={(ev) => cambiarFila(etiqueta, { [k]: ev.target.value })}
+                            onChange={(ev) => cambiarFila(etiqueta, { [k]: soloNumero(ev.target.value, k !== "cantidad") })}
                             className={`${campo} tabular-nums`}
                           />
                         </label>

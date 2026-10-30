@@ -120,6 +120,7 @@ export const vitrina = {
   pieMarca: "Vitrina hecha con",
   pedirWhatsApp: "Pedir por WhatsApp",
   pedirInstagram: "Escribir por Instagram",
+  pedirFacebook: "Escribir por Facebook",
   verTodos: "Ver todos los productos",
   seo: {
     tituloTienda: (negocio: string) => `${negocio} · Vitrina`,
@@ -164,7 +165,7 @@ export const vitrina = {
     pasos: ["Tus datos", "Entrega", "Pago"],
     paso: (n: number, total: number) => `Paso ${n} de ${total}`,
     whatsapp: "Tu WhatsApp",
-    whatsappAyuda: "Solo los números de tu WhatsApp, por ejemplo 7000 1234",
+    whatsappAyuda: "Solo los 8 números de tu WhatsApp, por ejemplo 7000 1234. El 503 ya va adelante.",
     cantidad: "Cantidad",
     cantidadMenos: "Una menos",
     cantidadMas: "Una más",

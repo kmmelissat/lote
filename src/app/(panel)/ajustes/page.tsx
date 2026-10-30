@@ -14,17 +14,9 @@ const GRUPOS: { titulo: string; opciones: Opcion[] }[] = [
   {
     titulo: textos.ajustes.grupos.negocio,
     opciones: [
-      { href: "/ajustes/tienda", icono: "tienda", tono: "bg-rosa", titulo: textos.ajustes.tienda.enlace, texto: textos.ajustes.tienda.enlaceTexto, soloDuena: true },
       { href: "/ajustes/categorias", icono: "caja", tono: "bg-rosa-palido", titulo: textos.productos.categoriasPanel.enlace, texto: textos.productos.categoriasPanel.enlaceTexto },
       { href: "/ajustes/resenas", icono: "estrella", tono: "bg-limon", titulo: textos.resenas.enlace, texto: textos.resenas.enlaceTexto },
       { href: "/ajustes/equipo", icono: "clientes", tono: "bg-teal-fondo", titulo: textos.equipo.enlace, texto: textos.equipo.enlaceTexto, soloDuena: true },
-    ],
-  },
-  {
-    titulo: textos.ajustes.grupos.ventas,
-    opciones: [
-      { href: "/ajustes/pagos", icono: "moneda", tono: "bg-mango", titulo: textos.ajustes.pagos.enlace, texto: textos.ajustes.pagos.enlaceTexto },
-      { href: "/ajustes/envios", icono: "camion", tono: "bg-limon", titulo: textos.ajustes.envios.enlace, texto: textos.ajustes.envios.enlaceTexto },
     ],
   },
   {

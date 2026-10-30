@@ -41,9 +41,9 @@ export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
       <div key={guardados.clave} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-bold">{t.nombre}</span>
-          <input name="nombre" autoComplete="name" required defaultValue={v.nombre ?? guardados.nombre} placeholder="Ana Martínez" className={campoCompra} />
+          <input name="nombre" autoComplete="name" required maxLength={80} defaultValue={v.nombre ?? guardados.nombre} placeholder="Ana Martínez" className={campoCompra} />
         </label>
-        <CampoWhatsApp defecto={guardados.telefono} />
+        <CampoWhatsApp defecto={v.contacto || guardados.telefono} />
       </div>
       <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-teal-oscuro/20 bg-white p-3">
         <input type="checkbox" name="acepta" required checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-teal" />

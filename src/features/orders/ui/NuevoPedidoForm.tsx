@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useActionState, useMemo, useState } from "react";
-import { normalizarTelefono } from "@/domain";
+import { digitosLocales, normalizarTelefono, telefonoElSalvador } from "@/domain";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
@@ -35,6 +35,16 @@ export type OpcionProducto = {
 
 const nombreCompleto = (p: OpcionProducto) => (p.variante ? `${p.nombre} (${p.variante})` : p.nombre);
 
+function presentarContacto(crudo: string): string {
+  if (telefonoElSalvador(crudo)) return digitosLocales(crudo);
+  return crudo.replace(/[^A-Za-z0-9@._]/g, "").slice(0, 60);
+}
+
+function limpiarContacto(crudo: string): string {
+  if (/[A-Za-z@]/.test(crudo)) return crudo.replace(/[^A-Za-z0-9@._]/g, "").slice(0, 60);
+  return digitosLocales(crudo);
+}
+
 const CANALES = ["instagram", "whatsapp", "presencial"] as const;
 const METODOS: { clave: "efectivo" | "transferencia" | "billetera"; icono: NombreIcono }[] = [
   { clave: "efectivo", icono: "efectivo" },
@@ -48,7 +58,7 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
   const [tipo, setTipo] = useState<"apartado" | "venta">(v.tipo === "venta" ? "venta" : "apartado");
   const [canalElegido, setCanalElegido] = useState<string | null>(v.canal ?? null);
   const [metodo, setMetodo] = useState<string>("efectivo");
-  const [contacto, setContacto] = useState(v.contacto ?? "");
+  const [contacto, setContacto] = useState(() => presentarContacto(v.contacto ?? ""));
   const [busqueda, setBusqueda] = useState("");
   // id del producto -> cantidad (solo los que están en el pedido)
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
@@ -229,15 +239,32 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
               autoComplete="off"
               defaultValue={v.cliente}
             />
-            <Field
-              etiqueta={t.contacto}
-              name="contacto"
-              autoComplete="off"
-              autoCapitalize="none"
-              maxLength={60}
-              value={contacto}
-              onChange={(e) => setContacto(e.target.value)}
-            />
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">{t.contacto}</span>
+              <span className="flex">
+                {/^\d+$/.test(contacto) && contacto.length > 0 && (
+                  <span className="flex h-12 items-center rounded-l-[14px] border-2 border-r-0 border-borde-control bg-fondo px-3 font-bold text-texto-2">
+                    +503
+                  </span>
+                )}
+                <input
+                  name="contacto"
+                  value={contacto}
+                  onChange={(e) => setContacto(limpiarContacto(e.target.value))}
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  inputMode={/^\d+$/.test(contacto) && contacto ? "numeric" : "text"}
+                  pattern={/^\d+$/.test(contacto) && contacto ? "[0-9]{8}" : "[A-Za-z0-9@._]*"}
+                  placeholder={/^\d+$/.test(contacto) && contacto ? "7000 1234" : "7000 1234 o @usuario"}
+                  title={t.contactoAyuda}
+                  className={`h-12 min-w-0 flex-1 border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal ${
+                    /^\d+$/.test(contacto) && contacto ? "rounded-r-[14px] tabular-nums" : "rounded-[14px]"
+                  }`}
+                />
+              </span>
+            </label>
           </div>
           <p className="-mt-2 text-sm text-texto-2">{t.contactoAyuda}</p>
           {esTelefono && (

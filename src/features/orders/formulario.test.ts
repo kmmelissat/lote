@@ -31,9 +31,10 @@ describe("leerPedido", () => {
   });
 
   it("solo acepta avisos por WhatsApp si el contacto es un teléfono", () => {
-    expect(leerPedido(form({ contacto: "7777 1234", acepta: "on" })).acepta).toBe(true);
-    expect(leerPedido(form({ contacto: "@ana", acepta: "on" })).acepta).toBe(false);
+    expect(leerPedido(form({ contacto: "7777 1234", acepta: "on" }))).toMatchObject({ acepta: true, contacto: "+503 77771234" });
+    expect(leerPedido(form({ contacto: "@ana", acepta: "on" }))).toMatchObject({ acepta: false, contacto: "@ana" });
     expect(leerPedido(form({ contacto: "7777 1234" })).acepta).toBe(false);
+    expect(leerPedido(form({ contacto: "123" })).contacto).toBe("");
   });
 
   it("recorta el contacto a 60 y el método de cobro desconocido se ignora", () => {

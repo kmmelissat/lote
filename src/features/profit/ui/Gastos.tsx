@@ -5,6 +5,7 @@ import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { CATEGORIAS_GASTO, type CategoriaGasto } from "@/domain/index";
 import type { Gasto } from "../repositorio";
+import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { agregarGasto, quitarGasto, type EstadoGasto } from "../actions/gastos";
@@ -73,7 +74,17 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
               <span aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-texto-2">
                 $
               </span>
-              <input name="monto" inputMode="decimal" required autoComplete="off" placeholder="5.00" className={`${campo} pl-8 tabular-nums`} />
+              <input
+                name="monto"
+                inputMode="decimal"
+                required
+                autoComplete="off"
+                placeholder="5.00"
+                onChange={(e) => {
+                  e.target.value = soloNumero(e.target.value, true);
+                }}
+                className={`${campo} pl-8 tabular-nums`}
+              />
             </span>
           </label>
 

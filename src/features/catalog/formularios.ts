@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { telefonoElSalvador } from "@/domain";
 import { esDepartamento } from "@/lib/departamentos";
 import { textos } from "@/lib/textos";
 import { MAX_CANTIDAD, MAX_LINEAS } from "./carritoReglas";
@@ -12,7 +13,11 @@ const c = textos.vitrina.compra;
 const METODOS_DE_PAGO = ["transferencia", "billetera", "efectivo", "contra_entrega"] as const;
 
 const nombre = z.string().trim().min(1, t.errorNombre).max(80, t.errorNombre);
-const contacto = z.string().trim().min(3, t.errorContacto).max(80, t.errorContacto);
+const contacto = z
+  .string()
+  .trim()
+  .refine((c) => telefonoElSalvador(c) !== null, t.errorContacto)
+  .transform((c) => telefonoElSalvador(c)!);
 const acepta = z.literal("on", { error: t.errorAcepta });
 const cantidad = z.coerce.number({ error: t.errorCantidad }).int(t.errorCantidad).min(1, t.errorCantidad).max(MAX_CANTIDAD, t.errorCantidad);
 

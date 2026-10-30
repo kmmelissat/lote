@@ -74,9 +74,23 @@ export function decidirEnvio(e: {
 export function normalizarTelefono(crudo: string): string | null {
   const digitos = crudo.replace(/[\s\-().+]/g, "");
   if (!/^\d+$/.test(digitos)) return null;
-  if (digitos.length === 8) return `503${digitos}`;
+  // 8 dígitos que empiezan con 503 son el código a medias, no un celular: si no, quedaría 503503…
+  if (digitos.length === 8 && !digitos.startsWith("503")) return `503${digitos}`;
   if (digitos.length === 11 && digitos.startsWith("503")) return digitos;
   return null;
+}
+
+/** Los 8 dígitos locales, sin el 503. Si pegan el número completo, el 503 se quita. */
+export function digitosLocales(crudo: string): string {
+  let d = crudo.replace(/\D/g, "");
+  if (d.startsWith("503") && d.length > 3) d = d.slice(3);
+  return d.slice(0, 8);
+}
+
+/** Como se guarda y se muestra: "+503" y los 8 dígitos. Null si no es de El Salvador. */
+export function telefonoElSalvador(crudo: string): string | null {
+  const n = normalizarTelefono(crudo);
+  return n ? `+503 ${n.slice(3)}` : null;
 }
 
 /** Llave que evita mandar dos veces el mismo aviso (el cron puede correr más de una vez). */

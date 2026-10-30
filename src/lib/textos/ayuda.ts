@@ -46,7 +46,7 @@ export const ayuda = {
       donde: ["/pedidos"],
       pregunta: "¿Qué pasa cuando alguien aparta desde mi vitrina?",
       respuesta:
-        "El producto deja de estar disponible al instante y el cliente ve tus datos de pago y el tiempo que tiene para pagar. Si no paga a tiempo, el apartado vence solo y el producto vuelve a estar disponible. El plazo y el límite por persona se cambian en Ajustes, en Mi tienda.",
+        "El producto deja de estar disponible al instante y el cliente ve tus datos de pago y el tiempo que tiene para pagar. Si no paga a tiempo, el apartado vence solo y el producto vuelve a estar disponible. El plazo y el límite por persona se cambian en Mi tienda.",
     },
     {
       id: "cobrar",
@@ -54,7 +54,7 @@ export const ayuda = {
       donde: ["/pedidos"],
       pregunta: "¿Cómo le cobro a un cliente?",
       respuesta:
-        "Abrí el pedido y tocá Copiar mensaje de cobro: arma el total, tus datos de pago y el plazo, listo para pegar en el chat. Cuando pague, registrá el pago o el abono en el mismo pedido. Los datos de pago se cargan en Ajustes.",
+        "Abrí el pedido y tocá Copiar mensaje de cobro: arma el total, tus datos de pago y el plazo, listo para pegar en el chat. Cuando pague, registrá el pago o el abono en el mismo pedido. Los datos de pago se cargan en Datos de pago.",
     },
     {
       id: "ganancia",
@@ -124,7 +124,7 @@ export const ayuda = {
       donde: ["/ajustes"],
       pregunta: "¿Mis productos salen en el Marketplace?",
       respuesta:
-        "Solo si vos querés. En Ajustes, en Mi tienda, está el interruptor del Marketplace y empieza apagado. Cuando lo prendés, tus productos aparecen junto a los de otras tiendas.",
+        "Solo si vos querés. En Mi tienda está el interruptor del Marketplace y empieza apagado. Cuando lo prendés, tus productos aparecen junto a los de otras tiendas.",
     },
     {
       id: "lotito_foto",

@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Icon } from "@/components/ui/Icon";
+import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { CerrarSesion } from "@/features/auth/ui/CerrarSesion";
 import { textos } from "@/lib/textos";
 import { escribiendoEnCampo } from "./acciones";
 import { ListaAcciones } from "./AccionRapida";
-import { CLAVE_CERRADO, EVENTO_MENU, menuCerrado, pestanas, suscribirMenu, type DatosMenu } from "./menu";
+import { CLAVE_CERRADO, EVENTO_MENU, ajustesEscritorio, menuCerrado, pestanas, suscribirMenu, type DatosMenu } from "./menu";
 import { MenuEscritorio } from "./MenuEscritorio";
 import { BarraMovil, Hoja } from "./MenuMovil";
 import { Paleta } from "./Paleta";
+import { AbrirVitrina } from "./PiezasMenu";
 
 export type { DatosMenu };
 
@@ -74,45 +75,55 @@ export function Nav({ datos }: { datos: DatosMenu }) {
       )}
       {mas && (
         <Hoja titulo={t.masTitulo} cerrar={() => setMas(false)}>
-          <ul className="flex flex-col gap-1">
-            {[
-              pestanas[3],
-              pestanas[4],
-              pestanas[5],
-              { href: textos.ayuda.ruta, etiqueta: t.ayuda, icono: "info" as const },
-              { href: "/ajustes", etiqueta: t.ajustes, icono: "ajustes" as const },
-            ].map((p) => (
-              <li key={p.href}>
-                <Link href={p.href} className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
-                  <Icon nombre={p.icono} className="size-6 shrink-0 text-teal" />
-                  {p.etiqueta}
+          <div className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-1">
+              {[pestanas[3], pestanas[4], pestanas[5]].map((p) => (
+                <li key={p.href}>
+                  <EnlaceHoja href={p.href} etiqueta={p.etiqueta} icono={p.icono} />
+                </li>
+              ))}
+            </ul>
+            {datos.esDuena ? (
+              <div>
+                <Link
+                  href="/ajustes"
+                  className="flex min-h-11 items-center px-2 text-[10px] font-logo tracking-widest text-texto-2 uppercase hover:text-teal"
+                >
+                  {t.ajustes}
                 </Link>
-              </li>
-            ))}
-            {datos.slug && (
-              <li>
-                <Link href={`/c/${datos.slug}`} target="_blank" className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
-                  <Icon nombre="tienda" className="size-6 shrink-0 text-teal" />
-                  {t.vitrina}
-                  <Icon nombre="enlace" className="size-4 text-texto-2" />
-                </Link>
-              </li>
+                <ul className="flex flex-col gap-1">
+                  {ajustesEscritorio.map((p) => (
+                    <li key={p.href} className="flex items-center">
+                      <EnlaceHoja href={p.href} etiqueta={p.etiqueta} icono={p.icono} />
+                      {p.href === "/ajustes/tienda" && datos.slug ? <AbrirVitrina slug={datos.slug} /> : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <EnlaceHoja href="/ajustes" etiqueta={t.ajustes} icono="ajustes" />
             )}
-            <li>
-              <Link href="/marketplace" target="_blank" className="flex min-h-12 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70">
-                <Icon nombre="buscar" className="size-6 shrink-0 text-teal" />
-                {t.explorar}
-                <Icon nombre="enlace" className="size-4 text-texto-2" />
-              </Link>
-            </li>
-            <li>
-              <CerrarSesion variante="menu" />
-            </li>
-          </ul>
+            <ul className="flex flex-col gap-1">
+              <li>
+                <EnlaceHoja href={textos.ayuda.ruta} etiqueta={t.ayuda} icono="info" />
+              </li>
+              {datos.slug && !datos.esDuena && (
+                <li>
+                  <EnlaceHoja href={`/c/${datos.slug}`} etiqueta={t.vitrina} icono="tienda" externo />
+                </li>
+              )}
+              <li>
+                <EnlaceHoja href="/marketplace" etiqueta={t.explorar} icono="buscar" externo />
+              </li>
+              <li>
+                <CerrarSesion variante="menu" />
+              </li>
+            </ul>
+          </div>
         </Hoja>
       )}
 
-      {paleta && <Paleta cerrar={() => setPaleta(false)} tieneLocal={datos.tieneLocal} />}
+      {paleta && <Paleta cerrar={() => setPaleta(false)} tieneLocal={datos.tieneLocal} esDuena={datos.esDuena} />}
 
       <MenuEscritorio
         datos={datos}
@@ -123,5 +134,30 @@ export function Nav({ datos }: { datos: DatosMenu }) {
         setRapida={setRapida}
       />
     </>
+  );
+}
+
+function EnlaceHoja({
+  href,
+  etiqueta,
+  icono,
+  externo = false,
+}: {
+  href: string;
+  etiqueta: string;
+  icono: NombreIcono;
+  externo?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      target={externo ? "_blank" : undefined}
+      rel={externo ? "noreferrer" : undefined}
+      className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-xl px-2 font-medium hover:bg-white/70"
+    >
+      <Icon nombre={icono} className="size-6 shrink-0 text-teal" />
+      {etiqueta}
+      {externo && <Icon nombre="enlace" className="size-4 text-texto-2" />}
+    </Link>
   );
 }

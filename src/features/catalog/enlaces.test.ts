@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { enlaceInstagram, enlaceWhatsApp, mensajePedirProducto } from "./enlaces";
+import { enlaceFacebook, enlaceInstagram, enlaceWhatsApp, facebookDe, mensajePedirProducto } from "./enlaces";
 
 describe("enlaceWhatsApp", () => {
   it("deja solo los dígitos del número y codifica el mensaje", () => {
@@ -24,6 +24,27 @@ describe("enlaceInstagram", () => {
     expect(enlaceInstagram("ana/../x")).toBeNull();
     expect(enlaceInstagram("")).toBeNull();
     expect(enlaceInstagram(null)).toBeNull();
+  });
+});
+
+describe("facebookDe", () => {
+  it("acepta el usuario, el arroba o el enlace de la página", () => {
+    expect(facebookDe("velvet.sv")).toBe("velvet.sv");
+    expect(facebookDe("@velvet.sv")).toBe("velvet.sv");
+    expect(facebookDe("https://www.facebook.com/velvet.sv")).toBe("velvet.sv");
+    expect(facebookDe("facebook.com/velvet.sv/")).toBe("velvet.sv");
+  });
+
+  it("guarda el id cuando la página no tiene usuario", () => {
+    expect(facebookDe("https://www.facebook.com/profile.php?id=100063123456789")).toBe("profile.php?id=100063123456789");
+  });
+});
+
+describe("enlaceFacebook", () => {
+  it("arma el enlace de la página", () => {
+    expect(enlaceFacebook("velvet.sv")).toBe("https://www.facebook.com/velvet.sv");
+    expect(enlaceFacebook("con espacio")).toBeNull();
+    expect(enlaceFacebook(null)).toBeNull();
   });
 });
 

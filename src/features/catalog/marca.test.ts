@@ -1,33 +1,59 @@
 import { describe, expect, it } from "vitest";
-import { COLORES_MARCA, COLOR_POR_DEFECTO, colorDeMarca, estiloDeMarca } from "./marca";
-
-function luminancia(hex: string) {
-  const [r, g, b] = [1, 3, 5].map((i) => {
-    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
+import {
+  COLORES_MARCA,
+  COLOR_POR_DEFECTO,
+  TEXTO_OSCURO,
+  colorDeMarca,
+  contraste,
+  estiloDeMarca,
+  textoSobre,
+  tonoDeEnlace,
+} from "./marca";
 
 describe("colores de marca", () => {
-  it("todos dan al menos 4.5 a 1 con texto blanco", () => {
+  it("el texto elegido da al menos 4.5 a 1 sobre cada color de la paleta", () => {
     for (const { hex, nombre } of COLORES_MARCA) {
-      expect(1.05 / (luminancia(hex) + 0.05), nombre).toBeGreaterThanOrEqual(4.5);
+      expect(contraste(hex, textoSobre(hex)), nombre).toBeGreaterThanOrEqual(4.5);
     }
   });
 
-  it("un color fuera de la paleta o ausente cae en el de Lote", () => {
-    expect(colorDeMarca("#ff00ff")).toBe(COLOR_POR_DEFECTO);
+  it("en los claros usa letra oscura, en los oscuros crema o blanca", () => {
+    expect(textoSobre("#ffe27a")).toBe(TEXTO_OSCURO);
+    expect(textoSobre("#8fd6f4")).toBe(TEXTO_OSCURO);
+    expect(textoSobre("#ff9a2e")).toBe(TEXTO_OSCURO);
+    expect(textoSobre("#ffffff")).toBe(TEXTO_OSCURO);
+    expect(textoSobre("#003844")).not.toBe(TEXTO_OSCURO);
+    expect(textoSobre("#007f77")).not.toBe(TEXTO_OSCURO);
+  });
+
+  it("un hex válido se respeta aunque no esté en la paleta", () => {
+    expect(colorDeMarca("#ff00ff")).toMatchObject({ id: "propio", hex: "#ff00ff" });
+    expect(colorDeMarca("#FF9A2E").id).toBe("mango");
+  });
+
+  it("ausente o inválido cae en el de Lote", () => {
     expect(colorDeMarca(null)).toBe(COLOR_POR_DEFECTO);
+    expect(colorDeMarca("rojo")).toBe(COLOR_POR_DEFECTO);
+    expect(colorDeMarca("#fff")).toBe(COLOR_POR_DEFECTO);
   });
 
   it("los botones principales usan el color de la tienda si eligió uno, y el mango de Lote si no", () => {
-    expect(estiloDeMarca("#db2777")).toMatchObject({ "--color-accion": "#db2777", "--color-accion-texto": "#ffffff" });
+    expect(estiloDeMarca("#ff9a2e")).toMatchObject({
+      "--color-accion": "#ff9a2e",
+      "--color-accion-texto": TEXTO_OSCURO,
+    });
+    expect(estiloDeMarca("#ff9a2e")).not.toHaveProperty("--color-teal-oscuro");
     expect(estiloDeMarca(null)).not.toHaveProperty("--color-accion");
-    expect(estiloDeMarca("#ff00ff")).not.toHaveProperty("--color-accion");
+    expect(estiloDeMarca("rojo")).not.toHaveProperty("--color-accion");
   });
 
   it("reconoce uno de la paleta", () => {
     expect(colorDeMarca("#db2777").id).toBe("rosa");
+    expect(colorDeMarca("#ff9a2e").id).toBe("mango");
+  });
+
+  it("el tono para enlaces se lee sobre blanco", () => {
+    expect(contraste(tonoDeEnlace("#ffe27a"), "#ffffff")).toBeGreaterThanOrEqual(4.5);
+    expect(tonoDeEnlace("#007f77")).toBe("#007f77");
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { avisoCaducado, claveDeAviso, decidirEnvio, normalizarTelefono, ventanaAbierta } from "./avisos";
+import { avisoCaducado, claveDeAviso, decidirEnvio, digitosLocales, normalizarTelefono, telefonoElSalvador, ventanaAbierta } from "./avisos";
 
 const ahora = new Date("2026-10-27T12:00:00Z");
 const hace = (h: number) => new Date(ahora.getTime() - h * 3_600_000);
@@ -66,6 +66,15 @@ describe("normalizarTelefono", () => {
     expect(normalizarTelefono("@ana")).toBeNull();
     expect(normalizarTelefono("12345")).toBeNull();
     expect(normalizarTelefono("")).toBeNull();
+    expect(normalizarTelefono("50370001")).toBeNull();
+    expect(normalizarTelefono("+1 202 555 1234")).toBeNull();
+  });
+  it("separa los 8 dígitos locales y arma el +503", () => {
+    expect(digitosLocales("+503 7000 1234")).toBe("70001234");
+    expect(digitosLocales("7000-1234")).toBe("70001234");
+    expect(digitosLocales("5037")).toBe("7");
+    expect(telefonoElSalvador("7000 1234")).toBe("+503 70001234");
+    expect(telefonoElSalvador("abc")).toBeNull();
   });
 });
 

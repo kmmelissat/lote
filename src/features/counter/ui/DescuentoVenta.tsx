@@ -1,3 +1,4 @@
+import { soloNumero } from "@/lib/entrada";
 import { textos } from "@/lib/textos";
 import type { Descuento } from "@/domain";
 
@@ -42,7 +43,7 @@ export function DescuentoVenta({
         <input
           inputMode="decimal"
           value={texto}
-          onChange={(e) => cambiarTexto(e.target.value)}
+          onChange={(e) => cambiarTexto(soloNumero(e.target.value, true))}
           aria-label={t.descuentoValor}
           aria-invalid={invalido || undefined}
           placeholder={tipo === "monto" ? "$0.00" : "10 %"}

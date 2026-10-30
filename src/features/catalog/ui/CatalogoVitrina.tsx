@@ -55,7 +55,7 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
 
   const chip = (activo: boolean) =>
     `inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors ${
-      activo ? "bg-mango text-teal-oscuro" : "bg-crema hover:bg-limon"
+      activo ? "bg-teal-fondo text-teal" : "bg-crema hover:bg-limon"
     }`;
 
   return (
@@ -177,7 +177,7 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
                   </div>
                   <div className="flex flex-1 flex-col items-start gap-1 px-2">
                     <p className="line-clamp-2 font-bold leading-tight">{p.nombre}</p>
-                    <p className="text-lg font-bold tabular-nums">
+                    <p className="text-lg font-bold tabular-nums text-teal">
                       {p.precioMinimo === p.precioMaximo ? formatearDolares(p.precioMinimo) : t.desde(formatearDolares(p.precioMinimo))}
                     </p>
                     <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">

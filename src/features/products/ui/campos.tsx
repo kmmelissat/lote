@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, type ComponentProps, type KeyboardEvent, type ReactNode } from "react";
+import { limpiarSiNumero, soloNumero } from "@/lib/entrada";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos.form;
@@ -60,6 +61,7 @@ export function Campo({
   lotito,
   trabajando,
   className = "",
+  onChange,
   ...props
 }: {
   etiqueta: string;
@@ -80,6 +82,10 @@ export function Campo({
         aria-describedby={error ? `${id}-error` : undefined}
         className={`${estiloCampo} ${trabajando ? "animate-pulse bg-limon/40" : ""} ${lotito ? "border-teal-oscuro bg-limon/20" : ""} ${className}`}
         {...props}
+        onChange={(e) => {
+          e.target.value = limpiarSiNumero(e.target.value, props.inputMode, props.type);
+          onChange?.(e);
+        }}
       />
       <MensajeCampo id={`${id}-error`}>{error}</MensajeCampo>
     </div>
@@ -91,6 +97,7 @@ export function CampoDinero({
   etiqueta,
   error,
   requerido,
+  onChange,
   ...props
 }: { etiqueta: string; error?: string; requerido?: boolean } & Omit<ComponentProps<"input">, "type">) {
   const id = useId();
@@ -111,6 +118,10 @@ export function CampoDinero({
           aria-describedby={error ? `${id}-error` : undefined}
           className={`${estiloCampo} pl-8 tabular-nums`}
           {...props}
+          onChange={(e) => {
+            e.target.value = soloNumero(e.target.value, true);
+            onChange?.(e);
+          }}
         />
       </div>
       <MensajeCampo id={`${id}-error`}>{error}</MensajeCampo>
@@ -151,7 +162,7 @@ export function Cantidad({
           name={name}
           inputMode="numeric"
           value={valor}
-          onChange={(e) => onCambio(e.target.value)}
+          onChange={(e) => onCambio(soloNumero(e.target.value, false))}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${id}-error` : undefined}
           className="h-full min-w-0 flex-1 bg-transparent text-center text-base font-bold tabular-nums outline-none"

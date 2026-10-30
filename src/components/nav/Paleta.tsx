@@ -6,6 +6,7 @@ import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { buscarEnLote, type ResultadosBusqueda } from "@/features/search/actions/buscar";
 import { textos } from "@/lib/textos";
 import { accionesDe, PANTALLAS } from "./acciones";
+import { ajustesEscritorio } from "./menu";
 
 const t = textos.nav.paleta;
 
@@ -14,7 +15,7 @@ type Opcion = { clave: string; grupo: string; titulo: string; detalle?: string; 
 const normalizar = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 /** El buscador de todo (⌘K): acciones y pantallas al instante, y productos, clientes y pedidos mientras escribís. */
-export function Paleta({ cerrar, tieneLocal }: { cerrar: () => void; tieneLocal: boolean }) {
+export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; tieneLocal: boolean; esDuena: boolean }) {
   const router = useRouter();
   const [consulta, setConsulta] = useState("");
   const [encontrado, setEncontrado] = useState<ResultadosBusqueda | null>(null);
@@ -53,6 +54,7 @@ export function Paleta({ cerrar, tieneLocal }: { cerrar: () => void; tieneLocal:
     const locales: Opcion[] = [
       ...accionesDe(tieneLocal).map((a) => ({ clave: `a-${a.href}`, grupo: textos.nav.rapida.titulo, titulo: a.etiqueta, href: a.href, icono: a.icono })),
       ...PANTALLAS.map((p) => ({ clave: `p-${p.href}`, grupo: t.acciones, titulo: p.etiqueta, href: p.href, icono: p.icono })),
+      ...(esDuena ? ajustesEscritorio.map((p) => ({ clave: `p-${p.href}`, grupo: textos.nav.ajustes, titulo: p.etiqueta, href: p.href, icono: p.icono })) : []),
     ].filter((o) => !q || normalizar(o.titulo).includes(q));
     const remotos: Opcion[] =
       q.length >= 2 && encontrado
@@ -63,7 +65,7 @@ export function Paleta({ cerrar, tieneLocal }: { cerrar: () => void; tieneLocal:
           ]
         : [];
     return [...remotos, ...locales];
-  }, [consulta, encontrado, tieneLocal]);
+  }, [consulta, encontrado, tieneLocal, esDuena]);
 
   const ir = (o: Opcion) => {
     cerrar();

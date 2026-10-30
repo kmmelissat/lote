@@ -14,6 +14,43 @@ export function enlaceInstagram(usuario: string | null): string | null {
   return /^[A-Za-z0-9._]{1,30}$/.test(limpio) ? `https://ig.me/m/${limpio}` : null;
 }
 
+const FACEBOOK_RESERVADO = new Set(["pages", "watch", "reel", "groups", "share", "events", "marketplace", "photo", "video", "login", "dialog"]);
+
+/** Deja el usuario o el camino de la página, aunque peguen el enlace completo. */
+export function facebookDe(entrada: string): string {
+  const crudo = entrada.trim();
+  if (!crudo) return "";
+  const esEnlace =
+    /^(https?:\/\/)?((www|m)\.)?(facebook|fb)\.com(\/|$)/i.test(crudo) || /^(https?:\/\/)?(m|fb)\.me(\/|$)/i.test(crudo);
+  if (!esEnlace) return crudo.replace(/^@/, "");
+  try {
+    const url = new URL(/^https?:\/\//i.test(crudo) ? crudo : `https://${crudo}`);
+    const host = url.hostname.replace(/^www\./, "");
+    if (host === "m.me" || host === "fb.me") return url.pathname.replace(/^\/+|\/+$/g, "");
+    const sitio = host.replace(/^m\./, "");
+    if (sitio !== "facebook.com" && sitio !== "fb.com") return "";
+    const id = url.searchParams.get("id");
+    if (/\/profile\.php$/i.test(url.pathname) && id && /^\d{5,20}$/.test(id)) return `profile.php?id=${id}`;
+    const partes = url.pathname.replace(/^\/+|\/+$/g, "");
+    if (/^people\/[^/]+\/\d+$/i.test(partes)) return partes;
+    const usuario = decodeURIComponent(partes.split("/")[0] ?? "").replace(/^@/, "");
+    return usuario && !FACEBOOK_RESERVADO.has(usuario.toLowerCase()) ? usuario : "";
+  } catch {
+    return "";
+  }
+}
+
+export function esFacebook(usuario: string): boolean {
+  if (/^profile\.php\?id=\d{5,20}$/.test(usuario)) return true;
+  if (/^people\/[^/\s]+\/\d{5,20}$/.test(usuario)) return true;
+  return /^[A-Za-z0-9._-]{1,50}$/.test(usuario);
+}
+
+export function enlaceFacebook(usuario: string | null): string | null {
+  const limpio = facebookDe(usuario ?? "");
+  return limpio && esFacebook(limpio) ? `https://www.facebook.com/${limpio}` : null;
+}
+
 export function mensajePedirVitrina(negocio: string): string {
   return t.mensajeVitrina(negocio);
 }

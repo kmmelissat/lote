@@ -291,6 +291,7 @@ export async function PaginaExplorar({
                         <input
                           name="min"
                           inputMode="decimal"
+                          pattern="\d*([.,]\d{0,2})?"
                           defaultValue={min}
                           placeholder="$0"
                           className={campo}
@@ -301,6 +302,7 @@ export async function PaginaExplorar({
                         <input
                           name="max"
                           inputMode="decimal"
+                          pattern="\d*([.,]\d{0,2})?"
                           defaultValue={max}
                           placeholder="$100"
                           className={campo}

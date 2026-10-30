@@ -12,11 +12,13 @@ export function MarcaTienda({ color, children }: { color: string | null; childre
 /** El logo de la tienda, o la inicial del nombre sobre el color de marca si no subió uno. */
 export function LogoTienda({ logo, nombre, className = "size-14" }: { logo: string | null; nombre: string; className?: string }) {
   return logo ? (
-    <Image src={urlFoto(logo)} alt={textos.vitrina.logoDe(nombre)} width={112} height={112} className={`${className} shrink-0 rounded-2xl object-cover`} />
+    <span className={`${className} relative block aspect-square shrink-0 overflow-hidden rounded-2xl`}>
+      <Image src={urlFoto(logo)} alt={textos.vitrina.logoDe(nombre)} fill sizes="96px" className="object-cover" />
+    </span>
   ) : (
     <span
       aria-hidden="true"
-      className={`${className} flex shrink-0 items-center justify-center rounded-2xl bg-teal text-2xl font-bold text-white`}
+      className={`${className} flex shrink-0 items-center justify-center rounded-2xl bg-accion text-2xl font-bold text-accion-texto`}
     >
       {nombre.trim().charAt(0).toUpperCase() || "L"}
     </span>

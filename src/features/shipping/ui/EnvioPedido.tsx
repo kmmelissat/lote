@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { TARJETA } from "@/components/ui/tarjeta";
+import { CampoTelefono } from "@/components/ui/CampoTelefono";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
@@ -120,7 +121,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
             <>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field etiqueta={t.nombre} name="nombre" defaultValue={envio?.nombre ?? cliente ?? ""} />
-                <Field etiqueta={t.telefono} name="telefono" inputMode="tel" defaultValue={envio?.telefono ?? ""} />
+                <CampoTelefono etiqueta={t.telefono} name="telefono" defaultValue={envio?.telefono ?? ""} ayuda={t.errorTelefono} />
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">{t.departamento}</span>
                   <Select

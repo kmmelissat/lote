@@ -11,6 +11,7 @@ const SIN_DATOS: DatosMenu = {
   pasos: null,
   slug: "",
   tieneLocal: false,
+  esDuena: false,
   perfil: { nombre: textos.perfil.nombre, detalle: textos.perfil.detalle, logo: null },
 };
 
@@ -37,6 +38,7 @@ export async function NavConDatos() {
     // Sin vitrina no hay enlace que mostrar
     slug: negocio.vitrinaActiva ? negocio.slug : "",
     tieneLocal: negocio.tieneLocal,
+    esDuena: negocio.rol === "duena",
     perfil: {
       nombre: negocio.nombre || textos.perfil.nombre,
       detalle: textos.perfil.roles[negocio.rol] ?? textos.perfil.detalle,

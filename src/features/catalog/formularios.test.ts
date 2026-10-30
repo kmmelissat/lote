@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { apartarSchema, comprarCarritoSchema, comprarSchema, leerFormulario } from "./formularios";
 
-const persona = { nombre: "Ana Martínez", contacto: "+503 7000 0000", acepta: "on" };
+const persona = { nombre: "Ana Martínez", contacto: "+503 70000000", acepta: "on" };
 
 describe("apartar", () => {
   it("acepta datos buenos y convierte la cantidad", () => {
@@ -18,6 +18,21 @@ describe("apartar", () => {
   it("rechaza cantidades que no son enteras o pasan del tope", () => {
     expect(leerFormulario(apartarSchema, { ...persona, cantidad: "1.5" }).ok).toBe(false);
     expect(leerFormulario(apartarSchema, { ...persona, cantidad: "21" }).ok).toBe(false);
+  });
+
+  it("deja el WhatsApp con 503 y solo números", () => {
+    const r = leerFormulario(apartarSchema, { ...persona, contacto: "+503 7000-0000", cantidad: "1" });
+    expect(r).toMatchObject({ ok: true, datos: { contacto: "+503 70000000" } });
+    expect(leerFormulario(apartarSchema, { ...persona, contacto: "70000000", cantidad: "1" })).toMatchObject({
+      ok: true,
+      datos: { contacto: "+503 70000000" },
+    });
+  });
+
+  it("rechaza un contacto que no es un WhatsApp de El Salvador", () => {
+    expect(leerFormulario(apartarSchema, { ...persona, contacto: "@ana", cantidad: "1" }).ok).toBe(false);
+    expect(leerFormulario(apartarSchema, { ...persona, contacto: "123", cantidad: "1" }).ok).toBe(false);
+    expect(leerFormulario(apartarSchema, { ...persona, contacto: "+1 202 555 1234", cantidad: "1" }).ok).toBe(false);
   });
 
   it("exige aceptar los avisos", () => {

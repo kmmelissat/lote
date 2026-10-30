@@ -11,6 +11,23 @@ import { useCerrarAfuera } from "./useCerrarAfuera";
 
 const t = textos.nav;
 
+/** Abre la vitrina pública en otra pestaña. Va al lado de Mi tienda. */
+export function AbrirVitrina({ slug, className }: { slug: string; className?: string }) {
+  return (
+    <Link
+      href={`/c/${slug}`}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={t.verVitrina}
+      title={t.verVitrina}
+      className={className ?? "flex size-11 shrink-0 items-center justify-center text-texto-2 hover:text-teal"}
+    >
+      <Icon nombre="enlace" className="size-4" />
+      <span className="sr-only">{textos.explorar.sobre.nuevaPestana}</span>
+    </Link>
+  );
+}
+
 export function Insignia({ n, urgente }: { n: number; urgente: boolean }) {
   if (n === 0) return null;
   return (

@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/Icon";
+import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { ICONO_METODO, METODOS } from "../mostrador";
@@ -53,7 +54,7 @@ export function MetodoDeCobro({
             id="recibido"
             inputMode="decimal"
             value={recibido}
-            onChange={(e) => cambiarRecibido(e.target.value)}
+            onChange={(e) => cambiarRecibido(soloNumero(e.target.value, true))}
             placeholder="$0.00"
             className="h-12 rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal"
           />

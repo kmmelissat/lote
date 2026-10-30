@@ -5,8 +5,8 @@ import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
 import { AccionRapida } from "./AccionRapida";
-import { activaEn, pestanas, type DatosMenu } from "./menu";
-import { Buscar, Insignia, PrimerosPasos, TarjetaPerfil } from "./PiezasMenu";
+import { activaEn, ajustesEscritorio, pestanas, type DatosMenu, type Pestana } from "./menu";
+import { AbrirVitrina, Buscar, Insignia, PrimerosPasos, TarjetaPerfil } from "./PiezasMenu";
 import { ConRuta } from "./RutaActiva";
 
 const t = textos.nav;
@@ -19,6 +19,48 @@ export type PropsEscritorio = {
   rapida: boolean;
   setRapida: (v: boolean | ((r: boolean) => boolean)) => void;
 };
+
+function ListaPestanas({
+  items,
+  ruta,
+  porAtender = 0,
+  urgente = false,
+  slug = "",
+}: {
+  items: Pestana[];
+  ruta: string | null;
+  porAtender?: number;
+  urgente?: boolean;
+  slug?: string;
+}) {
+  return (
+    <ul className="flex flex-col">
+      {items.map((p) => {
+        const activa = ruta !== null && activaEn(ruta, p.href);
+        const vitrina = p.href === "/ajustes/tienda" && slug;
+        return (
+          <li key={p.href} className="flex items-center border-b border-dashed border-teal-oscuro/30">
+            <Link
+              href={p.href}
+              aria-current={activa ? "page" : undefined}
+              title={p.etiqueta}
+              className={`flex min-h-12 min-w-0 flex-1 items-center gap-3 px-1 text-sm group-data-[cerrado]:justify-center ${
+                activa ? "font-bold text-teal-oscuro" : "font-medium text-texto-2 hover:text-teal"
+              }`}
+            >
+              <Icon nombre={p.icono} className="size-5 shrink-0" />
+              <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">
+                <span className={activa ? "underline decoration-rosa decoration-2 underline-offset-2" : undefined}>{p.etiqueta}</span>
+              </span>
+              {p.href === "/pedidos" && <Insignia n={porAtender} urgente={urgente} />}
+            </Link>
+            {vitrina && <AbrirVitrina slug={slug} className="flex size-11 shrink-0 items-center justify-center text-texto-2 hover:text-teal group-data-[cerrado]:hidden" />}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 /** Escritorio: ticket de mercado, flotando a la izquierda. */
 export function MenuEscritorio({ datos, cerrado, alternarMenu, abrirPaleta, rapida, setRapida }: PropsEscritorio) {
@@ -65,35 +107,33 @@ export function MenuEscritorio({ datos, cerrado, alternarMenu, abrirPaleta, rapi
         <div className="border-b-2 border-dashed border-teal-oscuro" />
         <div className="flex min-h-0 flex-1 flex-col gap-3 py-4 pl-6 pr-5">
           <AccionRapida abierta={rapida} alternar={(abrir) => setRapida((r) => abrir ?? !r)} tieneLocal={datos.tieneLocal} />
-          <nav aria-label="Principal" className="min-h-0 flex-1 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <ConRuta
               hijos={(ruta) => (
-                <ul className="flex flex-col">
-                  {pestanas.map((p) => {
-                    const activa = ruta !== null && activaEn(ruta, p.href);
-                    return (
-                      <li key={p.href} className="border-b border-dashed border-teal-oscuro/30">
-                        <Link
-                          href={p.href}
-                          aria-current={activa ? "page" : undefined}
-                          title={p.etiqueta}
-                          className={`flex min-h-12 items-center gap-3 px-1 text-sm group-data-[cerrado]:justify-center ${
-                            activa ? "font-bold text-teal-oscuro" : "font-medium text-texto-2 hover:text-teal"
-                          }`}
-                        >
-                          <Icon nombre={p.icono} className="size-5 shrink-0" />
-                          <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">
-                            <span className={activa ? "underline decoration-rosa decoration-2 underline-offset-2" : undefined}>{p.etiqueta}</span>
-                          </span>
-                          {p.href === "/pedidos" && <Insignia n={datos.porAtender} urgente={datos.urgente} />}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <>
+                  <nav aria-label="Principal">
+                    <ListaPestanas items={pestanas} ruta={ruta} porAtender={datos.porAtender} urgente={datos.urgente} />
+                  </nav>
+                  {datos.esDuena && (
+                    <nav aria-label={t.ajustes} className="mt-4">
+                      <Link
+                        href="/ajustes"
+                        aria-current={ruta === "/ajustes" ? "page" : undefined}
+                        title={t.ajustes}
+                        className={`flex min-h-11 items-center px-1 text-[10px] font-logo tracking-widest uppercase group-data-[cerrado]:min-h-12 group-data-[cerrado]:justify-center ${
+                          ruta === "/ajustes" ? "font-bold text-teal-oscuro" : "text-texto-2 hover:text-teal"
+                        }`}
+                      >
+                        <span className="group-data-[cerrado]:hidden">{t.ajustes}</span>
+                        <Icon nombre="ajustes" className="hidden size-5 group-data-[cerrado]:block" />
+                      </Link>
+                      <ListaPestanas items={ajustesEscritorio} ruta={ruta} slug={datos.slug} />
+                    </nav>
+                  )}
+                </>
               )}
             />
-          </nav>
+          </div>
           {datos.pasos ? <PrimerosPasos pasos={datos.pasos} /> : null}
         </div>
         <div className="border-t-2 border-dashed border-teal-oscuro bg-rosa-palido py-2 pl-6 pr-5">

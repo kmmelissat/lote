@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { leerDolares, repartirEnvio, type QuienPagaEnvio } from "@/domain";
+import { leerDolares, repartirEnvio, telefonoElSalvador, type QuienPagaEnvio } from "@/domain";
 import { esDepartamento } from "@/lib/departamentos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -39,6 +39,10 @@ export async function guardarEnvioDelPedido(
     return { error: t.errorDireccion };
   }
 
+  const telefonoCrudo = texto("telefono");
+  const telefono = telefonoCrudo ? telefonoElSalvador(telefonoCrudo) : null;
+  if (telefonoCrudo && !telefono) return { error: t.errorTelefono };
+
   const costo = modo === "retiro" || texto("costo") === "" ? 0 : leerDolares(texto("costo"));
   if (costo === null) return { error: t.errorCosto };
   const { cobrado, absorbido } = repartirEnvio(costo, paga);
@@ -49,7 +53,7 @@ export async function guardarEnvioDelPedido(
     paquetera: texto("paquetera") || null,
     guia: texto("guia") || null,
     nombre: texto("nombre") || null,
-    telefono: texto("telefono") || null,
+    telefono,
     departamento: departamento || null,
     municipio: texto("municipio") || null,
     direccion: direccion || null,

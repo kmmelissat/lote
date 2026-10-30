@@ -1,5 +1,6 @@
 import { createHmac } from "node:crypto";
 import { headers } from "next/headers";
+import { telefonoElSalvador } from "@/domain";
 
 // Del dispositivo solo se guarda un hash del IP (con una clave propia), para limitar los intentos.
 export async function huellaDelDispositivo(): Promise<string> {
@@ -11,9 +12,9 @@ export async function huellaDelDispositivo(): Promise<string> {
   return createHmac("sha256", secreto ?? "lote").update(ip).digest("hex").slice(0, 32);
 }
 
-/** El WhatsApp se escribe sin el +503; acá se le pone. Si viene un contacto completo (de otra pantalla), se respeta. */
+/** El WhatsApp se escribe sin el +503; acá se valida y se arma. Si no es un número de El Salvador, queda vacío. */
 export function contactoDe(formData: FormData): string {
-  const telefono = String(formData.get("telefono") ?? "").replace(/[^\d]/g, "");
-  if (telefono) return `+503 ${telefono}`;
-  return String(formData.get("contacto") ?? "").trim();
+  const telefono = formData.get("telefono");
+  if (telefono !== null) return telefonoElSalvador(String(telefono)) ?? "";
+  return telefonoElSalvador(String(formData.get("contacto") ?? "")) ?? "";
 }
