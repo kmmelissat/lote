@@ -31,9 +31,19 @@ const v = textos.ajustes.vitrina;
 const SECCIONES = [
   { id: "tienda", etiqueta: t.indice.tienda, ayuda: t.indice.tiendaAyuda },
   { id: "ventas", etiqueta: t.indice.ventas, ayuda: t.indice.ventasAyuda },
-  { id: "confianza", etiqueta: t.indice.confianza, ayuda: t.indice.confianzaAyuda, siVitrina: true },
   { id: "lotito", etiqueta: t.indice.lotito, ayuda: t.indice.lotitoAyuda },
 ] as const;
+
+export type IdSeccion = (typeof SECCIONES)[number]["id"];
+
+/** `/ajustes/tienda` o `/ajustes/tienda?seccion=ventas`. Si el valor no cuadra, cae en tu tienda. */
+export function idSeccion(valor: unknown): IdSeccion {
+  return SECCIONES.some((s) => s.id === valor) ? (valor as IdSeccion) : "tienda";
+}
+
+function hrefSeccion(id: IdSeccion) {
+  return id === "tienda" ? "/ajustes/tienda" : `/ajustes/tienda?seccion=${id}`;
+}
 
 function Logo({ ruta, nombre, className, color }: { ruta: string; nombre: string; className: string; color: string }) {
   return (
@@ -141,7 +151,17 @@ function Replegable({ titulo, children }: { titulo: string; children: ReactNode 
   );
 }
 
-export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: IdentidadTienda; ajustes: AjustesVitrina; negocioId: string }) {
+export function TiendaForm({
+  identidad,
+  ajustes,
+  negocioId,
+  seccion,
+}: {
+  identidad: IdentidadTienda;
+  ajustes: AjustesVitrina;
+  negocioId: string;
+  seccion?: string;
+}) {
   const { avisar } = useToast();
   const [estado, accion, pendiente] = useActionState<EstadoTienda, FormData>(guardarTienda, {});
   const [nombre, setNombre] = useState(identidad.nombre);
@@ -163,11 +183,11 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
   const [subiendo, setSubiendo] = useState(false);
   const [errorLogo, setErrorLogo] = useState<string>();
   const [delLogo, setDelLogo] = useState<string[]>([]);
-  const [activa, setActiva] = useState("tienda");
+  const activa = idSeccion(seccion);
   const entrada = useRef<HTMLInputElement>(null);
   const idContexto = useId();
   const propio = !COLORES_MARCA.some((c) => c.hex === color) && !delLogo.includes(color);
-  const indice = SECCIONES.filter((s) => !("siVitrina" in s && s.siVitrina) || vitrina);
+  const indice = SECCIONES;
 
   useEffect(() => {
     if (!identidad.logo) return;
@@ -175,10 +195,6 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
       .then(setDelLogo)
       .catch(() => {});
   }, [identidad.logo]);
-
-  useEffect(() => {
-    if (!vitrina && activa === "confianza") setActiva("tienda");
-  }, [vitrina, activa]);
 
   async function elegirLogo(archivo: File | undefined) {
     if (!archivo) return;
@@ -221,19 +237,19 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
         className={`grid gap-1.5 rounded-[20px] border-2 border-teal-oscuro bg-white p-1.5 ${indice.length > 3 ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-3"}`}
       >
         {indice.map((s) => (
-          <button
+          <Link
             key={s.id}
-            type="button"
+            href={hrefSeccion(s.id)}
+            scroll={false}
             role="tab"
             id={`tab-${s.id}`}
             aria-selected={activa === s.id}
             aria-controls={`panel-${s.id}`}
-            onClick={() => setActiva(s.id)}
             className="flex flex-col items-start rounded-2xl px-3 py-2.5 text-left transition-colors hover:bg-crema aria-selected:bg-teal-oscuro aria-selected:text-white aria-selected:hover:bg-teal-oscuro"
           >
             <span className="font-bold">{s.etiqueta}</span>
             <span className="text-xs opacity-70">{s.ayuda}</span>
-          </button>
+          </Link>
         ))}
       </div>
 
@@ -352,6 +368,32 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
               </div>
             </Bloque>
 
+            <Bloque titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto} tono="rosa" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
+              <Interruptor name="comprar" titulo={v.comprar} ayuda={v.comprarAyuda} activo={comprar} onCambio={setComprar} />
+              <Interruptor name="apartar" titulo={v.apartar} ayuda={v.apartarAyuda} activo={apartar} onCambio={setApartar} />
+              <p className="text-sm text-texto-2">{v.modoCatalogoAyuda}</p>
+              <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+                {!comprar && !apartar ? v.modoCatalogo : comprar && apartar ? v.modoAmbos : comprar ? v.modoComprar : v.modoApartar}
+              </p>
+              <Replegable titulo={t.indice.apartados}>
+                <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${apartar ? "" : "opacity-60"}`}>
+                  <div className="flex flex-col gap-1">
+                    <Field etiqueta={v.plazo} name="plazo" type="number" min={1} max={168} inputMode="numeric" defaultValue={ajustes.plazoHoras} />
+                    <p className="text-sm text-texto-2">{v.plazoAyuda}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Field etiqueta={v.limite} name="limite" type="number" min={1} max={20} inputMode="numeric" defaultValue={ajustes.limitePorContacto} />
+                    <p className="text-sm text-texto-2">{v.limiteAyuda}</p>
+                  </div>
+                </div>
+                {!apartar && (
+                  <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+                    {v.apagadoAviso}
+                  </p>
+                )}
+              </Replegable>
+            </Bloque>
+
             <Bloque titulo={v.look.titulo} texto={v.look.texto} tono="celeste" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <div className="grid items-start gap-6 lg:grid-cols-2">
                 <div className="flex min-w-0 flex-col gap-4">
@@ -409,63 +451,7 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
               </div>
             </Bloque>
 
-            <Bloque titulo={v.grupos.explorar.titulo} texto={v.grupos.explorar.texto} tono="rosa" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
-              <Interruptor name="explorar" titulo={v.explorar} ayuda={v.explorarAyuda} activo={explorar} onCambio={setExplorar} />
-              <Link href="/marketplace" target="_blank" className="inline-flex min-h-11 items-center gap-2 self-start font-bold text-teal underline">
-                {v.verExplorar}
-                <Icon nombre="enlace" className="size-4" />
-                <span className="sr-only">(se abre en una pestaña nueva)</span>
-              </Link>
-            </Bloque>
-          </Seccion>
-
-          <Seccion id="ventas" className={activa === "ventas" ? "" : "hidden"}>
-            <Bloque titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto} tono="mango" className={vitrina ? "" : "hidden"}>
-              <Interruptor name="comprar" titulo={v.comprar} ayuda={v.comprarAyuda} activo={comprar} onCambio={setComprar} />
-              <Interruptor name="apartar" titulo={v.apartar} ayuda={v.apartarAyuda} activo={apartar} onCambio={setApartar} />
-              {!comprar && !apartar && (
-                <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                  {v.modoCatalogo}
-                </p>
-              )}
-              <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${apartar ? "" : "opacity-60"}`}>
-                <div className="flex flex-col gap-1">
-                  <Field etiqueta={v.plazo} name="plazo" type="number" min={1} max={168} inputMode="numeric" defaultValue={ajustes.plazoHoras} />
-                  <p className="text-sm text-texto-2">{v.plazoAyuda}</p>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Field etiqueta={v.limite} name="limite" type="number" min={1} max={20} inputMode="numeric" defaultValue={ajustes.limitePorContacto} />
-                  <p className="text-sm text-texto-2">{v.limiteAyuda}</p>
-                </div>
-              </div>
-              {!apartar && (
-                <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                  {v.apagadoAviso}
-                </p>
-              )}
-            </Bloque>
-
-            <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste" className={vitrina ? "border-t-2 border-teal-oscuro/15 pt-5" : ""}>
-              <Interruptor name="local" titulo={v.local.interruptor} ayuda={v.local.ayuda} activo={local} onCambio={setLocal} />
-              {local && (
-                <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                  {v.local.prendido}
-                </p>
-              )}
-            </Bloque>
-
-            <div className="border-t-2 border-teal-oscuro/15 pt-2">
-              <Replegable titulo={t.indice.stock}>
-                <div className="flex flex-col gap-1">
-                  <Field etiqueta={v.umbral} name="umbral" type="number" min={0} max={50} inputMode="numeric" defaultValue={ajustes.umbralPocoStock} />
-                  <p className="text-sm text-texto-2">{v.umbralAyuda}</p>
-                </div>
-              </Replegable>
-            </div>
-          </Seccion>
-
-          <Seccion id="confianza" className={activa === "confianza" ? "" : "hidden"}>
-            <Bloque titulo={v.confianza.titulo} texto={v.confianza.texto} tono="rosa">
+            <Bloque titulo={v.confianza.titulo} texto={v.confianza.texto} tono="rosa" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-1">
                   <Field etiqueta={v.confianza.tiempo} name="tiempo_entrega" maxLength={80} placeholder={v.confianza.tiempoPlaceholder} defaultValue={ajustes.tiempoEntrega ?? ""} />
@@ -478,6 +464,33 @@ export function TiendaForm({ identidad, ajustes, negocioId }: { identidad: Ident
                   <Textarea id="politica-cambios" name="politica_cambios" rows={3} maxLength={300} defaultValue={ajustes.politicaCambios ?? ""} placeholder={v.confianza.cambiosPlaceholder} />
                   <p className="text-sm text-texto-2">{v.confianza.cambiosAyuda}</p>
                 </div>
+              </div>
+            </Bloque>
+
+            <Bloque titulo={v.grupos.explorar.titulo} texto={v.grupos.explorar.texto} tono="limon" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
+              <Interruptor name="explorar" titulo={v.explorar} ayuda={v.explorarAyuda} activo={explorar} onCambio={setExplorar} />
+              <Link href="/marketplace" target="_blank" className="inline-flex min-h-11 items-center gap-2 self-start font-bold text-teal underline">
+                {v.verExplorar}
+                <Icon nombre="enlace" className="size-4" />
+                <span className="sr-only">(se abre en una pestaña nueva)</span>
+              </Link>
+            </Bloque>
+          </Seccion>
+
+          <Seccion id="ventas" className={activa === "ventas" ? "" : "hidden"}>
+            <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste">
+              <Interruptor name="local" titulo={v.local.interruptor} ayuda={v.local.ayuda} activo={local} onCambio={setLocal} />
+              {local && (
+                <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+                  {v.local.prendido}
+                </p>
+              )}
+            </Bloque>
+
+            <Bloque titulo={v.grupos.stock.titulo} texto={v.grupos.stock.texto} tono="mango" className="border-t-2 border-teal-oscuro/15 pt-5">
+              <div className="flex max-w-sm flex-col gap-1">
+                <Field etiqueta={v.umbral} name="umbral" type="number" min={0} max={50} inputMode="numeric" defaultValue={ajustes.umbralPocoStock} />
+                <p className="text-sm text-texto-2">{v.umbralAyuda}</p>
               </div>
             </Bloque>
           </Seccion>
