@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
-import { LotitoMas } from "@/features/landing/ui/mas/LotitoMas";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { Chat } from "./Chat";
 import { AvatarLotito } from "./PiezasChat";
 

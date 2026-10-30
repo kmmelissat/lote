@@ -11,11 +11,13 @@ const t = textos.clientes;
 export function BuscadorClientes({ texto, soloConSaldo }: { texto: string; soloConSaldo: boolean }) {
   const router = useRouter();
   const [valor, setValor] = useState(texto);
-  const espera = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  useEffect(() => {
+  // Si el texto de la dirección cambia desde afuera (atrás, limpiar filtros), el campo lo sigue
+  const [textoVisto, setTextoVisto] = useState(texto);
+  if (texto !== textoVisto) {
+    setTextoVisto(texto);
     setValor(texto);
-  }, [texto]);
+  }
+  const espera = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => () => window.clearTimeout(espera.current), []);
 

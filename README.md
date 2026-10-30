@@ -6,8 +6,10 @@ Es un proyecto del curso Diseño de Productos y Servicios (ciclo 3), no un produ
 
 ## Documentos
 
+- [FEATURES.md](FEATURES.md): qué hace la app hoy, por tipo de persona (quien vende, quien compra, Marketplace, admin).
 - [app.md](app.md): especificación del producto. Es la fuente de verdad.
 - [PROGRESO.md](PROGRESO.md): estado de la construcción, decisiones y lo que sigue. Empezar por acá para retomar.
+- [BRANDING.md](BRANDING.md): colores, formas, monitos y voz. Leer antes de tocar una pantalla.
 - [AGENTS.md](AGENTS.md): aviso sobre la versión de Next.js (tiene cambios; leer `node_modules/next/dist/docs/` antes de escribir código).
 
 ## Stack

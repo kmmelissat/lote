@@ -5,7 +5,7 @@ import { textos } from "@/lib/textos";
 import { BotonLanding, contenedor, Globo, Mini } from "../comun";
 import { Aparece, ApareceCaja, ApareceGrupo, ApareceItem } from "./Aparece";
 import { HeroAnimadoMas } from "./HeroAnimadoMas";
-import { LotitoMas } from "./LotitoMas";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 
 const t = textos.landing;
 

@@ -4,7 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { textos } from "@/lib/textos";
 import { Globo, Mini } from "../comun";
-import { LotitoMas } from "./LotitoMas";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 
 const m = textos.landing.hero.mock;
 

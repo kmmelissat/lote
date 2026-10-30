@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, useTransition, type ChangeEvent, type DragEvent, type FormEvent } from "react";
+import { useEffect, useEffectEvent, useId, useMemo, useRef, useState, useTransition, type ChangeEvent, type DragEvent, type FormEvent } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { useConfirmar } from "@/components/ui/Confirmar";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
@@ -173,6 +173,9 @@ export function ImportarCsv() {
     setError("");
   }
 
+  // Lee lo último que hay en pantalla sin volver a suscribir el "pegar" en cada pintura
+  const pegarTexto = useEffectEvent((texto: string) => recibirTexto(texto, t.pegado));
+
   useEffect(() => {
     if (archivo || resultado) return;
     function alPegar(e: ClipboardEvent) {
@@ -180,7 +183,7 @@ export function ImportarCsv() {
       const texto = e.clipboardData?.getData("text")?.trim() ?? "";
       if (!texto) return;
       e.preventDefault();
-      recibirTexto(texto, t.pegado);
+      pegarTexto(texto);
     }
     window.addEventListener("paste", alPegar);
     return () => window.removeEventListener("paste", alPegar);

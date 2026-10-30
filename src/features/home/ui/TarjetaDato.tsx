@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
-import { textos } from "@/lib/textos";
 import { TARJETA_BASE } from "@/components/ui/tarjeta";
 
 const tonos = {

@@ -57,6 +57,7 @@ export function PantallaCaida({ error, retry }: { error?: unknown; retry: () => 
               {t.reintentar}
             </Button>
             {/* Recarga completa: si el cliente quedó a medias, un Link de Next no alcanza */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/" className={estiloBoton("secundario")}>
               {t.inicio}
             </a>
