@@ -1,8 +1,16 @@
 export const errores = {
+  etiqueta: "Un tropiezo",
   titulo: "Algo se nos cayó",
-  texto: "No pudimos cargar esta pantalla. No se perdió nada de lo que ya estaba guardado. Probá de nuevo.",
+  texto: "No pudimos cargar esta pantalla. No se perdió nada de lo que ya estaba guardado.",
+  pistasTitulo: "Podés intentar:",
+  pistas: [
+    "Probar de nuevo: a veces es un momento de la red.",
+    "Ir al inicio y entrar otra vez a la misma pantalla.",
+    "Revisá si tu conexión está bien.",
+  ],
   reintentar: "Probar de nuevo",
   inicio: "Ir al inicio",
+  codigo: "Código",
   noEncontradaEtiqueta: "Error 404",
   noEncontradaTitulo: "Esta página no existe",
   noEncontradaTexto: "Me asomé por todos lados y no la encontré.",

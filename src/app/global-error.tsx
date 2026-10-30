@@ -1,25 +1,36 @@
 "use client";
 
+import { Fredoka, Plus_Jakarta_Sans } from "next/font/google";
+import { useEffect } from "react";
+import { PantallaCaida } from "@/components/ui/PantallaCaida";
 import { textos } from "@/lib/textos";
+import "./globals.css";
 
 const t = textos.errores;
 
-// Último recurso: si falla hasta el layout raíz. Reemplaza toda la página, por eso trae su propio <html> y no usa componentes de la app.
-export default function GlobalError({ retry }: { error: unknown; retry: () => void }) {
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
+
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
+  weight: ["600"],
+});
+
+// Último recurso: si falla hasta el layout raíz. Reemplaza toda la página, por eso trae su propio <html> y no usa el layout.
+export default function GlobalError({ error, retry }: { error: unknown; retry: () => void }) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
   return (
-    <html lang="es">
-      <body style={{ margin: 0, minHeight: "100dvh", display: "grid", placeItems: "center", background: "#fff7e8", color: "#003844", fontFamily: "system-ui, sans-serif" }}>
-        <main style={{ maxWidth: 420, padding: 24, textAlign: "center" }}>
-          <h1 style={{ fontSize: 24 }}>{t.titulo}</h1>
-          <p>{t.texto}</p>
-          <button
-            type="button"
-            onClick={() => retry()}
-            style={{ minHeight: 44, padding: "0 20px", borderRadius: 999, border: "2px solid #003844", background: "#ff9a2e", fontWeight: 700, cursor: "pointer" }}
-          >
-            {t.reintentar}
-          </button>
-        </main>
+    <html lang="es" className={`${jakarta.variable} ${fredoka.variable} h-full antialiased`}>
+      <body className="min-h-full">
+        <title>{`${t.titulo} · ${textos.nombre}`}</title>
+        <PantallaCaida error={error} retry={retry} />
       </body>
     </html>
   );

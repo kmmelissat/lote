@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button, ButtonLink } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { PantallaCaida } from "@/components/ui/PantallaCaida";
 import { textos } from "@/lib/textos";
 
 const t = textos.errores;
@@ -14,22 +13,9 @@ export default function Error({ error, retry }: { error: unknown; retry: () => v
   }, [error]);
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center bg-crema px-4 py-10">
-      <EmptyState
-        monito="asoma"
-        titulo={t.titulo}
-        texto={t.texto}
-        accion={
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button type="button" variante="mango" onClick={() => retry()}>
-              {t.reintentar}
-            </Button>
-            <ButtonLink href="/" variante="secundario">
-              {t.inicio}
-            </ButtonLink>
-          </div>
-        }
-      />
-    </main>
+    <>
+      <title>{`${t.titulo} · ${textos.nombre}`}</title>
+      <PantallaCaida error={error} retry={retry} />
+    </>
   );
 }

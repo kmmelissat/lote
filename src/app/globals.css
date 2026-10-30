@@ -41,6 +41,7 @@
   --animate-balancea: balancea 3.2s ease-in-out infinite;
   --animate-girar-lento: girar 18s linear infinite;
   --animate-marquesina: marquesina 30s linear infinite;
+  --animate-ola: marquesina 22s linear infinite;
   --animate-entra: entra 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-desliza: desliza 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
   /* La calle del Marketplace: Lotito va y vuelve por la acera (los pasos van dentro de su dibujo) */

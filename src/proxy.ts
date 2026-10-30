@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Rutas que se ven sin sesión: la landing (solo la raíz exacta), entrar, el retorno de Google/correo, las páginas públicas y las tareas
 // programadas (/api/cron, que se protegen con su propio secreto).
-const PUBLICAS = ["/", "/robots.txt", "/sitemap.xml", "/opengraph-image", "/twitter-image", "/apple-icon", "/login", "/auth", "/c", "/marketplace", "/p", "/privacidad", "/invitacion", "/api/cron"];
+const PUBLICAS = ["/", "/robots.txt", "/sitemap.xml", "/opengraph-image", "/twitter-image", "/apple-icon", "/login", "/auth", "/c", "/marketplace", "/p", "/privacidad", "/landing-mas", "/invitacion", "/api/cron"];
 
 const esPublica = (ruta: string) =>
   PUBLICAS.some((p) => ruta === p || ruta.startsWith(`${p}/`));

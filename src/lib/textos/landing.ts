@@ -168,6 +168,15 @@ export const landing = {
     tambien:
       "También: variantes (talla, tono, color), carrito de varios productos en tu vitrina, resumen semanal, ayudante con permisos, y exportar tus datos cuando quieras.",
   },
+  buscar: {
+    etiqueta: "Marketplace",
+    titulo: "¿Buscás un producto o tu tienda favorita?",
+    texto: "Entrá al Marketplace: emprendimientos de El Salvador que venden por redes. Lo que ves está disponible de verdad.",
+    placeholder: "un case, una tartaleta, Koa…",
+    productos: "Buscar productos",
+    tiendas: "Buscar tiendas",
+    ir: "Ver el Marketplace",
+  },
   principios: {
     titulo: "Hecha para que no la abandones",
     intro: "Todas probaron Excel, notas o un sistema y no les funcionó del todo. Les preguntamos por qué.",

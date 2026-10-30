@@ -1,15 +1,7 @@
 import type { Metadata } from "next";
-import { Cierre } from "@/features/landing/ui/Cierre";
-import { ComoFunciona } from "@/features/landing/ui/ComoFunciona";
 import { Encabezado } from "@/features/landing/ui/Encabezado";
-import { Funciones } from "@/features/landing/ui/Funciones";
-import { Hero } from "@/features/landing/ui/Hero";
-import { Marquesina } from "@/features/landing/ui/Marquesina";
+import { LandingMas } from "@/features/landing/ui/mas/LandingMas";
 import { Pie } from "@/features/landing/ui/Pie";
-import { Precios } from "@/features/landing/ui/Precios";
-import { Preguntas } from "@/features/landing/ui/Preguntas";
-import { Principios } from "@/features/landing/ui/Principios";
-import { Problema } from "@/features/landing/ui/Problema";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
 import { createClient } from "@/lib/supabase/server";
@@ -50,11 +42,12 @@ const datosEstructurados = {
   ],
 };
 
-// La landing se ve sin sesión. Si la persona ya entró, los botones la llevan a su panel en vez de al login.
+// La landing se ve sin sesión. Si la persona ya entró, los botones la llevan a su panel en vez del login.
 export default async function Landing() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const conSesion = Boolean(data?.claims);
+  const M = LandingMas;
 
   return (
     <>
@@ -66,16 +59,24 @@ export default async function Landing() {
         {textos.landing.saltar}
       </a>
       <Encabezado conSesion={conSesion} />
-      <main id="contenido">
-        <Hero conSesion={conSesion} />
-        <Problema />
-        <ComoFunciona />
-        <Marquesina />
-        <Funciones />
-        <Principios />
-        <Precios />
-        <Preguntas />
-        <Cierre conSesion={conSesion} />
+      <main id="contenido" className="overflow-x-hidden">
+        <M.Hero conSesion={conSesion} />
+        <M.Cinta />
+        <M.Problema />
+        <M.Ola de="var(--color-rosa-palido)" a="var(--color-celeste-palido)" />
+        <M.Pasos />
+        <M.Ola de="var(--color-celeste-palido)" a="white" />
+        <M.Funciones />
+        <M.Ola de="white" a="var(--color-mango)" />
+        <M.Buscar />
+        <M.Ola de="var(--color-mango)" a="var(--color-crema)" />
+        <M.Principios />
+        <M.Ola de="var(--color-crema)" a="var(--color-limon)" />
+        <M.Precios conSesion={conSesion} />
+        <M.Ola de="var(--color-limon)" a="var(--color-celeste-palido)" />
+        <M.Preguntas />
+        <M.Ola de="var(--color-celeste-palido)" a="var(--color-teal-oscuro)" />
+        <M.Cierre conSesion={conSesion} />
       </main>
       <Pie />
     </>

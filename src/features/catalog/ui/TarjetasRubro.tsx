@@ -22,17 +22,17 @@ const ESTILO: Record<RubroId, { Icono: LucideIcon; fondo: string }> = {
 const VISIBLES = 6;
 
 const tarjeta = (activa: boolean, fondo: string) =>
-  `group flex h-14 shrink-0 snap-start items-center gap-2.5 rounded-[18px] border-2 border-teal-oscuro py-2 pl-2 pr-4 transition-[transform,box-shadow] duration-150 lg:w-full ${
+  `group flex h-12 shrink-0 snap-start items-center gap-2 rounded-2xl border-2 border-teal-oscuro py-1.5 pl-1.5 pr-3.5 transition-[transform,box-shadow] duration-150 md:h-14 md:gap-2.5 md:rounded-[18px] md:py-2 md:pl-2 md:pr-4 lg:w-full ${
     activa ? "bg-teal-oscuro text-white shadow-dura-chica" : `${fondo} hover:-translate-y-0.5 hover:shadow-dura-chica`
   }`;
 
 function Contenido({ Icono, nombre }: { Icono: LucideIcon; nombre: string }) {
   return (
     <>
-      <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro">
-        <Icono className="size-5" strokeWidth={2.2} />
+      <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro md:size-9">
+        <Icono className="size-4 md:size-5" strokeWidth={2.2} />
       </span>
-      <span className="whitespace-nowrap text-sm font-bold leading-tight lg:whitespace-normal">{nombre}</span>
+      <span className="whitespace-nowrap text-[13px] font-bold leading-tight md:text-sm lg:whitespace-normal">{nombre}</span>
     </>
   );
 }
@@ -46,7 +46,7 @@ export function TarjetasRubro({ rubros, activo, enlace }: { rubros: Rubro[]; act
 
   return (
     <nav aria-label={t.categorias}>
-      <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:none] md:mx-0 md:px-0 lg:overflow-visible">
+      <ul className="-mx-4 flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:none] md:mx-0 md:scroll-px-0 md:gap-3 md:px-0 lg:overflow-visible">
         <li className="shrink-0 lg:min-w-0 lg:flex-1">
           <Link {...enlace("")} aria-current={!activo ? "page" : undefined} className={tarjeta(!activo, "bg-white")}>
             <Contenido Icono={LayoutGrid} nombre={t.todo} />

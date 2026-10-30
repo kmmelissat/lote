@@ -13,11 +13,11 @@ export type ProductoMesa = { foto: string; nombre: string; precio: string; tiend
 const CADA_MS = 2600;
 // Cada producto con su tamaño, altura y giro, para que se vean regados y no en fila
 const DISPERSOS = [
-  "w-24 -rotate-6 -translate-y-1 sm:w-24 sm:-translate-y-4",
-  "w-20 rotate-3 -translate-y-3 sm:w-[4.5rem] sm:-translate-x-8 sm:-translate-y-6",
-  "w-20 -rotate-2 translate-y-2 sm:w-20 sm:-translate-x-40 sm:-translate-y-3 sm:ml-4",
-  "w-20 rotate-6 -translate-y-1 sm:w-24 sm:-ml-6",
-  "w-24 -rotate-3 translate-y-3 sm:w-24",
+  "w-[4.5rem] -rotate-6 translate-y-1 sm:w-24 sm:-translate-y-4",
+  "w-16 rotate-3 -translate-y-2 sm:w-[4.5rem] sm:-translate-x-8 sm:-translate-y-6",
+  "w-16 -rotate-2 -translate-y-2 sm:w-20 sm:-translate-x-40 sm:-translate-y-3 sm:ml-4",
+  "w-16 rotate-6 translate-y-1 sm:w-24 sm:-ml-6",
+  "w-[4.5rem] -rotate-3 translate-y-1 sm:w-24",
 ] as const;
 // Las que andan regadas por el fondo, a los lados del titular y del buscador (solo en pantallas grandes):
 // posición en % de la sección, ancho en px y giro
@@ -147,7 +147,7 @@ export function HeroMercadito({
       </div>
 
       {/* El fondo del puesto, todo al centro: titular, y el buscador con Lotito asomado por encima */}
-      <div className="relative flex flex-col items-center gap-2 px-5 pb-[2.5rem] pt-3 text-center text-teal-oscuro md:px-8 md:pt-5">
+      <div className="relative flex flex-col items-center gap-2 px-5 pb-8 pt-3 text-center sm:pb-[2.5rem] text-teal-oscuro md:px-8 md:pt-5">
         <h1 className="text-2xl font-bold leading-tight tracking-tight md:text-[30px]">
           {titulo ?? t.encabezadoInicio}{" "}
           <span className="whitespace-nowrap bg-[linear-gradient(transparent_86%,var(--color-limon)_86%,var(--color-limon)_100%)] pb-1 [box-decoration-break:clone]">
@@ -158,9 +158,9 @@ export function HeroMercadito({
           <Contador hasta={totalProductos} /> {t.mercadito.productos(totalProductos)} · <Contador hasta={tiendas} /> {t.mercadito.tiendas(tiendas)}
         </p>
 
-        <div className="relative mt-[4.3rem] w-full max-w-3xl">
-          {/* Lotito se asoma por detrás del buscador, con su globo */}
-          <div className="absolute -top-[4.6rem] right-6 z-0 flex items-end gap-1 md:right-12">
+        <div className="relative mt-3 w-full max-w-3xl sm:mt-[4.3rem]">
+          {/* Lotito se asoma por detrás del buscador, con su globo (en el celular no entra: se esconde) */}
+          <div className="absolute -top-[4.6rem] right-6 z-0 hidden items-end gap-1 sm:flex md:right-12">
             <p
               aria-live="polite"
               className="relative mb-6 rounded-2xl border-2 border-teal-oscuro bg-white px-3 py-1.5 text-left text-sm font-bold leading-tight text-teal-oscuro after:absolute after:-right-[7px] after:top-1/2 after:size-3 after:-translate-y-1/2 after:rotate-45 after:border-r-2 after:border-t-2 after:border-teal-oscuro after:bg-white"
@@ -227,7 +227,7 @@ export function HeroMercadito({
       <div className="relative border-t-2 border-teal-oscuro bg-limon px-5 pb-2 md:px-8">
         <span aria-hidden="true" className="absolute inset-x-0 top-0 h-2 bg-mango" />
         {productos.length > 0 && (
-          <ul className="-mt-[2.5rem] flex flex-wrap items-end justify-center gap-x-6 gap-y-6 sm:flex-nowrap sm:justify-between sm:gap-x-0 lg:pl-6 lg:pr-72">
+          <ul className="-mt-[1.9rem] flex sm:-mt-[2.5rem] flex-wrap items-end justify-center gap-x-6 gap-y-6 sm:flex-nowrap sm:justify-between sm:gap-x-0 lg:pl-6 lg:pr-72">
             {productos.slice(0, 5).map((p, k) => (
               <li
                 key={p.foto}
