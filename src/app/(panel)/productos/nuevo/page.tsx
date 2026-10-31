@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { valoresParaCopiar } from "@/features/products/copiarProducto";
 import { listarCategorias, listarProductos, obtenerProducto } from "@/features/products/repositorio";
+import { AccionesCargarVarios } from "@/features/products/ui/AccionesCargarVarios";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
 import { NuevoProductoForm } from "@/features/products/ui/NuevoProductoForm";
 import { negocioActual } from "@/lib/negocio";
@@ -13,11 +14,6 @@ export const metadata: Metadata = { title: textos.productos.form.titulo };
 export default function NuevoProductoPage({ searchParams }: PageProps<"/productos/nuevo">) {
   return (
     <>
-      <PageHeader
-        titulo={textos.productos.form.titulo}
-        descripcion={textos.productos.form.descripcion}
-        volver={{ href: "/productos", etiqueta: textos.productos.volver }}
-      />
       <AvisoCreado />
       <Formulario searchParams={searchParams} />
     </>
@@ -41,13 +37,21 @@ async function Formulario({ searchParams }: Pick<PageProps<"/productos/nuevo">, 
   const sugerencias = { categorias: await listarCategorias(supabase, negocio.id), marcas: unicos(existentes.map((p) => p.marca)) };
 
   return (
-    <div className="flex flex-col gap-4">
-      {original && (
-        <p className="max-w-xl rounded-xl bg-perla px-4 py-3 text-ambar-texto">
-          {textos.productos.copiar.aviso(original.nombre)}
-        </p>
-      )}
-      <NuevoProductoForm negocioId={negocio.id} inicial={original ? valoresParaCopiar(original) : undefined} sugerencias={sugerencias} />
-    </div>
+    <>
+      <PageHeader
+        titulo={textos.productos.form.titulo}
+        descripcion={textos.productos.form.descripcion}
+        volver={{ href: "/productos", etiqueta: textos.productos.volver }}
+        accion={original ? undefined : <AccionesCargarVarios />}
+      />
+      <div className="flex flex-col gap-4">
+        {original && (
+          <p className="max-w-xl rounded-xl bg-perla px-4 py-3 text-ambar-texto">
+            {textos.productos.copiar.aviso(original.nombre)}
+          </p>
+        )}
+        <NuevoProductoForm negocioId={negocio.id} inicial={original ? valoresParaCopiar(original) : undefined} sugerencias={sugerencias} />
+      </div>
+    </>
   );
 }

@@ -5,7 +5,7 @@ export const nav = {
   pedidos: "Pedidos",
   mostrador: "Mostrador",
   clientes: "Clientes",
-  ganancia: "Ganancia",
+  dinero: "Dinero",
   ajustes: "Ajustes",
   ayuda: "Ayuda",
   tienda: "Mi tienda",

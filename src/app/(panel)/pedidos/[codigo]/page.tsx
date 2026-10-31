@@ -3,7 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { TARJETA } from "@/components/ui/tarjeta";
+import { Card } from "@/components/ui/Card";
+import { TituloPaso } from "@/components/ui/TituloPaso";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { puedeCancelarse } from "@/domain";
 import { listarPagos, obtenerPedido } from "@/features/orders/repositorio";
@@ -18,6 +19,7 @@ import { AccionesPedido } from "@/features/orders/ui/AccionesPedido";
 import { AccionPedido } from "@/features/orders/ui/AccionPedido";
 import { ProgresoPedido } from "@/features/orders/ui/ProgresoPedido";
 import { CobroPedido } from "@/features/payments/ui/CobroPedido";
+import { EnlaceSeguimiento } from "@/features/tracking/ui/EnlaceSeguimiento";
 import { EnvioPedido } from "@/features/shipping/ui/EnvioPedido";
 
 const t = textos.pedidos;
@@ -53,16 +55,43 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
   const avance = p.total > 0 ? Math.min(100, Math.max(0, Math.round((pagado / p.total) * 100))) : 0;
   const cliente = p.cliente ?? t.sinCliente;
 
+  const s = t.detalle.siguiente;
+  const cobraAlEntregar = p.contraEntrega && p.saldo > 0;
+  const saldoTexto = formatearDolares(p.saldo);
+  const siguiente = {
+    pendiente: cobraAlEntregar
+      ? {
+          titulo: s.contraEntrega(saldoTexto),
+          ayuda: !envio ? s.contraEntregaSinEnvio : pagado > 0 ? s.contraEntregaAbono(formatearDolares(pagado)) : undefined,
+        }
+      : {
+          titulo: s.cobrar(saldoTexto),
+          ayuda: p.venceEn ? (p.venceEn > ahora ? t.vence(tiempoRestante(p.venceEn, ahora)) : t.venceVencido) : undefined,
+        },
+    pagado: { titulo: s.pagado, ayuda: s.pagadoAyuda },
+    preparando: { titulo: s.preparando, ayuda: s.preparandoAyuda },
+    enviado: { titulo: s.enviado, ayuda: cobraAlEntregar ? s.enviadoContra(saldoTexto) : s.enviadoAyuda },
+    entregado: { titulo: s.entregado },
+    cancelado: { titulo: t.detalle.cancelado },
+  }[p.estado];
+
   return (
     <>
       <PageHeader
         titulo={t.pedido(p.codigo)}
         descripcion={cliente}
         volver={{ href: "/pedidos", etiqueta: t.volver }}
-        accion={
-          negocio.puedeVender && (
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusChip estado={p.estado} />
+        accion={<StatusChip estado={p.estado} />}
+      />
+
+      <div className="flex flex-col gap-4">
+        <ProgresoPedido
+          estado={p.estado}
+          cobraAlEntregar={cobraAlEntregar}
+          titulo={siguiente.titulo}
+          ayuda={"ayuda" in siguiente ? siguiente.ayuda : undefined}
+          accion={
+            negocio.puedeVender && (
               <AccionPedido
                 grande
                 pedidoId={p.id}
@@ -72,23 +101,19 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
                 contraEntrega={p.contraEntrega}
                 saldo={p.saldo}
               />
-            </div>
-          )
-        }
-      />
+            )
+          }
+        />
 
-      <div className="flex flex-col gap-4">
-        <ProgresoPedido estado={p.estado} contraEntrega={p.contraEntrega} />
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {/* En el celular el resumen va primero; en escritorio queda a la derecha */}
-          <aside className="order-first flex min-w-0 flex-col gap-4 lg:order-none lg:col-start-3 lg:row-start-1">
-            <section aria-labelledby="resumen" className={`${TARJETA} flex flex-col gap-4 bg-crema`}>
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
+          {/* En el celular el resumen va primero; en escritorio queda a la izquierda y se queda a la vista */}
+          <aside className="flex min-w-0 flex-col gap-3 lg:sticky lg:top-4">
+            <Card role="region" aria-labelledby="resumen" className="flex flex-col gap-4">
               <h2 id="resumen" className="font-bold">
                 {t.detalle.resumen}
               </h2>
               <div>
-                <p className="text-4xl font-bold tabular-nums">{formatearDolares(p.total)}</p>
+                <p className="font-logo text-4xl font-bold tabular-nums">{formatearDolares(p.total)}</p>
                 {p.estado !== "cancelado" && p.total > 0 && (
                   <div className="mt-3 flex flex-col gap-1.5">
                     <div
@@ -105,11 +130,6 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
                   </div>
                 )}
               </div>
-              {p.estado === "pendiente" && p.venceEn && (
-                <p className={`rounded-xl border-2 border-teal-oscuro bg-limon px-3 py-2 text-sm font-medium ${p.venceEn > ahora ? "" : "bg-rosa-palido"}`}>
-                  {p.venceEn > ahora ? t.vence(tiempoRestante(p.venceEn, ahora)) : t.venceVencido}
-                </p>
-              )}
               <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
                 <dt className="text-texto-2">{t.detalle.cliente}</dt>
                 <dd className="text-right font-medium">{cliente}</dd>
@@ -124,21 +144,19 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
                   </>
                 )}
               </dl>
-              {p.estado === "pendiente" && !p.contraEntrega && negocio.puedeVender && (
-                <p className="text-sm text-texto-2">{t.cobrar.avisoPendiente}</p>
-              )}
-              {negocio.puedeVender && <AccionesPedido pedidoId={p.id} siguiente={null} puedeCancelar={puedeCancelarse(p.estado)} />}
-            </section>
+            </Card>
+            <EnlaceSeguimiento pedidoId={p.id} />
+            {negocio.puedeVender && <AccionesPedido pedidoId={p.id} siguiente={null} puedeCancelar={puedeCancelarse(p.estado)} />}
           </aside>
 
-          <div className="flex min-w-0 flex-col gap-4 lg:col-span-2 lg:col-start-1 lg:row-start-1">
-            <section aria-labelledby="productos" className={`${TARJETA} bg-superficie`}>
-              <h2 id="productos" className="mb-3 font-bold">
-                {t.detalle.productos}
-              </h2>
-              <ul className="flex flex-col gap-3">
+          <div className="flex min-w-0 flex-col gap-4">
+            <Card role="region" aria-labelledby="productos" className="flex flex-col gap-3">
+              <TituloPaso numero={1} id="productos">
+                {t.detalle.queLleva}
+              </TituloPaso>
+              <ul className="flex flex-col">
                 {p.items.map((i) => (
-                  <li key={i.codigo} className="flex items-center gap-3">
+                  <li key={i.codigo} className="flex items-center gap-3 border-t border-borde py-3 first:border-t-0 first:pt-0">
                     {i.foto ? (
                       <Image
                         src={urlFoto(i.foto)}
@@ -162,11 +180,11 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 flex justify-between border-t border-borde pt-3 font-bold">
+              <p className="flex justify-between border-t border-borde pt-3 font-bold">
                 <span>{t.detalle.total}</span>
                 <span className="tabular-nums">{formatearDolares(p.total)}</span>
               </p>
-            </section>
+            </Card>
 
             <CobroPedido
               pedidoId={p.id}
@@ -175,6 +193,7 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
               saldo={p.saldo}
               pagos={pagos}
               contraEntrega={p.contraEntrega}
+              retiro={envio?.modo === "retiro"}
               mensaje={mensaje}
               puedeVender={negocio.puedeVender}
             />

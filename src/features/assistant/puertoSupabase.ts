@@ -135,6 +135,7 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
         monto: g.monto,
         fecha: fechaLocalDe(new Date()),
         nota: g.nota ?? undefined,
+        metodo: g.metodo ?? undefined,
       });
       return id === null ? falla("desconocido") : ok({ id });
     },

@@ -1,12 +1,19 @@
 import Image from "next/image";
-import { Monito } from "@/components/ui/Monito";
-import { StatusChip } from "@/components/ui/StatusChip";
+import type { ReactNode } from "react";
+import { Icon } from "@/components/ui/Icon";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos.form;
+const e = textos.explorar;
 
-/** La ficha como la verá la clienta en la vitrina. Se arma sola mientras se escribe el formulario. */
+// Hasta cuántas unidades se avisa "Últimas N" en la tarjeta, igual que en el Marketplace
+const POCAS_UNIDADES = 5;
+
+/**
+ * El producto como lo verá la clienta: la misma tarjeta de la vitrina (foto, categoría, precio y "Últimas N" si quedan pocas),
+ * armada con lo que se escribe en el formulario. Sin marco ni título propios: solo la tarjeta, con un rótulo arriba.
+ */
 export function VistaPreviaProducto({
   foto,
   nombre,
@@ -14,7 +21,10 @@ export function VistaPreviaProducto({
   unidades,
   variantes,
   categoria,
-  condicion,
+  titulo,
+  ayuda,
+  soloFicha = false,
+  children,
 }: {
   foto: string | null;
   nombre: string;
@@ -23,48 +33,56 @@ export function VistaPreviaProducto({
   unidades: number;
   variantes: number;
   categoria: string;
-  condicion: "nuevo" | "usado";
+  /** El rótulo de arriba; por defecto el del formulario */
+  titulo?: string;
+  /** Su línea de apoyo; null para no mostrarla */
+  ayuda?: string | null;
+  /** Solo la tarjeta, sin el rótulo (para mostrarla en una ventana, que ya trae su título) */
+  soloFicha?: boolean;
+  /** Lo que va dentro de la tarjeta, debajo del precio (en el detalle: la descripción y las etiquetas) */
+  children?: ReactNode;
 }) {
-  return (
-    <aside
-      aria-label={t.vistaPrevia}
-      className="relative flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-4 shadow-dura lg:sticky lg:top-4"
-    >
-      <Monito nombre="asoma" className="absolute -top-10 right-6 w-24 text-rosa" />
-      <div>
-        <h2 className="font-bold">{t.vistaPrevia}</h2>
-        <p className="text-sm text-texto-2">{t.vistaPreviaAyuda}</p>
-      </div>
-      <div className="flex flex-col overflow-hidden rounded-[20px] border-2 border-teal-oscuro bg-superficie">
-        <div className="relative flex aspect-square items-center justify-center bg-teal-fondo">
-          {foto ? (
-            <Image src={urlFoto(foto)} alt="" fill sizes="320px" className="object-cover" />
-          ) : (
-            <div className="flex flex-col items-center gap-2 text-teal/70">
-              <Monito nombre="caja" className="w-14 text-teal/40" />
-              <span className="text-sm font-medium">{t.sinFoto}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col gap-2 p-4">
-          <p className={`text-lg font-bold leading-tight ${nombre.trim() ? "" : "text-texto-2/60"}`}>{nombre.trim() || t.sinNombre}</p>
-          <p className="text-2xl font-bold tabular-nums">{precio || "$0.00"}</p>
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusChip publico estado="disponible" />
-            <span className="rounded-full border-2 border-teal-oscuro bg-crema px-3 py-1 text-sm font-bold">
-              {variantes > 0 ? t.variantesChip(variantes) : t.unidades(unidades)}
-            </span>
-            {condicion === "usado" && (
-              <span className="rounded-full border-2 border-teal-oscuro bg-limon px-3 py-1 text-sm font-bold text-teal-oscuro">
-                {t.usado}
-              </span>
-            )}
-            {categoria.trim() && (
-              <span className="rounded-full border-2 border-teal-oscuro bg-rosa-palido px-3 py-1 text-sm font-bold">{categoria.trim()}</span>
-            )}
+  const ficha = (
+    <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-white p-2 pb-3">
+      <div className="relative aspect-square overflow-hidden rounded-[18px] bg-teal-fondo">
+        {foto ? (
+          <Image src={urlFoto(foto)} alt="" fill sizes="320px" className="object-cover" />
+        ) : (
+          <div className="flex size-full flex-col items-center justify-center gap-2 text-teal/70">
+            <Icon nombre="caja" className="size-10 text-teal/50" />
+            <span className="text-sm font-medium">{t.sinFoto}</span>
           </div>
-        </div>
+        )}
+        {categoria.trim() && (
+          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-full border-2 border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
+            {categoria.trim()}
+          </span>
+        )}
+        {unidades <= POCAS_UNIDADES && (
+          <span className="absolute bottom-2 left-2 -rotate-2 rounded-full border-2 border-teal-oscuro bg-rosa px-2.5 py-0.5 text-xs font-bold">
+            {e.ultimas(unidades)}
+          </span>
+        )}
       </div>
+      <div className="flex flex-col gap-2 px-2">
+        <p className={`line-clamp-2 font-bold leading-tight ${nombre.trim() ? "" : "text-texto-2/60"}`}>{nombre.trim() || t.sinNombre}</p>
+        <p className="flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
+          {variantes > 0 && <span className="text-xs font-bold text-texto-2">{e.desdeEtiqueta}</span>}
+          <span className="text-2xl font-extrabold leading-none tracking-tight">{precio || "$0.00"}</span>
+        </p>
+        {variantes > 0 && <p className="text-xs font-medium text-texto-2">{t.variantesChip(variantes)}</p>}
+        {children}
+      </div>
+    </div>
+  );
+  if (soloFicha) return ficha;
+  return (
+    <aside aria-label={t.vistaPrevia} className="flex flex-col gap-3">
+      <div>
+        <h2 className="font-bold">{titulo ?? t.vistaPrevia}</h2>
+        {ayuda !== null && <p className="text-sm text-texto-2">{ayuda ?? t.vistaPreviaAyuda}</p>}
+      </div>
+      {ficha}
     </aside>
   );
 }

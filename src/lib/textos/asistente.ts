@@ -10,7 +10,6 @@ export const asistente = {
   preguntasTitulo: "¿Cómo se hace algo?",
   sugerenciasTitulo: "Pedime algo",
   flotanteSubtitulo: "Yo llevo la cuenta",
-  flotanteEtiqueta: "Preguntale a Lotito",
   flotante: { abrir: "Hablar con Lotito", mover: "Podés arrastrarlo para moverlo.", cerrar: "Cerrar el chat", ampliar: "Abrir el chat en grande" },
   saludoInicial: "Anoto lo que vendiste, apartaste o cobraste. También preguntame cómo vas.",
   enLinea: "En línea",
@@ -28,7 +27,7 @@ export const asistente = {
       { texto: "llegaron 10 más de los llaveros", modo: "escribir" },
       { texto: "¿Qué tengo agotado?", modo: "mandar" },
     ],
-    "/ganancia": [
+    "/dinero": [
       { texto: "¿Cuánto gané esta semana?", modo: "mandar" },
       { texto: "¿Cuánto gané este mes?", modo: "mandar" },
       { texto: "gasté $5 en bolsas", modo: "escribir" },
@@ -192,5 +191,16 @@ export const asistente = {
   descRepuesto: (cantidad: number, producto: string) => `${cantidad} más de ${producto}`,
   descPago: (cliente: string | null, monto: string) => `pago de ${monto} de ${cliente ?? "un pedido"}`,
   descLiberado: (cliente: string | null) => `apartado liberado de ${cliente ?? "un pedido"}`,
+  hoy: {
+    titulo: "Lo de hoy",
+    apartados: "Apartados",
+    porCobrar: "Por cobrar",
+    porEnviar: "Por enviar",
+    vacio: "Todavía no anotamos nada hoy. Contame qué pasó y lo dejo acá.",
+    anotado: "Lo que anoté",
+    deshacer: "Deshacer",
+    deshaciendo: "Deshaciendo…",
+    error: "No se pudo deshacer. Probá desde el chat.",
+  },
   descEnviado: (cliente: string | null) => `envío del pedido de ${cliente ?? "un cliente"}`,
 } as const;

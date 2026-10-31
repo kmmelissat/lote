@@ -24,7 +24,7 @@ export const pestanas: Pestana[] = [
   { href: "/productos", etiqueta: t.productos, icono: "productos" },
   { href: "/pedidos", etiqueta: t.pedidos, icono: "pedidos" },
   { href: "/clientes", etiqueta: t.clientes, icono: "clientes" },
-  { href: "/ganancia", etiqueta: t.ganancia, icono: "ganancia" },
+  { href: "/dinero", etiqueta: t.dinero, icono: "moneda" },
   { href: "/asistente", etiqueta: t.asistente, icono: "chat" },
 ];
 

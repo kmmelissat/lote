@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { CATEGORIAS_GASTO, fechaLocalDe, leerDolares, type CategoriaGasto } from "@/domain/index";
+import { CATEGORIAS_GASTO, fechaLocalDe, leerDolares, METODOS_DE_DINERO, type CategoriaGasto, type MetodoMovimiento } from "@/domain/index";
 import { eliminarGasto, registrarGasto } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -26,6 +26,12 @@ export async function agregarGasto(previo: EstadoGasto, datos: FormData): Promis
     return { ...previo, error: t.errorFecha, listo: undefined };
   }
 
+  // Vacío = sin método (se puede no saber); cualquier otra cosa que no sea un método de la lista es un error.
+  const metodoDicho = String(datos.get("metodo") ?? "");
+  if (metodoDicho && !METODOS_DE_DINERO.includes(metodoDicho as MetodoMovimiento)) {
+    return { ...previo, error: t.errorMetodo, listo: undefined };
+  }
+
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { ...previo, error: t.errorPermiso, listo: undefined };
 
@@ -34,6 +40,7 @@ export async function agregarGasto(previo: EstadoGasto, datos: FormData): Promis
     monto,
     fecha,
     nota: String(datos.get("nota") ?? "").trim() || undefined,
+    metodo: (metodoDicho as MetodoMovimiento) || undefined,
   });
   if (!id) return { ...previo, error: t.errorGeneral, listo: undefined };
 

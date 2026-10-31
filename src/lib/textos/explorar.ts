@@ -51,6 +51,16 @@ export const explorar = {
   precioMin: "Mínimo",
   precioMax: "Máximo",
   aplicar: "Aplicar",
+  panel: {
+    rubro: "Rubro",
+    todosLosRubros: "Todos",
+    entrega: "Entrega",
+    departamento: "Departamento",
+    todoElPais: "Todo el país",
+    envioGratis: "Envío gratis",
+    mostrar: "Mostrar",
+    soloOferta: "Solo en oferta",
+  },
   ordenar: "Ordenar por",
   ordenes: { recientes: "Más nuevos", precio_asc: "Precio: de menor a mayor", precio_desc: "Precio: de mayor a menor" },
   calle: {

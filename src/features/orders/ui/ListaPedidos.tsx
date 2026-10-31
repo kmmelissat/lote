@@ -141,7 +141,7 @@ export function ListaPedidos({
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-2">
                     <Accion p={p} puedeVender={puedeVender} />
-                    <BotonIconoLink variante="suave" icono="diagonal" etiqueta={t.lista.detalles} href={`/pedidos/${p.codigo}`} />
+                    <BotonIconoLink variante="suave" tamano="chico" icono="diagonal" etiqueta={t.lista.detalles} href={`/pedidos/${p.codigo}`} />
                   </div>
                 </td>
               </tr>

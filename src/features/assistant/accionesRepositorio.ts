@@ -62,3 +62,39 @@ export async function deshacerAccion(
   if (error.message === "no_deshacible" || error.message === "cambiado") return { ok: false, error: error.message };
   return { ok: false, error: "desconocido" };
 }
+
+export type AccionDeHoy = { id: string; descripcion: string; cuando: Date; deshacible: boolean; propia: boolean };
+
+const SIN_DESCRIPCION = "Acción del asistente";
+
+/** Lo que el asistente registró desde `desde` y no se deshizo, lo más reciente primero. Cada quien ve lo que la base le deja ver. */
+export async function accionesDesde(supabase: Cliente, negocioId: string, usuarioId: string, desde: Date): Promise<AccionDeHoy[]> {
+  const { data, error } = await supabase
+    .from("accion")
+    .select("id, usuario_id, creada_en, resultado")
+    .eq("negocio_id", negocioId)
+    .eq("revertida", false)
+    .not("resultado", "is", null)
+    .gte("creada_en", desde.toISOString())
+    .order("creada_en", { ascending: false })
+    .limit(20);
+  if (error) throw error;
+  return data.map((a) => {
+    const r = a.resultado && typeof a.resultado === "object" && !Array.isArray(a.resultado) ? a.resultado : {};
+    return {
+      id: a.id,
+      descripcion: typeof r.descripcion === "string" && r.descripcion ? r.descripcion : SIN_DESCRIPCION,
+      cuando: new Date(a.creada_en),
+      deshacible: r.inverso != null,
+      propia: a.usuario_id === usuarioId,
+    };
+  });
+}
+
+/** El primer instante de hoy en El Salvador (UTC-6, sin horario de verano), para contar lo del día. */
+export function inicioDeHoy(ahora: Date): Date {
+  const SEIS_HORAS = 6 * 3_600_000;
+  const local = new Date(ahora.getTime() - SEIS_HORAS);
+  local.setUTCHours(0, 0, 0, 0);
+  return new Date(local.getTime() + SEIS_HORAS);
+}

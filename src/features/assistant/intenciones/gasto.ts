@@ -11,6 +11,7 @@ export async function registrarGasto({ d, entrada, intencion, salida }: Ctx<"gas
       categoria: intencion.categoria,
       monto: intencion.monto,
       nota: intencion.nota,
+      metodo: intencion.metodo,
     });
     if (!r.ok) return { respuesta: { texto: textoDeError(r.error) } };
     const monto = formatearDolares(intencion.monto);

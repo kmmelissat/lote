@@ -55,6 +55,8 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
       const opcion = estado.opciones[Number(texto) - 1];
       if (!opcion) return { ...respuestaDeElegir(estado), texto: `${t.noEntendiRespuesta}\n${t.cualDeEstos}` };
       salida = { ...estado.salida, ...opcion.reemplazo };
+    } else if (estado?.tipo === "completar" && SOLTAR.test(texto)) {
+      return { texto: t.descartado };
     } else if (estado?.tipo === "completar" && !esMensajeNuevo(estado.falta, texto)) {
       salida = completarSalida(estado.salida, estado.falta, texto);
       if (!salida) return { texto: `${t.noEntendiRespuesta}\n${t.pregunta[estado.falta]}`, estado };
@@ -102,8 +104,13 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
 const PALABRAS_DE_RESPUESTA = 5;
 // El nombre de un producto nuevo puede ser largo ("funda de silicona para iPhone 15 rosa"): se le da más margen.
 const PALABRAS_DE_NOMBRE = 10;
+// Un nombre o un código no lleva verbos de pedir ni empieza con una negación: "hacer pedido", "nooo, quiero generar uno".
+const PARECE_ORDEN = /^(no+|nel)\b|\b(quiero|quisiera|necesito|hacer|hac[eé]|generar|gener[aá]|crear|cre[aá]|agregar|agreg[aá]|anotar|anot[aá]|registrar|registr[aá])\b|[?¿]/i;
+// Soltar la pregunta: "no", "nada", "cancelar"
+const SOLTAR = /^(no+|nel|nada|cancelar|cancel[aá]|olvidalo|dejalo)\W*$/i;
 function esMensajeNuevo(falta: Falta, texto: string): boolean {
   if (falta === "precio" || falta === "monto" || falta === "montoGasto" || falta === "cantidad") return false;
+  if (PARECE_ORDEN.test(texto)) return true;
   return texto.split(/\s+/).length > (falta === "nombre" ? PALABRAS_DE_NOMBRE : PALABRAS_DE_RESPUESTA);
 }
 

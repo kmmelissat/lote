@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
       { source: "/explorar", destination: "/marketplace", permanent: true },
       { source: "/explorar/:ruta*", destination: "/marketplace/:ruta*", permanent: true },
       { source: "/ajustes/ayuda", destination: "/ayuda", permanent: true },
+      // Ganancia pasó a llamarse Dinero (con Resumen, Movimientos y Cuadre)
+      { source: "/ganancia", destination: "/dinero", permanent: true },
+      { source: "/ganancia/resumen", destination: "/dinero/resumen", permanent: true },
     ];
   },
   images: {

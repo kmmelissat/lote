@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 import { MAX_DETALLES, MAX_NOMBRE_DETALLE, MAX_VALOR_DETALLE, type Detalle } from "../infoExtra";
@@ -27,7 +28,7 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
       {filas.length > 0 && (
         <ul className="flex flex-col gap-2">
           {filas.map((f, i) => (
-            <li key={i} className="flex items-center gap-2">
+            <li key={i} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] items-center gap-2">
               <label className="sr-only" htmlFor={`${id}-n-${i}`}>
                 {t.nombre} {i + 1}
               </label>
@@ -38,7 +39,7 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
                 maxLength={MAX_NOMBRE_DETALLE}
                 onChange={(e) => cambiar(i, "nombre", e.target.value)}
                 placeholder={t.nombre}
-                className={`${estiloCampo} w-2/5`}
+                className={estiloCampo}
               />
               <label className="sr-only" htmlFor={`${id}-v-${i}`}>
                 {t.valor} {i + 1}
@@ -49,7 +50,7 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
                 maxLength={MAX_VALOR_DETALLE}
                 onChange={(e) => cambiar(i, "valor", e.target.value)}
                 placeholder={t.valor}
-                className={`${estiloCampo} min-w-0 flex-1`}
+                className={estiloCampo}
               />
               <button
                 type="button"
@@ -65,14 +66,9 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
       )}
 
       {filas.length < MAX_DETALLES && (
-        <button
-          type="button"
-          onClick={() => onCambio([...filas, { nombre: "", valor: "" }])}
-          className="inline-flex h-11 items-center gap-2 self-start rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro hover:bg-teal-fondo"
-        >
-          <Icon nombre="mas" className="size-4" />
+        <Button type="button" variante="suave" tamano="chico" icono="mas" className="self-start" onClick={() => onCambio([...filas, { nombre: "", valor: "" }])}>
           {t.agregar}
-        </button>
+        </Button>
       )}
     </fieldset>
   );

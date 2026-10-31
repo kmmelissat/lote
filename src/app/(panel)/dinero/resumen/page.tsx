@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: t.titulo };
 export default function Page() {
   return (
     <>
-      <PageHeader titulo={t.titulo} descripcion={t.descripcion} volver={{ href: "/ganancia", etiqueta: t.volver }} />
+      <PageHeader titulo={t.titulo} descripcion={t.descripcion} volver={{ href: "/dinero", etiqueta: t.volver }} />
       <Contenido />
     </>
   );

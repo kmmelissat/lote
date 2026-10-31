@@ -1,7 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
 import { armarRespuesta, armarTextoPost } from "../textosCompartir";
@@ -30,26 +30,22 @@ export function CompartirProducto({ slug, producto }: Props) {
     }
   }
 
-  const boton =
-    "inline-flex h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
-
   return (
-    <Card className="flex flex-col gap-3 bg-rosa-palido md:col-span-2">
+    <Card className="flex flex-col gap-3">
       <div>
-        <h2 className="text-lg font-bold">{t.titulo}</h2>
+        <h2 className="font-bold">{t.titulo}</h2>
         <p className="text-sm text-texto-2">{t.ayuda}</p>
       </div>
-      <div className="flex flex-wrap gap-3">
-        <button type="button" onClick={() => copiar("enlace")} className={`${boton} bg-mango`}>
-          <Icon nombre="copiar" className="size-4" />
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" variante="suave" tamano="chico" icono="copiar" onClick={() => copiar("enlace")}>
           {t.botones.enlace}
-        </button>
-        <button type="button" onClick={() => copiar("post")} className={`${boton} bg-white`}>
+        </Button>
+        <Button type="button" variante="suave" tamano="chico" icono="copiar" onClick={() => copiar("post")}>
           {t.botones.post}
-        </button>
-        <button type="button" onClick={() => copiar("respuesta")} className={`${boton} bg-white`}>
+        </Button>
+        <Button type="button" variante="suave" tamano="chico" icono="chat" onClick={() => copiar("respuesta")}>
           {t.botones.respuesta}
-        </button>
+        </Button>
       </div>
     </Card>
   );

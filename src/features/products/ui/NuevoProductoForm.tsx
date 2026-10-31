@@ -1,7 +1,6 @@
 "use client";
 
 import { useAvisarErrores } from "@/components/ui/Toast";
-import Link from "next/link";
 import {
   useActionState,
   useEffect,
@@ -10,6 +9,7 @@ import {
   useState,
   useTransition,
   type FormEvent,
+  type ReactNode,
 } from "react";
 import {
   costoUnitario,
@@ -35,16 +35,20 @@ import {
   Campo,
   CampoDinero,
   Cantidad,
+  ChipLotito,
   Etiqueta,
   estiloCampo,
-  Seccion,
 } from "./campos";
 import { SelectorCategoria } from "./SelectorCategoria";
 import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { EditorVariantes } from "./EditorVariantes";
 import { combinaciones, estadoDesdeVariantes, estadoVacio, filaDe, opcionNueva, type DatosFila, type EstadoEditor } from "../editorVariantes";
 import { ZonaFotos } from "./ZonaFotos";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
+import { OpcionRadio } from "@/components/ui/OpcionRadio";
+import { Ventana } from "@/components/ui/Ventana";
 
 const t = textos.productos.form;
 const l = t.lotito;
@@ -154,6 +158,15 @@ export function NuevoProductoForm({
       ? estadoDesdeVariantes(variantesIniciales.filas, variantesIniciales.nombres, { precio: "", cantidad: "1", compra: "" })
       : estadoVacio({ precio: v.precio ?? "", cantidad: v.cantidad ?? "1", compra: v.compra ?? "" }),
   );
+  // Cuáles bloques opcionales están abiertos (los que Lotito llena se abren solos, para que se vea qué revisar)
+  // Al editar (o repetir un producto) los bloques que ya tienen datos arrancan abiertos
+  const [abiertos, setAbiertos] = useState<Record<string, boolean>>(() => {
+    const hay = (k: string) => Boolean(v[k]?.trim());
+    return {
+      costos: hay("precio_anterior") || hay("envio") || hay("importacion") || hay("otro"),
+      masInfo: hay("marca") || v.condicion === "usado" || hay("estado_detalle") || leerDetalles(v.detalles).length > 0,
+    };
+  });
   // Lo que Lotito llenó además de los campos de texto, para poder deshacerlo
   const [extrasLotito, setExtrasLotito] = useState({ variantes: false, detalles: false, condicion: false });
 
@@ -231,6 +244,10 @@ export function NuevoProductoForm({
       extras.variantes = true;
     }
     setExtrasLotito(extras);
+
+    // Todo lo que Lotito llenó se abre: así se ve de una vez qué hay que revisar
+    const llenoMasInfo = Boolean(f.marca && (!marca.trim() || deLotito.has("marca"))) || extras.detalles || extras.condicion;
+    setAbiertos((a) => ({ ...a, ...(extras.variantes ? { variantes: true } : {}), ...(llenoMasInfo ? { masInfo: true } : {}) }));
   }
 
   // Apenas hay una foto nueva arranca solo: un solo gesto, sin botón de "analizar".
@@ -305,24 +322,29 @@ export function NuevoProductoForm({
       ? Number(cantidad)
       : 1;
 
-  const chip = (valor: "nuevo" | "usado") => (
-    <label key={valor} className="cursor-pointer">
-      <input
-        type="radio"
-        name="condicion"
-        value={valor}
-        checked={condicion === valor}
-        onChange={() => setCondicion(valor)}
-        className="peer sr-only"
-      />
-      <span className="flex h-11 items-center rounded-full border-2 border-teal-oscuro px-6 font-bold transition-colors peer-checked:bg-teal-oscuro peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
-        {t[valor]}
-      </span>
-    </label>
-  );
-
   const brillo = (c: CampoLotito) => escribiendo.has(c);
   const resumen = resumenVariantes(editor);
+
+  const e2 = textos.productos.editar;
+  const b = t.bloques;
+  const hayLotito = deLotito.size > 0 || extrasLotito.variantes || extrasLotito.detalles || extrasLotito.condicion;
+  const ventanaPrevia = useRef<HTMLDialogElement>(null);
+
+  // Los bloques opcionales vienen cerrados; la persona los abre. Si tienen un error, o Lotito llenó algo ahí, se abren solos.
+  const estaAbierto = (id: string, defecto = false, forzar = false) => forzar || (abiertos[id] ?? defecto);
+  const alternar = (id: string, defecto = false, forzar = false) => setAbiertos((a) => ({ ...a, [id]: !estaAbierto(id, defecto, forzar) }));
+  const errorCostos = Boolean(e.envio || e.importacion || e.otro);
+
+  const vista = {
+    foto: rutas[0] ?? (conVariantes ? resumen.foto : null),
+    nombre,
+    precio: conVariantes ? resumen.precio : precioCentavos === null ? "" : formatearDolares(precioCentavos),
+    unidades: conVariantes ? resumen.unidades : unidades,
+    variantes: conVariantes ? resumen.cuantas : 0,
+    categoria,
+  };
+
+  const guardarTexto = pendiente ? (editando ? e2.guardando : t.guardando) : editando ? e2.guardar : t.guardar;
 
   return (
     <form
@@ -331,290 +353,342 @@ export function NuevoProductoForm({
       action={accion}
       onChange={recalcular}
       onKeyDown={atajosDeFormulario}
-      className="flex min-h-[calc(100dvh-12rem)] flex-col gap-6"
+      className="flex min-h-[calc(100dvh-12rem)] flex-col gap-6 "
     >
-      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_21rem]">
-        <div className="flex min-w-0 flex-col gap-5">
-          {/* Simple o con variantes: lo primero que se decide, y lo que cambia el resto del formulario */}
-          <input type="hidden" name="tipo" value={tipo} />
-          <div role="tablist" aria-label={t.tipo.titulo} className="grid grid-cols-2 gap-2 rounded-[20px] border-2 border-teal-oscuro bg-white p-1.5">
-            {(["simple", "variantes"] as const).map((opcion) => {
-              const bloqueada = opcion === "simple" && !!variantesIniciales;
-              return (
-                <button
-                  key={opcion}
-                  type="button"
-                  role="tab"
-                  aria-selected={tipo === opcion}
-                  disabled={bloqueada}
-                  title={bloqueada ? t.tipo.bloqueado : undefined}
-                  onClick={() => setTipo(opcion)}
-                  className="flex flex-col items-start rounded-2xl px-4 py-2.5 text-left transition-colors aria-selected:bg-teal-oscuro aria-selected:text-white enabled:hover:bg-crema disabled:opacity-40"
-                >
-                  <span className="font-bold">{t.tipo[opcion]}</span>
-                  <span className="text-xs opacity-70">{t.tipo[opcion === "simple" ? "simpleAyuda" : "variantesAyuda"]}</span>
-                </button>
-              );
-            })}
-          </div>
+      <input type="hidden" name="tipo" value={tipo} />
+      {/* En pantalla ancha: a la izquierda la tarjeta del producto (se arma sola) y a la derecha los pasos con los campos repartidos
+          en columnas. En la angosta: una sola columna, y la tarjeta se abre con "Ver cómo queda". Guardar va en la barra de abajo. */}
+      <div className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+        <div className="hidden lg:sticky lg:top-4 lg:block">
+          <VistaPreviaProducto {...vista} />
+        </div>
 
-          <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotos} conLotito />
-          <input type="hidden" name="fotos" value={JSON.stringify(rutas)} />
-          {conVariantes && <p className="-mt-3 text-sm text-texto-2">{t.tipo.fotosVariantes}</p>}
-          <CartelLotito estado={estadoLotito} />
-          {extrasLotito.variantes && <p className="text-sm font-medium">{l.variantesVistas}</p>}
-          {(deLotito.size > 0 || extrasLotito.variantes || extrasLotito.detalles || extrasLotito.condicion) && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-              <p className="text-texto-2">{l.revisar}</p>
-              <button
-                type="button"
-                onClick={deshacerLotito}
-                className="font-bold text-teal underline"
-              >
-                {l.deshacer}
-              </button>
-            </div>
-          )}
-
-          <Campo
-            etiqueta={
-              conVariantes ? textos.productos.editar.nombreVariantes : t.nombre
-            }
-            name="nombre"
-            requerido
-            placeholder={t.nombrePlaceholder}
-            value={nombre}
-            onChange={(ev) => editar("nombre")(ev.target.value)}
-            lotito={deLotito.has("nombre")}
-            trabajando={brillo("nombre")}
-            error={e.nombre}
-          />
-
-          {/* Debajo del nombre: descripción y categoría; después lo que se vende (precio, precio de antes y cantidad, o
-              las variantes); y al final condición, marca y detalles. Los costos quedan plegados abajo. */}
-          <div className="flex flex-col gap-1.5">
-            <Etiqueta htmlFor={`${id}-descripcion`} lotito={deLotito.has("descripcion")}>
-              {t.descripcionCampo}
-            </Etiqueta>
-            <textarea
-              id={`${id}-descripcion`}
-              name="descripcion"
-              rows={3}
-              value={descripcion}
-              onChange={(ev) => editar("descripcion")(ev.target.value)}
-              className={`${estiloCampo} h-auto py-3 ${brillo("descripcion") ? "animate-pulse bg-limon/40" : ""} ${deLotito.has("descripcion") ? "border-teal-oscuro bg-limon/20" : ""}`}
-            />
-          </div>
-
-          {/* Categoría y, en un producto simple, la cantidad al lado */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-  <SelectorCategoria
-                etiqueta={t.categoria}
-                valor={categoria}
-                onCambio={editar("categoria")}
-                opciones={categorias}
-                error={e.categoria}
-                lotito={deLotito.has("categoria")}
-                trabajando={brillo("categoria")}
-                sugerida={categoriaSugerida}
+        <div className="flex min-w-0 flex-col gap-6">
+          <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-borde [&>*+*]:pt-6">
+            <BloqueForm numero={1} titulo={b.foto.titulo} ayuda={b.foto.ayuda} tono="limon" listo={rutas.length > 0}>
+              <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotos} conLotito />
+              <input type="hidden" name="fotos" value={JSON.stringify(rutas)} />
+              <CartelLotito
+                estado={estadoLotito}
+                accion={
+                  hayLotito && estadoLotito === "listo" ? (
+                    <button type="button" onClick={deshacerLotito} className="font-bold text-teal underline">
+                      {l.deshacer}
+                    </button>
+                  ) : undefined
+                }
               />
-            {!conVariantes && <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />}
-          </div>
+            </BloqueForm>
 
-          {conVariantes ? (
-            <EditorVariantes
-              negocioId={negocioId}
-              estado={editor}
-              onCambio={setEditor}
-              error={e.variantes}
-              idLibre={editando && !variantesIniciales ? modo.id : null}
-            />
-          ) : (
-            <div className="flex flex-col gap-1">
+            <BloqueForm numero={2} titulo={b.nombrePrecio.titulo} ayuda={b.nombrePrecio.ayuda} tono="mango" listo={nombre.trim() !== "" && (conVariantes || precioCentavos !== null)}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <CampoDinero
-                  etiqueta={t.precio}
-                  name="precio"
+                <Campo
+                  etiqueta={conVariantes ? e2.nombreVariantes : t.nombre}
+                  name="nombre"
                   requerido
-                  placeholder={t.precioPlaceholder}
-                  value={precio}
-                  onChange={(ev) => setPrecio(ev.target.value)}
-                  error={e.precio}
+                  placeholder={t.nombrePlaceholder}
+                  value={nombre}
+                  onChange={(ev) => editar("nombre")(ev.target.value)}
+                  lotito={deLotito.has("nombre")}
+                  trabajando={brillo("nombre")}
+                  error={e.nombre}
                 />
-                <CampoDinero etiqueta={t.precioAnterior.etiqueta} name="precio_anterior" defaultValue={v.precio_anterior} error={e.precio_anterior} />
+                <SelectorCategoria
+                  etiqueta={t.categoria}
+                  valor={categoria}
+                  onCambio={editar("categoria")}
+                  opciones={categorias}
+                  error={e.categoria}
+                  lotito={deLotito.has("categoria")}
+                  trabajando={brillo("categoria")}
+                  sugerida={categoriaSugerida}
+                />
               </div>
-              <p className="text-sm text-texto-2">{t.precioAnterior.ayuda}</p>
-            </div>
-          )}
-
-          {/* Condición, marca y detalles, juntos: lo que da confianza a quien compra */}
-          <div className="flex flex-col gap-4 rounded-[20px] border-2 border-teal-oscuro/15 bg-white p-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <fieldset className="flex flex-col gap-2">
-                <legend className="mb-1.5 text-sm font-bold">{t.condicion}</legend>
-                <div className="flex gap-3">{(["nuevo", "usado"] as const).map(chip)}</div>
-              </fieldset>
-              <Campo
-                etiqueta={t.marca}
-                name="marca"
-                list={`${id}-marcas`}
-                placeholder={t.marcaPlaceholder}
-                value={marca}
-                onChange={(ev) => editar("marca")(ev.target.value)}
-                lotito={deLotito.has("marca")}
-                trabajando={brillo("marca")}
-              />
-            </div>
-            <datalist id={`${id}-marcas`}>
-              {sugerencias.marcas.map((m) => (
-                <option key={m} value={m} />
-              ))}
-            </datalist>
-
-            {condicion === "usado" && (
+              {conVariantes ? (
+                <p className="text-sm text-texto-2">{t.tarjetas.precioVariantes}</p>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <CampoDinero
+                      etiqueta={t.precio}
+                      name="precio"
+                      requerido
+                      placeholder={t.precioPlaceholder}
+                      value={precio}
+                      onChange={(ev) => setPrecio(ev.target.value)}
+                      error={e.precio}
+                    />
+                    <CampoDinero etiqueta={t.precioAnterior.etiqueta} name="precio_anterior" defaultValue={v.precio_anterior} error={e.precio_anterior} />
+                    <CampoDinero etiqueta={t.tarjetas.costoCompra} name="compra" defaultValue={v.compra} error={e.compra} />
+                    <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />
+                  </div>
+                  <div aria-live="polite" className="rounded-2xl bg-superficie px-4 py-3">
+                    {ganancia === null ? (
+                      <p className="text-sm text-texto-2">{t.resumenSinCosto}</p>
+                    ) : (
+                      <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                        <span className="text-sm text-texto-2">{t.gananciaUnidad}</span>
+                        <strong className="text-xl tabular-nums text-teal">{formatearDolares(ganancia)}</strong>
+                        {margenReal !== null && <span className="text-sm text-texto-2">· {t.margenReal} {margenReal} %</span>}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
               <div className="flex flex-col gap-1.5">
-                <Etiqueta htmlFor={`${id}-estado`}>{t.estadoDetalle.etiqueta}</Etiqueta>
-                <input
-                  id={`${id}-estado`}
-                  name="estado_detalle"
-                  maxLength={200}
-                  defaultValue={v.estado_detalle}
-                  placeholder={t.estadoDetalle.placeholder}
-                  className={estiloCampo}
+                <Etiqueta htmlFor={`${id}-descripcion`} lotito={deLotito.has("descripcion")}>
+                  {t.descripcionCampo}
+                </Etiqueta>
+                <textarea
+                  id={`${id}-descripcion`}
+                  name="descripcion"
+                  rows={3}
+                  value={descripcion}
+                  onChange={(ev) => editar("descripcion")(ev.target.value)}
+                  className={`${estiloCampo} h-auto py-3 ${brillo("descripcion") ? "animate-pulse bg-limon/40" : ""} ${deLotito.has("descripcion") ? "border-teal-oscuro bg-limon/20" : ""}`}
                 />
-                <p className="text-sm text-texto-2">{t.estadoDetalle.ayuda}</p>
               </div>
-            )}
+            </BloqueForm>
+          </Card>
 
-            <DetallesProducto filas={detalles} onCambio={setDetalles} />
-          </div>
-
-          <Seccion titulo={t.costosSeccion} ayuda={t.costosAyuda}>
-            {conVariantes && (
-              <p className="text-sm text-texto-2">
-                {textos.productos.editar.grupo.compartidos}
-              </p>
-            )}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Con variantes, el costo de compra va en cada fila de la tabla */}
-              {campoCosto
-                .filter((k) => !conVariantes || k !== "compra")
-                .map((k) => (
-                  <CampoDinero
-                    key={k}
-                    etiqueta={t[k]}
-                    name={k}
-                    defaultValue={v[k]}
-                    error={e[k]}
-                  />
-                ))}
-            </div>
-            {!conVariantes && (
-              <div
-                aria-live="polite"
-                className="rounded-2xl border-2 border-teal-oscuro bg-crema p-4"
-              >
-                {ganancia === null ? (
-                  <p className="text-texto-2">{t.resumenSinCosto}</p>
-                ) : (
-                  <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
-                    {[
-                      [t.costoUnidad, formatearDolares(costo!)],
-                      [t.precio, formatearDolares(precioCentavos!)],
-                      [t.gananciaUnidad, formatearDolares(ganancia)],
-                      [
-                        t.margenReal,
-                        margenReal === null ? "–" : `${margenReal} %`,
-                      ],
-                    ].map(([etiqueta, valor], i) => (
-                      <div key={etiqueta} className="flex flex-col">
-                        <dt className="text-xs text-texto-2">{etiqueta}</dt>
-                        <dd
-                          className={`font-bold tabular-nums ${i === 2 ? "text-xl text-teal" : "text-lg"}`}
-                        >
-                          {valor}
-                        </dd>
-                      </div>
+          <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-borde [&>*+*]:pt-6">
+            <BloqueForm
+              numero={3}
+              titulo={b.masInfo.titulo}
+              ayuda={b.masInfo.ayuda}
+              tono="limon"
+              opcional
+              lotito={deLotito.has("marca") || extrasLotito.detalles || extrasLotito.condicion}
+              resumen={[marca.trim(), condicion === "usado" ? t.usado : t.nuevo].filter(Boolean).join(" · ")}
+              abierto={estaAbierto("masInfo")}
+              onAlternar={() => alternar("masInfo")}
+            >
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Campo
+                  etiqueta={t.marca}
+                  name="marca"
+                  list={`${id}-marcas`}
+                  placeholder={t.marcaPlaceholder}
+                  value={marca}
+                  onChange={(ev) => editar("marca")(ev.target.value)}
+                  lotito={deLotito.has("marca")}
+                  trabajando={brillo("marca")}
+                />
+                <fieldset className="flex flex-col gap-2">
+                  <legend className="mb-1.5 text-sm font-bold">{t.condicion}</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {(["nuevo", "usado"] as const).map((c) => (
+                      <OpcionRadio key={c} name="condicion" value={c} titulo={t[c]} checked={condicion === c} onChange={() => setCondicion(c)} />
                     ))}
-                  </dl>
-                )}
+                  </div>
+                </fieldset>
               </div>
-            )}
-            {sugerido !== null && !conVariantes && (
-              <div className="flex flex-wrap items-end gap-4">
-                {/* Sin name: el margen es solo para calcular, no se guarda */}
-                <div className="w-32">
-                  <Campo
-                    etiqueta={t.margen}
-                    inputMode="decimal"
-                    value={margen}
-                    onChange={(ev) => setMargen(ev.target.value)}
+              <datalist id={`${id}-marcas`}>
+                {sugerencias.marcas.map((m) => (
+                  <option key={m} value={m} />
+                ))}
+              </datalist>
+              {condicion === "usado" && (
+                <div className="flex flex-col gap-1.5">
+                  <Etiqueta htmlFor={`${id}-estado`}>{t.estadoDetalle.etiqueta}</Etiqueta>
+                  <input
+                    id={`${id}-estado`}
+                    name="estado_detalle"
+                    maxLength={200}
+                    defaultValue={v.estado_detalle}
+                    placeholder={t.estadoDetalle.placeholder}
+                    className={estiloCampo}
                   />
                 </div>
-                <p
-                  className="min-h-12 flex-1 content-center"
-                  aria-live="polite"
-                >
-                  {t.precioSugerido}:{" "}
-                  <strong>{formatearDolares(sugerido)}</strong>
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setPrecio(dolaresTexto(sugerido))}
-                  className="inline-flex h-11 items-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
-                >
-                  {t.usarPrecio}
-                </button>
-              </div>
-            )}
-          </Seccion>
+              )}
+              <DetallesProducto filas={detalles} onCambio={setDetalles} />
+            </BloqueForm>
 
+            <BloqueForm
+              numero={4}
+              titulo={b.variantes.titulo}
+              ayuda={b.variantes.ayuda}
+              tono="celeste"
+              opcional
+              lotito={extrasLotito.variantes && conVariantes}
+              resumen={conVariantes ? t.variantesChip(resumen.cuantas) : b.variantes.sin}
+              abierto={estaAbierto("variantes", true, Boolean(e.variantes))}
+              onAlternar={() => alternar("variantes", true, Boolean(e.variantes))}
+            >
+              {conVariantes ? (
+                <>
+                  {extrasLotito.variantes && <p className="text-sm font-medium">{l.variantesVistas}</p>}
+                  <EditorVariantes
+                    deLotito={extrasLotito.variantes}
+                    negocioId={negocioId}
+                    estado={editor}
+                    onCambio={setEditor}
+                    error={e.variantes}
+                    idLibre={editando && !variantesIniciales ? modo.id : null}
+                  />
+                  {variantesIniciales ? (
+                    <p className="text-sm text-texto-2">{t.tipo.bloqueado}</p>
+                  ) : (
+                    <Button type="button" variante="suave" tamano="chico" icono="x" className="self-start" onClick={() => setTipo("simple")}>
+                      {t.tarjetas.quitarVariantes}
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-texto-2">{t.tarjetas.variantesTexto}</p>
+                  <Button type="button" variante="suave" icono="mas" className="self-start" onClick={() => setTipo("variantes")}>
+                    {t.tarjetas.agregarVariantes}
+                  </Button>
+                </>
+              )}
+            </BloqueForm>
+
+            <BloqueForm
+              numero={5}
+              titulo={b.costos.titulo}
+              ayuda={b.costos.ayuda}
+              tono="rosa"
+              opcional
+              resumen={conVariantes ? b.costos.compartidos : b.costos.resumen}
+              abierto={estaAbierto("costos", false, errorCostos)}
+              onAlternar={() => alternar("costos", false, errorCostos)}
+            >
+              {conVariantes && <p className="text-sm text-texto-2">{e2.grupo.compartidos}</p>}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {campoCosto
+                  .filter((k) => k !== "compra")
+                  .map((k) => (
+                    <CampoDinero key={k} etiqueta={t[k]} name={k} defaultValue={v[k]} error={e[k]} />
+                  ))}
+              </div>
+              {sugerido !== null && !conVariantes && (
+                <div className="flex flex-wrap items-end gap-4">
+                  {/* Sin name: el margen es solo para calcular, no se guarda */}
+                  <div className="w-32">
+                    <Campo etiqueta={t.margen} inputMode="decimal" value={margen} onChange={(ev) => setMargen(ev.target.value)} />
+                  </div>
+                  <p className="min-h-12 flex-1 content-center" aria-live="polite">
+                    {t.precioSugerido}: <strong>{formatearDolares(sugerido)}</strong>
+                  </p>
+                  <Button type="button" variante="suave" icono="check" onClick={() => setPrecio(dolaresTexto(sugerido))}>
+                    {t.usarPrecio}
+                  </Button>
+                </div>
+              )}
+            </BloqueForm>
+          </Card>
 
           <MensajeError>{e.general}</MensajeError>
         </div>
-
-        <VistaPreviaProducto
-          foto={rutas[0] ?? (conVariantes ? resumen.foto : null)}
-          nombre={nombre}
-          precio={conVariantes ? resumen.precio : precioCentavos === null ? "" : formatearDolares(precioCentavos)}
-          unidades={conVariantes ? resumen.unidades : unidades}
-          variantes={conVariantes ? resumen.cuantas : 0}
-          categoria={categoria}
-          condicion={condicion}
-        />
       </div>
+
+      {/* En pantalla angosta la tarjeta del producto se abre en una ventana */}
+      <Ventana ref={ventanaPrevia} titulo={t.vistaPrevia} ayuda={t.vistaPreviaAyuda}>
+        <VistaPreviaProducto soloFicha {...vista} />
+      </Ventana>
+
       {/* En el código el principal va primero (es el que dispara Enter); `order` lo deja a la derecha */}
       <BarraFormulario>
-        <Button type="submit" variante="mango" disabled={pendiente} className="order-3">
-          {pendiente
-            ? editando
-              ? textos.productos.editar.guardando
-              : t.guardando
-            : editando
-              ? textos.productos.editar.guardar
-              : t.guardar}
+        <Button type="submit" variante="mango" icono="check" disabled={pendiente} className="order-3">
+          {guardarTexto}
         </Button>
         {editando ? (
-          <Link
-            href={`/productos/${modo.codigo}`}
-            className="order-2 inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold text-teal-oscuro hover:-translate-y-0.5 hover:shadow-dura-chica"
-          >
-            {textos.productos.editar.cancelar}
-          </Link>
+          <ButtonLink href={`/productos/${modo.codigo}`} variante="secundario" icono="x" className="order-2">
+            {e2.cancelar}
+          </ButtonLink>
         ) : (
-          <button
-            type="submit"
-           
-            name="otro"
-            value="1"
-            disabled={pendiente}
-            className="order-2 inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold text-teal-oscuro hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-60"
-          >
+          <Button type="submit" name="otro" value="1" variante="secundario" icono="mas" disabled={pendiente} className="order-2">
             {t.guardarOtro}
-          </button>
+          </Button>
         )}
-        <span className="order-1 hidden whitespace-nowrap text-xs text-texto-2 lg:block">{t.atajo}</span>
+        <Button type="button" variante="suave" icono="ojo" className="order-1 mr-auto lg:hidden" onClick={() => ventanaPrevia.current?.showModal()}>
+          {t.verComoQueda}
+        </Button>
       </BarraFormulario>
     </form>
+  );
+}
+
+const SUBRAYADO = {
+  limon: "bg-[linear-gradient(transparent_82%,var(--color-limon)_82%,var(--color-limon)_100%)]",
+  mango: "bg-[linear-gradient(transparent_82%,var(--color-mango)_82%,var(--color-mango)_100%)]",
+  rosa: "bg-[linear-gradient(transparent_82%,var(--color-rosa)_82%,var(--color-rosa)_100%)]",
+  celeste: "bg-[linear-gradient(transparent_82%,var(--color-celeste)_82%,var(--color-celeste)_100%)]",
+} as const;
+
+/**
+ * Un paso del formulario: número, título subrayado y una línea de apoyo. Los obligatorios están siempre abiertos y su número se
+ * vuelve un check cuando están listos. Los opcionales traen el número punteado, un resumen de cómo están y se abren al tocarlos
+ * (su contenido sigue en la página aunque esté cerrado, para que lo escrito viaje al guardar).
+ */
+function BloqueForm({
+  numero,
+  titulo,
+  ayuda,
+  tono,
+  listo = false,
+  opcional = false,
+  lotito = false,
+  resumen,
+  abierto = true,
+  onAlternar,
+  children,
+}: {
+  numero: number;
+  titulo: string;
+  ayuda: string;
+  tono: keyof typeof SUBRAYADO;
+  listo?: boolean;
+  opcional?: boolean;
+  /** Lotito llenó este bloque: se marca con su chip para que se note qué revisar */
+  lotito?: boolean;
+  resumen?: string;
+  abierto?: boolean;
+  onAlternar?: () => void;
+  children: ReactNode;
+}) {
+  const idPanel = useId();
+  const cabeza = (
+    <>
+      <span
+        aria-hidden="true"
+        className={`flex size-9 shrink-0 items-center justify-center rounded-full font-logo text-lg font-bold ${
+          opcional ? "border-2 border-dashed border-borde-control bg-superficie text-texto-2" : listo ? "bg-teal text-white" : "bg-teal-oscuro text-white"
+        }`}
+      >
+        {listo && !opcional ? <Icon nombre="check" className="size-5" /> : numero}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-lg font-bold leading-tight">
+          <span className={`${SUBRAYADO[tono]} box-decoration-clone pb-0.5`}>{titulo}</span>
+          {lotito && <ChipLotito />}
+          {opcional && !lotito && <span className="ml-2 rounded-full bg-fondo px-2 py-0.5 align-middle text-xs font-bold text-texto-2">{textos.productos.form.opcional}</span>}
+        </span>
+        <span className="block text-sm text-texto-2">{ayuda}</span>
+      </span>
+    </>
+  );
+  return (
+    <section className="flex flex-col gap-4">
+      {opcional ? (
+        <button
+          type="button"
+          aria-expanded={abierto}
+          aria-controls={idPanel}
+          onClick={onAlternar}
+          className="flex w-full items-center gap-3 rounded-xl text-left"
+        >
+          {cabeza}
+          {resumen && <span className="hidden max-w-[40%] truncate text-sm text-texto-2 sm:block">{resumen}</span>}
+          <Icon nombre="flecha" className={`size-5 shrink-0 text-texto-2 transition-transform ${abierto ? "rotate-180" : ""}`} />
+        </button>
+      ) : (
+        <div className="flex items-center gap-3">{cabeza}</div>
+      )}
+      <div id={idPanel} className={`flex flex-col gap-4 rounded-2xl bg-fondo p-4 ${abierto ? "" : "hidden"}`}>
+        {children}
+      </div>
+    </section>
   );
 }

@@ -37,10 +37,17 @@ export function SelectorCategoria({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-bold">
-        {etiqueta}
-        {lotito && <ChipLotito />}
-      </label>
+      {/* El enlace a Ajustes va en la línea de la etiqueta, para que el campo mida lo mismo que sus vecinos */}
+      <div className="flex items-baseline justify-between gap-3">
+        <label htmlFor={id} className="text-sm font-bold">
+          {etiqueta}
+          {lotito && <ChipLotito />}
+        </label>
+        <Link href="/ajustes/categorias" className="inline-flex items-center gap-1 text-xs font-bold text-teal underline">
+          <Icon nombre="ajustes" className="size-3.5" />
+          {t.administrar}
+        </Link>
+      </div>
       {opciones.length === 0 ? (
         <p className="rounded-[14px] border-2 border-borde-control bg-fondo px-4 py-3 text-sm text-texto-2">{t.sinLista}</p>
       ) : (
@@ -67,10 +74,6 @@ export function SelectorCategoria({
         </p>
       )}
 
-      <Link href="/ajustes/categorias" className="inline-flex items-center gap-1 self-start text-sm font-bold text-teal underline">
-        <Icon nombre="ajustes" className="size-4" />
-        {t.administrar}
-      </Link>
     </div>
   );
 }

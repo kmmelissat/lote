@@ -1,9 +1,10 @@
 import { textos } from "@/lib/textos";
-import { IconoFacebook, IconoInstagram, IconoTiktok } from "./IconosRedes";
+import { IconoFacebook, IconoInstagram, IconoTiktok, IconoWhatsApp } from "./IconosRedes";
 import { enlaceFacebook, enlaceInstagram, enlaceTiktok, enlaceWhatsApp } from "../enlaces";
 
-const base =
-  "inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro px-6 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none";
+// WhatsApp lleva su verde para que se reconozca al instante; plano, sin la sombra dura, para no competir con lo demás.
+const whatsappVerde =
+  "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 font-bold text-teal-oscuro transition-[transform,filter] duration-150 hover:-translate-y-0.5 hover:brightness-95 active:translate-y-0";
 const icono =
   "flex size-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro transition-colors hover:bg-limon";
 
@@ -54,7 +55,8 @@ export function BotonesChat({
   return (
     <div className="flex flex-wrap items-center gap-3">
       {wa && (
-        <a href={wa} target="_blank" rel="noreferrer" className={`${base} bg-accion text-accion-texto`}>
+        <a href={wa} target="_blank" rel="noreferrer" className={whatsappVerde}>
+          <IconoWhatsApp className="size-5" />
           {textos.vitrina.pedirWhatsApp}
         </a>
       )}

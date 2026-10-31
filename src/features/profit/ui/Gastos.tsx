@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState, useTransition } from "reac
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
-import { CATEGORIAS_GASTO, type CategoriaGasto } from "@/domain/index";
+import { CATEGORIAS_GASTO, METODOS_DE_DINERO, type CategoriaGasto, type MetodoMovimiento } from "@/domain/index";
 import type { Gasto } from "../repositorio";
 import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
@@ -22,6 +22,8 @@ const ICONOS: Record<CategoriaGasto, NombreIcono> = {
   comisiones: "moneda",
   otros: "mas_opciones",
 };
+
+const ICONOS_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco", billetera: "billetera" };
 
 const campo =
   "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal";
@@ -114,6 +116,28 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
             </div>
           </fieldset>
 
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 text-sm font-bold">{t.form.metodo}</legend>
+            <div className="flex flex-wrap gap-2">
+              {([...METODOS_DE_DINERO, ""] as const).map((m) => (
+                <label key={m || "ninguno"} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="metodo"
+                    value={m}
+                    defaultChecked={m === ""}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-teal-fondo peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
+                    {m && <Icon nombre={ICONOS_METODO[m]} className="size-4" />}
+                    {m ? textos.dinero.metodos[m] : t.form.sinMetodo}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p className="text-sm text-texto-2">{t.form.metodoAyuda}</p>
+          </fieldset>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-bold">{t.form.fecha}</span>
@@ -175,7 +199,7 @@ export function ListaGastos({ gastos }: { gastos: Gasto[] }) {
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate font-bold">{t.categorias[g.categoria]}</p>
-              <p className="truncate text-sm text-texto-2">{[g.fecha, g.nota].filter(Boolean).join(" · ")}</p>
+              <p className="truncate text-sm text-texto-2">{[g.fecha, g.metodo ? textos.dinero.metodos[g.metodo] : null, g.nota].filter(Boolean).join(" · ")}</p>
             </div>
             <span className="font-bold tabular-nums">{formatearDolares(g.monto)}</span>
             <button

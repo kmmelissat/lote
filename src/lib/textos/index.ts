@@ -24,6 +24,7 @@ import { cobro } from "./cobro";
 import { clientes } from "./clientes";
 import { pedidos } from "./pedidos";
 import { ganancia } from "./ganancia";
+import { dinero } from "./dinero";
 import { ajustes } from "./ajustes";
 import { estadosProducto } from "./estadosProducto";
 import { estadosPedido } from "./estadosPedido";
@@ -61,6 +62,7 @@ export const textos = {
   clientes,
   pedidos,
   ganancia,
+  dinero,
   ajustes,
   estadosProducto,
   estadosPedido,

@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useState, type ClipboardEvent, type KeyboardEvent } from "react";
+import { Aviso } from "@/components/ui/Aviso";
+import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { soloNumero } from "@/lib/entrada";
@@ -9,14 +11,11 @@ import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 import { MAXIMO_VARIANTES_GRUPO } from "../edicionGrupo";
 import {
-  aplicarCruce,
   aplicarFotosAlGrupo,
   combinaciones,
-  CRUCES,
   filaDe,
   filasParaGuardar,
   fotosDelGrupoFilas,
-  fotosPropiasPorFila,
   gruposDe,
   huerfanas,
   MAXIMO_OPCIONES,
@@ -24,19 +23,20 @@ import {
   opcionNueva,
   restoDe,
   seAgrupaPorPrimera,
-  unificarFotosDeGrupos,
   type DatosFila,
   type EstadoEditor,
 } from "../editorVariantes";
-import { estiloCampo } from "./campos";
+import { ChipLotito, estiloCampo } from "./campos";
 import { ZonaFotos } from "./ZonaFotos";
 
 const t = textos.productos.form.variantes;
 const g = textos.productos.editar.grupo;
 
 const campo = `${estiloCampo} h-11 px-3`;
-const COLUMNAS = "md:grid-cols-[minmax(0,1fr)_5.5rem_4.5rem_5.5rem_3rem_2.75rem]";
-const COLUMNAS_MODELO = "md:grid-cols-[minmax(0,1fr)_5.5rem_4.5rem_5.5rem_2.75rem]";
+/** La tabla: variante, precio, cantidad, costo y la acción de la fila. En el celular las columnas se angostan, no se apilan. */
+const COLUMNAS = "grid grid-cols-[minmax(0,1fr)_4.75rem_3.5rem_4.75rem_2.25rem] items-center gap-2 md:grid-cols-[minmax(0,1fr)_6rem_5rem_6rem_2.5rem] md:gap-3";
+const campoNumero =
+  "h-10 w-full rounded-[12px] border-2 border-borde-control bg-superficie px-2 text-right text-sm tabular-nums placeholder:text-texto-2/60 focus:border-teal disabled:border-transparent disabled:bg-transparent";
 
 /** Valores como fichas: se agregan con Enter o coma, y al pegar una lista (por línea o separada por comas) se parte sola. */
 function Fichas({ etiqueta, valores, onCambio }: { etiqueta: string; valores: string[]; onCambio: (v: string[]) => void }) {
@@ -102,8 +102,10 @@ function Fichas({ etiqueta, valores, onCambio }: { etiqueta: string; valores: st
 }
 
 /**
- * Las variantes de un producto, igual al crear y al editar: qué cambia entre ellas (el cruce), y una fila por
- * combinación con su precio, cantidad, costo de compra y fotos. Viaja al servidor como JSON en campos ocultos.
+ * Las variantes de un producto, igual al crear y al editar. Una cosa a la vez: cada opción (Talla, Color…) se edita sola y se
+ * cierra con "Listo" en un resumen. La tabla va agrupada por la primera opción, con los grupos cerrados: el precio o el costo
+ * que se escribe en un grupo vale para todas sus variantes, y las fotos van en la miniatura de la fila. Viaja al servidor como
+ * JSON en campos ocultos.
  */
 export function EditorVariantes({
   negocioId,
@@ -111,6 +113,7 @@ export function EditorVariantes({
   onCambio,
   error,
   idLibre = null,
+  deLotito = false,
 }: {
   negocioId: string;
   estado: EstadoEditor;
@@ -118,24 +121,21 @@ export function EditorVariantes({
   error?: string;
   /** El producto suelto que se está pasando a "con variantes": queda como la primera combinación */
   idLibre?: string | null;
+  /** Lotito armó las opciones: cada una lleva su chip hasta que la persona la edite */
+  deLotito?: boolean;
 }) {
-  const [fotosDe, setFotosDe] = useState<string | null>(null);
-  const [grupoElegido, setGrupoElegido] = useState<string | null>(null);
-  const [fotoPorFila, setFotoPorFila] = useState<boolean | null>(null);
+  const [editando, setEditando] = useState<string | null>(null);
+  const [abiertos, setAbiertos] = useState<Record<string, boolean>>({});
+  const [fotosAbiertas, setFotosAbiertas] = useState<string | null>(null);
   const filas = combinaciones(e);
   const agrupado = seAgrupaPorPrimera(e);
   const grupos = gruposDe(e);
-  const activo = grupos.find((g) => g.clave === grupoElegido) ?? grupos[0];
-  const filasVisibles = agrupado ? (activo?.filas ?? []) : filas;
-  const porCombinacion = !agrupado || (fotoPorFila ?? fotosPropiasPorFila(e));
-  const columnas = agrupado && !porCombinacion ? COLUMNAS_MODELO : COLUMNAS;
-  const opcion1 = e.opciones[0]?.nombre.trim() || t.opcionNombre;
-  const opcion2 = e.opciones[1]?.nombre.trim() || g.etiqueta;
-  const fotosGrupo = activo ? fotosDelGrupoFilas(e, activo.filas) : [];
+  const conValores = e.opciones.filter((o) => o.valores.length);
   const sobran = huerfanas(e);
-  const cruceActivo = CRUCES.find((c) => c.nombres.join("|").toLowerCase() === e.opciones.map((o) => o.nombre.trim()).join("|").toLowerCase())?.id;
+  const unidades = filas.reduce((suma, etiqueta) => suma + (Number(filaDe(e, etiqueta).cantidad) || 0), 0);
 
-  const cambiarFila = (etiqueta: string, cambio: Partial<DatosFila>) => onCambio({ ...e, filas: { ...e.filas, [etiqueta]: { ...filaDe(e, etiqueta), ...cambio } } });
+  const poner = (etiquetas: string[], cambio: Partial<DatosFila>) =>
+    onCambio({ ...e, filas: { ...e.filas, ...Object.fromEntries(etiquetas.map((et) => [et, { ...filaDe(e, et), ...cambio }])) } });
   const cambiarFotos = (etiquetas: string[], fotos: string[]) => {
     const [primera] = etiquetas;
     if (!primera) return;
@@ -143,253 +143,262 @@ export function EditorVariantes({
   };
   const cambiarOpcion = (id: string, cambio: { nombre?: string; valores?: string[] }) =>
     onCambio({ ...e, opciones: e.opciones.map((o) => (o.id === id ? { ...o, ...cambio } : o)) });
-  // "Aplicar a todas": lo que se llenó en la barra pasa a cada combinación (fotos y lo que ya existe se quedan)
-  const aplicarATodas = () => {
-    const cambio = Object.fromEntries(Object.entries(e.base).filter(([, v]) => v.trim()));
-    onCambio({ ...e, filas: { ...e.filas, ...Object.fromEntries(filas.map((c) => [c, { ...filaDe(e, c), ...cambio }])) } });
+
+  // Empezar: "Talla" pone esa opción, sola y abierta, para escribir sus valores. Las opciones que todavía no tienen valores se descartan.
+  function empezarCon(nombre: string) {
+    const nueva = opcionNueva(nombre);
+    onCambio({ ...e, opciones: [...conValores, nueva] });
+    setEditando(nueva.id);
+  }
+  function terminar(id: string) {
+    const o = e.opciones.find((x) => x.id === id);
+    if (o && !o.nombre.trim()) return;
+    onCambio({ ...e, opciones: e.opciones.filter((x) => x.id !== id || x.valores.length) });
+    setEditando(null);
+  }
+  function eliminar(id: string) {
+    onCambio({ ...e, opciones: e.opciones.filter((x) => x.id !== id) });
+    if (editando === id) setEditando(null);
+  }
+
+  // Lo que vale para todo un grupo: si todas sus variantes tienen lo mismo se ve; si no, queda vacío ("Varios").
+  const compartido = (etiquetas: string[], k: "precio" | "compra") => {
+    const valores = new Set(etiquetas.map((et) => filaDe(e, et)[k]));
+    return valores.size === 1 ? ([...valores][0] ?? "") : "";
+  };
+  const hayVarios = (etiquetas: string[], k: "precio" | "compra") => new Set(etiquetas.map((et) => filaDe(e, et)[k])).size > 1;
+
+  const miniatura = (etiquetas: string[], foto: string | undefined, clave: string, nombre: string) => {
+    const abierta = fotosAbiertas === clave;
+    return (
+      <button
+        type="button"
+        onClick={() => setFotosAbiertas(abierta ? null : clave)}
+        aria-expanded={abierta}
+        aria-label={g.verFotos(nombre)}
+        title={g.verFotos(nombre)}
+        className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 transition-colors hover:border-teal-oscuro ${
+          foto ? "border-teal-oscuro" : abierta ? "border-teal-oscuro bg-teal-fondo" : "border-dashed border-borde-control bg-superficie"
+        }`}
+      >
+        {foto ? <Image src={urlFoto(foto)} alt="" width={44} height={44} className="size-full object-cover" /> : <Icon nombre="camara" className="size-5 text-texto-2" />}
+        <span className="sr-only">{t.fotosDelProducto}</span>
+      </button>
+    );
+  };
+
+  const panelFotos = (clave: string, etiquetas: string[], fotos: string[], ayuda: string) =>
+    fotosAbiertas === clave && (
+      <li className="flex flex-col gap-2 border-t border-borde bg-fondo px-3 py-3">
+        <p className="text-sm text-texto-2">{ayuda}</p>
+        <ZonaFotos negocioId={negocioId} rutas={fotos} compacto onCambio={(nuevas) => cambiarFotos(etiquetas, nuevas)} />
+      </li>
+    );
+
+  const filaVariante = (etiqueta: string, hijo: boolean) => {
+    const f = filaDe(e, etiqueta);
+    const nombre = agrupado ? restoDe(etiqueta) : etiqueta;
+    return (
+      <li key={etiqueta} className={hijo ? "bg-fondo" : ""}>
+        <div className={`${COLUMNAS} border-t border-borde px-3 py-2 ${hijo ? "pl-6 md:pl-10" : ""}`}>
+          <div className="flex min-w-0 items-center gap-2">
+            {miniatura([etiqueta], f.fotos[0], `fila:${etiqueta}`, nombre)}
+            <p className="min-w-0 font-bold">
+              <span className="block truncate">{nombre}</span>
+              {!f.id && <span className="rounded-full bg-teal-fondo px-2 text-xs font-medium">{g.nueva}</span>}
+            </p>
+          </div>
+          {(["precio", "cantidad", "compra"] as const).map((k) => (
+            <input
+              key={k}
+              value={f[k]}
+              inputMode={k === "cantidad" ? "numeric" : "decimal"}
+              placeholder={k === "compra" ? "–" : k === "precio" ? "0.00" : undefined}
+              aria-label={`${g[k]}: ${etiqueta}`}
+              onChange={(ev) => poner([etiqueta], { [k]: soloNumero(ev.target.value, k !== "cantidad") })}
+              className={campoNumero}
+            />
+          ))}
+          <button
+            type="button"
+            onClick={() => onCambio({ ...e, quitadas: [...e.quitadas, etiqueta] })}
+            disabled={f.comprometidas > 0}
+            aria-label={t.quitarCombinacion(etiqueta)}
+            title={f.comprometidas > 0 ? g.noSePuedeQuitar(f.comprometidas) : t.quitarCombinacion(etiqueta)}
+            className="flex size-9 items-center justify-center justify-self-end rounded-xl text-texto-2 hover:bg-error-fondo hover:text-error disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-texto-2"
+          >
+            <Icon nombre="x" className="size-4" />
+          </button>
+        </div>
+        {f.comprometidas > 0 && <p className={`px-3 pb-2 text-xs text-texto-2 ${hijo ? "pl-6 md:pl-10" : ""}`}>{g.minimo(f.comprometidas)}</p>}
+        <ul>{panelFotos(`fila:${etiqueta}`, [etiqueta], f.fotos, t.fotosPropiasAyuda)}</ul>
+      </li>
+    );
   };
 
   return (
-    <section aria-labelledby="editor-variantes" className="flex flex-col gap-5 rounded-[20px] border-2 border-teal-oscuro bg-superficie p-4">
+    <section aria-labelledby="editor-variantes" className="flex flex-col gap-4">
       <input type="hidden" name="variantesFilas" value={JSON.stringify(filasParaGuardar(e, idLibre))} />
       <input type="hidden" name="opcionesNombres" value={JSON.stringify(nombresDeOpciones(e))} />
+      <h3 id="editor-variantes" className="sr-only">
+        {t.cruceTitulo}
+      </h3>
 
-      {/* 1. Qué cambia entre las variantes */}
-      <div className="flex flex-col gap-3">
-        <div>
-          <h2 id="editor-variantes" className="font-bold">
-            {t.cruceTitulo}
-          </h2>
-          <p className="text-sm text-texto-2">{t.cruceAyuda}</p>
+      {/* 1. Empezar: qué cambia entre las variantes */}
+      {conValores.length === 0 && editando === null && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm text-texto-2">{t.vacio}</p>
+          <div className="flex flex-wrap gap-2">
+            {t.atajosOpciones.map((nombre) => (
+              <Button key={nombre} type="button" variante="suave" tamano="chico" icono="mas" onClick={() => empezarCon(nombre)}>
+                {nombre}
+              </Button>
+            ))}
+            <Button type="button" variante="suave" tamano="chico" icono="mas" onClick={() => empezarCon("")}>
+              {t.otraOpcion}
+            </Button>
+          </div>
         </div>
-        <div role="group" aria-label={t.cruceTitulo} className="flex flex-wrap gap-2">
-          {CRUCES.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              aria-pressed={cruceActivo === c.id}
-              onClick={() => onCambio(aplicarCruce(e, c.nombres))}
-              className="h-10 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors aria-pressed:bg-teal-oscuro aria-pressed:text-white hover:bg-teal-fondo aria-pressed:hover:bg-teal-oscuro"
-            >
-              {t.cruces[c.id as keyof typeof t.cruces]}
-            </button>
-          ))}
-        </div>
+      )}
 
-        <ul className="flex flex-col gap-3">
-          {e.opciones.map((o) => (
-            <li key={o.id} className="flex flex-col gap-2 rounded-2xl bg-crema p-3">
-              <div className="flex items-end gap-2">
-                <label className="flex min-w-0 flex-1 flex-col gap-1">
-                  <span className="text-xs font-bold text-texto-2">{t.opcionNombre}</span>
-                  <input value={o.nombre} maxLength={30} onChange={(ev) => cambiarOpcion(o.id, { nombre: ev.target.value })} className={campo} />
-                </label>
-                {e.opciones.length > 1 && (
-                  <button
-                    type="button"
-                    aria-label={t.quitarOpcion}
-                    title={t.quitarOpcion}
-                    onClick={() => onCambio({ ...e, opciones: e.opciones.filter((x) => x.id !== o.id) })}
-                    className="flex size-11 shrink-0 items-center justify-center rounded-xl text-texto-2 hover:bg-white"
-                  >
-                    <Icon nombre="x" className="size-5" />
-                  </button>
-                )}
-              </div>
-              <Fichas etiqueta={t.valoresEtiqueta(o.nombre || t.opcionNombre)} valores={o.valores} onCambio={(valores) => cambiarOpcion(o.id, { valores })} />
-            </li>
-          ))}
-        </ul>
-        {e.opciones.length < MAXIMO_OPCIONES && (
-          <button
-            type="button"
-            onClick={() => onCambio({ ...e, opciones: [...e.opciones, opcionNueva()] })}
-            className="inline-flex h-10 items-center gap-2 self-start rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold hover:bg-teal-fondo"
-          >
-            <Icon nombre="mas" className="size-4" />
-            {t.agregarOpcion}
-          </button>
-        )}
-      </div>
-
-      {/* 2. Una fila por combinación */}
-      <div className="flex flex-col gap-3" aria-live="polite">
-        <div>
-          <h3 className="font-bold">{t.combinaciones(filas.length)}</h3>
-          <p className="text-sm text-texto-2">{agrupado ? t.combinacionesAyudaCruce(opcion1, opcion2) : t.combinacionesAyuda}</p>
-        </div>
-
-        {filas.length === 0 ? (
-          <p className="rounded-2xl border-2 border-dashed border-teal-oscuro/30 px-4 py-6 text-center text-sm text-texto-2">{t.sinCombinaciones}</p>
-        ) : (
-          <>
-            {/* Llenar una vez y aplicar a todas: lo más común es que cuesten y valgan parecido */}
-            <div className="flex flex-wrap items-end gap-2 rounded-2xl bg-teal-fondo p-3">
-              <p className="w-full text-sm font-bold sm:w-auto sm:self-center sm:pr-2">{t.paraTodas}</p>
-              {(["precio", "cantidad", "compra"] as const).map((k) => (
-                <label key={k} className="flex w-24 flex-col gap-1">
-                  <span className="text-xs font-bold text-texto-2">{g[k]}</span>
+      {/* 2. Las opciones: la que se está tocando abierta, las demás en una línea */}
+      <ul className="flex flex-col gap-2">
+        {e.opciones.map((o) => {
+          if (o.id === editando) {
+            return (
+              <li key={o.id} className="flex flex-col gap-3 rounded-2xl border-2 border-teal-oscuro p-4">
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm font-bold">{t.opcionNombre}</span>
                   <input
-                    value={e.base[k]}
-                    inputMode={k === "cantidad" ? "numeric" : "decimal"}
-                    onChange={(ev) => onCambio({ ...e, base: { ...e.base, [k]: soloNumero(ev.target.value, k !== "cantidad") } })}
-                    className={`${campo} bg-white tabular-nums`}
+                    value={o.nombre}
+                    maxLength={30}
+                    autoFocus={!o.nombre}
+                    onChange={(ev) => cambiarOpcion(o.id, { nombre: ev.target.value })}
+                    onKeyDown={(ev) => ev.key === "Enter" && ev.preventDefault()}
+                    className={campo}
                   />
                 </label>
-              ))}
-              <button type="button" onClick={aplicarATodas} className="h-11 rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold hover:bg-teal-fondo">
-                {t.aplicarTodas}
-              </button>
-            </div>
-
-            {agrupado && grupos.length > 0 && activo && (
-              <>
-                <div role="radiogroup" aria-label={opcion1} className="flex flex-wrap gap-2">
-                  {grupos.map((grupo) => {
-                    const foto = fotosDelGrupoFilas(e, grupo.filas)[0];
-                    const marcado = grupo.clave === activo.clave;
-                    return (
-                      <button
-                        key={grupo.clave}
-                        type="button"
-                        role="radio"
-                        aria-checked={marcado}
-                        onClick={() => setGrupoElegido(grupo.clave)}
-                        className={`inline-flex max-w-[16rem] items-center gap-2 rounded-full border-2 border-teal-oscuro text-sm font-bold transition-colors ${
-                          foto ? "py-1 pl-1 pr-4" : "h-10 px-4"
-                        } ${marcado ? "bg-teal-oscuro text-white" : "hover:bg-teal-fondo"}`}
-                      >
-                        {foto && <Image src={urlFoto(foto)} alt="" width={32} height={32} className="size-8 rounded-full object-cover" />}
-                        <span className="truncate">{grupo.clave}</span>
-                      </button>
-                    );
-                  })}
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm font-bold">{t.valoresEtiqueta(o.nombre || t.opcionNombre)}</span>
+                  <Fichas etiqueta={t.valoresEtiqueta(o.nombre || t.opcionNombre)} valores={o.valores} onCambio={(valores) => cambiarOpcion(o.id, { valores })} />
                 </div>
-                <div role="radiogroup" aria-label={t.fotosModo} className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={!porCombinacion}
-                    onClick={() => {
-                      setFotoPorFila(false);
-                      setFotosDe(null);
-                      onCambio(unificarFotosDeGrupos(e));
-                    }}
-                    className="h-10 max-md:min-h-11 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors aria-checked:bg-teal-oscuro aria-checked:text-white hover:bg-teal-fondo aria-checked:hover:bg-teal-oscuro"
-                  >
-                    {t.fotosModoGrupo(opcion1)}
-                  </button>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={porCombinacion}
-                    onClick={() => setFotoPorFila(true)}
-                    className="h-10 max-md:min-h-11 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors aria-checked:bg-teal-oscuro aria-checked:text-white hover:bg-teal-fondo aria-checked:hover:bg-teal-oscuro"
-                  >
-                    {t.fotosModoCada}
-                  </button>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Button type="button" variante="suave" tamano="chico" icono="borrar" className="text-error" onClick={() => eliminar(o.id)}>
+                    {t.eliminarOpcion}
+                  </Button>
+                  <Button type="button" variante="suave" tamano="chico" icono="check" disabled={!o.nombre.trim() || !o.valores.length} onClick={() => terminar(o.id)}>
+                    {t.listo}
+                  </Button>
                 </div>
-                {!porCombinacion && (
-                  <div className="flex flex-col gap-2">
-                    <div>
-                      <p className="font-bold">{t.fotosDe(activo.clave)}</p>
-                      <p className="text-sm text-texto-2">{t.fotosDeAyuda}</p>
-                    </div>
-                    <ZonaFotos negocioId={negocioId} rutas={fotosGrupo} compacto onCambio={(fotos) => cambiarFotos(activo.filas, fotos)} />
-                  </div>
-                )}
-              </>
-            )}
+              </li>
+            );
+          }
+          if (!o.valores.length) return null;
+          return (
+            <li key={o.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-borde bg-fondo px-4 py-2.5">
+              <b className="min-w-16">
+                {o.nombre}
+                {deLotito && <ChipLotito />}
+              </b>
+              <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                {o.valores.map((v) => (
+                  <span key={v} className="rounded-full bg-superficie px-2.5 py-0.5 text-sm font-medium">
+                    {v}
+                  </span>
+                ))}
+              </div>
+              <Button type="button" variante="suave" tamano="chico" icono="editar" onClick={() => setEditando(o.id)}>
+                {t.editar}
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+      {conValores.length > 0 && editando === null && e.opciones.length < MAXIMO_OPCIONES && (
+        <Button type="button" variante="suave" tamano="chico" icono="mas" className="self-start" onClick={() => empezarCon("")}>
+          {t.agregarOpcion}
+        </Button>
+      )}
 
-            {/* Encabezados solo en pantallas anchas; en el celular cada fila lleva sus etiquetas */}
-            <div aria-hidden="true" className={`hidden gap-2 px-3 text-xs font-bold text-texto-2 md:grid ${columnas}`}>
-              <span>{agrupado ? opcion2 : g.etiqueta}</span>
-              <span>{g.precio}</span>
-              <span>{g.cantidad}</span>
-              <span>{g.compra}</span>
-              {porCombinacion && <span />}
+      {/* 3. Una fila por variante, agrupadas por la primera opción */}
+      {filas.length > 0 && editando === null && (
+        <div className="flex flex-col gap-2" aria-live="polite">
+          {agrupado && <p className="text-sm text-texto-2">{t.ayudaGrupo}</p>}
+          <div className="overflow-hidden rounded-2xl border border-borde">
+            <div aria-hidden="true" className={`${COLUMNAS} bg-fondo px-3 py-2 text-xs font-bold uppercase tracking-wide text-texto-2`}>
+              <span>{t.columnaVariante}</span>
+              <span className="text-right">{g.precio}</span>
+              <span className="text-right">{g.cantidad}</span>
+              <span className="text-right">{g.compra}</span>
               <span />
             </div>
-            <ul className="flex flex-col gap-2">
-              {filasVisibles.map((etiqueta) => {
-                const f = filaDe(e, etiqueta);
-                const abiertas = porCombinacion && fotosDe === etiqueta;
-                const nombre = agrupado ? restoDe(etiqueta) : etiqueta;
-                return (
-                  <li key={etiqueta} className={`flex flex-col gap-2 rounded-2xl border-2 p-2 ${f.id ? "border-teal-oscuro/15" : "border-dashed border-teal-oscuro/30"}`}>
-                    {/* En el celular: el nombre con la X arriba, los tres números en una fila y las fotos abajo */}
-                    <div className={`grid grid-cols-6 gap-2 md:items-center ${columnas}`}>
-                      <p className="col-span-5 flex min-h-11 items-center px-1 font-bold md:col-span-1">
-                        <span className="truncate">{nombre}</span>
-                        {!f.id && <span className="ml-2 shrink-0 rounded-full bg-rosa-palido px-2 text-xs">{g.nueva}</span>}
-                      </p>
-                      {(["precio", "cantidad", "compra"] as const).map((k) => (
-                        <label key={k} className="order-2 col-span-2 flex flex-col gap-1 md:order-0 md:col-span-1">
-                          <span className="text-xs font-bold text-texto-2 md:sr-only">{g[k]}</span>
+            <ul>
+              {agrupado
+                ? grupos.map((grupo, i) => {
+                    const abierto = abiertos[grupo.clave] ?? i === 0;
+                    const fotosDelGrupo = fotosDelGrupoFilas(e, grupo.filas);
+                    const total = grupo.filas.reduce((suma, et) => suma + (Number(filaDe(e, et).cantidad) || 0), 0);
+                    return (
+                      <li key={grupo.clave} className="border-t border-borde first:border-t-0">
+                        <div className={`${COLUMNAS} px-3 py-2`}>
+                          <div className="flex min-w-0 items-center gap-2">
+                            {miniatura(grupo.filas, fotosDelGrupo[0], `grupo:${grupo.clave}`, grupo.clave)}
+                            <button
+                              type="button"
+                              aria-expanded={abierto}
+                              onClick={() => setAbiertos((a) => ({ ...a, [grupo.clave]: !abierto }))}
+                              className="min-w-0 flex-1 text-left"
+                            >
+                              <span className="block truncate font-bold">{grupo.clave}</span>
+                              <span className="block text-xs text-texto-2">{t.variantesDelGrupo(grupo.filas.length)}</span>
+                            </button>
+                          </div>
                           <input
-                            value={f[k]}
-                            inputMode={k === "cantidad" ? "numeric" : "decimal"}
-                            placeholder={k === "compra" ? "–" : undefined}
-                            aria-label={`${g[k]}: ${etiqueta}`}
-                            onChange={(ev) => cambiarFila(etiqueta, { [k]: soloNumero(ev.target.value, k !== "cantidad") })}
-                            className={`${campo} tabular-nums`}
+                            value={compartido(grupo.filas, "precio")}
+                            inputMode="decimal"
+                            placeholder={hayVarios(grupo.filas, "precio") ? t.varios : "0.00"}
+                            aria-label={`${g.precio}: ${grupo.clave}`}
+                            onChange={(ev) => poner(grupo.filas, { precio: soloNumero(ev.target.value, true) })}
+                            className={campoNumero}
                           />
-                        </label>
-                      ))}
-                      {porCombinacion && (
-                        <button
-                          type="button"
-                          onClick={() => setFotosDe(abiertas ? null : etiqueta)}
-                          aria-expanded={abiertas}
-                          aria-label={g.verFotos(etiqueta)}
-                          title={g.fotos(f.fotos.length)}
-                          className={`relative order-3 col-span-6 flex h-11 items-center justify-center gap-2 rounded-xl border-2 px-2 text-xs font-bold hover:border-teal-oscuro md:order-0 md:col-span-1 md:w-12 md:px-0 ${abiertas ? "border-teal-oscuro bg-teal-fondo" : "border-teal-oscuro/20"}`}
-                        >
-                          {f.fotos[0] ? (
-                            <Image src={urlFoto(f.fotos[0])} alt="" width={28} height={28} className="size-7 rounded-md object-cover" />
-                          ) : (
-                            <Icon nombre="camara" className="size-5 text-texto-2" />
-                          )}
-                          <span className="md:sr-only">{f.fotos.length ? g.fotos(f.fotos.length) : t.fotosDelProducto}</span>
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => onCambio({ ...e, quitadas: [...e.quitadas, etiqueta] })}
-                        disabled={f.comprometidas > 0}
-                        aria-label={t.quitarCombinacion(etiqueta)}
-                        title={f.comprometidas > 0 ? g.noSePuedeQuitar(f.comprometidas) : t.quitarCombinacion(etiqueta)}
-                        className="order-1 col-span-1 flex size-11 items-center justify-center self-center justify-self-end rounded-xl text-texto-2 hover:bg-error-fondo hover:text-error disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-texto-2 md:order-0"
-                      >
-                        <Icon nombre="x" className="size-5" />
-                      </button>
-                    </div>
-                    {f.comprometidas > 0 && <p className="px-1 text-xs text-texto-2">{g.minimo(f.comprometidas)}</p>}
-                    {abiertas && (
-                      <div className="flex flex-col gap-2 rounded-xl bg-crema p-3">
-                        <p className="text-sm text-texto-2">{t.fotosPropiasAyuda}</p>
-                        <ZonaFotos negocioId={negocioId} rutas={f.fotos} onCambio={(fotos) => cambiarFotos([etiqueta], fotos)} />
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
+                          <span className="px-2 text-right text-sm font-bold tabular-nums">{total}</span>
+                          <input
+                            value={compartido(grupo.filas, "compra")}
+                            inputMode="decimal"
+                            placeholder={hayVarios(grupo.filas, "compra") ? t.varios : "–"}
+                            aria-label={`${g.compra}: ${grupo.clave}`}
+                            onChange={(ev) => poner(grupo.filas, { compra: soloNumero(ev.target.value, true) })}
+                            className={campoNumero}
+                          />
+                          <button
+                            type="button"
+                            aria-expanded={abierto}
+                            aria-label={abierto ? t.cerrarGrupo(grupo.clave) : t.abrirGrupo(grupo.clave)}
+                            onClick={() => setAbiertos((a) => ({ ...a, [grupo.clave]: !abierto }))}
+                            className="flex size-9 items-center justify-center justify-self-end rounded-xl text-texto-2 hover:bg-fondo"
+                          >
+                            <Icon nombre="flecha" className={`size-5 transition-transform ${abierto ? "rotate-180" : ""}`} />
+                          </button>
+                        </div>
+                        <ul>{panelFotos(`grupo:${grupo.clave}`, grupo.filas, fotosDelGrupo, t.fotosGrupoAyuda(grupo.clave))}</ul>
+                        {abierto && <ul>{grupo.filas.map((et) => filaVariante(et, true))}</ul>}
+                      </li>
+                    );
+                  })
+                : filas.map((et) => filaVariante(et, false))}
             </ul>
-          </>
-        )}
+            <p className="border-t border-borde px-4 py-3 text-sm text-texto-2">{t.total(filas.length, unidades)}</p>
+          </div>
+        </div>
+      )}
 
-        {e.quitadas.length > 0 && (
-          <button type="button" onClick={() => onCambio({ ...e, quitadas: [] })} className="self-start text-sm font-bold text-teal underline">
-            {t.restaurar(e.quitadas.length)}
-          </button>
-        )}
-        {sobran.length > 0 && (
-          <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-            {t.seQuitan(sobran.map((s) => s.etiqueta).join(", "))}
-          </p>
-        )}
-        {filas.length > MAXIMO_VARIANTES_GRUPO && <p className="text-sm font-medium text-error">{t.demasiadas(MAXIMO_VARIANTES_GRUPO)}</p>}
-      </div>
+      {e.quitadas.length > 0 && (
+        <button type="button" onClick={() => onCambio({ ...e, quitadas: [] })} className="self-start text-sm font-bold text-teal underline">
+          {t.restaurar(e.quitadas.length)}
+        </button>
+      )}
+      {sobran.length > 0 && <Aviso tipo="alerta">{t.seQuitan(sobran.map((s) => s.etiqueta).join(", "))}</Aviso>}
+      {filas.length > MAXIMO_VARIANTES_GRUPO && <p className="text-sm font-medium text-error">{t.demasiadas(MAXIMO_VARIANTES_GRUPO)}</p>}
       <MensajeError>{error}</MensajeError>
     </section>
   );

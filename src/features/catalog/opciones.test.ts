@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filasDeOpciones, modeloDe } from "./opciones";
+import { fichasParaTarjeta, filasDeOpciones, modeloDe } from "./opciones";
 
 const o = (codigo: number, variante: string, disponibles = 1) => ({ codigo, variante, disponibles });
 
@@ -66,5 +66,41 @@ describe("modeloDe", () => {
   it("sin modelo o sin variante devuelve null", () => {
     expect(modeloDe("Rosa · Corazones")).toBeNull();
     expect(modeloDe(null)).toBeNull();
+  });
+});
+
+describe("fichasParaTarjeta", () => {
+  it("muestra las tallas y marca las agotadas", () => {
+    expect(fichasParaTarjeta([o(1, "S"), o(2, "M", 0), o(3, "L")])).toEqual({
+      titulo: "Talla",
+      valores: [
+        { valor: "S", disponible: true },
+        { valor: "M", disponible: false },
+        { valor: "L", disponible: true },
+      ],
+    });
+  });
+
+  it("muestra los colores", () => {
+    expect(fichasParaTarjeta([o(1, "Rosa"), o(2, "Negro")])?.titulo).toBe("Color");
+  });
+
+  it("de un cruce talla × color elige la talla, y un valor sin unidades en ninguna combinación queda agotado", () => {
+    const f = fichasParaTarjeta([o(1, "M · Rosa"), o(2, "M · Negro", 0), o(3, "L · Rosa", 0), o(4, "L · Negro", 0)])!;
+    expect(f.titulo).toBe("Talla");
+    expect(f.valores).toEqual([
+      { valor: "M", disponible: true },
+      { valor: "L", disponible: false },
+    ]);
+  });
+
+  it("usa el nombre que puso la tienda para decidir qué mostrar", () => {
+    expect(fichasParaTarjeta([o(1, "iPhone 16 · Rosa"), o(2, "iPhone 17 · Rosa")], ["Modelo", "Color"])?.titulo).toBe("Color");
+  });
+
+  it("no sirve para modelos ni opciones sueltas, ni sin variantes", () => {
+    expect(fichasParaTarjeta([o(1, "iPhone 16"), o(2, "iPhone 17")])).toBeNull();
+    expect(fichasParaTarjeta([o(1, "Algodón"), o(2, "Lino")])).toBeNull();
+    expect(fichasParaTarjeta([])).toBeNull();
   });
 });

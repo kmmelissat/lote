@@ -58,11 +58,11 @@ export const ayuda = {
     },
     {
       id: "ganancia",
-      enlace: { href: "/ganancia", etiqueta: "Ver Ganancia" },
-      donde: ["/ganancia"],
+      enlace: { href: "/dinero", etiqueta: "Ver Dinero" },
+      donde: ["/dinero"],
       pregunta: "¿Cómo sé cuánto gané?",
       respuesta:
-        "En Ganancia ves dos números: la ganancia de tus productos y la ganancia después de gastos. Si a algún producto le falta el costo, la ganancia aparece como estimada. Solo la ven la dueña y la administradora.",
+        "En Dinero ves dos números: la ganancia de tus productos y la ganancia después de gastos. Si a algún producto le falta el costo, la ganancia aparece como estimada. Solo la ven la dueña y la administradora.",
     },
     {
       id: "asistente",

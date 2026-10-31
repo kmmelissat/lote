@@ -1,11 +1,11 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
-import { LotitoMas } from "@/components/ui/LotitoMas";
 import { Chat } from "./Chat";
 import { AvatarLotito } from "./PiezasChat";
 
@@ -200,22 +200,17 @@ function Burbuja({ negocioId }: { negocioId: string }) {
           arrastre ? "cursor-grabbing" : "cursor-grab transition-transform duration-150 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
         } md:right-6 md:bottom-6 ${abierto ? "invisible pointer-events-none" : ""}`}
       >
-        <span className="relative block md:hidden">
-          <LotitoMas nombre="saluda" className="w-14 motion-safe:animate-asomar" />
-          <span className="absolute -left-1 top-0 flex h-8 w-10 items-center justify-center gap-0.5 rounded-2xl rounded-br-md border-2 border-teal-oscuro bg-celeste shadow-dura-chica">
-            {[0, 150, 300].map((demora) => (
-              <span
-                key={demora}
-                aria-hidden="true"
-                className="size-1.5 rounded-full bg-teal-oscuro/70 motion-safe:animate-bounce"
-                style={{ animationDelay: `${demora}ms` }}
-              />
-            ))}
-          </span>
-        </span>
-        <span className="group relative hidden h-14 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-celeste py-1 pl-2 pr-5 text-teal-oscuro shadow-dura-chica md:flex">
-          <LotitoMas nombre="saluda" className="-mb-1 w-11" />
-          <span className="text-sm font-bold">{t.flotanteEtiqueta}</span>
+        <span className="relative block">
+          <Image
+            src="/landing/lotito-avatar.webp"
+            alt=""
+            width={384}
+            height={384}
+            priority
+            draggable={false}
+            className="pointer-events-none size-14 rounded-full border-2 border-teal-oscuro bg-limon object-cover shadow-dura-chica md:size-16"
+          />
+          <span className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full border-2 border-white bg-teal" />
         </span>
       </button>
     </div>

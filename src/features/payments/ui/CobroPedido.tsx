@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { Button, estiloBoton } from "@/components/ui/Button";
-import { TARJETA } from "@/components/ui/tarjeta";
+import { Card } from "@/components/ui/Card";
+import { TituloPaso } from "@/components/ui/TituloPaso";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useToast } from "@/components/ui/Toast";
 import type { EstadoPedido } from "@/domain/index";
@@ -22,18 +23,23 @@ type Props = {
   saldo: number;
   pagos: Pago[];
   contraEntrega: boolean;
+  /** El envío guardado es retiro en persona: no hay a quién cobrarle al entregar */
+  retiro: boolean;
   mensaje: string;
   puedeVender: boolean;
 };
 
-export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntrega, mensaje, puedeVender }: Props) {
+export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntrega, retiro, mensaje, puedeVender }: Props) {
   const { avisar } = useToast();
   const [errorContra, setErrorContra] = useState("");
   const [pendienteContra, empezarContra] = useTransition();
 
   const abierto = estado !== "cancelado";
   const puedeCobrar = puedeVender && abierto && saldo > 0;
-  const puedeContraEntrega = puedeCobrar && estado !== "entregado";
+  // Contra entrega solo se activa o se quita mientras el pedido sigue pendiente (después, entregar ya es cobrar) y con envío
+  const alEntregar = contraEntrega && abierto && saldo > 0;
+  const puedeActivar = puedeCobrar && estado === "pendiente" && !contraEntrega && !retiro;
+  const puedeQuitar = puedeCobrar && estado === "pendiente" && contraEntrega;
 
   async function copiar() {
     try {
@@ -53,8 +59,8 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
   }
 
   return (
-    <section className={`${TARJETA} flex flex-col gap-4 bg-superficie`}>
-      <h2 className="font-bold">{t.titulo}</h2>
+    <Card role="region" aria-labelledby="cobropedido" className="flex flex-col gap-4">
+      <TituloPaso numero={2} id="cobropedido">{t.titulo}</TituloPaso>
 
       <div>
         <h3 className="mb-2 text-sm font-medium text-texto-2">{t.pagos}</h3>
@@ -79,7 +85,15 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
         {total > 0 && saldo === 0 && abierto && <p className="mt-1 text-sm text-teal">{t.pagado}</p>}
       </div>
 
-      {abierto && saldo > 0 && (
+      {/* Contra entrega: el cobro llega al entregar, así que el mensaje de cobro no aplica */}
+      {alEntregar && (
+        <div className="flex flex-col gap-1 rounded-2xl border-2 border-teal-oscuro bg-celeste-palido p-3 md:px-4">
+          <p className="font-bold">{t.contraEntregaCobro(formatearDolares(saldo))}</p>
+          <p className="text-sm text-texto-2">{t.contraEntregaCobroAyuda}</p>
+        </div>
+      )}
+
+      {abierto && saldo > 0 && !contraEntrega && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap gap-3">
             <Button type="button" variante="secundario" onClick={copiar}>
@@ -98,18 +112,21 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
       )}
 
       {/* key: al registrar un pago cambia el saldo y el formulario arranca limpio */}
-      {puedeCobrar && <PagoForm key={saldo} pedidoId={pedidoId} saldo={saldo} />}
+      {puedeCobrar &&
+        (alEntregar ? (
+          <details className="rounded-xl border border-borde">
+            <summary className="flex min-h-11 cursor-pointer items-center px-4 text-sm font-bold">{t.abonoAdelantado}</summary>
+            <div className="p-3 pt-0">
+              <PagoForm key={saldo} pedidoId={pedidoId} saldo={saldo} />
+            </div>
+          </details>
+        ) : (
+          <PagoForm key={saldo} pedidoId={pedidoId} saldo={saldo} />
+        ))}
 
-      {puedeContraEntrega && (
+      {(puedeActivar || puedeQuitar) && (
         <div className="flex flex-col gap-2">
-          {contraEntrega ? (
-            <>
-              <p className="font-medium">{t.contraEntregaActivo}</p>
-              <p className="text-sm text-texto-2">{t.contraEntregaAyuda}</p>
-            </>
-          ) : (
-            <p className="text-sm text-texto-2">{t.contraEntregaAyuda}</p>
-          )}
+          {!contraEntrega && <p className="text-sm text-texto-2">{t.contraEntregaAyuda}</p>}
           <Button
             type="button"
             variante="secundario"
@@ -122,6 +139,6 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
           <MensajeError>{errorContra}</MensajeError>
         </div>
       )}
-    </section>
+    </Card>
   );
 }

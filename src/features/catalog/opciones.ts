@@ -81,3 +81,27 @@ export function filasDeOpciones(opciones: OpcionVariante[], actual: number, nomb
     };
   });
 }
+
+export type FichasTarjeta = { titulo: string; valores: { valor: string; disponible: boolean }[] };
+
+/**
+ * Las tallas o los colores de un producto, para mostrar en su tarjeta sin entrar a la ficha. Solo sirve lo que se
+ * entiende de un vistazo: otras opciones (modelos, materiales) quedan para la ficha y devuelve null.
+ * Si hay varias, gana la talla; el color va después. Cada valor dice si queda alguna unidad con él.
+ */
+export function fichasParaTarjeta(opciones: OpcionVariante[], nombres: string[] = []): FichasTarjeta | null {
+  const partes = opciones.map((o) => partesDe(o.variante));
+  const cuantas = partes[0]?.length ?? 0;
+  if (!cuantas || partes.some((p) => p.length !== cuantas)) return null;
+  const filas = Array.from({ length: cuantas }, (_, d) => {
+    const valores = [...new Set(partes.map((p) => p[d]))];
+    const titulo = nombres.length === cuantas && nombres[d]?.trim() ? nombres[d].trim() : tituloDe(valores, d);
+    return {
+      titulo,
+      valores: valores.map((valor) => ({ valor, disponible: opciones.some((o, i) => partes[i][d] === valor && o.disponibles > 0) })),
+    };
+  });
+  const clase = (t: string) => (/talla/i.test(t) ? 0 : /color/i.test(t) ? 1 : 2);
+  const mejor = filas.reduce((a, b) => (clase(b.titulo) < clase(a.titulo) ? b : a));
+  return clase(mejor.titulo) < 2 ? mejor : null;
+}

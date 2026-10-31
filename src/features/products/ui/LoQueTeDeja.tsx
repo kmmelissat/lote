@@ -1,4 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import type { DesgloseCosto } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -24,7 +25,7 @@ export function LoQueTeDeja({ productos, hrefCosto }: { productos: Producto[]; h
   );
   const faltan = productos.length - conCosto.length;
   const botonCosto = hrefCosto && (
-    <ButtonLink href={hrefCosto} variante="secundario" className="h-10 max-md:min-h-11 px-5 text-sm">
+    <ButtonLink href={hrefCosto} variante="suave" tamano="chico" icono="mas">
       {t.agregarCosto}
     </ButtonLink>
   );
@@ -41,7 +42,7 @@ export function LoQueTeDeja({ productos, hrefCosto }: { productos: Producto[]; h
   const rubros = solo ? (Object.entries(solo.desglose ?? {}) as [keyof DesgloseCosto, number][]) : [];
 
   return (
-    <section aria-labelledby="ganancia-producto" className="flex flex-col gap-3 bg-limon p-5 text-teal-oscuro shadow-dura">
+    <Card role="region" aria-labelledby="ganancia-producto" className="flex flex-col gap-3">
       <h2 id="ganancia-producto" className="font-bold">
         {t.gananciaTitulo}
       </h2>
@@ -53,7 +54,7 @@ export function LoQueTeDeja({ productos, hrefCosto }: { productos: Producto[]; h
       ) : (
         <>
           <div className="flex flex-wrap items-end gap-x-6 gap-y-1">
-            <p className="text-4xl font-bold tabular-nums">{rango(conCosto.map((x) => x.ganancia), formatearDolares)}</p>
+            <p className="font-logo text-4xl font-bold tabular-nums text-teal">{rango(conCosto.map((x) => x.ganancia), formatearDolares)}</p>
             <p className="pb-1 text-sm font-medium">
               {t.ganancia}
               {margenes.length > 0 && ` · ${t.margen} ${rango(margenes, String)} %`}
@@ -63,7 +64,7 @@ export function LoQueTeDeja({ productos, hrefCosto }: { productos: Producto[]; h
           {cuentas.length > 0 && (
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {cuentas.map((c) => (
-                <li key={c.clave} className="rounded-2xl border-2 border-teal-oscuro/15 bg-white/60 p-3">
+                <li key={c.clave} className="rounded-2xl bg-fondo p-3">
                   <p className="text-sm">{c.etiqueta(c.n)}</p>
                   <p className="text-2xl font-bold tabular-nums">{formatearDolares(c.monto)}</p>
                 </li>
@@ -72,7 +73,7 @@ export function LoQueTeDeja({ productos, hrefCosto }: { productos: Producto[]; h
           )}
 
           {solo && solo.costoUnitario !== null && solo.costoUnitario !== undefined && (
-            <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1 rounded-2xl bg-white/60 p-3 text-sm">
+            <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1 rounded-2xl bg-fondo p-3 text-sm">
               {rubros.map(([tipo, monto]) => (
                 <div key={tipo} className="contents">
                   <dt>{t.desglose[tipo]}</dt>
@@ -85,13 +86,13 @@ export function LoQueTeDeja({ productos, hrefCosto }: { productos: Producto[]; h
           )}
 
           {faltan > 0 && (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/60 p-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-fondo p-3 text-sm">
               <p>{t.faltaCosto(faltan)}</p>
               {botonCosto}
             </div>
           )}
         </>
       )}
-    </section>
+    </Card>
   );
 }

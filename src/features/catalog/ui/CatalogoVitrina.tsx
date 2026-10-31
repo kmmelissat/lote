@@ -1,16 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
-import { StatusChip } from "@/components/ui/StatusChip";
 import type { TarjetaVitrina } from "../agruparVitrina";
-import { urlFoto } from "@/lib/fotos";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
-import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { TarjetaDeVitrina } from "./TarjetaDeVitrina";
 
 const t = textos.vitrina;
 
@@ -27,7 +22,20 @@ type Orden = "recientes" | "precio_asc" | "precio_desc";
 const normalizar = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 /** La grilla de la vitrina, con chips de categoría para filtrar. */
-export function CatalogoVitrina({ slug, productos }: { slug: string; productos: TarjetaVitrina[] }) {
+export function CatalogoVitrina({
+  slug,
+  productos,
+  umbral,
+  envio,
+  puedeComprar,
+}: {
+  slug: string;
+  productos: TarjetaVitrina[];
+  umbral: number;
+  /** Lo que cuesta y tarda el envío de la tienda, para cada tarjeta */
+  envio: string | null;
+  puedeComprar: boolean;
+}) {
   const [categoria, setCategoria] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [modelo, setModelo] = useState<string | null>(null);
@@ -146,49 +154,11 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
         <p className="py-8 text-center text-texto-2">{t.sinResultados}</p>
       ) : (
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          {ordenados.map((p, i) => {
-            const libre = p.disponibles > 0;
-            return (
-              <li key={p.codigo} className="h-full">
-                <Link
-                  href={`/c/${slug}/${p.codigo}`}
-                  className={`group flex h-full flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-2 pb-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura ${GIROS[i % GIROS.length]}`}
-                >
-                  <div className="relative aspect-square overflow-hidden rounded-[18px] bg-teal-fondo">
-                    {p.fotos[0] ? (
-                      <Image
-                        src={urlFoto(p.fotos[0])}
-                        alt={p.nombre}
-                        fill
-                        loading={i < 4 ? "eager" : "lazy"}
-                        sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-                        className={`object-cover ${libre ? "" : "opacity-70"}`}
-                      />
-                    ) : (
-                      <span aria-hidden="true" className="flex size-full items-center justify-center">
-                        <Monito nombre="caja" className="w-1/3 text-teal/40" />
-                      </span>
-                    )}
-                    {!libre && (
-                      <span className="absolute left-2 top-2 -rotate-6 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-xs font-bold text-teal-oscuro">
-                        {p.apartado ? t.apartadoSticker : t.agotadoSticker}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-1 flex-col items-start gap-1 px-2">
-                    <p className="line-clamp-2 font-bold leading-tight">{p.nombre}</p>
-                    <p className="text-lg font-bold tabular-nums text-teal">
-                      {p.precioMinimo === p.precioMaximo ? formatearDolares(p.precioMinimo) : t.desde(formatearDolares(p.precioMinimo))}
-                    </p>
-                    <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
-                      {libre && <StatusChip publico estado="disponible" texto={textos.productos.quedan(p.disponibles)} />}
-                      {p.opciones > 1 && <span className="text-sm text-texto-2">{t.nOpciones(p.opciones)}</span>}
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
+          {ordenados.map((p, i) => (
+            <li key={p.codigo} className="h-full">
+              <TarjetaDeVitrina slug={slug} p={p} umbral={umbral} envio={envio} puedeComprar={puedeComprar} giro={GIROS[i % GIROS.length]} prioridad={i < 4} />
+            </li>
+          ))}
         </ul>
       )}
     </div>

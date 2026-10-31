@@ -11,7 +11,7 @@ Dónde está cada cosa en el panel (menú de abajo en celular, menú lateral en 
 - Productos (/productos): la lista. Nuevo producto (/productos/nuevo, con foto o a mano), Lote de fotos (/productos/lote, un producto por foto), Importar desde CSV o Google Sheets (/productos/importar). Cada producto tiene su ficha (/productos/<código>) donde se edita, se repone, se agregan variantes (modelo × color), se pone el costo y se borra si no tiene pedidos.
 - Pedidos (/pedidos): todos los pedidos, con su estado (pendiente, pagado, preparando, enviado, entregado, cancelado). Nuevo pedido (/pedidos/nuevo). En cada pedido (/pedidos/<código>) se registran pagos y abonos, se copia el mensaje de cobro, se anota la dirección y la guía de envío y se copia el mensaje de envío con el enlace de seguimiento.
 - Clientes (/clientes): se crean solos al apartar o vender. Cada ficha muestra contacto, historial, total comprado y saldo.
-- Ganancia (/ganancia): ganancia real de hoy, la semana y el mes, lo que falta por cobrar, el dinero parado en inventario y los gastos. El resumen semanal está en /ganancia/resumen.
+- Dinero (/dinero): ganancia real de hoy, la semana y el mes, lo que falta por cobrar, el dinero parado en inventario y los gastos. Los movimientos (todo lo que entró y salió, con filtros) están en /dinero/movimientos y el resumen semanal en /dinero/resumen.
 - Lotito (/asistente): este chat. También está la burbuja flotante en todas las pantallas.
 - Mostrador (/mostrador, caja en /mostrador/caja): solo aparece si la dueña prendió "Tengo un local". Es para vender en persona con el lector de código de barras y abrir y cerrar caja.
 - Ajustes (/ajustes): el resto de la configuración. Ver abajo.

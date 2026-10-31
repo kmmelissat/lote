@@ -458,13 +458,19 @@ describe("gasto", () => {
     const r = await turno({ mensajeId: "m1" }, { intencion: "gasto", monto: 5, categoria: "empaque", nota: "bolsas" });
     expect(r.texto).toBe("Listo. Gasto de $5.00 en empaque (bolsas). Ya cuenta en tu ganancia.");
     expect(r.botones?.[0]).toMatchObject({ etiqueta: "Deshacer", comando: { tipo: "deshacer", accionId: "a-m1" } });
-    expect(puerto.registrarGasto).toHaveBeenCalledWith({ categoria: "empaque", monto: 500, nota: "bolsas" });
+    expect(puerto.registrarGasto).toHaveBeenCalledWith({ categoria: "empaque", monto: 500, nota: "bolsas", metodo: null });
+  });
+
+  it("guarda con qué lo pagó si lo dijo", async () => {
+    const { puerto, turno } = montar();
+    await turno({ mensajeId: "m1" }, { intencion: "gasto", monto: 5, categoria: "empaque", nota: "bolsas", metodo: "efectivo" });
+    expect(puerto.registrarGasto).toHaveBeenCalledWith({ categoria: "empaque", monto: 500, nota: "bolsas", metodo: "efectivo" });
   });
 
   it("sin categoría queda en otros", async () => {
     const { puerto, turno } = montar();
     await turno({ mensajeId: "m1" }, { intencion: "gasto", monto: 2.5 });
-    expect(puerto.registrarGasto).toHaveBeenCalledWith({ categoria: "otros", monto: 250, nota: null });
+    expect(puerto.registrarGasto).toHaveBeenCalledWith({ categoria: "otros", monto: 250, nota: null, metodo: null });
   });
 
   it("si falta el monto pregunta solo eso y luego lo registra", async () => {
@@ -498,6 +504,41 @@ describe("pregunta a medias", () => {
     );
     expect(r.texto).toContain("Esto podés decirme");
     expect(puerto.registrarPedido).not.toHaveBeenCalled();
+  });
+});
+
+describe("pregunta a medias: salidas", () => {
+  it("una orden corta mientras espera un cliente es otro mensaje, no el nombre", async () => {
+    const { puerto, turno } = montar();
+    const espera = await turno({ mensajeId: "m1" }, { intencion: "marcar_pagado" });
+    expect(espera.estado).toMatchObject({ tipo: "completar", falta: "pedido" });
+
+    const r = await turno({ mensajeId: "m2", texto: "hacer pedido", estado: espera.estado }, { intencion: "ayuda" });
+    expect(r.texto).toContain("Esto podés decirme");
+    expect(puerto.cambiarEstado).not.toHaveBeenCalled();
+  });
+
+  it("'nooo, quiero generar un pedido' tampoco se toma como cliente", async () => {
+    const { turno } = montar();
+    const espera = await turno({ mensajeId: "m1" }, { intencion: "cobrar" });
+    const r = await turno({ mensajeId: "m2", texto: "nooo, quiero generar un pedido", estado: espera.estado }, { intencion: "ayuda" });
+    expect(r.texto).toContain("Esto podés decirme");
+  });
+
+  it("'no' suelta la pregunta", async () => {
+    const { turno } = montar();
+    const espera = await turno({ mensajeId: "m1" }, { intencion: "cobrar" });
+    const r = await turno({ mensajeId: "m2", texto: "no", estado: espera.estado });
+    expect(r.texto).toBe(textos.asistente.descartado);
+    expect(r.estado).toBeUndefined();
+  });
+
+  it("un nombre de clienta sigue siendo la respuesta", async () => {
+    const { turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const espera = await turno({ mensajeId: "m1" }, { intencion: "cobrar" });
+    const r = await turno({ mensajeId: "m2", texto: "Ana", estado: espera.estado });
+    expect(r.texto).not.toContain("No te entendí");
+    expect(r.texto).not.toContain("No encontré");
   });
 });
 

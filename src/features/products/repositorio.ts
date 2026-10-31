@@ -14,6 +14,7 @@ import {
 import { detallesDe } from "@/features/catalog/repositorio";
 import { nombreParaGuardar, type FilaImportable } from "@/features/import/mapeo";
 import { categoriaDeLista, esRubroValido } from "./categorias";
+import { aPedidosDeProducto, type FilaPedidoDeProducto, type PedidoDeProducto } from "./pedidosDeProducto";
 import { type InfoExtra, tieneInfoExtra } from "./infoExtra";
 import type { RubroId } from "@/features/catalog/rubros";
 import type { Database } from "@/lib/supabase/database.types";
@@ -557,4 +558,21 @@ export async function eliminarGrupo(
   const { data, error } = await supabase.from("producto").delete().eq("negocio_id", negocioId).eq("grupo", grupo).select("id");
   if (error) return error.code === "23503" ? "con_pedidos" : "desconocido";
   return data.length > 0 ? "ok" : "sin_permiso";
+}
+
+/**
+ * Los últimos pedidos en los que entró el producto (o cualquiera de sus variantes), el más reciente primero. Las unidades
+ * son las que ese pedido llevó de él, no las de todo el pedido.
+ */
+export async function pedidosDeProducto(supabase: Cliente, negocioId: string, productoIds: string[], limite = 5): Promise<PedidoDeProducto[]> {
+  if (!productoIds.length) return [];
+  const { data, error } = await supabase
+    .from("pedido")
+    .select("codigo, estado, creado_en, cliente(nombre), pedido_item!inner(cantidad, producto_id)")
+    .eq("negocio_id", negocioId)
+    .in("pedido_item.producto_id", productoIds)
+    .order("creado_en", { ascending: false })
+    .limit(limite);
+  if (error) throw error;
+  return aPedidosDeProducto(data as unknown as FilaPedidoDeProducto[]);
 }

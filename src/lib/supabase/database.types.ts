@@ -744,6 +744,7 @@ export type Database = {
           creado_por: string | null
           fecha: string
           id: string
+          metodo: string | null
           monto: number
           negocio_id: string
           nota: string | null
@@ -756,6 +757,7 @@ export type Database = {
           creado_por?: string | null
           fecha?: string
           id?: string
+          metodo?: string | null
           monto: number
           negocio_id: string
           nota?: string | null
@@ -768,6 +770,7 @@ export type Database = {
           creado_por?: string | null
           fecha?: string
           id?: string
+          metodo?: string | null
           monto?: number
           negocio_id?: string
           nota?: string | null
@@ -787,6 +790,50 @@ export type Database = {
             columns: ["pedido_id"]
             isOneToOne: false
             referencedRelation: "pedido"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conteo_dinero: {
+        Row: {
+          contado: number
+          contado_en: string
+          diferencia: number | null
+          esperado: number | null
+          id: string
+          metodo: string
+          negocio_id: string
+          nota: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          contado: number
+          contado_en?: string
+          diferencia?: number | null
+          esperado?: number | null
+          id?: string
+          metodo: string
+          negocio_id: string
+          nota?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          contado?: number
+          contado_en?: string
+          diferencia?: number | null
+          esperado?: number | null
+          id?: string
+          metodo?: string
+          negocio_id?: string
+          nota?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conteo_dinero_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
             referencedColumns: ["id"]
           },
         ]
@@ -1327,10 +1374,21 @@ export type Database = {
         }
         Returns: string
       }
+      registrar_conteo_dinero: {
+        Args: {
+          p_contado: number
+          p_esperado?: number
+          p_metodo: string
+          p_negocio: string
+          p_nota?: string
+        }
+        Returns: string
+      }
       registrar_gasto: {
         Args: {
           p_categoria: string
           p_fecha?: string
+          p_metodo?: string
           p_monto: number
           p_negocio: string
           p_nota?: string
@@ -1542,6 +1600,10 @@ export type Database = {
           p_orden?: string
           p_precio_max?: number
           p_precio_min?: number
+          /** Los tres siguientes necesitan explorar_filtros.sql */
+          p_oferta?: boolean
+          p_envio_gratis?: boolean
+          p_departamento?: string
         }
         Returns: {
           categoria: string | null
@@ -1645,6 +1707,14 @@ export type Database = {
           creado_en?: string
           vendidas?: number
         }[]
+      }
+      vitrina_perfil: {
+        Args: { p_slug: string }
+        Returns: { verificada: boolean; desde: string; vendidos: number }[]
+      }
+      vitrina_estrellas: {
+        Args: { p_slug: string }
+        Returns: { codigo: number; promedio: number; total: number }[]
       }
       vitrina_resenas: {
         Args: { p_slug: string; p_codigo?: number }

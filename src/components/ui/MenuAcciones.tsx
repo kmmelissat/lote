@@ -57,7 +57,7 @@ export function MenuAcciones({ etiqueta, acciones }: { etiqueta: string; accione
         aria-expanded={abierto}
         aria-controls={id}
         onClick={() => setAbierto((a) => !a)}
-        className="flex size-10 max-md:size-11 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura aria-expanded:bg-teal-fondo"
+        className="flex size-12 items-center justify-center rounded-full border-2 border-borde-control bg-superficie text-teal-oscuro transition-colors hover:border-teal-oscuro hover:bg-teal-fondo aria-expanded:border-teal-oscuro aria-expanded:bg-teal-fondo"
       >
         <Icon nombre="mas_opciones" className="size-5" />
       </button>

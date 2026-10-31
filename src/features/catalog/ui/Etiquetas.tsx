@@ -2,8 +2,6 @@ import { textos } from "@/lib/textos";
 
 const t = textos.vitrina.etiquetas;
 
-/** Un producto se marca "Nuevo" durante estos días desde que se creó */
-export const DIAS_NUEVO = 14;
 const MIN_VENDIDAS = 5;
 
 /** Las etiquetas de un vistazo: "Nuevo", "Últimas unidades" y cuántas se vendieron. Solo salen las que aplican. */

@@ -76,3 +76,50 @@ describe("agruparParaVitrina", () => {
     expect(t[0]).toMatchObject({ precioMinimo: 2500, precioMaximo: 3000 });
   });
 });
+
+describe("agruparParaVitrina: lo que muestra la tarjeta", () => {
+  const AHORA = new Date("2026-10-31T12:00:00Z").getTime();
+  const hace = (dias: number) => new Date(AHORA - dias * 86_400_000);
+
+  it("marca la oferta solo si el precio de antes es mayor", () => {
+    const t = agruparParaVitrina([pub(1, { precio: 2000, precioAnterior: 3000 }), pub(2, { precio: 2000, precioAnterior: 2000 })]);
+    expect(t.map((x) => x.precioAnterior)).toEqual([3000, null]);
+  });
+
+  it("en un grupo, la oferta es la de la variante más barata", () => {
+    const t = agruparParaVitrina([
+      pub(1, { grupo: "g", variante: "M", precio: 3000, precioAnterior: 4000 }),
+      pub(2, { grupo: "g", variante: "L", precio: 2000, precioAnterior: 2500 }),
+    ]);
+    expect(t[0]).toMatchObject({ precioMinimo: 2000, precioAnterior: 2500 });
+  });
+
+  it("es nuevo si se creó hace menos de 14 días; en un grupo basta una variante nueva", () => {
+    const t = agruparParaVitrina(
+      [
+        pub(1, { creadoEn: hace(3) }),
+        pub(2, { creadoEn: hace(30) }),
+        pub(3, { grupo: "g", variante: "M", creadoEn: hace(30) }),
+        pub(4, { grupo: "g", variante: "L", creadoEn: hace(1) }),
+      ],
+      new Map(),
+      AHORA,
+    );
+    expect(t.map((x) => x.nuevo)).toEqual([true, false, true]);
+  });
+
+  it("trae las estrellas de cualquiera de las variantes y junta sus variantes", () => {
+    const t = agruparParaVitrina(
+      [pub(1, { grupo: "g", variante: "M", disponibles: 0 }), pub(2, { grupo: "g", variante: "L", disponibles: 2 }), pub(3, {})],
+      new Map([[2, { promedio: 4.5, total: 3 }]]),
+    );
+    expect(t[0].estrellas).toEqual({ promedio: 4.5, total: 3 });
+    expect(t[0].variantes).toEqual([
+      { codigo: 1, variante: "M", disponibles: 0 },
+      { codigo: 2, variante: "L", disponibles: 2 },
+    ]);
+    expect(t[1].estrellas).toBeNull();
+    expect(t[1].variantes).toEqual([]);
+  });
+});
+

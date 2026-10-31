@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import type { Boton, Comando, Estado, Respuesta } from "../motor";
 import { textos } from "@/lib/textos";
 import { subirFotos } from "@/features/products/subirFotos";
@@ -32,6 +32,7 @@ function historialDe(ms: Mensaje[]): Turno[] {
     .slice(-TURNOS_DE_MEMORIA);
 }
 
+const pildoraFuerte = "!bg-teal-oscuro !text-white hover:!bg-teal";
 const pildora =
   "min-h-11 rounded-full border-2 border-teal-oscuro bg-superficie px-4 text-sm font-medium text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-50";
 
@@ -169,7 +170,11 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
         </header>
       )}
 
-      <div ref={lista} className={`min-h-0 flex-1 overflow-y-auto ${compacto ? "px-1 pb-2" : "px-4 py-3 md:px-10 md:py-6"}`}>
+      <div
+        ref={lista}
+        className={`min-h-0 flex-1 overflow-y-auto ${compacto ? "px-1 pb-2" : "px-4 py-3 md:px-10 md:py-6"}`}
+        style={compacto ? undefined : { backgroundImage: "radial-gradient(rgb(0 56 68 / 0.12) 1.5px, transparent 1.5px)", backgroundSize: "22px 22px" }}
+      >
         {/* Cada respuesta nueva se anuncia a quien usa lector de pantalla */}
         <ol
           className={`flex flex-col gap-4 ${vacio && !compacto ? "min-h-full" : compacto ? "" : "md:mx-auto md:w-full md:max-w-2xl"}`}
@@ -191,7 +196,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
 
           {vacio && !compacto && (
             <li className="flex min-h-full flex-col items-center justify-center gap-5 px-2 py-6 text-center md:flex-row-reverse md:items-center md:justify-center md:gap-16 md:px-4 md:text-left">
-              <Monito nombre="saluda" className="w-28 shrink-0 text-rosa motion-safe:animate-asomar md:w-52 lg:w-60" />
+              <LotitoMas nombre="saluda" className="w-28 shrink-0 motion-safe:animate-asomar md:w-52 lg:w-60" />
               <div className="flex max-w-md flex-col items-center gap-4 md:max-w-xl md:items-start">
                 <div>
                   <h1 className="font-logo text-3xl leading-none tracking-tight md:text-5xl">{t.vacioTitulo}</h1>
@@ -205,7 +210,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
 
           {mensajes.map((m) =>
             m.de === "yo" ? (
-              <li key={m.id} className="flex flex-col items-end gap-1 pl-10">
+              <li key={m.id} className="flex flex-col items-end gap-1 pl-10 motion-safe:animate-entra">
                 <span className="sr-only">{t.tu}:</span>
                 {m.foto && (
                   <Image
@@ -221,7 +226,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
                 )}
               </li>
             ) : (
-              <li key={m.id} className="flex items-end gap-2 pr-6">
+              <li key={m.id} className="flex items-end gap-2 pr-6 motion-safe:animate-entra">
                 <AvatarLotito />
                 <div className="flex min-w-0 flex-col items-start gap-2">
                   <span className="sr-only">{t.asistente}:</span>
@@ -241,7 +246,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
                   {m.vigente && (m.respuesta.botones?.length || m.respuesta.copiar) ? (
                     <div className="flex flex-wrap gap-2">
                       {m.respuesta.botones?.map((b) => (
-                        <button key={`${b.etiqueta}-${b.comando.tipo}`} type="button" disabled={pendiente} onClick={() => boton(b)} className={pildora}>
+                        <button key={`${b.etiqueta}-${b.comando.tipo}`} type="button" disabled={pendiente} onClick={() => boton(b)} className={`${pildora} ${b.comando.tipo === "confirmar" ? pildoraFuerte : ""}`}>
                           {b.etiqueta}
                         </button>
                       ))}

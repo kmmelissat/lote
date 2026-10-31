@@ -1,12 +1,12 @@
 import { Fragment } from "react";
-import { Gorila } from "@/components/ui/Gorila";
+import Image from "next/image";
 import { bloquesDe, type Trozo } from "../formatoRespuesta";
 
-/** La cara de Lotito: el gorila del logo sobre limón, que se reconoce aunque sea chiquito. Con `enLinea`, el puntito. */
+/** La cara de Lotito, la misma del botón flotante. Con `enLinea`, el puntito. */
 export function AvatarLotito({ className = "size-8", enLinea = false }: { className?: string; enLinea?: boolean }) {
   return (
-    <span aria-hidden="true" className={`relative flex shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon text-teal-oscuro ${className}`}>
-      <Gorila className="size-[62%]" />
+    <span aria-hidden="true" className={`relative flex shrink-0 ${className}`}>
+      <Image src="/landing/lotito-avatar.webp" alt="" width={96} height={96} className="size-full rounded-full border-2 border-teal-oscuro bg-limon object-cover" />
       {enLinea && <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white bg-teal" />}
     </span>
   );

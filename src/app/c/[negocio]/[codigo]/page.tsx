@@ -6,7 +6,7 @@ import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { GaleriaVitrina } from "@/features/catalog/ui/GaleriaVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { ComoComprar } from "@/features/catalog/ui/ComoComprar";
-import { DIAS_NUEVO, Etiquetas } from "@/features/catalog/ui/Etiquetas";
+import { Etiquetas } from "@/features/catalog/ui/Etiquetas";
 import { FichaDelProducto } from "@/features/catalog/ui/FichaDelProducto";
 import { ResumenEnvio } from "@/features/catalog/ui/ResumenEnvio";
 import { Resenas } from "@/features/catalog/ui/Resenas";
@@ -19,7 +19,7 @@ import {
   obtenerResenas,
 } from "@/features/catalog/repositorio";
 import { nombreBase } from "@/domain";
-import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
+import { agruparParaVitrina, DIAS_NUEVO } from "@/features/catalog/agruparVitrina";
 import { formatearDolares } from "@/lib/formato";
 import { fotosDelGrupo } from "@/features/products/fotosVariantes";
 import { urlFoto } from "@/lib/fotos";

@@ -72,7 +72,7 @@ export interface Puerto {
   registrarPago(pedidoId: string, monto: Centavos, metodo: Metodo): Promise<R<{ pagoId: string }>>;
   cambiarEstado(pedidoId: string, estado: EstadoPedido): Promise<R<null>>;
   registrarGuia(pedidoId: string, paquetera: string | null, guia: string | null): Promise<R<null>>;
-  registrarGasto(g: { categoria: CategoriaGasto; monto: Centavos; nota: string | null }): Promise<R<{ id: string }>>;
+  registrarGasto(g: { categoria: CategoriaGasto; monto: Centavos; nota: string | null; metodo: Metodo | null }): Promise<R<{ id: string }>>;
   /** La ganancia del periodo en curso. Solo dueña y administradora. */
   ganancia(periodo: TipoPeriodo): Promise<R<ResumenPeriodo>>;
   mensajeCobro(codigoPedido: number): Promise<string>;

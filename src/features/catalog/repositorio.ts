@@ -497,6 +497,33 @@ export async function obtenerResenas(supabase: Cliente, slug: string, codigo?: n
   }
 }
 
+/**
+ * El promedio de estrellas de cada producto de la tienda (las reseñas de una variante cuentan para todo su grupo),
+ * por código. Sin vitrina_estrellas.sql la función no existe: no hay estrellas en las tarjetas y todo sigue igual.
+ */
+export async function obtenerEstrellas(supabase: Cliente, slug: string): Promise<Map<number, { promedio: number; total: number }>> {
+  try {
+    const { data, error } = await supabase.rpc("vitrina_estrellas", { p_slug: slug });
+    if (error || !data) return new Map();
+    return new Map(data.map((r) => [r.codigo, { promedio: Number(r.promedio), total: r.total }]));
+  } catch {
+    return new Map();
+  }
+}
+
+export type PerfilTienda = { verificada: boolean; desde: Date; vendidos: number };
+
+/** Lo que da confianza de la tienda: si está verificada, desde cuándo vende y cuánto vendió. null si todavía falta vitrina_perfil.sql. */
+export async function obtenerPerfil(supabase: Cliente, slug: string): Promise<PerfilTienda | null> {
+  try {
+    const { data, error } = await supabase.rpc("vitrina_perfil", { p_slug: slug });
+    const p = error ? undefined : data?.[0];
+    return p ? { verificada: p.verificada, desde: new Date(p.desde), vendidos: p.vendidos } : null;
+  } catch {
+    return null;
+  }
+}
+
 /** "Avisame cuando haya": deja el contacto para un producto agotado. */
 export async function pedirAvisoStock(
   supabase: Cliente,

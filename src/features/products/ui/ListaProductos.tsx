@@ -234,7 +234,7 @@ export function ListaProductos({
             etiqueta={t.inventario.ganancia}
             valor={formatearDolares(inventario.gananciaPotencial)}
             texto={inventario.sinCosto > 0 ? t.inventario.sinCosto(inventario.sinCosto) : t.inventario.gananciaNota}
-            href="/ganancia"
+            href="/dinero"
             banda={colorDeEstado("entregado")}
             icono="ganancia"
           />

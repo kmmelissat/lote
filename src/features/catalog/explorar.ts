@@ -72,6 +72,12 @@ export async function explorarProductos(
     /** Dólares, no centavos: lo que escribe la persona */
     precioMin?: number;
     precioMax?: number;
+    /** Solo lo rebajado */
+    oferta?: boolean;
+    /** Solo tiendas con envío gratis (a `departamento`, si lo hay) */
+    envioGratis?: boolean;
+    /** Solo tiendas que entregan en este departamento */
+    departamento?: string;
   },
 ): Promise<{ productos: ProductoExplorar[]; total: number | null }> {
   const { data, error } = await supabase.rpc("explorar_productos", {
@@ -82,6 +88,10 @@ export async function explorarProductos(
     p_orden: opciones.orden,
     p_precio_min: opciones.precioMin,
     p_precio_max: opciones.precioMax,
+    // Sin explorar_filtros.sql la base no conoce estos parámetros: solo se mandan si hay filtro puesto
+    ...(opciones.oferta ? { p_oferta: true } : {}),
+    ...(opciones.envioGratis ? { p_envio_gratis: true } : {}),
+    ...(opciones.departamento ? { p_departamento: opciones.departamento } : {}),
   });
   if (error) throw error;
   const productos = data.map((p) => ({

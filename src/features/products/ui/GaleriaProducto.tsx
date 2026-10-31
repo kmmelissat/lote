@@ -1,64 +1,39 @@
-"use client";
-
 import Image from "next/image";
-import { useState } from "react";
-import { Monito } from "@/components/ui/Monito";
-import { Tira } from "@/components/ui/Tira";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos;
 
 /**
- * La foto grande y, abajo, las miniaturas para cambiar de una a otra. `de` dice de qué variante es cada foto
- * (las que no están son de todas): se muestra sobre la foto grande y en la miniatura.
+ * Todas las fotos del producto en una cuadrícula que usa el ancho. Cada una se abre en grande en una pestaña nueva. `de` dice de
+ * qué variante es cada foto (las que no están son de todas): se muestra sobre la foto.
  */
 export function GaleriaProducto({ fotos, nombre, de = {} }: { fotos: string[]; nombre: string; de?: Record<string, string> }) {
-  const [actual, setActual] = useState(0);
-  if (!fotos.length) {
-    return (
-      <div className="flex aspect-square flex-col items-center justify-center gap-2 rounded-[24px] border-2 border-dashed border-teal-oscuro bg-crema text-texto-2">
-        <Monito nombre="caja" className="w-20 text-teal/50" />
-        <span className="font-medium">{t.detalle.sinFotos}</span>
-      </div>
-    );
-  }
+  if (!fotos.length) return <p className="rounded-2xl bg-fondo px-4 py-3 text-sm text-texto-2">{t.detalle.sinFotos}</p>;
   return (
-    <div className="flex flex-col gap-3">
-      <div className="relative aspect-square overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-teal-fondo shadow-dura">
-        <Image
-          src={urlFoto(fotos[actual])}
-          alt={actual === 0 ? nombre : `${nombre}, ${t.fotos.foto(actual + 1).toLowerCase()}`}
-          fill
-          sizes="(min-width: 1024px) 480px, 100vw"
-          priority
-          className="object-cover"
-        />
-        {de[fotos[actual]] && (
-          <span className="absolute bottom-3 left-3 rounded-full border-2 border-teal-oscuro bg-superficie px-3 py-1 text-sm font-bold text-teal-oscuro shadow-dura-chica">
-            {de[fotos[actual]]}
-          </span>
-        )}
-      </div>
-      {fotos.length > 1 && (
-        <Tira etiqueta={t.fotos.etiqueta} activo={actual}>
-          {fotos.map((ruta, i) => (
-              <button
-                key={ruta}
-                type="button"
-                onClick={() => setActual(i)}
-                aria-label={de[ruta] ? `${t.fotos.foto(i + 1)} · ${de[ruta]}` : t.fotos.foto(i + 1)}
-                title={de[ruta]}
-                aria-current={i === actual ? "true" : undefined}
-                className={`relative block size-16 overflow-hidden rounded-xl border-2 transition-transform hover:-translate-y-0.5 ${
-                  i === actual ? "border-teal-oscuro ring-2 ring-mango" : "border-borde"
-                }`}
-              >
-                <Image src={urlFoto(ruta)} alt="" fill sizes="64px" className="object-cover" />
-              </button>
-          ))}
-        </Tira>
-      )}
-    </div>
+    <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-6">
+      {fotos.map((ruta, i) => (
+        <li key={ruta}>
+          <a
+            href={urlFoto(ruta)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${nombre}, ${t.fotos.foto(i + 1).toLowerCase()}${de[ruta] ? ` · ${de[ruta]}` : ""} (se abre en una pestaña nueva)`}
+            className="group relative block aspect-square overflow-hidden rounded-2xl border-2 border-teal-oscuro bg-teal-fondo"
+          >
+            <Image
+              src={urlFoto(ruta)}
+              alt=""
+              fill
+              sizes="(min-width: 1280px) 120px, (min-width: 640px) 20vw, 30vw"
+              className="object-cover transition-transform duration-200 group-hover:scale-105"
+            />
+            {de[ruta] && (
+              <span className="absolute inset-x-1 bottom-1 truncate rounded-full bg-superficie px-2 py-0.5 text-center text-xs font-bold text-teal-oscuro">{de[ruta]}</span>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
   );
 }

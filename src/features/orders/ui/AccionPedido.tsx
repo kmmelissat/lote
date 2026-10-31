@@ -55,20 +55,27 @@ export function AccionPedido({
 
   async function avanzar() {
     if (!paso || pendiente) return;
+    // Entregar un contra entrega es cobrarlo: se pregunta cómo pagaron y se registra antes de marcarlo entregado.
+    const cobra = paso === "pagado" || (paso === "entregado" && contraEntrega && saldo > 0);
     let metodo: string | null = null;
-    if (paso === "pagado") {
+    if (cobra) {
+      const alEntregar = paso === "entregado";
+      // Al entregar casi siempre es efectivo: va primero y queda elegido
+      const metodos = alEntregar ? ["efectivo" as const, ...METODOS_DE_COBRO.filter((m) => m !== "efectivo")] : METODOS_DE_COBRO;
       metodo = await elegir({
         titulo: t.cobroTitulo,
-        texto: t.cobroTexto(formatearDolares(saldo), cliente),
-        confirmar: t.cobroConfirmar,
-        opciones: METODOS_DE_COBRO.map((m) => ({ valor: m, etiqueta: textos.cobro.metodos[m] })),
+        texto: (alEntregar ? t.entregaTexto : t.cobroTexto)(formatearDolares(saldo), cliente),
+        confirmar: alEntregar ? t.entregaConfirmar : t.cobroConfirmar,
+        opciones: metodos.map((m) => ({ valor: m, etiqueta: textos.cobro.metodos[m] })),
       });
       if (!metodo) return;
     }
     setPendiente(true);
     let error: string | undefined;
     try {
-      error = (paso === "pagado" ? await pagarCompleto(pedidoId, metodo!) : await cambiarEstado(pedidoId, paso)).error;
+      if (cobra) error = (await pagarCompleto(pedidoId, metodo!)).error;
+      // Con el saldo en cero la base no agrega su propio cobro "contra entrega" al entregar
+      if (!error && paso !== "pagado") error = (await cambiarEstado(pedidoId, paso)).error;
     } catch {
       error = textos.pedidos.acciones.errorGeneral;
     } finally {
