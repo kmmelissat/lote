@@ -6,6 +6,7 @@ import { TARJETA } from "@/components/ui/tarjeta";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { useAvisarListo } from "@/components/ui/Toast";
 import { Select } from "@/components/ui/Select";
 import { leerDolares, repartirEnvio, type EstadoPedido, type QuienPagaEnvio } from "@/domain/index";
 import { armarMensajeEnvio } from "../mensajeEnvio";
@@ -31,6 +32,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
     guardarEnvioDelPedido.bind(null, pedidoId),
     {},
   );
+  useAvisarListo(estadoForm);
   const [modo, setModo] = useState<ModoEntrega>(envio?.modo ?? "retiro");
   const [departamento, setDepartamento] = useState(envio?.departamento ?? "");
   const [costo, setCosto] = useState(envio ? dolaresTexto(envio.costo) : "");
@@ -197,11 +199,6 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
           <Button type="submit" className="self-start" disabled={pendiente}>
             {pendiente ? t.guardando : t.guardar}
           </Button>
-          {estadoForm.listo && (
-            <p role="status" className="text-sm text-teal">
-              {estadoForm.listo}
-            </p>
-          )}
           <MensajeError>{estadoForm.error}</MensajeError>
         </form>
       )}

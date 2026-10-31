@@ -28,7 +28,7 @@ export const pestanas: Pestana[] = [
   { href: "/asistente", etiqueta: t.asistente, icono: "chat" },
 ];
 
-/** Lo que se configura y se vuelve a tocar: en escritorio va en la barra, en celular en Más. */
+/** Lo que solo configura la dueña: "Mi tienda" va como una entrada más del menú, sin encabezado de Ajustes. También es atajo de la paleta ⌘K. */
 export const ajustesEscritorio: Pestana[] = [
   { href: "/ajustes/tienda", etiqueta: t.tienda, icono: "tienda" },
 ];

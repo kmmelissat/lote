@@ -200,7 +200,7 @@ function MockPaso({ n }: { n: 0 | 1 | 2 }) {
               {s.ficha.precio} · {s.ficha.costo}
             </span>
           </span>
-          <StatusChip estado="disponible" />
+          <StatusChip publico estado="disponible" />
         </div>
       </div>
     );

@@ -141,6 +141,8 @@ export const vitrina = {
     ogExplorarTexto: "El marketplace de tiendas de El Salvador que venden por redes.",
   },
   marca: "Vitrina hecha con Lote",
+  seguinos: "Seguinos en",
+  saludoLotito: "¡Pasá, mirá lo que hay!",
   opciones: "Opciones",
   opcionApartada: (etiqueta: string) => `${etiqueta} (apartado)`,
   desde: (precio: string) => `Desde ${precio}`,

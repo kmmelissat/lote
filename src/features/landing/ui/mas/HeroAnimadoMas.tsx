@@ -100,9 +100,9 @@ export function HeroAnimadoMas() {
                 </span>
               </span>
               {i === 0 ? (
-                <StatusChip estado={apartada ? "apartado" : "disponible"} texto={apartada ? undefined : f.texto} />
+                <StatusChip publico estado={apartada ? "apartado" : "disponible"} texto={apartada ? undefined : f.texto} />
               ) : (
-                <StatusChip estado={i === 1 ? "disponible" : "poco_stock"} texto={f.texto} />
+                <StatusChip publico estado={i === 1 ? "disponible" : "poco_stock"} texto={f.texto} />
               )}
             </li>
           ))}

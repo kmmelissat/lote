@@ -1,5 +1,7 @@
 "use client";
 
+import { Icon } from "./Icon";
+
 /** Interruptor con título: es un checkbox de verdad (teclado y lectores de pantalla lo entienden). */
 export function Interruptor({
   titulo,
@@ -24,8 +26,12 @@ export function Interruptor({
       <input type="checkbox" role="switch" name={name} checked={activo} onChange={(e) => onCambio(e.target.checked)} className="peer sr-only" />
       <span
         aria-hidden="true"
-        className="relative h-8 w-14 shrink-0 rounded-full border-2 border-teal-oscuro bg-white transition-colors duration-150 after:absolute after:left-0.5 after:top-0.5 after:size-6 after:rounded-full after:border-2 after:border-teal-oscuro after:bg-limon after:transition-transform after:duration-150 peer-checked:bg-teal peer-checked:after:translate-x-6 peer-checked:after:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal"
-      />
+        className="relative h-8 w-14 shrink-0 rounded-full border-2 border-teal-oscuro bg-limon/50 shadow-dura-chica transition-colors duration-150 peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal peer-checked:[&>span]:translate-x-6 peer-checked:[&>span>svg]:opacity-100"
+      >
+        <span className="absolute left-0.5 top-0.5 flex size-6 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+          <Icon nombre="check" className="size-3.5 opacity-0 transition-opacity duration-150" />
+        </span>
+      </span>
     </label>
   );
 }

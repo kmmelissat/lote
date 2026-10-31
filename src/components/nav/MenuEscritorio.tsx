@@ -112,24 +112,8 @@ export function MenuEscritorio({ datos, cerrado, alternarMenu, abrirPaleta, rapi
               hijos={(ruta) => (
                 <>
                   <nav aria-label="Principal">
-                    <ListaPestanas items={pestanas} ruta={ruta} porAtender={datos.porAtender} urgente={datos.urgente} />
+                    <ListaPestanas items={datos.esDuena ? [...pestanas, ...ajustesEscritorio] : pestanas} ruta={ruta} porAtender={datos.porAtender} urgente={datos.urgente} slug={datos.slug} />
                   </nav>
-                  {datos.esDuena && (
-                    <nav aria-label={t.ajustes} className="mt-4">
-                      <Link
-                        href="/ajustes"
-                        aria-current={ruta === "/ajustes" ? "page" : undefined}
-                        title={t.ajustes}
-                        className={`flex min-h-11 items-center px-1 text-[10px] font-logo tracking-widest uppercase group-data-[cerrado]:min-h-12 group-data-[cerrado]:justify-center ${
-                          ruta === "/ajustes" ? "font-bold text-teal-oscuro" : "text-texto-2 hover:text-teal"
-                        }`}
-                      >
-                        <span className="group-data-[cerrado]:hidden">{t.ajustes}</span>
-                        <Icon nombre="ajustes" className="hidden size-5 group-data-[cerrado]:block" />
-                      </Link>
-                      <ListaPestanas items={ajustesEscritorio} ruta={ruta} slug={datos.slug} />
-                    </nav>
-                  )}
                 </>
               )}
             />

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
 import { ALTO, ANCHO, dibujarSticker, type Colores } from "../sticker";
 
@@ -35,11 +36,10 @@ function cargarFoto(url: string): Promise<HTMLImageElement> {
 }
 
 export function StickerVendido({ foto, nombre, codigo, negocio }: Props) {
-  const [aviso, setAviso] = useState("");
+  const { avisar } = useToast();
   const [generando, empezar] = useTransition();
 
   function generar() {
-    setAviso("");
     empezar(async () => {
       try {
         const [img] = await Promise.all([cargarFoto(foto), document.fonts.ready]);
@@ -62,9 +62,9 @@ export function StickerVendido({ foto, nombre, codigo, negocio }: Props) {
         enlace.download = `vendido-${codigo}.png`;
         enlace.click();
         URL.revokeObjectURL(enlace.href);
-        setAviso(t.listo);
+        avisar(t.listo, { tipo: "exito" });
       } catch {
-        setAviso(t.error);
+        avisar(t.error, { tipo: "error" });
       }
     });
   }
@@ -77,9 +77,6 @@ export function StickerVendido({ foto, nombre, codigo, negocio }: Props) {
         <Button type="button" variante="secundario" disabled={generando} onClick={generar}>
           {generando ? t.generando : t.boton}
         </Button>
-        <p role="status" className="text-sm text-teal">
-          {aviso}
-        </p>
       </div>
     </Card>
   );

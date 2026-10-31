@@ -4,7 +4,7 @@ import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Too
 import type { SemanaResumen } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "@/components/ui/tarjeta";
+import { Card } from "@/components/ui/Card";
 
 const t = textos.inicio;
 
@@ -62,7 +62,7 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
   ];
 
   return (
-    <div className={`${TARJETA} flex h-full flex-col gap-3 bg-superficie`}>
+    <Card className="flex h-full flex-col gap-3">
       <div>
         <h2 className="font-bold">{t.flujoTitulo}</h2>
         <p className="text-sm text-texto-2">{t.flujoTexto}</p>
@@ -140,6 +140,6 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
         </table>
       </div>
       {semanas.some((s) => s.estimada) && <p className="text-sm text-ambar-texto">{t.flujoEstimada}</p>}
-    </div>
+    </Card>
   );
 }

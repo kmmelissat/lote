@@ -2,27 +2,29 @@ import Link from "next/link";
 
 type Pestana = { valor: string; etiqueta: string; etiquetaCorta?: string; href: string; cantidad?: number };
 
-/** Pestañas que cambian la URL (cada una es un enlace): la pantalla lee el parámetro en el servidor. */
+/**
+ * Los estados de una lista como filtro: cada uno es un enlace y la pantalla lee el parámetro en el servidor. Se ven como
+ * los chips de filtro del sistema (texto gris, el elegido en teal suave). Los que están en cero no se muestran, salvo
+ * "todos" y el que está elegido.
+ */
 export function Pestanas({ etiqueta, pestanas, activa }: { etiqueta: string; pestanas: Pestana[]; activa: string }) {
+  const visibles = pestanas.filter((p) => p.valor === activa || p.valor === "todos" || p.cantidad === undefined || p.cantidad > 0);
   return (
     <nav
       aria-label={etiqueta}
       className="-mx-4 min-w-0 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] md:mx-0 md:flex-1 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden"
     >
-      <ul className="flex min-w-full gap-1 border-b-2 border-teal-oscuro/25 md:min-w-0 md:flex-wrap md:gap-2 md:border-0">
-        {pestanas.map((p) => {
+      <ul className="flex min-w-full gap-2 md:min-w-0 md:flex-wrap">
+        {visibles.map((p) => {
           const actual = p.valor === activa;
-          const vacio = p.cantidad === 0;
           return (
             <li key={p.valor} className="shrink-0">
               <Link
                 href={p.href}
                 aria-current={actual ? "page" : undefined}
-                className={`inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap px-3 text-sm font-bold md:gap-2 md:rounded-full md:border-2 md:px-4 md:transition-[transform,background-color] md:duration-150 ${
-                  actual
-                    ? "-mb-0.5 border-b-2 border-rosa text-teal-oscuro md:mb-0 md:border-2 md:border-teal-oscuro md:bg-teal-fondo"
-                    : "text-texto-2 md:border-teal-oscuro/20 md:bg-superficie md:hover:-translate-y-0.5 md:hover:border-teal-oscuro md:hover:bg-teal-fondo"
-                } ${vacio && !actual ? "opacity-60" : ""}`}
+                className={`inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-sm font-bold transition-colors md:min-h-10 ${
+                  actual ? "bg-teal-fondo text-teal-oscuro" : "text-texto-2 hover:bg-fondo"
+                }`}
               >
                 {p.etiquetaCorta ? (
                   <>
@@ -32,11 +34,7 @@ export function Pestanas({ etiqueta, pestanas, activa }: { etiqueta: string; pes
                 ) : (
                   p.etiqueta
                 )}
-                {p.cantidad !== undefined && (
-                  <span className={`text-xs tabular-nums md:rounded-full md:px-2 ${actual ? "md:bg-white/70" : "md:bg-crema"}`}>
-                    {p.cantidad}
-                  </span>
-                )}
+                {p.cantidad !== undefined && <span className="text-xs font-medium tabular-nums opacity-70">{p.cantidad}</span>}
               </Link>
             </li>
           );

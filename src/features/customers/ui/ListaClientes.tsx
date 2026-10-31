@@ -1,103 +1,80 @@
 import Link from "next/link";
-import { ButtonLink } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Pestanas } from "@/components/nav/Pestanas";
-import { TARJETA_BASE } from "@/components/ui/tarjeta";
+import { ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { colorDeEstado } from "@/components/ui/StatusChip";
+import { TarjetaDato } from "@/components/ui/TarjetaDato";
+import { enlaceWhatsApp } from "@/features/catalog/enlaces";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { resumenDeClientes, type OrdenCliente } from "../filtro";
 import type { ClienteConResumen } from "../repositorio";
-import { BuscadorClientes } from "./BuscadorClientes";
-import { girosCara, inicialDe, tonoDe } from "./cara";
+import { BuscadorClientes, OrdenarClientes } from "./BuscadorClientes";
+import { inicialDe } from "./cara";
 
 const t = textos.clientes;
 
-function enlace(texto: string, conSaldo: boolean) {
+function enlace(texto: string, conSaldo: boolean, orden: OrdenCliente) {
   const q = new URLSearchParams();
   if (texto.trim()) q.set("q", texto);
   if (conSaldo) q.set("saldo", "1");
+  if (orden !== "deben") q.set("orden", orden);
   const cadena = q.toString();
   return cadena ? `/clientes?${cadena}` : "/clientes";
 }
 
-function Dato({
-  etiqueta,
-  valor,
-  fondo,
-  icono,
-  href,
-}: {
-  etiqueta: string;
-  valor: string | number;
-  fondo: string;
-  icono: NombreIcono;
-  href?: string;
-}) {
-  const cuerpo = (
-    <>
-      <span className="flex items-center gap-2 text-sm font-bold">
-        <Icon nombre={icono} className="size-4" />
-        {etiqueta}
-      </span>
-      <span className="mt-2 block text-3xl font-extrabold tabular-nums leading-none">{valor}</span>
-    </>
-  );
-  const clase = `${TARJETA_BASE} ${fondo} block p-4 shadow-dura-chica`;
-  return href ? (
-    <Link href={href} className={`${clase} transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura`}>
-      {cuerpo}
-    </Link>
-  ) : (
-    <div className={clase}>{cuerpo}</div>
-  );
-}
+// En pantalla ancha cada dato tiene su columna; en el celular quedan la cara, el nombre y lo que debe.
+const COLUMNAS = "md:grid-cols-[3rem_minmax(0,1fr)_8rem_10rem] lg:grid-cols-[3rem_minmax(0,2fr)_6rem_8rem_9rem_12rem]";
 
-/** La lista de clientas: totales arriba, buscador, y tarjetas con cara, lo que compraron y lo que deben. */
+/** La lista de clientas: totales arriba, búsqueda y orden, y una tabla con lo que compraron y lo que deben. */
 export function ListaClientes({
   todos,
   clientes,
   texto,
   soloConSaldo,
+  orden,
+  negocio,
 }: {
   todos: ClienteConResumen[];
   clientes: ClienteConResumen[];
   texto: string;
   soloConSaldo: boolean;
+  orden: OrdenCliente;
+  negocio: string;
 }) {
-  const debenTotal = todos.reduce((s, c) => s + c.resumen.saldo, 0);
-  const compradoTotal = todos.reduce((s, c) => s + c.resumen.comprado, 0);
-  const deudoras = todos.filter((c) => c.resumen.saldo > 0).length;
+  const r = resumenDeClientes(todos);
+  const fila = `relative grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-3 md:gap-x-4 ${COLUMNAS}`;
 
   return (
-    <div className="flex flex-col gap-5">
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <li>
-          <Dato etiqueta={t.cuantos} valor={todos.length} fondo="bg-celeste" icono="clientes" />
-        </li>
-        <li>
-          <Dato
-            etiqueta={t.teDeben}
-            valor={formatearDolares(debenTotal)}
-            fondo={debenTotal > 0 ? "bg-limon" : "bg-teal-fondo"}
-            icono="moneda"
-            href={debenTotal > 0 ? enlace(texto, true) : undefined}
-          />
-        </li>
-        <li>
-          <Dato etiqueta={t.hanComprado} valor={formatearDolares(compradoTotal)} fondo="bg-rosa" icono="carrito" />
-        </li>
-      </ul>
+    <div className="flex flex-col gap-4">
+      <section aria-label={t.stats.titulo} className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <TarjetaDato etiqueta={t.stats.clientas} valor={r.clientas} texto={t.stats.clientasNota(r.clientas)} banda={colorDeEstado("disponible")} icono="clientes" />
+        <TarjetaDato
+          etiqueta={t.stats.deben}
+          valor={formatearDolares(r.saldo)}
+          texto={t.stats.debenNota(r.deudoras)}
+          href={r.saldo > 0 ? enlace(texto, true, orden) : undefined}
+          banda={colorDeEstado("pendiente")}
+          icono="moneda"
+        />
+        <TarjetaDato etiqueta={t.stats.compraron} valor={formatearDolares(r.comprado)} texto={t.stats.compraronNota} banda={colorDeEstado("pagado")} icono="carrito" />
+        <TarjetaDato etiqueta={t.stats.repiten} valor={r.repiten} texto={t.stats.repitenNota} banda={colorDeEstado("entregado")} icono="estrella" />
+      </section>
 
-      <BuscadorClientes texto={texto} soloConSaldo={soloConSaldo} />
+      <BuscadorClientes texto={texto} soloConSaldo={soloConSaldo} orden={orden} />
 
-      <Pestanas
-        etiqueta={t.filtros}
-        activa={soloConSaldo ? "saldo" : "todos"}
-        pestanas={[
-          { valor: "todos", etiqueta: t.todos, href: enlace(texto, false), cantidad: todos.length },
-          { valor: "saldo", etiqueta: t.conSaldo, href: enlace(texto, true), cantidad: deudoras },
-        ]}
-      />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Pestanas
+          etiqueta={t.filtros}
+          activa={soloConSaldo ? "saldo" : "todos"}
+          pestanas={[
+            { valor: "todos", etiqueta: t.todos, href: enlace(texto, false, orden), cantidad: todos.length },
+            { valor: "saldo", etiqueta: t.conSaldo, href: enlace(texto, true, orden), cantidad: r.deudoras },
+          ]}
+        />
+        <OrdenarClientes texto={texto} soloConSaldo={soloConSaldo} orden={orden} />
+      </div>
 
       {!clientes.length ? (
         <EmptyState
@@ -105,44 +82,73 @@ export function ListaClientes({
           titulo={soloConSaldo && !texto.trim() ? t.alDia : undefined}
           texto={soloConSaldo && !texto.trim() ? t.sinDeudores : t.sinResultados}
           accion={
-            <ButtonLink href="/clientes" variante="secundario">
+            <ButtonLink href="/clientes" variante="suave" icono="x">
               {t.limpiar}
             </ButtonLink>
           }
         />
       ) : (
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {clientes.map((c, i) => (
-            <li key={c.id}>
-              <Link
-                href={`/clientes/${c.id}`}
-                className={`${TARJETA_BASE} flex gap-4 p-4 shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura ${c.resumen.saldo > 0 ? "bg-crema" : "bg-superficie"}`}
-              >
-                <span
-                  className={`flex size-14 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro text-xl font-extrabold text-teal-oscuro shadow-dura-chica ${tonoDe(c.nombre)} ${girosCara[i % girosCara.length]}`}
-                >
-                  {inicialDe(c.nombre)}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-start justify-between gap-2">
-                    <span className="truncate text-lg font-extrabold leading-tight">{c.nombre}</span>
-                    {c.resumen.saldo > 0 && (
-                      <span className="shrink-0 rotate-2 rounded-full border-2 border-teal-oscuro bg-limon px-2.5 py-0.5 text-sm font-extrabold shadow-dura-chica">
-                        {t.debe(formatearDolares(c.resumen.saldo))}
-                      </span>
-                    )}
-                  </span>
-                  <span className="mt-1 block truncate text-sm text-texto-2">{c.contacto ?? t.sinContacto}</span>
-                  <span className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-sm font-medium">
-                    <span>{t.pedidos(c.resumen.pedidos)}</span>
-                    <span>{formatearDolares(c.resumen.comprado)}</span>
-                    {c.resumen.ultimoPedido && <span className="text-texto-2">{formatearFecha(c.resumen.ultimoPedido)}</span>}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <Card className="overflow-hidden p-0 md:p-0">
+          {/* Encabezados de las columnas: solo en pantalla ancha, donde las columnas se alinean */}
+          <div
+            aria-hidden="true"
+            className={`hidden gap-x-4 border-b border-borde px-4 py-2 text-xs font-medium uppercase tracking-wide text-texto-2 md:grid ${COLUMNAS}`}
+          >
+            <span />
+            <span>{t.columnas.clienta}</span>
+            <span className="hidden lg:block">{t.columnas.pedidos}</span>
+            <span className="text-right">{t.columnas.comprado}</span>
+            <span className="hidden lg:block">{t.columnas.ultimo}</span>
+            <span>{t.columnas.debe}</span>
+          </div>
+          <ul>
+            {clientes.map((c) => {
+              const debe = c.resumen.saldo > 0;
+              const cobro = debe
+                ? enlaceWhatsApp(c.contacto, t.cobrarMensaje(c.nombre.split(" ")[0], formatearDolares(c.resumen.saldo), negocio))
+                : null;
+              return (
+                <li key={c.id} className="border-t border-borde first:border-t-0">
+                  <div className={`${fila} hover:bg-teal-fondo`}>
+                    <span
+                      aria-hidden="true"
+                      className="flex size-12 items-center justify-center rounded-full bg-teal-fondo font-logo text-lg font-bold text-teal-oscuro max-md:row-span-2 max-md:self-start"
+                    >
+                      {inicialDe(c.nombre)}
+                    </span>
+                    <div className="min-w-0">
+                      {/* El enlace del nombre cubre toda la fila; el botón de cobrar queda por encima (z-10) */}
+                      <Link href={`/clientes/${c.id}`} className="block truncate font-medium after:absolute after:inset-0">
+                        {c.nombre}
+                      </Link>
+                      <p className="truncate text-sm text-texto-2">{c.contacto ?? t.sinContacto}</p>
+                    </div>
+                    <p className="hidden text-sm tabular-nums lg:block">{c.resumen.pedidos}</p>
+                    <p className="whitespace-nowrap text-right font-bold tabular-nums max-md:hidden">{formatearDolares(c.resumen.comprado)}</p>
+                    <p className="hidden text-sm text-texto-2 lg:block">{c.resumen.ultimoPedido ? formatearFecha(c.resumen.ultimoPedido) : "—"}</p>
+                    <div className="flex items-center justify-end gap-2 md:justify-start">
+                      {debe ? (
+                        <>
+                          <span className="whitespace-nowrap font-bold tabular-nums text-ambar-texto">{formatearDolares(c.resumen.saldo)}</span>
+                          {cobro && (
+                            <ButtonLink href={cobro} target="_blank" rel="noopener noreferrer" variante="suave" tamano="chico" icono="chat" className="relative z-10">
+                              {t.cobrar}
+                            </ButtonLink>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-sm text-texto-2 max-md:hidden">{t.alDia}</span>
+                      )}
+                    </div>
+                    <p className="col-start-2 col-span-2 text-sm text-texto-2 md:hidden">
+                      {t.pedidos(c.resumen.pedidos)} · {formatearDolares(c.resumen.comprado)}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
       )}
     </div>
   );

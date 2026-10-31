@@ -165,9 +165,9 @@ export function ZonaDeCompra({
             )}
             {seleccionada ? (
               hayStock ? (
-                <StatusChip estado="disponible" texto={textos.productos.quedan(seleccionada.disponibles)} />
+                <StatusChip publico estado="disponible" texto={textos.productos.quedan(seleccionada.disponibles)} />
               ) : (
-                <StatusChip estado="apartado" />
+                <StatusChip publico estado="apartado" />
               )
             ) : (
               <p className="text-sm text-texto-2">{t.stockElegi}</p>

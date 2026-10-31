@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ButtonLink } from "@/components/ui/Button";
-import { Monito } from "@/components/ui/Monito";
+import { BotonIconoLink } from "@/components/ui/BotonIcono";
+import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { urlFoto } from "@/lib/fotos";
@@ -26,15 +26,15 @@ function chipDe(p: Pedido) {
       ? { texto: t.lista.contraEntrega, clase: "bg-celeste text-teal-oscuro", icono: "camion" as const }
       : { texto: t.lista.esperandoPago, clase: "bg-limon text-teal-oscuro", icono: "reloj" as const };
   }
-  return { texto: t.canales[p.canal], clase: "bg-crema text-teal-oscuro", icono: null };
+  return { texto: t.canales[p.canal], clase: "bg-fondo text-teal-oscuro", icono: null };
 }
 
 function Chip({ p, mostrarEstado }: { p: Pedido; mostrarEstado: boolean }) {
   // En la vista de todos hay pedidos de cualquier estado: ahí el chip dice el estado.
-  if (mostrarEstado) return <StatusChip estado={p.estado} />;
+  if (mostrarEstado) return <StatusChip estado={p.estado} discreto />;
   const chip = chipDe(p);
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border-2 border-teal-oscuro px-3 py-1 text-sm font-bold ${chip.clase}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-bold ${chip.clase}`}>
       {chip.icono && <Icon nombre={chip.icono} className="size-4" />}
       {chip.texto}
     </span>
@@ -61,8 +61,8 @@ function Foto({ p }: { p: Pedido }) {
   return foto ? (
     <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-xl border-2 border-teal-oscuro/20 object-cover" />
   ) : (
-    <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro/20 bg-crema">
-      <Monito nombre="caja" className="w-5 text-teal/50" />
+    <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro/20 bg-fondo text-texto-2">
+      <Icon nombre="caja" className="size-5" />
     </span>
   );
 }
@@ -100,9 +100,9 @@ export function ListaPedidos({
   return (
     <div className="@container">
       {/* Tabla */}
-      <div className="hidden overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie shadow-dura @2xl:block">
+      <Card className="hidden overflow-hidden p-0 md:p-0 @2xl:block">
         <table className="w-full text-left">
-          <thead className="border-b-2 border-teal-oscuro bg-crema text-xs font-bold text-teal-oscuro">
+          <thead className="border-b border-borde text-xs uppercase tracking-wide text-texto-2">
             <tr>
               <th scope="col" className="px-4 py-2 font-medium">{t.lista.producto}</th>
               <th scope="col" className="px-2 py-2 font-medium">{t.lista.cliente}</th>
@@ -114,7 +114,7 @@ export function ListaPedidos({
           </thead>
           <tbody>
             {pedidos.map((p) => (
-              <tr key={p.id} className="border-t border-borde first:border-t-0 hover:bg-limon/25">
+              <tr key={p.id} className="border-t border-borde first:border-t-0 hover:bg-teal-fondo">
                 <td className="max-w-64 px-4 py-3">
                   <div className="flex items-center gap-3">
                     <Foto p={p} />
@@ -141,21 +141,19 @@ export function ListaPedidos({
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-2">
                     <Accion p={p} puedeVender={puedeVender} />
-                    <ButtonLink href={`/pedidos/${p.codigo}`} variante="secundario" className="h-9 max-md:min-h-11 px-4 text-sm">
-                      {t.lista.detalles}
-                    </ButtonLink>
+                    <BotonIconoLink variante="suave" icono="diagonal" etiqueta={t.lista.detalles} href={`/pedidos/${p.codigo}`} />
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </Card>
 
       {/* Lista apilada */}
-      <ul className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie shadow-dura @2xl:hidden">
+      <Card className="overflow-hidden p-0 md:p-0 @2xl:hidden"><ul>
         {pedidos.map((p) => (
-          <li key={p.id} className="relative flex flex-col gap-2 border-t border-borde px-4 py-3 first:border-t-0 hover:bg-limon/25">
+          <li key={p.id} className="relative flex flex-col gap-2 border-t border-borde px-4 py-3 first:border-t-0 hover:bg-teal-fondo">
             <div className="flex items-start gap-3">
               <Foto p={p} />
               <div className="min-w-0 flex-1">
@@ -180,6 +178,7 @@ export function ListaPedidos({
           </li>
         ))}
       </ul>
+      </Card>
     </div>
   );
 }

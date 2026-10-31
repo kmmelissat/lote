@@ -11,11 +11,14 @@ export function PageHeader({
   descripcion,
   accion,
   volver,
+  ilustracion,
 }: {
-  titulo: string;
+  titulo: ReactNode;
   descripcion: string;
   accion?: ReactNode;
   volver?: { href: string; etiqueta: string };
+  /** Un dibujo (Lotito) al lado de la acción; solo en pantallas anchas */
+  ilustracion?: ReactNode;
 }) {
   return (
     <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
@@ -35,7 +38,12 @@ export function PageHeader({
           <p className="text-texto-2">{descripcion}</p>
         </div>
       </div>
-      {accion ? <div className="flex w-full shrink-0 justify-end md:w-auto">{accion}</div> : null}
+      {(accion || ilustracion) && (
+        <div className="flex w-full shrink-0 items-end justify-end gap-4 md:w-auto">
+          {ilustracion && <div className="hidden md:block">{ilustracion}</div>}
+          {accion}
+        </div>
+      )}
     </header>
   );
 }

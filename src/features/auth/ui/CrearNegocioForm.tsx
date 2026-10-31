@@ -34,39 +34,33 @@ export function CrearNegocioForm() {
         onChange={(e) => setNombre(e.target.value)}
         error={estado.error === t.errorNombre ? estado.error : undefined}
       />
-      <Field
-        etiqueta={t.instagram}
-        name="instagram"
-        autoComplete="off"
-        autoCapitalize="none"
-        value={instagram}
-        onChange={(e) => setInstagram(e.target.value)}
-      />
-      <Field
-        etiqueta={t.facebook}
-        name="facebook"
-        autoComplete="off"
-        autoCapitalize="none"
-        value={facebook}
-        onChange={(e) => setFacebook(e.target.value)}
-        error={estado.error === t.errorFacebook ? estado.error : undefined}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field
+          etiqueta={t.instagram}
+          name="instagram"
+          autoComplete="off"
+          autoCapitalize="none"
+          value={instagram}
+          onChange={(e) => setInstagram(e.target.value)}
+        />
+        <Field
+          etiqueta={t.facebook}
+          name="facebook"
+          autoComplete="off"
+          autoCapitalize="none"
+          value={facebook}
+          onChange={(e) => setFacebook(e.target.value)}
+          error={estado.error === t.errorFacebook ? estado.error : undefined}
+        />
+      </div>
 
       <fieldset className="flex flex-col gap-2">
         <legend className="font-bold">{t.vitrina.pregunta}</legend>
         <p className="text-sm text-texto-2">{t.vitrina.explicacion}</p>
-        <OpcionVitrina
-          valor="si"
-          marcada={conVitrina}
-          onElegir={() => setConVitrina(true)}
-          {...t.vitrina.si}
-        />
-        <OpcionVitrina
-          valor="no"
-          marcada={!conVitrina}
-          onElegir={() => setConVitrina(false)}
-          {...t.vitrina.no}
-        />
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <OpcionVitrina valor="si" marcada={conVitrina} onElegir={() => setConVitrina(true)} {...t.vitrina.si} />
+          <OpcionVitrina valor="no" marcada={!conVitrina} onElegir={() => setConVitrina(false)} {...t.vitrina.no} />
+        </div>
         <p className="text-xs text-texto-2">{t.vitrina.luego}</p>
       </fieldset>
 
@@ -76,7 +70,8 @@ export function CrearNegocioForm() {
           <p className="text-xs font-bold uppercase tracking-wide text-texto-2">
             {t.vistaPrevia}
           </p>
-          <div className="-rotate-1 rounded-[20px] border-2 border-teal-oscuro bg-crema p-4 shadow-dura-chica">
+          <div className="relative -rotate-1 rounded-[20px] border-2 border-teal-oscuro bg-crema p-4 shadow-dura-chica">
+            <span aria-hidden="true" className="absolute -top-3 left-1/2 h-5 w-16 -translate-x-1/2 rotate-3 rounded-sm border-2 border-teal-oscuro/30 bg-rosa/60" />
             <div className="flex items-center gap-3">
               <span
                 aria-hidden="true"
@@ -132,16 +127,9 @@ function OpcionVitrina({
   ayuda: string;
 }) {
   return (
-    <label className="cursor-pointer">
-      <input
-        type="radio"
-        name="vitrina"
-        value={valor}
-        checked={marcada}
-        onChange={onElegir}
-        className="peer sr-only"
-      />
-      <span className="flex flex-col rounded-2xl border-2 border-teal-oscuro/25 bg-white p-3 transition-colors peer-checked:border-teal-oscuro peer-checked:bg-limon/40 peer-checked:shadow-dura-chica peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
+    <label className="flex cursor-pointer">
+      <input type="radio" name="vitrina" value={valor} checked={marcada} onChange={onElegir} className="peer sr-only" />
+      <span className="flex w-full flex-col rounded-2xl border-2 border-teal-oscuro/25 bg-white p-3 transition-colors peer-checked:border-teal-oscuro peer-checked:bg-limon/40 peer-checked:shadow-dura-chica peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
         <span className="font-bold">{titulo}</span>
         <span className="text-sm text-texto-2">{ayuda}</span>
       </span>

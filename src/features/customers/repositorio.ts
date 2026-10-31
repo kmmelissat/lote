@@ -48,16 +48,18 @@ function aCliente(f: Fila): ClienteConResumen {
   return { id: f.id, nombre: f.nombre, contacto: f.contacto, notas: f.notas, pedidos, resumen: resumenDeCliente(pedidos) };
 }
 
-/** Clientes del negocio con sus pedidos. Los que más deben primero, después los más recientes. */
+const LOTE_DE_CLIENTES = 500;
+const TOPE_DE_CLIENTES = 5000;
+
+/** Todas las clientas del negocio con sus pedidos (se piden de 500 en 500). Los que más deben primero. */
 export async function listarClientes(supabase: Cliente, negocioId: string): Promise<ClienteConResumen[]> {
-  const { data, error } = await supabase
-    .from("cliente")
-    .select(columnasLista)
-    .eq("negocio_id", negocioId)
-    .order("creado_en", { ascending: false })
-    .limit(200);
-  if (error) throw error;
-  return data.map(aCliente).sort((a, b) => b.resumen.saldo - a.resumen.saldo);
+  const todas: ClienteConResumen[] = [];
+  for (let desde = 0; desde < TOPE_DE_CLIENTES; desde += LOTE_DE_CLIENTES) {
+    const vuelta = await paginaDeClientes(supabase, negocioId, desde, LOTE_DE_CLIENTES);
+    todas.push(...vuelta);
+    if (vuelta.length < LOTE_DE_CLIENTES) break;
+  }
+  return todas.sort((a, b) => b.resumen.saldo - a.resumen.saldo);
 }
 
 /** Una página de clientes en un orden fijo (el de la lista se reordena por saldo y no sirve para paginar). */

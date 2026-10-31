@@ -4,11 +4,12 @@ import { useActionState, useId, useState } from "react";
 import { Gorila } from "@/components/ui/Gorila";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { useAvisarListo } from "@/components/ui/Toast";
 import type { TipoMetodo } from "../mensajeCobro";
 import { TIPOS_METODO, type MetodoPagoNegocio } from "../repositorio";
 import { textos } from "@/lib/textos";
 import { guardarDatosDePago, type EstadoPagos } from "../actions/ajustes";
-import { BarraGuardar } from "@/components/ui/BarraGuardar";
+import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 
@@ -25,6 +26,7 @@ type Valor = { activo: boolean; datos: string };
 
 export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoPagos, FormData>(guardarDatosDePago, {});
+  useAvisarListo(estado, t.guardado);
   const id = useId();
   const [valores, setValores] = useState<Record<TipoMetodo, Valor>>(() =>
     Object.fromEntries(
@@ -100,16 +102,6 @@ export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
           );
         })}
 
-        <BarraGuardar>
-          <Button type="submit" variante="mango" disabled={pendiente}>
-            {pendiente ? t.guardando : t.guardar}
-          </Button>
-          {estado.listo && (
-            <p role="status" className="rounded-full bg-teal-fondo px-4 py-2 text-sm font-bold text-teal-oscuro">
-              {t.guardado}
-            </p>
-          )}
-        </BarraGuardar>
         <MensajeError>{estado.error}</MensajeError>
       </div>
 
@@ -146,6 +138,11 @@ export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
         )}
         <p className="text-sm font-medium text-teal">{t.activos(activos.length)}</p>
       </aside>
+      <BarraFormulario>
+        <Button type="submit" variante="mango" disabled={pendiente}>
+          {pendiente ? t.guardando : t.guardar}
+        </Button>
+      </BarraFormulario>
     </form>
   );
 }

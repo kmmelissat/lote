@@ -50,7 +50,7 @@ export function VistaPreviaProducto({
           <p className={`text-lg font-bold leading-tight ${nombre.trim() ? "" : "text-texto-2/60"}`}>{nombre.trim() || t.sinNombre}</p>
           <p className="text-2xl font-bold tabular-nums">{precio || "$0.00"}</p>
           <div className="flex flex-wrap items-center gap-2">
-            <StatusChip estado="disponible" />
+            <StatusChip publico estado="disponible" />
             <span className="rounded-full border-2 border-teal-oscuro bg-crema px-3 py-1 text-sm font-bold">
               {variantes > 0 ? t.variantesChip(variantes) : t.unidades(unidades)}
             </span>

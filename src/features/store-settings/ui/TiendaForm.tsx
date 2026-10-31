@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
-import { BarraGuardar } from "@/components/ui/BarraGuardar";
+import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Button } from "@/components/ui/Button";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
 import { Field } from "@/components/ui/Field";
@@ -11,7 +11,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
 import { Monito } from "@/components/ui/Monito";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { useToast } from "@/components/ui/Toast";
+import { useAvisarListo, useToast } from "@/components/ui/Toast";
 import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
 import { subirLogo } from "@/features/products/subirFotos";
 import { urlFoto } from "@/lib/fotos";
@@ -80,6 +80,7 @@ export function TiendaForm({
 }) {
   const { avisar } = useToast();
   const [estado, accion, pendiente] = useActionState<EstadoTienda, FormData>(guardarTienda, {});
+  useAvisarListo(estado, t.guardado);
   const [nombre, setNombre] = useState(identidad.nombre);
   const [frase, setFrase] = useState(identidad.descripcion ?? "");
   const [color, setColor] = useState(colorDeMarca(identidad.color).hex);
@@ -428,17 +429,12 @@ export function TiendaForm({
           </Seccion>
       </div>
 
-      <BarraGuardar>
+      <MensajeError>{estado.error}</MensajeError>
+      <BarraFormulario>
         <Button type="submit" variante="mango" disabled={pendiente || subiendo}>
           {pendiente ? t.guardando : t.guardar}
         </Button>
-        {estado.listo && (
-          <p role="status" className="text-sm font-medium text-teal">
-            {t.guardado}
-          </p>
-        )}
-        <MensajeError>{estado.error}</MensajeError>
-      </BarraGuardar>
+      </BarraFormulario>
     </form>
   );
 }

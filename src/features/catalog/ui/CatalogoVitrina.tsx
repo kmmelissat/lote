@@ -181,7 +181,7 @@ export function CatalogoVitrina({ slug, productos }: { slug: string; productos: 
                       {p.precioMinimo === p.precioMaximo ? formatearDolares(p.precioMinimo) : t.desde(formatearDolares(p.precioMinimo))}
                     </p>
                     <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
-                      {libre && <StatusChip estado="disponible" texto={textos.productos.quedan(p.disponibles)} />}
+                      {libre && <StatusChip publico estado="disponible" texto={textos.productos.quedan(p.disponibles)} />}
                       {p.opciones > 1 && <span className="text-sm text-texto-2">{t.nOpciones(p.opciones)}</span>}
                     </div>
                   </div>

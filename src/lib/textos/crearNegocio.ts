@@ -1,8 +1,9 @@
 export const crearNegocio = {
   titulo: "Creá tu negocio",
-  paso: "Paso 1 de 2",
-  siguiente: "Después: tus primeros pasos",
-  descripcion: "Solo necesitamos dos datos. El resto lo ponés después.",
+  tituloResalta: "negocio",
+  globo: "Contame cómo se llama tu negocio.",
+  pasos: { negocio: "Tu negocio", primerosPasos: "Tus primeros pasos" },
+  descripcion: "Con el nombre alcanza para empezar. Lo demás lo ponés después.",
   nombre: "Nombre del negocio",
   instagram: "Usuario de Instagram (opcional)",
   facebook: "Página de Facebook (opcional)",

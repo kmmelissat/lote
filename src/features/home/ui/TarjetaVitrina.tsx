@@ -1,16 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "@/components/ui/tarjeta";
 
 const t = textos.inicio.vitrina;
 const n = textos.nav;
-
-const boton =
-  "inline-flex h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro";
 
 /** El enlace de la vitrina, para copiarlo y pegarlo donde se vende. */
 export function TarjetaVitrina({ slug }: { slug: string }) {
@@ -24,9 +21,9 @@ export function TarjetaVitrina({ slug }: { slug: string }) {
     }
   }
   return (
-    <section aria-labelledby="vitrina-inicio" className={`${TARJETA} flex h-full flex-wrap items-center justify-between gap-3 bg-teal-fondo`}>
+    <Card role="region" aria-labelledby="vitrina-inicio" className="flex h-full flex-wrap items-center justify-between gap-3">
       <div className="flex min-w-0 flex-1 basis-64 items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-teal-fondo text-teal-oscuro">
           <Icon nombre="tienda" className="size-5" />
         </span>
         <div className="min-w-0">
@@ -37,16 +34,16 @@ export function TarjetaVitrina({ slug }: { slug: string }) {
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={copiar} className={`${boton} bg-superficie hover:bg-limon`}>
+        <Button tamano="chico" variante="suave" onClick={copiar}>
           <Icon nombre="copiar" className="size-4" />
           {t.copiar}
-        </button>
-        <Link href={`/c/${slug}`} target="_blank" className={`${boton} hover:bg-superficie`}>
+        </Button>
+        <ButtonLink tamano="chico" variante="suave" href={`/c/${slug}`} target="_blank">
           {t.ver}
           <Icon nombre="enlace" className="size-4" />
           <span className="sr-only">(se abre en una pestaña nueva)</span>
-        </Link>
+        </ButtonLink>
       </div>
-    </section>
+    </Card>
   );
 }

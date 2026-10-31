@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useActionState, useState, useTransition } from "react";
 import { leerDolares, repartirCostoTotal } from "@/domain/index";
-import { BarraGuardar } from "@/components/ui/BarraGuardar";
+import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
+import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
+import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { urlFoto } from "@/lib/fotos";
@@ -19,7 +21,7 @@ import { FotoInput } from "./FotoInput";
 const t = textos.productos.lote;
 const f = textos.productos.form;
 
-export function LoteForm({ negocioId }: { negocioId: string }) {
+export function LoteForm({ negocioId, categorias }: { negocioId: string; categorias: string[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoLote, FormData>(crearLote, {});
   const [rutas, setRutas] = useState<string[]>([]);
   // Los nombres se guardan por ruta: si se quita una foto, no se corren los de las demás.
@@ -63,7 +65,8 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
   }
 
   return (
-    <form action={accion} className="flex max-w-xl flex-col gap-5">
+    <form action={accion} className="flex flex-col gap-5">
+      <div className="flex max-w-xl flex-col gap-5">
       <FotoInput
         negocioId={negocioId}
         onCambio={setRutas}
@@ -130,27 +133,35 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field etiqueta={f.categoria} name="categoria" />
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">{f.categoria}</span>
+              <ListaDesplegable
+                name="categoria"
+                variante="panel"
+                opciones={[{ valor: "", etiqueta: textos.productos.form.categorias.sinCategoria }, ...categorias.map((c) => ({ valor: c, etiqueta: c }))]}
+                placeholder={textos.productos.form.categorias.sinCategoria}
+              />
+            </div>
             <fieldset className="flex flex-col">
               <legend className="mb-1.5 text-sm font-medium">{f.condicion}</legend>
-              <div className="flex gap-6">
+              <div className="flex flex-wrap gap-2">
                 {(["nuevo", "usado"] as const).map((c) => (
-                  <label key={c} className="flex min-h-11 items-center gap-2">
-                    <input type="radio" name="condicion" value={c} defaultChecked={c === "nuevo"} className="size-5 accent-teal" />
-                    {f[c]}
-                  </label>
+                  <OpcionRadio key={c} name="condicion" value={c} defaultChecked={c === "nuevo"} titulo={f[c]} />
                 ))}
               </div>
             </fieldset>
           </div>
 
           <MensajeError>{estado.error}</MensajeError>
-          <BarraGuardar>
-            <Button type="submit" variante="mango" disabled={pendiente}>
-              {pendiente ? t.creando : t.crear(rutas.length)}
-            </Button>
-          </BarraGuardar>
         </>
+      )}
+      </div>
+      {rutas.length > 0 && (
+        <BarraFormulario>
+          <Button type="submit" variante="mango" disabled={pendiente}>
+            {pendiente ? t.creando : t.crear(rutas.length)}
+          </Button>
+        </BarraFormulario>
       )}
     </form>
   );

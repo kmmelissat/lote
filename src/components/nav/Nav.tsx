@@ -7,12 +7,12 @@ import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { CerrarSesion } from "@/features/auth/ui/CerrarSesion";
 import { textos } from "@/lib/textos";
 import { escribiendoEnCampo } from "./acciones";
+import { AbrirVitrina } from "./PiezasMenu";
 import { ListaAcciones } from "./AccionRapida";
 import { CLAVE_CERRADO, EVENTO_MENU, ajustesEscritorio, menuCerrado, pestanas, suscribirMenu, type DatosMenu } from "./menu";
 import { MenuEscritorio } from "./MenuEscritorio";
-import { BarraMovil, Hoja } from "./MenuMovil";
+import { EncabezadoMovil, Hoja } from "./MenuMovil";
 import { Paleta } from "./Paleta";
-import { AbrirVitrina } from "./PiezasMenu";
 
 export type { DatosMenu };
 
@@ -61,7 +61,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
 
   return (
     <>
-      <BarraMovil
+      <EncabezadoMovil
         datos={datos}
         rapida={rapida}
         abrirRapida={() => setRapida(true)}
@@ -77,29 +77,21 @@ export function Nav({ datos }: { datos: DatosMenu }) {
         <Hoja titulo={t.masTitulo} cerrar={() => setMas(false)}>
           <div className="flex flex-col gap-4">
             <ul className="flex flex-col gap-1">
-              {[pestanas[3], pestanas[4], pestanas[5]].map((p) => (
+              {pestanas.map((p) => (
                 <li key={p.href}>
-                  <EnlaceHoja href={p.href} etiqueta={p.etiqueta} icono={p.icono} />
+                  <EnlaceHoja href={p.href} etiqueta={p.etiqueta} icono={p.icono} insignia={p.href === "/pedidos" ? datos.porAtender : 0} />
                 </li>
               ))}
             </ul>
             {datos.esDuena ? (
-              <div>
-                <Link
-                  href="/ajustes"
-                  className="flex min-h-11 items-center px-2 text-[10px] font-logo tracking-widest text-texto-2 uppercase hover:text-teal"
-                >
-                  {t.ajustes}
-                </Link>
-                <ul className="flex flex-col gap-1">
-                  {ajustesEscritorio.map((p) => (
-                    <li key={p.href} className="flex items-center">
-                      <EnlaceHoja href={p.href} etiqueta={p.etiqueta} icono={p.icono} />
-                      {p.href === "/ajustes/tienda" && datos.slug ? <AbrirVitrina slug={datos.slug} /> : null}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="flex flex-col gap-1">
+                {ajustesEscritorio.map((p) => (
+                  <li key={p.href} className="flex items-center">
+                    <EnlaceHoja href={p.href} etiqueta={p.etiqueta} icono={p.icono} />
+                    {p.href === "/ajustes/tienda" && datos.slug ? <AbrirVitrina slug={datos.slug} /> : null}
+                  </li>
+                ))}
+              </ul>
             ) : (
               <EnlaceHoja href="/ajustes" etiqueta={t.ajustes} icono="ajustes" />
             )}
@@ -142,11 +134,14 @@ function EnlaceHoja({
   etiqueta,
   icono,
   externo = false,
+  insignia = 0,
 }: {
   href: string;
   etiqueta: string;
   icono: NombreIcono;
   externo?: boolean;
+  /** Cuántas cosas esperan algo (por ejemplo, pedidos por cobrar o enviar); 0 no muestra nada */
+  insignia?: number;
 }) {
   return (
     <Link
@@ -158,6 +153,12 @@ function EnlaceHoja({
       <Icon nombre={icono} className="size-6 shrink-0 text-teal" />
       {etiqueta}
       {externo && <Icon nombre="enlace" className="size-4 text-texto-2" />}
+      {insignia > 0 && (
+        <span className="ml-auto flex h-6 min-w-6 items-center justify-center rounded-full bg-teal-oscuro px-1.5 text-xs font-bold text-white">
+          <span className="sr-only">{t.porAtender(insignia)}: </span>
+          {insignia}
+        </span>
+      )}
     </Link>
   );
 }

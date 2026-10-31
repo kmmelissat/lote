@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
+import { Toldo } from "@/components/ui/Toldo";
 import { textos } from "@/lib/textos";
 
 const t = textos.explorar;
@@ -29,26 +30,6 @@ const ESPARCIDOS = [
   { izq: 72, arr: 71, ancho: 60, giro: 6 },
 ] as const;
 const COLGAR = ["-3deg", "2deg", "-1deg", "3deg", "-2deg"] as const;
-const RAYAS = 12;
-
-/** El toldo de feria: rayas verde y crema, con el borde de abajo en ondas. Se estira al ancho de la sección. */
-function Toldo() {
-  const ancho = 100;
-  return (
-    <svg viewBox={`0 0 ${RAYAS * ancho} 64`} preserveAspectRatio="none" aria-hidden="true" className="relative z-10 -mb-px block h-9 w-full md:h-11">
-      {Array.from({ length: RAYAS }, (_, i) => (
-        <path
-          key={i}
-          d={`M${i * ancho} 0H${(i + 1) * ancho}V34A${ancho / 2} 28 0 0 1 ${i * ancho} 34Z`}
-          fill={i % 2 ? "var(--color-crema)" : "var(--color-teal)"}
-          stroke="var(--color-teal-oscuro)"
-          strokeWidth="3"
-          vectorEffect="non-scaling-stroke"
-        />
-      ))}
-    </svg>
-  );
-}
 
 /** Cuenta de 0 al número al cargar. Con movimiento reducido, muestra el número de una vez. */
 function Contador({ hasta }: { hasta: number }) {

@@ -1,5 +1,8 @@
 export const acceso = {
   titulo: "Entrá a Lote",
+  tituloResalta: "Lote",
+  globo: "¡Hola! ¿Entramos?",
+  globoLateral: "Tranquila, yo llevo la cuenta.",
   descripcion: "Con tu cuenta de Google o con tu correo.",
   google: "Seguir con Google",
   separador: "o con tu correo",

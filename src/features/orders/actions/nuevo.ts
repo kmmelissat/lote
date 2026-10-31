@@ -53,5 +53,5 @@ export async function nuevoPedido(
   if (!r.ok) return { error: textoDeError(r.error), valores };
 
   revalidatePath("/", "layout");
-  redirect(`/pedidos/${r.codigo}`);
+  redirect(`/pedidos/${r.codigo}?registrado=${tipo}`);
 }

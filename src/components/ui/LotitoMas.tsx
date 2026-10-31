@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { MONITOS } from "@/components/ui/Monito";
 
-type PoseLotito = "asoma" | "saluda" | "thumbsup" | "calculadora" | "celular";
+export type PoseLotito = "asoma" | "saluda" | "thumbsup" | "calculadora" | "celular";
 
 /** Lotito a color: misma pose que el monito original. */
 export function LotitoMas({ nombre, className = "w-24" }: { nombre: PoseLotito; className?: string }) {

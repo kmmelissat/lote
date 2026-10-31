@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { useToast } from "@/components/ui/Toast";
 import { Select } from "@/components/ui/Select";
 import { formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -22,16 +23,15 @@ const rutaInvitacion = (token: string) => `/invitacion/${token}`;
 type Props = { miembros: MiembroEquipo[]; invitaciones: InvitacionPendiente[]; yo: string };
 
 export function EquipoPanel({ miembros, invitaciones, yo }: Props) {
-  const [aviso, setAviso] = useState("");
+  const { avisar } = useToast();
   const [error, setError] = useState("");
   const [pendiente, empezar] = useTransition();
 
   function correr(accion: () => Promise<Resultado>, listo: string) {
     setError("");
-    setAviso("");
     empezar(async () => {
       const r = await accion();
-      if (r.ok) setAviso(listo);
+      if (r.ok) avisar(listo, { tipo: "exito" });
       else setError(r.error);
     });
   }
@@ -39,17 +39,14 @@ export function EquipoPanel({ miembros, invitaciones, yo }: Props) {
   async function copiar(token: string) {
     try {
       await navigator.clipboard.writeText(`${window.location.origin}${rutaInvitacion(token)}`);
-      setAviso(t.enlaceCopiado);
+      avisar(t.enlaceCopiado, { tipo: "exito" });
     } catch {
-      setAviso(t.noSePudoCopiar);
+      avisar(t.noSePudoCopiar, { tipo: "error" });
     }
   }
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      <p role="status" className="min-h-5 text-sm text-teal">
-        {aviso}
-      </p>
       <MensajeError>{error}</MensajeError>
 
       <section aria-labelledby="miembros" className="flex flex-col gap-3">

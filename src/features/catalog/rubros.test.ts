@@ -58,3 +58,25 @@ describe("agruparEnRubros", () => {
     expect(de("ropa")?.categorias).toEqual(["Collares", "Aretes", "Blusas", "Vestidos", "Accesorios"]);
   });
 });
+
+describe("agruparEnRubros con el rubro que eligió la tienda", () => {
+  it("usa el rubro guardado aunque el nombre diga otra cosa", () => {
+    const rubros = agruparEnRubros([
+      { tienda: "rara", categoria: "Collares", productos: 3, rubro: "mascotas" },
+      { tienda: "rara", categoria: "Blusas", productos: 1, rubro: "belleza" },
+    ]);
+    expect(rubros.find((r) => r.id === "mascotas")?.claves).toEqual([claveDe("rara", "Collares")]);
+    expect(rubros.find((r) => r.id === "belleza")?.claves).toEqual([claveDe("rara", "Blusas")]);
+    expect(rubros.find((r) => r.id === "ropa")).toBeUndefined();
+  });
+
+  it("si el rubro falta o no es válido, lo adivina por el nombre", () => {
+    const rubros = agruparEnRubros([
+      { tienda: "a", categoria: "Blusas", productos: 1, rubro: null },
+      { tienda: "a", categoria: "Perros", productos: 1, rubro: "invento" },
+    ]);
+    expect(rubros.find((r) => r.id === "ropa")?.claves).toEqual([claveDe("a", "Blusas")]);
+    expect(rubros.find((r) => r.id === "mascotas")?.claves).toEqual([claveDe("a", "Perros")]);
+  });
+});
+

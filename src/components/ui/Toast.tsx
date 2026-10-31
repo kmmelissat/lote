@@ -18,10 +18,30 @@ type Aviso = OpcionesAviso & { id: number; mensaje: string; tipo: Tipo };
 
 const MAXIMO_VISIBLES = 3;
 
-const estilos: Record<Tipo, { icono: NombreIcono; color: string }> = {
-  exito: { icono: "exito", color: "text-teal" },
-  error: { icono: "alerta", color: "text-error" },
-  info: { icono: "info", color: "text-texto-2" },
+// Es lo único que flota sobre la pantalla y confirma lo que pasó: va con color sólido, borde y sombra de la marca.
+// Éxito en teal, error en rojo e info en celeste; el texto cumple contraste (blanco sobre teal y rojo, oscuro sobre celeste).
+const estilos: Record<Tipo, { icono: NombreIcono; caja: string; chapa: string; accion: string; cerrar: string }> = {
+  exito: {
+    icono: "exito",
+    caja: "bg-teal text-white",
+    chapa: "bg-white text-teal",
+    accion: "bg-white text-teal hover:bg-teal-fondo",
+    cerrar: "text-white hover:bg-white/20",
+  },
+  error: {
+    icono: "alerta",
+    caja: "bg-error text-white",
+    chapa: "bg-white text-error",
+    accion: "bg-white text-error hover:bg-error-fondo",
+    cerrar: "text-white hover:bg-white/20",
+  },
+  info: {
+    icono: "info",
+    caja: "bg-celeste text-teal-oscuro",
+    chapa: "bg-white text-teal-oscuro",
+    accion: "bg-white text-teal-oscuro hover:bg-celeste-palido",
+    cerrar: "text-teal-oscuro hover:bg-white/50",
+  },
 };
 
 type Contexto = {
@@ -51,6 +71,19 @@ export function useAvisarErrores(estado: { errores?: Partial<Record<string, stri
   }, [estado, toast]);
 }
 
+/**
+ * Lo que devuelve la acción cuando todo salió bien (`listo`) sale como aviso, en vez de una etiqueta dentro del formulario:
+ * así no ocupa lugar en la barra de guardar. `listo` puede ser el mensaje mismo o solo un sí; entonces va `mensaje`.
+ * Se dispara en cada guardado, aunque el resultado sea el mismo.
+ */
+export function useAvisarListo(estado: { listo?: boolean | string } | undefined, mensaje?: string) {
+  const toast = useToastOpcional();
+  useEffect(() => {
+    const texto = typeof estado?.listo === "string" ? estado.listo : estado?.listo ? mensaje : undefined;
+    if (texto) toast?.avisar(texto, { tipo: "exito" });
+  }, [estado, mensaje, toast]);
+}
+
 export function useToast(): Contexto {
   const contexto = useContext(ToastContexto);
   if (!contexto) throw new Error("useToast hay que usarlo dentro de <ToastProvider>");
@@ -63,7 +96,7 @@ function duracionDe(a: Aviso) {
 
 function AvisoVista({ aviso, cerrar }: { aviso: Aviso; cerrar: () => void }) {
   const [pausado, setPausado] = useState(false);
-  const { icono, color } = estilos[aviso.tipo];
+  const { icono, caja, chapa, accion, cerrar: botonCerrar } = estilos[aviso.tipo];
 
   // El reloj se detiene mientras el mouse o el foco están encima: da tiempo de leer y de tocar la acción.
   useEffect(() => {
@@ -79,10 +112,12 @@ function AvisoVista({ aviso, cerrar }: { aviso: Aviso; cerrar: () => void }) {
       onMouseLeave={() => setPausado(false)}
       onFocus={() => setPausado(true)}
       onBlur={() => setPausado(false)}
-      className="animate-aviso pointer-events-auto flex items-center gap-3 rounded-2xl border border-borde bg-superficie py-2 pl-4 pr-2 shadow-lg"
+      className={`animate-aviso pointer-events-auto flex items-center gap-3 rounded-[20px] border-2 border-teal-oscuro py-2 pl-3 pr-2 shadow-dura-chica ${caja}`}
     >
-      <Icon nombre={icono} className={`size-5 shrink-0 ${color}`} />
-      <p className="min-w-0 flex-1 py-1 text-sm font-medium">{aviso.mensaje}</p>
+      <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full ${chapa}`}>
+        <Icon nombre={icono} className="size-5" />
+      </span>
+      <p className="min-w-0 flex-1 py-1 text-sm font-bold">{aviso.mensaje}</p>
       {aviso.accion && (
         <button
           type="button"
@@ -90,7 +125,7 @@ function AvisoVista({ aviso, cerrar }: { aviso: Aviso; cerrar: () => void }) {
             aviso.accion?.alTocar();
             cerrar();
           }}
-          className="min-h-11 shrink-0 rounded-xl px-3 text-sm font-medium text-teal hover:bg-teal-fondo"
+          className={`min-h-11 shrink-0 rounded-full px-4 text-sm font-bold ${accion}`}
         >
           {aviso.accion.etiqueta}
         </button>
@@ -99,7 +134,7 @@ function AvisoVista({ aviso, cerrar }: { aviso: Aviso; cerrar: () => void }) {
         type="button"
         onClick={cerrar}
         aria-label={textos.comun.cerrarAviso}
-        className="flex size-11 shrink-0 items-center justify-center rounded-xl text-texto-2 hover:bg-teal-fondo"
+        className={`flex size-11 shrink-0 items-center justify-center rounded-full ${botonCerrar}`}
       >
         <Icon nombre="x" className="size-4" />
       </button>
@@ -122,7 +157,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContexto.Provider value={contexto}>
       {children}
-      {/* En móvil sube para no tapar la barra inferior. El contenedor deja pasar los toques; cada aviso los recibe. */}
+      {/* En móvil sube para no tapar la barra de guardar de abajo. El contenedor deja pasar los toques; cada aviso los recibe. */}
       <ul className="pointer-events-none fixed inset-x-4 bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] z-50 mx-auto flex max-w-md flex-col gap-2 md:bottom-6">
         {avisos.map((a) => (
           <AvisoVista key={a.id} aviso={a} cerrar={() => quitar(a.id)} />

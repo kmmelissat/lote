@@ -3,12 +3,25 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
+import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { textos } from "@/lib/textos";
+import { esOrdenCliente, ORDENES_CLIENTES, type OrdenCliente } from "../filtro";
 
 const t = textos.clientes;
 
-/** Misma píldora que en productos: filtra al escribir, sin recargar a lo bruto. */
-export function BuscadorClientes({ texto, soloConSaldo }: { texto: string; soloConSaldo: boolean }) {
+type Estado = { texto: string; soloConSaldo: boolean; orden: OrdenCliente };
+
+function direccion({ texto, soloConSaldo, orden }: Estado) {
+  const q = new URLSearchParams();
+  if (texto.trim()) q.set("q", texto);
+  if (soloConSaldo) q.set("saldo", "1");
+  if (orden !== "deben") q.set("orden", orden);
+  const cadena = q.toString();
+  return cadena ? `/clientes?${cadena}` : "/clientes";
+}
+
+/** La búsqueda filtra al escribir (sin recargar a lo bruto) y queda en la dirección. */
+export function BuscadorClientes({ texto, soloConSaldo, orden }: Estado) {
   const router = useRouter();
   const [valor, setValor] = useState(texto);
   // Si el texto de la dirección cambia desde afuera (atrás, limpiar filtros), el campo lo sigue
@@ -20,14 +33,6 @@ export function BuscadorClientes({ texto, soloConSaldo }: { texto: string; soloC
   const espera = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => () => window.clearTimeout(espera.current), []);
-
-  function ir(nuevo: string) {
-    const q = new URLSearchParams();
-    if (nuevo.trim()) q.set("q", nuevo);
-    if (soloConSaldo) q.set("saldo", "1");
-    const cadena = q.toString();
-    router.replace(cadena ? `/clientes?${cadena}` : "/clientes", { scroll: false });
-  }
 
   return (
     <CampoBusqueda
@@ -41,8 +46,24 @@ export function BuscadorClientes({ texto, soloConSaldo }: { texto: string; soloC
         const q = e.target.value.slice(0, 80);
         setValor(q);
         window.clearTimeout(espera.current);
-        espera.current = setTimeout(() => ir(q), 200);
+        espera.current = setTimeout(() => router.replace(direccion({ texto: q, soloConSaldo, orden }), { scroll: false }), 200);
       }}
     />
+  );
+}
+
+/** El orden de la lista: va a la derecha de los chips de filtro y tiene su misma forma. */
+export function OrdenarClientes({ texto, soloConSaldo, orden }: Estado) {
+  const router = useRouter();
+  return (
+    <div className="w-full sm:w-60">
+      <ListaDesplegable
+        variante="pildora"
+        valor={orden}
+        alCambiar={(v) => router.replace(direccion({ texto, soloConSaldo, orden: esOrdenCliente(v) ? v : "deben" }), { scroll: false })}
+        opciones={ORDENES_CLIENTES.map((o) => ({ valor: o, etiqueta: t.ordenes[o] }))}
+        placeholder={t.orden}
+      />
+    </div>
   );
 }

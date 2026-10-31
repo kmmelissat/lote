@@ -8,7 +8,7 @@ import { EstrellasInput } from "@/components/ui/EstrellasInput";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
-import { useToast } from "@/components/ui/Toast";
+import { useAvisarListo, useToast } from "@/components/ui/Toast";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -75,6 +75,7 @@ function FilaResena({ r }: { r: ResenaPanel }) {
 
 function NuevaResena({ productos }: { productos: { codigo: number; nombre: string }[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoResenaForm, FormData>(agregarResenaManual, {});
+  useAvisarListo(estado, t.nueva.listo);
   const formulario = useRef<HTMLFormElement>(null);
   const n = t.nueva;
   return (
@@ -113,11 +114,6 @@ function NuevaResena({ productos }: { productos: { codigo: number; nombre: strin
           <Button type="submit" variante="mango" disabled={pendiente}>
             {pendiente ? n.guardando : n.boton}
           </Button>
-          {estado.listo && (
-            <p role="status" className="text-sm font-medium text-teal">
-              {n.listo}
-            </p>
-          )}
           <MensajeError>{estado.error}</MensajeError>
         </div>
       </form>

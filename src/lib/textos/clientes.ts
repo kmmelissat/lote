@@ -31,4 +31,27 @@ export const clientes = {
   historial: "Pedidos",
   sinPedidos: "Todavía no tiene pedidos.",
   verPedidos: "Ver pedidos",
+  orden: "Ordenar",
+  ordenes: {
+    deben: "Las que más deben",
+    compras: "Las que más compraron",
+    recientes: "Compraron hace poco",
+    nombre: "Nombre (A a Z)",
+  },
+  stats: {
+    titulo: "Resumen de clientas",
+    clientas: "Clientas",
+    clientasNota: (n: number) => (n === 1 ? "1 ha hecho algún pedido" : `${n} han hecho algún pedido`),
+    deben: "Te deben",
+    debenNota: (n: number) => (n === 0 ? "Nadie te debe nada" : n === 1 ? "Lo debe 1 clienta" : `Lo deben ${n} clientas`),
+    compraron: "Han comprado",
+    compraronNota: "Pagado, en camino o entregado",
+    repiten: "Vuelven a comprar",
+    repitenNota: "Clientas con más de un pedido",
+  },
+  columnas: { clienta: "Clienta", pedidos: "Pedidos", comprado: "Comprado", ultimo: "Último pedido", debe: "Debe" },
+  cobrar: "Cobrar",
+  escribirle: "Escribirle",
+  cobrarMensaje: (nombre: string, monto: string, negocio: string) =>
+    `Hola ${nombre}, te escribo de ${negocio}: te queda un saldo pendiente de ${monto}. ¿Cómo te queda mejor pagarlo? ¡Gracias!`,
 } as const;

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useEffectEvent, useId, useMemo, useRef, useState, useTransition, type ChangeEvent, type DragEvent, type FormEvent } from "react";
+import { useEffect, useEffectEvent, useId, useMemo, useRef, useState, useTransition, type ChangeEvent, type DragEvent, } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { categoriasQueNoExisten } from "@/features/products/categorias";
 import { useConfirmar } from "@/components/ui/Confirmar";
-import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { Icon } from "@/components/ui/Icon";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
-import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Monito } from "@/components/ui/Monito";
 import { TARJETA, TARJETA_BASE } from "@/components/ui/tarjeta";
@@ -22,9 +22,8 @@ import {
 } from "../mapeo";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { traerHojaDeGoogle } from "../actions/hoja";
 import { deshacerImportacionAction, importarCsv, type ResultadoImportar } from "../actions/importar";
-import { urlDeExportacion } from "../sheets";
+import { FotoFila } from "./FotoFila";
 import { parseXlsx, pareceExcelViejo, pareceXlsx } from "../xlsx";
 
 const t = textos.productos.importar;
@@ -35,13 +34,15 @@ const REQUERIDOS: Campo[] = ["nombre", "precio"];
 
 type Archivo = { nombre: string; encabezados: string[]; filas: string[][] };
 
-export function ImportarCsv() {
+export function ImportarCsv({ negocioId, categorias }: { negocioId: string; categorias: string[] }) {
   const [archivo, setArchivo] = useState<Archivo | null>(null);
   const [mapeo, setMapeo] = useState<Mapeo>({});
   const [error, setError] = useState("");
   const [resultado, setResultado] = useState<Extract<ResultadoImportar, { ok: true }> | null>(null);
   const [deshecha, setDeshecha] = useState("");
   const [soloErrores, setSoloErrores] = useState(false);
+  // Ruta de la foto de cada fila, por su lugar en el archivo
+  const [fotos, setFotos] = useState<Record<number, string>>({});
   const [pendiente, empezar] = useTransition();
   const confirmar = useConfirmar();
 
@@ -53,12 +54,18 @@ export function ImportarCsv() {
   const malas = validadas.length - buenas;
   const grupos = new Set(validadas.flatMap((v) => (v.ok && v.fila.grupo ? [v.fila.grupo] : []))).size;
   const tieneRequeridos = REQUERIDOS.every((c) => mapeo[c] !== undefined);
+  // Las categorías del archivo que no están en la lista del negocio: esos productos se crean sin categoría
+  const categoriasFaltan = useMemo(
+    () => categoriasQueNoExisten(categorias, validadas.flatMap((v) => (v.ok ? [v.fila.categoria] : []))),
+    [categorias, validadas],
+  );
 
   function cargarTabla(nombre: string, tabla: string[][]) {
     const [encabezados, ...filas] = tabla;
     if (!encabezados || !filas.length) return setError(t.errorVacio);
     if (filas.length > MAXIMO_FILAS) return setError(t.errorLimite(MAXIMO_FILAS));
     setArchivo({ nombre, encabezados, filas });
+    setFotos({});
     setMapeo(proponerMapeo(encabezados));
     setSoloErrores(false);
     setError("");
@@ -98,14 +105,6 @@ export function ImportarCsv() {
 
   function recibirTexto(texto: string, nombre: string) {
     setError("");
-    if (urlDeExportacion(texto)) {
-      empezar(async () => {
-        const r = await traerHojaDeGoogle(texto);
-        if (r.ok) cargar(t.hoja.nombreArchivo, r.csv);
-        else setError(r.error);
-      });
-      return;
-    }
     const lineas = texto.split(/\r?\n/).filter((l) => l.trim());
     if (lineas.length < 2 && !/[,\t;]/.test(texto)) return setError(t.errorPegado);
     cargar(nombre, texto);
@@ -115,17 +114,6 @@ export function ImportarCsv() {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (f) await leerArchivo(f);
-  }
-
-  function traerHoja(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const enlace = String(new FormData(e.currentTarget).get("enlace") ?? "");
-    setError("");
-    empezar(async () => {
-      const r = await traerHojaDeGoogle(enlace);
-      if (r.ok) cargar(t.hoja.nombreArchivo, r.csv);
-      else setError(r.error);
-    });
   }
 
   function cambiarColumna(campo: Campo, valor: string) {
@@ -141,7 +129,12 @@ export function ImportarCsv() {
     if (!archivo) return;
     setError("");
     empezar(async () => {
-      const r = await importarCsv(archivo.nombre, mapeo, archivo.filas);
+      const r = await importarCsv(
+        archivo.nombre,
+        mapeo,
+        archivo.filas,
+        archivo.filas.map((_, i) => fotos[i] ?? null),
+      );
       if (r.ok) setResultado(r);
       else setError(r.error);
     });
@@ -166,6 +159,7 @@ export function ImportarCsv() {
 
   function reiniciar() {
     setArchivo(null);
+    setFotos({});
     setMapeo({});
     setResultado(null);
     setDeshecha("");
@@ -202,6 +196,12 @@ export function ImportarCsv() {
           <p role="status" className="mt-2 max-w-sm font-medium">
             {deshecha || t.listoTexto(resultado.creados, resultado.saltadas)}
           </p>
+          {!deshecha && resultado.conFoto < resultado.creados && (
+            <p className="mt-1 max-w-sm text-sm text-texto-2">{t.listoFotos}</p>
+          )}
+          {!deshecha && resultado.sinCategoria.length > 0 && (
+            <p className="mt-1 max-w-sm text-sm font-medium">{t.categoriasFaltanLuego(resultado.sinCategoria)}</p>
+          )}
           <MensajeError>{error}</MensajeError>
           <div className="mt-4 flex flex-wrap gap-3">
             {!deshecha && (
@@ -227,11 +227,37 @@ export function ImportarCsv() {
     return (
       <div className="flex flex-col gap-6">
         <Pasos actual={1} />
-        <ZonaCarga pendiente={pendiente} error={error} alElegir={elegidas} alLeer={leerArchivo} alTraer={traerHoja} />
-        <GuiaVariantes />
-        <GuiaColumnas />
-        <QueSigue />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-stretch">
+          <ZonaCarga pendiente={pendiente} error={error} alElegir={elegidas} alLeer={leerArchivo} />
+          <Ayuda />
+        </div>
       </div>
+    );
+  }
+
+  function selectorColumna(campo: Campo) {
+    const requerido = REQUERIDOS.includes(campo);
+    return (
+      <label key={campo} className="flex flex-col gap-1.5">
+        <span className="flex items-center gap-2 text-sm font-medium">
+          {t.campos[campo]}
+          {requerido && (
+            <span className="rounded-full bg-mango px-2 py-0.5 text-xs font-bold">{textos.productos.form.requerido}</span>
+          )}
+        </span>
+        <ListaDesplegable
+          valor={mapeo[campo] === undefined ? "" : String(mapeo[campo])}
+          alCambiar={(v) => cambiarColumna(campo, v)}
+          opciones={[
+            { valor: "", etiqueta: t.noIncluir },
+            ...archivo!.encabezados
+              .map((h, i) => ({ i, h }))
+              .filter(({ i }) => mapeo[campo] === i || !usadas.has(i))
+              .map(({ i, h }) => ({ valor: String(i), etiqueta: h || `(${i + 1})` })),
+          ]}
+          placeholder={t.noIncluir}
+        />
+      </label>
     );
   }
 
@@ -253,41 +279,28 @@ export function ImportarCsv() {
         </Button>
       </div>
 
-      <section className={`${TARJETA} flex flex-col gap-4 bg-superficie shadow-dura-chica`}>
-        <div>
-          <h2 className="text-lg font-extrabold">{t.pasoColumnas}</h2>
-          <p className="mt-1 text-texto-2">{t.pasoColumnasAyuda}</p>
-          <p className={`${TARJETA_BASE} mt-3 bg-limon px-3 py-2 text-sm font-medium`}>{t.guiaVariantes.compacta}</p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {CAMPOS.map((campo) => {
-            const requerido = REQUERIDOS.includes(campo);
-            return (
-              <label key={campo} className="flex flex-col gap-1.5">
-                <span className="flex items-center gap-2 text-sm font-medium">
-                  {t.campos[campo]}
-                  {requerido && (
-                    <span className="rounded-full bg-mango px-2 py-0.5 text-xs font-bold">{textos.productos.form.requerido}</span>
-                  )}
-                </span>
-                <ListaDesplegable
-                  valor={mapeo[campo] === undefined ? "" : String(mapeo[campo])}
-                  alCambiar={(v) => cambiarColumna(campo, v)}
-                  opciones={[
-                    { valor: "", etiqueta: t.noIncluir },
-                    ...archivo.encabezados
-                      .map((h, i) => ({ i, h }))
-                      .filter(({ i }) => mapeo[campo] === i || !usadas.has(i))
-                      .map(({ i, h }) => ({ valor: String(i), etiqueta: h || `(${i + 1})` })),
-                  ]}
-                  placeholder={t.noIncluir}
-                />
-              </label>
-            );
-          })}
-        </div>
-        {!tieneRequeridos && <p className="text-sm text-error">{t.requeridos}</p>}
-      </section>
+      {tieneRequeridos ? (
+        <details className={`${TARJETA_BASE} bg-superficie px-4 py-3 shadow-dura-chica`}>
+          <summary className="flex cursor-pointer flex-wrap items-center gap-x-2 font-bold">
+            <Icon nombre="check" className="size-5 text-teal" />
+            {t.columnasListas(usadas.size)}
+            <span className="text-sm text-teal-oscuro underline">{t.cambiarColumnas}</span>
+          </summary>
+          <div className="mt-4 flex flex-col gap-4">
+            <p className="text-texto-2">{t.pasoColumnasAyuda}</p>
+            <div className="grid gap-3 sm:grid-cols-2">{CAMPOS.map(selectorColumna)}</div>
+          </div>
+        </details>
+      ) : (
+        <section className={`${TARJETA} flex flex-col gap-4 bg-superficie shadow-dura-chica`}>
+          <div>
+            <h2 className="text-lg font-extrabold">{t.pasoColumnas}</h2>
+            <p className="mt-1 text-texto-2">{t.pasoColumnasAyuda}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">{CAMPOS.map(selectorColumna)}</div>
+          <p className="text-sm text-error">{t.requeridos}</p>
+        </section>
+      )}
 
       {tieneRequeridos && (
         <section className={`${TARJETA} flex flex-col gap-3 bg-superficie shadow-dura-chica`}>
@@ -297,6 +310,14 @@ export function ImportarCsv() {
               <p role="status" className="mt-1 text-texto-2">
                 {t.resumen(buenas, malas)}
               </p>
+              {categoriasFaltan.length > 0 && (
+                <p className="mt-2 max-w-xl rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+                  {t.categoriasFaltan(categoriasFaltan)}{" "}
+                  <a href="/ajustes/categorias" target="_blank" rel="noopener noreferrer" className="font-bold underline">
+                    {t.categoriasFaltanAccion}
+                  </a>
+                </p>
+              )}
             </div>
             {malas > 0 && (
               <div className="flex rounded-full border-2 border-teal-oscuro bg-white p-1 text-sm font-bold">
@@ -327,6 +348,7 @@ export function ImportarCsv() {
               <thead className="bg-crema text-texto-2">
                 <tr>
                   <th className="px-3 py-2 font-bold">{t.fila}</th>
+                  <th className="px-3 py-2 font-bold">{t.foto}</th>
                   {columnasMostradas.map((c) => (
                     <th key={c} className="px-3 py-2 font-bold">
                       {t.campos[c]}
@@ -339,6 +361,23 @@ export function ImportarCsv() {
                 {filasVista.slice(0, FILAS_EN_PANTALLA).map(({ v, i }) => (
                   <tr key={i} className={`border-t border-borde ${v.ok ? "" : "bg-rosa-palido"}`}>
                     <td className="px-3 py-2 text-texto-2">{i + 2}</td>
+                    <td className="px-3 py-2">
+                      {v.ok && (
+                        <FotoFila
+                          negocioId={negocioId}
+                          nombre={v.fila.nombre}
+                          ruta={fotos[i]}
+                          alCambiar={(ruta) =>
+                            setFotos((f) => {
+                              const siguiente = { ...f };
+                              if (ruta) siguiente[i] = ruta;
+                              else delete siguiente[i];
+                              return siguiente;
+                            })
+                          }
+                        />
+                      )}
+                    </td>
                     {columnasMostradas.map((c) => (
                       <td key={c} className="max-w-48 truncate px-3 py-2">
                         {v.ok && c === "nombre" && v.fila.etiqueta
@@ -416,13 +455,11 @@ function ZonaCarga({
   error,
   alElegir,
   alLeer,
-  alTraer,
 }: {
   pendiente: boolean;
   error: string;
   alElegir: (e: ChangeEvent<HTMLInputElement>) => void;
   alLeer: (f: File) => void;
-  alTraer: (e: FormEvent<HTMLFormElement>) => void;
 }) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
@@ -436,8 +473,7 @@ function ZonaCarga({
   }
 
   return (
-    <div className="flex flex-col gap-5">
-    <div className="flex flex-col gap-5 lg:grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start">
+    <div className="flex flex-col gap-4">
       <div
         role="region"
         aria-labelledby={`${id}-t`}
@@ -449,200 +485,98 @@ function ZonaCarga({
           if (!e.currentTarget.contains(e.relatedTarget as Node)) setEncima(false);
         }}
         onDrop={soltadas}
-        className={`${TARJETA} relative flex flex-col items-center gap-4 bg-crema text-center shadow-dura transition-colors duration-150 ${encima ? "bg-limon" : ""}`}
+        className={`${TARJETA} relative flex flex-1 flex-col items-center justify-center gap-5 bg-crema py-10 text-center shadow-dura transition-colors duration-150 lg:min-h-96 ${encima ? "bg-limon" : ""}`}
       >
         <span className="absolute -right-2 -top-3 hidden -rotate-6 rounded-full border-2 border-teal-oscuro bg-celeste px-3 py-1 text-xs font-bold shadow-dura-chica sm:block">
           {t.hasta(MAXIMO_FILAS)}
         </span>
-        <Monito nombre="caja" className={`text-teal ${encima ? "w-20" : "w-16"}`} />
+        <Monito nombre="caja" className={`text-teal transition-[width] duration-150 ${encima ? "w-28" : "w-24"}`} />
         <div className="flex flex-col gap-1">
           <p id={`${id}-t`} className="text-lg font-extrabold leading-snug">
             {t.zonaTitulo}
           </p>
           <p className="max-w-sm text-sm text-texto-2">{t.zonaTexto}</p>
         </div>
-        <ul className="flex flex-wrap justify-center gap-1.5">
-          {CAMPOS.map((campo) => (
-            <li
-              key={campo}
-              className={`rounded-full border-2 border-teal-oscuro px-2.5 py-0.5 text-xs font-bold ${REQUERIDOS.includes(campo) ? "bg-mango" : "bg-white"}`}
-            >
-              {t.campos[campo]}
-            </li>
-          ))}
-        </ul>
-        <div className="flex flex-wrap justify-center gap-3">
-          <Button type="button" variante="mango" disabled={pendiente} onClick={() => input.current?.click()}>
-            <Icon nombre="subir" className="size-5" />
-            {t.elegir}
-          </Button>
-          <a
-            href="/plantilla-productos.csv"
-            download
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro bg-superficie px-6 text-base font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
-          >
-            {t.plantilla}
-          </a>
-        </div>
+        <Button type="button" variante="mango" disabled={pendiente} onClick={() => input.current?.click()}>
+          <Icon nombre="subir" className="size-5" />
+          {t.elegir}
+        </Button>
         <input ref={input} type="file" accept={ACEPTA} hidden onChange={alElegir} aria-labelledby={`${id}-t`} />
       </div>
 
-      <form onSubmit={alTraer} className={`${TARJETA} flex flex-col gap-3 bg-celeste shadow-dura-chica`}>
-        <div className="flex items-start gap-3">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-superficie">
-            <Icon nombre="hoja" className="size-6" />
-          </span>
-          <div>
-            <h2 className="font-extrabold">{t.hoja.titulo}</h2>
-            <p className="text-sm text-texto-2">{t.hoja.ayuda}</p>
-          </div>
-        </div>
-        {pendiente ? (
-          <p role="status" className="flex animate-entra items-center gap-3 rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-3 font-medium">
-            <Monito nombre="asoma" className="w-10 shrink-0 animate-pulse text-teal" />
-            {t.hoja.trayendo}
-          </p>
-        ) : (
-          <>
-            <Field etiqueta={t.hoja.etiqueta} name="enlace" type="url" inputMode="url" autoComplete="off" required placeholder="https://docs.google.com/spreadsheets/d/…" />
-            <Button type="submit" variante="secundario" className="self-start">
-              {t.hoja.boton}
-            </Button>
-          </>
-        )}
-      </form>
-    </div>
-    <MensajeError>{error}</MensajeError>
+      <MensajeError>{error}</MensajeError>
     </div>
   );
 }
 
-const ESTILO_CAMPO: Record<Campo, { tono: string; icono: NombreIcono }> = {
-  nombre: { tono: "bg-limon", icono: "productos" },
-  precio: { tono: "bg-mango", icono: "moneda" },
-  cantidad: { tono: "bg-celeste", icono: "caja" },
-  costo: { tono: "bg-teal-fondo", icono: "ganancia" },
-  descripcion: { tono: "bg-crema", icono: "chat" },
-  condicion: { tono: "bg-teal-fondo", icono: "check" },
-  categoria: { tono: "bg-rosa-palido", icono: "filtros" },
-  marca: { tono: "bg-crema", icono: "estrella" },
-  variante: { tono: "bg-teal-fondo", icono: "filtros" },
-  talla: { tono: "bg-limon", icono: "caja" },
-  color: { tono: "bg-rosa", icono: "estrella" },
-  material: { tono: "bg-celeste", icono: "productos" },
-  estado: { tono: "bg-rosa-palido", icono: "info" },
-  precioAnterior: { tono: "bg-mango", icono: "moneda" },
-};
-
-function GuiaVariantes() {
+function Ayuda() {
   const g = t.guiaVariantes;
+  const opcionales = CAMPOS.filter((c) => !REQUERIDOS.includes(c));
   return (
-    <section
-      aria-labelledby="guia-variantes"
-      className={`${TARJETA} relative overflow-hidden bg-limon shadow-dura-chica lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)] lg:items-center lg:gap-x-6`}
-    >
-      <Monito nombre="asoma" className="absolute -bottom-2 right-3 w-20 text-teal lg:hidden" />
-      <div className="relative z-10 max-w-xl pr-16 lg:pr-0">
-        <h2 id="guia-variantes" className="text-lg font-extrabold leading-snug">
-          {g.titulo}
-        </h2>
-        <p className="mt-1 text-texto-2">{g.texto}</p>
+    <aside className={`${TARJETA} flex flex-col gap-4 bg-superficie shadow-dura-chica`}>
+      <div>
+        <h2 className="text-lg font-extrabold">{t.columnasTitulo}</h2>
+        <p className="mt-1 text-texto-2">{t.columnasAyuda}</p>
       </div>
-      <div className="relative z-10 mt-4 overflow-hidden rounded-[18px] border-2 border-teal-oscuro bg-white lg:mt-0">
-        <p className="bg-crema px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-texto-2">{g.ejemplo}</p>
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr>
-              {g.encabezados.map((h) => (
-                <th key={h} className="px-3 py-2 font-bold">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {g.filas.map((fila) => (
-              <tr key={fila.join("-")} className="border-t border-borde">
-                {fila.map((c, i) => (
-                  <td key={`${c}-${i}`} className={`px-3 py-2 ${i === 0 ? "font-medium" : ""}`}>
-                    {c}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="relative z-10 mt-3 font-bold lg:col-span-2 lg:mt-4">{g.queda}</p>
-    </section>
-  );
-}
-
-function GuiaColumnas() {
-  return (
-    <section aria-labelledby="guia-columnas" className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 id="guia-columnas" className="text-lg font-extrabold">
-            {t.columnasTitulo}
-          </h2>
-          <p className="mt-1 max-w-xl text-texto-2">{t.columnasAyuda}</p>
-        </div>
-        <a
-          href="/plantilla-productos.csv"
-          download
-          className="inline-flex h-11 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie px-5 text-sm font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
-        >
-          {t.plantilla}
-        </a>
-      </div>
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {CAMPOS.map((campo) => {
-          const estilo = ESTILO_CAMPO[campo];
-          const requerido = REQUERIDOS.includes(campo);
-          return (
-            <li key={campo} className={`${TARJETA_BASE} ${estilo.tono} flex gap-3 p-4 shadow-dura-chica`}>
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-superficie">
-                <Icon nombre={estilo.icono} className="size-5" />
-              </span>
-              <span className="min-w-0 flex flex-col">
-                <span className="flex flex-wrap items-center gap-2 font-extrabold">
-                  {t.campos[campo]}
-                  {requerido && (
-                    <span className="rounded-full border-2 border-teal-oscuro bg-mango px-2 py-0.5 text-[11px] font-bold">
-                      {textos.productos.form.requerido}
-                    </span>
-                  )}
-                </span>
-                <span className="text-sm text-texto-2">{t.columnas[campo]}</span>
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-function QueSigue() {
-  const items = [
-    { ...t.despues.mapear, tono: "bg-limon" },
-    { ...t.despues.revisar, tono: "bg-celeste" },
-    { ...t.despues.deshacer, tono: "bg-rosa-palido" },
-  ];
-  return (
-    <section aria-labelledby="que-sigue" className="flex flex-col gap-3">
-      <h2 id="que-sigue" className="text-sm font-bold uppercase tracking-wide text-texto-2">
-        {t.despues.titulo}
-      </h2>
-      <ul className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        {items.map((item) => (
-          <li key={item.titulo} className={`${TARJETA_BASE} ${item.tono} p-4 shadow-dura-chica`}>
-            <p className="font-extrabold leading-tight">{item.titulo}</p>
-            <p className="mt-1 text-sm text-texto-2">{item.texto}</p>
+      <ul className="flex flex-wrap gap-1.5">
+        {REQUERIDOS.map((c) => (
+          <li key={c} className="rounded-full border-2 border-teal-oscuro bg-mango px-3 py-1 text-sm font-bold">
+            {t.campos[c]}
           </li>
         ))}
+        {opcionales.slice(0, 5).map((c) => (
+          <li key={c} className="rounded-full border-2 border-teal-oscuro bg-white px-3 py-1 text-sm font-bold">
+            {t.campos[c]}
+          </li>
+        ))}
+        <li className="px-1 py-1 text-sm font-bold text-texto-2">+{opcionales.length - 5}</li>
       </ul>
-    </section>
+      <div className={`${TARJETA_BASE} bg-limon p-4`}>
+        <p className="font-extrabold">{g.titulo}</p>
+        <p className="mt-1 text-sm text-texto-2">{g.texto}</p>
+        <div className="mt-3 overflow-hidden rounded-[14px] border-2 border-teal-oscuro bg-white">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-crema">
+              <tr>
+                {g.encabezados.map((h) => (
+                  <th key={h} className="px-3 py-1.5 font-bold">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {g.filas.map((fila) => (
+                <tr key={fila.join("-")} className="border-t border-borde">
+                  {fila.map((c, i) => (
+                    <td key={`${c}-${i}`} className="px-3 py-1.5">
+                      {c}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <details>
+        <summary className="cursor-pointer text-sm font-bold text-teal-oscuro">{t.ayudaTitulo}</summary>
+        <dl className="mt-3 grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[max-content_1fr]">
+          {CAMPOS.map((campo) => (
+            <div key={campo} className="contents">
+              <dt className="font-bold">{t.campos[campo]}</dt>
+              <dd className="text-texto-2">{t.columnas[campo]}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
+      <a
+        href="/plantilla-productos.csv"
+        download
+        className="mt-auto inline-flex h-11 items-center justify-center gap-2 self-start rounded-full border-2 border-teal-oscuro bg-superficie px-5 text-sm font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+      >
+        {t.plantilla}
+      </a>
+    </aside>
   );
 }

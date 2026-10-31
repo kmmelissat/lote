@@ -72,7 +72,8 @@ export const esRubro = (id: string): id is RubroId => RUBROS.some((r) => r.id ==
 export const nombreDeRubro = (id: RubroId) => RUBROS.find((r) => r.id === id)!.nombre;
 
 /** Una categoría de una tienda, con cuántos productos tiene a la vista. */
-export type CategoriaDeTienda = { tienda: string; categoria: string; productos: number };
+/** `rubro` es el que la tienda eligió para su categoría; si falta (datos viejos) se adivina por el nombre. */
+export type CategoriaDeTienda = { tienda: string; categoria: string; productos: number; rubro?: string | null };
 
 /** La clave que identifica una categoría de una tienda (dos tiendas pueden tener "Collares" en rubros distintos). */
 export const claveDe = (tienda: string, categoria: string) => `${tienda}|${categoria}`;
@@ -80,8 +81,9 @@ export const claveDe = (tienda: string, categoria: string) => `${tienda}|${categ
 export type Rubro = { id: RubroId; nombre: string; productos: number; claves: string[]; categorias: string[] };
 
 /**
- * Agrupa las categorías de todas las tiendas en rubros. Lo ambiguo o desconocido toma el rubro con más productos
- * de su tienda; si la tienda no tiene ninguno claro, va a "Otros". Ordenados por cantidad de productos.
+ * Agrupa las categorías de todas las tiendas en rubros. Cada categoría trae el rubro que su tienda eligió; solo si falta
+ * se adivina por el nombre: lo ambiguo o desconocido toma el rubro con más productos de su tienda, y si no tiene ninguno
+ * claro, va a "Otros". Ordenados por cantidad de productos.
  */
 export function agruparEnRubros(filas: readonly CategoriaDeTienda[]): Rubro[] {
   const porTienda = new Map<string, CategoriaDeTienda[]>();
@@ -89,7 +91,7 @@ export function agruparEnRubros(filas: readonly CategoriaDeTienda[]): Rubro[] {
 
   const rubros = new Map<RubroId, Rubro>();
   for (const categorias of porTienda.values()) {
-    const claras = categorias.map((c) => ({ ...c, rubro: rubroPorNombre(c.categoria) }));
+    const claras = categorias.map((c) => ({ ...c, rubro: c.rubro && esRubro(c.rubro) ? c.rubro : rubroPorNombre(c.categoria) }));
     const peso = new Map<RubroId, number>();
     for (const c of claras) if (c.rubro) peso.set(c.rubro, (peso.get(c.rubro) ?? 0) + c.productos);
     const principal = [...peso.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "otros";

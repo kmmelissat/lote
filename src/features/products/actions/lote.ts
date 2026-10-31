@@ -66,6 +66,6 @@ export async function crearLote(_anterior: EstadoLote, formData: FormData): Prom
   const creados = resultados.filter((r) => r.status === "fulfilled" && !("error" in r.value)).length;
 
   revalidatePath("/", "layout");
-  if (creados === rutas.length) redirect("/productos");
+  if (creados === rutas.length) redirect(`/productos?lote=${creados}`);
   return { error: t.errorParcial(creados, rutas.length) };
 }

@@ -4,6 +4,7 @@ import { useActionState, useState, useTransition, type ChangeEvent } from "react
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { useAvisarListo } from "@/components/ui/Toast";
 import { Select } from "@/components/ui/Select";
 import { Sugerido } from "@/components/ui/Sugerido";
 import { dolaresTexto, formatearDolares } from "@/lib/formato";
@@ -24,6 +25,7 @@ type Lectura = Extract<ResultadoComprobante, { ok: true }>;
  */
 export function PagoForm({ pedidoId, saldo }: { pedidoId: string; saldo: number }) {
   const [estado, accion, pendiente] = useActionState<EstadoPago, FormData>(pagar.bind(null, pedidoId), {});
+  useAvisarListo(estado);
   const [monto, setMonto] = useState(dolaresTexto(saldo));
   const [metodo, setMetodo] = useState("transferencia");
   const [lectura, setLectura] = useState<Lectura | null>(null);
@@ -99,11 +101,6 @@ export function PagoForm({ pedidoId, saldo }: { pedidoId: string; saldo: number 
           {pendiente ? t.registrando : t.boton}
         </Button>
         <div className="sm:col-span-3">
-          {estado.listo && (
-            <p role="status" className="text-sm text-teal">
-              {estado.listo}
-            </p>
-          )}
           <MensajeError>{estado.error}</MensajeError>
         </div>
       </form>

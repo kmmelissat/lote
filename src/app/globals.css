@@ -78,6 +78,17 @@ body {
   --color-perla: color-mix(in srgb, #ffebc6 50%, white);
 }
 
+/* Lotito flota en la esquina de abajo; donde hay una barra de guardar o de cobro se sube para quedar encima y no tapar los botones.
+   En el celular la barra puede partirse en dos filas, por eso sube más. */
+body:has(.barra-formulario, .barra-guardar) .burbuja-lotito {
+  bottom: 9.5rem;
+}
+@media (min-width: 768px) {
+  body:has(.barra-formulario, .barra-guardar) .burbuja-lotito {
+    bottom: 6.25rem;
+  }
+}
+
 @keyframes entra-aviso {
   from {
     opacity: 0;
@@ -205,12 +216,12 @@ body {
   }
 }
 
-/* En el celular sticky no se pega (Safari) y el menú le queda encima: va fija, arriba del boleto. */
+/* En el celular sticky no se pega (Safari): va fija abajo. */
 .barra-guardar {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(4.5rem + max(0.75rem, env(safe-area-inset-bottom, 0px)));
+  bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
   width: min(24rem, calc(100vw - 2rem));
   z-index: 20;
 }

@@ -1,19 +1,16 @@
-import Link from "next/link";
+import { ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
-import { TARJETA } from "@/components/ui/tarjeta";
 import { textos } from "@/lib/textos";
 
 const t = textos.inicio.explorar;
 
-const boton =
-  "inline-flex h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro";
-
 /** Explorar es donde otras personas descubren tu tienda. Acá se ve si estás y, si no, cómo entrar. */
 export function TarjetaExplorar({ visible }: { visible: boolean }) {
   return (
-    <section aria-labelledby="explorar-inicio" className={`${TARJETA} flex h-full flex-wrap items-center justify-between gap-3 ${visible ? "bg-superficie" : "bg-rosa-palido"}`}>
+    <Card role="region" aria-labelledby="explorar-inicio" className="flex h-full flex-wrap items-center justify-between gap-3">
       <div className="flex min-w-0 flex-1 basis-64 items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon text-teal-oscuro">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-teal-fondo text-teal-oscuro">
           <Icon nombre="buscar" className="size-5" />
         </span>
         <div className="min-w-0">
@@ -24,16 +21,16 @@ export function TarjetaExplorar({ visible }: { visible: boolean }) {
         </div>
       </div>
       {visible ? (
-        <Link href="/marketplace" target="_blank" className={`${boton} bg-superficie hover:bg-limon`}>
+        <ButtonLink tamano="chico" variante="suave" href="/marketplace" target="_blank">
           {t.ver}
           <Icon nombre="enlace" className="size-4" />
           <span className="sr-only">(se abre en una pestaña nueva)</span>
-        </Link>
+        </ButtonLink>
       ) : (
-        <Link href="/ajustes/tienda" className={`${boton} bg-superficie hover:bg-limon`}>
+        <ButtonLink tamano="chico" icono="tienda" variante="suave" href="/ajustes/tienda">
           {t.activar}
-        </Link>
+        </ButtonLink>
       )}
-    </section>
+    </Card>
   );
 }

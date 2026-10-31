@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { filtrarClientes } from "@/features/customers/filtro";
+import { esOrdenCliente, filtrarClientes, ordenarClientes, type OrdenCliente } from "@/features/customers/filtro";
 import { listarClientes } from "@/features/customers/repositorio";
 import { ListaClientes } from "@/features/customers/ui/ListaClientes";
 import { negocioActual } from "@/lib/negocio";
@@ -24,11 +24,21 @@ async function Lista({ searchParams }: Pick<PageProps<"/clientes">, "searchParam
   const params = await searchParams;
   const texto = typeof params.q === "string" ? params.q.slice(0, 80) : "";
   const soloConSaldo = params.saldo === "1";
+  const orden: OrdenCliente = esOrdenCliente(String(params.orden)) ? (String(params.orden) as OrdenCliente) : "deben";
 
   const { supabase, negocio } = await negocioActual();
   const todos = await listarClientes(supabase, negocio.id);
 
   if (!todos.length) return <EmptyState monito="saluda" titulo={t.vacioTitulo} texto={t.vacioTexto} />;
 
-  return <ListaClientes todos={todos} clientes={filtrarClientes(todos, { texto, soloConSaldo })} texto={texto} soloConSaldo={soloConSaldo} />;
+  return (
+    <ListaClientes
+      todos={todos}
+      clientes={ordenarClientes(filtrarClientes(todos, { texto, soloConSaldo }), orden)}
+      texto={texto}
+      soloConSaldo={soloConSaldo}
+      orden={orden}
+      negocio={negocio.nombre}
+    />
+  );
 }

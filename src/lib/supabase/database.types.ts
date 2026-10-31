@@ -171,18 +171,21 @@ export type Database = {
           id: string
           negocio_id: string
           nombre: string
+          rubro: string
         }
         Insert: {
           creado_en?: string
           id?: string
           negocio_id: string
           nombre: string
+          rubro?: string
         }
         Update: {
           creado_en?: string
           id?: string
           negocio_id?: string
           nombre?: string
+          rubro?: string
         }
         Relationships: [
           {
@@ -1557,7 +1560,7 @@ export type Database = {
       }
       explorar_categorias: {
         Args: never
-        Returns: { tienda: string; categoria: string; productos: number }[]
+        Returns: { tienda: string; categoria: string; rubro: string; productos: number }[]
       }
       explorar_destacados: {
         Args: { p_limite?: number }

@@ -1,22 +1,22 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
-import { StatusChip } from "@/components/ui/StatusChip";
+import { Card } from "@/components/ui/Card";
+import { colorDeEstado, StatusChip } from "@/components/ui/StatusChip";
 import type { Pedido } from "@/features/orders/repositorio";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "@/components/ui/tarjeta";
 
 const t = textos.inicio;
 
 export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
   return (
-    <div className={`${TARJETA} flex flex-col gap-3 bg-superficie`}>
+    <Card className="flex flex-col gap-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-bold">{t.recientesTitulo}</h2>
           <p className="text-sm text-texto-2">{t.recientesTexto}</p>
         </div>
-        <ButtonLink href="/pedidos" variante="secundario" className="h-9 max-md:min-h-11 px-4 text-sm">
+        <ButtonLink tamano="chico" icono="pedidos" href="/pedidos" variante="suave">
           {t.verPedidos}
         </ButtonLink>
       </div>
@@ -26,10 +26,11 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
       ) : (
         <ul className="flex flex-col">
           {pedidos.map((p) => (
-            <li key={p.id} className="border-t border-borde first:border-t-0">
+            <li key={p.id} className="relative border-t border-borde first:border-t-0">
+              <span aria-hidden="true" className={`absolute inset-y-2 left-0 w-1.5 rounded-full border border-teal-oscuro/20 ${colorDeEstado(p.estado)}`} />
               <Link
                 href={`/pedidos/${p.codigo}`}
-                className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-xl px-2 py-2 hover:bg-teal-fondo md:grid-cols-[2fr_1.5fr_auto_auto]"
+                className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-xl py-2 pl-4 pr-2 hover:bg-teal-fondo md:grid-cols-[2fr_1.5fr_auto_auto]"
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium">
@@ -43,13 +44,13 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
                 <p className="hidden truncate md:block">{p.cliente ?? textos.pedidos.sinCliente}</p>
                 <p className="text-right font-bold">{formatearDolares(p.total)}</p>
                 <div className="col-span-2 md:col-span-1 md:justify-self-end">
-                  <StatusChip estado={p.estado} />
+                  <StatusChip estado={p.estado} discreto />
                 </div>
               </Link>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </Card>
   );
 }

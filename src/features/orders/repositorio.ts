@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { aCentavos, type Centavos, type EstadoPedido } from "@/domain";
+import type { Busqueda } from "./busqueda";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -97,17 +98,33 @@ export async function listarPedidos(
   return data.map(aPedido);
 }
 
-/** Una página de todos los pedidos, de cualquier estado, los más recientes primero. */
+/**
+ * Una página de pedidos, los más recientes primero. Sin filtros son los de cualquier estado; con `estado` solo ese, y con
+ * `busqueda` solo el pedido con ese número o los de la clienta que se llame así (sin importar mayúsculas).
+ */
 export async function paginaDePedidos(
   supabase: Cliente,
   negocioId: string,
   desde: number,
   cantidad: number,
+  filtros: { estado?: EstadoPedido; busqueda?: Busqueda } = {},
 ): Promise<Pedido[]> {
-  const { data, error } = await supabase
-    .from("pedido")
-    .select(columnas)
-    .eq("negocio_id", negocioId)
+  let consulta = supabase.from("pedido").select(columnas).eq("negocio_id", negocioId);
+  if (filtros.estado) consulta = consulta.eq("estado", filtros.estado);
+  if (filtros.busqueda && "codigo" in filtros.busqueda) consulta = consulta.eq("codigo", filtros.busqueda.codigo);
+  if (filtros.busqueda && "nombre" in filtros.busqueda) {
+    if (!filtros.busqueda.nombre) return [];
+    const { data: clientas, error: errorClientas } = await supabase
+      .from("cliente")
+      .select("id")
+      .eq("negocio_id", negocioId)
+      .ilike("nombre", `%${filtros.busqueda.nombre}%`)
+      .limit(200);
+    if (errorClientas) throw errorClientas;
+    if (!clientas.length) return [];
+    consulta = consulta.in("cliente_id", clientas.map((c) => c.id));
+  }
+  const { data, error } = await consulta
     .order("creado_en", { ascending: false })
     .order("id")
     .range(desde, desde + cantidad - 1);

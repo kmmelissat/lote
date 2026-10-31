@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useElegir } from "@/components/ui/Confirmar";
+import type { NombreIcono } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import type { EstadoPedido } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
@@ -13,6 +14,8 @@ import { METODOS_DE_COBRO } from "../repositorio";
 const t = textos.pedidos.lista;
 
 type Siguiente = "pagado" | "preparando" | "enviado" | "entregado";
+
+const ICONO_DEL_PASO: Record<Siguiente, NombreIcono> = { pagado: "moneda", preparando: "caja", enviado: "camion", entregado: "check" };
 
 /** El paso que sigue para un pedido, o null si ya no hay (entregado, cancelado). */
 function siguientePaso(estado: EstadoPedido, contraEntrega: boolean): Siguiente | null {
@@ -78,7 +81,10 @@ export function AccionPedido({
     // z-10: queda por encima del enlace que cubre toda la fila
     <Button
       type="button"
-      className={`relative z-10 border-2 border-teal-oscuro ${grande ? "" : "h-9 max-md:min-h-11 px-4 text-sm"}`}
+      variante={grande ? "mango" : "suave"}
+      tamano={grande ? "normal" : "chico"}
+      icono={ICONO_DEL_PASO[paso]}
+      className="relative z-10"
       disabled={pendiente}
       onClick={avanzar}
     >

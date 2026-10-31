@@ -103,6 +103,8 @@ export type FilaImportable = {
   detalles: Detalle[];
   estadoDetalle: string | null;
   precioAnterior: Centavos | null;
+  /** Rutas de fotos ya subidas al bucket; se agregan en la vista previa, no vienen del archivo. */
+  fotos?: string[];
 };
 
 type ErrorFila = "nombre" | "precio" | "cantidad" | "costo" | "condicion" | "precioAnterior" | "variante" | "variantes" | "faltaVariante";

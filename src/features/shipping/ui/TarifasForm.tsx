@@ -1,12 +1,13 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { BarraGuardar } from "@/components/ui/BarraGuardar";
+import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { useAvisarListo } from "@/components/ui/Toast";
 import { Textarea } from "@/components/ui/Textarea";
 import { leerDolares, type Centavos } from "@/domain";
 import { DEPARTAMENTOS } from "@/lib/departamentos";
@@ -84,6 +85,7 @@ function etiquetaDe(monto: Centavos | null): string {
 
 export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
   const [estado, accion, pendiente] = useActionState<EstadoTarifas, FormData>(guardarTarifasDeEnvio, {});
+  useAvisarListo(estado, t.guardado);
   const [retiro, setRetiro] = useState(tarifas.retiro ?? "");
   const [recoger, setRecoger] = useState((tarifas.retiro ?? "").trim().length > 0);
   const [todo, setTodo] = useState(tarifas.zonas === null);
@@ -180,17 +182,12 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
         </Bloque>
       </Seccion>
 
-      <BarraGuardar>
+      <MensajeError>{estado.error}</MensajeError>
+      <BarraFormulario>
         <Button type="submit" variante="mango" disabled={pendiente}>
           {pendiente ? t.guardando : t.guardar}
         </Button>
-        {estado.listo && (
-          <p role="status" className="rounded-full bg-teal-fondo px-4 py-2 text-sm font-bold text-teal-oscuro">
-            {t.guardado}
-          </p>
-        )}
-        <MensajeError>{estado.error}</MensajeError>
-      </BarraGuardar>
+      </BarraFormulario>
     </form>
   );
 }

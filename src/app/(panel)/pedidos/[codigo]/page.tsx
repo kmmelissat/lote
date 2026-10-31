@@ -13,6 +13,7 @@ import { urlFoto } from "@/lib/fotos";
 import { formatearDolares, formatearFecha, tiempoRestante } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
+import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
 import { AccionesPedido } from "@/features/orders/ui/AccionesPedido";
 import { AccionPedido } from "@/features/orders/ui/AccionPedido";
 import { ProgresoPedido } from "@/features/orders/ui/ProgresoPedido";
@@ -25,7 +26,10 @@ export const metadata: Metadata = { title: t.titulo };
 
 export default function PedidoPage({ params }: PageProps<"/pedidos/[codigo]">) {
   return (
-    <Detalle params={params} />
+    <>
+      <AvisoCreado />
+      <Detalle params={params} />
+    </>
   );
 }
 

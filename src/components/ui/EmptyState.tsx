@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import { Monito, type MONITOS } from "./Monito";
+import { LotitoMas, type PoseLotito } from "./LotitoMas";
 
-/** Cuando no hay nada que mostrar: el monito se asoma, dice qué pasa y, si se puede, ofrece una acción. */
+/** Cuando no hay nada que mostrar: Lotito, el de la landing, se asoma, dice qué pasa y, si se puede, ofrece una acción. */
 export function EmptyState({
   titulo,
   texto,
@@ -11,11 +11,11 @@ export function EmptyState({
   titulo?: string;
   texto: string;
   accion?: ReactNode;
-  monito?: keyof typeof MONITOS;
+  monito?: PoseLotito;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-teal-oscuro bg-crema px-6 py-10 text-center">
-      <Monito nombre={monito} className="w-20 text-rosa" />
+    <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-borde-control bg-superficie px-6 py-10 text-center">
+      <LotitoMas nombre={monito} className="w-24" />
       {titulo && <h2 className="text-lg font-bold">{titulo}</h2>}
       <p className="max-w-sm text-texto-2">{texto}</p>
       {accion}

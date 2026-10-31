@@ -26,7 +26,7 @@ import {
   type EstadoNuevo,
   type FichaSugerida,
 } from "../actions/nuevo";
-import { BarraGuardar } from "@/components/ui/BarraGuardar";
+import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { CartelLotito, type EstadoLotito } from "./CartelLotito";
 import { DetallesProducto } from "./DetallesProducto";
 import { leerDetalles, type Detalle } from "../infoExtra";
@@ -134,8 +134,8 @@ export function NuevoProductoForm({
   const [nombre, setNombre] = useState(v.nombre ?? "");
   const [cantidad, setCantidad] = useState(v.cantidad ?? "1");
   const [categoria, setCategoria] = useState(v.categoria ?? "");
-  const [categorias, setCategorias] = useState(sugerencias.categorias);
-  // La categoría que Lotito vio en la foto y todavía no existe: se ofrece crearla, no se inventa
+  const categorias = sugerencias.categorias;
+  // La categoría que Lotito vio en la foto y no está en la lista: se avisa y se manda a Ajustes, no se inventa
   const [categoriaSugerida, setCategoriaSugerida] = useState<string | null>(
     null,
   );
@@ -326,6 +326,7 @@ export function NuevoProductoForm({
 
   return (
     <form
+      id="form-producto"
       ref={formulario}
       action={accion}
       onChange={recalcular}
@@ -412,12 +413,10 @@ export function NuevoProductoForm({
                 valor={categoria}
                 onCambio={editar("categoria")}
                 opciones={categorias}
-                onOpciones={setCategorias}
                 error={e.categoria}
                 lotito={deLotito.has("categoria")}
                 trabajando={brillo("categoria")}
                 sugerida={categoriaSugerida}
-                onSugerida={setCategoriaSugerida}
               />
             {!conVariantes && <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />}
           </div>
@@ -584,15 +583,9 @@ export function NuevoProductoForm({
           condicion={condicion}
         />
       </div>
-
-      {/* La barra de guardar flota abajo de la pantalla siempre; en el celular queda sobre el menú */}
-      <BarraGuardar>
-        <Button
-          type="submit"
-          variante="mango"
-          disabled={pendiente}
-          className="flex-1 sm:flex-none"
-        >
+      {/* En el código el principal va primero (es el que dispara Enter); `order` lo deja a la derecha */}
+      <BarraFormulario>
+        <Button type="submit" variante="mango" disabled={pendiente} className="order-3">
           {pendiente
             ? editando
               ? textos.productos.editar.guardando
@@ -604,23 +597,24 @@ export function NuevoProductoForm({
         {editando ? (
           <Link
             href={`/productos/${modo.codigo}`}
-            className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold text-teal-oscuro hover:-translate-y-0.5 hover:shadow-dura-chica"
+            className="order-2 inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold text-teal-oscuro hover:-translate-y-0.5 hover:shadow-dura-chica"
           >
             {textos.productos.editar.cancelar}
           </Link>
         ) : (
           <button
             type="submit"
+           
             name="otro"
             value="1"
             disabled={pendiente}
-            className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold text-teal-oscuro hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-60"
+            className="order-2 inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold text-teal-oscuro hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-60"
           >
             {t.guardarOtro}
           </button>
         )}
-        <span className="hidden text-xs text-texto-2 lg:block">{t.atajo}</span>
-      </BarraGuardar>
+        <span className="order-1 hidden whitespace-nowrap text-xs text-texto-2 lg:block">{t.atajo}</span>
+      </BarraFormulario>
     </form>
   );
 }

@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
-import { activaEn, pestanas, type DatosMenu, type Pestana } from "./menu";
-import { ConRuta } from "./RutaActiva";
+import type { DatosMenu } from "./menu";
 
 const t = textos.nav;
 
@@ -20,33 +20,11 @@ function Punto({ datos }: { datos: DatosMenu }) {
   );
 }
 
-function Huecos({ lado }: { lado: "left" | "right" }) {
-  return (
-    <span aria-hidden="true" className={`absolute top-1/2 flex -translate-y-1/2 flex-col gap-1.5 ${lado === "left" ? "-left-1.5" : "-right-1.5"}`}>
-      {[0, 1, 2].map((i) => (
-        <span key={i} className="size-2.5 rounded-full border-2 border-teal-oscuro bg-superficie" />
-      ))}
-    </span>
-  );
-}
-
-function Celda({ p, pathname, datos }: { p: Pestana; pathname: string | null; datos: DatosMenu }) {
-  const activa = pathname !== null && activaEn(pathname, p.href);
-  return (
-    <Link
-      href={p.href}
-      aria-current={activa ? "page" : undefined}
-      aria-label={p.etiqueta}
-      className={`relative flex h-12 flex-1 items-center justify-center ${activa ? "text-teal-oscuro" : "text-texto-2"}`}
-    >
-      <Icon nombre={p.icono} className="size-6" />
-      {activa && <span aria-hidden="true" className="absolute bottom-1 h-0.5 w-5 rounded-full bg-rosa" />}
-      {p.href === "/pedidos" && <Punto datos={datos} />}
-    </Link>
-  );
-}
-
-export function BarraMovil({
+/**
+ * El encabezado del celular: arriba, junto al contenido, y no una barra de pestañas abajo. Es un sitio y no una app,
+ * y abajo ahora van los botones de guardar. Lleva el logo, la acción rápida (+) y el menú con todas las pantallas.
+ */
+export function EncabezadoMovil({
   datos,
   rapida,
   abrirRapida,
@@ -60,43 +38,32 @@ export function BarraMovil({
   abrirMas: () => void;
 }) {
   return (
-    <nav aria-label="Principal" className="fixed inset-x-4 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 md:hidden">
-      <ConRuta
-        hijos={(pathname) => (
-          <div className="relative mx-auto max-w-md">
-            <Huecos lado="left" />
-            <Huecos lado="right" />
-            <ul className="grid grid-cols-5 items-stretch overflow-visible rounded-sm border-2 border-teal-oscuro bg-crema py-1 shadow-dura-chica">
-            <li className="flex border-r-2 border-dashed border-teal-oscuro">
-              <Celda p={pestanas[0]} pathname={pathname} datos={datos} />
-            </li>
-            <li className="flex border-r-2 border-dashed border-teal-oscuro">
-              <Celda p={pestanas[1]} pathname={pathname} datos={datos} />
-            </li>
-            <li className="flex items-center justify-center border-r-2 border-dashed border-teal-oscuro">
-              <button
-                type="button"
-                onClick={abrirRapida}
-                aria-label={t.rapida.titulo}
-                aria-expanded={rapida}
-                className="-rotate-2 flex size-10 items-center justify-center rounded-sm border-2 border-teal-oscuro bg-celeste text-teal-oscuro shadow-dura-chica"
-              >
-                <Icon nombre="mas" className="size-6" strokeWidth={2.25} />
-              </button>
-            </li>
-            <li className="flex border-r-2 border-dashed border-teal-oscuro">
-              <Celda p={pestanas[2]} pathname={pathname} datos={datos} />
-            </li>
-            <li className="flex">
-              <button type="button" onClick={abrirMas} aria-label={t.mas} aria-expanded={masAbierto} className="flex h-12 w-full items-center justify-center text-texto-2">
-                <Icon nombre="mas_opciones" className="size-6" />
-              </button>
-            </li>
-            </ul>
-          </div>
-        )}
-      />
-    </nav>
+    <header className="flex items-center justify-between gap-3 border-b-2 border-teal-oscuro bg-crema px-4 py-2 md:hidden">
+      <Link href="/inicio" aria-label={t.inicio} className="group">
+        <Logo />
+      </Link>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={abrirRapida}
+          aria-label={t.rapida.titulo}
+          aria-expanded={rapida}
+          className="-rotate-2 flex size-11 items-center justify-center rounded-sm border-2 border-teal-oscuro bg-celeste text-teal-oscuro shadow-dura-chica"
+        >
+          <Icon nombre="mas" className="size-6" strokeWidth={2.25} />
+        </button>
+        <button
+          type="button"
+          onClick={abrirMas}
+          aria-label={t.menuAbrir}
+          aria-expanded={masAbierto}
+          className="relative flex size-11 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica"
+        >
+          <Icon nombre="mas_opciones" className="size-6" />
+          <Punto datos={datos} />
+        </button>
+      </div>
+    </header>
   );
 }
 

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { colorDeEstado } from "@/components/ui/StatusChip";
 import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TarjetaPrimerosPasos } from "@/features/home/TarjetaPrimerosPasos";
 import { GraficoSemanas } from "@/features/home/ui/GraficoSemanas";
 import { PedidosRecientes } from "@/features/home/ui/PedidosRecientes";
 import { TarjetaAtencion } from "@/features/home/ui/TarjetaAtencion";
-import { TarjetaDato } from "@/features/home/ui/TarjetaDato";
+import { TarjetaDato } from "@/components/ui/TarjetaDato";
 import { TarjetaExplorar } from "@/features/home/ui/TarjetaExplorar";
 import { contarPendientes } from "@/features/reviews/repositorio";
 import { AvisoResenas } from "@/features/reviews/ui/AvisoResenas";
@@ -53,13 +54,17 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
 
   const encabezado = (
     <PageHeader
-      titulo={t.saludo(negocio.nombre)}
-      descripcion={t.resumenDisponibles(unidades.disponibles)}
-      accion={
-        <ButtonLink variante="mango" href="/productos/nuevo">
-          {t.nuevoProducto}
-        </ButtonLink>
+      titulo={
+        negocio.nombre ? (
+          <>
+            Hola,{" "}
+            <span className="bg-[linear-gradient(transparent_78%,var(--color-mango)_78%,var(--color-mango)_100%)] box-decoration-clone">{negocio.nombre}</span>
+          </>
+        ) : (
+          t.saludo("")
+        )
       }
+      descripcion={t.resumenDisponibles(unidades.disponibles)}
     />
   );
 
@@ -80,7 +85,12 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
     : [];
   const vistos = pasosVistos(galletas.get(COOKIE_PASOS_VISTOS)?.value, negocio.id);
   const tarjetaPasos = mostrarPasos(pasos, vistos) && (
-    <TarjetaPrimerosPasos pasos={pasos} vistos={vistos} negocioId={negocio.id} slug={negocio.slug} />
+    <TarjetaPrimerosPasos pasos={pasos} vistos={vistos} negocioId={negocio.id} slug={negocio.slug} destacar={sinProductos} />
+  );
+  // Mientras falten pasos, el siguiente va dentro de "Para hoy"; el "¡Todo listo!" es una celebración y sale aparte.
+  // Inicio ya no tiene botón mango en el encabezado: el siguiente paso es la acción principal.
+  const pasosEnNota = pasos.length > 0 && pasos.some((p) => !p.hecho) && mostrarPasos(pasos, vistos) && (
+    <TarjetaPrimerosPasos pasos={pasos} vistos={vistos} negocioId={negocio.id} slug={negocio.slug} integrada destacar />
   );
   const tarjetaBienvenida = bienvenida && (
     <TarjetaBienvenida nombre={negocio.nombre} negocioId={negocio.id} slug={negocio.slug} conVitrina={negocio.vitrinaActiva} />
@@ -90,14 +100,14 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
     return (
       <>
         <PageHeader titulo={t.saludo(negocio.nombre)} descripcion={t.resumenDisponibles(0)} />
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           {tarjetaBienvenida}
           {/* Quien configura el negocio ve los pasos (el primero es agregar un producto); el resto, el aviso de siempre */}
           {tarjetaPasos || (
             <EmptyState
               titulo={t.vacioTitulo}
               texto={t.vacioTexto}
-              accion={negocio.puedeGestionar ? <ButtonLink href="/productos/nuevo">{t.vacioAccion}</ButtonLink> : undefined}
+              accion={negocio.puedeGestionar ? <ButtonLink variante="mango" icono="mas" href="/productos/nuevo">{t.vacioAccion}</ButtonLink> : undefined}
             />
           )}
         </div>
@@ -113,66 +123,59 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   // Sin ningún pedido todavía no hay nada que graficar ni listar: se esconde en vez de mostrar widgets vacíos.
   const sinMovimiento = recientes.length === 0;
   const hayGanancia = Boolean(ganancia && !sinMovimiento);
-  // Sin nada que atender la tarjeta no existe: el gráfico ocupa su lugar para que no quede un hueco.
-  const hayAtencion = r.porPagar > 0 || r.porEnviar > 0 || r.seEnfrian.length > 0;
 
   return (
     <>
       {encabezado}
-      <div className="flex flex-col gap-3 md:gap-6">
-        {(tarjetaBienvenida || tarjetaPasos) && (
-          <div className="flex flex-col gap-3">
-            {tarjetaBienvenida}
-            {tarjetaPasos}
-          </div>
-        )}
+      <div className="flex flex-col gap-4">
+        {tarjetaBienvenida}
 
         <AvisoResenas pendientes={pendientesResenas} />
+
+        <TarjetaAtencion r={r} ahora={ahora} pasos={pasosEnNota || undefined} />
+
+        {!pasosEnNota && tarjetaPasos}
 
         <section aria-labelledby="contadores">
           <h2 id="contadores" className="sr-only">
             {t.contadores}
           </h2>
-          <div className={`grid grid-cols-3 gap-3 ${hayGanancia ? "xl:grid-cols-4" : ""}`}>
-            {hayGanancia && ganancia && (
-              <div className="col-span-3 xl:col-span-1">
-                <TarjetaGanancia ganancia={ganancia.gananciaDespuesDeGastos} anterior={anterior} estimada={ganancia.estimada} />
-              </div>
-            )}
+          <div className="grid grid-cols-3 gap-4">
             <TarjetaDato
               etiqueta={t.disponibles}
               valor={r.disponibles}
               texto={t.quePasa.disponibles}
               href="/productos?estado=disponible"
-              chip={r.disponibles === 0 ? { texto: t.agotado, tono: "ambar" } : undefined}
+              banda={colorDeEstado("disponible")}
+              icono="caja"
+              chip={r.disponibles === 0 ? { texto: t.agotado } : undefined}
             />
             <TarjetaDato
               etiqueta={t.apartados}
               valor={r.apartadas}
               texto={t.quePasa.apartados}
               href="/pedidos?estado=pendiente"
-              chip={r.seEnfrian.length > 0 ? { texto: t.seEnfrianChip(r.seEnfrian.length), tono: "ambar" } : undefined}
+              banda={colorDeEstado("apartado")}
+              icono="reloj"
+              chip={r.seEnfrian.length > 0 ? { texto: t.seEnfrianChip(r.seEnfrian.length) } : undefined}
             />
-            <TarjetaDato etiqueta={t.vendidos} valor={r.vendidas} texto={t.quePasa.vendidos} href="/productos?estado=vendido" />
+            <TarjetaDato etiqueta={t.vendidos} valor={r.vendidas} texto={t.quePasa.vendidos} href="/productos?estado=vendido" banda={colorDeEstado("pagado")} icono="moneda" />
           </div>
         </section>
 
-        {sinMovimiento ? (
-          <TarjetaAtencion r={r} ahora={ahora} />
-        ) : (
-          <div className="flex flex-col gap-3">
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-              <div className={`min-w-0 ${hayAtencion ? "lg:col-span-2" : "lg:col-span-3"}`}>
-                {semanas ? <GraficoSemanas semanas={semanas} /> : <PedidosRecientes pedidos={recientes} />}
-              </div>
-              <TarjetaAtencion r={r} ahora={ahora} />
-            </div>
-            {semanas && <PedidosRecientes pedidos={recientes} />}
+        {hayGanancia && ganancia && (
+          <TarjetaGanancia ganancia={ganancia.gananciaDespuesDeGastos} anterior={anterior} estimada={ganancia.estimada} />
+        )}
+
+        {!sinMovimiento && (
+          <div className="flex flex-col gap-4">
+            {semanas && <GraficoSemanas semanas={semanas} />}
+            <PedidosRecientes pedidos={recientes} />
           </div>
         )}
 
         {negocio.vitrinaActiva && (
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <TarjetaVitrina slug={negocio.slug} />
             <TarjetaExplorar visible={negocio.visibleEnExplorar} />
           </div>

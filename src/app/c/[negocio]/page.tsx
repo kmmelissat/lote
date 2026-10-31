@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { Globo } from "@/components/ui/Globo";
 import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
+import { Toldo } from "@/components/ui/Toldo";
 import { CatalogoVitrina } from "@/features/catalog/ui/CatalogoVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
+import { RedesTienda } from "@/features/catalog/ui/RedesTienda";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { enlaceFacebook, enlaceTiktok, mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerNegocioPublico, obtenerOpcionesDeCompra } from "@/features/catalog/repositorio";
@@ -73,12 +76,13 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           currenciesAccepted: "USD",
         }}
       />
-      <header className="mb-8 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-superficie shadow-dura">
-        <div aria-hidden="true" className="h-10 bg-accion md:h-14" />
-        <div className="flex flex-col gap-4 px-5 pb-5 md:px-8 md:pb-7">
-          <div className="-mt-7 flex items-end gap-4 md:-mt-9">
-            <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-[4.5rem] border-4 border-superficie ring-2 ring-teal-oscuro md:size-24" />
-            <span className="mb-1 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold">
+      {/* El puesto de la tienda: toldo en su color, el logo pegado un poco torcido y Lotito asomándose por el borde */}
+      <header className="relative mb-8 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-superficie shadow-dura">
+        <Toldo color="var(--color-accion)" className="h-9 md:h-12" />
+        <div className="flex flex-col gap-4 px-5 pb-5 pt-4 md:px-8 md:pb-7">
+          <div className="-mt-1 flex items-end gap-4">
+            <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-[4.5rem] -rotate-3 border-4 border-superficie ring-2 ring-teal-oscuro md:size-24" />
+            <span className="mb-1 -rotate-2 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold">
               {t.productos(productos.length)}
             </span>
           </div>
@@ -89,23 +93,26 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           {/* Lo que da confianza antes de mirar: cómo se paga y cómo llega */}
           <ul className="flex flex-wrap gap-2 text-sm">
             {metodos.length > 0 && (
-              <li className="inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro bg-celeste px-3 py-1.5 font-bold">
+              <li className="inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro bg-celeste px-3 py-1.5 font-bold -rotate-1">
                 <Icon nombre="banco" className="size-4 text-teal-oscuro" />
                 {t.infoPagas(metodos.join(", "))}
               </li>
             )}
-            <li className="inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-1.5 font-bold">
+            <li className="inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-1.5 font-bold rotate-1">
               <Icon nombre="camion" className="size-4 text-teal" />
               {opciones.direccionRetiro ? t.infoEnvioRetiro : t.infoEnvio}
             </li>
           </ul>
           <BotonesChat
             whatsapp={negocio.whatsapp}
-            instagram={negocio.usuarioInstagram}
-            facebook={negocio.usuarioFacebook}
-            tiktok={negocio.usuarioTiktok}
+            instagram={null}
             mensaje={mensajePedirVitrina(negocio.nombre)}
           />
+          <RedesTienda instagram={negocio.usuarioInstagram} facebook={negocio.usuarioFacebook} tiktok={negocio.usuarioTiktok} />
+        </div>
+        <div aria-hidden="true" className="pointer-events-none absolute bottom-0 right-8 hidden flex-col items-start lg:flex">
+          <Globo className="-rotate-2 animate-asomar">{t.saludoLotito}</Globo>
+          <Monito nombre="asoma" className="mt-3 w-32 translate-y-3 text-rosa" />
         </div>
       </header>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
@@ -10,6 +10,49 @@ import { Chat } from "./Chat";
 import { AvatarLotito } from "./PiezasChat";
 
 const t = textos.asistente;
+
+// Lotito se puede arrastrar: así nunca tapa un botón. La posición queda guardada en el navegador, medida desde la
+// esquina de abajo a la derecha (para que siga sirviendo si cambia el tamaño de la ventana).
+const CLAVE_POSICION = "lote_lotito_pos";
+const EVENTO_POSICION = "lote-lotito-pos";
+const MARGEN = 8;
+/** Lo que hay que moverse antes de que un toque cuente como arrastre */
+const UMBRAL = 6;
+
+type Posicion = { derecha: number; abajo: number };
+
+const suscribirPosicion = (aviso: () => void) => {
+  window.addEventListener("storage", aviso);
+  window.addEventListener(EVENTO_POSICION, aviso);
+  return () => {
+    window.removeEventListener("storage", aviso);
+    window.removeEventListener(EVENTO_POSICION, aviso);
+  };
+};
+const leerPosicion = () => {
+  try {
+    return localStorage.getItem(CLAVE_POSICION);
+  } catch {
+    return null;
+  }
+};
+function guardarPosicion(p: Posicion | null) {
+  try {
+    if (p) localStorage.setItem(CLAVE_POSICION, JSON.stringify(p));
+    else localStorage.removeItem(CLAVE_POSICION);
+  } catch {}
+  window.dispatchEvent(new Event(EVENTO_POSICION));
+}
+function leerJson(cruda: string | null): Posicion | null {
+  if (!cruda) return null;
+  try {
+    const p = JSON.parse(cruda) as Posicion;
+    return Number.isFinite(p.derecha) && Number.isFinite(p.abajo) ? p : null;
+  } catch {
+    return null;
+  }
+}
+const entre = (n: number, min: number, max: number) => Math.min(Math.max(n, min), Math.max(min, max));
 
 /**
  * El círculo de Lotito y su chat en ventana. Vive en el layout del panel, así que la conversación sigue
@@ -31,6 +74,44 @@ function Burbuja({ negocioId }: { negocioId: string }) {
   if (abierto && !montado) setMontado(true);
   const ventana = useRef<HTMLDivElement>(null);
   const boton = useRef<HTMLButtonElement>(null);
+
+  const cruda = useSyncExternalStore(suscribirPosicion, leerPosicion, () => null);
+  const guardada = useMemo(() => leerJson(cruda), [cruda]);
+  // Mientras se arrastra se dibuja la posición del dedo; al soltar queda la guardada
+  const [arrastre, setArrastre] = useState<Posicion | null>(null);
+  const gesto = useRef<{ x: number; y: number; derecha: number; abajo: number; movido: boolean; ultima: Posicion | null } | null>(null);
+  const [yaArrastro, setYaArrastro] = useState(false);
+  const posicion = arrastre ?? guardada;
+
+  function empezarArrastre(e: PointerEvent<HTMLButtonElement>) {
+    const r = e.currentTarget.getBoundingClientRect();
+    gesto.current = { x: e.clientX, y: e.clientY, derecha: window.innerWidth - r.right, abajo: window.innerHeight - r.bottom, movido: false, ultima: null };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+  function arrastrar(e: PointerEvent<HTMLButtonElement>) {
+    const g = gesto.current;
+    if (!g) return;
+    const dx = e.clientX - g.x;
+    const dy = e.clientY - g.y;
+    if (!g.movido && Math.hypot(dx, dy) < UMBRAL) return;
+    g.movido = true;
+    const r = e.currentTarget.getBoundingClientRect();
+    g.ultima = {
+      derecha: entre(g.derecha - dx, MARGEN, window.innerWidth - r.width - MARGEN),
+      abajo: entre(g.abajo - dy, MARGEN, window.innerHeight - r.height - MARGEN),
+    };
+    setArrastre(g.ultima);
+  }
+  function soltar() {
+    const g = gesto.current;
+    gesto.current = null;
+    if (!g?.movido) return;
+    if (g.ultima) guardarPosicion(g.ultima);
+    setArrastre(null);
+    // Soltar después de arrastrar no es un toque: el clic que viene detrás no abre el chat
+    setYaArrastro(true);
+    setTimeout(() => setYaArrastro(false), 0);
+  }
 
   // En la pantalla del asistente ya está el chat completo: la burbuja se esconde, pero sigue montada para no perder la conversación.
   const escondida = pathname === "/asistente" || pathname?.startsWith("/asistente/");
@@ -60,7 +141,7 @@ function Burbuja({ negocioId }: { negocioId: string }) {
         aria-label={t.titulo}
         tabIndex={-1}
         hidden={!abierto}
-        className="fixed inset-x-4 bottom-[7.75rem] top-16 z-40 flex animate-entra flex-col overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-crema shadow-[6px_6px_0_0_var(--color-teal-oscuro)] outline-none motion-reduce:animate-none md:inset-x-auto md:bottom-6 md:right-6 md:top-auto md:h-[38rem] md:max-h-[calc(100dvh-3rem)] md:w-[27rem]"
+        className="fixed inset-x-4 bottom-4 top-16 z-40 flex animate-entra flex-col overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-crema shadow-[6px_6px_0_0_var(--color-teal-oscuro)] outline-none motion-reduce:animate-none md:inset-x-auto md:bottom-6 md:right-6 md:top-auto md:h-[38rem] md:max-h-[calc(100dvh-3rem)] md:w-[27rem]"
       >
         <header className="flex items-center gap-3 border-b-2 border-teal-oscuro bg-white px-4 py-3">
           <AvatarLotito className="size-11" enLinea />
@@ -99,10 +180,25 @@ function Burbuja({ negocioId }: { negocioId: string }) {
       <button
         ref={boton}
         type="button"
-        onClick={() => setAbierto((a) => !a)}
+        onClick={() => {
+          if (!yaArrastro) setAbierto((a) => !a);
+        }}
+        onPointerDown={empezarArrastre}
+        onPointerMove={arrastrar}
+        onPointerUp={soltar}
+        onPointerCancel={soltar}
         aria-expanded={abierto}
         aria-label={t.flotante.abrir}
-        className={`fixed right-4 bottom-[6rem] z-30 transition-transform duration-150 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 md:right-6 md:bottom-6 ${abierto ? "invisible pointer-events-none" : ""}`}
+        title={t.flotante.mover}
+        // Con posición propia manda esta; sin ella, la de las clases (que se sube sola si hay una barra de guardar)
+        style={
+          posicion
+            ? { right: `min(${posicion.derecha}px, calc(100dvw - 5rem))`, bottom: `min(${posicion.abajo}px, calc(100dvh - 5rem))` }
+            : undefined
+        }
+        className={`burbuja-lotito fixed right-4 bottom-[5rem] z-30 touch-none select-none ${
+          arrastre ? "cursor-grabbing" : "cursor-grab transition-transform duration-150 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
+        } md:right-6 md:bottom-6 ${abierto ? "invisible pointer-events-none" : ""}`}
       >
         <span className="relative block md:hidden">
           <LotitoMas nombre="saluda" className="w-14 motion-safe:animate-asomar" />

@@ -2,6 +2,8 @@
 
 Nota para no olvidarla. Cada pantalla, también las del panel, tiene que sentirse **de la misma marca que la landing**: juguetona, cálida y un poco desordenada a propósito. Nada de "panel genérico" gris y blanco.
 
+> **Panel: marca y jerarquía van por separado.** El contorno de 2 px, las esquinas redondas, Lotito y el movimiento van parejos en todo (eso es la marca). La jerarquía la dan el relleno de color, la sombra dura y el tamaño: una cosa fuerte por pantalla, pocas medias, el resto callado. El color solo se usa si significa algo. Detalle en `/design-system`.
+
 ## Vibe
 
 - **Amiga que lleva la cuenta.** Lote es la compañera del emprendimiento chiquito que vende por redes: cercana, rápida, sin tecnicismos. El monito (el gorila) es su voz.
@@ -12,7 +14,6 @@ Nota para no olvidarla. Cada pantalla, también las del panel, tiene que sentirs
 ## El vibe cartoon
 
 Lote se ve como un **dibujo animado hecho a mano**, no como una app. Es lo que la hace reconocible; si una pantalla se siente "de panel", le falta cartoon.
-
 - **Contorno grueso en todo.** Todo lo importante lleva borde de 2 px en `teal-oscuro`, el mismo color de las líneas de los dibujos del monito y de las ilustraciones. Contorno oscuro + relleno plano = cartoon.
 - **Color plano, sin degradados ni desenfoques.** Bloques de color liso (mango, limón, rosa, celeste, crema), como un dibujo coloreado con marcador. Las sombras son **duras y desplazadas** (abajo a la derecha), como un sticker despegado del papel.
 - **Formas redondeadas y blandas.** Radios grandes, píldoras, círculos; nada de esquinas filosas. Hasta el toldo, el globo del monito y los cartoncitos de precio tienen las puntas redondeadas.

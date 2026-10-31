@@ -26,7 +26,7 @@ async function Ficha({ params }: Pick<PageProps<"/clientes/[id]">, "params">) {
   return (
     <>
       <PageHeader titulo={c.nombre} descripcion={t.pedidos(c.resumen.pedidos)} volver={{ href: "/clientes", etiqueta: t.volver }} />
-      <FichaCliente cliente={c} />
+      <FichaCliente cliente={c} negocio={negocio.nombre} />
     </>
   );
 }

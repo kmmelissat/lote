@@ -13,7 +13,9 @@ import {
 } from "@/domain";
 import { detallesDe } from "@/features/catalog/repositorio";
 import { nombreParaGuardar, type FilaImportable } from "@/features/import/mapeo";
+import { categoriaDeLista, esRubroValido } from "./categorias";
 import { type InfoExtra, tieneInfoExtra } from "./infoExtra";
+import type { RubroId } from "@/features/catalog/rubros";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -109,12 +111,35 @@ function aProducto(f: Fila, puedeVerCostos: boolean, ahora: Date): Producto {
   };
 }
 
+/** Cuántos productos se piden por vuelta y hasta cuántos se leen: más de eso ya no cabe en una lista en pantalla. */
+const LOTE_DE_PRODUCTOS = 500;
+const TOPE_DE_PRODUCTOS = 5000;
+
+/**
+ * Todos los productos del negocio, los más recientes primero (se piden por vueltas de 500). Con `pagina` devuelve solo
+ * esa parte: la exportación y el Mostrador leen por tandas.
+ */
 export async function listarProductos(
   supabase: Cliente,
   negocioId: string,
   puedeVerCostos: boolean,
-  /** Por defecto los 100 más recientes; la exportación pide página por página. */
-  pagina: { desde: number; cantidad: number } = { desde: 0, cantidad: 100 },
+  pagina?: { desde: number; cantidad: number },
+): Promise<Producto[]> {
+  if (pagina) return paginaDeProductos(supabase, negocioId, puedeVerCostos, pagina);
+  const todos: Producto[] = [];
+  for (let desde = 0; desde < TOPE_DE_PRODUCTOS; desde += LOTE_DE_PRODUCTOS) {
+    const vuelta = await paginaDeProductos(supabase, negocioId, puedeVerCostos, { desde, cantidad: LOTE_DE_PRODUCTOS });
+    todos.push(...vuelta);
+    if (vuelta.length < LOTE_DE_PRODUCTOS) break;
+  }
+  return todos;
+}
+
+async function paginaDeProductos(
+  supabase: Cliente,
+  negocioId: string,
+  puedeVerCostos: boolean,
+  pagina: { desde: number; cantidad: number },
 ): Promise<Producto[]> {
   const { data, error } = await supabase
     .from("producto")
@@ -223,13 +248,21 @@ export async function listarCategorias(supabase: Cliente, negocioId: string): Pr
   return data.map((c) => c.nombre);
 }
 
-/** Crea una categoría. Si ya existe (sin importar mayúsculas) no hace nada y lo avisa. Solo gestiona (RLS). */
+/** Las categorías del negocio con el rubro de cada una, en orden alfabético. */
+export async function listarCategoriasConRubro(supabase: Cliente, negocioId: string): Promise<{ nombre: string; rubro: RubroId }[]> {
+  const { data, error } = await supabase.from("categoria").select("nombre, rubro").eq("negocio_id", negocioId).order("nombre");
+  if (error) throw error;
+  return data.map((c) => ({ nombre: c.nombre, rubro: esRubroValido(c.rubro) ? c.rubro : "otros" }));
+}
+
+/** Crea una categoría en un rubro. Si ya existe (sin importar mayúsculas) no hace nada y lo avisa. Solo gestiona (RLS). */
 export async function guardarCategoria(
   supabase: Cliente,
   negocioId: string,
   nombre: string,
+  rubro: RubroId,
 ): Promise<"ok" | "repetida" | "desconocido"> {
-  const { error } = await supabase.from("categoria").insert({ negocio_id: negocioId, nombre });
+  const { error } = await supabase.from("categoria").insert({ negocio_id: negocioId, nombre, rubro });
   if (!error) return "ok";
   return error.code === "23505" ? "repetida" : "desconocido";
 }
@@ -259,13 +292,15 @@ export async function crearProducto(
   negocioId: string,
   p: NuevoProducto,
 ): Promise<{ id: string; codigo: number } | { error: "sin_permiso" | "desconocido" }> {
+  // Una categoría que no está en la lista del negocio no se guarda: el producto queda sin categoría.
+  const categoria = p.categoria ? categoriaDeLista(await listarCategorias(supabase, negocioId), p.categoria) : null;
   const { data: id, error } = await supabase.rpc("crear_producto", {
     p_negocio: negocioId,
     p_nombre: p.nombre,
     p_precio: p.precio / 100,
     p_cantidad: p.cantidad,
     p_descripcion: p.descripcion,
-    p_categoria: p.categoria,
+    p_categoria: categoria ?? undefined,
     p_marca: p.marca,
     p_condicion: p.condicion,
     p_costos: p.costos.map((c) => ({ tipo: c.tipo, monto: c.monto / 100, por_unidad: true })),
@@ -315,6 +350,7 @@ export async function importarProductos(
       estado: f.estadoDetalle,
       precio_anterior: f.precioAnterior === null ? null : f.precioAnterior / 100,
       detalles: f.detalles,
+      ...(f.fotos?.length ? { fotos: f.fotos } : {}),
       ...(f.grupo && f.etiqueta
         ? { grupo: f.grupo, variante: f.etiqueta, opciones: f.opcionesVariante ?? [] }
         : {}),
@@ -467,19 +503,17 @@ export async function listarAvisosDeStock(supabase: Cliente, productoIds: string
   }
 }
 
-export type CategoriaConConteo = { nombre: string; productos: number };
+export type CategoriaConConteo = { nombre: string; productos: number; rubro: RubroId };
 
 /** Las categorías del negocio con cuántos productos usa cada una (las que nadie usa también salen, con 0). */
 export async function listarCategoriasConConteo(supabase: Cliente, negocioId: string): Promise<CategoriaConConteo[]> {
   const [lista, productos] = await Promise.all([
-    listarCategorias(supabase, negocioId),
+    listarCategoriasConRubro(supabase, negocioId),
     supabase.from("producto").select("categoria").eq("negocio_id", negocioId).not("categoria", "is", null),
   ]);
   const cuenta = new Map<string, number>();
   for (const p of productos.data ?? []) if (p.categoria) cuenta.set(p.categoria, (cuenta.get(p.categoria) ?? 0) + 1);
-  // Una categoría escrita en un producto que no está en la lista también se muestra, para poder limpiarla
-  const nombres = new Set([...lista, ...cuenta.keys()]);
-  return [...nombres].sort((a, b) => a.localeCompare(b, "es")).map((nombre) => ({ nombre, productos: cuenta.get(nombre) ?? 0 }));
+  return lista.map((c) => ({ ...c, productos: cuenta.get(c.nombre) ?? 0 })).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
 
 /** Cambia el nombre de una categoría y el de todos los productos que la usan. */
@@ -488,6 +522,12 @@ export async function renombrarCategoria(supabase: Cliente, negocioId: string, d
   if (error) return error.code === "23505" ? "repetida" : "desconocido";
   const { error: errorProductos } = await supabase.from("producto").update({ categoria: a }).eq("negocio_id", negocioId).eq("categoria", de);
   return errorProductos ? "desconocido" : "ok";
+}
+
+/** Cambia el rubro de una categoría (es lo que usa Explorar para agruparla). */
+export async function cambiarRubroDeCategoria(supabase: Cliente, negocioId: string, nombre: string, rubro: RubroId): Promise<boolean> {
+  const { error } = await supabase.from("categoria").update({ rubro }).eq("negocio_id", negocioId).eq("nombre", nombre);
+  return !error;
 }
 
 /** Borra una categoría. Los productos que la tenían quedan sin categoría (no se borra ninguno). */

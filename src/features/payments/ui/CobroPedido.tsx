@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Button, estiloBoton } from "@/components/ui/Button";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { useToast } from "@/components/ui/Toast";
 import type { EstadoPedido } from "@/domain/index";
 import type { Pago } from "@/features/orders/repositorio";
 import { formatearDolares } from "@/lib/formato";
@@ -26,7 +27,7 @@ type Props = {
 };
 
 export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntrega, mensaje, puedeVender }: Props) {
-  const [aviso, setAviso] = useState("");
+  const { avisar } = useToast();
   const [errorContra, setErrorContra] = useState("");
   const [pendienteContra, empezarContra] = useTransition();
 
@@ -37,9 +38,9 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
   async function copiar() {
     try {
       await navigator.clipboard.writeText(mensaje);
-      setAviso(t.copiado);
+      avisar(t.copiado, { tipo: "exito" });
     } catch {
-      setAviso(t.noSePudoCopiar);
+      avisar(t.noSePudoCopiar, { tipo: "error" });
     }
   }
 
@@ -93,9 +94,6 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
               {t.whatsapp}
             </a>
           </div>
-          <p role="status" className="min-h-5 text-sm text-texto-2">
-            {aviso}
-          </p>
         </div>
       )}
 

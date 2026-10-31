@@ -7,6 +7,7 @@ const ESTILOS = {
   panel: "h-12 w-full rounded-xl border border-borde-control bg-superficie px-3 text-base",
   campo: "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal",
   compacto: "h-10 max-md:min-h-11 w-full rounded-[12px] border-2 border-borde-control bg-superficie px-3 text-sm focus:border-teal",
+  pildora: "h-10 max-md:min-h-11 w-full rounded-full border-2 border-borde-control bg-superficie pl-4 pr-2 text-sm font-bold text-teal-oscuro focus:border-teal",
 } as const;
 
 export type OpcionLista = { valor: string; etiqueta: string; /** Se muestra a la derecha, por ejemplo el costo de envío */ detalle?: string };
@@ -39,8 +40,8 @@ export function ListaDesplegable({
   valor?: string;
   valorInicial?: string;
   alCambiar?: (valor: string) => void;
-  /** "panel": la altura de los campos del panel. "campo": la de los formularios con borde grueso (compra, producto). "compacto": más baja (filtros). */
-  variante?: "panel" | "campo" | "compacto";
+  /** "panel": la altura de los campos del panel. "campo": la de los formularios con borde grueso (compra, producto). "compacto": más baja (filtros). "pildora": redonda y baja, para ir al lado de los chips de filtro. */
+  variante?: "panel" | "campo" | "compacto" | "pildora";
   /** Clases extra para el botón, por ejemplo para marcar lo que llenó Lotito */
   className?: string;
   /** Para enlazar una etiqueta (`htmlFor`) con la lista */
@@ -183,7 +184,7 @@ export function ListaDesplegable({
         {elegida?.detalle && <span className="shrink-0 text-sm font-bold text-texto-2">{elegida.detalle}</span>}
         <span
           aria-hidden="true"
-          className={`flex shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal-fondo text-teal-oscuro transition-transform duration-150 ${variante === "compacto" ? "size-6" : variante === "campo" ? "size-8" : "size-7"} ${abierta ? "rotate-180" : ""}`}
+          className={`flex shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal-fondo text-teal-oscuro transition-transform duration-150 ${variante === "compacto" || variante === "pildora" ? "size-6" : variante === "campo" ? "size-8" : "size-7"} ${abierta ? "rotate-180" : ""}`}
         >
           <Icon nombre="flecha" className="size-4" strokeWidth={2.5} />
         </span>

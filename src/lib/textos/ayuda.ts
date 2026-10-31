@@ -10,7 +10,7 @@ export const ayuda = {
   atajosTitulo: "Lo más buscado",
   grupos: [
     { id: "productos", titulo: "Tus productos", temas: ["producto_nuevo", "importar", "variantes", "categorias", "lotito_foto"] },
-    { id: "ventas", titulo: "Cobrar y enviar", temas: ["apartado_vitrina", "cobrar", "pagar_pedido", "seguimiento"] },
+    { id: "ventas", titulo: "Cobrar y enviar", temas: ["apartado_vitrina", "cobrar", "pagar_pedido", "datos_de_pago", "envios_config", "seguimiento"] },
     { id: "vitrina", titulo: "Tu vitrina", temas: ["vitrina", "explorar"] },
     { id: "negocio", titulo: "Tu negocio", temas: ["ganancia", "permisos", "equipo", "exportar"] },
     { id: "lotito", titulo: "Hablar con Lotito", temas: ["asistente", "deshacer"] },
@@ -54,7 +54,7 @@ export const ayuda = {
       donde: ["/pedidos"],
       pregunta: "¿Cómo le cobro a un cliente?",
       respuesta:
-        "Abrí el pedido y tocá Copiar mensaje de cobro: arma el total, tus datos de pago y el plazo, listo para pegar en el chat. Cuando pague, registrá el pago o el abono en el mismo pedido. Los datos de pago se cargan en Datos de pago.",
+        "Abrí el pedido y tocá Copiar mensaje de cobro: arma el total, tus datos de pago y el plazo, listo para pegar en el chat. Cuando pague, registrá el pago o el abono en el mismo pedido. Los datos de pago se cargan en Mi tienda, en la pestaña Pagos.",
     },
     {
       id: "ganancia",
@@ -132,6 +132,22 @@ export const ayuda = {
       pregunta: "¿Cómo me ayuda Lotito con las fotos?",
       respuesta:
         "Subí o sacá la foto en Nuevo producto y Lotito la lee: te propone nombre, categoría, marca y descripción. Vos corregís lo que haga falta, y si no te gusta, tocá Deshacer. El precio y el costo siempre los ponés vos.",
+    },
+    {
+      id: "datos_de_pago",
+      enlace: { href: "/ajustes/tienda?seccion=pagos", etiqueta: "Datos de pago" },
+      donde: ["/ajustes", "/pedidos"],
+      pregunta: "¿Dónde pongo mis datos de pago?",
+      respuesta:
+        "En Ajustes, en Mi tienda, pestaña Pagos. Prendé los métodos con los que cobrás (transferencia, billetera, efectivo o contra entrega) y escribí los datos de cada uno. Salen en cada mensaje de cobro. Solo la dueña puede cambiarlos.",
+    },
+    {
+      id: "envios_config",
+      enlace: { href: "/ajustes/tienda?seccion=envios", etiqueta: "Envíos" },
+      donde: ["/ajustes", "/pedidos"],
+      pregunta: "¿Dónde configuro mis envíos?",
+      respuesta:
+        "En Ajustes, en Mi tienda, pestaña Envíos. Ahí decís si se puede recoger en la tienda, a qué departamentos entregás y cuánto cobrás por el envío (una tarifa para todos, o distinta en algún departamento). Que Lote gestione tus envíos con una paquetera viene pronto. Solo la dueña puede cambiarlo.",
     },
     {
       id: "pagar_pedido",

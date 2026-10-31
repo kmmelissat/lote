@@ -3,7 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import type { Centavos } from "@/domain/dinero";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { TARJETA } from "@/components/ui/tarjeta";
+import { Card } from "@/components/ui/Card";
 
 const t = textos.inicio;
 
@@ -26,28 +26,27 @@ export function TarjetaGanancia({
 }) {
   const vs = cambio(ganancia, anterior);
   return (
-    <section
-      aria-labelledby="ganancia-semana"
-      className={`${TARJETA} flex h-full flex-col justify-between gap-2 bg-limon text-teal-oscuro md:gap-3`}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <h2 id="ganancia-semana" className="font-medium">
+    <Card role="region" aria-labelledby="ganancia-semana" className="relative flex flex-wrap items-center gap-x-4 gap-y-2">
+      {/* El ojal del cartoncito de precio */}
+      <span aria-hidden="true" className="size-3.5 shrink-0 rounded-full border-2 border-teal-oscuro bg-fondo" />
+      <div className="min-w-0 flex-1 basis-40">
+        <h2 id="ganancia-semana" className="text-sm font-medium text-texto-2">
           {t.gananciaSemana}
         </h2>
-        <Link
-          href="/ganancia"
-          aria-label={t.verGanancia}
-          className="flex size-8 max-md:size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white/60 hover:bg-white"
-        >
-          <Icon nombre="diagonal" className="size-4" />
-        </Link>
+        <p className="font-logo text-4xl font-bold tabular-nums text-teal">{formatearDolares(ganancia)}</p>
       </div>
-      <p className="text-3xl font-bold tabular-nums md:text-4xl">{formatearDolares(ganancia)}</p>
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        {vs && <span className="rounded-full bg-white/70 px-3 py-1 font-bold">{t.contraSemana(vs)}</span>}
-        {estimada && <span className="rounded-full bg-white/70 px-3 py-1 font-medium">{t.gananciaEstimada}</span>}
-        {!vs && !estimada && <span>{t.quePasa.ganancia}</span>}
+        {vs && <span className="rounded-full border-2 border-teal-oscuro bg-teal-fondo px-3 py-1 font-bold">{t.contraSemana(vs)}</span>}
+        {estimada && <span className="rounded-full bg-fondo px-3 py-1 font-medium">{t.gananciaEstimada}</span>}
+        {!vs && !estimada && <span className="text-texto-2">{t.quePasa.ganancia}</span>}
       </div>
-    </section>
+      <Link
+        href="/ganancia"
+        aria-label={t.verGanancia}
+        className="flex size-8 max-md:size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro hover:bg-teal-fondo"
+      >
+        <Icon nombre="diagonal" className="size-4" />
+      </Link>
+    </Card>
   );
 }

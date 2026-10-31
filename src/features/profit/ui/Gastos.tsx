@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { useAvisarListo } from "@/components/ui/Toast";
 import { CATEGORIAS_GASTO, type CategoriaGasto } from "@/domain/index";
 import type { Gasto } from "../repositorio";
 import { soloNumero } from "@/lib/entrada";
@@ -30,6 +31,9 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
   const [estado, accion, pendiente] = useActionState<EstadoGasto, FormData>(agregarGasto, {});
   const ventana = useRef<HTMLDialogElement>(null);
   const [categoria, setCategoria] = useState<CategoriaGasto>("empaque");
+
+  // La ventana se cierra sola al guardar: el aviso es lo que confirma que se anotó
+  useAvisarListo(estado);
 
   // Al guardar, la ventana se cierra sola y el formulario queda limpio para el próximo gasto
   useEffect(() => {
