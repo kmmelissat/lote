@@ -29,6 +29,25 @@ describe.skipIf(!process.env.RUN_LIVE_AI)("entender mensajes con la IA real", ()
     ["¿qué se vende más?", { intencion: "conversar" }],
     ["¿qué debería reponer?", { intencion: "conversar" }],
     ["haceme un post para Instagram de la chaqueta", { intencion: "conversar" }],
+    // Lo que de verdad se escribe: pedidos sin datos y frases sueltas
+    ["hacer pedido", { intencion: "vender", alternativa: "apartar" }],
+    ["quiero generar un pedido", { intencion: "vender", alternativa: "apartar" }],
+    ["necesito crear un pedido nuevo", { intencion: "vender", alternativa: "apartar" }],
+    ["tomale un pedido a Ana", { intencion: "vender", alternativa: "apartar", cliente: "Ana" }],
+  ];
+
+  // Lotito dejó una pregunta sin responder: ¿el mensaje la responde o pide otra cosa?
+  const PREGUNTA = "¿De cuál cliente o pedido? Decime el nombre o el número, por ejemplo #3.";
+  const conPregunta: [string, boolean][] = [
+    ["Ana", true],
+    ["la de Ana", true],
+    ["#3", true],
+    ["el pedido 3", true],
+    ["hacer pedido", false],
+    ["nooo, quiero generar un pedido", false],
+    ["mejor anotá un gasto de $5", false],
+    ["¿quién me debe?", false],
+    ["no, eso no", false],
   ];
 
   const ia = process.env.RUN_LIVE_AI ? crearProveedorOpenAI() : null;
@@ -36,6 +55,11 @@ describe.skipIf(!process.env.RUN_LIVE_AI)("entender mensajes con la IA real", ()
   it.each(casos)("«%s»", async (mensaje, esperado) => {
     const salida = await ia!.entenderMensaje(mensaje);
     expect(salida).toMatchObject(esperado);
+  }, 30_000);
+
+  it.each(conPregunta)("con una pregunta pendiente, «%s» es respuesta: %s", async (mensaje, esRespuesta) => {
+    const salida = await ia!.entenderMensaje(mensaje, { productos: [], clientes: ["Ana", "Luis"], pendiente: PREGUNTA });
+    expect(salida.esRespuesta).toBe(esRespuesta);
   }, 30_000);
 
   it("copia los nombres como los escribió la persona y deja en null lo que no dijo", async () => {

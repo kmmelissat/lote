@@ -49,6 +49,13 @@ export async function enviarAlAsistente(entrada: {
     { ia: proveedorIA(), puerto: crearPuertoSupabase(supabase, negocio), ahora: new Date() },
   );
 
+  // Lo que no se entendió se anota para mejorar a Lotito. Si la tabla no existe o falla, no importa: la respuesta sigue.
+  if (respuesta.noEntendido && entrada.texto?.trim()) {
+    try {
+      await supabase.from("asistente_fallo").insert({ negocio_id: negocio.id, usuario_id: negocio.usuarioId, texto: entrada.texto.trim().slice(0, 300) });
+    } catch {}
+  }
+
   revalidatePath("/", "layout");
   return respuesta;
 }

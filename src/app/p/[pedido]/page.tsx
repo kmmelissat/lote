@@ -7,7 +7,7 @@ import { LotitoMas, type PoseLotito } from "@/components/ui/LotitoMas";
 import { DejarResena } from "@/features/reviews/ui/DejarResena";
 import { obtenerSeguimiento } from "@/features/tracking/repositorio";
 import { mensajeDeEstado } from "@/features/tracking/mensajes";
-import { TrenPedido } from "@/features/tracking/ui/TrenPedido";
+import { HistorietaPedido } from "@/features/tracking/ui/HistorietaPedido";
 import { CopiarGuia } from "@/features/tracking/ui/CopiarGuia";
 import { formatearFecha } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
@@ -78,8 +78,8 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
       </section>
 
       {!cancelado && (
-        <section aria-label={t.paradas} className="rounded-[28px] border-2 border-teal-oscuro bg-linear-to-b from-celeste-palido via-white to-teal-fondo px-3 pb-3 pt-3 shadow-dura">
-          <TrenPedido estado={s.estado} modo={s.modo} />
+        <section aria-label={t.paradas}>
+          <HistorietaPedido estado={s.estado} modo={s.modo} />
         </section>
       )}
 

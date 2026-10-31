@@ -57,6 +57,8 @@ export const SalidaEntender = z.object({
   variantes: z.array(VarianteDicha),
   /** Qué es lo que cambia entre las variantes: "Sabor", "Color", "Talla", "Modelo". Null si no hay variantes. */
   opcionVariante: z.string().nullable(),
+  /** Solo si Lotito dejó una pregunta pendiente: true si el mensaje es la respuesta a esa pregunta, false si es otra cosa */
+  esRespuesta: z.boolean(),
 });
 
 export type SalidaEntender = z.infer<typeof SalidaEntender>;
@@ -82,6 +84,7 @@ export const salidaVacia = (intencion: SalidaEntender["intencion"]): SalidaEnten
   alternativa: null,
   variantes: [],
   opcionVariante: null,
+  esRespuesta: false,
 });
 
 // Lo que la IA saca de una foto de producto y de la línea que la acompaña.

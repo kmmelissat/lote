@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { resumenDelPeriodo, type LineaVendida } from "@/domain";
 import { salidaVacia, type SalidaEntender, type SalidaFoto } from "../ai/esquema";
 import { textos } from "@/lib/textos";
+import { IANoDisponible } from "../ai/provider";
 import { procesar, type Entrada, type Estado } from "./motor";
 import type { PedidoAsistente, ProductoAsistente, Puerto } from "./puerto";
 
@@ -539,6 +540,80 @@ describe("pregunta a medias: salidas", () => {
     const r = await turno({ mensajeId: "m2", texto: "Ana", estado: espera.estado });
     expect(r.texto).not.toContain("No te entendí");
     expect(r.texto).not.toContain("No encontré");
+  });
+});
+
+describe("la IA decide si es la respuesta", () => {
+  it("si la IA dice que es la respuesta, completa el dato", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const espera = await turno({ mensajeId: "m1" }, { intencion: "cobrar" });
+    const r = await turno({ mensajeId: "m2", texto: "la de Ana", estado: espera.estado }, { intencion: "no_entiendo", esRespuesta: true });
+    expect(r.texto).toContain("Hola Ana");
+    expect(puerto.mensajeCobro).toHaveBeenCalled();
+  });
+
+  it("si dice que es otra cosa, la sigue como mensaje nuevo (con su duda entre dos acciones)", async () => {
+    const { turno } = montar();
+    const espera = await turno({ mensajeId: "m1" }, { intencion: "cobrar" });
+    const r = await turno(
+      { mensajeId: "m2", texto: "hacer pedido", estado: espera.estado },
+      { intencion: "vender", alternativa: "apartar", esRespuesta: false },
+    );
+    expect(r.texto).toContain("1. Registrar la venta");
+    expect(r.texto).toContain("2. Apartarlo");
+  });
+
+  it("si la IA falla, sigue con lo de siempre y toma el texto como respuesta", async () => {
+    const { puerto } = montar({ pedidos: [pedido(3, "Ana")] });
+    const ia = {
+      entenderMensaje: async () => {
+        throw new Error("caída");
+      },
+      entenderFoto: async () => {
+        throw new Error("x");
+      },
+      leerComprobante: async () => {
+        throw new Error("x");
+      },
+      responder: async () => "",
+    };
+    const estado = { tipo: "completar", salida: salidaVacia("cobrar"), falta: "pedido" } as const;
+    const r = await procesar({ mensajeId: "m1", texto: "Ana", estado }, { ia, puerto, ahora });
+    expect(r.texto).toContain("Hola Ana");
+  });
+});
+
+describe("cuando no se entiende", () => {
+  it("ofrece lo más común y sigue con lo que elija", async () => {
+    const { puerto } = montar();
+    const caida = {
+      entenderMensaje: async () => ({ ...salidaVacia("no_entiendo") }),
+      entenderFoto: async () => {
+        throw new Error("x");
+      },
+      leerComprobante: async () => {
+        throw new Error("x");
+      },
+      // Sin forma de contestar con palabras
+      responder: async () => {
+        throw new IANoDisponible();
+      },
+    };
+    const deps = { ia: caida, puerto, ahora };
+    const r = await procesar({ mensajeId: "m1", texto: "asdf" }, deps);
+    expect(r.texto).toContain("¿Qué querés hacer?");
+    expect(r.texto).toContain("1. Registrar una venta");
+    expect(r.noEntendido).toBe(true);
+
+    const eligio = await procesar({ mensajeId: "m2", texto: "4", estado: r.estado }, deps);
+    expect(eligio.texto).toBe(textos.asistente.pregunta.montoGasto);
+  });
+
+  it("si Lotito contesta con palabras, igual se anota que no se entendió", async () => {
+    const { turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "no_entiendo" });
+    expect(r.texto).toBe("Respuesta de Lotito");
+    expect(r.noEntendido).toBe(true);
   });
 });
 

@@ -2,7 +2,7 @@
 import type { EstadoPedido } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import type { SalidaEntender } from "../ai/esquema";
+import { salidaVacia, type SalidaEntender } from "../ai/esquema";
 import type { Intencion } from "./intencion";
 import type { ErrorPuerto, PedidoAsistente, ProductoAsistente } from "./puerto";
 import { resolverPedido, resolverProducto } from "./resolver";
@@ -28,6 +28,21 @@ export function respuestaDeElegir(e: Extract<Estado, { tipo: "elegir" }>, titulo
     texto: [titulo, ...e.opciones.map((o, i) => `${i + 1}. ${o.etiqueta}`)].join("\n"),
     estado: e,
     botones: e.opciones.map((o, i) => ({ etiqueta: `${i + 1}`, comando: { tipo: "elegir", indice: i } })),
+  };
+}
+
+/** Cuando no se entiende el mensaje: en vez de rendirse, se ofrece lo más común y se sigue con lo que elija. */
+export function respuestaNoEntendi(): Respuesta {
+  return {
+    ...respuestaDeElegir(
+      {
+        tipo: "elegir",
+        salida: salidaVacia("no_entiendo"),
+        opciones: t.opcionesNoEntendi.map((o) => ({ etiqueta: o.etiqueta, reemplazo: { intencion: o.intencion } })),
+      },
+      t.queQueresHacer,
+    ),
+    noEntendido: true,
   };
 }
 

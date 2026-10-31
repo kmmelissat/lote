@@ -64,6 +64,38 @@ export type Database = {
           },
         ]
       }
+      asistente_fallo: {
+        Row: {
+          creado_en: string
+          id: string
+          negocio_id: string
+          texto: string
+          usuario_id: string | null
+        }
+        Insert: {
+          creado_en?: string
+          id?: string
+          negocio_id: string
+          texto: string
+          usuario_id?: string | null
+        }
+        Update: {
+          creado_en?: string
+          id?: string
+          negocio_id?: string
+          texto?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asistente_fallo_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aviso: {
         Row: {
           clave: string

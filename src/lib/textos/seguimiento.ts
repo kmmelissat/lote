@@ -32,6 +32,7 @@ export const seguimiento = {
     },
     entregado: { titulo: "¡Ya es tuyo!", texto: "Ojalá lo disfrutes mucho." },
   },
+  sello: { ahora: "¡Ahora!", listo: "¡Listo!" },
   tuPedido: "Tu pedido",
   paradas: "Por dónde va",
   masDelNegocio: "¿Se te antojó algo más?",

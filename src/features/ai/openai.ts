@@ -12,7 +12,7 @@ import { IANoDisponible, type ContextoIA, type ProveedorIA } from "./provider";
 const MODELO_POR_DEFECTO = "gpt-4.1-mini";
 
 function textoDeContexto(c?: ContextoIA): string {
-  if (!c || (!c.productos.length && !c.clientes.length && !c.conversacion?.length)) return "";
+  if (!c || (!c.productos.length && !c.clientes.length && !c.conversacion?.length && !c.pendiente)) return "";
   const productos = c.productos.map((p) => `#${p.codigo} ${p.nombre}`).join("\n");
   const conversacion = c.conversacion?.length
     ? [
@@ -29,6 +29,7 @@ function textoDeContexto(c?: ContextoIA): string {
     c.clientes.join(", ") || "(ninguno)",
     "</contexto>",
     ...conversacion,
+    ...(c.pendiente ? ["<pregunta_pendiente>", c.pendiente.replace(/\s+/g, " "), "</pregunta_pendiente>"] : []),
     "",
   ].join("\n");
 }

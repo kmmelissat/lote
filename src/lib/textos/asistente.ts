@@ -92,6 +92,15 @@ export const asistente = {
     cantidad: "¿Cuántas unidades?",
     montoGasto: "¿Cuánto fue el gasto?",
   },
+  /** Cuando no se entiende nada: en vez de callar, se ofrece lo más común */
+  queQueresHacer: "No te entendí del todo. ¿Qué querés hacer?",
+  opcionesNoEntendi: [
+    { etiqueta: "Registrar una venta", intencion: "vender" },
+    { etiqueta: "Apartar algo para alguien", intencion: "apartar" },
+    { etiqueta: "Agregar un producto", intencion: "crear_producto" },
+    { etiqueta: "Registrar un gasto", intencion: "gasto" },
+    { etiqueta: "Ver qué puedo hacer", intencion: "ayuda" },
+  ] as const,
   noEntendiRespuesta: "No te entendí esa respuesta. Probá de nuevo o escribí otra cosa.",
   productoNoEncontrado: (q: string) => `No encontré "${q}". Decime el nombre o el código (#12).`,
   pedidoNoEncontrado: (q: string) => `No encontré un pedido abierto de "${q}". Decime el nombre o el número (#3).`,

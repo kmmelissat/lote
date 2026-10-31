@@ -3,6 +3,7 @@ import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { IANoDisponible } from "../../ai/provider";
 import type { PedidoAsistente, ProductoAsistente } from "../puerto";
+import { respuestaNoEntendi } from "../ayudas";
 import type { Deps, Entrada, Respuesta } from "../tipos";
 
 const t = textos.asistente;
@@ -91,7 +92,7 @@ export function datosParaResponder(
 
 /** Lo que no es una acción: Lotito contesta con sus palabras, con los datos del negocio a mano. */
 export async function conversar(d: Deps, entrada: Entrada): Promise<Respuesta> {
-  if (!d.ia || !entrada.texto?.trim()) return { texto: t.noEntendi };
+  if (!d.ia || !entrada.texto?.trim()) return respuestaNoEntendi();
   try {
     const [productos, pedidos, ...ganancias] = await Promise.all([
       d.puerto.productos(),
@@ -104,6 +105,6 @@ export async function conversar(d: Deps, entrada: Entrada): Promise<Respuesta> {
     const texto = await d.ia.responder(entrada.texto.trim(), datosParaResponder(productos, pedidos, porPeriodo, d.ahora), entrada.historial);
     return { texto };
   } catch (e) {
-    return { texto: e instanceof IANoDisponible ? t.noEntendi : t.errorIA };
+    return e instanceof IANoDisponible ? respuestaNoEntendi() : { texto: t.errorIA };
   }
 }

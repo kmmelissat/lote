@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { aIntencion, completarSalida } from "./intencion";
-import { resolverPedido, resolverProducto } from "./resolver";
+import { masParecidos, resolverPedido, resolverProducto } from "./resolver";
 import { salidaVacia } from "../ai/esquema";
 
 const productos = [
@@ -147,5 +147,17 @@ describe("completarSalida", () => {
     expect(completarSalida(salidaVacia("abonar"), "monto", "no sé")).toBeNull();
     expect(completarSalida(salidaVacia("reponer"), "cantidad", "dos y medio")).toBeNull();
     expect(completarSalida(salidaVacia("apartar"), "cliente", "   ")).toBeNull();
+  });
+});
+
+describe("masParecidos", () => {
+  const nombres = ["Funda iPhone 15", "Llavero de gato", "Cd Taylor Swift", "Chaqueta negra"];
+  it("pone primero lo que comparte palabras con lo escrito, sin perder los demás", () => {
+    const r = masParecidos("el cd de taylor", nombres, (n) => n);
+    expect(r[0]).toBe("Cd Taylor Swift");
+    expect(r).toHaveLength(4);
+  });
+  it("sin nada escrito deja el orden", () => {
+    expect(masParecidos("", nombres, (n) => n)).toEqual(nombres);
   });
 });

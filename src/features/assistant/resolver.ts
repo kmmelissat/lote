@@ -82,3 +82,20 @@ export function resolverPedido<P extends PedidoRef>(ref: RefPedido, pedidos: P[]
     ? { tipo: "varios", opciones: delCliente.slice(0, MAX_OPCIONES) }
     : { tipo: "ninguno" };
 }
+
+/**
+ * Ordena por parecido con lo que escribió la persona (las palabras que comparten), dejando el resto en su orden.
+ * Sirve para decidir cuáles nombres le caben a la IA cuando hay más de los que se le pueden mandar.
+ */
+export function masParecidos<T>(consulta: string, items: T[], nombreDe: (item: T) => string): T[] {
+  const buscadas = palabras(consulta);
+  if (!buscadas.length) return items;
+  const puntaje = (item: T) => {
+    const nombre = palabras(nombreDe(item));
+    return buscadas.filter((b) => nombre.some((n) => calza(b, n))).length;
+  };
+  return items
+    .map((item, i) => ({ item, i, p: puntaje(item) }))
+    .sort((a, b) => b.p - a.p || a.i - b.i)
+    .map((x) => x.item);
+}

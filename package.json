@@ -10,7 +10,7 @@
     "test": "vitest run",
     "semilla": "node --env-file=.env.local scripts/semilla.mts",
     "imagenes-mercadito": "node --env-file=.env.local scripts/imagenes-mercadito.mts",
-    "imagenes-tren": "node --env-file=.env.local scripts/imagenes-tren.mts",
+    "imagenes-pasos": "node --env-file=.env.local scripts/imagenes-pasos.mts",
     "imagenes-landing": "node --env-file=.env.local scripts/imagenes-landing.mts",
     "fotos-sueltas": "node --env-file=.env.local scripts/fotos-sueltas.mts"
   },
