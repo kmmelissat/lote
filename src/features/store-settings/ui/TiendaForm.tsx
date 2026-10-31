@@ -3,13 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { Aviso } from "@/components/ui/Aviso";
 import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Button } from "@/components/ui/Button";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
 import { Field } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo, useToast } from "@/components/ui/Toast";
 import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
@@ -103,8 +104,29 @@ export function TiendaForm({
   const [delLogo, setDelLogo] = useState<string[]>([]);
   const activa = seccion;
   const entrada = useRef<HTMLInputElement>(null);
+  const formulario = useRef<HTMLFormElement>(null);
+  // Lo que había al abrir (o al guardar): el botón de guardar se prende solo cuando algo cambió
+  const guardado = useRef<string>(undefined);
+  const [sucio, setSucio] = useState(false);
   const idContexto = useId();
   const propio = !COLORES_MARCA.some((c) => c.hex === color) && !delLogo.includes(color);
+
+  // Los campos del formulario (los que tienen nombre) tal como van a viajar al guardar
+  function leerFormulario() {
+    const f = formulario.current;
+    if (!f) return "";
+    return [...new FormData(f).entries()].map(([k, valor]) => `${k}=${typeof valor === "string" ? valor : ""}`).join("&");
+  }
+  function revisarCambios() {
+    guardado.current ??= leerFormulario();
+    setSucio(leerFormulario() !== guardado.current);
+  }
+  // Al guardar, lo que hay en el formulario pasa a ser lo "guardado" (va antes de comparar, abajo)
+  useEffect(() => {
+    if (estado.listo) guardado.current = leerFormulario();
+  }, [estado]);
+  // Cada vez que algo se vuelve a dibujar (el color o el logo cambian sin que el navegador avise) se compara de nuevo
+  useEffect(revisarCambios);
 
   useEffect(() => {
     if (!identidad.logo) return;
@@ -144,7 +166,7 @@ export function TiendaForm({
   }
 
   return (
-    <form action={accion} className="flex min-w-0 flex-col gap-4">
+    <form ref={formulario} action={accion} onInput={revisarCambios} onChange={revisarCambios} className="flex min-w-0 flex-col gap-4">
       <input type="hidden" name="logo" value={logo} />
       <input type="hidden" name="color" value={color} />
 
@@ -197,28 +219,16 @@ export function TiendaForm({
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1">
-                  <Field etiqueta={t.instagram} name="instagram" autoComplete="off" placeholder={t.instagramPlaceholder} value={instagram} onChange={(e) => setInstagram(e.target.value)} />
-                  <p className="text-sm text-texto-2">{t.instagramAyuda}</p>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Field etiqueta={t.facebook} name="facebook" autoComplete="off" placeholder={t.facebookPlaceholder} value={facebook} onChange={(e) => setFacebook(e.target.value)} />
-                  <p className="text-sm text-texto-2">{t.facebookAyuda}</p>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Field etiqueta={t.tiktok} name="tiktok" autoComplete="off" placeholder={t.tiktokPlaceholder} value={tiktok} onChange={(e) => setTiktok(e.target.value)} />
-                  <p className="text-sm text-texto-2">{t.tiktokAyuda}</p>
-                </div>
+                <Field etiqueta={t.instagram} name="instagram" autoComplete="off" placeholder={t.instagramPlaceholder} value={instagram} onChange={(e) => setInstagram(e.target.value)} />
+                <Field etiqueta={t.facebook} name="facebook" autoComplete="off" placeholder={t.facebookPlaceholder} value={facebook} onChange={(e) => setFacebook(e.target.value)} />
+                <Field etiqueta={t.tiktok} name="tiktok" autoComplete="off" placeholder={t.tiktokPlaceholder} value={tiktok} onChange={(e) => setTiktok(e.target.value)} />
+                <p className="text-sm text-texto-2 sm:col-span-2">{t.redesAyuda}</p>
               </div>
             </Bloque>
 
             <Bloque titulo={v.opcional.titulo} texto={v.opcional.texto} tono="mango" className="border-t-2 border-teal-oscuro/15 pt-5">
               <Interruptor name="vitrina" titulo={v.opcional.interruptor} ayuda={v.opcional.ayuda} activo={vitrina} onCambio={setVitrina} />
-              {!vitrina && (
-                <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                  {v.opcional.apagada}
-                </p>
-              )}
+              {!vitrina && <Aviso>{v.opcional.apagada}</Aviso>}
               <div className={`flex flex-col gap-1.5 ${vitrina ? "" : "hidden"}`}>
                 <label htmlFor="direccion-vitrina" className="text-sm font-medium">
                   {v.miEnlace}
@@ -259,47 +269,27 @@ export function TiendaForm({
                     {t.slug.usarNombre}
                   </button>
                 </p>
-                {direccion !== identidad.slug && (
-                  <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                    {t.slug.aviso}
-                  </p>
-                )}
+                {direccion !== identidad.slug && <Aviso tipo="alerta">{t.slug.aviso}</Aviso>}
               </div>
             </Bloque>
 
             <Bloque titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto} tono="rosa" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <Interruptor name="comprar" titulo={v.comprar} ayuda={v.comprarAyuda} activo={comprar} onCambio={setComprar} />
               <Interruptor name="apartar" titulo={v.apartar} ayuda={v.apartarAyuda} activo={apartar} onCambio={setApartar} />
-              <p className="text-sm text-texto-2">{v.modoCatalogoAyuda}</p>
-              <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                {!comprar && !apartar ? v.modoCatalogo : comprar && apartar ? v.modoAmbos : comprar ? v.modoComprar : v.modoApartar}
-              </p>
+              <Aviso>{!comprar && !apartar ? v.modoCatalogo : comprar && apartar ? v.modoAmbos : comprar ? v.modoComprar : v.modoApartar}</Aviso>
               <Replegable titulo={t.indice.apartados}>
                 <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${apartar ? "" : "opacity-60"}`}>
-                  <div className="flex flex-col gap-1">
-                    <Field etiqueta={v.plazo} name="plazo" type="number" min={1} max={168} inputMode="numeric" defaultValue={ajustes.plazoHoras} />
-                    <p className="text-sm text-texto-2">{v.plazoAyuda}</p>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Field etiqueta={v.limite} name="limite" type="number" min={1} max={20} inputMode="numeric" defaultValue={ajustes.limitePorContacto} />
-                    <p className="text-sm text-texto-2">{v.limiteAyuda}</p>
-                  </div>
+                  <Field etiqueta={v.plazo} name="plazo" type="number" min={1} max={168} inputMode="numeric" defaultValue={ajustes.plazoHoras} />
+                  <Field etiqueta={v.limite} name="limite" type="number" min={1} max={20} inputMode="numeric" defaultValue={ajustes.limitePorContacto} />
                 </div>
-                {!apartar && (
-                  <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                    {v.apagadoAviso}
-                  </p>
-                )}
+                {!apartar && <Aviso>{v.apagadoAviso}</Aviso>}
               </Replegable>
             </Bloque>
 
             <Bloque titulo={v.look.titulo} texto={v.look.texto} tono="celeste" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <div className="grid items-start gap-6 lg:grid-cols-2">
                 <div className="flex min-w-0 flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <Field etiqueta={t.frase} name="frase" maxLength={120} value={frase} onChange={(e) => setFrase(e.target.value)} />
-                    <p className="text-sm text-texto-2">{t.fraseAyuda}</p>
-                  </div>
+                  <Field etiqueta={t.frase} name="frase" maxLength={120} placeholder={t.fraseAyuda} value={frase} onChange={(e) => setFrase(e.target.value)} />
                   <fieldset className="flex min-w-0 flex-col gap-3">
                     <legend className="text-sm font-medium">{t.color}</legend>
                     <div className="flex flex-wrap gap-1.5">
@@ -352,16 +342,12 @@ export function TiendaForm({
 
             <Bloque titulo={v.confianza.titulo} texto={v.confianza.texto} tono="rosa" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-1">
-                  <Field etiqueta={v.confianza.tiempo} name="tiempo_entrega" maxLength={80} placeholder={v.confianza.tiempoPlaceholder} defaultValue={ajustes.tiempoEntrega ?? ""} />
-                  <p className="text-sm text-texto-2">{v.confianza.tiempoAyuda}</p>
-                </div>
+                <Field etiqueta={v.confianza.tiempo} name="tiempo_entrega" maxLength={80} placeholder={v.confianza.tiempoPlaceholder} defaultValue={ajustes.tiempoEntrega ?? ""} />
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="politica-cambios" className="text-sm font-medium">
                     {v.confianza.cambios}
                   </label>
                   <Textarea id="politica-cambios" name="politica_cambios" rows={3} maxLength={300} defaultValue={ajustes.politicaCambios ?? ""} placeholder={v.confianza.cambiosPlaceholder} />
-                  <p className="text-sm text-texto-2">{v.confianza.cambiosAyuda}</p>
                 </div>
               </div>
             </Bloque>
@@ -379,11 +365,7 @@ export function TiendaForm({
           <Seccion id="ventas" className={activa === "ventas" ? "" : "hidden"}>
             <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste">
               <Interruptor name="local" titulo={v.local.interruptor} ayuda={v.local.ayuda} activo={local} onCambio={setLocal} />
-              {local && (
-                <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                  {v.local.prendido}
-                </p>
-              )}
+              {local && <Aviso>{v.local.prendido}</Aviso>}
             </Bloque>
 
             <Bloque titulo={v.grupos.stock.titulo} texto={v.grupos.stock.texto} tono="mango" className="border-t-2 border-teal-oscuro/15 pt-5">
@@ -394,44 +376,59 @@ export function TiendaForm({
             </Bloque>
           </Seccion>
 
-          <Seccion id="lotito" fondo="bg-crema" className={activa === "lotito" ? "" : "hidden"}>
-            <Monito nombre="asoma" className="absolute -top-9 right-6 w-20 text-rosa" />
+          <Seccion id="lotito" className={`mt-10 ${activa === "lotito" ? "" : "hidden"}`}>
+            {/* Lotito se asoma por el borde de la tarjeta, como en "Para hoy" de Inicio */}
+            <LotitoMas nombre="asoma" className="pointer-events-none absolute -top-[3.3rem] right-6 w-28" />
             <Bloque titulo={t.secciones.lotito} texto={t.secciones.lotitoAyuda} tono="limon">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={idContexto} className="text-sm font-bold">
-                {t.contexto}
-              </label>
-              <Textarea
-                id={idContexto}
-                name="contexto"
-                rows={5}
-                maxLength={LIMITE_CONTEXTO}
-                value={contexto}
-                onChange={(e) => setContexto(e.target.value)}
-                placeholder={t.contextoPlaceholder}
-              />
-              <p className="text-right text-xs tabular-nums text-texto-2" aria-live="polite">
-                {t.contextoContador(contexto.length, LIMITE_CONTEXTO)}
-              </p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-bold">{t.ideasTitulo}</p>
-              <ul className="flex flex-wrap gap-2">
-                {t.ideas.map((idea) => (
-                  <li key={idea} className="rounded-full border-2 border-teal-oscuro/30 bg-white px-3 py-1 text-sm">
-                    {idea}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <p className="text-sm text-texto-2">{t.lotitoNota}</p>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={idContexto} className="text-sm font-bold">
+                  {t.contexto}
+                </label>
+                <Textarea
+                  id={idContexto}
+                  name="contexto"
+                  rows={5}
+                  maxLength={LIMITE_CONTEXTO}
+                  value={contexto}
+                  onChange={(e) => setContexto(e.target.value)}
+                  placeholder={t.contextoPlaceholder}
+                />
+                <p className="text-right text-xs tabular-nums text-texto-2" aria-live="polite">
+                  {t.contextoContador(contexto.length, LIMITE_CONTEXTO)}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-bold">{t.ideasTitulo}</p>
+                <ul className="flex flex-wrap gap-2">
+                  {t.ideas.map((idea) => (
+                    <li key={idea.titulo}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const base = contexto.trim();
+                          setContexto(`${base ? `${base}\n` : ""}${idea.inicio}`.slice(0, LIMITE_CONTEXTO));
+                          document.getElementById(idContexto)?.focus();
+                        }}
+                        className="inline-flex min-h-11 items-center gap-1.5 rounded-full border-2 border-borde-control bg-superficie px-4 text-sm font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo md:min-h-10"
+                      >
+                        <Icon nombre="mas" className="size-4" />
+                        {idea.titulo}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Aviso>{t.lotitoNota}</Aviso>
             </Bloque>
           </Seccion>
       </div>
 
       <MensajeError>{estado.error}</MensajeError>
       <BarraFormulario>
-        <Button type="submit" variante="mango" disabled={pendiente || subiendo}>
+        <p role="status" className={`mr-auto text-sm ${sucio ? "font-medium text-teal-oscuro" : "text-texto-2"}`}>
+          {sucio ? t.cambiosSinGuardar : t.sinCambios}
+        </p>
+        <Button type="submit" variante="mango" icono="check" disabled={pendiente || subiendo || !sucio}>
           {pendiente ? t.guardando : t.guardar}
         </Button>
       </BarraFormulario>

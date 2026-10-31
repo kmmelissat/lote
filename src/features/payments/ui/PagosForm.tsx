@@ -1,8 +1,10 @@
 "use client";
 
 import { useActionState, useId, useState } from "react";
-import { Gorila } from "@/components/ui/Gorila";
+import { Aviso } from "@/components/ui/Aviso";
+import { Card } from "@/components/ui/Card";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { OpcionCheck } from "@/components/ui/OpcionCheck";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
 import type { TipoMetodo } from "../mensajeCobro";
@@ -15,131 +17,110 @@ import { Textarea } from "@/components/ui/Textarea";
 
 const t = textos.ajustes.pagos;
 
-const VISTA: Record<TipoMetodo, { icono: NombreIcono; tono: string }> = {
-  transferencia: { icono: "banco", tono: "bg-limon" },
-  billetera: { icono: "billetera", tono: "bg-rosa" },
-  efectivo: { icono: "efectivo", tono: "bg-mango" },
-  contra_entrega: { icono: "camion", tono: "bg-teal-fondo" },
+const ICONO: Record<TipoMetodo, NombreIcono> = {
+  transferencia: "banco",
+  billetera: "billetera",
+  efectivo: "efectivo",
+  contra_entrega: "camion",
 };
 
 type Valor = { activo: boolean; datos: string };
+type Valores = Record<TipoMetodo, Valor>;
+
+/** Los métodos que necesitan datos para poder pagar (en efectivo y contra entrega no hace falta decir nada más) */
+const NECESITAN_DATOS: TipoMetodo[] = ["transferencia", "billetera"];
 
 export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoPagos, FormData>(guardarDatosDePago, {});
   useAvisarListo(estado, t.guardado);
   const id = useId();
-  const [valores, setValores] = useState<Record<TipoMetodo, Valor>>(() =>
+  const [valores, setValores] = useState<Valores>(() =>
     Object.fromEntries(
       TIPOS_METODO.map((tipo) => {
         const m = metodos.find((x) => x.tipo === tipo);
         return [tipo, { activo: m?.activo ?? false, datos: m?.datos ?? "" }];
       }),
-    ) as Record<TipoMetodo, Valor>,
+    ) as Valores,
   );
+  // Lo último guardado: el botón de guardar se prende solo cuando algo cambió
+  const [guardado, setGuardado] = useState(() => JSON.stringify(valores));
+  const [estadoVisto, setEstadoVisto] = useState(estado);
+  if (estado !== estadoVisto) {
+    setEstadoVisto(estado);
+    if (estado.listo) setGuardado(JSON.stringify(valores));
+  }
+  const sucio = JSON.stringify(valores) !== guardado;
+
   const cambiar = (tipo: TipoMetodo, cambio: Partial<Valor>) =>
     setValores((v) => ({ ...v, [tipo]: { ...v[tipo], ...cambio } }));
   const activos = TIPOS_METODO.filter((tipo) => valores[tipo].activo);
 
   return (
-    <form action={accion} className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <div className="flex flex-col gap-3">
-        {TIPOS_METODO.map((tipo) => {
-          const { icono, tono } = VISTA[tipo];
-          const v = valores[tipo];
-          return (
-            <section
-              key={tipo}
-              className={`flex flex-col gap-3 rounded-[20px] border-2 p-4 transition-[box-shadow,background-color] duration-150 ${
-                v.activo ? "border-teal-oscuro bg-superficie shadow-dura-chica" : "border-teal-oscuro/20 bg-fondo"
-              }`}
-            >
-              <label className="flex min-h-12 cursor-pointer items-center gap-3">
-                <span
-                  className={`flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro text-teal-oscuro ${
-                    v.activo ? tono : "bg-white opacity-60"
-                  }`}
-                >
-                  <Icon nombre={icono} className="size-6" />
-                </span>
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-bold">{textos.cobro.metodos[tipo]}</span>
-                  <span className="text-sm text-texto-2">{v.activo ? t.activo : t.apagado}</span>
-                </span>
-                {/* Un interruptor de verdad: es un checkbox, así que el teclado y los lectores de pantalla lo entienden */}
-                <input
-                  type="checkbox"
-                  role="switch"
-                  name={`${tipo}_activo`}
-                  checked={v.activo}
-                  onChange={(e) => cambiar(tipo, { activo: e.target.checked })}
-                  aria-label={`${t.aceptar} ${textos.cobro.metodos[tipo].toLowerCase()}`}
-                  className="peer sr-only"
-                />
-                <span
-                  aria-hidden="true"
-                  className="relative h-8 w-14 shrink-0 rounded-full border-2 border-teal-oscuro bg-white transition-colors duration-150 after:absolute after:left-0.5 after:top-0.5 after:size-6 after:rounded-full after:border-2 after:border-teal-oscuro after:bg-limon after:transition-transform after:duration-150 peer-checked:bg-teal peer-checked:after:translate-x-6 peer-checked:after:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal"
-                />
-              </label>
+    <form action={accion} className="flex min-w-0 flex-col gap-4">
+      <Card className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-lg font-bold leading-tight">
+            <span className="box-decoration-clone bg-[linear-gradient(transparent_86%,var(--color-rosa)_86%,var(--color-rosa)_100%)] pb-0.5">{t.titulo}</span>
+          </h3>
+          <p className="max-w-xl text-sm text-texto-2">{t.descripcion}</p>
+        </div>
 
-              {/* El campo queda en el formulario aunque el método esté apagado: así no se pierden los datos ya escritos */}
-              <div className={`flex flex-col gap-1.5 ${v.activo ? "" : "hidden"}`}>
-                <label htmlFor={`${id}-${tipo}`} className="text-sm font-medium">
-                  {t.datos}
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-1 text-sm font-medium">{t.comoTePagan}</legend>
+          <div className="flex flex-wrap gap-3">
+            {TIPOS_METODO.map((tipo) => (
+              <OpcionCheck
+                key={tipo}
+                name={`${tipo}_activo`}
+                titulo={textos.cobro.metodos[tipo]}
+                icono={ICONO[tipo]}
+                checked={valores[tipo].activo}
+                onChange={(e) => cambiar(tipo, { activo: e.target.checked })}
+              />
+            ))}
+          </div>
+        </fieldset>
+
+        {activos.length === 0 && <Aviso tipo="alerta">{t.sinMetodos}</Aviso>}
+
+        {/* Los campos de los métodos apagados quedan en el formulario (ocultos): así no se pierden los datos ya escritos */}
+        <div className={`grid grid-cols-1 items-start gap-4 border-t border-borde pt-5 md:grid-cols-2 ${activos.length ? "" : "hidden"}`}>
+          {TIPOS_METODO.map((tipo) => {
+            const v = valores[tipo];
+            return (
+              <div key={tipo} className={`flex flex-col gap-1.5 ${v.activo ? "" : "hidden"}`}>
+                <label htmlFor={`${id}-${tipo}`} className="flex items-center gap-2 text-sm font-bold">
+                  <Icon nombre={ICONO[tipo]} className="size-4 text-teal" />
+                  {textos.cobro.metodos[tipo]}
                 </label>
                 <Textarea
                   id={`${id}-${tipo}`}
                   name={`${tipo}_datos`}
-                  rows={2}
+                  rows={3}
+                  placeholder={t.ayuda[tipo]}
                   value={v.datos}
                   onChange={(e) => cambiar(tipo, { datos: e.target.value })}
-                  aria-describedby={`${id}-${tipo}-ayuda`}
                 />
-                <p id={`${id}-${tipo}-ayuda`} className="text-sm text-texto-2">
-                  {t.ayuda[tipo]}
-                </p>
+                {NECESITAN_DATOS.includes(tipo) && !v.datos.trim() && (
+                  <div className="flex flex-col items-start gap-2">
+                    <Aviso tipo="alerta">{t.faltanDatos}</Aviso>
+                    <Button type="button" variante="suave" tamano="chico" icono="mas" onClick={() => cambiar(tipo, { datos: t.plantilla[tipo as "transferencia" | "billetera"] })}>
+                      {t.usarPlantilla}
+                    </Button>
+                  </div>
+                )}
               </div>
-            </section>
-          );
-        })}
-
-        <MensajeError>{estado.error}</MensajeError>
-      </div>
-
-      {/* La vista previa: lo que se va a pegar en el mensaje de cobro */}
-      <aside
-        aria-labelledby={`${id}-previa`}
-        className="relative flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura lg:sticky lg:top-4"
-      >
-        <Gorila className="absolute -top-8 right-5 size-14 text-rosa" />
-        <div>
-          <h2 id={`${id}-previa`} className="text-lg font-bold">
-            {t.previa}
-          </h2>
-          <p className="text-sm text-texto-2">{t.previaTexto}</p>
+            );
+          })}
         </div>
-        {activos.length === 0 ? (
-          <p className="rounded-2xl bg-white/70 px-4 py-3 text-sm text-texto-2">{t.previaVacia}</p>
-        ) : (
-          <div className="flex flex-col gap-1.5 rounded-2xl rounded-bl-md border-2 border-teal-oscuro/20 bg-white px-4 py-3">
-            <p className="font-medium">{textos.cobro.pagarPor}</p>
-            <ul className="flex flex-col gap-1.5">
-              {activos.map((tipo) => (
-                <li key={tipo} className="text-sm">
-                  <span className="font-bold">{textos.cobro.metodos[tipo]}</span>
-                  {valores[tipo].datos.trim() ? (
-                    <span className="block whitespace-pre-line break-words">{valores[tipo].datos}</span>
-                  ) : (
-                    <span className="block text-texto-2">{t.previaSinDatos}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        <p className="text-sm font-medium text-teal">{t.activos(activos.length)}</p>
-      </aside>
+        <MensajeError>{estado.error}</MensajeError>
+      </Card>
+
       <BarraFormulario>
-        <Button type="submit" variante="mango" disabled={pendiente}>
+        <p role="status" className={`mr-auto text-sm ${sucio ? "font-medium text-teal-oscuro" : "text-texto-2"}`}>
+          {sucio ? t.cambiosSinGuardar : t.sinCambios}
+        </p>
+        <Button type="submit" variante="mango" icono="check" disabled={pendiente || !sucio}>
           {pendiente ? t.guardando : t.guardar}
         </Button>
       </BarraFormulario>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Aviso } from "@/components/ui/Aviso";
 import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
 import { DEPARTAMENTOS, MUNICIPIOS, type Departamento, type ZonasEntrega } from "@/lib/departamentos";
@@ -11,7 +12,7 @@ export type Marcadas = Partial<Record<Departamento, string[]>>;
 
 const ficha = (activa: boolean) =>
   `inline-flex min-h-9 cursor-pointer items-center rounded-full border-2 px-3 text-sm font-bold transition-colors ${
-    activa ? "border-teal-oscuro bg-limon" : "border-teal-oscuro/25 bg-white hover:border-teal-oscuro"
+    activa ? "border-teal-oscuro bg-teal-fondo" : "border-borde-control bg-white hover:bg-fondo"
   } has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal`;
 
 /** El estado interno: "el departamento entero" es la lista con todos sus municipios, para marcarlos uno a uno. */
@@ -56,9 +57,7 @@ export function ZonasEntregaInput({
       <input type="hidden" name="zonas" value={JSON.stringify(marcadas)} />
 
       {todo ? (
-        <p role="status" className="rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-          {t.todoElPaisNota}
-        </p>
+        <Aviso>{t.todoElPaisNota}</Aviso>
       ) : (
         <>
           <p className="text-sm font-bold text-teal" aria-live="polite">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Aviso } from "@/components/ui/Aviso";
 import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
 import { Button } from "@/components/ui/Button";
@@ -41,8 +42,8 @@ function Dolares({ id, name, value, onChange, placeholder, className }: { id: st
 
 function Quien() {
   const opciones = [
-    { clave: "lote", icono: "caja", tono: "bg-limon", titulo: t.quienLote, texto: t.quienLoteTexto, disponible: false },
-    { clave: "propio", icono: "camion", tono: "bg-rosa", titulo: t.quienPropio, texto: t.quienPropioTexto, disponible: true },
+    { clave: "lote", icono: "caja", titulo: t.quienLote, texto: t.quienLoteTexto, disponible: false },
+    { clave: "propio", icono: "camion", titulo: t.quienPropio, texto: t.quienPropioTexto, disponible: true },
   ] as const;
   return (
     <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -50,16 +51,16 @@ function Quien() {
         <li
           key={o.clave}
           className={`flex items-start gap-3 rounded-[20px] border-2 p-4 ${
-            o.disponible ? "border-teal-oscuro bg-superficie shadow-dura-chica" : "border-dashed border-teal-oscuro/40 bg-white/70 opacity-80"
+            o.disponible ? "border-teal-oscuro bg-superficie" : "border-dashed border-borde-control bg-superficie opacity-80"
           }`}
         >
-          <span className={`flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro text-teal-oscuro ${o.tono}`}>
+          <span className={`flex size-11 shrink-0 items-center justify-center rounded-full text-teal-oscuro ${o.disponible ? "bg-teal-fondo" : "bg-fondo"}`}>
             <Icon nombre={o.icono} className="size-6" />
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-1">
             <span className="flex flex-wrap items-center gap-2">
               <span className="font-bold">{o.titulo}</span>
-              <span className={`rounded-full border-2 border-teal-oscuro px-2 py-0.5 text-xs font-bold ${o.disponible ? "bg-teal-fondo" : "bg-mango"}`}>
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${o.disponible ? "bg-teal-fondo text-teal-oscuro" : "bg-fondo text-texto-2"}`}>
                 {o.disponible ? t.elegido : t.proximamente}
               </span>
             </span>
@@ -95,6 +96,16 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
     Object.fromEntries(DEPARTAMENTOS.map((d) => [d, d in tarifas.porDepartamento ? dolaresTexto(tarifas.porDepartamento[d]) : ""])),
   );
 
+  // Lo último guardado: el botón de guardar se prende solo cuando algo cambió
+  const actual = JSON.stringify({ retiro: recoger ? retiro : "", todo, marcadas, defecto, porDepto });
+  const [guardado, setGuardado] = useState(actual);
+  const [estadoVisto, setEstadoVisto] = useState(estado);
+  if (estado !== estadoVisto) {
+    setEstadoVisto(estado);
+    if (estado.listo) setGuardado(actual);
+  }
+  const sucio = actual !== guardado;
+
   const hayRetiro = recoger && retiro.trim().length > 0;
   const defectoCentavos = montoDe(defecto, 0);
   const defectoEtiqueta = etiquetaDe(defectoCentavos);
@@ -125,11 +136,11 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
               onChange={(e) => setRetiro(e.target.value)}
               className="w-full"
             />
-            <p className="text-sm text-texto-2">{t.retiroAyuda}</p>
           </div>
-          <p role="status" className={`rounded-xl px-3 py-2 text-sm font-medium ${hayRetiro ? "bg-teal-fondo" : "bg-limon"}`}>
+          {/* Solo es alerta cuando falta la dirección: dice que retiran pero no a dónde */}
+          <Aviso tipo={recoger && !hayRetiro ? "alerta" : "info"}>
             {hayRetiro ? t.retiroActivo : recoger ? t.retiroSinDireccion : t.retiroApagado}
-          </p>
+          </Aviso>
         </Bloque>
 
         <Bloque titulo={t.zonas.titulo} texto={t.zonas.texto} tono="limon" className="border-t-2 border-teal-oscuro/15 pt-5">
@@ -145,7 +156,7 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
               <p className="text-sm text-texto-2">{t.defectoAyuda}</p>
             </div>
             <div className="flex items-center gap-3">
-              {defectoCentavos === 0 && <span className="rounded-full border-2 border-teal-oscuro bg-limon px-2.5 py-0.5 text-xs font-bold">{t.previaGratis}</span>}
+              {defectoCentavos === 0 && <span className="rounded-full bg-teal-fondo px-2.5 py-0.5 text-xs font-bold text-teal-oscuro">{t.previaGratis}</span>}
               <Dolares id="tarifa-defecto" name="defecto" value={defecto} onChange={setDefecto} placeholder="0.00" className="w-28" />
             </div>
           </div>
@@ -159,7 +170,7 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
                   <div
                     key={d}
                     className={`${visibles.includes(d) ? "flex" : "hidden"} items-center justify-between gap-3 rounded-xl border-2 px-3 py-2 ${
-                      propia ? "border-teal-oscuro bg-limon" : "border-teal-oscuro/15 bg-white"
+                      propia ? "border-teal-oscuro bg-teal-fondo" : "border-borde bg-white"
                     }`}
                   >
                     <label htmlFor={`tarifa-${i}`} className="min-w-0 truncate text-sm font-bold">
@@ -184,7 +195,10 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
 
       <MensajeError>{estado.error}</MensajeError>
       <BarraFormulario>
-        <Button type="submit" variante="mango" disabled={pendiente}>
+        <p role="status" className={`mr-auto text-sm ${sucio ? "font-medium text-teal-oscuro" : "text-texto-2"}`}>
+          {sucio ? t.cambiosSinGuardar : t.sinCambios}
+        </p>
+        <Button type="submit" variante="mango" icono="check" disabled={pendiente || !sucio}>
           {pendiente ? t.guardando : t.guardar}
         </Button>
       </BarraFormulario>
