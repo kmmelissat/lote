@@ -18,7 +18,7 @@ const TOPE = 5000;
 const lugarDe = (m: string): MetodoMovimiento | null => (m === "contra_entrega" ? "efectivo" : (METODOS_DE_DINERO as readonly string[]).includes(m) ? (m as MetodoMovimiento) : null);
 
 /**
- * Cuánto debería haber en efectivo, transferencia y billetera: el último conteo de cada uno más lo que entró y menos lo que
+ * Cuánto debería haber en efectivo y transferencia: el último conteo de cada uno más lo que entró y menos lo que
  * salió desde entonces. El cierre de caja del Mostrador cuenta como conteo de efectivo, así que no hay que contar dos veces.
  * Los gastos sin método no se restan de ningún lugar. Solo dueña y administradora (RLS).
  */
@@ -55,8 +55,8 @@ export async function estadoDelDinero(supabase: Cliente, negocioId: string): Pro
   }
 
   const desde = Object.values(ultimos).map((u) => u.en).sort()[0];
-  const entradas: Record<MetodoMovimiento, Partida[]> = { efectivo: [], transferencia: [], billetera: [] };
-  const salidas: Record<MetodoMovimiento, Partida[]> = { efectivo: [], transferencia: [], billetera: [] };
+  const entradas: Record<MetodoMovimiento, Partida[]> = { efectivo: [], transferencia: [] };
+  const salidas: Record<MetodoMovimiento, Partida[]> = { efectivo: [], transferencia: [] };
   if (desde) {
     const [pagos, gastos] = await Promise.all([
       supabase.from("pago").select("monto, metodo, creado_en").eq("negocio_id", negocioId).gt("creado_en", desde).limit(TOPE),

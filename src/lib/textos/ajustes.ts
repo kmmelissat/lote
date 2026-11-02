@@ -250,11 +250,9 @@ export const ajustes = {
     usarPlantilla: "Usar plantilla",
     plantilla: {
       transferencia: "Banco: \nTipo de cuenta: \nNúmero: \nA nombre de: ",
-      billetera: "Billetera: \nNúmero: \nA nombre de: ",
     },
     ayuda: {
       transferencia: "Banco, tipo y número de cuenta, y a nombre de quién.",
-      billetera: "Número de la billetera y a nombre de quién.",
       efectivo: "Por ejemplo: pago al recibir en persona.",
       contra_entrega: "Por ejemplo: pagás cuando te llega el pedido.",
     },

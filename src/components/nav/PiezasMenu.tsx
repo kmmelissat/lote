@@ -74,7 +74,7 @@ export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]
   return (
     <Link href={pasos.siguiente.href} className="mt-auto flex flex-col gap-2 pt-1 text-teal-oscuro group-data-[cerrado]:hidden">
       <span className="flex items-center justify-between gap-2">
-        <span className="-rotate-1 rounded-sm border-2 border-teal-oscuro bg-celeste px-1.5 py-0.5 font-logo text-[10px] tracking-widest uppercase shadow-dura-chica max-md:text-xs">
+        <span className="-rotate-1 rounded-sm border-2 border-teal-oscuro bg-celeste px-1.5 py-0.5 text-teal-oscuro font-logo text-[10px] tracking-widest uppercase shadow-dura-chica max-md:text-xs">
           {t.pasos.siguiente}
         </span>
         <span className="font-logo text-sm tabular-nums max-md:text-base">{t.pasos.avance(pasos.hechos, pasos.total)}</span>
@@ -146,7 +146,7 @@ export function TarjetaPerfil({
         />
       </button>
       {abierto && (
-        <div role="menu" className={`absolute z-30 w-60 rounded-2xl border-2 border-teal-oscuro bg-superficie p-2 shadow-dura ${menuClass}`}>
+        <div role="menu" className={`absolute z-30 w-60 rounded-2xl border-2 border-teal-oscuro bg-superficie p-2 text-texto shadow-dura ${menuClass}`}>
           <Link
             href={textos.ayuda.ruta}
             role="menuitem"

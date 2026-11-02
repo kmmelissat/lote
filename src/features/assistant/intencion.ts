@@ -1,7 +1,7 @@
 import { aCentavos, type CategoriaGasto, type Centavos, type EstadoProducto, type TipoPeriodo } from "@/domain";
 import type { SalidaEntender } from "../ai/esquema";
 
-export type Metodo = "transferencia" | "billetera" | "efectivo";
+export type Metodo = "transferencia" | "efectivo";
 export type RefPedido = { cliente: string | null; codigo: number | null };
 
 // Lo que el asistente va a hacer, ya validado: con montos en centavos y sin datos que falten.

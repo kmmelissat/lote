@@ -59,10 +59,9 @@ function limpiarContacto(crudo: string): string {
 }
 
 const CANALES = ["instagram", "whatsapp", "presencial"] as const;
-const METODOS: { clave: "efectivo" | "transferencia" | "billetera"; icono: NombreIcono }[] = [
+const METODOS: { clave: "efectivo" | "transferencia"; icono: NombreIcono }[] = [
   { clave: "efectivo", icono: "efectivo" },
   { clave: "transferencia", icono: "banco" },
-  { clave: "billetera", icono: "billetera" },
 ];
 
 export function NuevoPedidoForm({

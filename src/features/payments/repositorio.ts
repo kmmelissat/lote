@@ -4,7 +4,7 @@ import type { TipoMetodo } from "./mensajeCobro";
 
 type Cliente = SupabaseClient<Database>;
 
-export const TIPOS_METODO: TipoMetodo[] = ["transferencia", "billetera", "efectivo", "contra_entrega"];
+export const TIPOS_METODO: TipoMetodo[] = ["transferencia", "efectivo", "contra_entrega"];
 
 export type MetodoPagoNegocio = { tipo: TipoMetodo; datos: string | null; activo: boolean };
 

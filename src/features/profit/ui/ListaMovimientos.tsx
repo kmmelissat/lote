@@ -11,7 +11,7 @@ const t = textos.dinero;
 /** La fecha del movimiento es un día (no una hora): al mediodía UTC cae el mismo día en El Salvador. */
 const diaDe = (fecha: string) => new Date(`${fecha}T12:00:00Z`);
 
-const ICONO_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco", billetera: "billetera" };
+const ICONO_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco" };
 
 function ChipMetodo({ metodo }: { metodo: MetodoMovimiento | null }) {
   return (

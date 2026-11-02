@@ -9,11 +9,10 @@ import type { Database } from "@/lib/supabase/database.types";
 type Cliente = SupabaseClient<Database>;
 
 /** Con qué se cobra en el mostrador. Contra entrega no aplica: se cobra en el momento. */
-export type MetodoMostrador = "efectivo" | "transferencia" | "billetera";
+export type MetodoMostrador = "efectivo" | "transferencia";
 export const METODOS_MOSTRADOR: MetodoMostrador[] = [
   "efectivo",
   "transferencia",
-  "billetera",
 ];
 
 /** Hasta cuántos productos se cargan en la pantalla; el resto se alcanza escaneando. */
@@ -221,7 +220,6 @@ export type ResumenCaja = {
   ventas: number;
   efectivo: Centavos;
   transferencia: Centavos;
-  billetera: Centavos;
   descuentos: Centavos;
   gastos: Centavos;
 };
@@ -240,7 +238,6 @@ export async function resumenDeCaja(
     ventas: f?.ventas ?? 0,
     efectivo: aCentavos(f?.efectivo ?? 0),
     transferencia: aCentavos(f?.transferencia ?? 0),
-    billetera: aCentavos(f?.billetera ?? 0),
     descuentos: aCentavos(f?.descuentos ?? 0),
     gastos: aCentavos(f?.gastos ?? 0),
   };

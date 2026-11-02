@@ -124,7 +124,7 @@ export const ganancia = {
     eliminar: "Quitar",
     errorMonto: "Poné un monto mayor que cero, por ejemplo 5 o 2.50.",
     errorCategoria: "Elegí una categoría.",
-    errorMetodo: "Elegí efectivo, transferencia o billetera, o dejalo sin método.",
+    errorMetodo: "Elegí efectivo o cuenta digital, o dejalo sin método.",
     errorPermiso: "Tu rol no puede registrar gastos.",
     errorGeneral: "No pudimos guardar el gasto. Probá de nuevo.",
     errorEliminar: "No pudimos quitar el gasto. Probá de nuevo.",

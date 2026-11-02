@@ -23,6 +23,8 @@ export function ZonaFotos({
   onCambio,
   conLotito = false,
   compacto = false,
+  maximo = MAXIMO_FOTOS,
+  conMiniaturas = true,
 }: {
   negocioId: string;
   rutas: string[];
@@ -31,6 +33,10 @@ export function ZonaFotos({
   conLotito?: boolean;
   /** Sin monito ni título grande: la foto de un diseño, no la ficha del producto */
   compacto?: boolean;
+  /** Cuántas fotos como máximo; por defecto el tope de un producto */
+  maximo?: number;
+  /** Falso cuando quien la usa ya muestra las fotos en otro lado (el lote las lista con su nombre) */
+  conMiniaturas?: boolean;
 }) {
   const id = useId();
   const galeria = useRef<HTMLInputElement>(null);
@@ -40,7 +46,7 @@ export function ZonaFotos({
   const [error, setError] = useState("");
 
   async function subir(archivos: File[]) {
-    const imagenes = archivos.filter((a) => a.type.startsWith("image/")).slice(0, MAXIMO_FOTOS - rutas.length);
+    const imagenes = archivos.filter((a) => a.type.startsWith("image/")).slice(0, maximo - rutas.length);
     if (!imagenes.length) return setError(t.maximo);
     setError("");
     setSubiendo(true);
@@ -62,10 +68,10 @@ export function ZonaFotos({
   function soltadas(e: DragEvent) {
     e.preventDefault();
     setEncima(false);
-    if (!subiendo && rutas.length < MAXIMO_FOTOS) void subir([...e.dataTransfer.files]);
+    if (!subiendo && rutas.length < maximo) void subir([...e.dataTransfer.files]);
   }
 
-  const lleno = rutas.length >= MAXIMO_FOTOS;
+  const lleno = rutas.length >= maximo;
   const boton =
     "inline-flex h-11 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-50";
 
@@ -116,7 +122,7 @@ export function ZonaFotos({
         </p>
       )}
 
-      {rutas.length > 0 && (
+      {conMiniaturas && rutas.length > 0 && (
         <ul className="flex flex-wrap gap-3">
           {rutas.map((ruta, i) => (
             <li key={ruta} className="relative">

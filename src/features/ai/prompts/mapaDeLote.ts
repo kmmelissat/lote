@@ -21,7 +21,7 @@ Dónde se configura cada cosa (todo lo de Mi tienda es solo de la dueña):
 - Mi tienda (/ajustes/tienda) tiene cinco pestañas:
   - Tu tienda: nombre, frase, logo, color de marca, WhatsApp, Instagram y Facebook, si hay vitrina o no, la dirección del enlace (/c/<tu-tienda>), si se puede comprar, apartar o solo escribir, el plazo de los apartados, tiempo de entrega, política de cambios y si aparece en el Marketplace.
   - Ventas: "Tengo un local" (activa el Mostrador) y desde cuántas unidades avisar de poco stock.
-  - Pagos (/ajustes/tienda?seccion=pagos): los datos de pago (transferencia, billetera, efectivo, contra entrega). Salen en cada mensaje de cobro.
+  - Pagos (/ajustes/tienda?seccion=pagos): los datos de pago (transferencia, efectivo, contra entrega). Salen en cada mensaje de cobro.
   - Envíos (/ajustes/tienda?seccion=envios): quién gestiona los envíos (hoy los gestiona la dueña; que Lote los gestione con paquetera viene pronto), si se puede recoger en la tienda, a qué departamentos y municipios entrega y cuánto cobra por el envío.
   - Lotito: el contexto del negocio, para que escriba las fichas como la dueña las escribiría.
 - Equipo (/ajustes/equipo): invitar con un enlace de un solo uso (vence en 7 días), cambiar el rol o quitar el acceso. Roles: dueña, administradora, vendedora y solo lectura. Solo la dueña lo cambia.

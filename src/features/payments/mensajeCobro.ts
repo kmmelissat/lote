@@ -2,7 +2,7 @@ import type { Centavos } from "@/domain";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 
-export type TipoMetodo = "transferencia" | "billetera" | "efectivo" | "contra_entrega";
+export type TipoMetodo = "transferencia" | "efectivo" | "contra_entrega";
 
 export type DatosCobro = {
   negocio: string;

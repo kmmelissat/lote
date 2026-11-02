@@ -12,7 +12,6 @@ const t = textos.dinero.cuadre;
 const COLOR: Record<ParteDelNegocio["clave"], string> = {
   efectivo: "bg-teal",
   transferencia: "bg-celeste",
-  billetera: "bg-rosa",
   porCobrar: "bg-limon",
   inventario: "bg-mango",
 };

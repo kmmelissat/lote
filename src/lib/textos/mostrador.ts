@@ -24,7 +24,7 @@ export const mostrador = {
   total: "Total",
 
   metodo: "Cómo paga",
-  metodos: { efectivo: "Efectivo", transferencia: "Transferencia", billetera: "Billetera" },
+  metodos: { efectivo: "Efectivo", transferencia: "Transferencia" },
   recibido: "Recibido",
   recibidoAyuda: "Opcional: para calcular el cambio",
   cambio: (monto: string) => `Cambio: ${monto}`,
@@ -112,7 +112,6 @@ export const caja = {
     inicial: "Efectivo inicial",
     efectivo: "Ventas en efectivo",
     transferencia: "Ventas por transferencia",
-    billetera: "Ventas por billetera",
     descuentos: "Descuentos dados",
     gastos: "Gastos anotados",
     gastosNota: "Los gastos son informativos: no se restan del efectivo. Si pagaste algo con dinero de la caja, contalo al cerrar.",

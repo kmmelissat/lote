@@ -38,8 +38,20 @@ export async function crearLote(_anterior: EstadoLote, formData: FormData): Prom
   const limpios = nombres.map((n) => (typeof n === "string" ? n.trim() : ""));
   if (limpios.some((n) => !n || n.length > 120)) return { error: t.errorNombres };
 
-  const precio = leerDolares(String(formData.get("precio") ?? ""));
-  if (precio === null) return { error: textos.productos.form.errorPrecio };
+  // Cada pieza puede traer su propio precio; la que lo deja vacío usa el de todas.
+  const textoPrecio = String(formData.get("precio") ?? "").trim();
+  const precioComun = textoPrecio ? leerDolares(textoPrecio) : null;
+  if (textoPrecio && precioComun === null) return { error: textos.productos.form.errorPrecio };
+  const propios = lista(formData.get("precios"));
+  if (propios.length !== fotos.length) return { error: t.errorGeneral };
+  const precios: number[] = [];
+  for (const p of propios) {
+    const texto = typeof p === "string" ? p.trim() : "";
+    const monto = texto ? leerDolares(texto) : precioComun;
+    if (texto && monto === null) return { error: t.errorPreciosPieza };
+    if (monto === null) return { error: t.errorSinPrecio };
+    precios.push(monto);
+  }
 
   const textoCosto = String(formData.get("costoTotal") ?? "").trim();
   const costoTotal = textoCosto ? leerDolares(textoCosto) : null;
@@ -54,7 +66,7 @@ export async function crearLote(_anterior: EstadoLote, formData: FormData): Prom
     rutas.map((ruta, i) =>
       crearProducto(supabase, negocio.id, {
         nombre: limpios[i],
-        precio,
+        precio: precios[i],
         cantidad: 1,
         categoria,
         condicion,

@@ -27,7 +27,7 @@ export const inicio = {
       },
       pago: {
         titulo: "Poné cómo te pagan",
-        texto: "Transferencia, billetera o efectivo: con eso Lote arma el mensaje de cobro.",
+        texto: "Transferencia o efectivo: con eso Lote arma el mensaje de cobro.",
         gana: "Cobrás sin tener que explicar cada vez a dónde pagar.",
         tiempo: "2 min",
         accion: "Agregar método de pago",

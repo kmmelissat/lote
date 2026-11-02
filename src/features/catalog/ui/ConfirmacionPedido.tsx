@@ -31,8 +31,8 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
 
   const compra = a.entrega !== null;
   const eligio = a.metodoPreferido;
-  // Si eligió transferencia o billetera, solo se le muestra esa; si no eligió (apartado), todas
-  const metodosAMostrar = eligio === "transferencia" || eligio === "billetera" ? a.metodos.filter((m) => m.tipo === eligio) : eligio ? [] : a.metodos;
+  // Si eligió transferencia, solo se le muestra esa; si no eligió (apartado), todas
+  const metodosAMostrar = eligio === "transferencia" ? a.metodos.filter((m) => m.tipo === eligio) : eligio ? [] : a.metodos;
   const pasos = [
     ...(metodosAMostrar.length ? [t.pasoPagar, t.pasoComprobante] : []),
     ...(a.entrega === "retiro" ? [t.pasoRecoger] : a.entrega === "envio" ? [a.contraEntrega ? t.pasoContraEntrega : t.pasoEnvio] : []),
@@ -143,7 +143,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
                   <ul className="flex flex-col gap-3">
                     {metodosAMostrar.map((m) => (
                       <li key={m.tipo} className="flex items-start gap-3 rounded-2xl border-2 border-teal-oscuro/30 bg-superficie p-3">
-                        <Icon nombre={m.tipo === "billetera" ? "billetera" : "banco"} className="mt-0.5 size-5 shrink-0 text-teal" />
+                        <Icon nombre="banco" className="mt-0.5 size-5 shrink-0 text-teal" />
                         <div className="min-w-0">
                           <p className="font-bold">{textos.cobro.metodos[m.tipo]}</p>
                           {m.datos && <p className="whitespace-pre-line break-words text-texto-2">{m.datos}</p>}

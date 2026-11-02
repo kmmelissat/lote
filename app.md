@@ -71,7 +71,7 @@ Prioridad: P0 imprescindible, P1 importante, P2 si sobra tiempo, P3 etapa 3 (neg
 
 ### 4.3 Cobrar
 
-- **Datos de pago del negocio** (P0): en Ajustes se guardan los métodos que acepta (transferencia bancaria con sus datos, billetera móvil, efectivo, contra entrega).
+- **Datos de pago del negocio** (P0): en Ajustes se guardan los métodos que acepta (transferencia bancaria con sus datos, efectivo, contra entrega).
 - **Mensaje de cobro** (P0): un toque arma el mensaje con el total (productos + envío), los datos de pago y el plazo, listo para copiar o mandar por WhatsApp.
 - **Registrar pago** (P0): pago completo o parcial, con método, fecha y comprobante opcional. Por chat: "Ana pagó $25 por transferencia".
 - **Contra entrega** (P0): el pedido sale con el monto a cobrar y se marca pagado al confirmarse la entrega.
@@ -209,7 +209,7 @@ Para ver y corregir, no para trabajar ahí. Lista de productos, pedidos, cliente
 
 ### 4.17 Pagos en línea (P3)
 
-- **Enlace de pago** para cobrar con tarjeta o billetera desde el mensaje de cobro. El proveedor se define según disponibilidad y comisiones en El Salvador. Al confirmarse el pago, el pedido pasa a pagado.
+- **Enlace de pago** para cobrar con tarjeta desde el mensaje de cobro. El proveedor se define según disponibilidad y comisiones en El Salvador. Al confirmarse el pago, el pedido pasa a pagado.
 
 ### 4.18 Fuera de alcance
 
@@ -528,7 +528,7 @@ Estas reglas viven en un solo lugar (`domain/`), con pruebas, y las usan la UI, 
 - `costo_producto`: producto_id, tipo (compra, envío, importación, otro), monto, por_unidad (bool).
 - `cliente`: id, negocio_id, nombre, contacto, notas, acepta_whatsapp (bool), creado_en.
 - `pedido`: id, negocio_id, cliente_id, canal, origen (vitrina, whatsapp, panel, mostrador, tienda_web), atendido_por, estado, descuento, envio_cobrado, envio_absorbido, total, saldo, vence_en, creado_en.
-- `pago`: id, pedido_id, monto, metodo (transferencia, billetera, efectivo, contra_entrega), fecha, comprobante.
+- `pago`: id, pedido_id, monto, metodo (transferencia, efectivo, contra_entrega), fecha, comprobante.
 - `envio`: pedido_id, modo (retiro, propio, paquetera), paquetera, guia, departamento, municipio, direccion, referencia, costo_real, estado, etiqueta_url, monto_contra_entrega.
 - `gasto`: id, negocio_id, categoria, monto, fecha, pedido_id (opcional), recurrente (bool).
 - `metodo_pago_negocio`: negocio_id, tipo, datos, activo.

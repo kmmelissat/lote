@@ -23,7 +23,7 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 - ✅ Apartar, vender y liberar. **Bloqueo de doble promesa**: si algo ya está apartado, la app dice para quién. Pedidos con varios productos.
 - ✅ Estados: pendiente → pagado → preparando → enviado → entregado (o cancelado). Los apartados vencen solos.
 - ✅ Pagos completos o abonos, contra entrega, fiado ("quién me debe") y saldo por cobrar.
-- ✅ Datos de pago de la tienda (transferencia, billetera, efectivo, contra entrega) y mensaje de cobro listo para mandar.
+- ✅ Datos de pago de la tienda (transferencia, efectivo, contra entrega) y mensaje de cobro listo para mandar.
 - ✅ Comprobante con IA: subís la captura de la transferencia, Lotito lee el monto y vos confirmás.
 - ✅ Respuesta sugerida para "¿sigue disponible?".
 - ✅ Pedidos como tabla (o lista apilada en celular), con un botón para avanzar cada uno.

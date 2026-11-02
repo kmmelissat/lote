@@ -18,7 +18,7 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 
 export type EstadoNuevo = {
-  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "categoria" | "compra" | "envio" | "importacion" | "otro" | "precio_anterior" | "general", string>>;
+  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "categoria" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
   valores?: Record<string, string>;
 };
 
@@ -57,8 +57,7 @@ export async function nuevoProducto(
   else if (validadas?.ok && validadas.filas.length < 2) errores.variantes = t.errorVariantes.pocas;
 
   // El precio de antes es de un producto simple; con variantes no se pide
-  const { info, errorPrecioAnterior } = leerInfoExtra(conVariantes ? { ...valores, precio_anterior: "" } : valores, precio);
-  if (errorPrecioAnterior) errores.precio_anterior = t.precioAnterior.error;
+  const { info } = leerInfoExtra(conVariantes ? { ...valores, precio_anterior: "" } : valores, precio);
 
   const cantidad = Number((valores.cantidad ?? "1").trim() || "1");
   if (!conVariantes && (!Number.isInteger(cantidad) || cantidad < 1)) errores.cantidad = t.errorCantidad;

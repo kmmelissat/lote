@@ -19,7 +19,6 @@ const t = textos.ajustes.pagos;
 
 const ICONO: Record<TipoMetodo, NombreIcono> = {
   transferencia: "banco",
-  billetera: "billetera",
   efectivo: "efectivo",
   contra_entrega: "camion",
 };
@@ -28,7 +27,7 @@ type Valor = { activo: boolean; datos: string };
 type Valores = Record<TipoMetodo, Valor>;
 
 /** Los métodos que necesitan datos para poder pagar (en efectivo y contra entrega no hace falta decir nada más) */
-const NECESITAN_DATOS: TipoMetodo[] = ["transferencia", "billetera"];
+const NECESITAN_DATOS: TipoMetodo[] = ["transferencia"];
 
 export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoPagos, FormData>(guardarDatosDePago, {});
@@ -104,7 +103,7 @@ export function PagosForm({ metodos }: { metodos: MetodoPagoNegocio[] }) {
                 {NECESITAN_DATOS.includes(tipo) && !v.datos.trim() && (
                   <div className="flex flex-col items-start gap-2">
                     <Aviso tipo="alerta">{t.faltanDatos}</Aviso>
-                    <Button type="button" variante="suave" tamano="chico" icono="mas" onClick={() => cambiar(tipo, { datos: t.plantilla[tipo as "transferencia" | "billetera"] })}>
+                    <Button type="button" variante="suave" tamano="chico" icono="mas" onClick={() => cambiar(tipo, { datos: t.plantilla[tipo as "transferencia"] })}>
                       {t.usarPlantilla}
                     </Button>
                   </div>

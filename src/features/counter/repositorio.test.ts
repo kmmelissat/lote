@@ -27,14 +27,14 @@ describe("venderEnMostrador", () => {
 
 describe("resumenDeCaja", () => {
   it("convierte los montos a centavos", async () => {
-    const data = [{ ventas: 3, efectivo: 10.5, transferencia: 4, billetera: 0.25, descuentos: 1, gastos: 2 }];
+    const data = [{ ventas: 3, efectivo: 10.5, transferencia: 4, descuentos: 1, gastos: 2 }];
     const { cliente } = supabaseFalso({ rpc: { resumen_caja: { data, error: null } } });
-    expect(await resumenDeCaja(cliente, "c1")).toEqual({ ventas: 3, efectivo: 1050, transferencia: 400, billetera: 25, descuentos: 100, gastos: 200 });
+    expect(await resumenDeCaja(cliente, "c1")).toEqual({ ventas: 3, efectivo: 1050, transferencia: 400, descuentos: 100, gastos: 200 });
   });
 
   it("una caja sin ventas da todo en cero", async () => {
     const { cliente } = supabaseFalso({ rpc: { resumen_caja: { data: [], error: null } } });
-    expect(await resumenDeCaja(cliente, "c1")).toEqual({ ventas: 0, efectivo: 0, transferencia: 0, billetera: 0, descuentos: 0, gastos: 0 });
+    expect(await resumenDeCaja(cliente, "c1")).toEqual({ ventas: 0, efectivo: 0, transferencia: 0, descuentos: 0, gastos: 0 });
   });
 });
 

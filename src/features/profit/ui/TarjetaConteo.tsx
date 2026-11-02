@@ -14,7 +14,7 @@ import { guardarConteo, type EstadoConteo } from "../actions/cuadre";
 
 const t = textos.dinero.cuadre;
 
-const ICONOS: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco", billetera: "billetera" };
+const ICONOS: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco" };
 
 function etiquetaDe(r: ResultadoConteo): string {
   switch (r.tipo) {
@@ -28,7 +28,7 @@ function etiquetaDe(r: ResultadoConteo): string {
 }
 
 // Cuadra es lo bueno (teal); faltan o sobran es "ojo" (ámbar); lo que todavía no se contó, gris.
-const FONDO_ICONO: Record<MetodoMovimiento, string> = { efectivo: "bg-teal text-white", transferencia: "bg-celeste", billetera: "bg-rosa" };
+const FONDO_ICONO: Record<MetodoMovimiento, string> = { efectivo: "bg-teal text-white", transferencia: "bg-celeste" };
 
 const colorDe = (r: ResultadoConteo) =>
   r.tipo === "cuadra" ? "bg-teal-fondo text-teal-oscuro" : r.tipo === "faltan" || r.tipo === "sobran" ? "bg-ambar text-teal-oscuro" : "bg-fondo text-texto-2";

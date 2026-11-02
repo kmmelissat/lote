@@ -32,16 +32,16 @@ Una sola lista, de la más reciente a la más antigua, con **todo lo que entró 
 - **Entradas:** cada pago registrado (`pago`: monto, método, fecha, pedido). Un pago parcial se muestra como **"Abono (queda $X)"**; el pago que completa, como **"Venta"**.
 - **Salidas:** cada `gasto`, con su categoría.
 - Columnas: Fecha, Concepto (con subtítulo: "Venta", "Abono", "Gasto · Mercadería"), Método (chip), Monto (verde `+`, rojo `−`).
-- Controles: búsqueda (clienta, producto, nota del gasto), chips **Todos / Entradas / Salidas**, chips de método **Efectivo / Transferencia / Billetera**, y el periodo.
+- Controles: búsqueda (clienta, producto, nota del gasto), chips **Todos / Entradas / Salidas**, chips de método **Efectivo / Transferencia**, y el periodo.
 - Pie de la tabla: **Entradas · Salidas · Neto** de lo que se está viendo (de todo el filtro, no solo de la página).
 - Paginada en el servidor (30 por página), como [Pedidos](src/app/(panel)/pedidos/page.tsx). Búsqueda con `q` y estado en la URL.
 
 > **Cuidado, dos formas de contar.** Resumen cuenta **ganancia** (una venta cuenta cuando el pedido se paga completo; ver `PROGRESO.md`). Movimientos cuenta **flujo de dinero** (lo que de verdad entró, aunque sea un abono). Es normal que no coincidan en un periodo. Dilo en la interfaz con una línea de apoyo, para que no parezca un error.
 
 ### 3. Cuadre (dónde está el dinero)
-- **"Lo que vale tu negocio hoy":** suma de efectivo + transferencia (banco) + billetera + por cobrar + inventario a costo, con una barra segmentada por colores y la leyenda.
+- **"Lo que vale tu negocio hoy":** suma de efectivo + transferencia (banco) + por cobrar + inventario a costo, con una barra segmentada por colores y la leyenda.
   - Por cobrar: `porCobrar()` (ya existe). Inventario a costo: ya se calcula en Ganancia (`valorInventario`, con unidades sin costo aparte).
-- **Una tarjeta por método** (efectivo, transferencia, billetera):
+- **Una tarjeta por método** (efectivo, transferencia):
   - "Debería haber $X" (calculado).
   - Un campo "Lo que contaste" y un botón para guardar el conteo.
   - Chip de resultado: **Cuadra** (teal suave), **Faltan/Sobran $N** (ámbar), **Sin contar** (gris).
@@ -55,7 +55,7 @@ Una sola lista, de la más reciente a la más antigua, con **todo lo que entró 
 | Ganancia, periodos, cascada | `src/domain/` (`ganancia.ts`, `periodo.ts`, `resumen.ts`, `dinero.ts`) |
 | Ventas, gastos, por cobrar, por semana | [src/features/profit/repositorio.ts](src/features/profit/repositorio.ts) |
 | UI actual | [src/features/profit/ui/](src/features/profit/ui) (`Gastos.tsx`, `Tarjetas.tsx`, `GraficoRanking.tsx`) |
-| Pagos por método | tabla `pago` (`metodo`: transferencia, billetera, efectivo; `monto`, `fecha`, `comprobante`); `listarPagos` y `registrarPago` en [src/features/orders/repositorio.ts](src/features/orders/repositorio.ts) |
+| Pagos por método | tabla `pago` (`metodo`: transferencia, efectivo; `monto`, `fecha`, `comprobante`); `listarPagos` y `registrarPago` en [src/features/orders/repositorio.ts](src/features/orders/repositorio.ts) |
 | Caja del Mostrador (efectivo) | tabla `cierre_caja` (`efectivo_esperado`, `efectivo_contado`, `diferencia`); [src/features/counter/repositorio.ts](src/features/counter/repositorio.ts) |
 | Cobrar por WhatsApp | `enlaceWhatsApp` en [src/features/catalog/enlaces.ts](src/features/catalog/enlaces.ts) y `textos.clientes.cobrarMensaje` |
 | Búsqueda + paginación en el servidor | [src/features/orders/busqueda.ts](src/features/orders/busqueda.ts) y la página de Pedidos: es el modelo a seguir |
@@ -65,7 +65,7 @@ Una sola lista, de la más reciente a la más antigua, con **todo lo que entró 
 ## Lo que NO existe y hay que crear
 
 1. **`gasto` no guarda con qué método se pagó.** Sin eso, Movimientos no puede filtrar salidas por método y Cuadre no puede restar los gastos del lugar correcto.
-   - SQL nuevo: agregar `metodo text` a `gasto` (check: `efectivo`, `transferencia`, `billetera`; **null = "sin método"**, para no romper los gastos viejos). Actualizar el RPC `registrar_gasto` para recibirlo.
+   - SQL nuevo: agregar `metodo text` a `gasto` (check: `efectivo`, `transferencia`; **null = "sin método"**, para no romper los gastos viejos). Actualizar el RPC `registrar_gasto` para recibirlo.
    - Código: un selector de método en `RegistrarGasto` ([Gastos.tsx](src/features/profit/ui/Gastos.tsx)), y en el Asistente (`supabase/asistente_gasto.sql` y su intención de gasto), que hoy registra gastos sin método.
    - Los gastos sin método se muestran como "Sin método" y no entran en el cuadre de ningún lugar (decirlo en la interfaz).
 2. **Conteos guardados del Cuadre.** Tabla nueva, por ejemplo `conteo_dinero`: `negocio_id`, `metodo`, `contado`, `esperado`, `diferencia`, `nota`, `contado_en`, `usuario_id`. Con RLS como el resto (solo dueña y administradora), y escritura por función `security definer` que verifique el rol (patrón de `PROGRESO.md`).

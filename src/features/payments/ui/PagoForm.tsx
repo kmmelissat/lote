@@ -90,7 +90,7 @@ export function PagoForm({ pedidoId, saldo }: { pedidoId: string; saldo: number 
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.metodo}</span>
           <Select name="metodo" value={metodo} onChange={(ev) => setMetodo(ev.target.value)}>
-            {(["transferencia", "billetera", "efectivo"] as const).map((m) => (
+            {(["transferencia", "efectivo"] as const).map((m) => (
               <option key={m} value={m}>
                 {textos.cobro.metodos[m]}
               </option>

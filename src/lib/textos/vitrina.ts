@@ -226,7 +226,6 @@ export const vitrina = {
     pagarTitulo: "¿Cómo pensás pagar?",
     metodos: {
       transferencia: { titulo: "Transferencia", ayuda: "Te damos los datos al confirmar." },
-      billetera: { titulo: "Billetera móvil", ayuda: "Te damos el número al confirmar." },
       efectivo: { titulo: "Efectivo al recoger", ayuda: "Pagás cuando pasás a buscarlo." },
       contra_entrega: { titulo: "Contra entrega", ayuda: "Pagás cuando te llega el pedido." },
     },

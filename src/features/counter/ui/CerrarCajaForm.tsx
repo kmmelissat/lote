@@ -64,7 +64,6 @@ export function CerrarCajaForm({
     [t.resumen.inicial, formatearDolares(inicial)],
     [t.resumen.efectivo, formatearDolares(resumen.efectivo)],
     [t.resumen.transferencia, formatearDolares(resumen.transferencia)],
-    [t.resumen.billetera, formatearDolares(resumen.billetera)],
     [t.resumen.descuentos, formatearDolares(resumen.descuentos)],
     [t.resumen.gastos, formatearDolares(resumen.gastos)],
   ];

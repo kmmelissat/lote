@@ -48,7 +48,6 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { OpcionRadio } from "@/components/ui/OpcionRadio";
-import { Ventana } from "@/components/ui/Ventana";
 
 const t = textos.productos.form;
 const l = t.lotito;
@@ -158,6 +157,19 @@ export function NuevoProductoForm({
       ? estadoDesdeVariantes(variantesIniciales.filas, variantesIniciales.nombres, { precio: "", cantidad: "1", compra: "" })
       : estadoVacio({ precio: v.precio ?? "", cantidad: v.cantidad ?? "1", compra: v.compra ?? "" }),
   );
+  // Al pasar a variantes, lo que ya escribiste (precio, cantidad y costo) se reparte: cada combinación arranca con eso y lo cambiás donde difiera
+  const pasarAVariantes = () => {
+    const compra = new FormData(formulario.current ?? undefined).get("compra");
+    setEditor((ed) => ({
+      ...ed,
+      base: {
+        precio: precio.trim() || ed.base.precio,
+        cantidad: cantidad.trim() || ed.base.cantidad,
+        compra: typeof compra === "string" && compra.trim() ? compra : ed.base.compra,
+      },
+    }));
+    setTipo("variantes");
+  };
   // Cuáles bloques opcionales están abiertos (los que Lotito llena se abren solos, para que se vea qué revisar)
   // Al editar (o repetir un producto) los bloques que ya tienen datos arrancan abiertos
   const [abiertos, setAbiertos] = useState<Record<string, boolean>>(() => {
@@ -328,7 +340,6 @@ export function NuevoProductoForm({
   const e2 = textos.productos.editar;
   const b = t.bloques;
   const hayLotito = deLotito.size > 0 || extrasLotito.variantes || extrasLotito.detalles || extrasLotito.condicion;
-  const ventanaPrevia = useRef<HTMLDialogElement>(null);
 
   // Los bloques opcionales vienen cerrados; la persona los abre. Si tienen un error, o Lotito llenó algo ahí, se abren solos.
   const estaAbierto = (id: string, defecto = false, forzar = false) => forzar || (abiertos[id] ?? defecto);
@@ -360,7 +371,7 @@ export function NuevoProductoForm({
           en columnas. En la angosta: una sola columna, y la tarjeta se abre con "Ver cómo queda". Guardar va en la barra de abajo. */}
       <div className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
         <div className="hidden lg:sticky lg:top-4 lg:block">
-          <VistaPreviaProducto {...vista} />
+          <VistaPreviaProducto soloFicha {...vista} />
         </div>
 
         <div className="flex min-w-0 flex-col gap-6">
@@ -418,7 +429,8 @@ export function NuevoProductoForm({
                       onChange={(ev) => setPrecio(ev.target.value)}
                       error={e.precio}
                     />
-                    <CampoDinero etiqueta={t.precioAnterior.etiqueta} name="precio_anterior" defaultValue={v.precio_anterior} error={e.precio_anterior} />
+                    {/* Ya no se edita aquí (las ofertas van por Ofertas), pero un producto que lo traía no lo pierde al guardar */}
+                    {v.precio_anterior ? <input type="hidden" name="precio_anterior" defaultValue={v.precio_anterior} /> : null}
                     <CampoDinero etiqueta={t.tarjetas.costoCompra} name="compra" defaultValue={v.compra} error={e.compra} />
                     <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />
                   </div>
@@ -537,7 +549,7 @@ export function NuevoProductoForm({
               ) : (
                 <>
                   <p className="text-sm text-texto-2">{t.tarjetas.variantesTexto}</p>
-                  <Button type="button" variante="suave" icono="mas" className="self-start" onClick={() => setTipo("variantes")}>
+                  <Button type="button" variante="suave" icono="mas" className="self-start" onClick={pasarAVariantes}>
                     {t.tarjetas.agregarVariantes}
                   </Button>
                 </>
@@ -583,15 +595,17 @@ export function NuevoProductoForm({
         </div>
       </div>
 
-      {/* En pantalla angosta la tarjeta del producto se abre en una ventana */}
-      <Ventana ref={ventanaPrevia} titulo={t.vistaPrevia} ayuda={t.vistaPreviaAyuda}>
-        <VistaPreviaProducto soloFicha {...vista} />
-      </Ventana>
-
       {/* En el código el principal va primero (es el que dispara Enter); `order` lo deja a la derecha */}
-      <BarraFormulario>
+      <BarraFormulario className="max-md:grid max-md:grid-cols-2 max-md:gap-2">
         <Button type="submit" variante="mango" icono="check" disabled={pendiente} className="order-3">
-          {guardarTexto}
+          {editando || pendiente ? (
+            guardarTexto
+          ) : (
+            <>
+              <span className="md:hidden">{t.guardarCorto}</span>
+              <span className="max-md:hidden">{guardarTexto}</span>
+            </>
+          )}
         </Button>
         {editando ? (
           <ButtonLink href={`/productos/${modo.codigo}`} variante="secundario" icono="x" className="order-2">
@@ -599,12 +613,10 @@ export function NuevoProductoForm({
           </ButtonLink>
         ) : (
           <Button type="submit" name="otro" value="1" variante="secundario" icono="mas" disabled={pendiente} className="order-2">
-            {t.guardarOtro}
+            <span className="md:hidden">{t.guardarOtroCorto}</span>
+            <span className="max-md:hidden">{t.guardarOtro}</span>
           </Button>
         )}
-        <Button type="button" variante="suave" icono="ojo" className="order-1 mr-auto lg:hidden" onClick={() => ventanaPrevia.current?.showModal()}>
-          {t.verComoQueda}
-        </Button>
       </BarraFormulario>
     </form>
   );
@@ -619,10 +631,10 @@ const SUBRAYADO = {
 
 /**
  * Un paso del formulario: número, título subrayado y una línea de apoyo. Los obligatorios están siempre abiertos y su número se
- * vuelve un check cuando están listos. Los opcionales traen el número punteado, un resumen de cómo están y se abren al tocarlos
+ * pone verde cuando están listos (el número no cambia). Los opcionales traen el número punteado, un resumen de cómo están y se abren al tocarlos
  * (su contenido sigue en la página aunque esté cerrado, para que lo escrito viaje al guardar).
  */
-function BloqueForm({
+export function BloqueForm({
   numero,
   titulo,
   ayuda,
@@ -657,7 +669,7 @@ function BloqueForm({
           opcional ? "border-2 border-dashed border-borde-control bg-superficie text-texto-2" : listo ? "bg-teal text-white" : "bg-teal-oscuro text-white"
         }`}
       >
-        {listo && !opcional ? <Icon nombre="check" className="size-5" /> : numero}
+        {numero}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-lg font-bold leading-tight">

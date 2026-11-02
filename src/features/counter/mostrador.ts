@@ -4,12 +4,10 @@ import type { MetodoMostrador, ProductoMostrador } from "./repositorio";
 export const METODOS: MetodoMostrador[] = [
   "efectivo",
   "transferencia",
-  "billetera",
 ];
 export const ICONO_METODO = {
   efectivo: "efectivo",
   transferencia: "banco",
-  billetera: "billetera",
 } as const;
 
 export type Linea = { productoId: string; cantidad: number };

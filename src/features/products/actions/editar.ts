@@ -39,8 +39,8 @@ export async function editarProducto(
 
   if (await categoriaNoExiste(texto("categoria"))) errores.categoria = t.categorias.errorNoExiste;
 
-  const { info, errorPrecioAnterior } = leerInfoExtra(valores, precio);
-  if (errorPrecioAnterior) errores.precio_anterior = t.precioAnterior.error;
+  // Si el precio nuevo ya no es menor que el de antes, deja de ser una oferta: el tachado se quita solo, sin error
+  const { info } = leerInfoExtra(valores, precio);
 
   const cantidad = Number(texto("cantidad") || "NaN");
   if (!Number.isInteger(cantidad) || cantidad < 0) errores.cantidad = te.errorCantidad;

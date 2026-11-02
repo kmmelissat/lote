@@ -34,7 +34,7 @@ const AccionExtra = z.object({
   pedido: z.number().int().nullable(),
   cantidad: z.number().int().nullable(),
   monto: z.number().nullable(),
-  metodo: z.enum(["transferencia", "billetera", "efectivo"]).nullable(),
+  metodo: z.enum(["transferencia", "efectivo"]).nullable(),
   categoria: z.enum(["empaque", "publicidad", "transporte", "local", "comisiones", "otros"]).nullable(),
   nota: z.string().nullable(),
 });
@@ -51,7 +51,7 @@ export const SalidaEntender = z.object({
   precio: z.number().nullable(),
   costo: z.number().nullable(),
   monto: z.number().nullable(),
-  metodo: z.enum(["transferencia", "billetera", "efectivo"]).nullable(),
+  metodo: z.enum(["transferencia", "efectivo"]).nullable(),
   paquetera: z.string().nullable(),
   guia: z.string().nullable(),
   consulta: z.enum(["apartados", "por_cobrar", "por_enviar", "producto", "ganancia", "ganancia_producto", "productos_estado"]).nullable(),

@@ -5,8 +5,9 @@ import { useEffect } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
+import { BOTON_PERFIL, CascaronMenu } from "./CascaronMenu";
+import { ListaMenu } from "./ListaMenu";
 import { ajustesEscritorio, pestanas, type DatosMenu } from "./menu";
-import { ListaPestanas } from "./MenuEscritorio";
 import { Buscar, PrimerosPasos, TarjetaPerfil } from "./PiezasMenu";
 
 const t = textos.nav;
@@ -70,7 +71,7 @@ export function EncabezadoMovil({
   );
 }
 
-/** El menú del celular: el mismo ticket del escritorio, que entra desde la izquierda y tapa el resto con un velo. */
+/** El menú del celular: el mismo menú del escritorio, con el tema elegido, que entra desde la izquierda y tapa el resto con un velo. */
 export function BarraLateral({
   datos,
   ruta,
@@ -94,79 +95,64 @@ export function BarraLateral({
     };
   }, [cerrar]);
 
-  const enlace = "flex min-h-14 min-w-0 flex-1 items-center gap-3 pl-1 text-base font-medium text-texto-2 hover:text-teal";
+  const buscar = (
+    <Buscar
+      abrir={() => {
+        cerrar();
+        abrirPaleta();
+      }}
+      soloIcono
+      className="flex size-11 items-center justify-center text-texto-2 hover:text-teal-oscuro"
+    />
+  );
+  const cerrarBoton = (
+    <button
+      type="button"
+      onClick={cerrar}
+      aria-label={t.cerrar}
+      className="flex size-11 items-center justify-center text-texto-2 hover:text-teal-oscuro"
+    >
+      <Icon nombre="x" className="size-5" />
+    </button>
+  );
   return (
     <div className="fixed inset-0 z-40 bg-teal-oscuro/40 md:hidden" onClick={cerrar}>
-      <aside
+      <CascaronMenu
+        plataforma="movil"
+        desplazable
         role="dialog"
         aria-modal="true"
         aria-label={t.masTitulo}
         onClick={(e) => e.stopPropagation()}
-        className="flex h-full w-[min(20rem,85vw)] flex-col border-r-2 border-teal-oscuro bg-crema motion-safe:animate-lateral"
-      >
-        <div className="flex shrink-0 flex-col gap-2 bg-celeste-palido py-4 pl-6 pr-4">
-          <div className="flex items-center justify-between gap-2">
+        cabecera={
+          <div className="flex items-center justify-between gap-2 group-data-[cerrado]:flex-col">
             <Link href="/inicio" aria-label={textos.nombre} className="px-1">
               <Logo />
             </Link>
-            <div className="flex items-center">
-              <Buscar
-                abrir={() => {
-                  cerrar();
-                  abrirPaleta();
-                }}
-                soloIcono
-                className="flex size-11 items-center justify-center text-texto-2 hover:text-teal-oscuro"
-              />
-              <button type="button" onClick={cerrar} aria-label={t.cerrar} className="flex size-11 items-center justify-center text-texto-2 hover:text-teal-oscuro">
-                <Icon nombre="x" className="size-5" />
-              </button>
+            <div className="flex items-center group-data-[cerrado]:flex-col">
+              {buscar}
+              {cerrarBoton}
             </div>
           </div>
-        </div>
-        <div className="shrink-0 border-b-2 border-dashed border-teal-oscuro" />
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-4 pl-6 pr-5">
-          {/* Las secciones y los enlaces a la vitrina y al Marketplace son una sola lista: sin espacio entre una y otra */}
-          <div>
+        }
+        cuerpo={
+          <>
             <nav aria-label="Principal">
-              <ListaPestanas
+              <ListaMenu
                 items={datos.esDuena ? [...pestanas, ...ajustesEscritorio] : pestanas}
                 ruta={ruta}
                 porAtender={datos.porAtender}
                 urgente={datos.urgente}
                 slug={datos.slug}
+                esDuena={datos.esDuena}
                 grande
               />
             </nav>
-            <ul className="flex flex-col">
-              {datos.slug && !datos.esDuena && (
-                <li className="flex items-center border-b border-dashed border-teal-oscuro/30">
-                  <Link href={`/c/${datos.slug}`} target="_blank" rel="noreferrer" className={enlace}>
-                    <Icon nombre="tienda" className="size-6 shrink-0" />
-                    <span className="min-w-0 flex-1 truncate">{t.vitrina}</span>
-                    <span className="flex size-11 shrink-0 items-center justify-center">
-                      <Icon nombre="enlace" className="size-5" />
-                    </span>
-                  </Link>
-                </li>
-              )}
-              <li className="flex items-center border-b border-dashed border-teal-oscuro/30">
-                <Link href="/marketplace" target="_blank" rel="noreferrer" className={enlace}>
-                  <Icon nombre="explorar" className="size-6 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">{t.explorar}</span>
-                  <span className="flex size-11 shrink-0 items-center justify-center">
-                    <Icon nombre="enlace" className="size-5" />
-                  </span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-          {datos.pasos ? <PrimerosPasos pasos={datos.pasos} /> : null}
-        </div>
-        <div className="shrink-0 border-t-2 border-dashed border-teal-oscuro bg-rosa-palido py-2 pl-6 pr-5">
-          <TarjetaPerfil perfil={datos.perfil} botonClass="flex min-h-12 w-full items-center gap-3 bg-transparent p-1 text-left" />
-        </div>
-      </aside>
+            {datos.pasos ? <PrimerosPasos pasos={datos.pasos} /> : null}
+          </>
+        }
+        pie={<TarjetaPerfil perfil={datos.perfil} botonClass={BOTON_PERFIL} />}
+      />
     </div>
   );
 }

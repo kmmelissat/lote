@@ -33,6 +33,35 @@ export const ajustesEscritorio: Pestana[] = [
   { href: "/ajustes/tienda", etiqueta: t.tienda, icono: "tienda" },
 ];
 
+/** El relleno de color de cada sección en el menú. Clases completas, para que Tailwind las vea. */
+export const FONDO_SECCION: Record<string, string> = {
+  "/inicio": "bg-limon",
+  "/productos": "bg-mango",
+  "/pedidos": "bg-rosa",
+  "/clientes": "bg-celeste",
+  "/dinero": "bg-limon",
+  "/asistente": "bg-teal-fondo",
+  "/ajustes/tienda": "bg-rosa-palido",
+  "/marketplace": "bg-perla",
+  "/vitrina": "bg-rosa-palido",
+};
+
+/**
+ * El relleno de cada cuadro al pasar el mouse: el color de su ícono, a la mitad (mezclado con blanco, para que no se transparente
+ * el fondo celeste del menú). Una clase por color, escrita completa, para que Tailwind la vea.
+ */
+export const PINTA_HOVER_SECCION: Record<string, string> = {
+  "/inicio": "hover:bg-[color-mix(in_srgb,var(--color-limon)_50%,white)]",
+  "/productos": "hover:bg-[color-mix(in_srgb,var(--color-mango)_50%,white)]",
+  "/pedidos": "hover:bg-[color-mix(in_srgb,var(--color-rosa)_50%,white)]",
+  "/clientes": "hover:bg-[color-mix(in_srgb,var(--color-celeste)_50%,white)]",
+  "/dinero": "hover:bg-[color-mix(in_srgb,var(--color-limon)_50%,white)]",
+  "/asistente": "hover:bg-[color-mix(in_srgb,var(--color-teal-fondo)_50%,white)]",
+  "/ajustes/tienda": "hover:bg-[color-mix(in_srgb,var(--color-rosa-palido)_50%,white)]",
+  "/marketplace": "hover:bg-[color-mix(in_srgb,var(--color-perla)_50%,white)]",
+  "/vitrina": "hover:bg-[color-mix(in_srgb,var(--color-rosa-palido)_50%,white)]",
+};
+
 export const CLAVE_CERRADO = "lote_menu_cerrado";
 export const EVENTO_MENU = "lote-menu";
 

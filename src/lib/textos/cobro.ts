@@ -8,7 +8,6 @@ export const cobro = {
   pagarPor: "Podés pagar por:",
   metodos: {
     transferencia: "Transferencia",
-    billetera: "Billetera móvil",
     efectivo: "Efectivo",
     contra_entrega: "Contra entrega",
   },

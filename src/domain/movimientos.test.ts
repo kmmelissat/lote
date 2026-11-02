@@ -48,7 +48,7 @@ describe("unirMovimientos", () => {
 describe("filtrarMovimientos", () => {
   const todos = unirMovimientos(
     [pago({ id: "a" }), pago({ id: "b", metodo: "efectivo", cliente: "Luis", producto: "Llavero", creadoEn: "2026-10-20T14:00:00Z" })],
-    [gasto({ id: "c", metodo: "billetera" }), gasto({ id: "d", nota: "Cinta", categoria: "otros", creadoEn: "2026-10-20T13:00:00Z" })],
+    [gasto({ id: "c", metodo: "transferencia" }), gasto({ id: "d", nota: "Cinta", categoria: "otros", creadoEn: "2026-10-20T13:00:00Z" })],
   );
 
   it("filtra por tipo", () => {

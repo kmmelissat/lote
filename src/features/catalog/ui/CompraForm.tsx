@@ -16,10 +16,10 @@ import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados }
 const t = textos.vitrina.compra;
 const ta = textos.vitrina.apartar;
 
-type Metodo = "transferencia" | "billetera" | "efectivo" | "contra_entrega";
+type Metodo = "transferencia" | "efectivo" | "contra_entrega";
 type Entrega = "retiro" | "envio";
 
-const ICONOS: Record<Metodo, NombreIcono> = { transferencia: "banco", billetera: "billetera", efectivo: "efectivo", contra_entrega: "camion" };
+const ICONOS: Record<Metodo, NombreIcono> = { transferencia: "banco", efectivo: "efectivo", contra_entrega: "camion" };
 
 /** Con qué entrega se puede pagar cada cosa: efectivo es al recoger y contra entrega es al recibir. */
 const sirve = (m: Metodo, e: Entrega) => (m === "efectivo" ? e === "retiro" : m === "contra_entrega" ? e === "envio" : true);
@@ -106,7 +106,7 @@ export function CompraForm({
   const guardados = useDatosGuardados();
 
   // Las formas de pago que sirven con la entrega elegida y con las que trabaja la tienda
-  const metodosDisponibles = (["transferencia", "billetera", "efectivo", "contra_entrega"] as const).filter(
+  const metodosDisponibles = (["transferencia", "efectivo", "contra_entrega"] as const).filter(
     (m) => opciones.metodos.includes(m) && sirve(m, entrega),
   );
   const metodoElegido = metodosDisponibles.find((m) => m === metodo) ?? metodosDisponibles[0] ?? "";

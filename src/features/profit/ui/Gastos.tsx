@@ -24,7 +24,7 @@ const ICONOS: Record<CategoriaGasto, NombreIcono> = {
   otros: "mas_opciones",
 };
 
-const ICONOS_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco", billetera: "billetera" };
+const ICONOS_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco" };
 
 const campo =
   "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal";

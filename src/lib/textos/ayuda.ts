@@ -139,7 +139,7 @@ export const ayuda = {
       donde: ["/ajustes", "/pedidos"],
       pregunta: "¿Dónde pongo mis datos de pago?",
       respuesta:
-        "En Ajustes, en Mi tienda, pestaña Pagos. Prendé los métodos con los que cobrás (transferencia, billetera, efectivo o contra entrega) y escribí los datos de cada uno. Salen en cada mensaje de cobro. Solo la dueña puede cambiarlos.",
+        "En Ajustes, en Mi tienda, pestaña Pagos. Prendé los métodos con los que cobrás (transferencia, efectivo o contra entrega) y escribí los datos de cada uno. Salen en cada mensaje de cobro. Solo la dueña puede cambiarlos.",
     },
     {
       id: "envios_config",

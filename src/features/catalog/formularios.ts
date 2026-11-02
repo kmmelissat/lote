@@ -10,7 +10,7 @@ import { MAX_CANTIDAD, MAX_LINEAS } from "./carritoReglas";
 const t = textos.vitrina.apartar;
 const c = textos.vitrina.compra;
 
-const METODOS_DE_PAGO = ["transferencia", "billetera", "efectivo", "contra_entrega"] as const;
+const METODOS_DE_PAGO = ["transferencia", "efectivo", "contra_entrega"] as const;
 
 const nombre = z.string().trim().min(1, t.errorNombre).max(80, t.errorNombre);
 const contacto = z

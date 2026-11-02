@@ -31,7 +31,7 @@ export const metadata: Metadata = { title: t.movimientosTitulo };
 const POR_PAGINA = 30;
 const TIPOS = ["todos", "entrada", "salida"] as const;
 type Tipo = (typeof TIPOS)[number];
-const METODOS = ["todos", "efectivo", "transferencia", "billetera", "sin_metodo"] as const;
+const METODOS = ["todos", "efectivo", "transferencia", "sin_metodo"] as const;
 type Metodo = (typeof METODOS)[number];
 
 const uno = (v: string | string[] | undefined) => (typeof v === "string" ? v : "");

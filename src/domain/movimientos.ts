@@ -1,8 +1,8 @@
 import type { Centavos } from "./dinero";
 
-export type MetodoMovimiento = "efectivo" | "transferencia" | "billetera";
+export type MetodoMovimiento = "efectivo" | "transferencia";
 
-export const METODOS_DE_DINERO: readonly MetodoMovimiento[] = ["efectivo", "transferencia", "billetera"];
+export const METODOS_DE_DINERO: readonly MetodoMovimiento[] = ["efectivo", "transferencia"];
 
 /** Un pago o abono que entró. `saldoDespues` es lo que le quedó por pagar al pedido; 0 si el pago lo completó. */
 export type PagoEntrante = {
@@ -65,7 +65,7 @@ export type FiltroMovimientos = {
 
 export type ResumenMovimientos = { entradas: Centavos; salidas: Centavos; neto: Centavos; cantidad: number };
 
-const METODOS: readonly string[] = ["efectivo", "transferencia", "billetera"];
+const METODOS: readonly string[] = ["efectivo", "transferencia"];
 // "contra_entrega" es un pago real: el dinero se cobró en mano, así que cuenta como efectivo.
 const metodoDe = (m: string | null): MetodoMovimiento | null =>
   m === "contra_entrega" ? "efectivo" : m && METODOS.includes(m) ? (m as MetodoMovimiento) : null;

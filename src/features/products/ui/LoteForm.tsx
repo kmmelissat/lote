@@ -5,18 +5,20 @@ import { useActionState, useState, useTransition } from "react";
 import { leerDolares, repartirCostoTotal } from "@/domain/index";
 import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Button } from "@/components/ui/Button";
-import { Field } from "@/components/ui/Field";
+import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
-import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { TARJETA } from "@/components/ui/tarjeta";
+import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { crearLote, type EstadoLote } from "../actions/lote";
 import { sugerirFicha } from "../actions/nuevo";
 import { MAXIMO_LOTE } from "../limites";
-import { FotoInput } from "./FotoInput";
+import { Campo, CampoDinero } from "./campos";
+import { BloqueForm } from "./NuevoProductoForm";
+import { ZonaFotos } from "./ZonaFotos";
 
 const t = textos.productos.lote;
 const f = textos.productos.form;
@@ -24,15 +26,31 @@ const f = textos.productos.form;
 export function LoteForm({ negocioId, categorias }: { negocioId: string; categorias: string[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoLote, FormData>(crearLote, {});
   const [rutas, setRutas] = useState<string[]>([]);
-  // Los nombres se guardan por ruta: si se quita una foto, no se corren los de las demás.
+  // Lo que se escribe por pieza se guarda por ruta: si se quita una foto, no se corren las demás.
   const [nombres, setNombres] = useState<Record<string, string>>({});
+  const [precios, setPrecios] = useState<Record<string, string>>({});
   const [sugeridos, setSugeridos] = useState<Set<string>>(new Set());
+  const [precio, setPrecio] = useState("");
   const [costo, setCosto] = useState("");
   const [aviso, setAviso] = useState("");
   const [leyendo, empezarLectura] = useTransition();
 
+  const precioComun = precio.trim() ? leerDolares(precio) : null;
   const costoTotal = costo.trim() ? leerDolares(costo) : null;
   const porPieza = costoTotal !== null && rutas.length ? repartirCostoTotal(costoTotal, rutas.length) : [];
+
+  // El precio que de verdad llevará cada pieza: el suyo si lo cambió, y si no el de todas.
+  const preciosFinales = rutas.map((r) => {
+    const propio = precios[r]?.trim();
+    return propio ? leerDolares(propio) : precioComun;
+  });
+  const sinPrecio = preciosFinales.some((p) => p === null);
+  const sinNombre = rutas.filter((r) => !nombres[r]?.trim()).length;
+  const ganancia =
+    costoTotal !== null && !sinPrecio && rutas.length
+      ? (preciosFinales as number[]).reduce((suma, p) => suma + p, 0) - costoTotal
+      : null;
+  const listo = rutas.length > 0 && sinNombre === 0 && !sinPrecio;
 
   function ponerNombre(ruta: string, nombre: string) {
     setNombres((n) => ({ ...n, [ruta]: nombre }));
@@ -64,101 +82,141 @@ export function LoteForm({ negocioId, categorias }: { negocioId: string; categor
     });
   }
 
+  const b = t.bloques;
+  const textoBase = precioComun !== null ? t.precioPiezaAyuda(formatearDolares(precioComun)) : t.precioPiezaSinBase;
+
   return (
-    <form action={accion} className="flex flex-col gap-5">
-      <div className="flex max-w-xl flex-col gap-5">
-      <FotoInput
-        negocioId={negocioId}
-        onCambio={setRutas}
-        maximo={MAXIMO_LOTE}
-        mensajeMaximo={t.maximo(MAXIMO_LOTE)}
-      />
+    <form action={accion} className="flex min-h-[calc(100dvh-12rem)] flex-col gap-6">
       <input type="hidden" name="fotos" value={JSON.stringify(rutas)} />
       <input type="hidden" name="nombres" value={JSON.stringify(rutas.map((r) => nombres[r] ?? ""))} />
+      <input type="hidden" name="precios" value={JSON.stringify(rutas.map((r) => precios[r] ?? ""))} />
 
-      {rutas.length > 0 && (
-        <>
-          <section aria-labelledby="piezas" className={`${TARJETA} flex flex-col gap-3 bg-superficie`}>
-            <h2 id="piezas" className="font-bold">
-              {t.piezas(rutas.length)}
-            </h2>
-            <div className="flex flex-col gap-1">
-              <Button type="button" variante="secundario" className="self-start" disabled={leyendo} onClick={sugerirNombres}>
-                {leyendo ? f.leyendoFoto : t.sugerirNombres}
-              </Button>
-              <p className="text-sm text-texto-2">{t.sugerirAyuda}</p>
-              <p role="status" className="min-h-5 text-sm text-error">
+      <div className="flex w-full max-w-3xl flex-col gap-6">
+        <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-borde [&>*+*]:pt-6">
+          <BloqueForm numero={1} titulo={b.fotos.titulo} ayuda={b.fotos.ayuda} tono="limon" listo={rutas.length > 0}>
+            <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={setRutas} maximo={MAXIMO_LOTE} conMiniaturas={false} />
+          </BloqueForm>
+
+          {rutas.length > 0 && (
+            <BloqueForm numero={2} titulo={b.piezas.titulo} ayuda={b.piezas.ayuda} tono="mango" listo={sinNombre === 0}>
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                <p className="font-bold">{t.piezas(rutas.length)}</p>
+                <Button type="button" variante="suave" tamano="chico" disabled={leyendo} onClick={sugerirNombres}>
+                  {leyendo ? f.leyendoFoto : t.sugerirNombres}
+                </Button>
+              </div>
+              <p className="-mt-2 text-sm text-texto-2">{t.sugerirAyuda}</p>
+              <p role="status" className="empty:hidden text-sm text-error">
                 {aviso}
               </p>
-            </div>
-            <ul className="flex flex-col gap-3">
-              {rutas.map((ruta, i) => (
-                <li key={ruta} className="flex items-end gap-3">
-                  <Image
-                    src={urlFoto(ruta)}
-                    alt={textos.productos.fotos.foto(i + 1)}
-                    width={56}
-                    height={56}
-                    className="size-14 shrink-0 rounded-xl border-2 border-teal-oscuro object-cover"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <Field
-                      etiqueta={t.nombrePieza(i + 1)}
-                      required
-                      maxLength={120}
-                      value={nombres[ruta] ?? ""}
-                      onChange={(ev) => ponerNombre(ruta, ev.target.value)}
-                      sugerido={sugeridos.has(ruta)}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <div className={`${TARJETA} flex flex-col gap-3 bg-crema`}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field etiqueta={t.precio} name="precio" inputMode="decimal" required />
-            <Field
-              etiqueta={t.costoTotal}
-              name="costoTotal"
-              inputMode="decimal"
-              value={costo}
-              onChange={(ev) => setCosto(ev.target.value)}
-            />
-          </div>
-          <p className="text-sm font-medium" aria-live="polite">
-            {porPieza.length ? t.reparto(formatearDolares(porPieza[0]), rutas.length) : t.repartoAyuda}
-          </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium">{f.categoria}</span>
-              <ListaDesplegable
-                name="categoria"
-                variante="panel"
-                opciones={[{ valor: "", etiqueta: textos.productos.form.categorias.sinCategoria }, ...categorias.map((c) => ({ valor: c, etiqueta: c }))]}
-                placeholder={textos.productos.form.categorias.sinCategoria}
-              />
-            </div>
-            <fieldset className="flex flex-col">
-              <legend className="mb-1.5 text-sm font-medium">{f.condicion}</legend>
-              <div className="flex flex-wrap gap-2">
-                {(["nuevo", "usado"] as const).map((c) => (
-                  <OpcionRadio key={c} name="condicion" value={c} defaultChecked={c === "nuevo"} titulo={f[c]} />
+              <ul className="flex flex-col gap-3">
+                {rutas.map((ruta, i) => (
+                  <li key={ruta} className="flex items-start gap-3 rounded-2xl bg-superficie p-3">
+                    <div className="relative shrink-0">
+                      <Image
+                        src={urlFoto(ruta)}
+                        alt={textos.productos.fotos.foto(i + 1)}
+                        width={80}
+                        height={80}
+                        className="size-16 rounded-xl border-2 border-teal-oscuro object-cover sm:size-20"
+                      />
+                      <button
+                        type="button"
+                        aria-label={t.quitarPieza(i + 1)}
+                        onClick={() => setRutas((rs) => rs.filter((r) => r !== ruta))}
+                        className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro hover:bg-rosa"
+                      >
+                        <Icon nombre="x" className="size-3.5" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                    <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_9rem]">
+                      <Campo
+                        etiqueta={t.nombrePieza(i + 1)}
+                        requerido
+                        maxLength={120}
+                        value={nombres[ruta] ?? ""}
+                        onChange={(ev) => ponerNombre(ruta, ev.target.value)}
+                        lotito={sugeridos.has(ruta)}
+                      />
+                      <div className="flex flex-col gap-1">
+                        <CampoDinero
+                          etiqueta={t.precioPieza}
+                          value={precios[ruta] ?? ""}
+                          onChange={(ev) => setPrecios((p) => ({ ...p, [ruta]: ev.target.value }))}
+                        />
+                        <p className="text-xs text-texto-2">{textoBase}</p>
+                      </div>
+                    </div>
+                  </li>
                 ))}
-              </div>
-            </fieldset>
-          </div>
+              </ul>
+            </BloqueForm>
+          )}
 
-          <MensajeError>{estado.error}</MensajeError>
-        </>
-      )}
+          {rutas.length > 0 && (
+            <BloqueForm numero={3} titulo={b.precio.titulo} ayuda={b.precio.ayuda} tono="rosa" listo={precioComun !== null || !sinPrecio}>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <CampoDinero
+                  etiqueta={t.precio}
+                  name="precio"
+                  placeholder={t.precioPlaceholder}
+                  value={precio}
+                  onChange={(ev) => setPrecio(ev.target.value)}
+                />
+                <CampoDinero etiqueta={t.costoTotal} name="costoTotal" value={costo} onChange={(ev) => setCosto(ev.target.value)} />
+              </div>
+              <div aria-live="polite" className="flex flex-col gap-1 rounded-2xl bg-superficie px-4 py-3">
+                <p className="text-sm text-texto-2">
+                  {porPieza.length ? t.reparto(formatearDolares(porPieza[0]), rutas.length) : t.repartoAyuda}
+                </p>
+                {ganancia !== null ? (
+                  <p className="flex flex-wrap items-baseline gap-x-2">
+                    <span className="text-sm text-texto-2">{t.gananciaLote}</span>
+                    <strong className={`text-xl tabular-nums ${ganancia < 0 ? "text-error" : "text-teal"}`}>{formatearDolares(ganancia)}</strong>
+                  </p>
+                ) : (
+                  costoTotal === null && <p className="text-sm text-texto-2">{t.sinGanancia}</p>
+                )}
+              </div>
+            </BloqueForm>
+          )}
+
+          {rutas.length > 0 && (
+            <BloqueForm numero={4} titulo={b.detalles.titulo} ayuda={b.detalles.ayuda} tono="celeste" listo>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">{f.categoria}</span>
+                  <ListaDesplegable
+                    name="categoria"
+                    variante="panel"
+                    opciones={[{ valor: "", etiqueta: f.categorias.sinCategoria }, ...categorias.map((c) => ({ valor: c, etiqueta: c }))]}
+                    placeholder={f.categorias.sinCategoria}
+                  />
+                </div>
+                <fieldset className="flex flex-col">
+                  <legend className="mb-1.5 text-sm font-medium">{f.condicion}</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {(["nuevo", "usado"] as const).map((c) => (
+                      <OpcionRadio key={c} name="condicion" value={c} defaultChecked={c === "nuevo"} titulo={f[c]} />
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+            </BloqueForm>
+          )}
+        </Card>
+
+        <MensajeError>{estado.error}</MensajeError>
       </div>
+
       {rutas.length > 0 && (
         <BarraFormulario>
-          <Button type="submit" variante="mango" disabled={pendiente}>
+          {!listo && (
+            <p className="mr-auto text-sm text-texto-2" aria-live="polite">
+              {sinNombre > 0 ? t.nombresFaltan(sinNombre) : t.errorSinPrecio}
+            </p>
+          )}
+          <Button type="submit" variante="mango" icono="check" disabled={pendiente || !listo}>
             {pendiente ? t.creando : t.crear(rutas.length)}
           </Button>
         </BarraFormulario>

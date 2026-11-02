@@ -87,7 +87,7 @@ const aGasto = (f: Database["public"]["Tables"]["gasto"]["Row"]): Gasto => ({
   fecha: f.fecha,
   nota: f.nota,
   pedidoId: f.pedido_id,
-  metodo: f.metodo === "efectivo" || f.metodo === "transferencia" || f.metodo === "billetera" ? f.metodo : null,
+  metodo: f.metodo === "efectivo" || f.metodo === "transferencia" ? f.metodo : null,
 });
 
 export async function gastosDelPeriodo(

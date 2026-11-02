@@ -5,10 +5,10 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
 
-export type MetodoPago = "transferencia" | "billetera" | "efectivo" | "contra_entrega";
+export type MetodoPago = "transferencia" | "efectivo" | "contra_entrega";
 
 /** Con qué se puede pagar al registrar un pedido o un abono (contra entrega es otro flujo). */
-export const METODOS_DE_COBRO: MetodoPago[] = ["transferencia", "billetera", "efectivo"];
+export const METODOS_DE_COBRO: MetodoPago[] = ["transferencia", "efectivo"];
 
 export type Canal = "instagram" | "whatsapp" | "presencial" | "vitrina";
 

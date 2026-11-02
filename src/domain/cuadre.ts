@@ -45,7 +45,7 @@ export function resultadoDeConteo(ultimo: { contado: Centavos; esperado: Centavo
   return diferencia < 0 ? { tipo: "faltan", monto: -diferencia } : { tipo: "sobran", monto: diferencia };
 }
 
-export type ParteDelNegocio = { clave: "efectivo" | "transferencia" | "billetera" | "porCobrar" | "inventario"; monto: Centavos };
+export type ParteDelNegocio = { clave: "efectivo" | "transferencia" | "porCobrar" | "inventario"; monto: Centavos };
 
 /** Lo que vale el negocio hoy: suma de las partes y qué parte del total es cada una (en %, 0 si el total es 0). */
 export function valorDelNegocio(partes: readonly ParteDelNegocio[]): { total: Centavos; partes: (ParteDelNegocio & { pct: number })[] } {
