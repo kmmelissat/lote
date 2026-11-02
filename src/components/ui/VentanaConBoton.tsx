@@ -1,13 +1,16 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
-import { Icon } from "@/components/ui/Icon";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { textos } from "@/lib/textos";
+import { Icon } from "./Icon";
 
 export const estiloCampo = "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal";
 
-/** Un botón que abre su contenido en una ventana. `cerrar` se le pasa a quien lo necesite (por ejemplo, para cerrarla al guardar). */
-export function Ventana({
+/**
+ * Un botón que abre su contenido en una ventana. `boton` recibe cómo abrirla y `children` cómo cerrarla
+ * (por ejemplo, para cerrarla sola al guardar).
+ */
+export function VentanaConBoton({
   id,
   titulo,
   boton,
@@ -19,14 +22,27 @@ export function Ventana({
   children: (cerrar: () => void) => ReactNode;
 }) {
   const ventana = useRef<HTMLDialogElement>(null);
-  const cerrar = () => ventana.current?.close();
+  const [abierta, setAbierta] = useState(false);
+
+  // El estado manda y la ventana lo sigue: así el botón y el contenido nunca tocan la referencia mientras se dibuja
+  useEffect(() => {
+    const dialogo = ventana.current;
+    if (!dialogo) return;
+    if (abierta && !dialogo.open) dialogo.showModal();
+    if (!abierta && dialogo.open) dialogo.close();
+  }, [abierta]);
+
+  const abrir = () => setAbierta(true);
+  const cerrar = () => setAbierta(false);
   return (
     <>
-      {boton(() => ventana.current?.showModal())}
+      {boton(abrir)}
       <dialog
         ref={ventana}
         aria-labelledby={id}
         className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
+        // Escape o el clic afuera también la cierran: el estado se entera
+        onClose={cerrar}
         onClick={(e) => e.target === ventana.current && cerrar()}
       >
         <div className="flex flex-col gap-4 p-5">
@@ -45,7 +61,7 @@ export function Ventana({
   );
 }
 
-/** Los chips de "elige uno" del panel (como el método de un gasto). */
+/** Los chips de "elegí uno" del panel (como el método de un gasto). */
 export function ChipsElegir({
   name,
   opciones,

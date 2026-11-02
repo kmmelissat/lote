@@ -33,6 +33,8 @@ const esquema = z.object({
     .refine((s) => !s || /^[A-Za-z0-9._]{1,30}$/.test(s), t.errorInstagram),
   facebook: texto
     .transform(facebookDe)
+    // El nombre de la página ("Variedades Lupita") tiene espacios y no sirve de enlace: se le explica qué pegar
+    .refine((s) => !s || !/\s/.test(s), t.errorFacebookNombre)
     .refine((s) => !s || esFacebook(s), t.errorFacebook),
   // Se valida lo que pegaron, no el resultado: un enlace corto (vm.tiktok.com) no dice de quién es y no debe pasar como vacío
   tiktok: texto

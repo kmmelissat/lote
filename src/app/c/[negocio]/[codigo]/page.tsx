@@ -338,6 +338,7 @@ async function Producto({
           titulo={textos.vitrina.compra.masDe(negocio.nombre)}
           slug={slug}
           productos={masDe}
+          verTienda
         />
       </div>
     </MarcaTienda>

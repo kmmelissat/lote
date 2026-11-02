@@ -165,6 +165,8 @@ export const gestion = {
     quedoTexto: "Ganancia",
     sinVentas: "Todavía no hay ventas en este periodo. Cuando cobrés un pedido completo, la ganancia aparece acá.",
     patrimonioAyuda: "Lo que tenés menos lo que debés.",
+    faltaSaldo: "Para que este número sea exacto, poné cuánto tenés hoy en efectivo y en tu cuenta.",
+    ponerSaldo: "Poner mi saldo",
     conDeuda: (tenes: string, debes: string) => `Tenés ${tenes} y debés ${debes}.`,
     datos: "Los números del periodo",
     ganancia: "Ganancia",

@@ -201,6 +201,7 @@ export const vitrina = {
     comoApartas: "Si no estás seguro",
     coordina: "La tienda coordina la entrega con vos por WhatsApp.",
     parecidos: "Productos parecidos",
+    verTienda: "Ver toda la tienda →",
     masDe: (tienda: string) => `Más de ${tienda}`,
     ampliar: "Ampliar foto",
     cerrar: "Cerrar",

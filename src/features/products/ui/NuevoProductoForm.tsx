@@ -40,7 +40,7 @@ import {
   Etiqueta,
   estiloCampo,
 } from "./campos";
-import { LugarDeCompra } from "@/features/gestion/ui/LugarDeCompra";
+import { LugarDeCompra } from "@/components/ui/LugarDeCompra";
 import { SelectorCategoria } from "./SelectorCategoria";
 import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { EditorVariantes } from "./EditorVariantes";

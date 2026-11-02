@@ -6,7 +6,7 @@ import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
 import { useAvisarErrores, useToast } from "@/components/ui/Toast";
-import { LugarDeCompra } from "@/features/gestion/ui/LugarDeCompra";
+import { LugarDeCompra } from "@/components/ui/LugarDeCompra";
 import { textos } from "@/lib/textos";
 import { reponerElegido, type EstadoReponer } from "../actions/detalle";
 

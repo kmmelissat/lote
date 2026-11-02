@@ -1,14 +1,45 @@
 import { estadoProducto } from "@/domain";
-import { formatearDolares, tiempoRestante } from "@/lib/formato";
+import { formatearDolares, formatearFecha, tiempoRestante } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import type { ProductoAsistente } from "../puerto";
+import type { BalanceAsistente, ProductoAsistente } from "../puerto";
 import type { Ctx, Deps, Respuesta } from "../tipos";
 import { listaDeProductos, productoDe, registrar, textoDeError } from "../ayudas";
 
 const t = textos.asistente;
 
 export async function consultar({ d, entrada, intencion, salida }: Ctx<"consultar">): Promise<Respuesta> {
-  return registrar(d, entrada, intencion, salida, async () => ({ respuesta: await consultaFija(d, intencion.consulta) }));
+  if (intencion.consulta === "balance") {
+    return registrar(d, entrada, intencion, salida, async () => {
+      const r = await d.puerto.balance();
+      if (!r.ok) return { respuesta: { texto: textoDeError(r.error) } };
+      return { respuesta: { texto: textoDelBalance(r.valor), enlaces: [{ etiqueta: t.verCuadre, href: "/gestion/cuadre" }] } };
+    });
+  }
+  return registrar(d, entrada, intencion, salida, async () => ({ respuesta: await consultaFija(d, intencion.consulta as "apartados" | "por_cobrar" | "por_enviar") }));
+}
+
+/** El balance en palabras: lo que tiene, lo que debe, lo que es suyo y cada deuda con su cuota. */
+export function textoDelBalance(b: BalanceAsistente): string {
+  const lugar = (nombre: string, monto: number | null) => (monto === null ? t.balance.sinSaldo(nombre) : t.balance.linea(nombre, formatearDolares(monto)));
+  const lineas = [
+    t.balance.resumen(formatearDolares(b.activos), formatearDolares(b.pasivos), formatearDolares(b.patrimonio)),
+    lugar("Efectivo", b.efectivo),
+    lugar("Cuenta digital", b.cuentaDigital),
+    t.balance.linea("Por cobrar", formatearDolares(b.porCobrar)),
+    t.balance.linea("Inventario a costo", formatearDolares(b.inventario)),
+  ];
+  if (!b.deudas.length) return [...lineas, t.balance.sinDeudas].join("\n");
+  return [
+    ...lineas,
+    t.balance.debes,
+    ...b.deudas.map((x) =>
+      t.balance.deuda(
+        x.acreedor,
+        formatearDolares(x.saldo),
+        x.cuota ? t.balance.cuota(formatearDolares(x.cuota), x.toca ? formatearFecha(new Date(`${x.toca}T12:00:00`)) : null) : null,
+      ),
+    ),
+  ].join("\n");
 }
 
 export async function consultarGanancia({ d, entrada, intencion, salida }: Ctx<"consultar_ganancia">): Promise<Respuesta> {

@@ -88,3 +88,9 @@ Ver la lista de abajo; se va marcando.
 - [x] Tipos de costo según "qué hacés": quien produce ve "Materiales" (es el costo principal) y "Mano de obra"; quien revende, Envío, Importación y Otros; las dos cosas ven todos. Un producto que ya trae un costo oculto lo sigue mostrando, para no perderlo al guardar. [supabase/actividad.sql](supabase/actividad.sql) ya corrido.
 - [x] Salida de dinero al comprar o reponer mercadería: en el formulario de producto (al crear), en Reponer y en el Lote de fotos hay "¿De dónde salió el dinero?" (*No lo anoto* por defecto). Si se elige, el saldo de ese lugar baja solo. La mano de obra no cuenta: no sale de la caja. [supabase/compras.sql](supabase/compras.sql) ya corrido.
 - [ ] Los pagos de pedidos y gastos anteriores al saldo inicial no se cuentan: ya están dentro de ese saldo
+
+## Buscador, Lotito y onboarding (2 nov)
+
+- **Buscador (⌘K):** conoce todas las pantallas del panel ([destinos.ts](src/components/nav/destinos.ts)), cada una con sus sinónimos ("deudas", "cuota", "excel", "abrir caja"); busca sin tildes, por palabras sueltas y a medio escribir ([buscarDestinos.ts](src/components/nav/buscarDestinos.ts)); también encuentra preguntas de la ayuda; con la barra vacía muestra lo que más se hace y ejemplos para tocar; y si no encuentra nada, "Preguntale a Lotito" lleva la pregunta ya escrita y enviada.
+- **Lotito:** responde "¿cuánto debo?" y "¿cuánto vale mi negocio?" con el balance, cada deuda y su cuota; conoce Gestión, las ofertas por precio, "Productos que no se mueven" y "¿Qué hacés?"; trae sugerencias propias en Gestión; y la ayuda tiene cinco preguntas nuevas (balance, saldo inicial, deudas, cuota, qué hacés).
+- **Onboarding:** al crear el negocio se pregunta "¿Qué hacés?"; los primeros pasos NO piden el saldo inicial: para quien todavía no cargó productos es ruido. El saldo se pide donde ya importa, dentro de Gestión (el Cuadre y la tarjeta de lo que es tuyo en el Resumen lo avisan).

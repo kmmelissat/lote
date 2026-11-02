@@ -9,7 +9,7 @@ import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { guardarSaldo, type EstadoGestion } from "../actions/gestion";
-import { estiloCampo, Ventana } from "./Ventana";
+import { estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
 
 const t = textos.gestion.saldo;
 
@@ -63,7 +63,7 @@ function FormSaldo({ lugar, esperado, cerrar }: { lugar: LugarDeDinero; esperado
 export function BotonSaldo({ lugar, saldo }: { lugar: LugarDeDinero; saldo: number | null }) {
   const nombre = textos.gestion.lugares[lugar].toLowerCase();
   return (
-    <Ventana
+    <VentanaConBoton
       id={`saldo-${lugar}`}
       titulo={saldo === null ? t.inicialTitulo(nombre) : t.ajusteTitulo(nombre)}
       boton={(abrir) => (
@@ -73,6 +73,6 @@ export function BotonSaldo({ lugar, saldo }: { lugar: LugarDeDinero; saldo: numb
       )}
     >
       {(cerrar) => <FormSaldo lugar={lugar} esperado={saldo} cerrar={cerrar} />}
-    </Ventana>
+    </VentanaConBoton>
   );
 }

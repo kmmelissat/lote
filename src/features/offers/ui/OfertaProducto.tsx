@@ -5,12 +5,12 @@ import { useState, useTransition } from "react";
 import { AtajosDeFechas } from "@/components/ui/AtajosDeFechas";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { CampoDescuento } from "@/components/ui/CampoDescuento";
 import { useConfirmar } from "@/components/ui/Confirmar";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useToast } from "@/components/ui/Toast";
-import { hoyEnElSalvador, leerDescuento, precioDeOferta, type Centavos, type Descuento } from "@/domain";
+import { hoyEnElSalvador, leerDescuento, leerDolares, precioDeOferta, type Centavos, type Descuento } from "@/domain";
+import { soloNumero } from "@/lib/entrada";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { programarOferta, quitarOferta } from "../actions/ofertas";
@@ -20,6 +20,17 @@ const t = textos.productos.oferta;
 
 // "2026-11-05" como el día de El Salvador (a mediodía UTC cae el mismo día en cualquier zona)
 const verFecha = (dia: string) => formatearFecha(new Date(`${dia}T12:00:00Z`));
+
+type Modo = "precio" | "porcentaje" | "monto";
+
+/** Lo que escribió la persona como una rebaja. Si dijo el precio final, la rebaja es la diferencia con el de ahora. */
+function leerRebaja(modo: Modo, texto: string, precioActual: Centavos | null): Descuento | null | "invalido" {
+  if (modo !== "precio") return leerDescuento(modo, texto);
+  if (!texto.trim()) return null;
+  const final = leerDolares(texto);
+  if (final === null || precioActual === null || final <= 0 || final >= precioActual) return "invalido";
+  return { tipo: "monto", valor: precioActual - final };
+}
 
 const textoDeRebaja = (d: Descuento) => (d.tipo === "monto" ? formatearDolares(d.valor) : `${d.valor} %`);
 
@@ -49,13 +60,19 @@ export function OfertaProducto({
   const [error, setError] = useState<string>();
   const [pendiente, empezar] = useTransition();
   const hoy = hoyEnElSalvador(new Date());
-  const [tipo, setTipo] = useState<Descuento["tipo"]>("porcentaje");
+  // Si todo lo que cubre la oferta cuesta lo mismo, se puede decir a qué precio dejarlo; si no, solo cuánto se rebaja
+  const precioUnico = new Set(precios).size === 1 ? precios[0] : null;
+  const modos: Modo[] = [precioUnico === null ? "monto" : "precio", "porcentaje"];
+  const [modo, setModo] = useState<Modo>("porcentaje");
   const [valor, setValor] = useState("");
   const [desde, setDesde] = useState(hoy);
   const [hasta, setHasta] = useState("");
 
-  const leido = leerDescuento(tipo, valor);
+  const leido = leerRebaja(modo, valor, precioUnico);
   const descuento = leido && leido !== "invalido" ? leido : null;
+  // La base y la acción guardan una rebaja (monto o porcentaje); "dejarlo en un precio" se traduce a cuánto se rebaja
+  const tipo: Descuento["tipo"] = descuento?.tipo ?? "monto";
+  const textoRebaja = descuento ? (descuento.tipo === "monto" ? (descuento.valor / 100).toFixed(2) : String(descuento.valor)) : valor;
   const nuevos = descuento ? precios.map((p) => precioDeOferta(p, descuento)) : [];
   const sinRebaja = nuevos.some((p) => p === null);
   const [bajo, alto] = descuento && !sinRebaja ? [Math.min(...(nuevos as Centavos[])), Math.max(...(nuevos as Centavos[]))] : [null, null];
@@ -64,7 +81,7 @@ export function OfertaProducto({
   function programar() {
     setError(undefined);
     empezar(async () => {
-      const r = await programarOferta(codigo, todas, { tipo, texto: valor, desde, hasta });
+      const r = await programarOferta(codigo, todas, { tipo, texto: textoRebaja, desde, hasta });
       if (r.error) return setError(r.error);
       avisar(t.hecha, { tipo: "exito" });
       setValor("");
@@ -120,15 +137,40 @@ export function OfertaProducto({
             if (listo) programar();
           }}
         >
-          <CampoDescuento
-            activo
-            tipo={tipo}
-            texto={valor}
-            invalido={leido === "invalido" || sinRebaja}
-            activar={() => {}}
-            cambiarTipo={setTipo}
-            cambiarTexto={setValor}
-          />
+          <fieldset className="flex flex-col gap-2">
+            <legend className="sr-only">{t.titulo}</legend>
+            <div className="flex gap-2">
+              {modos.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  aria-pressed={modo === m}
+                  onClick={() => {
+                    setModo(m);
+                    setValor("");
+                  }}
+                  className={`min-h-11 flex-1 rounded-full border-2 border-teal-oscuro px-3 text-sm font-medium ${modo === m ? "bg-limon font-bold" : "bg-superficie"}`}
+                >
+                  {t.modos[m]}
+                </button>
+              ))}
+            </div>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-bold">{t.campo[modo]}</span>
+              <input
+                inputMode="decimal"
+                value={valor}
+                onChange={(e) => setValor(soloNumero(e.target.value, true))}
+                aria-invalid={leido === "invalido" || sinRebaja || undefined}
+                placeholder={modo === "porcentaje" ? "20 %" : "$0.00"}
+                className="h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base tabular-nums focus:border-teal"
+              />
+            </label>
+            <p className="text-sm text-texto-2">{modo === "precio" && precioUnico !== null ? t.ayudaCampo.precio(formatearDolares(precioUnico)) : modo === "porcentaje" ? t.ayudaCampo.porcentaje : t.ayudaCampo.monto}</p>
+            {(leido === "invalido" || sinRebaja) && (
+              <p className="text-sm text-error">{modo === "precio" && precioUnico !== null ? t.errorPrecioFinal(formatearDolares(precioUnico)) : textos.comun.descuento.invalido}</p>
+            )}
+          </fieldset>
           <AtajosDeFechas
             alElegir={(d, h) => {
               setDesde(d);

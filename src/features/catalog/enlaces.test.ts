@@ -78,3 +78,10 @@ describe("enlaceTiktok", () => {
     expect(enlaceTiktok(null)).toBeNull();
   });
 });
+
+describe("facebookDe con el nombre de la página", () => {
+  it("el nombre con espacios queda tal cual, para que se avise en vez de adivinar un enlace", () => {
+    expect(facebookDe("Variedades Lupita El Salvador")).toBe("Variedades Lupita El Salvador");
+    expect(enlaceFacebook("Variedades Lupita El Salvador")).toBeNull();
+  });
+});

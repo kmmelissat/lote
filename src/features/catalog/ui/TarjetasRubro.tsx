@@ -1,5 +1,25 @@
 import Link from "next/link";
-import { Baby, CakeSlice, ChevronDown, Disc3, LayoutGrid, PawPrint, Shapes, Shirt, Smartphone, Sparkles, Sprout, type LucideIcon } from "lucide-react";
+import {
+  Baby,
+  CakeSlice,
+  Car,
+  ChevronDown,
+  Disc3,
+  Dumbbell,
+  Gem,
+  HeartPulse,
+  LayoutGrid,
+  Palette,
+  PartyPopper,
+  PawPrint,
+  Pencil,
+  Shapes,
+  Shirt,
+  Smartphone,
+  Sparkles,
+  Sprout,
+  type LucideIcon,
+} from "lucide-react";
 import { textos } from "@/lib/textos";
 import type { Rubro, RubroId } from "../rubros";
 
@@ -15,6 +35,13 @@ const ESTILO: Record<RubroId, { Icono: LucideIcon; fondo: string }> = {
   musica: { Icono: Disc3, fondo: "bg-mango" },
   mascotas: { Icono: PawPrint, fondo: "bg-crema" },
   ninos: { Icono: Baby, fondo: "bg-rosa-palido" },
+  joyeria: { Icono: Gem, fondo: "bg-celeste-palido" },
+  arte: { Icono: Palette, fondo: "bg-limon" },
+  papeleria: { Icono: Pencil, fondo: "bg-crema" },
+  deportes: { Icono: Dumbbell, fondo: "bg-celeste" },
+  salud: { Icono: HeartPulse, fondo: "bg-rosa-palido" },
+  fiestas: { Icono: PartyPopper, fondo: "bg-mango" },
+  autos: { Icono: Car, fondo: "bg-crema" },
   otros: { Icono: Shapes, fondo: "bg-crema" },
 };
 

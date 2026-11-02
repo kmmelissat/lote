@@ -8,7 +8,7 @@ export type RefPedido = { cliente: string | null; codigo: number | null };
 export type Intencion =
   | { tipo: "ayuda" | "deshacer" | "no_entiendo" | "conversar" }
   | { tipo: "pregunta"; tema: string | null }
-  | { tipo: "consultar"; consulta: "apartados" | "por_cobrar" | "por_enviar" }
+  | { tipo: "consultar"; consulta: "apartados" | "por_cobrar" | "por_enviar" | "balance" }
   | { tipo: "consultar_producto"; producto: string }
   | { tipo: "consultar_ganancia"; periodo: TipoPeriodo; producto: string | null }
   | { tipo: "consultar_estado"; estado: EstadoProducto }

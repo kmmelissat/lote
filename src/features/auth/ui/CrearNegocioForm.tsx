@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { ACTIVIDADES, type Actividad } from "@/domain";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
@@ -21,6 +22,7 @@ export function CrearNegocioForm() {
   const [instagram, setInstagram] = useState("");
   const [facebook, setFacebook] = useState("");
   const [conVitrina, setConVitrina] = useState(true);
+  const [actividad, setActividad] = useState<Actividad>("compro_vendo");
   const usuario = instagram.trim().replace(/^@/, "");
 
   return (
@@ -50,9 +52,27 @@ export function CrearNegocioForm() {
           autoCapitalize="none"
           value={facebook}
           onChange={(e) => setFacebook(e.target.value)}
-          error={estado.error === t.errorFacebook ? estado.error : undefined}
+          error={estado.error === t.errorFacebook || estado.error === t.errorFacebookNombre ? estado.error : undefined}
+          placeholder="facebook.com/mitienda"
         />
       </div>
+      <p className="-mt-2 text-xs text-texto-2">{t.facebookAyuda}</p>
+
+      <fieldset className="flex flex-col gap-2">
+        <legend className="font-bold">{t.actividad.pregunta}</legend>
+        <p className="text-sm text-texto-2">{t.actividad.explicacion}</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {ACTIVIDADES.map((a) => (
+            <label key={a} className="flex cursor-pointer">
+              <input type="radio" name="actividad" value={a} checked={actividad === a} onChange={() => setActividad(a)} className="peer sr-only" />
+              <span className="flex w-full flex-col rounded-2xl border-2 border-teal-oscuro/25 bg-white p-3 transition-colors peer-checked:border-teal-oscuro peer-checked:bg-limon/40 peer-checked:shadow-dura-chica peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
+                <span className="font-bold">{t.actividad[a].titulo}</span>
+                <span className="text-sm text-texto-2">{t.actividad[a].ayuda}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <fieldset className="flex flex-col gap-2">
         <legend className="font-bold">{t.vitrina.pregunta}</legend>
@@ -106,6 +126,7 @@ export function CrearNegocioForm() {
       <MensajeError>
         {estado.error !== t.errorNombre &&
           estado.error !== t.errorFacebook &&
+          estado.error !== t.errorFacebookNombre &&
           estado.error}
       </MensajeError>
     </form>

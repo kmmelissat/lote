@@ -54,7 +54,7 @@ export const SalidaEntender = z.object({
   metodo: z.enum(["transferencia", "efectivo"]).nullable(),
   paquetera: z.string().nullable(),
   guia: z.string().nullable(),
-  consulta: z.enum(["apartados", "por_cobrar", "por_enviar", "producto", "ganancia", "ganancia_producto", "productos_estado"]).nullable(),
+  consulta: z.enum(["apartados", "por_cobrar", "por_enviar", "balance", "producto", "ganancia", "ganancia_producto", "productos_estado"]).nullable(),
   /** Solo para preguntas de ganancia: hoy, semana o mes. Null si no lo dijo. */
   periodo: z.enum(["dia", "semana", "mes"]).nullable(),
   /** Solo para "productos_estado": cuáles quiere ver */

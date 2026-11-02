@@ -19,7 +19,7 @@ const NOTAS = [
 // Entrar y crear negocio comparten el marco: en pantalla ancha, un panel de marca a la izquierda.
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
-    <div className="grid min-h-dvh md:grid-cols-[1.05fr_1fr]">
+    <div className="grid min-h-dvh md:grid-cols-[1fr_1fr] lg:grid-cols-[5fr_6fr]">
       <aside className="relative hidden flex-col justify-between gap-8 overflow-hidden border-r-2 border-teal-oscuro bg-crema bg-[radial-gradient(var(--color-teal-oscuro)_1px,transparent_1.5px)] bg-[length:22px_22px] p-10 md:flex">
         <Link href="/" aria-label={textos.nombre} className="relative z-10 self-start">
           <Logo />
@@ -68,11 +68,14 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         <div className="relative z-10 flex items-end justify-between gap-4">
           <p className="max-w-[16rem] text-sm font-medium text-teal-oscuro/80">{textos.eslogan}</p>
         </div>
-        <Globo className="absolute bottom-44 right-64 z-10 -rotate-2 whitespace-nowrap">{textos.acceso.globoLateral}</Globo>
+        {/* Contenedor aparte: el Globo ya es `relative`, y pisaba al `absolute` dejándolo estirado en el flujo */}
+        <div className="absolute bottom-44 right-52 z-10 -rotate-2">
+          <Globo className="whitespace-nowrap">{textos.acceso.globoLateral}</Globo>
+        </div>
         <LotitoMas nombre="saluda" className="absolute -bottom-3 right-6 w-56 motion-safe:animate-asomar" />
       </aside>
-      <main className="flex flex-col justify-center bg-superficie px-4 py-10 md:px-12">
-        <div className="mx-auto flex w-full max-w-sm flex-col gap-6 has-[[data-ancho=amplio]]:max-w-3xl">
+      <main className="flex flex-col justify-center bg-superficie px-4 py-10 md:px-12 lg:px-20">
+        <div className="mx-auto flex w-full max-w-sm flex-col gap-6 lg:max-w-md has-[[data-ancho=amplio]]:max-w-3xl has-[[data-ancho=amplio]]:lg:max-w-3xl">
           <div className="flex items-center justify-between gap-3">
             <Link href="/" aria-label={textos.nombre} className="md:hidden">
               <Logo />

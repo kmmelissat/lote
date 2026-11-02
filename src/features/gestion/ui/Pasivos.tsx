@@ -11,7 +11,7 @@ import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { agregarAbono, agregarPasivo, borrarPasivo, cambiarPasivo, type EstadoGestion } from "../actions/gestion";
-import { ChipsElegir, estiloCampo, Ventana } from "./Ventana";
+import { ChipsElegir, estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
 
 const t = textos.gestion.pasivos;
 
@@ -146,7 +146,7 @@ function FormPasivo({ hoy, cerrar, pasivo }: { hoy: string; cerrar: () => void; 
 
 export function AnotarPasivo({ hoy }: { hoy: string }) {
   return (
-    <Ventana
+    <VentanaConBoton
       id="anotar-pasivo"
       titulo={t.formTitulo}
       boton={(abrir) => (
@@ -156,7 +156,7 @@ export function AnotarPasivo({ hoy }: { hoy: string }) {
       )}
     >
       {(cerrar) => <FormPasivo hoy={hoy} cerrar={cerrar} />}
-    </Ventana>
+    </VentanaConBoton>
   );
 }
 
@@ -231,7 +231,7 @@ export function ListaPasivos({ pasivos }: { pasivos: FilaPasivo[] }) {
             </div>
             <div className="flex gap-1">
               {p.saldo > 0 && (
-                <Ventana
+                <VentanaConBoton
                   id={`abono-${p.id}`}
                   titulo={t.abonarTitulo(p.acreedor)}
                   boton={(abrir) => (
@@ -241,9 +241,9 @@ export function ListaPasivos({ pasivos }: { pasivos: FilaPasivo[] }) {
                   )}
                 >
                   {(cerrar) => <FormAbono pasivo={p} cerrar={cerrar} />}
-                </Ventana>
+                </VentanaConBoton>
               )}
-              <Ventana
+              <VentanaConBoton
                 id={`editar-${p.id}`}
                 titulo={t.editarTitulo(p.acreedor)}
                 boton={(abrir) => (
@@ -253,7 +253,7 @@ export function ListaPasivos({ pasivos }: { pasivos: FilaPasivo[] }) {
                 )}
               >
                 {(cerrar) => <FormPasivo hoy="" cerrar={cerrar} pasivo={p} />}
-              </Ventana>
+              </VentanaConBoton>
               <button
                 type="button"
                 disabled={pendiente}

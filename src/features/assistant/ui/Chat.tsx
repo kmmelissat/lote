@@ -55,10 +55,12 @@ type Props = {
   ruta?: string | null;
   /** Se avisa cuando la persona sigue un enlace de una respuesta */
   alSeguirEnlace?: () => void;
+  /** Una pregunta que ya viene escrita (la del buscador): se manda sola al abrir el chat */
+  preguntaInicial?: string;
 };
 
 /** Ocupa todo el alto de su contenedor: quien lo usa decide cuánto mide. */
-export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace }: Props) {
+export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace, preguntaInicial }: Props) {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [texto, setTexto] = useState("");
   const [estado, setEstado] = useState<Estado | null>(null);
@@ -69,6 +71,15 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace 
   const lista = useRef<HTMLDivElement>(null);
   const archivoRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // La pregunta que viene del buscador se manda una sola vez (el modo estricto de React corre los efectos dos veces)
+  const preguntaEnviada = useRef(false);
+  useEffect(() => {
+    const pregunta = preguntaInicial?.trim();
+    if (!pregunta || preguntaEnviada.current) return;
+    preguntaEnviada.current = true;
+    mandar({ texto: pregunta }, pregunta);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Baja solo la lista del chat. scrollIntoView movería también la página entera.
   useEffect(() => {

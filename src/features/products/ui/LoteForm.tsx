@@ -7,7 +7,6 @@ import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
-import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { urlFoto } from "@/lib/fotos";
@@ -18,7 +17,8 @@ import { sugerirFicha } from "../actions/nuevo";
 import { MAXIMO_LOTE } from "../limites";
 import { Campo, CampoDinero } from "./campos";
 import { BloqueForm } from "./NuevoProductoForm";
-import { LugarDeCompra } from "../../gestion/ui/LugarDeCompra";
+import { LugarDeCompra } from "@/components/ui/LugarDeCompra";
+import { SelectorCategoria } from "./SelectorCategoria";
 import { ZonaFotos } from "./ZonaFotos";
 
 const t = textos.productos.lote;
@@ -34,6 +34,7 @@ export function LoteForm({ negocioId, categorias }: { negocioId: string; categor
   const [precio, setPrecio] = useState("");
   const [costo, setCosto] = useState("");
   const [aviso, setAviso] = useState("");
+  const [categoria, setCategoria] = useState("");
   const [leyendo, empezarLectura] = useTransition();
 
   const precioComun = precio.trim() ? leerDolares(precio) : null;
@@ -186,15 +187,7 @@ export function LoteForm({ negocioId, categorias }: { negocioId: string; categor
           {rutas.length > 0 && (
             <BloqueForm numero={4} titulo={b.detalles.titulo} ayuda={b.detalles.ayuda} tono="celeste" listo>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">{f.categoria}</span>
-                  <ListaDesplegable
-                    name="categoria"
-                    variante="panel"
-                    opciones={[{ valor: "", etiqueta: f.categorias.sinCategoria }, ...categorias.map((c) => ({ valor: c, etiqueta: c }))]}
-                    placeholder={f.categorias.sinCategoria}
-                  />
-                </div>
+                <SelectorCategoria etiqueta={f.categoria} valor={categoria} onCambio={setCategoria} opciones={categorias} />
                 <fieldset className="flex flex-col">
                   <legend className="mb-1.5 text-sm font-medium">{f.condicion}</legend>
                   <div className="flex flex-wrap gap-2">

@@ -10,7 +10,8 @@ import {
   type Canal,
 } from "@/features/orders/repositorio";
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
-import { fechaLocalDe, nombreConVariante, rangoPeriodo } from "@/domain";
+import { fechaLocalDe, nombreConVariante, proximoPago, rangoPeriodo } from "@/domain";
+import { balanceDelNegocio } from "@/features/gestion/repositorio";
 import { registrarGasto, resumenDePeriodo } from "@/features/profit/repositorio";
 import { crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";
@@ -148,6 +149,24 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
     async ganancia(tipo) {
       if (!negocio.puedeGestionar) return falla("sin_permiso");
       return ok(await resumenDePeriodo(supabase, negocio.id, rangoPeriodo(tipo, new Date())));
+    },
+
+    async balance() {
+      if (!negocio.puedeGestionar) return falla("sin_permiso");
+      const b = await balanceDelNegocio(supabase, negocio.id);
+      const hoy = new Date();
+      return ok({
+        efectivo: b.datos.saldos.efectivo,
+        cuentaDigital: b.datos.saldos.transferencia,
+        porCobrar: b.porCobrar.total,
+        inventario: b.inventario,
+        activos: b.balance.activos,
+        pasivos: b.balance.pasivos,
+        patrimonio: b.balance.patrimonio,
+        deudas: b.datos.pasivos
+          .filter((p) => p.saldo > 0)
+          .map((p) => ({ acreedor: p.acreedor, saldo: p.saldo, cuota: p.cuota, toca: p.diaPago ? proximoPago(p.diaPago, hoy) : null })),
+      });
     },
 
     async mensajeCobro(codigoPedido) {

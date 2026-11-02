@@ -12,6 +12,25 @@ describe("rubroPorNombre", () => {
     expect(rubroPorNombre("Gatos")).toBe("mascotas");
   });
 
+  it("reconoce los rubros nuevos", () => {
+    expect(rubroPorNombre("Aretes")).toBe("joyeria");
+    expect(rubroPorNombre("Bisutería")).toBe("joyeria");
+    expect(rubroPorNombre("Manualidades")).toBe("arte");
+    expect(rubroPorNombre("Papelería")).toBe("papeleria");
+    expect(rubroPorNombre("Cuadernos")).toBe("papeleria");
+    expect(rubroPorNombre("Yoga")).toBe("deportes");
+    expect(rubroPorNombre("Vitaminas")).toBe("salud");
+    expect(rubroPorNombre("Globos")).toBe("fiestas");
+    expect(rubroPorNombre("Herramientas")).toBe("autos");
+    expect(rubroPorNombre("Repuestos")).toBe("autos");
+  });
+
+  it("las palabras cortas no confunden otros nombres", () => {
+    expect(rubroPorNombre("Automático")).toBeNull();
+    expect(rubroPorNombre("Carrito")).toBeNull();
+    expect(rubroPorNombre("Papas")).not.toBe("papeleria");
+  });
+
   it("'Pantalones' es ropa aunque empiece como 'pan'", () => {
     expect(rubroPorNombre("Pantalones")).toBe("ropa");
     expect(rubroPorNombre("Pan dulce")).toBe("comida");
@@ -41,21 +60,24 @@ describe("agruparEnRubros", () => {
 
   it("lo ambiguo toma el rubro principal de su tienda", () => {
     expect(de("mascotas")?.claves).toEqual(expect.arrayContaining([claveDe("patitas", "Collares"), claveDe("patitas", "Comida"), claveDe("patitas", "Accesorios")]));
-    expect(de("ropa")?.claves).toEqual(expect.arrayContaining([claveDe("joyeria", "Collares"), claveDe("bambu", "Accesorios")]));
+    expect(de("joyeria")?.claves).toEqual(expect.arrayContaining([claveDe("joyeria", "Collares"), claveDe("joyeria", "Aretes")]));
+    expect(de("ropa")?.claves).toEqual(expect.arrayContaining([claveDe("bambu", "Accesorios")]));
     expect(de("musica")?.claves).toEqual(expect.arrayContaining([claveDe("disco", "Electrónica"), claveDe("disco", "Equipo")]));
   });
 
   it("suma los productos de cada rubro, de mayor a menor, con Otros al final", () => {
     expect(rubros.map((r) => [r.id, r.productos])).toEqual([
-      ["ropa", 13],
+      ["joyeria", 8],
       ["mascotas", 6],
       ["musica", 5],
+      ["ropa", 5],
       ["otros", 4],
     ]);
   });
 
   it("guarda los nombres de las categorías sin repetir", () => {
-    expect(de("ropa")?.categorias).toEqual(["Collares", "Aretes", "Blusas", "Vestidos", "Accesorios"]);
+    expect(de("joyeria")?.categorias).toEqual(["Collares", "Aretes"]);
+    expect(de("ropa")?.categorias).toEqual(["Blusas", "Vestidos", "Accesorios"]);
   });
 });
 

@@ -57,6 +57,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/gestion">, "searchPa
   const r = resumenDelPeriodo(ventas, gastos.map(aGastoPeriodo));
   const parados = await productosQueNoSeMueven(supabase, negocio.id, productos, ahora);
   const categorias = Object.values(r.gastosPorCategoria).filter((m) => m > 0).length;
+  const sinSaldo = datos.saldos.efectivo === null || datos.saldos.transferencia === null;
   const deudasAbiertas = datos.pasivos.filter((x) => x.saldo > 0).length;
   const dias = serieDiaria(unirMovimientos(pagos, salidas), periodo.desdeFecha, periodo.hastaFecha);
 
@@ -160,8 +161,9 @@ async function Contenido({ searchParams }: Pick<PageProps<"/gestion">, "searchPa
             <span className="text-sm font-bold text-celeste">{p.patrimonio}</span>
             <span className={`font-logo text-3xl font-bold tabular-nums md:text-4xl ${balance.patrimonio < 0 ? "text-rosa" : "text-limon"}`}>{formatearDolares(balance.patrimonio)}</span>
             <span className="text-sm text-white/80">{p.conDeuda(formatearDolares(balance.activos), formatearDolares(balance.pasivos))}</span>
+            {sinSaldo && <span className="mt-1 text-sm text-limon">{p.faltaSaldo}</span>}
           </span>
-          <span className="text-sm font-bold text-limon underline underline-offset-4">{p.verCuadre}</span>
+          <span className="text-sm font-bold text-limon underline underline-offset-4">{sinSaldo ? p.ponerSaldo : p.verCuadre}</span>
         </Link>
 
         <p className="text-sm text-texto-2">{p.regla}</p>

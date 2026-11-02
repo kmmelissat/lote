@@ -6,12 +6,21 @@ export const crearNegocio = {
   descripcion: "Con el nombre alcanza para empezar. Lo demás lo ponés después.",
   nombre: "Nombre del negocio",
   instagram: "Usuario de Instagram (opcional)",
-  facebook: "Página de Facebook (opcional)",
+  facebook: "Enlace de tu página de Facebook (opcional)",
+  facebookAyuda: "Es la dirección de tu página: abrila en Facebook y copiá lo que sale arriba, por ejemplo facebook.com/mitienda. No el nombre.",
   errorFacebook: "Esa página no parece válida. Pegá el enlace o el usuario, por ejemplo mitienda.",
+  errorFacebookNombre: "Eso parece el nombre de tu página, no su enlace. Abrí tu página en Facebook, copiá la dirección de arriba (facebook.com/…) y pegala acá.",
   vistaPrevia: "Así se va a ver",
   vistaPreviaNombre: "Tu negocio",
   enlace: "Tu tienda en línea",
   enlaceAyuda: "Si ya existe, le agregamos algo al final.",
+  actividad: {
+    pregunta: "¿Qué hacés?",
+    explicacion: "Así te pedimos los costos de tus productos. Lo cambiás cuando quieras en Ajustes.",
+    compro_vendo: { titulo: "Compro y vendo", ayuda: "Revendés productos que ya vienen hechos." },
+    produzco: { titulo: "Produzco", ayuda: "Hacés lo que vendés: materiales y mano de obra." },
+    ambos: { titulo: "Las dos cosas", ayuda: "Revendés y también producís." },
+  },
   vitrina: {
     pregunta: "¿Querés una tienda en línea?",
     explicacion:

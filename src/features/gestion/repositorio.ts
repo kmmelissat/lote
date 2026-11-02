@@ -5,7 +5,6 @@ import {
   type Balance,
   balanceGeneral,
   pasivosPorTipo,
-  type Ajuste,
   type Centavos,
   type LugarDeDinero,
   LUGARES_DE_DINERO,

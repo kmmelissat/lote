@@ -18,6 +18,19 @@ export type ProductoAsistente = {
   desglose: DesgloseCosto | undefined;
 };
 
+/** Lo que tiene, lo que debe y lo que es suyo: el balance de Gestión. Los saldos de efectivo y cuenta digital son null si falta el saldo inicial. */
+export type BalanceAsistente = {
+  efectivo: Centavos | null;
+  cuentaDigital: Centavos | null;
+  porCobrar: Centavos;
+  inventario: Centavos;
+  activos: Centavos;
+  pasivos: Centavos;
+  patrimonio: Centavos;
+  /** Lo que todavía se debe, con la cuota y cuándo toca si la deuda la tiene */
+  deudas: { acreedor: string; saldo: Centavos; cuota: Centavos | null; toca: string | null }[];
+};
+
 export type PedidoAsistente = {
   id: string;
   codigo: number;
@@ -82,6 +95,8 @@ export interface Puerto {
   registrarGasto(g: { categoria: CategoriaGasto; monto: Centavos; nota: string | null; metodo: Metodo | null }): Promise<R<{ id: string }>>;
   /** La ganancia del periodo en curso. Solo dueña y administradora. */
   ganancia(periodo: TipoPeriodo): Promise<R<ResumenPeriodo>>;
+  /** El balance de hoy: lo que tiene, lo que debe y lo que es suyo. Solo dueña y administradora. */
+  balance(): Promise<R<BalanceAsistente>>;
   mensajeCobro(codigoPedido: number): Promise<string>;
 
   // Registro de acciones: idempotencia y deshacer.

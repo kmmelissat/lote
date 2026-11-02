@@ -5,14 +5,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { buscarEnLote, type ResultadosBusqueda } from "@/features/search/actions/buscar";
 import { textos } from "@/lib/textos";
-import { accionesDe, PANTALLAS } from "./acciones";
-import { ajustesEscritorio } from "./menu";
+import { buscarAyuda } from "./buscarAyuda";
+import { accionesDe } from "./acciones";
+import { buscarDestinos, normalizar } from "./buscarDestinos";
+import { destinosDe } from "./destinos";
 
 const t = textos.nav.paleta;
 
 type Opcion = { clave: string; grupo: string; titulo: string; detalle?: string; href: string; icono: NombreIcono };
-
-const normalizar = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 /** El buscador de todo (⌘K): acciones y pantallas al instante, y productos, clientes y pedidos mientras escribís. */
 export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; tieneLocal: boolean; esDuena: boolean }) {
@@ -50,12 +50,12 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
   }, [consulta]);
 
   const opciones = useMemo<Opcion[]>(() => {
-    const q = normalizar(consulta.trim());
-    const locales: Opcion[] = [
-      ...accionesDe(tieneLocal).map((a) => ({ clave: `a-${a.href}`, grupo: textos.nav.rapida.titulo, titulo: a.etiqueta, href: a.href, icono: a.icono })),
-      ...PANTALLAS.map((p) => ({ clave: `p-${p.href}`, grupo: t.acciones, titulo: p.etiqueta, href: p.href, icono: p.icono })),
-      ...(esDuena ? ajustesEscritorio.map((p) => ({ clave: `p-${p.href}`, grupo: textos.nav.ajustes, titulo: p.etiqueta, href: p.href, icono: p.icono })) : []),
-    ].filter((o) => !q || normalizar(o.titulo).includes(q));
+    const q = normalizar(consulta);
+    const destinos = destinosDe({ tieneLocal, esDuena });
+    const rapidas: Opcion[] = accionesDe(tieneLocal).map((a) => ({ clave: `a-${a.href}`, grupo: textos.nav.rapida.titulo, titulo: a.etiqueta, href: a.href, icono: a.icono }));
+    const pantallas: Opcion[] = buscarDestinos(q, destinos).map((x) => ({ clave: `p-${x.href}`, grupo: t.acciones, titulo: x.titulo, detalle: x.detalle, href: x.href, icono: x.icono }));
+    // Sin nada escrito: lo que más se hace y las pantallas principales. Escribiendo: las pantallas que responden (las rápidas ya están entre ellas)
+    const locales = q ? pantallas : [...rapidas, ...pantallas.slice(0, 8)];
     const remotos: Opcion[] =
       q.length >= 2 && encontrado
         ? [
@@ -64,7 +64,17 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
             ...encontrado.pedidos.map((r) => ({ ...r, clave: `pe-${r.clave}`, grupo: t.pedidos, icono: "pedidos" as const })),
           ]
         : [];
-    return [...remotos, ...locales];
+    // Preguntas de la ayuda que responden a lo escrito
+    const ayudas: Opcion[] = q
+      ? buscarAyuda(q).map((p) => ({ clave: `ay-${p.id}`, grupo: t.ayudaGrupo, titulo: p.pregunta, href: `${textos.ayuda.ruta}#${p.id}`, icono: "info" as const }))
+      : [];
+    // Si nada respondió, Lotito es la salida: se le lleva la pregunta ya escrita
+    const nada = q.length >= 2 && !remotos.length && !locales.length && !ayudas.length;
+    const lotito: Opcion[] =
+      q.length >= 2 && (nada || !locales.length)
+        ? [{ clave: "lotito", grupo: textos.nav.asistente, titulo: t.preguntarA(consulta.trim()), detalle: t.preguntarDetalle, href: `/asistente?q=${encodeURIComponent(consulta.trim())}`, icono: "chat" }]
+        : [];
+    return [...remotos, ...locales, ...ayudas, ...lotito];
   }, [consulta, encontrado, tieneLocal, esDuena]);
 
   const ir = (o: Opcion) => {
@@ -136,6 +146,16 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
             );
           })}
           {opciones.length === 0 && <li className="px-3 py-6 text-center text-texto-2">{buscando ? t.buscando : t.sinResultados}</li>}
+          {!consulta.trim() && (
+            <li className="flex flex-wrap items-center gap-2 px-3 pb-2 pt-3" role="presentation">
+              <span className="text-xs font-bold uppercase tracking-wide text-texto-2">{t.ejemplos}</span>
+              {t.ejemplosLista.map((e) => (
+                <button key={e} type="button" onClick={() => { setConsulta(e); setActiva(0); entrada.current?.focus(); }} className="min-h-8 rounded-full border-2 border-borde px-3 text-sm font-medium hover:border-teal-oscuro">
+                  {e}
+                </button>
+              ))}
+            </li>
+          )}
         </ul>
         <p className="hidden border-t-2 border-teal-oscuro/15 px-4 py-2 text-xs text-texto-2 sm:block">{t.ayuda}</p>
       </div>

@@ -2,11 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { esRubroValido } from "../categorias";
-import { borrarCategoria, cambiarRubroDeCategoria, guardarCategoria, renombrarCategoria } from "../repositorio";
+import { borrarCategoria, cambiarRubroDeCategoria, guardarCategoria, listarCategoriasConConteo, renombrarCategoria, type CategoriaConConteo } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos.categoriasPanel;
+
+/** Las categorías con cuántos productos usa cada una: para el administrador que se abre desde el formulario de un producto. */
+export async function listarCategoriasAccion(): Promise<CategoriaConConteo[]> {
+  const { supabase, negocio } = await negocioActual();
+  return negocio.puedeGestionar ? listarCategoriasConConteo(supabase, negocio.id) : [];
+}
 
 /** Crea una categoría en un rubro. Es el único lugar donde se crean: los productos solo eligen de la lista. */
 export async function crearCategoriaAccion(nombre: string, rubro: string): Promise<{ error?: string }> {

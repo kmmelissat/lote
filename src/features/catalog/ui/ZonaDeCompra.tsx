@@ -124,7 +124,7 @@ export function ZonaDeCompra({
     <>
       <div id="comprar" className="flex scroll-mt-4 flex-col gap-5">
         {/* Lo primero que se mira: el precio grande, el de antes tachado, cuánto se ahorra y cuántos quedan */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col items-start gap-2">
           <p className="text-4xl font-bold tabular-nums leading-none tracking-tight text-teal md:text-[2.6rem]">
             {!seleccionada && dims > 0 && Math.max(...precios) !== desde ? textos.vitrina.desde(formatearDolares(desde)) : formatearDolares(precio)}
           </p>

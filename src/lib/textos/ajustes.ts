@@ -46,6 +46,7 @@ export const ajustes = {
     errorInstagram: "Ese usuario no parece válido.",
     errorTiktok: "Ese usuario de TikTok no parece válido. Pegá el enlace de tu perfil o tu usuario, por ejemplo mitienda.",
     errorFacebook: "Esa página no parece válida. Pegá el enlace o el usuario, por ejemplo mitienda.",
+    errorFacebookNombre: "Eso parece el nombre de tu página, no su enlace. Abrí tu página en Facebook, copiá la dirección de arriba (facebook.com/…) y pegala acá.",
     errorContexto: "El contexto puede tener hasta 600 letras.",
     secciones: {
       marca: "Datos de la tienda",

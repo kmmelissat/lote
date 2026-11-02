@@ -58,6 +58,19 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     registrarGuia: vi.fn(async () => ({ ok: true as const, valor: null })),
     registrarGasto: vi.fn(async () => ({ ok: true as const, valor: { id: "gasto-1" } })),
     ganancia: vi.fn(async () => ({ ok: true as const, valor: resumenDelPeriodo(LINEAS, []) })),
+    balance: vi.fn(async () => ({
+      ok: true as const,
+      valor: {
+        efectivo: 24000,
+        cuentaDigital: null,
+        porCobrar: 1100,
+        inventario: 48780,
+        activos: 73880,
+        pasivos: 30000,
+        patrimonio: 43880,
+        deudas: [{ acreedor: "CUSCATLAN", saldo: 30000, cuota: 5000, toca: "2026-11-15" }],
+      },
+    })),
     mensajeCobro: vi.fn(async () => "Hola Ana! Total: $25.00"),
     iniciarAccion: async ({ mensajeId }) => {
       if (acciones.has(mensajeId)) return { id: `a-${mensajeId}`, repetida: true, respuesta: acciones.get(mensajeId) };
@@ -732,6 +745,24 @@ describe("cuando la IA duda", () => {
       { ia: { entenderMensaje, entenderFoto: vi.fn(), leerComprobante: vi.fn(), responder: vi.fn() }, puerto, ahora },
     );
     expect(entenderMensaje).toHaveBeenCalledWith("¿y el mes pasado?", expect.objectContaining({ conversacion: historial }));
+  });
+});
+
+describe("el balance", () => {
+  it("cuenta lo que tiene, lo que debe y lo que es suyo, con cada deuda y su cuota", async () => {
+    const { turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "balance" });
+    expect(r.texto).toContain("Hoy tenés $738.80, debés $300.00 y lo que es tuyo son $438.80.");
+    expect(r.texto).toContain("• Efectivo: $240.00");
+    expect(r.texto).toContain("• Cuenta digital: falta el saldo inicial");
+    expect(r.texto).toContain("• CUSCATLAN: $300.00 (cuota de $50.00, toca el 15 nov)");
+    expect(r.enlaces?.[0].href).toBe("/gestion/cuadre");
+  });
+
+  it("si la persona no puede ver el dinero, no se lo cuenta", async () => {
+    const { turno } = montar({ puerto: { balance: async () => ({ ok: false as const, error: { tipo: "sin_permiso" as const } }) } });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "consultar", consulta: "balance" });
+    expect(r.texto).toBe(textos.asistente.errorPermiso);
   });
 });
 

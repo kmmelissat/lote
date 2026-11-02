@@ -5,7 +5,7 @@ export const RUBROS = [
   {
     id: "ropa",
     nombre: "Ropa y accesorios",
-    palabras: ["ropa", "blusa", "camisa", "camiseta", "playera", "vestido", "falda", "pantal", "jean", "short", "calzado", "zapat", "sandalia", "tenis", "chaqueta", "sueter", "sudadera", "lenceria", "pijama", "moda", "joya", "arete", "pulsera", "anillo", "bolso", "cartera", "mochila", "lente", "gafa", "sombrero", "gorra", "bisuteria", "prenda"],
+    palabras: ["ropa", "blusa", "camisa", "camiseta", "playera", "vestido", "falda", "pantal", "jean", "short", "calzado", "zapat", "sandalia", "tenis", "chaqueta", "sueter", "sudadera", "lenceria", "pijama", "moda", "bolso", "cartera", "mochila", "lente", "gafa", "sombrero", "gorra", "prenda"],
   },
   {
     id: "belleza",
@@ -41,6 +41,41 @@ export const RUBROS = [
     id: "ninos",
     nombre: "Bebés y niños",
     palabras: ["bebe", "nino", "nina", "infantil", "escolar", "peluche"],
+  },
+  {
+    id: "joyeria",
+    nombre: "Joyería y bisutería",
+    palabras: ["joya", "arete", "pulsera", "anillo", "bisuteria", "dije", "gema", "cadena"],
+  },
+  {
+    id: "arte",
+    nombre: "Arte y manualidades",
+    palabras: ["arte", "manualidad", "artesan", "pintura", "dibujo", "ceramica", "resina", "bordado", "tejido", "crochet", "costura", "macrame", "lienzo", "acuarela"],
+  },
+  {
+    id: "papeleria",
+    nombre: "Papelería y oficina",
+    palabras: ["papel", "cuaderno", "libreta", "agenda", "oficina", "lapiz", "boligrafo", "marcador", "sticker", "calcomania"],
+  },
+  {
+    id: "deportes",
+    nombre: "Deportes y fitness",
+    palabras: ["deporte", "fitness", "gym", "yoga", "bicicleta", "futbol", "entrenamiento", "pesas", "ciclismo", "running", "natacion"],
+  },
+  {
+    id: "salud",
+    nombre: "Salud y bienestar",
+    palabras: ["salud", "vitamina", "suplemento", "natural", "bienestar", "aromaterapia", "herbal", "medic", "ortop"],
+  },
+  {
+    id: "fiestas",
+    nombre: "Fiestas y eventos",
+    palabras: ["fiesta", "globo", "cumple", "evento", "boda", "pinata", "souvenir", "invitacion"],
+  },
+  {
+    id: "autos",
+    nombre: "Autos y herramientas",
+    palabras: ["automov", "automotriz", "carro", "moto", "herramienta", "ferreteria", "repuesto", "llanta", "vehicul", "taller"],
   },
   { id: "otros", nombre: "Otros", palabras: [] },
 ] as const;

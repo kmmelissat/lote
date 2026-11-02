@@ -1,5 +1,4 @@
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
 import type { TipoMetodo } from "@/features/payments/mensajeCobro";
 import { resumenZonas, type ZonasEntrega } from "@/lib/departamentos";
 import { textos } from "@/lib/textos";
@@ -9,7 +8,7 @@ const t = textos.vitrina.comoComprar;
 // Las columnas se ajustan a cuántos pasos hay
 const COLUMNAS: Record<number, string> = { 1: "md:grid-cols-1", 2: "md:grid-cols-2", 3: "md:grid-cols-3", 4: "md:grid-cols-4" };
 
-type Paso = { icono: NombreIcono; fondo: string; giro: string; titulo: string; texto: string };
+type Paso = { icono: NombreIcono; fondo: string; titulo: string; texto: string };
 
 /**
  * "Así de fácil": cómo se paga, cómo llega y qué pasa si todavía no se decide. Tres pasos pegados como stickers,
@@ -37,14 +36,12 @@ export function ComoComprar({
     {
       icono: "billetera",
       fondo: "bg-limon",
-      giro: "-rotate-3",
       titulo: t.pagar.titulo,
       texto: metodos.length ? t.pagar.con(metodos.map((m) => textos.cobro.metodos[m].toLowerCase()).join(", ")) : t.pagar.coordinar,
     },
     {
       icono: "camion",
       fondo: "bg-rosa",
-      giro: "rotate-2",
       titulo: direccionRetiro ? t.recibir.tituloConRetiro : t.recibir.titulo,
       texto: [
         direccionRetiro ? t.recibir.textoConRetiro : t.recibir.texto,
@@ -59,30 +56,28 @@ export function ComoComprar({
           {
             icono: "reloj" as const,
             fondo: "bg-celeste",
-            giro: "-rotate-2",
             titulo: t.apartar.titulo,
             texto: t.apartar.texto(plazoHoras),
           },
         ]
       : []),
     ...(politicaCambios?.trim()
-      ? [{ icono: "check" as const, fondo: "bg-limon", giro: "rotate-3", titulo: t.cambios.titulo, texto: politicaCambios.trim() }]
+      ? [{ icono: "check" as const, fondo: "bg-limon", titulo: t.cambios.titulo, texto: politicaCambios.trim() }]
       : []),
   ];
 
   return (
-    <section aria-labelledby="como-comprar" className="relative rounded-[24px] border-2 border-dashed border-teal-oscuro/40 bg-white p-5 pt-6 md:p-7">
-      <Monito nombre="thumbsup" className="absolute -top-9 right-5 w-14 text-rosa md:right-8 md:w-16" />
-      <h2 id="como-comprar" className="pr-20 text-xl font-bold leading-tight">
-        {t.titulo}
-      </h2>
-      <p className="mb-4 pr-20 text-sm text-texto-2">{t.subtitulo}</p>
-      <ol className={`grid grid-cols-1 gap-5 md:gap-6 ${COLUMNAS[Math.min(pasos.length, 4)]}`}>
+    <section aria-labelledby="como-comprar" className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h2 id="como-comprar" className="font-logo text-2xl font-semibold leading-tight">
+          {t.titulo}
+        </h2>
+        <p className="text-sm text-texto-2">{t.subtitulo}</p>
+      </div>
+      <ol className={`grid grid-cols-1 gap-4 ${COLUMNAS[Math.min(pasos.length, 4)]}`}>
         {pasos.map((p, i) => (
-          <li key={p.titulo} className="flex items-start gap-3">
-            <span
-              className={`relative flex size-12 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro text-teal-oscuro ${p.fondo} ${p.giro}`}
-            >
+          <li key={p.titulo} className="flex flex-col gap-3 rounded-[22px] border-2 border-teal-oscuro bg-white p-5">
+            <span className={`relative flex size-12 items-center justify-center rounded-2xl border-2 border-teal-oscuro text-teal-oscuro ${p.fondo}`}>
               <Icon nombre={p.icono} className="size-6" />
               <span
                 aria-hidden="true"
@@ -91,9 +86,9 @@ export function ComoComprar({
                 {i + 1}
               </span>
             </span>
-            <div className="min-w-0 pt-0.5">
+            <div className="min-w-0">
               <h3 className="font-bold leading-tight">{p.titulo}</h3>
-              <p className="text-sm text-texto-2">{p.texto}</p>
+              <p className="mt-1 text-sm text-texto-2">{p.texto}</p>
             </div>
           </li>
         ))}

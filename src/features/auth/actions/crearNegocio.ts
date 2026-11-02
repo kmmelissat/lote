@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { ACTIVIDADES } from "@/domain";
 import { esFacebook, facebookDe } from "@/features/catalog/enlaces";
 import { slugConSufijo, slugDe } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/server";
@@ -29,6 +30,9 @@ export async function crearNegocio(
   // Sin respuesta (o con una rara) se queda con la vitrina, que es como nace todo negocio
   const conVitrina = formData.get("vitrina") !== "no";
 
+  // Sin respuesta (o con una rara) se queda en "compro y vendo", que es lo de siempre
+  const actividad = ACTIVIDADES.find((a) => a === formData.get("actividad")) ?? "compro_vendo";
+
   if (!nombre)
     return {
       error: textos.crearNegocio.errorNombre,
@@ -38,7 +42,8 @@ export async function crearNegocio(
     };
   if (facebook && !esFacebook(facebook))
     return {
-      error: textos.crearNegocio.errorFacebook,
+      // Con espacios es el nombre de la página, no su enlace: se le dice qué pegar
+      error: /\s/.test(facebook) ? textos.crearNegocio.errorFacebookNombre : textos.crearNegocio.errorFacebook,
       nombre,
       instagram,
       facebook,
@@ -65,6 +70,9 @@ export async function crearNegocio(
           .from("negocio")
           .update({ vitrina_activa: false })
           .eq("id", negocioId);
+      // Aparte, como lo demás que se pregunta al crear: si falla, se cambia desde Ajustes
+      if (actividad !== "compro_vendo")
+        await supabase.from("negocio").update({ actividad }).eq("id", negocioId);
       // Aparte: si todavía no se corrió facebook.sql no hay columna, y el negocio se crea igual
       if (facebook)
         await supabase

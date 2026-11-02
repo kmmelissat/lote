@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DeudasDelPeriodo } from "@/features/gestion/ui/DeudasDelPeriodo";
-import { PantallaMovimientos } from "@/features/profit/ui/PantallaMovimientos";
+import { PantallaMovimientos } from "../../_pantallas/PantallaMovimientos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
