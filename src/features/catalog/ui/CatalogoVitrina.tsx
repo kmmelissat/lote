@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { normalizarTexto } from "@/domain";
 import type { TarjetaVitrina } from "../agruparVitrina";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { textos } from "@/lib/textos";
@@ -19,8 +20,6 @@ const MIN_PARA_ORDENAR = 4;
 type Orden = "recientes" | "precio_asc" | "precio_desc";
 
 /** Sin tildes y en minúsculas, para que "camara" encuentre "Cámara". */
-const normalizar = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-
 /** La grilla de la vitrina, con chips de categoría para filtrar. */
 export function CatalogoVitrina({
   slug,
@@ -53,12 +52,12 @@ export function CatalogoVitrina({
     for (const p of productos) for (const m of p.modelos) vistos.set(m.toLowerCase(), vistos.get(m.toLowerCase()) ?? m);
     return [...vistos.values()].sort((a, b) => b.localeCompare(a, "es", { numeric: true }));
   }, [productos]);
-  const palabras = normalizar(busqueda).split(/\s+/).filter(Boolean);
+  const palabras = normalizarTexto(busqueda).split(/\s+/).filter(Boolean);
   const visibles = productos
     .filter((p) => !categoria || p.categoria?.trim() === categoria)
     .filter((p) => !modelo || p.modelos.some((m) => m.toLowerCase() === modelo.toLowerCase()))
     // Cada palabra tiene que aparecer en el nombre o en la categoría: "iphone 16" encuentra "Case iPhone 16 Pro"
-    .filter((p) => palabras.every((w) => normalizar(`${p.nombre} ${p.categoria ?? ""}`).includes(w)));
+    .filter((p) => palabras.every((w) => normalizarTexto(`${p.nombre} ${p.categoria ?? ""}`).includes(w)));
   const conBuscador = productos.length > MIN_PARA_BUSCAR;
   const conOrden = productos.length >= MIN_PARA_ORDENAR;
   // "Más nuevos" es el orden en que llegan; los precios se ordenan por el más bajo de cada tarjeta

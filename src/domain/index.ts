@@ -21,3 +21,4 @@ export * from "./actividad";
 export * from "./serieDiaria";
 export * from "./cuota";
 export * from "./trato";
+export * from "./texto";

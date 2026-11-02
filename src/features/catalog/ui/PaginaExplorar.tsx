@@ -87,10 +87,14 @@ function enlace(f: Filtros): string {
   return s ? `${base}?${s}` : base;
 }
 
-/** El enlace y su rel: lo que lleva parámetros (filtros, orden, páginas) no lo siguen los buscadores. */
-function enlaceExplorar(f: Filtros): { href: string; rel?: string } {
+/**
+ * El enlace y su rel: lo que lleva parámetros (filtros, orden, páginas) no lo siguen los buscadores. Cambiar un filtro no sube la página
+ * (`scroll: false`): quien está mirando las categorías se queda donde está. Solo cambiar de página de resultados vuelve arriba (`alInicio`).
+ */
+function enlaceExplorar(f: Filtros, alInicio = false): { href: string; rel?: string; scroll?: false } {
   const href = enlace(f);
-  return href.includes("?") ? { href, rel: "nofollow" } : { href };
+  const base = href.includes("?") ? { href, rel: "nofollow" } : { href };
+  return alInicio ? base : { ...base, scroll: false };
 }
 
 const chip = (activo: boolean) =>
@@ -554,7 +558,7 @@ export async function PaginaExplorar({
                     porPagina={POR_PAGINA}
                     total={total}
                     hayMas={hayMas}
-                    enlace={(n) => enlaceExplorar({ ...f, pagina: n })}
+                    enlace={(n) => enlaceExplorar({ ...f, pagina: n }, true)}
                   />
                 </>
               )}

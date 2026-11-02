@@ -5,6 +5,8 @@
 // Cada categoría trae `claves`: palabras que la reconocen en un texto libre (importar un CSV, lo que dice Lotito).
 // Una clave con "!" delante pesa el triple: es la que manda cuando el texto nombra dos cosas ("brocha de maquillaje").
 
+import { normalizarTexto } from "@/domain";
+
 type Categoria = readonly [nombre: string, claves: readonly string[]];
 
 export const RUBROS = [
@@ -203,13 +205,7 @@ export const NOMBRES_CATEGORIAS: readonly string[] = CATEGORIAS.map((c) => c.nom
 export const esRubro = (id: string): id is RubroId => RUBROS.some((r) => r.id === id);
 export const nombreDeRubro = (id: RubroId) => RUBROS.find((r) => r.id === id)!.nombre;
 
-const sinTildes = (texto: string) =>
-  texto
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, " ");
+const sinTildes = (texto: string) => normalizarTexto(texto).trim().replace(/\s+/g, " ");
 
 const porNombre = new Map(CATEGORIAS.map((c) => [sinTildes(c.nombre), c] as const));
 

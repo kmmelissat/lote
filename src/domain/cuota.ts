@@ -6,6 +6,16 @@ export function cuotasRestantes(saldo: Centavos, cuota: Centavos): number {
   return Math.ceil(saldo / cuota);
 }
 
+/** Los días antes de la fecha límite en que una deuda empieza a pedir atención. */
+export const DIAS_AVISO_DEUDA = 30;
+
+/** Una deuda con fecha límite (AAAA-MM-DD) pide atención cuando ya venció ("vencida") o faltan 30 días o menos ("pronto"). */
+export function urgenciaDeDeuda(fechaLimite: string | null, ahora: Date): "vencida" | "pronto" | null {
+  if (!fechaLimite) return null;
+  const faltan = (Date.parse(`${fechaLimite}T23:59:59`) - ahora.getTime()) / 86_400_000;
+  return faltan < 0 ? "vencida" : faltan <= DIAS_AVISO_DEUDA ? "pronto" : null;
+}
+
 const aFecha = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 const diasDelMes = (y: number, m: number) => new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
 

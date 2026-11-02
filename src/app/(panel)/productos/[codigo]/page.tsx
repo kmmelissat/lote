@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { colorDeEstado } from "@/components/ui/StatusChip";
 import { TarjetaDato } from "@/components/ui/TarjetaDato";
 import type { Estado } from "@/components/ui/StatusChip";
-import { nombreBase } from "@/domain";
+import { estadoProducto, nombreBase } from "@/domain";
 import { codigoDeBarrasDe } from "@/features/counter/repositorio";
 import { CodigoDeBarrasForm } from "@/features/counter/ui/CodigoDeBarrasForm";
 import { actualizarOfertas, ofertasDe } from "@/features/offers/repositorio";
@@ -135,7 +135,7 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
   const precios = variantes.map((v) => v.precio);
   const [bajo, alto] = [Math.min(...precios), Math.max(...precios)];
   const precioTexto = general ? (bajo === alto ? formatearDolares(bajo) : t.detalle.entre(formatearDolares(bajo), formatearDolares(alto))) : formatearDolares(p.precio);
-  const estadoGeneral: Estado = disponibles > 0 ? "disponible" : suma("apartadas") > 0 ? "apartado" : "vendido";
+  const estadoGeneral: Estado = estadoProducto({ cantidad: suma("cantidad"), apartadas: suma("apartadas"), vendidas: suma("vendidas") });
   // En la vista general van todas las fotos, las de cada variante marcadas con su nombre (como en la vitrina)
   const { fotos, de: deVariante } = general ? fotosDelGrupo(variantes) : { fotos: p.fotos, de: {} };
 

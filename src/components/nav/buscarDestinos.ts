@@ -1,7 +1,8 @@
+import { normalizarTexto } from "@/domain";
 import type { Destino } from "./destinos";
 
 /** Sin tildes ni mayúsculas, para comparar "gestión" con "gestion". */
-export const normalizar = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
+export const normalizar = (s: string) => normalizarTexto(s).trim();
 
 const palabras = (s: string) => normalizar(s).split(/[^a-z0-9ñ]+/).filter(Boolean);
 

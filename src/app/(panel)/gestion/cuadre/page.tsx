@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Aviso } from "@/components/ui/Aviso";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { cuotasRestantes, fechaLocalDe, LUGARES_DE_DINERO, proximoPago } from "@/domain";
+import { cuotasRestantes, fechaLocalDe, LUGARES_DE_DINERO, proximoPago, urgenciaDeDeuda } from "@/domain";
 import { enlaceWhatsApp } from "@/features/catalog/enlaces";
 import { listarClientes } from "@/features/customers/repositorio";
 import { balanceDelNegocio } from "@/features/gestion/repositorio";
@@ -17,15 +17,6 @@ import { textos } from "@/lib/textos";
 const t = textos.gestion;
 
 export const metadata: Metadata = { title: t.cuadre.titulo };
-
-const DIAS_AVISO = 30;
-
-/** Una deuda con fecha límite pide atención cuando ya venció o faltan menos de 30 días. */
-function urgenciaDe(fechaLimite: string | null, ahora: Date): "vencida" | "pronto" | null {
-  if (!fechaLimite) return null;
-  const faltan = (Date.parse(`${fechaLimite}T23:59:59`) - ahora.getTime()) / 86_400_000;
-  return faltan < 0 ? "vencida" : faltan <= DIAS_AVISO ? "pronto" : null;
-}
 
 export default function Page() {
   return <Contenido />;
@@ -72,7 +63,7 @@ async function Contenido() {
     acreedor: p.acreedor,
     monto: p.monto,
     saldo: p.saldo,
-    urgencia: urgenciaDe(p.fechaLimite, ahora),
+    urgencia: urgenciaDeDeuda(p.fechaLimite, ahora),
     fechaLimite: p.fechaLimite,
     cuota: p.cuota,
     cuotas: p.cuotas,

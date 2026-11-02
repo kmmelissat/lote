@@ -1,4 +1,5 @@
 export const comun = {
+  cargando: "Cargando…",
   cerrarAviso: "Cerrar aviso",
   cerrarVentana: "Cerrar",
   verAnteriores: "Ver anteriores",

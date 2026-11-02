@@ -39,9 +39,9 @@ export function PanelFiltros({
 }: {
   filtros: FiltrosPanel;
   rubros: Rubro[];
-  enlaceRubro: (id: string) => { href: string; rel?: string };
+  enlaceRubro: (id: string) => { href: string; rel?: string; scroll?: false };
   /** Una categoría dentro del rubro elegido ("" = todo el rubro) */
-  enlaceCategoria: (nombre: string) => { href: string; rel?: string };
+  enlaceCategoria: (nombre: string) => { href: string; rel?: string; scroll?: false };
   /** A dónde lleva "Quitar filtros" (conserva solo la búsqueda y el orden) */
   limpiar: string | null;
 }) {
@@ -194,6 +194,7 @@ export function PanelFiltros({
             <Link
               href={limpiar}
               rel="nofollow"
+              scroll={false}
               className="text-sm font-bold text-teal underline"
             >
               {t.limpiar}

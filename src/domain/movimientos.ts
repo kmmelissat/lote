@@ -1,4 +1,5 @@
 import type { Centavos } from "./dinero";
+import { normalizarTexto } from "./texto";
 
 export type MetodoMovimiento = "efectivo" | "transferencia";
 
@@ -101,11 +102,9 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
   );
 }
 
-const normalizar = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-
 /** Deja solo los movimientos que cumplen el filtro. La búsqueda ignora mayúsculas y tildes. */
 export function filtrarMovimientos(movimientos: readonly Movimiento[], filtro: FiltroMovimientos): Movimiento[] {
-  const q = filtro.q ? normalizar(filtro.q.trim()) : "";
+  const q = filtro.q ? normalizarTexto(filtro.q.trim()) : "";
   return movimientos.filter((m) => {
     if (filtro.tipo && m.tipo !== filtro.tipo) return false;
     if (filtro.metodo === "sin_metodo" ? m.metodo !== null : filtro.metodo && m.metodo !== filtro.metodo) return false;
@@ -114,7 +113,7 @@ export function filtrarMovimientos(movimientos: readonly Movimiento[], filtro: F
       m.tipo === "entrada"
         ? [m.cliente, m.producto, `#${m.pedidoCodigo}`]
         : [m.nota, m.categoria];
-    return textos.some((t) => t && normalizar(t).includes(q));
+    return textos.some((t) => t && normalizarTexto(t).includes(q));
   });
 }
 

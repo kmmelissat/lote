@@ -9,7 +9,7 @@ import { useConfirmar } from "@/components/ui/Confirmar";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useToast } from "@/components/ui/Toast";
 import { hoyEnElSalvador, nombreVisible } from "@/domain";
-import { formatearDolares, formatearFecha } from "@/lib/formato";
+import { formatearDia, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { borrarPromocion, encenderPromocion } from "../actions/promociones";
 import { resumenDePromocion, textoDeEstado } from "../descripcion";
@@ -18,7 +18,7 @@ import type { Promocion } from "../repositorio";
 const t = textos.promociones;
 
 // "2026-11-05" como el día de El Salvador (a mediodía UTC cae el mismo día en cualquier zona)
-const verFecha = (dia: string | null) => (dia ? formatearFecha(new Date(`${dia}T12:00:00Z`)) : null);
+const verFecha = (dia: string | null) => (dia ? formatearDia(dia) : null);
 
 const COLOR = { vigente: "bg-limon", programada: "bg-mango", vencida: "bg-superficie", apagada: "bg-superficie" } as const;
 

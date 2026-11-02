@@ -1,3 +1,4 @@
+import { normalizarTexto } from "@/domain";
 import type { RefPedido } from "./intencion";
 
 export type ProductoRef = { id: string; codigo: number; nombre: string };
@@ -11,13 +12,7 @@ export type Resolucion<T> =
 const MAX_OPCIONES = 5;
 const PALABRAS_VACIAS = new Set(["el", "la", "los", "las", "de", "del", "un", "una", "unos", "unas", "mi", "mis"]);
 
-const normalizar = (s: string) =>
-  s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .trim();
+const normalizar = (s: string) => normalizarTexto(s).replace(/[^a-z0-9\s]/g, " ").trim();
 
 const singular = (t: string) => (t.length > 3 && t.endsWith("s") ? t.slice(0, -1) : t);
 

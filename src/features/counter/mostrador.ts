@@ -1,4 +1,4 @@
-import { nombreVisible } from "@/domain";
+import { nombreVisible, normalizarTexto } from "@/domain";
 import type { MetodoMostrador, ProductoMostrador } from "./repositorio";
 
 export const METODOS: MetodoMostrador[] = [
@@ -13,11 +13,7 @@ export const ICONO_METODO = {
 export type Linea = { productoId: string; cantidad: number };
 export type Recibo = { codigo: number; total: number; cambio: number | null };
 
-export const normalizar = (s: string) =>
-  s
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase();
+export const normalizar = normalizarTexto;
 export const nombreCompleto = (p: ProductoMostrador) => nombreVisible(p.nombre, p.variante);
 
 /** ¿El producto coincide con lo escrito en la búsqueda (ya normalizado)? */

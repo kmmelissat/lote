@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { useAvisarListo } from "@/components/ui/Toast";
-import { LUGARES_DE_DINERO, TIPOS_DE_PASIVO, type TipoPasivo } from "@/domain/index";
+import { aDolares, LUGARES_DE_DINERO, TIPOS_DE_PASIVO, type TipoPasivo } from "@/domain/index";
 import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -63,7 +63,7 @@ function Monto({ name, etiqueta, placeholder, defaultValue, requerido = true }: 
   );
 }
 
-const enDolares = (centavos: number | null) => (centavos === null ? undefined : (centavos / 100).toFixed(2));
+const enDolares = (centavos: number | null) => (centavos === null ? undefined : aDolares(centavos).toFixed(2));
 
 /** El mismo formulario para anotar una deuda y para corregirla: al corregir no se pide el tipo ni dónde entró el dinero. */
 function FormPasivo({ hoy, cerrar, pasivo }: { hoy: string; cerrar: () => void; pasivo?: FilaPasivo }) {
@@ -172,7 +172,7 @@ function FormAbono({ pasivo, cerrar }: { pasivo: FilaPasivo; cerrar: () => void 
     <form key={estado.guardados ?? 0} action={accion} className="flex flex-col gap-4">
       <input type="hidden" name="pasivo" value={pasivo.id} />
       <p className="text-sm text-texto-2">{t.falta(formatearDolares(pasivo.saldo))}</p>
-      <Monto name="monto" etiqueta={t.abonoMonto} placeholder={(pasivo.saldo / 100).toFixed(2)} defaultValue={pasivo.cuota ? enDolares(Math.min(pasivo.cuota, pasivo.saldo)) : undefined} />
+      <Monto name="monto" etiqueta={t.abonoMonto} placeholder={aDolares(pasivo.saldo).toFixed(2)} defaultValue={pasivo.cuota ? enDolares(Math.min(pasivo.cuota, pasivo.saldo)) : undefined} />
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-sm font-bold">{t.abonoLugar}</legend>
         <ChipsElegir name="lugar" valor={lugar} onCambio={setLugar} opciones={LUGARES_DE_DINERO.map((l) => ({ valor: l, etiqueta: textos.gestion.lugares[l] }))} />

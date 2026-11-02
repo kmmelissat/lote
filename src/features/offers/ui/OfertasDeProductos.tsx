@@ -13,7 +13,7 @@ import { useToast } from "@/components/ui/Toast";
 import { nombreBase, type Descuento } from "@/domain";
 import { filtrarGrupos, agruparOpciones, type OpcionProductoPromocion } from "@/features/promotions/grupos";
 import { urlFoto } from "@/lib/fotos";
-import { formatearDolares, formatearFecha } from "@/lib/formato";
+import { formatearDia, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { quitarOferta } from "../actions/ofertas";
 import type { OfertaDeTienda } from "../repositorio";
@@ -24,7 +24,6 @@ const o = textos.productos.oferta;
 
 const MAX_RESULTADOS = 6;
 
-const verFecha = (dia: string) => formatearFecha(new Date(`${dia}T12:00:00Z`));
 const textoDeRebaja = (d: Descuento) => (d.tipo === "monto" ? formatearDolares(d.valor) : `${d.valor} %`);
 
 /**
@@ -81,7 +80,7 @@ export function OfertasDeProductos({ productos, ofertas }: { productos: OpcionPr
                     {x.estado === "activa" ? o.activa : o.programada} · {o.rebaja(textoDeRebaja(x.descuento))}
                   </p>
                   <p className="text-sm">{t.cubre(nombres)}</p>
-                  <p className="text-sm">{o.fechas(verFecha(x.desde), verFecha(x.hasta))}</p>
+                  <p className="text-sm">{o.fechas(formatearDia(x.desde), formatearDia(x.hasta))}</p>
                   <Button type="button" variante="suave" disabled={pendiente} onClick={() => cancelar(x.lote)} className="mt-1 self-start text-sm">
                     {pendiente ? o.cancelando : o.cancelar}
                   </Button>

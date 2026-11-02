@@ -1,4 +1,4 @@
-import { nombreBase, nombreVisible, type Centavos } from "@/domain";
+import { nombreBase, nombreVisible, normalizarTexto, type Centavos } from "@/domain";
 
 /** Un producto (o una variante) que se puede meter en una promoción. */
 export type OpcionProductoPromocion = {
@@ -52,11 +52,9 @@ export function agruparOpciones(productos: readonly OpcionProductoPromocion[]): 
   });
 }
 
-const normalizar = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
-
 /** Los grupos que coinciden con lo escrito (nombre, variante o código de cualquiera de sus miembros), sin importar tildes. */
 export function filtrarGrupos(grupos: readonly GrupoDeProductos[], busqueda: string): GrupoDeProductos[] {
-  const q = normalizar(busqueda.trim());
+  const q = normalizarTexto(busqueda.trim());
   if (!q) return [...grupos];
-  return grupos.filter((g) => g.miembros.some((m) => normalizar(`${nombreDeOpcion(m)} ${m.codigo}`).includes(q)));
+  return grupos.filter((g) => g.miembros.some((m) => normalizarTexto(`${nombreDeOpcion(m)} ${m.codigo}`).includes(q)));
 }

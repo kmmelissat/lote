@@ -9,9 +9,9 @@ import { useConfirmar } from "@/components/ui/Confirmar";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useToast } from "@/components/ui/Toast";
-import { hoyEnElSalvador, leerDescuento, leerDolares, precioDeOferta, type Centavos, type Descuento } from "@/domain";
+import { aDolares, hoyEnElSalvador, leerDescuento, leerDolares, precioDeOferta, type Centavos, type Descuento } from "@/domain";
 import { soloNumero } from "@/lib/entrada";
-import { formatearDolares, formatearFecha } from "@/lib/formato";
+import { formatearDia, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { programarOferta, quitarOferta } from "../actions/ofertas";
 import type { OfertaProducto } from "../repositorio";
@@ -19,7 +19,6 @@ import type { OfertaProducto } from "../repositorio";
 const t = textos.productos.oferta;
 
 // "2026-11-05" como el día de El Salvador (a mediodía UTC cae el mismo día en cualquier zona)
-const verFecha = (dia: string) => formatearFecha(new Date(`${dia}T12:00:00Z`));
 
 type Modo = "precio" | "porcentaje" | "monto";
 
@@ -72,7 +71,7 @@ export function OfertaProducto({
   const descuento = leido && leido !== "invalido" ? leido : null;
   // La base y la acción guardan una rebaja (monto o porcentaje); "dejarlo en un precio" se traduce a cuánto se rebaja
   const tipo: Descuento["tipo"] = descuento?.tipo ?? "monto";
-  const textoRebaja = descuento ? (descuento.tipo === "monto" ? (descuento.valor / 100).toFixed(2) : String(descuento.valor)) : valor;
+  const textoRebaja = descuento ? (descuento.tipo === "monto" ? aDolares(descuento.valor).toFixed(2) : String(descuento.valor)) : valor;
   const nuevos = descuento ? precios.map((p) => precioDeOferta(p, descuento)) : [];
   const sinRebaja = nuevos.some((p) => p === null);
   const [bajo, alto] = descuento && !sinRebaja ? [Math.min(...(nuevos as Centavos[])), Math.max(...(nuevos as Centavos[]))] : [null, null];
@@ -121,7 +120,7 @@ export function OfertaProducto({
               <p className="font-bold">
                 {o.estado === "activa" ? t.activa : t.programada} · {t.rebaja(textoDeRebaja(o.descuento))}
               </p>
-              <p className="text-sm">{t.fechas(verFecha(o.desde), verFecha(o.hasta))}</p>
+              <p className="text-sm">{t.fechas(formatearDia(o.desde), formatearDia(o.hasta))}</p>
               <p className="text-sm">{t.precios(rango(o.precios))}</p>
               <Button type="button" variante="suave" disabled={pendiente} onClick={() => cancelar(o.lote)} className="self-start text-sm">
                 {pendiente ? t.cancelando : t.cancelar}

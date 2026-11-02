@@ -41,6 +41,11 @@ export function formatearFecha(d: Date): string {
   return `${dia} ${MESES[mes - 1]}`;
 }
 
+/** "28 oct", para un día que viene como "2026-10-28" (sin hora). */
+export function formatearDia(dia: string): string {
+  return formatearFecha(new Date(`${dia}T12:00:00Z`));
+}
+
 /** "11:23 p. m." */
 export function formatearHora(d: Date): string {
   const { hora24, minutos } = enSalvador(d);

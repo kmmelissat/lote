@@ -1,4 +1,4 @@
-import { leerDolares, nombreConVariante, SEPARADOR_VARIANTE, type Centavos } from "@/domain";
+import { leerDolares, nombreConVariante, normalizarTexto, SEPARADOR_VARIANTE, type Centavos } from "@/domain";
 import { MAX_ESTADO, MAX_NOMBRE_DETALLE, MAX_VALOR_DETALLE, type Detalle } from "@/features/products/infoExtra";
 import { MAXIMO_VARIANTES } from "@/features/products/variantes";
 
@@ -44,8 +44,7 @@ const SINONIMOS: Record<Campo, string[]> = {
   precioAnterior: ["precio anterior", "precio de antes", "precio regular", "precio original", "antes"],
 };
 
-const normalizar = (s: string) =>
-  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+const normalizar = (s: string) => normalizarTexto(s).trim();
 
 /** Propone a qué campo corresponde cada columna, por el nombre del encabezado. Nunca repite columna. */
 export function proponerMapeo(encabezados: string[]): Mapeo {

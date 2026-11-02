@@ -1,4 +1,4 @@
-import { pocoStock, type Centavos } from "@/domain";
+import { normalizarTexto, pocoStock, type Centavos } from "@/domain";
 import type { Producto } from "./repositorio";
 import type { GrupoProducto } from "./variantes";
 
@@ -9,8 +9,6 @@ export const esFiltroEstado = (s: string | undefined): s is FiltroEstado =>
   FILTROS_ESTADO.includes(s as FiltroEstado);
 
 // Sin tildes ni mayúsculas, para que "camiseta" encuentre "Camiseta" y "cafe" encuentre "Café".
-const normalizar = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
-
 /** Lo que le falta a una ficha para estar completa: sirve para ir dejando el catálogo al día. */
 export const FALTAS = ["costo", "foto"] as const;
 export type Falta = (typeof FALTAS)[number];
@@ -35,7 +33,7 @@ export function filtrarProductos(
     falta,
   }: { texto: string; estado: FiltroEstado; umbral: number; categoria?: string; falta?: Falta },
 ): Producto[] {
-  const buscado = normalizar(texto.trim().replace(/^#/, ""));
+  const buscado = normalizarTexto(texto.trim().replace(/^#/, ""));
   return productos.filter((p) => {
     if (categoria && p.categoria !== categoria) return false;
     if (falta === "costo" && p.costoUnitario !== null) return false;
@@ -45,7 +43,7 @@ export function filtrarProductos(
     } else if (estado !== "todos" && p.estado !== estado) return false;
     if (!buscado) return true;
     return [p.nombre, String(p.codigo), p.categoria ?? "", p.marca ?? ""].some((campo) =>
-      normalizar(campo).includes(buscado),
+      normalizarTexto(campo).includes(buscado),
     );
   });
 }

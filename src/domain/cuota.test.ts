@@ -1,5 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { cuotasRestantes, proximoPago } from "./cuota";
+import { cuotasRestantes, proximoPago, urgenciaDeDeuda } from "./cuota";
+
+describe("urgenciaDeDeuda", () => {
+  const ahora = new Date("2026-11-02T12:00:00");
+
+  it("sin fecha límite no hay urgencia", () => {
+    expect(urgenciaDeDeuda(null, ahora)).toBeNull();
+  });
+
+  it("vencida si la fecha ya pasó", () => {
+    expect(urgenciaDeDeuda("2026-11-01", ahora)).toBe("vencida");
+  });
+
+  it("pronto si faltan 30 días o menos", () => {
+    expect(urgenciaDeDeuda("2026-11-02", ahora)).toBe("pronto");
+    expect(urgenciaDeDeuda("2026-12-01", ahora)).toBe("pronto");
+  });
+
+  it("sin urgencia si falta más de un mes", () => {
+    expect(urgenciaDeDeuda("2026-12-31", ahora)).toBeNull();
+  });
+});
 
 describe("cuotasRestantes", () => {
   it("divide lo que falta entre la cuota y redondea hacia arriba", () => {
