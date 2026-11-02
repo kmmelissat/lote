@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -10,7 +11,7 @@ type Variante = "mango" | "claro" | "teal";
  * El botón de la landing: borde y sombra dura, que "salta" al pasar el mouse y se hunde al tocarlo.
  * `enOscuro` cambia el borde y la sombra a crema para fondos verde oscuro.
  */
-export function BotonLanding({
+export function BotonLanding<T extends string>({
   href,
   children,
   variante = "mango",
@@ -18,7 +19,7 @@ export function BotonLanding({
   enOscuro = false,
   className = "",
 }: {
-  href: string;
+  href: Route<T>;
   children: ReactNode;
   variante?: Variante;
   chico?: boolean;

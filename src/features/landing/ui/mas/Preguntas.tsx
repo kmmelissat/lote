@@ -18,7 +18,7 @@ export function Preguntas() {
           <p className="text-[18px] font-medium leading-relaxed text-teal-oscuro/85">{p.intro}</p>
           <div className="hidden items-end gap-2 md:flex">
             <LotitoMas nombre="saluda" className="w-32 -rotate-6 md:w-40" />
-            <Globo className="rotate-2">Si no está acá, preguntame.</Globo>
+            <Globo className="rotate-2">{p.globo}</Globo>
           </div>
         </Aparece>
         <ApareceGrupo as="div" className="flex flex-col gap-4">

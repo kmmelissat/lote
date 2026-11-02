@@ -1,3 +1,4 @@
+import { ruta } from "@/lib/ruta";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { cargarCompra, PantallaCompra } from "@/features/catalog/pantallaCompra";
@@ -31,7 +32,7 @@ async function Comprar({ params, searchParams }: Props) {
         ahorros={ahorros}
         opciones={opciones}
         zonas={negocio.zonasEntrega}
-        volverHref={`/c/${slug}/${producto.codigo}`}
+        volverHref={ruta(`/c/${slug}/${producto.codigo}`)}
       />
     </PantallaCompra>
   );

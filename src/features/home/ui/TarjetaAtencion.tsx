@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { LotitoMas } from "@/components/ui/LotitoMas";
@@ -11,7 +12,7 @@ const t = textos.inicio;
 const fila = "flex min-h-12 items-center gap-3 rounded-xl border-2 border-teal-oscuro bg-superficie px-3 py-2 font-medium transition-colors hover:bg-teal-fondo";
 
 /** Una fila de acción: ícono, qué es y a dónde lleva. */
-function Fila({ href, icono, children }: { href: string; icono: NombreIcono; children: React.ReactNode }) {
+function Fila({ href, icono, children }: { href: Route; icono: NombreIcono; children: React.ReactNode }) {
   return (
     <Link href={href} className={fila}>
       <Icon nombre={icono} className="size-5 shrink-0" />

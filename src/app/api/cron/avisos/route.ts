@@ -29,9 +29,13 @@ export async function GET(request: Request) {
     // Y las fotos que ya nadie usa (subidas que nunca se guardaron, importaciones deshechas); lo de más de 24 h
     const fotosBorradas = await encontrarSueltas(supabase)
       .then(({ sueltas }) => borrarRutas(supabase, sueltas.map((a) => a.ruta)))
-      .catch(() => 0);
+      .catch((error: unknown) => {
+        console.error("cron/avisos: no se pudieron borrar las fotos sueltas", error);
+        return 0;
+      });
     return Response.json({ ...resumen, ofertas: ofertas ?? 0, fotosBorradas });
-  } catch {
+  } catch (error) {
+    console.error("cron/avisos: falló la tarea", error);
     return Response.json({ error: "No se pudo procesar la cola" }, { status: 500 });
   }
 }

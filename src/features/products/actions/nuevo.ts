@@ -2,6 +2,7 @@
 
 import { CAMPO_PAGO_COMPRA } from "@/features/gestion/campos";
 import { anotarCompra, plataDeCompra } from "@/features/gestion/compra";
+import type { Route } from "next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { proveedorIA } from "@/features/ai/index";
@@ -15,6 +16,7 @@ import { nombreConVariante } from "@/domain";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
 import { contextoDeLaTienda } from "@/features/catalog/repositorio";
 import { negocioActual } from "@/lib/negocio";
+import { conBusqueda, ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos.form;
@@ -31,9 +33,9 @@ function textoErrorFilas(e: ErrorGrupo): string {
 }
 
 /** Adónde ir al guardar: la ficha, o el formulario limpio si pidió "guardar y agregar otro". Lleva el nombre para el aviso. */
-function destino(valores: Record<string, string>, codigo: number, nombre: string): string {
-  const creado = `creado=${encodeURIComponent(nombre)}`;
-  return valores.otro === "1" ? `/productos/nuevo?${creado}` : `/productos/${codigo}?${creado}`;
+function destino(valores: Record<string, string>, codigo: number, nombre: string): Route {
+  const creado = new URLSearchParams({ creado: nombre });
+  return conBusqueda(valores.otro === "1" ? "/productos/nuevo" : ruta(`/productos/${codigo}`), creado);
 }
 
 export async function nuevoProducto(

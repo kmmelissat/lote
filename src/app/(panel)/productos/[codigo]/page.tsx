@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
@@ -29,6 +29,7 @@ import { MAXIMO_VARIANTES } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
+import { conBusqueda, ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos;
@@ -50,7 +51,7 @@ function gananciaDe(v: Producto) {
 }
 
 /** Todas las variantes en una tabla: stock, precio y ganancia. Cada fila lleva a ver solo esa. */
-function TablaVariantes({ variantes, umbral, url }: { variantes: Producto[]; umbral: number; url: (v: Producto) => string }) {
+function TablaVariantes({ variantes, umbral, url }: { variantes: Producto[]; umbral: number; url: (v: Producto) => Route }) {
   return (
     <Card role="region" aria-labelledby="variantes-producto" className="flex flex-col gap-3">
       <div>
@@ -112,11 +113,12 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
   // /productos/7?variante=12 una variante. Quien llega con el código de otra (un pedido, por ejemplo) ve esa.
   const primera = variantes[0]?.codigo;
   if (conVariantes && codigo !== primera) redirect(`/productos/${primera}?variante=${elegida ?? codigo}`);
-  const urlDe = (v: Producto) => `/productos/${primera}?variante=${v.codigo}`;
-  const urlTodas = `/productos/${primera ?? codigo}`;
+  const urlDe = (v: Producto) => conBusqueda(ruta(`/productos/${primera}`), `variante=${v.codigo}`);
+  const urlTodas = ruta(`/productos/${primera ?? codigo}`);
   const enFoco = conVariantes ? variantes.find((v) => v.codigo === elegida) : undefined;
   const general = conVariantes && !enFoco;
   const p = enFoco ?? encontrado;
+  const otraVariante = variantes.find((v) => v.codigo !== p.codigo);
   // Aparte y sin romper nada: si todavía no existe la columna, la ficha se ve igual.
   const codigoDeBarras = !general && negocio.puedeGestionar && negocio.tieneLocal ? await codigoDeBarrasDe(supabase, p.id).catch(() => null) : null;
   // Quiénes esperan este producto (o cualquiera de sus variantes)
@@ -223,7 +225,7 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
 
         {/* A la derecha, el panel: lo que pasa con el producto */}
         <div className="flex min-w-0 flex-col gap-4">
-          <LoQueTeDeja productos={general ? variantes : [p]} hrefCosto={negocio.puedeGestionar ? `/productos/${p.codigo}/editar` : undefined} />
+          <LoQueTeDeja productos={general ? variantes : [p]} hrefCosto={negocio.puedeGestionar ? ruta(`/productos/${p.codigo}/editar`) : undefined} />
 
           {general && <TablaVariantes variantes={variantes} umbral={negocio.umbralPocoStock} url={urlDe} />}
 
@@ -283,7 +285,7 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
                 nombre={p.nombre}
                 alcance={conVariantes ? "variante" : "producto"}
                 // La que quede primera pasa a ser la dirección del producto
-                despues={conVariantes ? `/productos/${variantes.find((v) => v.codigo !== p.codigo)?.codigo}` : undefined}
+                despues={otraVariante ? ruta(`/productos/${otraVariante.codigo}`) : undefined}
               />
             ))}
         </div>

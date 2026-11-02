@@ -1,14 +1,16 @@
 "use server";
 
+import type { Route } from "next";
 import { normalizarTexto } from "@/domain";
 import { listarClientes } from "@/features/customers/repositorio";
 import { paginaDePedidos } from "@/features/orders/repositorio";
 import { listarProductos } from "@/features/products/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
+import { ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 
-type ResultadoBusqueda = { clave: string; titulo: string; detalle: string; href: string };
+type ResultadoBusqueda = { clave: string; titulo: string; detalle: string; href: Route };
 export type ResultadosBusqueda = {
   productos: ResultadoBusqueda[];
   clientes: ResultadoBusqueda[];
@@ -38,12 +40,12 @@ export async function buscarEnLote(consulta: string): Promise<ResultadosBusqueda
         clave: p.id,
         titulo: p.nombre,
         detalle: `${formatearDolares(p.precio)} · ${p.codigo}`,
-        href: `/productos/${p.codigo}`,
+        href: ruta(`/productos/${p.codigo}`),
       })),
     clientes: clientes
       .filter((c) => normalizarTexto(`${c.nombre} ${c.contacto ?? ""}`).includes(q))
       .slice(0, MAXIMO)
-      .map((c) => ({ clave: c.id, titulo: c.nombre, detalle: c.contacto ?? "", href: `/clientes/${c.id}` })),
+      .map((c) => ({ clave: c.id, titulo: c.nombre, detalle: c.contacto ?? "", href: ruta(`/clientes/${c.id}`) })),
     pedidos: pedidos
       .filter((p) => normalizarTexto(`${textos.pedidos.pedido(p.codigo)} ${p.codigo} ${p.cliente ?? ""} ${p.items.map((i) => i.nombre).join(" ")}`).includes(q))
       .slice(0, MAXIMO)
@@ -51,7 +53,7 @@ export async function buscarEnLote(consulta: string): Promise<ResultadosBusqueda
         clave: p.id,
         titulo: p.items[0]?.nombre ?? textos.pedidos.pedido(p.codigo),
         detalle: `${textos.pedidos.pedido(p.codigo)} · ${p.cliente ?? textos.pedidos.sinCliente}`,
-        href: `/pedidos/${p.codigo}`,
+        href: ruta(`/pedidos/${p.codigo}`),
       })),
   };
 }

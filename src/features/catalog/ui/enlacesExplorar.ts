@@ -1,3 +1,5 @@
+import type { Route } from "next";
+import { conBusqueda } from "@/lib/ruta";
 import type { OrdenExplorar } from "../explorar";
 import { rutaRubro } from "../explorar";
 import { esRubro, rubroDeCategoria } from "../rubros";
@@ -24,7 +26,7 @@ export type Filtros = {
  * Arma la dirección de Explorar con los filtros que estén puestos (lo que está por defecto no se escribe).
  * El rubro va en la ruta; búsqueda, precio, orden y página van como parámetros.
  */
-export function enlace(f: Filtros): string {
+export function enlace(f: Filtros): Route {
   const p = new URLSearchParams();
   const enRuta = f.vista === "productos" && esRubro(f.categoria);
   if (f.vista !== "productos") p.set("vista", f.vista);
@@ -39,17 +41,15 @@ export function enlace(f: Filtros): string {
   if (f.gratis) p.set("gratis", "1");
   if (f.oferta) p.set("oferta", "1");
   if (f.pagina && f.pagina > 1) p.set("pagina", String(f.pagina));
-  const s = p.toString();
-  const base =
-    enRuta && esRubro(f.categoria) ? rutaRubro(f.categoria) : "/marketplace";
-  return s ? `${base}?${s}` : base;
+  const base = enRuta && esRubro(f.categoria) ? rutaRubro(f.categoria) : "/marketplace";
+  return conBusqueda(base, p);
 }
 
 /**
  * El enlace y su rel: lo que lleva parámetros (filtros, orden, páginas) no lo siguen los buscadores. Cambiar un filtro no sube la página
  * (`scroll: false`): quien está mirando las categorías se queda donde está. Solo cambiar de página de resultados vuelve arriba (`alInicio`).
  */
-export function enlaceExplorar(f: Filtros, alInicio = false): { href: string; rel?: string; scroll?: false } {
+export function enlaceExplorar(f: Filtros, alInicio = false): { href: Route; rel?: string; scroll?: false } {
   const href = enlace(f);
   const base = href.includes("?") ? { href, rel: "nofollow" } : { href };
   return alInicio ? base : { ...base, scroll: false };

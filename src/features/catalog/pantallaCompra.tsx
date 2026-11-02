@@ -1,3 +1,4 @@
+import { ruta } from "@/lib/ruta";
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { nombreBase, type AhorroPromocion } from "@/domain";
@@ -56,7 +57,7 @@ export function PantallaCompra({
   return (
     <MarcaTienda color={negocio.color}>
       <div className="mx-auto flex max-w-4xl flex-col gap-6">
-        <EncabezadoCompra volverHref={`/c/${slug}/${producto.codigo}`} volverTexto={t.volverAlProducto} tienda={negocio.nombre} titulo={titulo} ayuda={ayuda} />
+        <EncabezadoCompra volverHref={ruta(`/c/${slug}/${producto.codigo}`)} volverTexto={t.volverAlProducto} tienda={negocio.nombre} titulo={titulo} ayuda={ayuda} />
         <DosColumnas
           resumen={
             <ResumenPedido

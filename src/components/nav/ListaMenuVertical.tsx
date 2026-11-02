@@ -1,5 +1,5 @@
-"use client";
-
+import { ruta as rutaDe } from "@/lib/ruta";
+import type { Route } from "next";
 import Link from "next/link";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
@@ -51,7 +51,7 @@ export function ListaMenuVertical({
     </>
   );
 
-  const externo = (clave: string, href: string, etiqueta: string, nombre: NombreIcono) => (
+  const externo = (clave: string, href: Route, etiqueta: string, nombre: NombreIcono) => (
     <li key={clave}>
       <Link
         href={href}
@@ -104,7 +104,7 @@ export function ListaMenuVertical({
               })}
               {esNegocio ? (
                 <>
-                  {slug && !esDuena && externo("/vitrina", `/c/${slug}`, t.vitrina, "tienda")}
+                  {slug && !esDuena && externo("/vitrina", rutaDe(`/c/${slug}`), t.vitrina, "tienda")}
                   {externo("/marketplace", "/marketplace", t.explorar, "explorar")}
                 </>
               ) : null}

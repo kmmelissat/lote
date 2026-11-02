@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
@@ -16,7 +17,7 @@ export function PageHeader({
   titulo: ReactNode;
   descripcion: string;
   accion?: ReactNode;
-  volver?: { href: string; etiqueta: string };
+  volver?: { href: Route; etiqueta: string };
   /** Un dibujo (Lotito) al lado de la acción; solo en pantallas anchas */
   ilustracion?: ReactNode;
 }) {

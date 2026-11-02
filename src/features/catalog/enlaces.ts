@@ -2,11 +2,14 @@ import { textos } from "@/lib/textos";
 
 const t = textos.vitrina;
 
+/** Un enlace a otro sitio (WhatsApp, redes): con protocolo, así `Link` lo acepta sin pasar por las rutas de Lote. */
+export type EnlaceExterno = `https://${string}`;
+
 /** WhatsApp abre con el chat y el mensaje armado. Sin número válido no hay enlace. */
 export function enlaceWhatsApp(
   numero: string | null,
   mensaje: string,
-): string | null {
+): EnlaceExterno | null {
   const digitos = (numero ?? "").replace(/\D/g, "");
   return digitos.length >= 8
     ? `https://wa.me/${digitos}?text=${encodeURIComponent(mensaje)}`
@@ -14,7 +17,7 @@ export function enlaceWhatsApp(
 }
 
 /** Instagram no deja precargar texto: se abre el perfil. */
-export function enlaceInstagram(usuario: string | null): string | null {
+export function enlaceInstagram(usuario: string | null): EnlaceExterno | null {
   const limpio = (usuario ?? "").trim().replace(/^@/, "");
   return /^[A-Za-z0-9._]{1,30}$/.test(limpio)
     ? `https://ig.me/m/${limpio}`
@@ -75,7 +78,7 @@ export function esFacebook(usuario: string): boolean {
   return /^[A-Za-z0-9._-]{1,50}$/.test(usuario);
 }
 
-export function enlaceFacebook(usuario: string | null): string | null {
+export function enlaceFacebook(usuario: string | null): EnlaceExterno | null {
   const limpio = facebookDe(usuario ?? "");
   return limpio && esFacebook(limpio)
     ? `https://www.facebook.com/${limpio}`
@@ -103,7 +106,7 @@ export function esTiktok(usuario: string): boolean {
   return /^[A-Za-z0-9._]{2,24}$/.test(usuario);
 }
 
-export function enlaceTiktok(usuario: string | null): string | null {
+export function enlaceTiktok(usuario: string | null): EnlaceExterno | null {
   const limpio = tiktokDe(usuario ?? "");
   return limpio && esTiktok(limpio)
     ? `https://www.tiktok.com/@${limpio}`

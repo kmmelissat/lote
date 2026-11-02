@@ -7,6 +7,7 @@ import { colorDeEstado } from "@/components/ui/StatusChip";
 import { TarjetaDato } from "@/components/ui/TarjetaDato";
 import { enlaceWhatsApp } from "@/features/catalog/enlaces";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
+import { conBusqueda } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 import { resumenDeClientes, type OrdenCliente } from "../filtro";
 import type { ClienteConResumen } from "../repositorio";
@@ -20,8 +21,7 @@ function enlace(texto: string, conSaldo: boolean, orden: OrdenCliente) {
   if (texto.trim()) q.set("q", texto);
   if (conSaldo) q.set("saldo", "1");
   if (orden !== "deben") q.set("orden", orden);
-  const cadena = q.toString();
-  return cadena ? `/clientes?${cadena}` : "/clientes";
+  return conBusqueda("/clientes", q);
 }
 
 // En pantalla ancha cada dato tiene su columna; en el celular quedan la cara, el nombre y lo que debe.

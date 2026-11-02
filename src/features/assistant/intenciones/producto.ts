@@ -1,5 +1,6 @@
 import { costoPromedio } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
+import { ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 import type { Ctx, Respuesta } from "../tipos";
 import { productoDe, registrar, textoDeError } from "../ayudas";
@@ -29,7 +30,7 @@ export async function crearProducto(c: Ctx<"crear_producto">): Promise<Respuesta
           intencion.cantidad,
           intencion.costo === null ? null : formatearDolares(intencion.costo),
         ),
-        enlaces: [{ etiqueta: t.verProducto(r.valor.codigo), href: `/productos/${r.valor.codigo}` }],
+        enlaces: [{ etiqueta: t.verProducto(r.valor.codigo), href: ruta(`/productos/${r.valor.codigo}`) }],
       },
       inverso: { tipo: "producto", producto_id: r.valor.id },
       descripcion: t.descProducto(intencion.nombre),
@@ -62,7 +63,7 @@ async function crearConVariantes({ d, entrada, intencion, salida, extras }: Ctx<
           ...lineas,
           intencion.costo === null ? t.faltaCostoVariantes : t.costoVariantes(formatearDolares(intencion.costo)),
         ].join("\n"),
-        enlaces: primero ? [{ etiqueta: t.verProducto(primero.codigo), href: `/productos/${primero.codigo}` }] : undefined,
+        enlaces: primero ? [{ etiqueta: t.verProducto(primero.codigo), href: ruta(`/productos/${primero.codigo}`) }] : undefined,
       },
       inverso: { tipo: "grupo", grupo: r.valor.grupo },
       descripcion: t.descProducto(intencion.nombre),

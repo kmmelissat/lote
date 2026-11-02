@@ -17,7 +17,7 @@ const origenServidor = () => "";
 export function EnlaceSeguimiento({ pedidoId }: { pedidoId: string }) {
   const { avisar } = useToast();
   const origen = useSyncExternalStore(sinSuscripcion, origenActual, origenServidor);
-  const ruta = `/p/${pedidoId}`;
+  const ruta = `/p/${pedidoId}` as const;
 
   async function copiar() {
     try {

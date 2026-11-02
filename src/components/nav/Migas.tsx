@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, type ReactNode } from "react";
@@ -11,8 +12,8 @@ const PANEL = new Set(["inicio", "productos", "pedidos", "clientes", "dinero", "
 const SALTAR = new Set(["c", "p"]);
 const SIN_MIGAS = new Set(["login", "crear-negocio", "auth", "landing-mas"]);
 
-type Casa = { href: string; etiqueta: string; icono: "inicio" | "tienda" };
-type Miga = { href: string; etiqueta: string };
+type Casa = { href: Route; etiqueta: string; icono: "inicio" | "tienda" };
+type Miga = { href: Route; etiqueta: string };
 
 function etiquetaDe(tramo: string) {
   const conocido = textos.migas[tramo];
@@ -43,14 +44,15 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
   for (const parte of partes) {
     acumulado.push(parte);
     if (SALTAR.has(parte)) continue;
-    const href = `/${acumulado.join("/")}`;
+    // Sale de la dirección actual, así que la página existe: no hay nada que validar
+    const href = `/${acumulado.join("/")}` as Route;
     if (href === casa.href) continue;
     items.push({ href, etiqueta: etiquetaDe(parte) });
   }
   return { casa, items };
 }
 
-function Pastilla({ children, actual, href, panel }: { children: ReactNode; actual: boolean; href?: string; panel?: boolean }) {
+function Pastilla({ children, actual, href, panel }: { children: ReactNode; actual: boolean; href?: Route; panel?: boolean }) {
   const clase = actual
     ? `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-extrabold text-teal-oscuro ${panel ? "bg-teal-fondo" : "bg-limon"}`
     : `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-bold text-texto-2 ${panel ? "hover:bg-teal-fondo hover:text-teal-oscuro" : "hover:bg-crema hover:text-teal-oscuro"}`;

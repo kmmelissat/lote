@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { Icon, type NombreIcono } from "./Icon";
@@ -48,14 +49,14 @@ export function Button({
   );
 }
 
-export function ButtonLink({
+export function ButtonLink<T extends string>({
   variante = "primario",
   tamano = "normal",
   icono,
   className = "",
   children,
   ...props
-}: Props & ComponentProps<typeof Link>) {
+}: Props & Omit<ComponentProps<typeof Link>, "href"> & { href: Route<T> }) {
   return (
     <Link className={`${estiloBoton(variante, tamano)} ${className}`} {...props}>
       {icono && <Icon nombre={icono} className="size-5 shrink-0" />}

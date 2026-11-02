@@ -1,4 +1,5 @@
 // Lo que se manda y se recibe en cada turno del chat.
+import type { Route } from "next";
 import type { SalidaEntender } from "../ai/esquema";
 import type { ProveedorIA, Turno } from "../ai/provider";
 import type { Falta, Intencion } from "./intencion";
@@ -30,7 +31,7 @@ export type Respuesta = {
   /** Texto listo para copiar (por ejemplo el mensaje de cobro) */
   copiar?: string;
   /** Pantallas a las que la respuesta lleva (por ejemplo desde una pregunta frecuente) */
-  enlaces?: { etiqueta: string; href: string }[];
+  enlaces?: { etiqueta: string; href: Route }[];
   /** No se pudo leer lo que la persona quiso: se anota para mejorar a Lotito */
   noEntendido?: boolean;
 };

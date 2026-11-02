@@ -253,6 +253,7 @@ export const landing = {
   preguntas: {
     titulo: "Preguntas frecuentes",
     intro: "Lo que más nos preguntaron en las entrevistas, y algunas cosas más.",
+    globo: "Si no está acá, preguntame.",
     abrir: "Abrir",
     items: [
       {

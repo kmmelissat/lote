@@ -19,7 +19,7 @@ export function idSeccion(valor: unknown): IdSeccion {
 }
 
 function hrefSeccion(id: IdSeccion) {
-  return id === "tienda" ? "/ajustes/tienda" : `/ajustes/tienda?seccion=${id}`;
+  return id === "tienda" ? "/ajustes/tienda" : (`/ajustes/tienda?seccion=${id}` as const);
 }
 
 export function SeccionesTienda({ activa }: { activa: IdSeccion }) {

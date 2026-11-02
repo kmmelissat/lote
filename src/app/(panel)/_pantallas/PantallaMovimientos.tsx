@@ -26,6 +26,7 @@ import { SeccionesGestion } from "@/features/gestion/ui/SeccionesGestion";
 import { SeccionesDinero } from "@/features/profit/ui/SeccionesDinero";
 import { ListaMovimientos } from "@/features/profit/ui/ListaMovimientos";
 import { negocioActual } from "@/lib/negocio";
+import { conBusqueda } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 
 
@@ -51,7 +52,7 @@ export async function PantallaMovimientos({
   despues?: (periodo: Periodo) => ReactNode;
 }) {
   const t = seccion === "gestion" ? { ...textos.dinero, titulo: textos.gestion.titulo, descripcion: textos.gestion.descripciones.movimientos } : textos.dinero;
-  const ruta = `/${seccion}/movimientos`;
+  const ruta = seccion === "gestion" ? "/gestion/movimientos" : "/dinero/movimientos";
   const params = await searchParams;
   const clave: ClavePeriodo = esClavePeriodo(uno(params.periodo)) ? (uno(params.periodo) as ClavePeriodo) : "mes";
   const tipo: Tipo = TIPOS.includes(uno(params.tipo) as Tipo) ? (uno(params.tipo) as Tipo) : "todos";
@@ -95,7 +96,7 @@ export async function PantallaMovimientos({
     });
     if (q && !cambios.sinQ) partes.set("q", q);
     if (cambios.pagina && cambios.pagina > 1) partes.set("pagina", String(cambios.pagina));
-    return `${ruta}?${partes.toString()}`;
+    return conBusqueda(ruta, partes);
   };
   const filtroPeriodo = (
     <FiltroDinero

@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
+import { suscribirAEventos } from "@/lib/eventosVentana";
 import { textos } from "@/lib/textos";
 
 const t = textos.vitrina.compra;
@@ -12,10 +13,7 @@ export const campoCompra =
 // Lo que quien compra escribió la última vez, para no pedírselo de nuevo. Queda solo en su navegador.
 const CLAVE = "lote_cliente_v1";
 
-const suscribir = (aviso: () => void) => {
-  window.addEventListener("storage", aviso);
-  return () => window.removeEventListener("storage", aviso);
-};
+const suscribir = suscribirAEventos();
 const leer = () => {
   try {
     return localStorage.getItem(CLAVE) ?? "";
@@ -38,7 +36,9 @@ export function useDatosGuardados(): { nombre: string; telefono: string; clave: 
 export function guardarDatos(nombre: string, telefono: string) {
   try {
     localStorage.setItem(CLAVE, JSON.stringify({ nombre, telefono }));
-  } catch {}
+  } catch {
+    // Sin almacenamiento (modo privado, cuota llena) se piden de nuevo la próxima vez
+  }
 }
 
 /** El WhatsApp con el +503 puesto: se escribe solo el número y se envía completo. */

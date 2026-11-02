@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { suscribirAEventos } from "@/lib/eventosVentana";
 import { textos } from "@/lib/textos";
 import { Chat } from "./Chat";
 import { AvatarLotito } from "./PiezasChat";
@@ -21,14 +22,7 @@ const UMBRAL = 6;
 
 type Posicion = { derecha: number; abajo: number };
 
-const suscribirPosicion = (aviso: () => void) => {
-  window.addEventListener("storage", aviso);
-  window.addEventListener(EVENTO_POSICION, aviso);
-  return () => {
-    window.removeEventListener("storage", aviso);
-    window.removeEventListener(EVENTO_POSICION, aviso);
-  };
-};
+const suscribirPosicion = suscribirAEventos(EVENTO_POSICION);
 const leerPosicion = () => {
   try {
     return localStorage.getItem(CLAVE_POSICION);
@@ -40,7 +34,9 @@ function guardarPosicion(p: Posicion | null) {
   try {
     if (p) localStorage.setItem(CLAVE_POSICION, JSON.stringify(p));
     else localStorage.removeItem(CLAVE_POSICION);
-  } catch {}
+  } catch {
+    // Sin almacenamiento (modo privado, cuota llena) la posición dura solo esta visita
+  }
   window.dispatchEvent(new Event(EVENTO_POSICION));
 }
 function leerJson(cruda: string | null): Posicion | null {

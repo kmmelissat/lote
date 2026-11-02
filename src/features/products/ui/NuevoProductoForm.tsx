@@ -18,7 +18,6 @@ import { CartelLotito } from "./CartelLotito";
 import { BloqueForm } from "./BloqueForm";
 import { useFichaLotito } from "./useFichaLotito";
 import { DetallesProducto } from "./DetallesProducto";
-import { leerDetalles, type Detalle } from "../infoExtra";
 import {
   atajosDeFormulario,
   Campo,
@@ -122,18 +121,7 @@ export function NuevoProductoForm({
   const [precio, setPrecio] = useState(v.precio ?? "");
   const [margen, setMargen] = useState(String(MARGEN_POR_DEFECTO));
   const [rutas, setRutas] = useState<string[]>(editando ? modo.fotos : []);
-  const [nombre, setNombre] = useState(v.nombre ?? "");
   const [cantidad, setCantidad] = useState(v.cantidad ?? "1");
-  const [categoria, setCategoria] = useState(v.categoria ?? "");
-  const [marca, setMarca] = useState(v.marca ?? "");
-  const [descripcion, setDescripcion] = useState(v.descripcion ?? "");
-  const [condicion, setCondicion] = useState<"nuevo" | "usado">(
-    v.condicion === "usado" ? "usado" : "nuevo",
-  );
-  // Lo que le da confianza a quien compra: detalles en lista y, si es usado, cómo está
-  const [detalles, setDetalles] = useState<Detalle[]>(() =>
-    leerDetalles(v.detalles),
-  );
   // Las variantes: al editar, armadas desde las que existen; al crear, vacías con la base del precio y la cantidad
   const [editor, setEditor] = useState<EstadoEditor>(() =>
     variantesIniciales
@@ -154,6 +142,9 @@ export function NuevoProductoForm({
     setTipo("variantes");
   };
   const {
+    ficha: { nombre, categoria, marca, descripcion, condicion, detalles },
+    setCondicion,
+    setDetalles,
     deLotito,
     estadoLotito,
     extrasLotito,
@@ -168,18 +159,6 @@ export function NuevoProductoForm({
     fotoInicial: editando ? (modo.fotos[0] ?? null) : null,
     v,
     variantesIniciales,
-    nombre,
-    setNombre,
-    categoria,
-    setCategoria,
-    marca,
-    setMarca,
-    descripcion,
-    setDescripcion,
-    condicion,
-    setCondicion,
-    detalles,
-    setDetalles,
     editor,
     setEditor,
     setTipo,

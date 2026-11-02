@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import type { PuntoDeEquilibrio, ResumenPeriodo } from "@/domain";
@@ -118,7 +119,7 @@ export function BloqueDato({
   etiqueta: string;
   valor: string;
   texto: string;
-  href: string;
+  href: Route;
   icono: NombreIcono;
 }) {
   return (

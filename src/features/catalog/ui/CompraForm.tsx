@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import { totalAhorro, totalDeLineas, type AhorroPromocion } from "@/domain";
 import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
@@ -82,7 +83,7 @@ export function CompraForm({
   /** Dónde entrega la tienda; null es todo el país. Fuera de zona se puede pedir igual, con un aviso. */
   zonas: ZonasEntrega;
   /** A dónde lleva "Volver" en el primer paso: la página del producto */
-  volverHref: string;
+  volverHref: Route;
 }) {
   const [estado, accion, pendiente] = useActionState<EstadoApartar, FormData>(
     carrito ? comprarCarrito.bind(null, slug) : comprarProducto.bind(null, slug, lineas[0].codigo),

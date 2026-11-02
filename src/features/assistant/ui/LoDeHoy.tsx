@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { colorDeEstado } from "@/components/ui/StatusChip";
 import { LotitoMas } from "@/components/ui/LotitoMas";
@@ -24,7 +25,7 @@ export async function LoDeHoy() {
   ]);
   const r = resumenInicio(unidades, pedidos, ahora);
 
-  const contadores = [
+  const contadores: { etiqueta: string; valor: number; href: Route; banda: string }[] = [
     { etiqueta: t.apartados, valor: r.apartadas, href: "/pedidos?estado=pendiente", banda: colorDeEstado("apartado") },
     { etiqueta: t.porCobrar, valor: r.porPagar, href: "/pedidos?estado=pendiente", banda: colorDeEstado("pagado") },
     { etiqueta: t.porEnviar, valor: r.porEnviar, href: "/pedidos?estado=pagado", banda: colorDeEstado("enviado") },

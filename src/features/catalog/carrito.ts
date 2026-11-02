@@ -1,4 +1,5 @@
 import { useMemo, useSyncExternalStore } from "react";
+import { suscribirAEventos } from "@/lib/eventosVentana";
 import { lineasDe, MAX_CANTIDAD, MAX_LINEAS, type LineaCarrito } from "./carritoReglas";
 
 // El carrito vive en el navegador de quien compra (uno por tienda): solo guarda qué producto y cuántas unidades.
@@ -20,7 +21,9 @@ function crudo(slug: string): string {
 function guardar(slug: string, lineas: LineaCarrito[]) {
   try {
     localStorage.setItem(clave(slug), JSON.stringify(lineas));
-  } catch {}
+  } catch {
+    // Sin almacenamiento (modo privado, cuota llena) el carrito no se guarda; el aviso de abajo igual repinta
+  }
   window.dispatchEvent(new Event(EVENTO));
 }
 
@@ -48,14 +51,7 @@ export function vaciarCarrito(slug: string) {
   guardar(slug, []);
 }
 
-const suscribir = (aviso: () => void) => {
-  window.addEventListener(EVENTO, aviso);
-  window.addEventListener("storage", aviso);
-  return () => {
-    window.removeEventListener(EVENTO, aviso);
-    window.removeEventListener("storage", aviso);
-  };
-};
+const suscribir = suscribirAEventos(EVENTO);
 
 /** El carrito de esta tienda. En el servidor y en el primer pintado está vacío; el navegador lo llena al hidratar. */
 export function useCarrito(slug: string): LineaCarrito[] {

@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -20,7 +21,7 @@ export function EncabezadoCompra({
   titulo,
   ayuda,
 }: {
-  volverHref: string;
+  volverHref: Route;
   volverTexto: string;
   tienda: string;
   titulo: string;

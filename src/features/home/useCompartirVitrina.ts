@@ -27,7 +27,7 @@ export function useCompartirVitrina(negocioId: string, slug: string) {
   }
 
   // Lo que se manda va a clientes: lleva la dirección pública, no la del navegador (que puede ser localhost).
-  const whatsapp = `https://wa.me/?text=${encodeURIComponent(textos.inicio.primerosPasos.mensajeCompartir(`${urlSitio}/c/${slug}`))}`;
+  const whatsapp: `https://${string}` = `https://wa.me/?text=${encodeURIComponent(textos.inicio.primerosPasos.mensajeCompartir(`${urlSitio}/c/${slug}`))}`;
 
   return { copiar, whatsapp, marcar };
 }

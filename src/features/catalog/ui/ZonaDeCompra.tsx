@@ -1,5 +1,6 @@
 "use client";
 
+import { conBusqueda, ruta } from "@/lib/ruta";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
@@ -117,7 +118,8 @@ export function ZonaDeCompra({
   const clave = `${seleccionada?.codigo ?? 0}-${unidades}`;
   const aviso = resultado?.clave === clave ? resultado.valor : null;
   const pista = faltan.length ? t.elegirPrimero(faltan.join(" y ")) : t.stockElegi;
-  const base = seleccionada ? `/c/${slug}/${seleccionada.codigo}` : "";
+  const enlaceA = (accion: "apartar" | "comprar") =>
+    conBusqueda(ruta(`/c/${slug}/${seleccionada?.codigo ?? 0}/${accion}`), `n=${unidades}`);
   const boton = "inline-flex h-11 items-center justify-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold transition-[transform,box-shadow] duration-150";
 
   return (
@@ -212,7 +214,7 @@ export function ZonaDeCompra({
           <p className="text-sm text-texto-2">
             {t.dudas}{" "}
             {listo ? (
-              <Link href={`${base}/apartar?n=${unidades}`} className="font-bold text-teal underline">
+              <Link href={enlaceA("apartar")} className="font-bold text-teal underline">
                 {t.apartarEnlace(plazoHoras)}
               </Link>
             ) : (
@@ -297,7 +299,7 @@ export function ZonaDeCompra({
               )}
               {/* Sin comprar, el botón principal es apartar */}
               {listo ? (
-                <Link href={`${base}/${permiteComprar ? "comprar" : "apartar"}?n=${unidades}`} className={`${boton} flex-1 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none sm:px-8`}>
+                <Link href={enlaceA(permiteComprar ? "comprar" : "apartar")} className={`${boton} flex-1 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none sm:px-8`}>
                   {permiteComprar ? t.modoComprar : t.modoApartar}
                 </Link>
               ) : (

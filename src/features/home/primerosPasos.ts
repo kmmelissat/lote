@@ -1,3 +1,4 @@
+import type { Route } from "next";
 export type ClavePaso = "producto" | "pago" | "pedido" | "tienda" | "envio" | "compartir";
 
 export type PasoInicial = {
@@ -6,7 +7,7 @@ export type PasoInicial = {
 };
 
 /** Adónde lleva cada paso. Compartir se hace desde la tarjeta de Inicio, con sus botones. */
-export const ENLACES_PASOS: Record<ClavePaso, string> = {
+export const ENLACES_PASOS: Record<ClavePaso, Route> = {
   producto: "/productos/nuevo",
   tienda: "/ajustes/tienda",
   envio: "/ajustes/tienda?seccion=envios",

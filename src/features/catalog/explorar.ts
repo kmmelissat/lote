@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { aCentavos, type Centavos } from "@/domain";
+import { ruta } from "@/lib/ruta";
 import type { Database } from "@/lib/supabase/database.types";
 import { agruparEnRubros, type Rubro, type RubroId } from "./rubros";
 
@@ -35,7 +36,7 @@ export type ProductoExplorar = {
 };
 
 /** La página de un rubro tiene dirección propia, sin parámetros: es la que se indexa. */
-export const rutaRubro = (rubro: RubroId) => `/marketplace/categoria/${rubro}`;
+export const rutaRubro = (rubro: RubroId) => ruta(`/marketplace/categoria/${rubro}`);
 
 export const ORDENES_EXPLORAR = ["recientes", "precio_asc", "precio_desc"] as const;
 export type OrdenExplorar = (typeof ORDENES_EXPLORAR)[number];

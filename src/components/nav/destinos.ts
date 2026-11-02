@@ -1,9 +1,10 @@
+import type { Route } from "next";
 import type { NombreIcono } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 
 /** A dónde se puede saltar desde el buscador: cada pantalla del panel, con las palabras con que la gente la busca. */
 export type Destino = {
-  href: string;
+  href: Route;
   titulo: string;
   /** Una línea que dice para qué sirve, para que quien busca reconozca la pantalla */
   detalle: string;

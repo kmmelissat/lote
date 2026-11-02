@@ -28,8 +28,8 @@ export function Encabezado({ conSesion }: { conSesion: boolean }) {
             </BotonLanding>
           ) : (
             <>
-              <BotonLanding href="/login" variante="claro" chico className="max-sm:hidden">
-                {t.entrar}
+              <BotonLanding href="#como" variante="claro" chico className="max-sm:hidden md:max-lg:hidden">
+                {t.hero.verComo}
               </BotonLanding>
               <BotonLanding href="/login" chico>
                 {t.empezar}

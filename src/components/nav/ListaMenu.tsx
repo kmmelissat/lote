@@ -1,5 +1,5 @@
-"use client";
-
+import { ruta as rutaDe } from "@/lib/ruta";
+import type { Route } from "next";
 import Link from "next/link";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
@@ -49,7 +49,7 @@ export function ListaMenu({
   );
 
   /** Un cuadro que sale del panel: abre en otra pestaña y nunca está "activo". */
-  const externo = (clave: string, href: string, etiqueta: string, nombre: NombreIcono) => (
+  const externo = (clave: string, href: Route, etiqueta: string, nombre: NombreIcono) => (
     <li key={clave} className="relative">
       <Link
         href={href}
@@ -96,7 +96,7 @@ export function ListaMenu({
           </li>
         );
       })}
-      {slug && !esDuena && externo("/vitrina", `/c/${slug}`, t.vitrina, "tienda")}
+      {slug && !esDuena && externo("/vitrina", rutaDe(`/c/${slug}`), t.vitrina, "tienda")}
       {externo("/marketplace", "/marketplace", t.explorar, "explorar")}
     </ul>
   );

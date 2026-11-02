@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { textos } from "@/lib/textos";
 import type { TiendaExplorar } from "../explorar";
@@ -132,7 +133,7 @@ export function CalleTiendas({ tiendas }: { tiendas: TiendaExplorar[] }) {
 }
 
 /** La calle con su título y, si se pasa `verTodas`, el enlace a la lista de tiendas. */
-export function SeccionCalle({ tiendas, verTodas }: { tiendas: TiendaExplorar[]; verTodas?: { href: string; rel?: string } }) {
+export function SeccionCalle({ tiendas, verTodas }: { tiendas: TiendaExplorar[]; verTodas?: { href: Route; rel?: string } }) {
   return (
     <section aria-labelledby="calle-de-lote" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-3">

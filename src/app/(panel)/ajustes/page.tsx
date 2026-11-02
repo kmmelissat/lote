@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/nav/PageHeader";
@@ -8,7 +9,7 @@ import { textos } from "@/lib/textos";
 
 export const metadata: Metadata = { title: textos.ajustes.titulo };
 
-type Opcion = { href: string; icono: NombreIcono; tono: string; titulo: string; texto: string; soloDuena?: boolean; soloGestion?: boolean };
+type Opcion = { href: Route; icono: NombreIcono; tono: string; titulo: string; texto: string; soloDuena?: boolean; soloGestion?: boolean };
 
 const GRUPOS: { titulo: string; opciones: Opcion[] }[] = [
   {

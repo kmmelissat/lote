@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
@@ -28,7 +29,7 @@ export function BorrarProducto({
   nombre: string;
   alcance: "producto" | "variante" | "todas";
   variantes?: number;
-  despues?: string;
+  despues?: Route;
 }) {
   const texto = {
     producto: { seccion: t.seccion, ayuda: t.ayuda, boton: t.boton, confirmar: t.texto },

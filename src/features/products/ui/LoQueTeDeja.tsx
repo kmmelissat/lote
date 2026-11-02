@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { DesgloseCosto } from "@/domain";
@@ -16,7 +17,7 @@ const rango = (valores: number[], formato: (n: number) => string) => {
  * Cuánto deja el producto: por unidad, con lo que queda y con lo ya vendido. Con varias variantes suma todas
  * (las que no tienen costo no entran en la cuenta); con una sola, muestra también de qué está hecho el costo.
  */
-export function LoQueTeDeja({ productos, hrefCosto }: { productos: Producto[]; hrefCosto?: string }) {
+export function LoQueTeDeja({ productos, hrefCosto }: { productos: Producto[]; hrefCosto?: Route }) {
   // Sin permiso para ver costos no llegan: no hay nada que mostrar
   if (!productos.length || productos[0].costoUnitario === undefined) return null;
 

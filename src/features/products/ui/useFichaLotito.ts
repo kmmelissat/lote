@@ -19,23 +19,14 @@ const PAUSA_MS = 380;
 
 type Valores = Record<string, string>;
 
-/** Lotito lee la primera foto y llena lo que está vacío. También abre y cierra los bloques opcionales. */
+/**
+ * La parte de la ficha que Lotito puede llenar (nombre, categoría, marca, descripción, condición y detalles) vive acá:
+ * Lotito lee la primera foto y llena lo que está vacío. También abre y cierra los bloques opcionales.
+ */
 export function useFichaLotito({
   fotoInicial,
   v,
   variantesIniciales,
-  nombre,
-  setNombre,
-  categoria,
-  setCategoria,
-  marca,
-  setMarca,
-  descripcion,
-  setDescripcion,
-  condicion,
-  setCondicion,
-  detalles,
-  setDetalles,
   editor,
   setEditor,
   setTipo,
@@ -44,23 +35,19 @@ export function useFichaLotito({
   fotoInicial: string | null;
   v: Valores;
   variantesIniciales: object | null;
-  nombre: string;
-  setNombre: (s: string) => void;
-  categoria: string;
-  setCategoria: (s: string) => void;
-  marca: string;
-  setMarca: (s: string) => void;
-  descripcion: string;
-  setDescripcion: (s: string) => void;
-  condicion: "nuevo" | "usado";
-  setCondicion: (c: "nuevo" | "usado") => void;
-  detalles: Detalle[];
-  setDetalles: Dispatch<SetStateAction<Detalle[]>>;
   editor: EstadoEditor;
   setEditor: Dispatch<SetStateAction<EstadoEditor>>;
   setTipo: (tipo: "simple" | "variantes") => void;
   setRutas: (rutas: string[]) => void;
 }) {
+  const [nombre, setNombre] = useState(v.nombre ?? "");
+  const [categoria, setCategoria] = useState(v.categoria ?? "");
+  const [marca, setMarca] = useState(v.marca ?? "");
+  const [descripcion, setDescripcion] = useState(v.descripcion ?? "");
+  const [condicion, setCondicion] = useState<"nuevo" | "usado">(v.condicion === "usado" ? "usado" : "nuevo");
+  // Lo que le da confianza a quien compra: detalles en lista y, si es usado, cómo está
+  const [detalles, setDetalles] = useState<Detalle[]>(() => leerDetalles(v.detalles));
+
   // Cuáles bloques opcionales están abiertos (los que Lotito llena se abren solos, para que se vea qué revisar)
   // Al editar (o repetir un producto) los bloques que ya tienen datos arrancan abiertos
   const [abiertos, setAbiertos] = useState<Record<string, boolean>>(() => {
@@ -199,5 +186,19 @@ export function useFichaLotito({
   const estaAbierto = (id: string, defecto = false, forzar = false) => forzar || (abiertos[id] ?? defecto);
   const alternar = (id: string, defecto = false, forzar = false) => setAbiertos((a) => ({ ...a, [id]: !estaAbierto(id, defecto, forzar) }));
 
-  return { deLotito, estadoLotito, extrasLotito, hayLotito, brillo, cambiarFotos, editar, deshacerLotito, estaAbierto, alternar };
+  return {
+    ficha: { nombre, categoria, marca, descripcion, condicion, detalles },
+    setCondicion,
+    setDetalles,
+    deLotito,
+    estadoLotito,
+    extrasLotito,
+    hayLotito,
+    brillo,
+    cambiarFotos,
+    editar,
+    deshacerLotito,
+    estaAbierto,
+    alternar,
+  };
 }

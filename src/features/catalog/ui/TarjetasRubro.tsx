@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import {
   Baby,
@@ -65,7 +66,7 @@ function Contenido({ Icono, nombre }: { Icono: LucideIcon; nombre: string }) {
 }
 
 /** La fila de categorías de Explorar: tarjetas con ícono y color, no un botón más. */
-export function TarjetasRubro({ rubros, activo, enlace }: { rubros: Rubro[]; activo: string; enlace: (rubro: string) => { href: string; rel?: string; scroll?: false } }) {
+export function TarjetasRubro({ rubros, activo, enlace }: { rubros: Rubro[]; activo: string; enlace: (rubro: string) => { href: Route; rel?: string; scroll?: false } }) {
   // Si la elegida está entre las que van en "Más", pasa a la vista
   const elegida = rubros.findIndex((r) => r.id === activo);
   const orden = elegida >= VISIBLES ? [...rubros.slice(0, VISIBLES - 1), rubros[elegida], ...rubros.slice(VISIBLES - 1).filter((r) => r.id !== activo)] : rubros;

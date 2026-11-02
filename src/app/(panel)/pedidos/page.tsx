@@ -14,6 +14,7 @@ import { ListaPedidos } from "@/features/orders/ui/ListaPedidos";
 import { porCobrar } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
+import { conBusqueda } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 
 const t = textos.pedidos;
@@ -52,12 +53,12 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
   const total = Object.values(cuentas).reduce((suma, n) => suma + n, 0);
   const hayMas = pedidos.length > POR_PAGINA;
   const visibles = pedidos.slice(0, POR_PAGINA);
-  const enlace = (cambios: { estado?: string; pagina?: number }) => {
+  const enlace = (cambios: { estado?: string; pagina?: number; sinQ?: boolean }) => {
     const e = cambios.estado ?? estado;
     const partes = new URLSearchParams({ estado: e });
-    if (q) partes.set("q", q);
+    if (q && !cambios.sinQ) partes.set("q", q);
     if (cambios.pagina && cambios.pagina > 1) partes.set("pagina", String(cambios.pagina));
-    return `/pedidos?${partes.toString()}`;
+    return conBusqueda("/pedidos", partes);
   };
 
   return (
@@ -92,7 +93,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
             placeholder={t.buscar.placeholder}
           />
           {q && (
-            <ButtonLink href={enlace({}).replace(/&q=[^&]*/, "")} variante="suave" icono="x">
+            <ButtonLink href={enlace({ sinQ: true })} variante="suave" icono="x">
               {t.buscar.quitar}
             </ButtonLink>
           )}

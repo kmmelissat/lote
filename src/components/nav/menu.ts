@@ -1,4 +1,6 @@
+import type { Route } from "next";
 import type { NombreIcono } from "@/components/ui/Icon";
+import { suscribirAEventos } from "@/lib/eventosVentana";
 import { textos } from "@/lib/textos";
 
 const t = textos.nav;
@@ -10,7 +12,7 @@ export type DatosMenu = {
   /** Pedidos enviados sin marcar como entregados: en el menú son un puntito, sin número */
   enCamino: number;
   /** Cuántos primeros pasos hay hechos y cuántos son; null si ya terminó todo o no le toca configurar */
-  pasos: { hechos: number; total: number; siguiente: { titulo: string; href: string } } | null;
+  pasos: { hechos: number; total: number; siguiente: { titulo: string; href: Route } } | null;
   slug: string;
   /** Si tiene un local: entonces el menú de acción rápida ofrece el Mostrador */
   tieneLocal: boolean;
@@ -19,7 +21,7 @@ export type DatosMenu = {
   perfil: { nombre: string; detalle: string; logo: string | null };
 };
 
-export type Pestana = { href: string; etiqueta: string; icono: NombreIcono };
+export type Pestana = { href: Route; etiqueta: string; icono: NombreIcono };
 
 export const pestanas: Pestana[] = [
   { href: "/inicio", etiqueta: t.inicio, icono: "inicio" },
@@ -37,7 +39,7 @@ export const ajustesEscritorio: Pestana[] = [
 ];
 
 /** Las secciones del menú de escritorio, por grupos. Lo externo (Marketplace, vitrina) va al final de "Tu negocio". */
-export const gruposMenu: { titulo: string; rutas: string[] }[] = [
+export const gruposMenu: { titulo: string; rutas: Route[] }[] = [
   { titulo: t.grupos.vender, rutas: ["/inicio", "/productos", "/pedidos", "/clientes"] },
   { titulo: t.grupos.dinero, rutas: ["/dinero", "/gestion"] },
   { titulo: t.grupos.negocio, rutas: ["/asistente", "/ajustes/tienda"] },
@@ -77,14 +79,7 @@ export const PINTA_HOVER_SECCION: Record<string, string> = {
 export const CLAVE_CERRADO = "lote_menu_cerrado";
 export const EVENTO_MENU = "lote-menu";
 
-export const suscribirMenu = (aviso: () => void) => {
-  window.addEventListener("storage", aviso);
-  window.addEventListener(EVENTO_MENU, aviso);
-  return () => {
-    window.removeEventListener("storage", aviso);
-    window.removeEventListener(EVENTO_MENU, aviso);
-  };
-};
+export const suscribirMenu = suscribirAEventos(EVENTO_MENU);
 export const menuCerrado = () => {
   try {
     return localStorage.getItem(CLAVE_CERRADO) === "1";
@@ -93,4 +88,4 @@ export const menuCerrado = () => {
   }
 };
 
-export const activaEn = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`);
+export const activaEn = (pathname: string, href: Route) => pathname === href || pathname.startsWith(`${href}/`);

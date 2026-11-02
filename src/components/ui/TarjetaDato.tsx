@@ -1,9 +1,10 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { Icon, type NombreIcono } from "./Icon";
 import { estiloCard } from "./Card";
 
 /** Un número con su etiqueta. En el celular va chica, en fila; en escritorio trae la explicación y el acceso. */
-export function TarjetaDato({
+export function TarjetaDato<T extends string>({
   etiqueta,
   valor,
   texto,
@@ -17,7 +18,7 @@ export function TarjetaDato({
   valor: string | number;
   texto: string;
   /** Sin enlace, la tarjeta solo se lee */
-  href?: string;
+  href?: Route<T>;
   /** Un aviso de "ojo": ámbar, como el chip de poco stock */
   chip?: { texto: string };
   /** El color del estado que cuenta (el del chip), como banda en el borde izquierdo */

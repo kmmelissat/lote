@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 
 const PUNTO = { rosa: "bg-rosa", ambar: "bg-ambar", limon: "bg-limon", celeste: "bg-celeste" } as const;
@@ -14,7 +15,7 @@ export function DatoSencillo({
   etiqueta: string;
   valor: string;
   texto: string;
-  href: string;
+  href: Route;
 }) {
   return (
     <Link

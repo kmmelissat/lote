@@ -1,3 +1,4 @@
+import { ruta } from "@/lib/ruta";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
@@ -27,7 +28,7 @@ export default async function EditarProductoPage({ params }: PageProps<"/product
       <PageHeader
         titulo={t.titulo}
         descripcion={t.descripcion}
-        volver={{ href: `/productos/${codigo}`, etiqueta: t.volver }}
+        volver={{ href: ruta(`/productos/${codigo}`), etiqueta: t.volver }}
       />
       <Formulario params={params} />
     </>

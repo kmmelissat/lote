@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
@@ -12,7 +13,7 @@ import { destinosDe } from "./destinos";
 
 const t = textos.nav.paleta;
 
-type Opcion = { clave: string; grupo: string; titulo: string; detalle?: string; href: string; icono: NombreIcono };
+type Opcion = { clave: string; grupo: string; titulo: string; detalle?: string; href: Route; icono: NombreIcono };
 
 /** El buscador de todo (⌘K): acciones y pantallas al instante, y productos, clientes y pedidos mientras escribís. */
 export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; tieneLocal: boolean; esDuena: boolean }) {

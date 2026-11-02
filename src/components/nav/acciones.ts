@@ -1,10 +1,11 @@
+import type { Route } from "next";
 import type { NombreIcono } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 
 const r = textos.nav.rapida;
 
 /** Lo que se hace más seguido, para el menú de "Acción rápida" y para la paleta. */
-const ACCIONES: { href: string; etiqueta: string; icono: NombreIcono; tono: string }[] = [
+const ACCIONES: { href: Route; etiqueta: string; icono: NombreIcono; tono: string }[] = [
   { href: "/productos/nuevo", etiqueta: r.producto, icono: "productos", tono: "bg-limon" },
   { href: "/productos/importar", etiqueta: r.importar, icono: "hoja", tono: "bg-celeste/40" },
   { href: "/pedidos/nuevo", etiqueta: r.pedido, icono: "pedidos", tono: "bg-rosa" },
@@ -16,7 +17,7 @@ const ACCIONES: { href: string; etiqueta: string; icono: NombreIcono; tono: stri
 export const accionesDe = (tieneLocal: boolean) => ACCIONES.filter((a) => a.href !== "/mostrador" || tieneLocal);
 
 /** Las pantallas del panel, para saltar con la paleta. */
-export const PANTALLAS: { href: string; etiqueta: string; icono: NombreIcono }[] = [
+export const PANTALLAS: { href: Route; etiqueta: string; icono: NombreIcono }[] = [
   { href: "/inicio", etiqueta: textos.nav.inicio, icono: "inicio" },
   { href: "/productos", etiqueta: textos.nav.productos, icono: "productos" },
   { href: "/pedidos", etiqueta: textos.nav.pedidos, icono: "pedidos" },

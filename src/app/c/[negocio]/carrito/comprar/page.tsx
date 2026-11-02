@@ -1,3 +1,4 @@
+import { ruta } from "@/lib/ruta";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
@@ -30,7 +31,7 @@ async function ComprarCarrito({ params }: Props) {
   return (
     <MarcaTienda color={negocio.color}>
       <div className="mx-auto flex max-w-4xl flex-col gap-6">
-        <EncabezadoCompra volverHref={`/c/${slug}/carrito`} volverTexto={t.volver} tienda={negocio.nombre} titulo={t.compraTitulo} ayuda={t.compraAyuda} />
+        <EncabezadoCompra volverHref={ruta(`/c/${slug}/carrito`)} volverTexto={t.volver} tienda={negocio.nombre} titulo={t.compraTitulo} ayuda={t.compraAyuda} />
         <CheckoutCarrito slug={slug} opciones={opciones} zonas={negocio.zonasEntrega} />
       </div>
     </MarcaTienda>

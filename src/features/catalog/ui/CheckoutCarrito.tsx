@@ -1,5 +1,6 @@
 "use client";
 
+import { ruta } from "@/lib/ruta";
 import { totalAhorro, totalDeLineas } from "@/domain";
 import Link from "next/link";
 import { useCallback } from "react";
@@ -68,7 +69,7 @@ export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opcio
           ahorros={ahorros}
           opciones={opciones}
           zonas={zonas}
-          volverHref={`/c/${slug}/carrito`}
+          volverHref={ruta(`/c/${slug}/carrito`)}
         />
       </DosColumnas>
     </div>

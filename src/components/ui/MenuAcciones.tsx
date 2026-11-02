@@ -1,10 +1,11 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type KeyboardEvent as TeclaReact } from "react";
 import { Icon, type NombreIcono } from "./Icon";
 
-export type AccionMenu = { etiqueta: string; icono: NombreIcono } & ({ href: string } | { alElegir: () => void });
+export type AccionMenu = { etiqueta: string; icono: NombreIcono } & ({ href: Route } | { alElegir: () => void });
 
 /**
  * Las acciones que no se usan siempre, guardadas en un cuadrito "⋯" para no llenar la pantalla de botones.

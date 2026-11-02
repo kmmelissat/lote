@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { DEPARTAMENTOS } from "@/lib/departamentos";
 import { textos } from "@/lib/textos";
@@ -39,11 +40,11 @@ export function PanelFiltros({
 }: {
   filtros: FiltrosPanel;
   rubros: Rubro[];
-  enlaceRubro: (id: string) => { href: string; rel?: string; scroll?: false };
+  enlaceRubro: (id: string) => { href: Route; rel?: string; scroll?: false };
   /** Una categoría dentro del rubro elegido ("" = todo el rubro) */
-  enlaceCategoria: (nombre: string) => { href: string; rel?: string; scroll?: false };
+  enlaceCategoria: (nombre: string) => { href: Route; rel?: string; scroll?: false };
   /** A dónde lleva "Quitar filtros" (conserva solo la búsqueda y el orden) */
-  limpiar: string | null;
+  limpiar: Route | null;
 }) {
   const f = filtros;
   const total = rubros.reduce((n, r) => n + r.productos, 0);

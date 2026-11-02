@@ -1,6 +1,7 @@
+import type { Route } from "next";
 import Link from "next/link";
 
-type Pestana = { valor: string; etiqueta: string; etiquetaCorta?: string; href: string; cantidad?: number };
+type Pestana = { valor: string; etiqueta: string; etiquetaCorta?: string; href: Route; cantidad?: number };
 
 /**
  * Los estados de una lista como filtro: cada uno es un enlace y la pantalla lee el parámetro en el servidor. Se ven como

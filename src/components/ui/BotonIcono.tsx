@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { Icon, type NombreIcono } from "./Icon";
@@ -32,7 +33,13 @@ export function BotonIcono({ icono, etiqueta, variante = "secundario", tamano = 
   );
 }
 
-export function BotonIconoLink({ icono, etiqueta, variante = "secundario", tamano = "normal", ...props }: Props & Omit<ComponentProps<typeof Link>, "children" | "className">) {
+export function BotonIconoLink<T extends string>({
+  icono,
+  etiqueta,
+  variante = "secundario",
+  tamano = "normal",
+  ...props
+}: Props & Omit<ComponentProps<typeof Link>, "children" | "className" | "href"> & { href: Route<T> }) {
   return (
     <Link aria-label={etiqueta} title={etiqueta} className={clase(variante, tamano)} {...props}>
       <Icon nombre={icono} className="size-5" />

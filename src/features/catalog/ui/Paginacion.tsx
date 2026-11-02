@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { textos } from "@/lib/textos";
@@ -25,14 +26,14 @@ export function Paginacion({
   porPagina: number;
   total: number | null;
   hayMas: boolean;
-  enlace: (pagina: number) => { href: string; rel?: string };
+  enlace: (pagina: number) => { href: Route; rel?: string };
 }) {
   const totalPaginas = total === null ? null : Math.max(1, Math.ceil(total / porPagina));
   const haySiguiente = totalPaginas === null ? hayMas : pagina < totalPaginas;
   if (pagina === 1 && !haySiguiente) return null;
   const ir = (p: number) => {
     const e = enlace(p);
-    return { ...e, href: `${e.href}#todos` };
+    return { ...e, href: `${e.href}#todos` as Route };
   };
   const visto = total === null ? null : rango(pagina, porPagina, total);
 

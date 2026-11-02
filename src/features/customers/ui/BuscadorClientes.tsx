@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
+import { conBusqueda } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 import { esOrdenCliente, ORDENES_CLIENTES, type OrdenCliente } from "../filtro";
 
@@ -16,8 +17,7 @@ function direccion({ texto, soloConSaldo, orden }: Estado) {
   if (texto.trim()) q.set("q", texto);
   if (soloConSaldo) q.set("saldo", "1");
   if (orden !== "deben") q.set("orden", orden);
-  const cadena = q.toString();
-  return cadena ? `/clientes?${cadena}` : "/clientes";
+  return conBusqueda("/clientes", q);
 }
 
 /** La búsqueda filtra al escribir (sin recargar a lo bruto) y queda en la dirección. */

@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Cada href de Link y de router.push se revisa al compilar: renombrar una sección rompe tsc, no los enlaces
+  typedRoutes: true,
   // El comprobante viaja en la acción (una captura comprimida pesa de 0.3 a 1.5 MB); el límite por defecto es 1 MB.
   experimental: { serverActions: { bodySizeLimit: "3mb" } },
   // Las imágenes de vista previa leen sus fuentes y el gorila del disco: que viajen con esas rutas al desplegar.

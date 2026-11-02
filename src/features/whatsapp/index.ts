@@ -1,3 +1,4 @@
+import "server-only";
 import type { TipoAviso } from "@/domain";
 import type { CanalMensajeria } from "./canal";
 import { crearCanalCloudApi } from "./cloudApi";

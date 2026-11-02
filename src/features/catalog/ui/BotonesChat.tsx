@@ -1,3 +1,4 @@
+import type { EnlaceExterno } from "../enlaces";
 import { textos } from "@/lib/textos";
 import { IconoFacebook, IconoInstagram, IconoTiktok, IconoWhatsApp } from "./IconosRedes";
 import { enlaceFacebook, enlaceInstagram, enlaceTiktok, enlaceWhatsApp } from "../enlaces";
@@ -35,7 +36,7 @@ export function BotonesChat({
     ig && { href: ig, etiqueta: "Instagram" },
     fb && { href: fb, etiqueta: "Facebook" },
     tk && { href: tk, etiqueta: "TikTok" },
-  ].filter((r): r is { href: string; etiqueta: string } => !!r);
+  ].filter((r): r is { href: EnlaceExterno; etiqueta: string } => !!r);
   if (!redes.length) return null;
   if (discreto) {
     return (

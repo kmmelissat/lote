@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 
@@ -12,7 +13,7 @@ export function FiltroDinero({
 }: {
   etiqueta: string;
   valor: string;
-  opciones: { valor: string; etiqueta: string; href: string }[];
+  opciones: { valor: string; etiqueta: string; href: Route }[];
   className?: string;
 }) {
   const router = useRouter();
