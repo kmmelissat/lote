@@ -1,20 +1,18 @@
-import type { Metadata, Route } from "next";
-import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { colorDeEstado } from "@/components/ui/StatusChip";
 import { TarjetaDato } from "@/components/ui/TarjetaDato";
-import type { Estado } from "@/components/ui/StatusChip";
-import { estadoProducto, nombreBase } from "@/domain";
+import { nombreBase } from "@/domain";
 import { codigoDeBarrasDe } from "@/features/counter/repositorio";
 import { CodigoDeBarrasForm } from "@/features/counter/ui/CodigoDeBarrasForm";
 import { actualizarOfertas, ofertasDe } from "@/features/offers/repositorio";
 import { OfertaProducto } from "@/features/offers/ui/OfertaProducto";
-import { estadoVisible } from "@/features/products/estadoVisible";
 import { fotosDelGrupo } from "@/features/products/fotosVariantes";
 import { listarAvisosDeStock, listarGrupo, obtenerProducto, pedidosDeProducto, type Producto } from "@/features/products/repositorio";
+import { resumenFicha } from "@/features/products/resumenFicha";
 import { AccionesProducto } from "@/features/products/ui/AccionesProducto";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
 import { AvisosDeStock } from "@/features/products/ui/AvisosDeStock";
@@ -24,10 +22,11 @@ import { GaleriaProducto } from "@/features/products/ui/GaleriaProducto";
 import { LoQueTeDeja } from "@/features/products/ui/LoQueTeDeja";
 import { PedidosDelProducto } from "@/features/products/ui/PedidosDelProducto";
 import { StickerVendido } from "@/features/products/ui/StickerVendido";
+import { TablaVariantes } from "@/features/products/ui/TablaVariantes";
+import { VerVariantes } from "@/features/products/ui/VerVariantes";
 import { VistaPreviaProducto } from "@/features/products/ui/VistaPreviaProducto";
 import { MAXIMO_VARIANTES } from "@/features/products/variantes";
 import { urlFoto } from "@/lib/fotos";
-import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { conBusqueda, ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
@@ -42,57 +41,6 @@ export default function ProductoPage({ params, searchParams }: PageProps<"/produ
       <AvisoCreado />
       <Detalle params={params} searchParams={searchParams} />
     </>
-  );
-}
-
-/** La ganancia por unidad de una variante, o "sin costo". */
-function gananciaDe(v: Producto) {
-  return v.costoUnitario === undefined || v.costoUnitario === null ? null : v.precio - v.costoUnitario;
-}
-
-/** Todas las variantes en una tabla: stock, precio y ganancia. Cada fila lleva a ver solo esa. */
-function TablaVariantes({ variantes, umbral, url }: { variantes: Producto[]; umbral: number; url: (v: Producto) => Route }) {
-  return (
-    <Card role="region" aria-labelledby="variantes-producto" className="flex flex-col gap-3">
-      <div>
-        <h2 id="variantes-producto" className="font-bold">
-          {t.variantes.titulo}
-        </h2>
-        <p className="text-sm text-texto-2">{t.variantes.ayuda}</p>
-      </div>
-      <ul className="overflow-hidden rounded-2xl border border-borde">
-        {variantes.map((v) => {
-          const g = gananciaDe(v);
-          const estado = estadoVisible(v, umbral);
-          return (
-            <li key={v.id} className="border-t border-borde first:border-t-0">
-              <Link
-                href={url(v)}
-                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-teal-fondo md:grid-cols-[minmax(0,1fr)_9rem_6rem_7rem]"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate font-medium">{v.variante}</span>
-                  <span className="text-sm text-texto-2">#{v.codigo}</span>
-                </span>
-                <span className="text-right font-bold tabular-nums md:order-3">{formatearDolares(v.precio)}</span>
-                <span className="inline-flex items-center gap-2 text-sm md:order-2">
-                  <span
-                    aria-hidden="true"
-                    className={`size-2.5 rounded-full ${v.disponibles === 0 ? "bg-error" : estado === "poco_stock" ? "bg-ambar" : "bg-teal"}`}
-                  />
-                  {v.disponibles > 0 ? t.quedan(v.disponibles) : t.lista.agotado}
-                </span>
-                {v.costoUnitario !== undefined && (
-                  <span className={`text-right text-sm md:order-4 ${g !== null && g < 0 ? "text-error" : "text-teal"}`}>
-                    {g === null ? <span className="text-ambar-texto">{t.sinCosto}</span> : `${g < 0 ? "−" : "+"}${formatearDolares(Math.abs(g))}`}
-                  </span>
-                )}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </Card>
   );
 }
 
@@ -132,12 +80,7 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
   ]);
 
   const base = nombreBase(p.nombre, p.variante);
-  const suma = (k: "disponibles" | "apartadas" | "vendidas" | "cantidad") => (general ? variantes.reduce((n, v) => n + v[k], 0) : p[k]);
-  const disponibles = suma("disponibles");
-  const precios = variantes.map((v) => v.precio);
-  const [bajo, alto] = [Math.min(...precios), Math.max(...precios)];
-  const precioTexto = general ? (bajo === alto ? formatearDolares(bajo) : t.detalle.entre(formatearDolares(bajo), formatearDolares(alto))) : formatearDolares(p.precio);
-  const estadoGeneral: Estado = estadoProducto({ cantidad: suma("cantidad"), apartadas: suma("apartadas"), vendidas: suma("vendidas") });
+  const r = resumenFicha(p, variantes, general);
   // En la vista general van todas las fotos, las de cada variante marcadas con su nombre (como en la vitrina)
   const { fotos, de: deVariante } = general ? fotosDelGrupo(variantes) : { fotos: p.fotos, de: {} };
 
@@ -171,25 +114,18 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
 
       {/* Con variantes: ver todas juntas, o una sola */}
       {conVariantes && (
-        <nav aria-label={t.detalle.ver} className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="text-sm font-bold text-texto-2">{t.detalle.ver}:</span>
-          {[{ href: urlTodas, texto: t.detalle.todas, actual: general }, ...variantes.map((v) => ({ href: urlDe(v), texto: v.variante ?? "", actual: !general && v.codigo === p.codigo }))].map((x) => (
-            <Link
-              key={x.href}
-              href={x.href}
-              aria-current={x.actual ? "page" : undefined}
-              className="inline-flex min-h-10 items-center rounded-full px-4 text-sm font-bold text-texto-2 transition-colors hover:bg-fondo aria-[current=page]:bg-teal-fondo aria-[current=page]:text-teal-oscuro"
-            >
-              {x.texto}
-            </Link>
-          ))}
-        </nav>
+        <VerVariantes
+          opciones={[
+            { href: urlTodas, texto: t.detalle.todas, actual: general },
+            ...variantes.map((v) => ({ href: urlDe(v), texto: v.variante ?? "", actual: !general && v.codigo === p.codigo })),
+          ]}
+        />
       )}
 
       <section aria-label={t.detalle.stock} className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <TarjetaDato etiqueta={est.disponibles} valor={disponibles} texto={est.disponiblesDe(suma("cantidad"))} banda={colorDeEstado("disponible")} icono="caja" />
-        <TarjetaDato etiqueta={est.apartadas} valor={suma("apartadas")} texto={est.apartadasNota} banda={colorDeEstado("apartado")} icono="reloj" />
-        <TarjetaDato etiqueta={est.vendidas} valor={suma("vendidas")} texto={est.vendidasNota} banda={colorDeEstado("pagado")} icono="moneda" />
+        <TarjetaDato etiqueta={est.disponibles} valor={r.disponibles} texto={est.disponiblesDe(r.cantidad)} banda={colorDeEstado("disponible")} icono="caja" />
+        <TarjetaDato etiqueta={est.apartadas} valor={r.apartadas} texto={est.apartadasNota} banda={colorDeEstado("apartado")} icono="reloj" />
+        <TarjetaDato etiqueta={est.vendidas} valor={r.vendidas} texto={est.vendidasNota} banda={colorDeEstado("pagado")} icono="moneda" />
       </section>
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
@@ -199,8 +135,8 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
             soloFicha
             foto={fotos[0] ?? null}
             nombre={general ? base : p.nombre}
-            precio={precioTexto}
-            unidades={disponibles}
+            precio={r.precioTexto}
+            unidades={r.disponibles}
             variantes={general ? variantes.length : 0}
             categoria={p.categoria ?? ""}
           >
@@ -253,9 +189,9 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
                 codigo: p.codigo,
                 nombre: general ? base : p.nombre,
                 descripcion: p.descripcion,
-                precio: general ? bajo : p.precio,
-                estado: general ? estadoGeneral : p.estado,
-                disponibles,
+                precio: r.precioBajo,
+                estado: r.estado,
+                disponibles: r.disponibles,
               }}
             />
           )}

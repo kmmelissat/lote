@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
@@ -21,25 +20,19 @@ import {
   obtenerResenas,
 } from "@/features/catalog/repositorio";
 import { nombreBase } from "@/domain";
-import { agruparParaVitrina, DIAS_NUEVO } from "@/features/catalog/agruparVitrina";
+import { armarFichaPublica } from "@/features/catalog/fichaPublica";
 import { formatearDolares } from "@/lib/formato";
-import { fotosDelGrupo } from "@/features/products/fotosVariantes";
-import { urlFoto } from "@/lib/fotos";
-import { JsonLd } from "@/lib/jsonld";
+import { JsonLdProducto } from "@/features/catalog/ui/JsonLdProducto";
 import { urlSitio } from "@/lib/sitio";
 import { anunciosDePromociones } from "@/features/promotions/descripcion";
 import { promocionesDeVitrina } from "@/features/promotions/repositorio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
-import { LogoTienda } from "@/features/catalog/ui/MarcaTienda";
+import { VolverATienda } from "@/features/catalog/ui/VolverATienda";
 import { ProductosRelacionados } from "@/features/catalog/ui/ProductosRelacionados";
-import { partesDe } from "@/features/catalog/opciones";
 import { ProveedorFotos } from "@/features/catalog/ui/FotosPorVariante";
-import { codigoCanonico, ofertaDe } from "@/features/catalog/seo";
-import {
-  ZonaDeCompra,
-  type VarianteCompra,
-} from "@/features/catalog/ui/ZonaDeCompra";
+import { codigoCanonico } from "@/features/catalog/seo";
+import { ZonaDeCompra } from "@/features/catalog/ui/ZonaDeCompra";
 
 const t = textos.vitrina;
 
@@ -108,171 +101,52 @@ async function Producto({
   if (!negocio || !p) notFound();
 
   // Todo lo que la tienda tiene a la vista: de ahí salen las variantes de este producto y los que se le parecen.
-  const [todos, promociones] = await Promise.all([listarProductosPublicos(supabase, slug), promocionesDeVitrina(supabase, slug)]);
-  // Las variantes hermanas con unidades o apartadas; el producto de esta página siempre cuenta.
-  const hermanas = p.grupo
-    ? todos.filter((o) => o.grupo === p.grupo && o.variante)
-    : [];
-  if (p.grupo && !hermanas.some((o) => o.codigo === p.codigo)) hermanas.push(p);
-  hermanas.sort((a, b) => a.codigo - b.codigo);
-  const variantes: VarianteCompra[] = p.grupo
-    ? hermanas.map((o) => ({
-        codigo: o.codigo,
-        partes: partesDe(o.variante),
-        disponibles: o.disponibles,
-        precio: o.precio,
-        precioAnterior: o.precioAnterior,
-        fotos: o.fotos,
-      }))
-    : [
-        {
-          codigo: p.codigo,
-          partes: [],
-          disponibles: p.disponibles,
-          precio: p.precio,
-          precioAnterior: p.precioAnterior,
-          fotos: [],
-        },
-      ];
+  const [todos, promociones, opcionesDeCompra, resenas] = await Promise.all([
+    listarProductosPublicos(supabase, slug),
+    promocionesDeVitrina(supabase, slug),
+    obtenerOpcionesDeCompra(supabase, slug),
+    obtenerResenas(supabase, slug, p.codigo),
+  ]);
+  const f = armarFichaPublica(p, todos, new Date());
   // Las promociones que tocan a este producto (o a cualquiera de sus variantes), con el nombre de lo que cubren
-  const codigosDeEstaPagina = new Set(variantes.map((v) => v.codigo));
+  const codigosDeEstaPagina = new Set(f.variantes.map((v) => v.codigo));
   const anuncios = anunciosDePromociones(
     promociones.filter((pr) => pr.productos.some((x) => codigosDeEstaPagina.has(x.codigo))),
     todos,
   );
 
-  const [opcionesDeCompra, resenas] = await Promise.all([
-    obtenerOpcionesDeCompra(supabase, slug),
-    obtenerResenas(supabase, slug, p.codigo),
-  ]);
-
-  // Lo que se cuenta de todo el producto: sus variantes juntas
-  const familia = hermanas.length ? hermanas : [p];
-  // La galería muestra las fotos de todas las variantes; al elegir una, salta a la suya
-  const galeria = hermanas.length ? fotosDelGrupo(hermanas) : { fotos: p.fotos, de: {} };
-  const disponiblesTotal = familia.reduce((n, o) => n + o.disponibles, 0);
-  const vendidasTotal = familia.reduce((n, o) => n + o.vendidas, 0);
-  const creado = familia
-    .map((o) => o.creadoEn?.getTime() ?? 0)
-    .reduce((a, b) => Math.max(a, b), 0);
-  const nuevo =
-    creado > 0 && new Date().getTime() - creado < DIAS_NUEVO * 86_400_000;
-
-  // Más de la tienda: primero lo de la misma categoría, después lo demás (sin repetir este producto ni sus variantes)
-  const otros = agruparParaVitrina(
-    todos.filter((o) =>
-      p.grupo ? o.grupo !== p.grupo : o.codigo !== p.codigo,
-    ),
-  );
-  const parecidos = p.categoria
-    ? otros.filter((o) => o.categoria === p.categoria).slice(0, 4)
-    : [];
-  const masDe = otros.filter((o) => !parecidos.includes(o)).slice(0, 4);
-
   const base = nombreBase(p.nombre, p.variante);
-  // El sello de la foto: lo que se rebaja la variante más barata (la que se ve en la vitrina)
-  const masBarata = familia.reduce((m, o) => (o.precio < m.precio ? o : m), familia[0]);
-  const sello =
-    masBarata.precioAnterior !== null && masBarata.precioAnterior > masBarata.precio
-      ? textos.vitrina.etiquetas.oferta(Math.round((1 - masBarata.precio / masBarata.precioAnterior) * 100))
-      : undefined;
   // La dirección que se le da al buscador: la de la variante principal del grupo
   const url = `${urlSitio}/c/${slug}/${codigoCanonico(p, todos)}`;
-  const meta = [
-    p.categoria,
-    p.marca,
-    p.condicion === "usado"
-      ? textos.productos.form.usado
-      : textos.productos.form.nuevo,
-  ]
-    .filter(Boolean)
-    .join(" · ");
 
   return (
     <MarcaTienda color={negocio.color}>
-      <JsonLd
-        datos={{
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: base,
-          description: p.descripcion ?? undefined,
-          image: p.fotos.map((f) => urlFoto(f)),
-          sku: String(p.codigo),
-          brand: p.marca ? { "@type": "Brand", name: p.marca } : undefined,
-          category: p.categoria ?? undefined,
-          itemCondition:
-            p.condicion === "usado"
-              ? "https://schema.org/UsedCondition"
-              : "https://schema.org/NewCondition",
-          offers: ofertaDe(familia, url, negocio.nombre),
-          ...(resenas.total > 0
-            ? {
-                aggregateRating: {
-                  "@type": "AggregateRating",
-                  ratingValue: resenas.promedio.toFixed(1),
-                  reviewCount: resenas.total,
-                },
-                review: resenas.resenas.slice(0, 5).map((r) => ({
-                  "@type": "Review",
-                  author: { "@type": "Person", name: r.nombre },
-                  reviewRating: { "@type": "Rating", ratingValue: r.estrellas, bestRating: 5 },
-                  reviewBody: r.texto ?? undefined,
-                  datePublished: r.creadoEn.toISOString().slice(0, 10),
-                })),
-              }
-            : {}),
-        }}
-      />
-      {/* Las migas: así Google muestra "Tienda › Producto" en vez de la dirección */}
-      <JsonLd
-        datos={{
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: negocio.nombre, item: `${urlSitio}/c/${slug}` },
-            { "@type": "ListItem", position: 2, name: base, item: url },
-          ],
-        }}
-      />
+      <JsonLdProducto producto={p} nombre={base} familia={f.familia} url={url} tienda={{ nombre: negocio.nombre, slug }} resenas={resenas} />
       <div className="flex flex-col gap-8">
-        {/* La tienda: su logo y su nombre, y de ahí se vuelve a su vitrina */}
-        <Link
-          href={`/c/${slug}`}
-          className="inline-flex items-center gap-3 self-start rounded-full border-2 border-teal-oscuro bg-white py-1.5 pl-1.5 pr-5 transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica"
-        >
-          <LogoTienda
-            logo={negocio.logo}
-            nombre={negocio.nombre}
-            className="size-10 !rounded-full"
-          />
-          <span className="flex flex-col leading-tight">
-            <span className="text-xs text-texto-2">{t.verTodos}</span>
-            <span className="font-bold">{negocio.nombre}</span>
-          </span>
-        </Link>
+        <VolverATienda slug={slug} nombre={negocio.nombre} logo={negocio.logo} />
 
         <ProveedorFotos>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div className="flex flex-col gap-5 md:sticky md:top-4 md:self-start">
-              <GaleriaVitrina fotos={galeria.fotos} de={galeria.de} nombre={base} sello={sello} />
+              <GaleriaVitrina fotos={f.galeria.fotos} de={f.galeria.de} nombre={base} sello={f.sello} />
             </div>
 
             <div className="flex min-w-0 flex-col gap-5">
               <div className="flex flex-col gap-2">
-                {meta && <p className="text-sm text-texto-2">{meta}</p>}
+                {f.meta && <p className="text-sm text-texto-2">{f.meta}</p>}
                 <h1 className="font-logo text-4xl font-semibold leading-[1.08] md:text-[2.3rem]">{base}</h1>
                 <Etiquetas
-                  disponibles={disponiblesTotal}
+                  disponibles={f.disponibles}
                   umbral={negocio.umbralPocoStock}
-                  vendidas={vendidasTotal}
-                  nuevo={nuevo}
+                  vendidas={f.vendidas}
+                  nuevo={f.nuevo}
                 />
               </div>
 
               <ZonaDeCompra
                 slug={slug}
                 nombresOpciones={p.opciones}
-                variantes={variantes}
+                variantes={f.variantes}
                 plazoHoras={negocio.plazoHoras}
                 permiteComprar={negocio.permiteComprar}
                 permiteApartar={negocio.permiteApartar}
@@ -332,12 +206,12 @@ async function Producto({
         <ProductosRelacionados
           titulo={textos.vitrina.compra.parecidos}
           slug={slug}
-          productos={parecidos}
+          productos={f.parecidos}
         />
         <ProductosRelacionados
           titulo={textos.vitrina.compra.masDe(negocio.nombre)}
           slug={slug}
-          productos={masDe}
+          productos={f.masDe}
           verTienda
         />
       </div>
