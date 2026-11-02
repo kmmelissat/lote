@@ -1,16 +1,7 @@
 "use client";
 
 import { useAvisarErrores } from "@/components/ui/Toast";
-import {
-  useActionState,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  useTransition,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { useActionState, useId, useRef, useState, type FormEvent } from "react";
 import {
   type Actividad,
   costoUnitario,
@@ -19,17 +10,13 @@ import {
   precioSugerido,
 } from "@/domain/index";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { categoriaPorTexto } from "@/features/catalog/rubros";
 import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import {
-  nuevoProducto,
-  sugerirFicha,
-  type EstadoNuevo,
-  type FichaSugerida,
-} from "../actions/nuevo";
+import { nuevoProducto, type EstadoNuevo } from "../actions/nuevo";
 import { BarraFormulario } from "@/components/ui/BarraFormulario";
-import { CartelLotito, type EstadoLotito } from "./CartelLotito";
+import { CartelLotito } from "./CartelLotito";
+import { BloqueForm } from "./BloqueForm";
+import { useFichaLotito } from "./useFichaLotito";
 import { DetallesProducto } from "./DetallesProducto";
 import { leerDetalles, type Detalle } from "../infoExtra";
 import {
@@ -37,7 +24,6 @@ import {
   Campo,
   CampoDinero,
   Cantidad,
-  ChipLotito,
   Etiqueta,
   estiloCampo,
 } from "./campos";
@@ -45,11 +31,10 @@ import { LugarDeCompra } from "@/components/ui/LugarDeCompra";
 import { SelectorCategoria } from "./SelectorCategoria";
 import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { EditorVariantes } from "./EditorVariantes";
-import { combinaciones, estadoDesdeVariantes, estadoVacio, filaDe, opcionNueva, type DatosFila, type EstadoEditor } from "../editorVariantes";
+import { combinaciones, estadoDesdeVariantes, estadoVacio, filaDe, type DatosFila, type EstadoEditor } from "../editorVariantes";
 import { ZonaFotos } from "./ZonaFotos";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Icon } from "@/components/ui/Icon";
 import { OpcionRadio } from "@/components/ui/OpcionRadio";
 
 const t = textos.productos.form;
@@ -62,15 +47,6 @@ const COSTOS_EXTRA: Record<Actividad, readonly (typeof campoCosto)[number][]> = 
   produzco: ["mano_obra", "envio", "otro"],
   ambos: ["mano_obra", "envio", "importacion", "otro"],
 };
-type CampoLotito = Extract<keyof FichaSugerida, "nombre" | "categoria" | "marca" | "descripcion">;
-const ORDEN_LOTITO: CampoLotito[] = [
-  "nombre",
-  "categoria",
-  "marca",
-  "descripcion",
-];
-/** Lo que tarda Lotito en "escribir" cada campo, para que se sienta que va llenando uno por uno */
-const PAUSA_MS = 380;
 
 /** Lo que muestra la vista previa con variantes: el precio más bajo, cuántas unidades en total y la primera foto propia. */
 function resumenVariantes(e: EstadoEditor) {
@@ -177,138 +153,38 @@ export function NuevoProductoForm({
     }));
     setTipo("variantes");
   };
-  // Cuáles bloques opcionales están abiertos (los que Lotito llena se abren solos, para que se vea qué revisar)
-  // Al editar (o repetir un producto) los bloques que ya tienen datos arrancan abiertos
-  const [abiertos, setAbiertos] = useState<Record<string, boolean>>(() => {
-    const hay = (k: string) => Boolean(v[k]?.trim());
-    return {
-      costos: hay("precio_anterior") || hay("envio") || hay("importacion") || hay("mano_obra") || hay("otro"),
-      masInfo: hay("marca") || v.condicion === "usado" || hay("estado_detalle") || leerDetalles(v.detalles).length > 0,
-    };
-  });
-  // Lo que Lotito llenó además de los campos de texto, para poder deshacerlo
-  const [extrasLotito, setExtrasLotito] = useState({ variantes: false, detalles: false, condicion: false });
-
-  // Lotito: lo que llenó, qué está haciendo y cuál foto ya leyó
-  const [deLotito, setDeLotito] = useState<Set<CampoLotito>>(new Set());
-  const [estadoLotito, setEstadoLotito] = useState<EstadoLotito>("quieto");
-  const [escribiendo, setEscribiendo] = useState<Set<CampoLotito>>(new Set());
-  const [, empezarLectura] = useTransition();
-  // Al editar, la foto que ya tiene no se vuelve a leer: Lotito solo mira las que se agregan
-  const leida = useRef<string | null>(
-    editando ? (modo.fotos[0] ?? null) : null,
-  );
-  const temporizadores = useRef<number[]>([]);
-  useEffect(() => () => temporizadores.current.forEach(clearTimeout), []);
-
-  const setters: Record<CampoLotito, (s: string) => void> = {
-    nombre: setNombre,
-    categoria: setCategoria,
-    marca: setMarca,
-    descripcion: setDescripcion,
-  };
-  const actuales: Record<CampoLotito, string> = {
+  const {
+    deLotito,
+    estadoLotito,
+    extrasLotito,
+    hayLotito,
+    brillo,
+    cambiarFotos,
+    editar,
+    deshacerLotito,
+    estaAbierto,
+    alternar,
+  } = useFichaLotito({
+    fotoInicial: editando ? (modo.fotos[0] ?? null) : null,
+    v,
+    variantesIniciales,
     nombre,
+    setNombre,
     categoria,
+    setCategoria,
     marca,
+    setMarca,
     descripcion,
-  };
-
-  // Lotito no pisa lo que escribió la persona: solo llena campos vacíos o los que él mismo había llenado.
-  function aplicar(visto: FichaSugerida) {
-    // Lo que Lotito vio se pasa a la categoría del catálogo que más se parece; si no dice nada, queda vacío
-    const f = { ...visto, categoria: categoriaPorTexto(visto.categoria)?.nombre ?? null };
-    const llenar = ORDEN_LOTITO.filter(
-      (c) => f[c] && (!actuales[c].trim() || deLotito.has(c)),
-    );
-    setEscribiendo(new Set(llenar));
-    llenar.forEach((campo, i) => {
-      temporizadores.current.push(
-        window.setTimeout(
-          () => {
-            setters[campo](f[campo] as string);
-            setDeLotito((d) => new Set(d).add(campo));
-            setEscribiendo((s) => {
-              const n = new Set(s);
-              n.delete(campo);
-              return n;
-            });
-            if (i === llenar.length - 1) setEstadoLotito("listo");
-          },
-          PAUSA_MS * (i + 1),
-        ),
-      );
-    });
-    if (!llenar.length) setEstadoLotito("listo");
-
-    // Lo demás que vio: condición, detalles y, si hay varias versiones, las variantes. Nunca pisa lo que ya puso la persona.
-    const extras = { variantes: false, detalles: false, condicion: false };
-    if (visto.condicion && (condicion === "nuevo" || extrasLotito.condicion)) {
-      setCondicion(visto.condicion);
-      extras.condicion = visto.condicion === "usado";
-    }
-    if (visto.detalles.length && (!detalles.length || extrasLotito.detalles)) {
-      setDetalles(visto.detalles);
-      extras.detalles = true;
-    }
-    // Las arma si todavía no hay valores escritos (esté en la pestaña que esté) o si las había puesto él mismo
-    const sinValores = editor.opciones.every((o) => !o.valores.length);
-    if (visto.opciones.length && !variantesIniciales && (sinValores || extrasLotito.variantes)) {
-      setEditor((ed) => ({ ...ed, opciones: visto.opciones.map((o) => opcionNueva(o.nombre, o.valores)) }));
-      setTipo("variantes");
-      extras.variantes = true;
-    }
-    setExtrasLotito(extras);
-
-    // Todo lo que Lotito llenó se abre: así se ve de una vez qué hay que revisar
-    const llenoMasInfo = Boolean(f.marca && (!marca.trim() || deLotito.has("marca"))) || extras.detalles || extras.condicion;
-    setAbiertos((a) => ({ ...a, ...(extras.variantes ? { variantes: true } : {}), ...(llenoMasInfo ? { masInfo: true } : {}) }));
-  }
-
-  // Apenas hay una foto nueva arranca solo: un solo gesto, sin botón de "analizar".
-  function leerFoto(ruta: string) {
-    leida.current = ruta;
-    setEstadoLotito("leyendo");
-    setEscribiendo(new Set(ORDEN_LOTITO.filter((c) => !actuales[c].trim())));
-    empezarLectura(async () => {
-      const r = await sugerirFicha(ruta);
-      if ("ficha" in r) aplicar(r.ficha);
-      else {
-        setEscribiendo(new Set());
-        setEstadoLotito(r.error === "sin_ia" ? "sin_ia" : "borrosa");
-      }
-    });
-  }
-
-  function cambiarFotos(nuevas: string[]) {
-    setRutas(nuevas);
-    if (nuevas[0] && nuevas[0] !== leida.current) leerFoto(nuevas[0]);
-  }
-
-  const editar = (campo: CampoLotito) => (valor: string) => {
-    setters[campo](valor);
-    if (deLotito.has(campo))
-      setDeLotito((d) => {
-        const n = new Set(d);
-        n.delete(campo);
-        return n;
-      });
-  };
-
-  function deshacerLotito() {
-    temporizadores.current.forEach(clearTimeout);
-    deLotito.forEach((c) => setters[c](""));
-    setDeLotito(new Set());
-    if (extrasLotito.condicion) setCondicion("nuevo");
-    if (extrasLotito.detalles) setDetalles([]);
-    if (extrasLotito.variantes) {
-      setTipo("simple");
-      setEditor((ed) => ({ ...ed, opciones: estadoVacio().opciones }));
-    }
-    setExtrasLotito({ variantes: false, detalles: false, condicion: false });
-    setEscribiendo(new Set());
-    setEstadoLotito("quieto");
-  }
+    setDescripcion,
+    condicion,
+    setCondicion,
+    detalles,
+    setDetalles,
+    editor,
+    setEditor,
+    setTipo,
+    setRutas,
+  });
 
   // Ganancia en vivo: precio − costo por unidad, con las mismas funciones que usa el servidor.
   function recalcular(ev: FormEvent<HTMLFormElement>) {
@@ -322,31 +198,14 @@ export function NuevoProductoForm({
   }
 
   const precioCentavos = leerDolares(precio);
-  const ganancia =
-    precioCentavos === null || costo === null ? null : precioCentavos - costo;
-  const margenReal =
-    ganancia !== null && precioCentavos
-      ? Math.round((ganancia / precioCentavos) * 100)
-      : null;
-  const sugerido =
-    costo === null
-      ? null
-      : precioSugerido(costo, Number(margen.replace(",", ".")));
-  const unidades =
-    Number.isInteger(Number(cantidad)) && Number(cantidad) > 0
-      ? Number(cantidad)
-      : 1;
-
-  const brillo = (c: CampoLotito) => escribiendo.has(c);
+  const ganancia = precioCentavos === null || costo === null ? null : precioCentavos - costo;
+  const margenReal = ganancia !== null && precioCentavos ? Math.round((ganancia / precioCentavos) * 100) : null;
+  const sugerido = costo === null ? null : precioSugerido(costo, Number(margen.replace(",", ".")));
+  const unidades = Number.isInteger(Number(cantidad)) && Number(cantidad) > 0 ? Number(cantidad) : 1;
   const resumen = resumenVariantes(editor);
-
   const e2 = textos.productos.editar;
   const b = t.bloques;
-  const hayLotito = deLotito.size > 0 || extrasLotito.variantes || extrasLotito.detalles || extrasLotito.condicion;
 
-  // Los bloques opcionales vienen cerrados; la persona los abre. Si tienen un error, o Lotito llenó algo ahí, se abren solos.
-  const estaAbierto = (id: string, defecto = false, forzar = false) => forzar || (abiertos[id] ?? defecto);
-  const alternar = (id: string, defecto = false, forzar = false) => setAbiertos((a) => ({ ...a, [id]: !estaAbierto(id, defecto, forzar) }));
   // Un producto que ya trae un costo de otro tipo lo sigue mostrando: si no, al guardar se perdería
   const costosExtra = campoCosto.filter((k) => k !== "compra" && (COSTOS_EXTRA[actividad].includes(k) || v[k]?.trim()));
   const errorCostos = Boolean(e.envio || e.importacion || e.mano_obra || e.otro);
@@ -624,85 +483,3 @@ export function NuevoProductoForm({
   );
 }
 
-const SUBRAYADO = {
-  limon: "bg-[linear-gradient(transparent_82%,var(--color-limon)_82%,var(--color-limon)_100%)]",
-  mango: "bg-[linear-gradient(transparent_82%,var(--color-mango)_82%,var(--color-mango)_100%)]",
-  rosa: "bg-[linear-gradient(transparent_82%,var(--color-rosa)_82%,var(--color-rosa)_100%)]",
-  celeste: "bg-[linear-gradient(transparent_82%,var(--color-celeste)_82%,var(--color-celeste)_100%)]",
-} as const;
-
-/**
- * Un paso del formulario: número, título subrayado y una línea de apoyo. Los obligatorios están siempre abiertos y su número se
- * pone verde cuando están listos (el número no cambia). Los opcionales traen el número punteado, un resumen de cómo están y se abren al tocarlos
- * (su contenido sigue en la página aunque esté cerrado, para que lo escrito viaje al guardar).
- */
-export function BloqueForm({
-  numero,
-  titulo,
-  ayuda,
-  tono,
-  listo = false,
-  opcional = false,
-  lotito = false,
-  resumen,
-  abierto = true,
-  onAlternar,
-  children,
-}: {
-  numero: number;
-  titulo: string;
-  ayuda: string;
-  tono: keyof typeof SUBRAYADO;
-  listo?: boolean;
-  opcional?: boolean;
-  /** Lotito llenó este bloque: se marca con su chip para que se note qué revisar */
-  lotito?: boolean;
-  resumen?: string;
-  abierto?: boolean;
-  onAlternar?: () => void;
-  children: ReactNode;
-}) {
-  const idPanel = useId();
-  const cabeza = (
-    <>
-      <span
-        aria-hidden="true"
-        className={`flex size-9 shrink-0 items-center justify-center rounded-full font-logo text-lg font-bold ${
-          opcional ? "border-2 border-dashed border-borde-control bg-superficie text-texto-2" : listo ? "bg-teal text-white" : "bg-teal-oscuro text-white"
-        }`}
-      >
-        {numero}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-lg font-bold leading-tight">
-          <span className={`${SUBRAYADO[tono]} box-decoration-clone pb-0.5`}>{titulo}</span>
-          {lotito && <ChipLotito />}
-          {opcional && !lotito && <span className="ml-2 rounded-full bg-fondo px-2 py-0.5 align-middle text-xs font-bold text-texto-2">{textos.productos.form.opcional}</span>}
-        </span>
-        <span className="block text-sm text-texto-2">{ayuda}</span>
-      </span>
-    </>
-  );
-  return (
-    <section className="flex flex-col gap-4">
-      {opcional ? (
-        <button
-          type="button"
-          aria-expanded={abierto}
-          aria-controls={idPanel}
-          onClick={onAlternar}
-          className="flex w-full items-center gap-3 rounded-xl text-left"
-        >
-          {cabeza}
-          {resumen && <span className="hidden max-w-[40%] truncate text-sm text-texto-2 sm:block">{resumen}</span>}
-          <Icon nombre="flecha" className={`size-5 shrink-0 text-texto-2 transition-transform ${abierto ? "rotate-180" : ""}`} />
-        </button>
-      ) : (
-        <div className="flex items-center gap-3">{cabeza}</div>
-      )}
-      <div id={idPanel} className={`flex flex-col gap-4 rounded-2xl bg-fondo p-4 ${abierto ? "" : "hidden"}`}>
-        {children}
-      </div>
-    </section>
-  );
-}

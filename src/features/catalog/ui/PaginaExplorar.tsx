@@ -1,9 +1,6 @@
 import Link from "next/link";
 import { permanentRedirect } from "next/navigation";
 import { connection } from "next/server";
-import { Icon } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
-import { LotitoMas } from "@/components/ui/LotitoMas";
 import {
   explorarDestacados,
   explorarOfertas,
@@ -13,7 +10,6 @@ import {
   explorarTiendas,
   ORDENES_EXPLORAR,
   type OrdenExplorar,
-  rutaRubro,
 } from "../explorar";
 import { categoriaPorTexto, esRubro, rubroDeCategoria } from "../rubros";
 import { ejemplosDeBusqueda, rubroDeProducto } from "../portada";
@@ -22,12 +18,11 @@ import { colorDeMarca } from "../marca";
 import { HeroMercadito } from "./HeroMercadito";
 import { SeccionCalle } from "./CalleTiendas";
 import { FilaProductos } from "./FilaProductos";
-import { Paginacion } from "./Paginacion";
 import { PanelFiltros } from "./PanelFiltros";
 import { SobreExplorar } from "./SobreExplorar";
-import { TarjetaProducto } from "./TarjetaProducto";
-import { TarjetaTienda } from "./TarjetaTienda";
 import { TarjetasRubro } from "./TarjetasRubro";
+import { CuerpoExplorar } from "./CuerpoExplorar";
+import { chip, enlace, enlaceExplorar, type Filtros, type Vista } from "./enlacesExplorar";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
 import { createPublicClient } from "@/lib/supabase/publico";
@@ -44,63 +39,6 @@ const POR_PAGINA = 30;
 const POR_FILA = 10;
 const MINIMO_FILA = 4;
 
-type Vista = "productos" | "tiendas";
-type Filtros = {
-  vista: Vista;
-  busqueda: string;
-  /** El rubro elegido ("ropa", "comida"…), o vacío */
-  categoria: string;
-  /** Una categoría del catálogo dentro de ese rubro ("Brochas y esponjas"), o vacío */
-  sub: string;
-  orden: OrdenExplorar;
-  min: string;
-  max: string;
-  /** Solo tiendas que entregan en este departamento, o vacío */
-  depto: string;
-  gratis: boolean;
-  oferta: boolean;
-  pagina?: number;
-};
-
-/**
- * Arma la dirección de Explorar con los filtros que estén puestos (lo que está por defecto no se escribe).
- * El rubro va en la ruta; búsqueda, precio, orden y página van como parámetros.
- */
-function enlace(f: Filtros): string {
-  const p = new URLSearchParams();
-  const enRuta = f.vista === "productos" && esRubro(f.categoria);
-  if (f.vista !== "productos") p.set("vista", f.vista);
-  if (f.busqueda) p.set("q", f.busqueda);
-  if (f.categoria && !enRuta) p.set("categoria", f.categoria);
-  // Solo vale dentro de su rubro: al cambiar de rubro se descarta sola
-  if (f.sub && rubroDeCategoria(f.sub) === f.categoria) p.set("sub", f.sub);
-  if (f.orden !== "recientes") p.set("orden", f.orden);
-  if (f.min) p.set("min", f.min);
-  if (f.max) p.set("max", f.max);
-  if (f.depto) p.set("depto", f.depto);
-  if (f.gratis) p.set("gratis", "1");
-  if (f.oferta) p.set("oferta", "1");
-  if (f.pagina && f.pagina > 1) p.set("pagina", String(f.pagina));
-  const s = p.toString();
-  const base =
-    enRuta && esRubro(f.categoria) ? rutaRubro(f.categoria) : "/marketplace";
-  return s ? `${base}?${s}` : base;
-}
-
-/**
- * El enlace y su rel: lo que lleva parámetros (filtros, orden, páginas) no lo siguen los buscadores. Cambiar un filtro no sube la página
- * (`scroll: false`): quien está mirando las categorías se queda donde está. Solo cambiar de página de resultados vuelve arriba (`alInicio`).
- */
-function enlaceExplorar(f: Filtros, alInicio = false): { href: string; rel?: string; scroll?: false } {
-  const href = enlace(f);
-  const base = href.includes("?") ? { href, rel: "nofollow" } : { href };
-  return alInicio ? base : { ...base, scroll: false };
-}
-
-const chip = (activo: boolean) =>
-  `inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors ${
-    activo ? "bg-mango" : "bg-crema hover:bg-limon"
-  }`;
 
 /** Dólares escritos por la persona → número, o undefined si está vacío o no es válido. */
 function dolares(texto: string): number | undefined {
@@ -422,148 +360,28 @@ export async function PaginaExplorar({
               {panel}
             </aside>
           )}
-          <div className="flex min-w-0 flex-col gap-4">
-            {vista === "productos" && (
-              <section
-                id="todos"
-                aria-label={t.filtros}
-                className="flex scroll-mt-4 flex-col gap-3"
-              >
-                {/* Cuántos hay, y a la derecha los filtros y el orden: menús chicos que se abren, no campos sueltos */}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-sm font-bold">
-                    {t.resultados(total ?? visibles.length)}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <details
-                      key={`filtros-${min}-${max}-${depto}-${gratis}-${oferta}`}
-                      className="relative lg:hidden"
-                    >
-                      <summary
-                        className={`${chip(activos > 0)} cursor-pointer list-none gap-2 [&::-webkit-details-marker]:hidden`}
-                      >
-                        <Icon nombre="filtros" className="size-4" />
-                        {t.filtros}
-                        {activos > 0 && (
-                          <span className="rounded-full bg-teal-oscuro px-2 text-xs text-white">
-                            {activos}
-                          </span>
-                        )}
-                      </summary>
-                      <div className="fixed inset-x-3 bottom-3 z-40 max-h-[80dvh] overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-crema p-4 shadow-dura">
-                        {panel}
-                      </div>
-                    </details>
-                    <details key={`orden-${orden}`} className="relative">
-                      <summary
-                        className={`${chip(false)} cursor-pointer list-none gap-1.5 [&::-webkit-details-marker]:hidden`}
-                      >
-                        {t.ordenActual(t.ordenes[orden])}
-                        <Icon nombre="flecha" className="size-4" />
-                      </summary>
-                      <ul className="absolute right-0 z-20 mt-2 flex w-64 max-w-[calc(100vw-2rem)] flex-col rounded-[20px] border-2 border-teal-oscuro bg-white p-2 shadow-dura max-md:fixed max-md:inset-x-4 max-md:top-auto max-md:w-auto">
-                        {ORDENES_EXPLORAR.map((o) => (
-                          <li key={o}>
-                            <Link
-                              {...enlaceExplorar({ ...f, orden: o, pagina: 1 })}
-                              aria-current={o === orden ? "true" : undefined}
-                              className="flex min-h-11 items-center rounded-xl px-3 text-sm font-medium hover:bg-crema aria-[current=true]:bg-limon aria-[current=true]:font-bold"
-                            >
-                              {t.ordenes[o]}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            <div className="flex min-w-0 flex-col gap-4">
-              {vista === "tiendas" && (
-                <Link
-                  {...enlaceExplorar({ ...f, vista: "productos", pagina: 1 })}
-                  className="inline-flex min-h-11 items-center self-start text-sm font-bold text-teal underline"
-                >
-                  ← {t.volverProductos}
-                </Link>
-              )}
-              {vacio ? (
-                <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-teal-oscuro bg-white px-6 py-12 text-center">
-                  <Monito nombre="caja" className="w-20 text-teal/50" />
-                  <h2 className="text-lg font-bold">
-                    {filtrando ? t.sinResultadosTitulo : t.sinTiendasTitulo}
-                  </h2>
-                  <p className="max-w-sm text-texto-2">
-                    {filtrando ? t.sinResultadosTexto : t.sinTiendasTexto}
-                  </p>
-                  {filtrando && (
-                    <Link href="/marketplace" className={chip(false)}>
-                      {t.limpiar}
-                    </Link>
-                  )}
-                </div>
-              ) : vista === "tiendas" ? (
-                <>
-                  {/* Las tiendas como una calle de El Salvador: se toca una casita y se entra. Abajo, el detalle de cada una */}
-                  <SeccionCalle tiendas={tiendas} />
-                  <h2 className="mt-4 text-xl font-bold">{t.calle.todas}</h2>
-                  <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    {tiendas.map((tienda, i) => (
-                      <li key={tienda.slug}>
-                        <TarjetaTienda tienda={tienda} eager={i < 3} />
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <>
-                  <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 xl:grid-cols-4">
-                    {visibles.map((p, i) => (
-                      <li
-                        key={`${p.tiendaSlug}-${p.codigo}`}
-                        className="h-full"
-                      >
-                        <TarjetaProducto
-                          p={p}
-                          marca={marcaDe(p)}
-                          eager={!portada && i < 5}
-                        />
-                      </li>
-                    ))}
-                    {/* Al final de la última página: una invitación para quien vende, que además tapa el hueco de la fila */}
-                    {!hayMas && (
-                      <li className="h-full">
-                        <Link
-                          href="/login"
-                          className="relative flex h-full min-h-64 flex-col justify-end gap-2 overflow-hidden rounded-[24px] border-2 border-dashed border-teal-oscuro bg-rosa-palido p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:border-solid hover:shadow-dura"
-                        >
-                          <LotitoMas nombre="saluda"
-                            className="absolute right-4 top-4 w-20 md:w-24"
-                          />
-                          <p className="text-lg font-bold leading-tight">
-                            {t.armaTitulo}
-                          </p>
-                          <p className="text-sm text-texto-2">{t.armaTexto}</p>
-                          <span className="mt-1 inline-flex h-10 items-center self-start rounded-full border-2 border-teal-oscuro bg-mango px-4 text-sm font-bold">
-                            {t.armaBoton}
-                          </span>
-                        </Link>
-                      </li>
-                    )}
-                  </ul>
-                  <Paginacion
-                    pagina={pagina}
-                    porPagina={POR_PAGINA}
-                    total={total}
-                    hayMas={hayMas}
-                    enlace={(n) => enlaceExplorar({ ...f, pagina: n }, true)}
-                  />
-                </>
-              )}
-            </div>
-          </div>
+          <CuerpoExplorar
+            vista={vista}
+            total={total}
+            visibles={visibles}
+            min={min}
+            max={max}
+            depto={depto}
+            gratis={gratis}
+            oferta={oferta}
+            activos={activos}
+            panel={panel}
+            orden={orden}
+            f={f}
+            vacio={vacio}
+            filtrando={filtrando}
+            tiendas={tiendas}
+            marcaDe={marcaDe}
+            portada={portada}
+            hayMas={hayMas}
+            pagina={pagina}
+            porPagina={POR_PAGINA}
+          />
         </div>
       </div>
 
