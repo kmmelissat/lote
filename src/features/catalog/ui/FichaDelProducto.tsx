@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/Icon";
+import { Plegable } from "./Plegable";
 import { textos } from "@/lib/textos";
 
 const t = textos.vitrina.ficha;
@@ -7,10 +8,7 @@ const t = textos.vitrina.ficha;
 export function FichaDelProducto({ detalles, estado, usado }: { detalles: { nombre: string; valor: string }[]; estado: string | null; usado: boolean }) {
   if (!detalles.length && !(usado && estado)) return null;
   return (
-    <section aria-labelledby="ficha" className="flex flex-col gap-3">
-      <h2 id="ficha" className="text-sm font-bold">
-        {t.titulo}
-      </h2>
+    <Plegable titulo={t.titulo}>
       {usado && estado && (
         <p className="flex items-start gap-2 rounded-2xl bg-limon px-4 py-3 text-sm font-medium">
           <Icon nombre="info" className="mt-0.5 size-4 shrink-0" />
@@ -29,6 +27,6 @@ export function FichaDelProducto({ detalles, estado, usado }: { detalles: { nomb
           ))}
         </dl>
       )}
-    </section>
+    </Plegable>
   );
 }

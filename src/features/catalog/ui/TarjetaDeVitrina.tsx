@@ -35,6 +35,7 @@ export function TarjetaDeVitrina({
   puedeComprar,
   giro,
   prioridad,
+  promo = false,
 }: {
   slug: string;
   p: TarjetaVitrina;
@@ -46,6 +47,8 @@ export function TarjetaDeVitrina({
   puedeComprar: boolean;
   giro: string;
   prioridad: boolean;
+  /** Lo cubre una promoción vigente (pack, "llevá y pagá") */
+  promo?: boolean;
 }) {
   const libre = p.disponibles > 0;
   const pocas = libre && p.disponibles <= umbral;
@@ -81,6 +84,9 @@ export function TarjetaDeVitrina({
         )}
         {libre && descuento > 0 && (
           <span className={`${sticker} right-2 top-2 rotate-3 bg-mango font-extrabold`}>{t.etiquetas.oferta(descuento)}</span>
+        )}
+        {libre && promo && descuento === 0 && (
+          <span className={`${sticker} right-2 top-2 rotate-3 bg-mango font-extrabold`}>{textos.promociones.enPromocion}</span>
         )}
         {/* Con mucho stock es ruido: solo se avisa cuando quedan pocas */}
         {pocas && <span className={`${sticker} bottom-2 left-2 -rotate-2 bg-ambar`}>{textos.productos.quedan(p.disponibles)}</span>}

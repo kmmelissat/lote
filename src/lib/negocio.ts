@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { type Actividad, ACTIVIDADES } from "@/domain/actividad";
 import { createClient } from "@/lib/supabase/server";
 
 export type NegocioActual = {
@@ -14,6 +15,8 @@ export type NegocioActual = {
   vitrinaActiva: boolean;
   /** Si vende en persona desde un local: solo entonces aparecen el Mostrador y la caja */
   tieneLocal: boolean;
+  /** Qué hace: revende, produce o las dos cosas. Cambia los costos que se piden en un producto */
+  actividad: Actividad;
   /** Si la tienda eligió aparecer en Explorar, el escaparate con las tiendas de Lote */
   visibleEnExplorar: boolean;
   /** Con cuántas unidades disponibles un producto cuenta como "poco stock" */
@@ -38,7 +41,7 @@ export const negocioActual = cache(async function negocioActual() {
   const { data } = await supabase
     .from("miembro")
     .select(
-      "negocio_id, rol, negocio(nombre, logo, slug, umbral_poco_stock, vitrina_activa, tiene_local, visible_en_explorar)",
+      "negocio_id, rol, negocio(nombre, logo, slug, umbral_poco_stock, vitrina_activa, tiene_local, visible_en_explorar, actividad)",
     )
     .eq("usuario_id", usuarioId)
     // Una persona tiene un solo negocio (lo exige la base); si quedara alguno de antes, siempre el primero
@@ -54,6 +57,7 @@ export const negocioActual = cache(async function negocioActual() {
     slug: miembro.negocio?.slug ?? "",
     vitrinaActiva: miembro.negocio?.vitrina_activa ?? true,
     tieneLocal: miembro.negocio?.tiene_local ?? false,
+    actividad: ACTIVIDADES.includes(miembro.negocio?.actividad as Actividad) ? (miembro.negocio?.actividad as Actividad) : "compro_vendo",
     visibleEnExplorar: miembro.negocio?.visible_en_explorar ?? false,
     umbralPocoStock: miembro.negocio?.umbral_poco_stock ?? 2,
     usuarioId,

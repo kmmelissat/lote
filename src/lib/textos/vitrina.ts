@@ -1,7 +1,7 @@
 export const vitrina = {
   titulo: "Vitrina",
   mensajeVitrina: (negocio: string) =>
-    `Hola ${negocio}! Vi tu vitrina y quiero preguntar por un producto.`,
+    `Hola ${negocio}! Vi tu tienda y quiero preguntar por un producto.`,
   mensajeProducto: (negocio: string, nombre: string, codigo: number, precio: string) =>
     `Hola ${negocio}! Me interesa "${nombre}" (#${codigo}, ${precio}). ¿Sigue disponible?`,
   vacioTitulo: "Todavía no hay productos",
@@ -15,6 +15,7 @@ export const vitrina = {
     estrellasDe: (n: number) => `${n} de 5 estrellas`,
   },
   ficha: {
+    descripcion: "Descripción",
     titulo: "Detalles",
     estado: "Estado",
   },
@@ -117,19 +118,19 @@ export const vitrina = {
   volver: "Volver a la tienda",
   fotoDe: (nombre: string, n: number) => `${nombre}, foto ${n}`,
   logoDe: (tienda: string) => `Logo de ${tienda}`,
-  pieMarca: "Vitrina hecha con",
+  pieMarca: "Tienda hecha con",
   pedirWhatsApp: "Pedir por WhatsApp",
   pedirInstagram: "Escribir por Instagram",
   pedirFacebook: "Escribir por Facebook",
   pedirTiktok: "Escribir por TikTok",
   verTodos: "Ver todos los productos",
   seo: {
-    tituloTienda: (negocio: string) => `${negocio} · Vitrina`,
+    tituloTienda: (negocio: string) => `${negocio} · Tienda`,
     descripcionTienda: (negocio: string, piezas: number) =>
       `Mirá lo que tiene ${negocio}: ${piezas === 1 ? "1 pieza disponible" : `${piezas} piezas disponibles`}. Apartá y pedí por WhatsApp o Instagram.`,
     descripcionProducto: (nombre: string, precio: string, negocio: string) =>
       `${nombre} por ${precio} en ${negocio}. Apartalo o pedilo por chat.`,
-    ogAltTienda: "Vista previa de la vitrina",
+    ogAltTienda: "Vista previa de la tienda",
     ogAltProducto: "Vista previa del producto",
     ogAltExplorar: "Marketplace de emprendedores de El Salvador en Lote",
     ogDisponibles: (n: number) => (n === 1 ? "Queda 1" : n <= 5 ? `Quedan ${n}` : "Disponible"),
@@ -140,7 +141,7 @@ export const vitrina = {
     ogExplorarDestacado: "emprendedores locales",
     ogExplorarTexto: "El marketplace de tiendas de El Salvador que venden por redes.",
   },
-  marca: "Vitrina hecha con Lote",
+  marca: "Tienda hecha con Lote",
   saludoLotito: "¡Pasá, mirá lo que hay!",
   opciones: "Opciones",
   opcionApartada: (etiqueta: string) => `${etiqueta} (apartado)`,
@@ -163,6 +164,7 @@ export const vitrina = {
     masOpciones: (n: number) => `+${n}`,
   },
   compra: {
+    pagas: (metodos: string) => `Pagás con ${metodos}`,
     comprarAhora: "Comprar ahora",
     dudas: "¿Todavía no te decidís?",
     apartarEnlace: (horas: number) => `Apartalo ${horas} ${horas === 1 ? "hora" : "horas"} sin pagar`,
@@ -246,7 +248,7 @@ export const vitrina = {
   verMas: "Ver más",
   noDisponibleCorto: "no disponible con tu elección",
   apartadoAviso: "Este producto está apartado. Si no lo pagan a tiempo, vuelve a estar disponible.",
-  apartarApagado: "Este negocio no recibe apartados desde la vitrina por ahora. Escribile para pedirlo.",
+  apartarApagado: "Este negocio no recibe apartados desde la tienda por ahora. Escribile para pedirlo.",
   detalle: { categoria: "Categoría", marca: "Marca", condicion: "Condición" },
   apartar: {
     titulo: "Apartá este producto",
@@ -268,7 +270,7 @@ export const vitrina = {
     errorLimite: "Ya tenés el máximo de apartados activos con este contacto.",
     errorLimiteCompras: "Ya tenés varios pedidos sin pagar con este contacto. Pagá alguno o esperá a que venzan para hacer otro.",
     errorIntentos: "Probaste muchas veces. Esperá un rato e intentá de nuevo.",
-    errorApagado: "Esta tienda no recibe pedidos así desde la vitrina por ahora. Escribile por WhatsApp o Instagram.",
+    errorApagado: "Esta tienda no recibe pedidos así desde la tienda por ahora. Escribile por WhatsApp o Instagram.",
     errorGeneral: "No pudimos apartarlo. Probá de nuevo.",
   },
   confirmacion: {

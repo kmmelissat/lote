@@ -20,8 +20,8 @@ export const explorar = {
   sobre: {
     titulo: "Tiendas de El Salvador que venden por redes sociales",
     parrafos: [
-      "El Marketplace de Lote reúne en un solo lugar los productos de emprendimientos salvadoreños que venden por Instagram, Facebook y WhatsApp. Cada tienda arma su vitrina en Lote, así que lo que ves acá está disponible de verdad: las unidades se actualizan solas cuando alguien compra o aparta.",
-      "Encontrar algo que te encante es fácil: buscá por nombre, filtrá por categoría o por precio, y entrá a la vitrina de cada tienda para ver todo lo que tiene. Desde ahí podés comprar, apartar unas horas mientras te decidís, o escribirle directo a la tienda.",
+      "El Marketplace de Lote reúne en un solo lugar los productos de emprendimientos salvadoreños que venden por Instagram, Facebook y WhatsApp. Cada tienda lleva su inventario en Lote, así que lo que ves acá está disponible de verdad: las unidades se actualizan solas cuando alguien compra o aparta.",
+      "Encontrar algo que te encante es fácil: buscá por nombre, filtrá por categoría o por precio, y entrá a cada tienda para ver todo lo que tiene. Desde ahí podés comprar, apartar unas horas mientras te decidís, o escribirle directo a la tienda.",
       "Comprarle a una tienda chiquita es apoyar a quien la hace: ropa, accesorios, fundas, postres, música y mucho más, hecho o elegido con cariño en El Salvador. El pago y la entrega los coordinás con cada tienda, con sus métodos de pago y sus zonas de envío.",
     ],
     categoria: (categoria: string) =>
@@ -74,8 +74,9 @@ export const explorar = {
   },
   destacadosTitulo: "Destacados",
   destacadosAyuda: "Elegidos por Lote y los mejor calificados",
-  ofertasTitulo: "Ofertas",
-  ofertasAyuda: "Rebajados por sus tiendas, por tiempo limitado",
+  ofertasTitulo: "Ofertas y packs",
+  ofertasAyuda: "Rebajas, packs y 2x1 de las tiendas, por tiempo limitado",
+  promo: { pack: "Pack", llevasPagas: (lleva: number, paga: number) => `${lleva}x${paga}`, ahorras: (monto: string) => `Ahorrás ${monto}`, incluye: (productos: string) => `Con ${productos}` },
   nuevosTitulo: "Nuevo en el Marketplace",
   nuevosAyuda: "Lo último que subieron las tiendas",
   todosTitulo: "Todos los productos",
@@ -89,8 +90,8 @@ export const explorar = {
   rangoPrecio: "Rango de precio",
   ordenActual: (orden: string) => `Ordenar: ${orden}`,
   armaTitulo: "¿Vendés por redes?",
-  armaTexto: "Armá tu vitrina gratis y aparecé acá.",
-  armaBoton: "Crear mi vitrina",
+  armaTexto: "Abrí tu tienda en línea gratis y aparecé acá.",
+  armaBoton: "Abrir mi tienda",
   de: (tienda: string) => `de ${tienda}`,
   productoDe: (tienda: string) => `Producto de ${tienda}`,
   desde: (precio: string) => `Desde ${precio}`,
@@ -106,7 +107,7 @@ export const explorar = {
   pagina: (n: number) => `Página ${n}`,
   paginas: "Páginas de productos",
   mostrando: (desde: number, hasta: number, total: number) => `Mostrando ${desde}–${hasta} de ${total} productos`,
-  quieroMiTienda: "¿Vendés por redes? Armá tu vitrina gratis",
+  quieroMiTienda: "¿Vendés por redes? Abrí tu tienda en línea gratis",
   enlaceMenu: "Marketplace",
   volverExplorar: "Ver más en el Marketplace",
 } as const;

@@ -50,7 +50,12 @@ function titulo(m: Movimiento): string {
   return m.cliente ?? t.concepto.pedido(m.pedidoCodigo);
 }
 
-function subtitulo(m: Movimiento): string {
+function subtitulo(m: Movimiento, conFecha: boolean): string {
+  const base = detalle(m);
+  return conFecha ? `${formatearFecha(diaDe(m.fecha))} · ${base}` : base;
+}
+
+function detalle(m: Movimiento): string {
   if (m.tipo === "salida") {
     const categoria = textos.ganancia.categorias[m.categoria as keyof typeof textos.ganancia.categorias] ?? m.categoria;
     return t.concepto.gasto(categoria);
@@ -59,7 +64,7 @@ function subtitulo(m: Movimiento): string {
   return m.producto ? `${base} · ${m.producto}` : base;
 }
 
-const Concepto = ({ m }: { m: Movimiento }) => (
+const Concepto = ({ m, conFecha }: { m: Movimiento; conFecha: boolean }) => (
   <div className="flex min-w-0 items-center gap-3">
     <Icono m={m} />
     <div className="min-w-0">
@@ -70,7 +75,7 @@ const Concepto = ({ m }: { m: Movimiento }) => (
       ) : (
         <span className="block truncate font-bold">{titulo(m)}</span>
       )}
-      <span className="block truncate text-sm text-texto-2">{subtitulo(m)}</span>
+      <span className="block truncate text-sm text-texto-2">{subtitulo(m, conFecha)}</span>
     </div>
   </div>
 );
@@ -108,7 +113,7 @@ function NetoDelDia({ neto }: { neto: number }) {
 }
 
 /** Tabla cuando hay lugar (ancho del propio contenedor) y lista apilada cuando no, con un encabezado por cada día. */
-export function ListaMovimientos({ movimientos, hoy }: { movimientos: Movimiento[]; hoy: string }) {
+export function ListaMovimientos({ movimientos, hoy, conFecha = false }: { movimientos: Movimiento[]; hoy: string; /** Pone el día en cada fila, no solo en el encabezado del grupo */ conFecha?: boolean }) {
   const dias = porDia(movimientos);
   return (
     <div className="@container">
@@ -134,7 +139,7 @@ export function ListaMovimientos({ movimientos, hoy }: { movimientos: Movimiento
               {d.movimientos.map((m) => (
                 <tr key={`${m.tipo}-${m.id}`} className="border-t border-borde hover:bg-teal-fondo">
                   <td className="max-w-96 px-4 py-3">
-                    <Concepto m={m} />
+                    <Concepto m={m} conFecha={conFecha} />
                   </td>
                   <td className="px-2 py-3">
                     <ChipMetodo metodo={m.metodo} />
@@ -160,7 +165,7 @@ export function ListaMovimientos({ movimientos, hoy }: { movimientos: Movimiento
               {d.movimientos.map((m) => (
                 <li key={`${m.tipo}-${m.id}`} className="flex items-center justify-between gap-3 border-t border-borde px-4 py-3">
                   <div className="min-w-0 flex-1">
-                    <Concepto m={m} />
+                    <Concepto m={m} conFecha={conFecha} />
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <Monto m={m} />

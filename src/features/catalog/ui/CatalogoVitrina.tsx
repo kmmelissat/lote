@@ -28,8 +28,11 @@ export function CatalogoVitrina({
   umbral,
   envio,
   puedeComprar,
+  enPromocion = [],
 }: {
   slug: string;
+  /** Códigos de los productos que cubre alguna promoción vigente */
+  enPromocion?: number[];
   productos: TarjetaVitrina[];
   umbral: number;
   /** Lo que cuesta y tarda el envío de la tienda, para cada tarjeta */
@@ -156,7 +159,7 @@ export function CatalogoVitrina({
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           {ordenados.map((p, i) => (
             <li key={p.codigo} className="h-full">
-              <TarjetaDeVitrina slug={slug} p={p} umbral={umbral} envio={envio} puedeComprar={puedeComprar} giro={GIROS[i % GIROS.length]} prioridad={i < 4} />
+              <TarjetaDeVitrina slug={slug} p={p} umbral={umbral} envio={envio} puedeComprar={puedeComprar} giro={GIROS[i % GIROS.length]} prioridad={i < 4} promo={[p.codigo, ...p.variantes.map((v) => v.codigo)].some((c) => enPromocion.includes(c))} />
             </li>
           ))}
         </ul>

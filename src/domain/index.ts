@@ -16,3 +16,7 @@ export * from "./equilibrio";
 export * from "./cuadre";
 export * from "./oferta";
 export * from "./promocion";
+export * from "./balance";
+export * from "./actividad";
+export * from "./serieDiaria";
+export * from "./cuota";

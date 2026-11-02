@@ -25,6 +25,7 @@ import { clientes } from "./clientes";
 import { pedidos } from "./pedidos";
 import { ganancia } from "./ganancia";
 import { dinero } from "./dinero";
+import { gestion } from "./gestion";
 import { ajustes } from "./ajustes";
 import { estadosProducto } from "./estadosProducto";
 import { estadosPedido } from "./estadosPedido";
@@ -36,9 +37,9 @@ import { promociones } from "./promociones";
 
 export const textos = {
   nombre: "Lote",
-  eslogan: "Tu inventario, apartado y cuadrado.",
+  eslogan: "Tu tienda en línea y tus cuentas claras.",
   descripcion:
-    "Saber en todo momento qué tenés, qué está apartado y cuánto ganás con cada producto.",
+    "Una tienda en línea con tu enlace, donde te compran, y tus cuentas claras: inventario, pedidos, cobros, ganancia y balance.",
   comun,
   nav,
   migas,
@@ -64,6 +65,7 @@ export const textos = {
   pedidos,
   ganancia,
   dinero,
+  gestion,
   ajustes,
   estadosProducto,
   estadosPedido,

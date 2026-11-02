@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { telefonoElSalvador } from "@/domain";
+import { type Actividad, ACTIVIDADES, telefonoElSalvador } from "@/domain";
 import {
   esFacebook,
   esTiktok,
@@ -63,6 +63,7 @@ export type DatosTienda = z.output<typeof esquema> & {
   apartar: boolean;
   explorar: boolean;
   local: boolean;
+  actividad: Actividad;
 };
 
 export function leerTienda(
@@ -84,6 +85,7 @@ export function leerTienda(
       // Sin vitrina no se puede aparecer en Explorar
       explorar: vitrina && formData.get("explorar") === "on",
       local: formData.get("local") === "on",
+      actividad: ACTIVIDADES.find((a) => a === formData.get("actividad")) ?? "compro_vendo",
     },
   };
 }

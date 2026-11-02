@@ -219,7 +219,7 @@ const ESCALA_DE_TEXTO = [
   { clase: "text-base font-bold", nombre: "Título de tarjeta", uso: "Encabezado de una tarjeta o fila.", ejemplo: "Chaqueta negra M" },
   { clase: "text-base", nombre: "Cuerpo", uso: "El texto de siempre.", ejemplo: "Con una foto, el nombre y el precio ya queda." },
   { clase: "text-sm text-texto-2", nombre: "Apoyo", uso: "Ayudas, descripciones y fechas.", ejemplo: "Hace 2 horas · 3 unidades" },
-  { clase: "text-xs font-bold uppercase tracking-wide text-texto-2", nombre: "Rótulo", uso: "Encabezado de un grupo. Corto.", ejemplo: "Para tu vitrina" },
+  { clase: "text-xs font-bold uppercase tracking-wide text-texto-2", nombre: "Rótulo", uso: "Encabezado de un grupo. Corto.", ejemplo: "Para tu tienda en línea" },
 ];
 
 /** Lo que hay hoy en el código, para ir bajándolo. */
@@ -704,7 +704,7 @@ export function SistemaDeDiseno() {
             <h3 className="font-bold">Avisos</h3>
             <p className="text-sm text-texto-2">Salen abajo y se cierran solos. Toda acción guarda, copia o borra y debería avisar.</p>
             <div className="flex flex-wrap gap-2">
-              <Button variante="secundario" onClick={() => avisar("¡Listo! Chaqueta negra M ya está en tu vitrina.", { tipo: "exito" })}>
+              <Button variante="secundario" onClick={() => avisar("¡Listo! Chaqueta negra M ya está en tu tienda en línea.", { tipo: "exito" })}>
                 Éxito
               </Button>
               <Button variante="secundario" onClick={() => avisar("No pudimos copiar el enlace.", { tipo: "error" })}>

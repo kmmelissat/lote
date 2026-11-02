@@ -50,7 +50,7 @@ async function Formulario({ searchParams }: Pick<PageProps<"/productos/nuevo">, 
             {textos.productos.copiar.aviso(original.nombre)}
           </p>
         )}
-        <NuevoProductoForm negocioId={negocio.id} inicial={original ? valoresParaCopiar(original) : undefined} sugerencias={sugerencias} />
+        <NuevoProductoForm negocioId={negocio.id} inicial={original ? valoresParaCopiar(original) : undefined} sugerencias={sugerencias} actividad={negocio.actividad} />
       </div>
     </>
   );

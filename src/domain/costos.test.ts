@@ -84,3 +84,18 @@ describe("repartirCostoTotal", () => {
     expect(repartirCostoTotal(1000, 2.5)).toEqual([]);
   });
 });
+
+describe("mano de obra", () => {
+  it("entra en el desglose y en el costo unitario", () => {
+    const d = desgloseDeFilas(
+      [
+        { tipo: "compra", monto: 300, porUnidad: true },
+        { tipo: "mano_obra", monto: 200, porUnidad: true },
+        { tipo: "otro", monto: 50, porUnidad: true },
+      ],
+      1,
+    );
+    expect(d?.mano_obra).toBe(200);
+    expect(costoUnitario(d)).toBe(550);
+  });
+});

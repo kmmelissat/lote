@@ -6,6 +6,7 @@ import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
 import { useAvisarErrores, useToast } from "@/components/ui/Toast";
+import { LugarDeCompra } from "@/features/gestion/ui/LugarDeCompra";
 import { textos } from "@/lib/textos";
 import { reponerElegido, type EstadoReponer } from "../actions/detalle";
 
@@ -54,6 +55,7 @@ export function ReponerForm({
       )}
       <Field etiqueta={t.llegan} name="llegan" inputMode="numeric" required error={e.llegan} />
       <Field etiqueta={t.costo} name="costo" inputMode="decimal" error={e.costo} />
+      <LugarDeCompra />
       <Button type="submit" variante="mango" disabled={pendiente}>
         {pendiente ? t.guardando : t.boton}
       </Button>

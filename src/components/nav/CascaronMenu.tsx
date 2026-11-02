@@ -45,9 +45,9 @@ export function CascaronMenu({
   return (
     <aside {...resto} data-cerrado={cerrado ? "" : undefined} className={`group ${base} ${PIEL[plataforma]} ${className}`}>
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <div className="shrink-0 px-4 pb-2 pt-4">{cabecera}</div>
-        <div className={`flex min-h-0 flex-1 flex-col gap-3 px-3 py-2 ${desplazable ? "overflow-y-auto" : ""}`}>{cuerpo}</div>
-        <div className="shrink-0 px-3 pb-4 pt-2">{pie}</div>
+        <div className="shrink-0 px-4 pb-2 pt-4 group-data-[cerrado]:px-2">{cabecera}</div>
+        <div className={`flex min-h-0 flex-1 flex-col gap-3 px-3 py-2 group-data-[cerrado]:px-2 ${desplazable ? "overflow-y-auto" : ""}`}>{cuerpo}</div>
+        <div className="shrink-0 px-3 pb-4 pt-2 group-data-[cerrado]:px-2">{pie}</div>
       </div>
     </aside>
   );

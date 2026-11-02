@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  type Actividad,
   costoUnitario,
   leerDolares,
   MARGEN_POR_DEFECTO,
@@ -39,6 +40,7 @@ import {
   Etiqueta,
   estiloCampo,
 } from "./campos";
+import { LugarDeCompra } from "@/features/gestion/ui/LugarDeCompra";
 import { SelectorCategoria } from "./SelectorCategoria";
 import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { EditorVariantes } from "./EditorVariantes";
@@ -52,7 +54,13 @@ import { OpcionRadio } from "@/components/ui/OpcionRadio";
 const t = textos.productos.form;
 const l = t.lotito;
 
-const campoCosto = ["compra", "envio", "importacion", "otro"] as const;
+const campoCosto = ["compra", "envio", "importacion", "mano_obra", "otro"] as const;
+/** Los costos que se piden además del principal: quien produce suma su mano de obra y no importa; quien revende, al revés. */
+const COSTOS_EXTRA: Record<Actividad, readonly (typeof campoCosto)[number][]> = {
+  compro_vendo: ["envio", "importacion", "otro"],
+  produzco: ["mano_obra", "envio", "otro"],
+  ambos: ["mano_obra", "envio", "importacion", "otro"],
+};
 type CampoLotito = Extract<keyof FichaSugerida, "nombre" | "categoria" | "marca" | "descripcion">;
 const ORDEN_LOTITO: CampoLotito[] = [
   "nombre",
@@ -106,6 +114,7 @@ export function NuevoProductoForm({
   inicial,
   sugerencias,
   modo = { tipo: "crear" },
+  actividad = "compro_vendo",
 }: {
   negocioId: string;
   /** Valores con los que arranca el formulario: repetir un producto, o el producto que se edita */
@@ -113,6 +122,8 @@ export function NuevoProductoForm({
   /** Categorías y marcas que ya usó, para completar mientras escribe */
   sugerencias: { categorias: string[]; marcas: string[] };
   modo?: Modo;
+  /** Qué hace el negocio: cambia cómo se llaman y cuáles son los costos */
+  actividad?: Actividad;
 }) {
   const editando = modo.tipo === "editar";
   const variantesIniciales = editando ? modo.variantes : null;
@@ -175,7 +186,7 @@ export function NuevoProductoForm({
   const [abiertos, setAbiertos] = useState<Record<string, boolean>>(() => {
     const hay = (k: string) => Boolean(v[k]?.trim());
     return {
-      costos: hay("precio_anterior") || hay("envio") || hay("importacion") || hay("otro"),
+      costos: hay("precio_anterior") || hay("envio") || hay("importacion") || hay("mano_obra") || hay("otro"),
       masInfo: hay("marca") || v.condicion === "usado" || hay("estado_detalle") || leerDetalles(v.detalles).length > 0,
     };
   });
@@ -344,7 +355,9 @@ export function NuevoProductoForm({
   // Los bloques opcionales vienen cerrados; la persona los abre. Si tienen un error, o Lotito llenó algo ahí, se abren solos.
   const estaAbierto = (id: string, defecto = false, forzar = false) => forzar || (abiertos[id] ?? defecto);
   const alternar = (id: string, defecto = false, forzar = false) => setAbiertos((a) => ({ ...a, [id]: !estaAbierto(id, defecto, forzar) }));
-  const errorCostos = Boolean(e.envio || e.importacion || e.otro);
+  // Un producto que ya trae un costo de otro tipo lo sigue mostrando: si no, al guardar se perdería
+  const costosExtra = campoCosto.filter((k) => k !== "compra" && (COSTOS_EXTRA[actividad].includes(k) || v[k]?.trim()));
+  const errorCostos = Boolean(e.envio || e.importacion || e.mano_obra || e.otro);
 
   const vista = {
     foto: rutas[0] ?? (conVariantes ? resumen.foto : null),
@@ -431,7 +444,7 @@ export function NuevoProductoForm({
                     />
                     {/* Ya no se edita aquí (las ofertas van por Ofertas), pero un producto que lo traía no lo pierde al guardar */}
                     {v.precio_anterior ? <input type="hidden" name="precio_anterior" defaultValue={v.precio_anterior} /> : null}
-                    <CampoDinero etiqueta={t.tarjetas.costoCompra} name="compra" defaultValue={v.compra} error={e.compra} />
+                    <CampoDinero etiqueta={actividad === "produzco" ? t.tarjetas.costoMateriales : t.tarjetas.costoCompra} name="compra" defaultValue={v.compra} error={e.compra} />
                     <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />
                   </div>
                   <div aria-live="polite" className="rounded-2xl bg-superficie px-4 py-3">
@@ -568,12 +581,11 @@ export function NuevoProductoForm({
             >
               {conVariantes && <p className="text-sm text-texto-2">{e2.grupo.compartidos}</p>}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {campoCosto
-                  .filter((k) => k !== "compra")
-                  .map((k) => (
-                    <CampoDinero key={k} etiqueta={t[k]} name={k} defaultValue={v[k]} error={e[k]} />
-                  ))}
+                {costosExtra.map((k) => (
+                  <CampoDinero key={k} etiqueta={t[k]} name={k} defaultValue={v[k]} error={e[k]} />
+                ))}
               </div>
+              {!editando && <LugarDeCompra />}
               {sugerido !== null && !conVariantes && (
                 <div className="flex flex-wrap items-end gap-4">
                   {/* Sin name: el margen es solo para calcular, no se guarda */}

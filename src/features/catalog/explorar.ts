@@ -103,6 +103,7 @@ export async function explorarProductos(
     foto: p.foto,
     precioMinimo: aCentavos(p.precio),
     precioMaximo: aCentavos(p.precio_maximo),
+    precioAnterior: p.precio_anterior ? aCentavos(p.precio_anterior) : null,
     disponibles: p.disponibles,
     opciones: p.opciones,
   }));
@@ -139,6 +140,39 @@ export async function explorarDestacados(supabase: Cliente, limite: number): Pro
 export async function explorarOfertas(supabase: Cliente, limite: number): Promise<ProductoExplorar[]> {
   const { data, error } = await supabase.rpc("explorar_ofertas", { p_limite: limite });
   return error ? [] : data.map(deFilaDestacada);
+}
+
+/** Una promoción vigente (pack o "llevá y pagá") tal como se ofrece en el Marketplace. */
+export type PromocionExplorar = {
+  id: string;
+  tiendaSlug: string;
+  tiendaNombre: string;
+  tipo: "pack" | "llevas_pagas";
+  nombre: string;
+  lleva: number | null;
+  paga: number | null;
+  fotos: string[];
+  productos: string[];
+  /** Lo que cuesta sin la promoción y con ella; null si no se puede decir */
+  precios: { antes: Centavos; ahora: Centavos } | null;
+};
+
+/** Los packs y "llevá y pagá" vigentes, para la fila de ofertas. Vacío si todavía falta su SQL. */
+export async function explorarPromociones(supabase: Cliente, limite: number): Promise<PromocionExplorar[]> {
+  const { data, error } = await supabase.rpc("explorar_promociones", { p_limite: limite });
+  if (error) return [];
+  return data.map((f) => ({
+    id: f.promocion_id,
+    tiendaSlug: f.tienda_slug,
+    tiendaNombre: f.tienda_nombre,
+    tipo: f.tipo as PromocionExplorar["tipo"],
+    nombre: f.nombre,
+    lleva: f.lleva,
+    paga: f.paga,
+    fotos: [...new Set(f.fotos ?? [])].slice(0, 3),
+    productos: f.productos,
+    precios: f.antes !== null && f.ahora !== null && f.antes > f.ahora ? { antes: aCentavos(f.antes), ahora: aCentavos(f.ahora) } : null,
+  }));
 }
 
 /** Los rubros con productos a la vista, armados con las categorías de todas las tiendas. */

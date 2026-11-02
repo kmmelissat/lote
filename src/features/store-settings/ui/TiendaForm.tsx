@@ -12,6 +12,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
 import { LotitoMas } from "@/components/ui/LotitoMas";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { useAvisarListo, useToast } from "@/components/ui/Toast";
 import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
 import { subirLogo } from "@/features/products/subirFotos";
@@ -20,7 +21,7 @@ import { slugDe } from "@/lib/slug";
 import { urlSitio } from "@/lib/sitio";
 import { textos } from "@/lib/textos";
 import { guardarTienda, type EstadoTienda } from "../actions/tienda";
-import { digitosLocales, telefonoElSalvador } from "@/domain";
+import { type Actividad, ACTIVIDADES, digitosLocales, telefonoElSalvador } from "@/domain";
 import { COLORES_MARCA, colorDeMarca, estiloDeMarca, LIMITE_CONTEXTO, textoSobre } from "@/features/catalog/marca";
 import type { AjustesVitrina, IdentidadTienda } from "@/features/catalog/repositorio";
 import { Textarea } from "@/components/ui/Textarea";
@@ -73,7 +74,9 @@ export function TiendaForm({
   ajustes,
   negocioId,
   seccion,
+  actividad: actividadInicial,
 }: {
+  actividad: Actividad;
   identidad: IdentidadTienda;
   ajustes: AjustesVitrina;
   negocioId: string;
@@ -95,6 +98,7 @@ export function TiendaForm({
   const [contexto, setContexto] = useState(identidad.contextoIa ?? "");
   const [vitrina, setVitrina] = useState(ajustes.vitrinaActiva);
   const [local, setLocal] = useState(ajustes.tieneLocal);
+  const [actividad, setActividad] = useState(actividadInicial);
   const [direccion, setDireccion] = useState(identidad.slug);
   const [comprar, setComprar] = useState(ajustes.permiteComprar);
   const [apartar, setApartar] = useState(ajustes.permiteApartar);
@@ -363,7 +367,27 @@ export function TiendaForm({
           </Seccion>
 
           <Seccion id="ventas" className={activa === "ventas" ? "" : "hidden"}>
-            <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste">
+            <Bloque titulo={v.actividad.titulo} texto={v.actividad.texto} tono="mango">
+              <fieldset className="flex flex-col gap-2">
+                <legend className="sr-only">{v.actividad.titulo}</legend>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  {ACTIVIDADES.map((a) => (
+                    <OpcionRadio
+                      key={a}
+                      forma="tarjeta"
+                      name="actividad"
+                      value={a}
+                      checked={actividad === a}
+                      onChange={() => setActividad(a)}
+                      titulo={v.actividad[a].titulo}
+                      ayuda={v.actividad[a].ayuda}
+                    />
+                  ))}
+                </div>
+              </fieldset>
+            </Bloque>
+
+            <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste" className="border-t-2 border-teal-oscuro/15 pt-5">
               <Interruptor name="local" titulo={v.local.interruptor} ayuda={v.local.ayuda} activo={local} onCambio={setLocal} />
               {local && <Aviso>{v.local.prendido}</Aviso>}
             </Bloque>

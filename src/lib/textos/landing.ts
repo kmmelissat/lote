@@ -1,13 +1,16 @@
 export const landing = {
-  titulo: "Lote · Tu inventario, apartado y cuadrado",
+  titulo: "Lote · Tu tienda en línea y tus cuentas claras",
   descripcion:
-    "Para quienes venden por redes sociales: sabé qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces.",
+    "Para quienes venden por redes sociales: una tienda en línea con tu enlace, donde te compran, y tus cuentas claras con inventario, pedidos, cobros, ganancia y balance.",
   palabrasClave: [
+    "gestión de negocio por redes sociales",
     "inventario para emprendedoras",
     "controlar inventario Instagram",
     "apartados y pedidos por redes sociales",
-    "ganancia por producto",
-    "vitrina en línea",
+    "balance y ganancia por producto",
+    "catálogo en línea",
+    "tienda en línea para emprendedoras",
+    "catálogo y vitrina en línea",
     "El Salvador",
   ],
   saltar: "Saltar al contenido",
@@ -24,15 +27,12 @@ export const landing = {
   irAlPanel: "Ir a mi panel",
   hero: {
     etiqueta: "Para quienes venden por redes sociales",
-    tituloInicio: "Tu inventario,",
-    tituloMarca: "apartado y cuadrado.",
-    texto:
-      "Saber en todo momento qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces.",
+    tituloInicio: "Tu tienda en línea",
+    tituloMarca: "y tus cuentas claras.",
+    texto: "Un enlace para que te compren, y adentro tus pedidos, cobros y balance, sin llevar el control dos veces.",
     verComo: "Ver cómo funciona",
     nota: "Gratis para empezar. Sin tarjeta.",
     ejemplo: "Así se ve (datos de ejemplo)",
-    fuente: "Hecha con lo que nos contaron cinco emprendimientos",
-    emprendimientos: ["Ternuritos", "Koa", "Capo", "Mims", "MG Vinyls"],
     mock: {
       productos: "Productos",
       disponibles: (n: number) => `Disponibles:\u00a0${n}`,
@@ -50,7 +50,7 @@ export const landing = {
       escribile: "Escribile a Lote…",
     },
   },
-  marquesina: ["Apartado", "Cobrado", "Enviado", "Cuadrado"],
+  marquesina: ["Publicado", "Apartado", "Cobrado", "Enviado", "Cuadrado"],
   problema: {
     titulo: "Si vendés por redes, esto te suena",
     intro: "Hablamos con cinco emprendimientos que venden por redes sociales. En los cinco pasó lo mismo.",
@@ -83,20 +83,20 @@ export const landing = {
     titulo: "Así de simple",
     pasos: [
       {
-        titulo: "Mandá la foto y una línea",
-        texto: "Lote arma la ficha con nombre, precio, costo y estado. El costo lo podés poner después.",
+        titulo: "Subí tus productos con una foto",
+        texto: "Mandá la foto y una línea. Lote arma la ficha con nombre, precio, costo y estado. El costo lo podés poner después.",
         chat: "chaqueta negra M, 25, me costó 10",
         ficha: { nombre: "Chaqueta negra M", precio: "$25.00", costo: "Costo $10.00" },
       },
       {
-        titulo: "Compartí tu vitrina",
-        texto: "Un enlace siempre al día. Lo vendido sale, lo apartado se marca, y tus clientes apartan solos.",
+        titulo: "Abrí tu tienda en línea",
+        texto: "Un enlace con tu logo y tu color, siempre al día. Según lo que elijás, tus clientes compran, apartan o solo te escriben.",
         enlace: "lote-ten.vercel.app/c/koa",
-        boton: "Apartar",
+        boton: "Comprar",
       },
       {
-        titulo: "Cobrá, enviá y mirá cuánto ganaste",
-        texto: "Cada pedido va de pendiente a entregado y la ganancia sale sola, con el costo real de cada pieza.",
+        titulo: "Cobrá, enviá y mirá tus cuentas",
+        texto: "Cada pedido va de pendiente a entregado. La ganancia sale sola y el balance te dice dónde está tu dinero.",
         pedido: "Pedido #12",
         pasos: ["Pendiente", "Pagado", "Enviado"],
         ganancia: "+$15.00",
@@ -104,7 +104,15 @@ export const landing = {
     ],
   },
   funciones: {
-    titulo: "Lo que ya podés hacer",
+    titulo: "Todo lo que ya podés hacer",
+    tienda: {
+      titulo: "Tu tienda en línea",
+      intro: "Lo que ven tus clientes.",
+    },
+    cuentas: {
+      titulo: "Tus cuentas claras",
+      intro: "Lo que ves vos.",
+    },
     estado: {
       titulo: "Un estado por pieza",
       texto: "Disponible, apartada o vendida. Si alguien intenta apartar algo que ya no está, Lote te avisa para quién es.",
@@ -117,12 +125,28 @@ export const landing = {
       cuenta: "Tus unidades siempre cuadran: lo apartado no se vende dos veces.",
     },
     vitrina: {
-      titulo: "Vitrina con tu enlace",
-      texto: "Con tu logo, tu color y tus productos. Tus clientes apartan y ven los datos de pago sin crear cuenta.",
+      titulo: "Tu tienda con tu enlace",
+      texto: "Con tu logo, tu color y tus productos. Se actualiza sola: lo vendido sale y lo apartado se marca. Tus clientes ven los datos de pago sin crear cuenta.",
+    },
+    modos: {
+      titulo: "Que te compren, te aparten o te vean",
+      texto: "Vos elegís qué pueden hacer tus clientes: comprar, apartar, o solo ver el catálogo y escribirte.",
+      opciones: ["Comprar", "Apartar", "Solo ver"],
+    },
+    balance: {
+      titulo: "Dónde está tu dinero",
+      texto: "Efectivo, cuenta, lo que te deben, tu inventario y lo que debés. Lote lo suma y te dice cuánto vale tu negocio hoy.",
+      filas: [
+        ["Efectivo", "$420"],
+        ["Por cobrar", "$85"],
+        ["Inventario", "$1,200"],
+        ["Lo que debés", "−$300"],
+      ],
+      total: ["Tu negocio vale", "$1,405"],
     },
     ganancia: {
-      titulo: "Ganancia real",
-      texto: "Costo por pieza (compra, envío, importación) y gastos.",
+      titulo: "Ganancia por producto",
+      texto: "Con el costo real de cada pieza (compra, envío, importación) y tus gastos.",
       valor: "+$23.50",
       margen: "70% de margen",
     },
@@ -150,7 +174,7 @@ export const landing = {
     mostrador: {
       etiqueta: "Si tenés un local",
       titulo: "Cobrá en el mostrador",
-      texto: "Escaneá el código de barras, aplicá un descuento y cobrá en pocos toques. Al cerrar, la caja te dice si el efectivo cuadra.",
+      texto: "Si tenés un local: escaneá el código de barras, aplicá un descuento y cobrá en pocos toques. Al cerrar, la caja te dice si el efectivo cuadra.",
       lineas: [
         ["Llaveros × 2", "$6.00"],
         ["Descuento", "−$1.00"],
@@ -166,7 +190,7 @@ export const landing = {
       quien: "Una clienta",
     },
     tambien:
-      "También: variantes (talla, tono, color), carrito de varios productos en tu vitrina, resumen semanal, ayudante con permisos, y exportar tus datos cuando quieras.",
+      "También: variantes (talla, tono, color), ofertas y promociones con fechas, carrito de varios productos, resumen semanal, ayudante con permisos, y exportar tus datos cuando quieras.",
   },
   buscar: {
     etiqueta: "Marketplace",
@@ -212,17 +236,17 @@ export const landing = {
       texto: "Para vender y llevar el control solo o con una ayudante.",
       lista: [
         "Fichas de producto, fotos y estados",
-        "Vitrina con tu enlace",
+        "Tu tienda en línea con tu enlace",
         "Pedidos, cobros y envíos",
-        "Ganancia real y gastos",
+        "Ganancia, gastos y balance",
       ],
-      nota: "Con un límite de productos activos y de apartados desde la vitrina por mes, y con la marca de Lote en la vitrina.",
+      nota: "Con un límite de productos activos y de apartados desde la tienda por mes, y con la marca de Lote en la tienda.",
     },
     pago: {
       nombre: "Con más negocio",
       precio: "Mensualidad baja",
       texto: "Cuando ya no te alcanza el plan gratis.",
-      lista: ["Sin límites", "Vitrina sin la marca de Lote", "Paquetera integrada", "Importación avanzada y resumen semanal"],
+      lista: ["Sin límites", "Tienda sin la marca de Lote", "Paquetera integrada", "Importación avanzada y resumen semanal"],
       nota: "El precio exacto lo definimos con quienes participen del piloto.",
     },
   },
@@ -233,7 +257,15 @@ export const landing = {
     items: [
       {
         p: "¿Tengo que dejar mis redes?",
-        r: "No. Seguís vendiendo por Instagram, Facebook, WhatsApp o en persona. Lote es donde llevás el control, y tus clientes ven tu vitrina con un enlace.",
+        r: "No. Seguís vendiendo por Instagram, Facebook, WhatsApp o en persona. Lote es donde llevás el control, y tu tienda en línea es el enlace que ponés en tu perfil para que te compren.",
+      },
+      {
+        p: "¿Puedo mostrar mi catálogo sin vender en línea?",
+        r: "Sí. Elegís si tus clientes pueden comprar, apartar o solo ver tus productos y escribirte. También podés apagar la tienda cuando quieras.",
+      },
+      {
+        p: "¿Necesito saber de contabilidad?",
+        r: "No. Lote habla en palabras de todos los días: lo que tenés, lo que te deben y lo que debés. Escribís tu saldo inicial una vez y después se actualiza solo.",
       },
       {
         p: "¿Funciona desde el celular?",
@@ -249,7 +281,7 @@ export const landing = {
       },
       {
         p: "¿Mis clientes necesitan cuenta?",
-        r: "No. Ven tu vitrina, aparten con su nombre y su contacto, y siguen su pedido con un enlace.",
+        r: "No. Ven tu tienda, compran o apartan con su nombre y su contacto, y siguen su pedido con un enlace.",
       },
       {
         p: "¿Puedo llevarme mis datos?",
@@ -258,8 +290,9 @@ export const landing = {
     ],
   },
   cierre: {
-    titulo: "Dejá de prometer lo que ya vendiste",
-    texto: "Creá tu cuenta con Google o con tu correo y cargá tu primer producto en minutos.",
+    tituloInicio: "Abrí tu tienda",
+    tituloMarca: "y cuadrá tus cuentas",
+    texto: "Creá tu cuenta con Google o con tu correo, cargá tu primer producto en minutos y compartí tu enlace.",
   },
   pie: {
     proyecto: "Proyecto del curso Diseño de Productos y Servicios · ESEN",

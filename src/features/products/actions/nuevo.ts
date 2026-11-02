@@ -1,5 +1,7 @@
 "use server";
 
+import { CAMPO_PAGO_COMPRA } from "@/features/gestion/campos";
+import { anotarCompra, plataDeCompra } from "@/features/gestion/compra";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { proveedorIA } from "@/features/ai/index";
@@ -18,7 +20,7 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 
 export type EstadoNuevo = {
-  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "categoria" | "compra" | "envio" | "importacion" | "otro" | "general", string>>;
+  errores?: Partial<Record<"nombre" | "precio" | "cantidad" | "variantes" | "variante" | "categoria" | "compra" | "envio" | "importacion" | "mano_obra" | "otro" | "general", string>>;
   valores?: Record<string, string>;
 };
 
@@ -87,6 +89,7 @@ export async function nuevoProducto(
     const grupo = crypto.randomUUID();
     const opcionesVariante = nombresDeOpciones(valores.opcionesNombres);
     const creados: number[] = [];
+    let pagado = 0;
     // Una por una, para que los códigos queden en el orden de la tabla
     for (const f of validadas.filas) {
       const r = await crearProducto(supabase, negocio.id, {
@@ -103,7 +106,9 @@ export async function nuevoProducto(
       });
       if ("error" in r) break;
       creados.push(r.codigo);
+      pagado += plataDeCompra([...(f.compra === null ? [] : [{ tipo: "compra", monto: f.compra }]), ...costos], f.cantidad);
     }
+    await anotarCompra(supabase, negocio.id, valores[CAMPO_PAGO_COMPRA], pagado, nombre);
     revalidatePath("/", "layout");
     if (creados.length === validadas.filas.length) redirect(destino(valores, creados[0], nombre));
     return { errores: { general: t.errorVariantesParcial(creados.length, validadas.filas.length) }, valores };
@@ -115,6 +120,7 @@ export async function nuevoProducto(
     const general = resultado.error === "sin_permiso" ? t.errorPermiso : t.errorGeneral;
     return { errores: { general }, valores };
   }
+  await anotarCompra(supabase, negocio.id, valores[CAMPO_PAGO_COMPRA], plataDeCompra(costos, cantidad), nombre);
   revalidatePath("/", "layout");
   redirect(destino(valores, resultado.codigo, nombre));
 }

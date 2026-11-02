@@ -14,6 +14,9 @@ import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { enlaceFacebook, enlaceTiktok, mensajePedirVitrina } from "@/features/catalog/enlaces";
 import { listarProductosPublicos, obtenerEstrellas, obtenerNegocioPublico, obtenerOpcionesDeCompra, obtenerPerfil, obtenerResenas } from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
+import { PromocionesDelProducto } from "@/features/catalog/ui/PromocionesDelProducto";
+import { anunciosDePromociones } from "@/features/promotions/descripcion";
+import { promocionesDeVitrina } from "@/features/promotions/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
@@ -54,15 +57,19 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
   const negocio = await obtenerNegocioPublico(supabase, slug);
   if (!negocio) notFound();
   // Las variantes de un mismo producto (talla, tono) se muestran en una sola tarjeta.
-  const [lista, opciones, estrellas, perfil, resenas] = await Promise.all([
+  const [lista, opciones, estrellas, perfil, resenas, promociones] = await Promise.all([
     listarProductosPublicos(supabase, slug),
     obtenerOpcionesDeCompra(supabase, slug),
     obtenerEstrellas(supabase, slug),
     obtenerPerfil(supabase, slug),
     // Sin código son las reseñas de toda la tienda
     obtenerResenas(supabase, slug),
+    promocionesDeVitrina(supabase, slug),
   ]);
   const productos = agruparParaVitrina(lista, estrellas);
+  // Las promociones vigentes se anuncian arriba del catálogo y marcan las tarjetas de los productos que cubren
+  const anuncios = anunciosDePromociones(promociones, lista);
+  const enPromocion = [...new Set(promociones.flatMap((pr) => pr.productos.map((x) => x.codigo)))];
   const metodos = opciones.metodos.map((m) => textos.cobro.metodos[m].toLowerCase());
 
   return (
@@ -139,12 +146,18 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           <p className="max-w-sm text-texto-2">{t.vacioTexto}</p>
         </div>
       ) : (
+        <>
+        <div className="mb-6">
+          <PromocionesDelProducto anuncios={anuncios} />
+        </div>
         <CatalogoVitrina
           slug={slug}
+          enPromocion={enPromocion}
           productos={productos} umbral={negocio.umbralPocoStock}
           envio={partesEnvio(opciones, negocio.tiempoEntrega).join(" · ") || null}
           puedeComprar={negocio.permiteComprar}
         />
+        </>
       )}
     </MarcaTienda>
   );

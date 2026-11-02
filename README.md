@@ -1,6 +1,6 @@
 # Lote
 
-Asistente para emprendedores que venden por redes sociales (Instagram, Facebook, WhatsApp) en El Salvador. Cada producto tiene su ficha con cantidad, estado, costo real y ganancia; los pedidos cubren apartado, cobro con abonos, envío y entrega. Se maneja desde un chat (en el panel y, con Meta, por WhatsApp), y hay una vitrina pública con enlace que se actualiza sola.
+Tu tienda en línea y tus cuentas claras, para emprendedores que venden por redes sociales (Instagram, Facebook, WhatsApp) en El Salvador. Afuera, una tienda con enlace (la vitrina) y el Marketplace, donde te compran, te apartan o solo ven tu catálogo. Adentro, cada producto con su ficha, costo real y ganancia; pedidos con cobro, abonos, envío y entrega; gastos y balance. Se maneja desde un chat (en el panel y, con Meta, por WhatsApp).
 
 Es un proyecto del curso Diseño de Productos y Servicios (ciclo 3), no un producto para lanzar.
 

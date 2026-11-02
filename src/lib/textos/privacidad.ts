@@ -17,7 +17,7 @@ export const privacidad = {
     {
       titulo: "Cuándo se les escribe por WhatsApp",
       texto:
-        "Solo a quien marcó la casilla al apartar desde la vitrina. Sin esa casilla, Lote no le escribe.",
+        "Solo a quien marcó la casilla al apartar desde la tienda. Sin esa casilla, Lote no le escribe.",
     },
     {
       titulo: "Qué se envía a la inteligencia artificial",

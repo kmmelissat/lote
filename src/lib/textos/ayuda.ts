@@ -11,7 +11,7 @@ export const ayuda = {
   grupos: [
     { id: "productos", titulo: "Tus productos", temas: ["producto_nuevo", "importar", "variantes", "categorias", "lotito_foto"] },
     { id: "ventas", titulo: "Cobrar y enviar", temas: ["apartado_vitrina", "cobrar", "pagar_pedido", "datos_de_pago", "envios_config", "seguimiento"] },
-    { id: "vitrina", titulo: "Tu vitrina", temas: ["vitrina", "explorar"] },
+    { id: "vitrina", titulo: "Tu tienda en línea", temas: ["vitrina", "explorar"] },
     { id: "negocio", titulo: "Tu negocio", temas: ["ganancia", "permisos", "equipo", "exportar"] },
     { id: "lotito", titulo: "Hablar con Lotito", temas: ["asistente", "deshacer"] },
   ],
@@ -44,7 +44,7 @@ export const ayuda = {
       id: "apartado_vitrina",
       enlace: { href: "/ajustes/tienda", etiqueta: "Ajustes de tu tienda" },
       donde: ["/pedidos"],
-      pregunta: "¿Qué pasa cuando alguien aparta desde mi vitrina?",
+      pregunta: "¿Qué pasa cuando alguien aparta desde mi tienda en línea?",
       respuesta:
         "El producto deja de estar disponible al instante y el cliente ve tus datos de pago y el tiempo que tiene para pagar. Si no paga a tiempo, el apartado vence solo y el producto vuelve a estar disponible. El plazo y el límite por persona se cambian en Mi tienda.",
     },
@@ -108,15 +108,15 @@ export const ayuda = {
       donde: ["/productos/nuevo"],
       pregunta: "¿Cómo vendo un producto con tallas o colores?",
       respuesta:
-        "En Nuevo producto abrí la sección de variantes y escribí las opciones, por ejemplo modelos y colores. Lote arma las combinaciones y cada una lleva su precio, su costo y sus unidades. En la vitrina tu cliente elige la que quiere. Si ya las tenés en Excel, importalas: repetí el nombre del producto y cambiá la talla o el color en cada fila.",
+        "En Nuevo producto abrí la sección de variantes y escribí las opciones, por ejemplo modelos y colores. Lote arma las combinaciones y cada una lleva su precio, su costo y sus unidades. En la tienda en línea tu cliente elige la que quiere. Si ya las tenés en Excel, importalas: repetí el nombre del producto y cambiá la talla o el color en cada fila.",
     },
     {
       id: "vitrina",
       enlace: { href: "/ajustes/tienda", etiqueta: "Ajustes de tu tienda" },
       donde: ["/inicio", "/productos"],
-      pregunta: "¿Cómo comparto mi vitrina?",
+      pregunta: "¿Cómo comparto mi tienda en línea?",
       respuesta:
-        "En el menú, tocá Copiar enlace en Mi vitrina y pegalo en tu perfil o en tus chats. Ahí tus clientes ven lo disponible y pueden comprar o apartar sin escribirte primero.",
+        "En el menú, tocá Copiar enlace en Mi tienda en línea y pegalo en tu perfil o en tus chats. Ahí tus clientes ven lo disponible y pueden comprar o apartar sin escribirte primero.",
     },
     {
       id: "explorar",

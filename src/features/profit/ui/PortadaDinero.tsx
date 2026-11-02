@@ -186,17 +186,31 @@ export function ReciboDelPeriodo({ r, cubierto }: { r: ResumenPeriodo; cubierto:
  * Lo primero de Movimientos: lo que quedó (entradas menos salidas de lo que se está viendo), grande, con lo que entró y lo que salió al lado.
  * Es la una cosa fuerte de la pantalla.
  */
-export function HeroMovimientos({ entradas, salidas, neto, cantidad }: { entradas: number; salidas: number; neto: number; cantidad: number }) {
+export function HeroMovimientos({
+  entradas,
+  salidas,
+  neto,
+  cantidad,
+  titulo = t.neto.titulo,
+  ayuda = t.neto.ayuda,
+}: {
+  entradas: number;
+  salidas: number;
+  neto: number;
+  cantidad: number;
+  titulo?: string;
+  ayuda?: string;
+}) {
   return (
-    <section aria-label={t.neto.titulo} className="grid grid-cols-1 gap-5 rounded-[24px] border-2 border-teal-oscuro bg-teal-oscuro p-5 text-white md:grid-cols-[1fr_1.2fr] md:items-center md:p-6">
+    <section aria-label={titulo} className="grid grid-cols-1 gap-5 rounded-[24px] border-2 border-teal-oscuro bg-teal-oscuro p-5 text-white md:grid-cols-[1fr_1.2fr] md:items-center md:p-6">
       <div className="flex flex-col gap-1">
-        <h2 className="text-sm font-bold text-celeste">{t.neto.titulo}</h2>
+        <h2 className="text-sm font-bold text-celeste">{titulo}</h2>
         <p className={`font-logo text-5xl font-bold tabular-nums md:text-6xl ${neto < 0 ? "text-rosa" : "text-limon"}`}>
           {neto < 0 ? "−" : ""}
           {formatearDolares(Math.abs(neto))}
         </p>
         <p className="text-sm text-white/80">
-          {t.pie.movimientos(cantidad)} · {t.neto.ayuda}
+          {t.pie.movimientos(cantidad)} · {ayuda}
         </p>
       </div>
       <dl className="grid grid-cols-2 gap-3">

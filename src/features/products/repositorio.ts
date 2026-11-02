@@ -277,7 +277,7 @@ export type NuevoProducto = {
   marca?: string;
   condicion: "nuevo" | "usado";
   fotos: string[];
-  costos: { tipo: "compra" | "envio" | "importacion" | "otro"; monto: Centavos }[];
+  costos: { tipo: "compra" | "envio" | "importacion" | "mano_obra" | "otro"; monto: Centavos }[];
   /** Si es una variante: el grupo que comparte con sus hermanas y su etiqueta ("M", "rosa") */
   grupo?: string;
   variante?: string;

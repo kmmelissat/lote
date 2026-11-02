@@ -9,7 +9,8 @@ import { ComoComprar } from "@/features/catalog/ui/ComoComprar";
 import { Etiquetas } from "@/features/catalog/ui/Etiquetas";
 import { FichaDelProducto } from "@/features/catalog/ui/FichaDelProducto";
 import { PromocionesDelProducto } from "@/features/catalog/ui/PromocionesDelProducto";
-import { ResumenEnvio } from "@/features/catalog/ui/ResumenEnvio";
+import { LineaConfianza } from "@/features/catalog/ui/LineaConfianza";
+import { Plegable } from "@/features/catalog/ui/Plegable";
 import { Resenas } from "@/features/catalog/ui/Resenas";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
 import {
@@ -26,7 +27,7 @@ import { fotosDelGrupo } from "@/features/products/fotosVariantes";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
-import { anuncioDePromocion } from "@/features/promotions/descripcion";
+import { anunciosDePromociones } from "@/features/promotions/descripcion";
 import { promocionesDeVitrina } from "@/features/promotions/repositorio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
@@ -135,13 +136,10 @@ async function Producto({
       ];
   // Las promociones que tocan a este producto (o a cualquiera de sus variantes), con el nombre de lo que cubren
   const codigosDeEstaPagina = new Set(variantes.map((v) => v.codigo));
-  const nombreDe = (c: number) => {
-    const o = todos.find((x) => x.codigo === c);
-    return o ? nombreBase(o.nombre, o.variante) : undefined;
-  };
-  const anuncios = promociones
-    .filter((pr) => pr.productos.some((x) => codigosDeEstaPagina.has(x.codigo)))
-    .map((pr) => ({ clave: pr.id, ...anuncioDePromocion(pr, nombreDe) }));
+  const anuncios = anunciosDePromociones(
+    promociones.filter((pr) => pr.productos.some((x) => codigosDeEstaPagina.has(x.codigo))),
+    todos,
+  );
 
   const [opcionesDeCompra, resenas] = await Promise.all([
     obtenerOpcionesDeCompra(supabase, slug),
@@ -172,6 +170,12 @@ async function Producto({
   const masDe = otros.filter((o) => !parecidos.includes(o)).slice(0, 4);
 
   const base = nombreBase(p.nombre, p.variante);
+  // El sello de la foto: lo que se rebaja la variante más barata (la que se ve en la vitrina)
+  const masBarata = familia.reduce((m, o) => (o.precio < m.precio ? o : m), familia[0]);
+  const sello =
+    masBarata.precioAnterior !== null && masBarata.precioAnterior > masBarata.precio
+      ? textos.vitrina.etiquetas.oferta(Math.round((1 - masBarata.precio / masBarata.precioAnterior) * 100))
+      : undefined;
   // La dirección que se le da al buscador: la de la variante principal del grupo
   const url = `${urlSitio}/c/${slug}/${codigoCanonico(p, todos)}`;
   const meta = [
@@ -250,43 +254,20 @@ async function Producto({
         <ProveedorFotos>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div className="flex flex-col gap-5 md:sticky md:top-4 md:self-start">
-              <GaleriaVitrina fotos={galeria.fotos} de={galeria.de} nombre={base} />
+              <GaleriaVitrina fotos={galeria.fotos} de={galeria.de} nombre={base} sello={sello} />
             </div>
 
             <div className="flex min-w-0 flex-col gap-5">
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold leading-tight">{base}</h1>
                 {meta && <p className="text-sm text-texto-2">{meta}</p>}
+                <h1 className="font-logo text-4xl font-semibold leading-[1.08] md:text-[2.3rem]">{base}</h1>
                 <Etiquetas
                   disponibles={disponiblesTotal}
                   umbral={negocio.umbralPocoStock}
                   vendidas={vendidasTotal}
                   nuevo={nuevo}
                 />
-                {p.descripcion &&
-                  (p.descripcion.length > 220 ? (
-                    <details className="group">
-                      <summary className="cursor-pointer list-none leading-relaxed [&::-webkit-details-marker]:hidden">
-                        <span className="line-clamp-3 group-open:line-clamp-none">
-                          {p.descripcion}
-                        </span>
-                        <span className="mt-1 block text-sm font-bold text-teal underline group-open:hidden">
-                          {t.verMas}
-                        </span>
-                      </summary>
-                    </details>
-                  ) : (
-                    <p className="leading-relaxed">{p.descripcion}</p>
-                  ))}
               </div>
-
-              <FichaDelProducto
-                detalles={p.detalles}
-                estado={p.estadoDetalle}
-                usado={p.condicion === "usado"}
-              />
-
-              <PromocionesDelProducto anuncios={anuncios} />
 
               <ZonaDeCompra
                 slug={slug}
@@ -298,10 +279,26 @@ async function Producto({
                 contacto={{ tienda: negocio.nombre, producto: base, whatsapp: negocio.whatsapp, instagram: negocio.usuarioInstagram, facebook: negocio.usuarioFacebook, tiktok: negocio.usuarioTiktok }}
               />
 
-              <ResumenEnvio
+              <LineaConfianza
+                estrellas={resenas.total > 0 ? { promedio: resenas.promedio, total: resenas.total } : null}
                 opciones={opcionesDeCompra}
                 tiempo={negocio.tiempoEntrega}
               />
+
+              <PromocionesDelProducto anuncios={anuncios} compacto />
+
+              <div className="flex flex-col">
+                {p.descripcion && (
+                  <Plegable titulo={textos.vitrina.ficha.descripcion} abierto>
+                    <p className="whitespace-pre-line leading-relaxed">{p.descripcion}</p>
+                  </Plegable>
+                )}
+                <FichaDelProducto
+                  detalles={p.detalles}
+                  estado={p.estadoDetalle}
+                  usado={p.condicion === "usado"}
+                />
+              </div>
 
               <BotonesChat
                 discreto={negocio.nombre}

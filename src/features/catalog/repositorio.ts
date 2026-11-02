@@ -344,6 +344,8 @@ export type AjustesVitrina = {
   vitrinaActiva: boolean;
   /** Vende en persona desde un local: prende el Mostrador y la caja */
   tieneLocal: boolean;
+  /** Qué hace el negocio: lo guarda guardarTienda; no se lee acá porque ya viene en negocioActual */
+  actividad?: "compro_vendo" | "produzco" | "ambos";
   /** Lo que tarda la tienda en entregar ("Sale en 24 h"); vacío si no lo dice */
   tiempoEntrega: string | null;
   /** Cambios y devoluciones, en una frase */
@@ -461,6 +463,8 @@ export async function guardarTienda(
     await supabase.from("negocio").update({ usuario_facebook: a.usuarioFacebook }).eq("id", negocioId);
     // Y tiktok.sql
     await supabase.from("negocio").update({ usuario_tiktok: a.usuarioTiktok }).eq("id", negocioId);
+    // Y gestion.sql (qué hace el negocio)
+    if (a.actividad) await supabase.from("negocio").update({ actividad: a.actividad }).eq("id", negocioId);
     return "ok";
   }
   // La dirección ya la usa otra tienda

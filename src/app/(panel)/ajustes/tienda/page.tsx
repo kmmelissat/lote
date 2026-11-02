@@ -40,7 +40,7 @@ async function Secciones({ searchParams }: Pick<PageProps<"/ajustes/tienda">, "s
     <div className="flex min-w-0 flex-col gap-4">
       <SeccionesTienda activa={seccion} />
       <div className={tiendaActiva ? "" : "hidden"}>
-        <TiendaForm identidad={identidad} ajustes={ajustes} negocioId={negocio.id} seccion={seccion} />
+        <TiendaForm identidad={identidad} ajustes={ajustes} negocioId={negocio.id} seccion={seccion} actividad={negocio.actividad} />
       </div>
       <div id="panel-pagos" role="tabpanel" aria-labelledby="tab-pagos" className={oculto("pagos")}>
         <PagosForm metodos={metodos} />

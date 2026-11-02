@@ -9,11 +9,10 @@ import { AbrirVitrina, Insignia } from "./PiezasMenu";
 const t = textos.nav;
 
 /**
- * Las secciones del menú lateral en cuadros de dos en dos: cada uno con su ícono, su nombre y, si hay, su contador. El cuadro
+ * Las secciones del menú del celular en cuadros de dos en dos: cada uno con su ícono, su nombre y, si hay, su contador. El cuadro
  * de la sección activa se rellena con su color y se levanta; los demás son blancos con el ícono en su color y, al pasar el mouse,
  * se pintan de ese color a la mitad. Al final van los cuadros que salen del panel y abren en otra pestaña, con su flechita: el
- * Marketplace siempre y la vitrina para quien no tiene "Mi tienda". Recogido (`group-data-[cerrado]`) quedan solo los íconos,
- * uno debajo del otro. En el cajón del celular (`grande`) la letra es de 16 px y los cuadros son más altos.
+ * Marketplace siempre y la vitrina para quien no tiene "Mi tienda". La letra es de 16 px y los cuadros son altos.
  */
 export function ListaMenu({
   items,
@@ -35,7 +34,7 @@ export function ListaMenu({
 }) {
   const letra = grande ? "text-base" : "text-sm";
   const icono = grande ? "size-6" : "size-5";
-  const forma = `flex ${grande ? "min-h-24" : "min-h-20"} w-full flex-col justify-between gap-2 rounded-2xl border-2 border-teal-oscuro p-2.5 ${letra} font-bold text-teal-oscuro transition-[transform,background-color] group-data-[cerrado]:min-h-14 group-data-[cerrado]:items-center group-data-[cerrado]:justify-center`;
+  const forma = `flex ${grande ? "min-h-24" : "min-h-20"} w-full flex-col justify-between gap-2 rounded-2xl border-2 border-teal-oscuro p-2.5 ${letra} font-bold text-teal-oscuro transition-[transform,background-color]`;
 
   /** El ícono dentro de su cuadrito de color, con lo que va a la derecha (el contador, o la flechita de los que abren afuera). */
   const cabecera = (nombre: NombreIcono, fondo: string, activa: boolean, derecha: React.ReactNode) => (
@@ -43,7 +42,7 @@ export function ListaMenu({
       <span className={`flex size-9 items-center justify-center rounded-xl border-2 border-teal-oscuro ${activa ? "bg-superficie" : fondo}`}>
         <Icon nombre={nombre} className={icono} />
       </span>
-      <span className="group-data-[cerrado]:hidden">{derecha}</span>
+      {derecha}
     </span>
   );
 
@@ -58,18 +57,18 @@ export function ListaMenu({
         className={`${forma} bg-superficie ${PINTA_HOVER_SECCION[clave] ?? "hover:bg-limon/40"}`}
       >
         {cabecera(nombre, FONDO_SECCION[clave] ?? "bg-superficie", false, null)}
-        <span className="truncate group-data-[cerrado]:hidden">{etiqueta}</span>
+        <span className="truncate">{etiqueta}</span>
         <span className="sr-only">{textos.explorar.sobre.nuevaPestana}</span>
       </Link>
       {/* La flechita va arriba a la derecha, en el mismo lugar que la del botón de la vitrina en "Mi tienda": abajo chocaría con el nombre */}
-      <span aria-hidden="true" className="pointer-events-none absolute right-0 top-0 flex size-10 items-center justify-center text-texto-2 group-data-[cerrado]:hidden">
+      <span aria-hidden="true" className="pointer-events-none absolute right-0 top-0 flex size-10 items-center justify-center text-texto-2">
         <Icon nombre="enlace" className={grande ? "size-5" : "size-4"} />
       </span>
     </li>
   );
 
   return (
-    <ul className="grid grid-cols-2 gap-2.5 group-data-[cerrado]:grid-cols-1 [&>li:last-child:nth-child(odd)]:col-span-2 group-data-[cerrado]:[&>li:last-child:nth-child(odd)]:col-span-1">
+    <ul className="grid grid-cols-2 gap-2.5 [&>li:last-child:nth-child(odd)]:col-span-2">
       {items.map((p) => {
         const activa = ruta !== null && activaEn(ruta, p.href);
         const fondo = FONDO_SECCION[p.href] ?? "bg-superficie";
@@ -82,14 +81,14 @@ export function ListaMenu({
               className={`${forma} ${activa ? `${fondo} -translate-y-0.5 shadow-dura-chica` : `bg-superficie ${PINTA_HOVER_SECCION[p.href] ?? "hover:bg-limon/40"}`}`}
             >
               {cabecera(p.icono, fondo, activa, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} /> : null)}
-              <span className="truncate group-data-[cerrado]:hidden">{p.etiqueta}</span>
+              <span className="truncate">{p.etiqueta}</span>
             </Link>
             {/* El botón de la vitrina se pega a la esquina de arriba del cuadro, porque el cuadro es todo el enlace */}
             {p.href === "/ajustes/tienda" && slug ? (
               <AbrirVitrina
                 slug={slug}
                 iconoGrande={grande}
-                className="absolute right-0 top-0 flex size-10 items-center justify-center text-texto-2 hover:text-teal group-data-[cerrado]:hidden"
+                className="absolute right-0 top-0 flex size-10 items-center justify-center text-texto-2 hover:text-teal"
               />
             ) : null}
           </li>

@@ -1,6 +1,6 @@
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import type { Centavos } from "@/domain";
+import { nombreBase, type Centavos } from "@/domain";
 import { diasEntre } from "@/lib/calendario";
 
 const t = textos.promociones;
@@ -59,4 +59,50 @@ export function textoDeEstado(
   if (estado === "vencida") return { estado, texto: t.estadoVencida };
   if (estado === "programada") return { estado, texto: t.estadoProgramada(cuando(diasEntre(hoy, p.desde as string))) };
   return { estado, texto: p.hasta ? t.estadoVigenteHasta(cuando(diasEntre(hoy, p.hasta))) : t.estadoVigente };
+}
+
+export type AnuncioPromocion = {
+  clave: string;
+  titulo: string;
+  detalle: string | null;
+  /** Lo que cuesta sin la promoción y con ella; null si no se puede decir (productos de distinto precio en "llevá y pagá") */
+  precios: { antes: string; ahora: string; ahorro: string } | null;
+  fotos: string[];
+};
+
+type PromocionPublicaLista = Parameters<typeof anuncioDePromocion>[0] & { id: string };
+type ProductoDeLista = { codigo: number; nombre: string; variante: string | null; precio: Centavos; fotos: string[] };
+
+/** Las promociones de la vitrina listas para pintar: título, qué cubren, fotos y el precio de antes frente al de ahora. */
+export function anunciosDePromociones(promociones: PromocionPublicaLista[], productos: ProductoDeLista[]): AnuncioPromocion[] {
+  const porCodigo = new Map(productos.map((p) => [p.codigo, p]));
+  return promociones.map((pr) => {
+    const nombreDe = (c: number) => {
+      const o = porCodigo.get(c);
+      return o ? nombreBase(o.nombre, o.variante) : undefined;
+    };
+    const cubiertos = pr.productos.flatMap((x) => {
+      const o = porCodigo.get(x.codigo);
+      return o ? [{ ...x, precio: o.precio, foto: o.fotos[0] }] : [];
+    });
+    let antes: number | null = null;
+    let ahora: number | null = null;
+    if (pr.tipo === "pack" && pr.precioPack !== null) {
+      antes = cubiertos.reduce((suma, x) => suma + x.precio * x.cantidad, 0);
+      ahora = pr.precioPack;
+    } else if (pr.tipo === "llevas_pagas" && pr.lleva && pr.paga && cubiertos.length && cubiertos.every((x) => x.precio === cubiertos[0].precio)) {
+      antes = pr.lleva * cubiertos[0].precio;
+      ahora = pr.paga * cubiertos[0].precio;
+    }
+    const fotos = [...new Set(cubiertos.flatMap((x) => (x.foto ? [x.foto] : [])))].slice(0, 3);
+    return {
+      clave: pr.id,
+      ...anuncioDePromocion(pr, nombreDe),
+      precios:
+        antes !== null && ahora !== null && antes > ahora
+          ? { antes: formatearDolares(antes), ahora: formatearDolares(ahora), ahorro: formatearDolares(antes - ahora) }
+          : null,
+      fotos,
+    };
+  });
 }

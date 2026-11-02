@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { costoPromedio, leerDolares } from "@/domain/index";
 import { obtenerProducto, reponerProducto } from "../repositorio";
+import { CAMPO_PAGO_COMPRA } from "@/features/gestion/campos";
+import { anotarCompra } from "@/features/gestion/compra";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -40,6 +42,8 @@ export async function reponer(
   const resultado = await reponerProducto(supabase, producto.id, llegan, nuevoCosto);
   if (resultado === "sin_permiso") return { errores: { general: t.errorPermiso } };
   if (resultado !== "ok") return { errores: { general: t.errorGeneral } };
+  // Si se dijo de dónde salió el dinero, el saldo de ese lugar baja
+  if (costoNuevo !== null) await anotarCompra(supabase, negocio.id, String(formData.get(CAMPO_PAGO_COMPRA) ?? ""), costoNuevo * llegan, producto.nombre);
   revalidatePath("/", "layout");
   return { listo: t.listo(llegan) };
 }

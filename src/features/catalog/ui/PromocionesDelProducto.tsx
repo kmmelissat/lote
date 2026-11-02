@@ -1,22 +1,53 @@
+import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
+import type { AnuncioPromocion } from "@/features/promotions/descripcion";
+import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 
 const t = textos.promociones;
 
-/** Las promociones que aplican a este producto, antes de comprarlo: "Llevá 2, pagá 1", "Pack a $12". Nada si no hay. */
-export function PromocionesDelProducto({ anuncios }: { anuncios: { clave: string; titulo: string; detalle: string | null }[] }) {
+/** Las promociones de la tienda como tarjetas: qué incluyen, el precio de antes tachado, el de ahora y cuánto se ahorra. */
+export function PromocionesDelProducto({ anuncios, compacto = false }: { anuncios: AnuncioPromocion[]; /** En una columna angosta (la ficha del producto): una por fila y sin título grande */ compacto?: boolean }) {
   if (!anuncios.length) return null;
   return (
     <section aria-label={t.enPromocion} className="flex flex-col gap-2">
-      {anuncios.map((a) => (
-        <p key={a.clave} className="flex items-start gap-3 rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-3">
-          <Icon nombre="etiqueta" className="mt-0.5 size-5 shrink-0" />
-          <span className="flex min-w-0 flex-col leading-tight">
-            <span className="font-bold">{a.titulo}</span>
-            {a.detalle && <span className="text-sm">{a.detalle}</span>}
-          </span>
-        </p>
-      ))}
+      {!compacto && (
+        <h2 className="flex items-center gap-2 text-lg font-bold">
+          <Icon nombre="etiqueta" className="size-5" />
+          {t.enPromocion}
+        </h2>
+      )}
+      <ul className={`grid gap-3 ${!compacto && anuncios.length > 1 ? "md:grid-cols-2" : ""}`}>
+        {anuncios.map((a) => (
+          <li key={a.clave} className="flex gap-3 rounded-[20px] border-2 border-teal-oscuro bg-limon p-3 shadow-dura-chica">
+            {a.fotos.length > 0 && (
+              <div className="flex shrink-0 -space-x-4" aria-hidden="true">
+                {a.fotos.map((f) => (
+                  <span key={f} className={`relative overflow-hidden ${compacto ? "size-12" : "size-16"} rounded-2xl border-2 border-teal-oscuro bg-superficie`}>
+                    <Image src={urlFoto(f)} alt="" fill sizes="64px" className="object-cover" />
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex min-w-0 flex-1 flex-col gap-1 leading-tight">
+              <p className="font-bold">{a.titulo}</p>
+              {a.detalle && <p className="text-sm">{a.detalle}</p>}
+              {a.precios && (
+                <p className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1 tabular-nums">
+                  <span className="text-2xl font-extrabold text-teal-oscuro">{a.precios.ahora}</span>
+                  <span className="text-sm text-texto-2 line-through">
+                    <span className="sr-only">{textos.explorar.antes} </span>
+                    {a.precios.antes}
+                  </span>
+                  <span className="rounded-full border-2 border-teal-oscuro bg-mango px-2 py-0.5 text-xs font-extrabold">
+                    {t.ahorras(a.precios.ahorro)}
+                  </span>
+                </p>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

@@ -2,7 +2,7 @@
 
 > Este archivo es la fuente de verdad del producto. Claude Code lo lee antes de construir cualquier cosa. Si algo no está acá, se pregunta; no se inventa.
 > Nombre: **Lote**. Viene de cómo compran los emprendedores entrevistados (lotes pequeños de ropa, tandas de piezas). "La app" = Lote. El nombre vive en un solo archivo de textos para poder cambiarlo fácil.
-> Ojo: en El Salvador "lote" también es un terreno. Por eso el logo, el eslogan y los textos siempre lo acompañan de productos, nunca de bienes raíces. Eslogan de trabajo: "Tu inventario, apartado y cuadrado."
+> Ojo: en El Salvador "lote" también es un terreno. Por eso el logo, el eslogan y los textos siempre lo acompañan de productos, nunca de bienes raíces. Eslogan: "Tu tienda en línea y tus cuentas claras." (antes, en la etapa de investigación: "Tu inventario, apartado y cuadrado."; ver el posicionamiento en la sección 1).
 
 ## 1. Qué es
 
@@ -10,7 +10,13 @@ Un asistente para emprendedores que venden por redes sociales (Instagram, Facebo
 
 Cada producto tiene su ficha con cantidad, estado, costo real y ganancia. Una pieza única es un producto con cantidad 1; un producto normal es el mismo con cantidad N. Los pedidos cubren todo el camino: apartado (también desde la vitrina, sin que el cliente tenga que escribirte), cobro con abonos, envío con paquetera y entrega. La IA evita el doble registro: lee fotos, mensajes y comprobantes, y registra o propone la acción.
 
-Propuesta de valor: "Saber en todo momento qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces."
+Propuesta de valor (investigación): "Saber en todo momento qué tenés, qué está apartado y cuánto ganás con cada producto, sin llevar el control dos veces."
+
+**Posicionamiento actual (2 de noviembre de 2026).** Lote ya no es solo un inventario con estados: es el negocio completo, en dos mitades.
+- **Afuera, tu tienda en línea:** la vitrina con enlace propio (`/c/<tu-tienda>`), el catálogo y el Marketplace. La vendedora decide si sus clientes pueden **comprar**, apartar o solo ver y escribirle. La meta de la tienda es **vender**; apartar es la alternativa, no la promesa.
+- **Adentro, tus cuentas claras:** inventario, pedidos, cobros, gastos, ganancia por producto y balance (dónde está su plata, qué le deben, qué debe y cuánto vale el negocio hoy; ver [GESTION.md](GESTION.md)).
+- El hilo que las une es el de siempre: **sin llevar el control dos veces**. "Cuadrado" se queda como juego de palabras (cuentas que cuadran).
+- "Vitrina" es el nombre interno y del panel; de cara a quien llega a la landing se dice **"tienda en línea"**. No se promete dominio propio ni sitio aparte: la tienda en línea **es** la vitrina.
 
 Referencia: Treinta (ventas, inventario, fiados, catálogo, reportes), adaptada a Instagram, a piezas únicas y con IA.
 
@@ -262,7 +268,7 @@ Un `ChannelAdapter` define: recibir mensaje (texto, imagen, audio), enviar respu
 
 WhatsApp Business solo deja responder libremente dentro de las 24 horas siguientes al último mensaje de la persona. Fuera de esa ventana solo se pueden mandar **plantillas aprobadas por Meta**. Esto afecta todo lo que la app dice por iniciativa propia:
 
-- Plantillas a definir y mandar a aprobar desde el inicio: `apartado_nuevo` (aviso a la vendedora cuando alguien aparta desde la vitrina), `apartado_por_vencer`, `apartado_vencido`, `resumen_semanal`, `pedido_enviado` (al cliente), `recordatorio_abono`.
+- Plantillas a definir y mandar a aprobar desde el inicio: `apartado_nuevo` (aviso a la vendedora cuando alguien aparta desde la tienda en línea), `apartado_por_vencer`, `apartado_vencido`, `resumen_semanal`, `pedido_enviado` (al cliente), `recordatorio_abono`.
 - Si la ventana está abierta se manda un mensaje normal; si no, la plantilla.
 - Los avisos se disparan con tareas programadas (cron): vencer apartados, recordar apartados fríos y abonos, y mandar el resumen semanal.
 - A un cliente final solo se le escribe si aceptó al apartar (casilla de consentimiento).

@@ -100,7 +100,7 @@ export function DemoGuardar() {
           <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-borde bg-superficie px-5 py-3">
             <div className="min-w-0">
               <p className="text-2xl font-bold">Mi tienda</p>
-              <p className="text-texto-2">Tu marca, el WhatsApp de tu tienda y, si querés, tu vitrina.</p>
+              <p className="text-texto-2">Tu marca, el WhatsApp de tu tienda y, si querés, tu tienda en línea.</p>
             </div>
             <Button type="button" variante="mango" disabled={!hayCambios} onClick={guardar}>
               Guardar

@@ -106,6 +106,7 @@ export function DineroParado({
   fotos,
   total,
   pctDelInventario,
+  inventario,
   dias,
   sinCosto,
 }: {
@@ -113,6 +114,8 @@ export function DineroParado({
   fotos: Record<string, string | undefined>;
   total: number;
   pctDelInventario: number;
+  /** Lo que cuesta todo el inventario, para que el porcentaje tenga contra qué compararse */
+  inventario: number;
   dias: number;
   sinCosto: number;
 }) {
@@ -122,7 +125,8 @@ export function DineroParado({
         <h2 id="dinero-parado" className="font-logo text-lg font-bold">
           {t.paradoTitulo}
         </h2>
-        <p className="text-sm">{productos.length ? t.paradoTotal(formatearDolares(total), pctDelInventario) : t.paradoAyuda(dias)}</p>
+        <p className="text-sm">{t.paradoAyuda(dias)}</p>
+        {productos.length > 0 && <p className="text-sm font-bold">{t.paradoTotal(formatearDolares(total), pctDelInventario, formatearDolares(inventario))}</p>}
       </div>
       {productos.length === 0 ? (
         <p className="px-4 py-4 text-texto-2 md:px-5">{t.paradoVacio}</p>

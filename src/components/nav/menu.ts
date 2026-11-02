@@ -25,12 +25,20 @@ export const pestanas: Pestana[] = [
   { href: "/pedidos", etiqueta: t.pedidos, icono: "pedidos" },
   { href: "/clientes", etiqueta: t.clientes, icono: "clientes" },
   { href: "/dinero", etiqueta: t.dinero, icono: "moneda" },
+  { href: "/gestion", etiqueta: t.gestion, icono: "balanza" },
   { href: "/asistente", etiqueta: t.asistente, icono: "chat" },
 ];
 
 /** Lo que solo configura la dueña: "Mi tienda" va como una entrada más del menú, sin encabezado de Ajustes. También es atajo de la paleta ⌘K. */
 export const ajustesEscritorio: Pestana[] = [
   { href: "/ajustes/tienda", etiqueta: t.tienda, icono: "tienda" },
+];
+
+/** Las secciones del menú de escritorio, por grupos. Lo externo (Marketplace, vitrina) va al final de "Tu negocio". */
+export const gruposMenu: { titulo: string; rutas: string[] }[] = [
+  { titulo: t.grupos.vender, rutas: ["/inicio", "/productos", "/pedidos", "/clientes"] },
+  { titulo: t.grupos.dinero, rutas: ["/dinero", "/gestion"] },
+  { titulo: t.grupos.negocio, rutas: ["/asistente", "/ajustes/tienda"] },
 ];
 
 /** El relleno de color de cada sección en el menú. Clases completas, para que Tailwind las vea. */
@@ -40,6 +48,7 @@ export const FONDO_SECCION: Record<string, string> = {
   "/pedidos": "bg-rosa",
   "/clientes": "bg-celeste",
   "/dinero": "bg-limon",
+  "/gestion": "bg-celeste",
   "/asistente": "bg-teal-fondo",
   "/ajustes/tienda": "bg-rosa-palido",
   "/marketplace": "bg-perla",
@@ -56,6 +65,7 @@ export const PINTA_HOVER_SECCION: Record<string, string> = {
   "/pedidos": "hover:bg-[color-mix(in_srgb,var(--color-rosa)_50%,white)]",
   "/clientes": "hover:bg-[color-mix(in_srgb,var(--color-celeste)_50%,white)]",
   "/dinero": "hover:bg-[color-mix(in_srgb,var(--color-limon)_50%,white)]",
+  "/gestion": "hover:bg-[color-mix(in_srgb,var(--color-celeste)_50%,white)]",
   "/asistente": "hover:bg-[color-mix(in_srgb,var(--color-teal-fondo)_50%,white)]",
   "/ajustes/tienda": "hover:bg-[color-mix(in_srgb,var(--color-rosa-palido)_50%,white)]",
   "/marketplace": "hover:bg-[color-mix(in_srgb,var(--color-perla)_50%,white)]",

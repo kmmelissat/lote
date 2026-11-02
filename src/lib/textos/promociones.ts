@@ -1,10 +1,23 @@
 export const promociones = {
   titulo: "Promociones",
-  descripcion: "Packs y \"llevá y pagá\": el descuento se aplica solo cuando el pedido reúne lo que pide.",
+  descripcion: "Packs, \"llevá y pagá\" y ofertas de un producto. Los packs se aplican solos cuando el pedido reúne lo que piden; las ofertas bajan el precio unos días.",
+  ofertas: {
+    titulo: "Oferta de un producto",
+    ayuda: "Bajá el precio de un solo producto por unos días. Se ve con el precio de antes tachado.",
+    vigentes: "Ofertas en curso",
+    nueva: "Nueva oferta",
+    elegir: "Elegí el producto",
+    buscar: "Buscá por nombre o código",
+    sinResultados: "Ningún producto coincide con eso.",
+    cambiar: "Cambiar producto",
+    elegido: (nombre: string) => `Oferta para ${nombre}`,
+    mas: (n: number) => `Y ${n} más: escribí para encontrarlo`,
+    cubre: (nombres: string) => `Para ${nombres}`,
+  },
   volver: "Productos",
   entrada: "Promociones",
   vacioTitulo: "Todavía no tenés promociones",
-  vacioTexto: "Armá un pack con varios productos a un precio fijo, o un 2x1. Se aplican solas en la vitrina, el Mostrador y los pedidos.",
+  vacioTexto: "Armá un pack con varios productos a un precio fijo, o un 2x1. Se aplican solas en la tienda en línea, el Mostrador y los pedidos.",
   sinSql: "Las promociones todavía no están listas en la base de datos.",
 
   nueva: "Nueva promoción",
@@ -65,11 +78,12 @@ export const promociones = {
   cantidadDe: (n: number, nombre: string) => (n === 1 ? nombre : `${n} × ${nombre}`),
   cantidadEnPack: (n: number) => `× ${n}`,
 
-  // En la vitrina y en los pedidos
+  // En la tienda en línea y en los pedidos
   ahorroLinea: "Promoción",
   etiquetaPack: (precio: string) => `Pack a ${precio}`,
   etiquetaLlevasPagas: (lleva: number, paga: number) => `Llevá ${lleva}, pagá ${paga}`,
   enPromocion: "En promoción",
+  ahorras: (monto: string) => `Ahorrás ${monto}`,
   enPack: (productos: string) => `Con ${productos}`,
   valeParaTodos: (productos: string) => `Cuentan juntos: ${productos}`,
   detalleDescuentoPedido: "Promociones",

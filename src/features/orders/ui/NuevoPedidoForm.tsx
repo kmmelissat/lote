@@ -138,6 +138,11 @@ export function NuevoPedidoForm({
   return (
     <form action={accion} className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
       <input type="hidden" name="items" value={JSON.stringify(items)} />
+      {/* Tipo, canal y método salen del estado, no de los radios: al fallar una acción React resetea el formulario
+          y los radios vuelven a su valor inicial (apartado) aunque la pantalla muestre otra cosa. */}
+      <input type="hidden" name="tipo" value={tipo} />
+      <input type="hidden" name="canal" value={canal} />
+      {tipo === "venta" && <input type="hidden" name="metodo" value={metodo} />}
       {conDescuento && (
         <>
           <input type="hidden" name="descuentoTipo" value={tipoDescuento} />
@@ -159,7 +164,7 @@ export function NuevoPedidoForm({
               >
                 <input
                   type="radio"
-                  name="tipo"
+                  name="grupo-tipo"
                   value={o}
                   checked={tipo === o}
                   onChange={() => setTipo(o)}
@@ -321,7 +326,7 @@ export function NuevoPedidoForm({
                 <Opcion key={c} activa={canal === c}>
                   <input
                     type="radio"
-                    name="canal"
+                    name="grupo-canal"
                     value={c}
                     checked={canal === c}
                     onChange={() => setCanalElegido(c)}
@@ -341,7 +346,7 @@ export function NuevoPedidoForm({
                   <Opcion key={m.clave} activa={metodo === m.clave}>
                     <input
                       type="radio"
-                      name="metodo"
+                      name="grupo-metodo"
                       value={m.clave}
                       checked={metodo === m.clave}
                       onChange={() => setMetodo(m.clave)}

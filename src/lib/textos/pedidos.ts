@@ -76,7 +76,7 @@ export const pedidos = {
     instagram: "Instagram",
     whatsapp: "WhatsApp",
     presencial: "En persona",
-    vitrina: "Vitrina",
+    vitrina: "Tienda en línea",
   },
   detalle: {
     cliente: "Cliente",

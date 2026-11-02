@@ -162,9 +162,6 @@ function Problema() {
             </ApareceItem>
           ))}
         </ApareceGrupo>
-        <Aparece>
-          <Nombres />
-        </Aparece>
       </div>
     </section>
   );
@@ -242,6 +239,10 @@ function MockPaso({ n }: { n: 0 | 1 | 2 }) {
           </li>
         ))}
       </ol>
+      <div className="flex items-center justify-between gap-2 rounded-2xl border-2 border-teal-oscuro bg-limon px-3 py-2 text-sm font-extrabold">
+        <span>{t.funciones.balance.total[0]}</span>
+        <span className="tabular-nums">{t.funciones.balance.total[1]}</span>
+      </div>
     </div>
   );
 }
@@ -289,19 +290,30 @@ function Pasos() {
 
 // ------------------------------------------------------------------ funciones
 
-const BLOQUES = [
+type Bloque = { clave: ClaveBloque; color: string; span: string };
+type ClaveBloque = "estado" | "vitrina" | "modos" | "balance" | "ganancia" | "pedidos" | "asistente" | "importar" | "foto" | "descubrir" | "mostrador";
+
+// Lo que ven tus clientes
+const TIENDA: Bloque[] = [
+  { clave: "vitrina", color: "bg-rosa", span: "md:col-span-2" },
+  { clave: "modos", color: "bg-limon", span: "md:col-span-2" },
+  { clave: "descubrir", color: "bg-crema", span: "md:col-span-2" },
+];
+
+// Lo que ves vos
+const CUENTAS: Bloque[] = [
   { clave: "estado", color: "bg-crema", span: "md:col-span-3" },
-  { clave: "vitrina", color: "bg-rosa", span: "md:col-span-3" },
-  { clave: "ganancia", color: "bg-limon", span: "md:col-span-2" },
-  { clave: "pedidos", color: "bg-celeste", span: "md:col-span-2" },
+  { clave: "balance", color: "bg-limon", span: "md:col-span-3" },
+  { clave: "ganancia", color: "bg-celeste", span: "md:col-span-2" },
+  { clave: "pedidos", color: "bg-rosa-palido", span: "md:col-span-2" },
   { clave: "asistente", color: "bg-mango", span: "md:col-span-2" },
   { clave: "importar", color: "bg-celeste-palido", span: "md:col-span-2" },
   { clave: "foto", color: "bg-rosa-palido", span: "md:col-span-2" },
-  { clave: "descubrir", color: "bg-crema", span: "md:col-span-2" },
-] as const;
+  { clave: "mostrador", color: "bg-crema", span: "md:col-span-2" },
+];
 
 /** Recorte chiquito adentro de cada tarjeta, para que no sean solo título y párrafo. */
-function Recorte({ de }: { de: (typeof BLOQUES)[number]["clave"] }) {
+function Recorte({ de }: { de: ClaveBloque }) {
   const f = t.funciones;
   if (de === "estado") {
     return (
@@ -321,6 +333,49 @@ function Recorte({ de }: { de: (typeof BLOQUES)[number]["clave"] }) {
         <Mini src="/landing/chaqueta.webp" />
         <Mini src="/landing/disco.webp" />
         <Mini src="/landing/llaveros.webp" />
+      </div>
+    );
+  }
+  if (de === "modos") {
+    return (
+      <ul className="mt-auto flex flex-wrap gap-2">
+        {f.modos.opciones.map((o, i) => (
+          <li key={o} className={`rounded-full border-2 border-teal-oscuro px-4 py-1.5 text-sm font-extrabold shadow-dura-chica ${["bg-mango", "bg-white", "bg-celeste"][i]}`}>
+            {o}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  if (de === "balance") {
+    return (
+      <dl className="mt-auto flex flex-col gap-1.5 rounded-2xl border-2 border-teal-oscuro bg-white p-3 text-sm font-bold">
+        {f.balance.filas.map(([nombre, valor]) => (
+          <div key={nombre} className="flex justify-between gap-2">
+            <dt>{nombre}</dt>
+            <dd className="tabular-nums">{valor}</dd>
+          </div>
+        ))}
+        <div className="mt-1 flex justify-between gap-2 border-t-2 border-teal-oscuro pt-2 text-base font-extrabold">
+          <dt>{f.balance.total[0]}</dt>
+          <dd className="tabular-nums">{f.balance.total[1]}</dd>
+        </div>
+      </dl>
+    );
+  }
+  if (de === "mostrador") {
+    return (
+      <div className="mt-auto flex flex-col gap-1 rounded-2xl border-2 border-teal-oscuro bg-white p-3 text-sm font-bold">
+        {f.mostrador.lineas.map(([nombre, valor]) => (
+          <div key={nombre} className="flex justify-between gap-2">
+            <span>{nombre}</span>
+            <span className="tabular-nums">{valor}</span>
+          </div>
+        ))}
+        <div className="mt-1 flex items-center justify-between gap-2 border-t-2 border-teal-oscuro pt-2 font-extrabold">
+          <span>{f.mostrador.total}</span>
+          <span className="rounded-full border-2 border-teal-oscuro bg-mango px-3 py-0.5">{f.mostrador.cobrar}</span>
+        </div>
       </div>
     );
   }
@@ -367,31 +422,45 @@ function Recorte({ de }: { de: (typeof BLOQUES)[number]["clave"] }) {
   return null;
 }
 
+function GrupoFunciones({ titulo, intro, bloques, desde = 0 }: { titulo: string; intro: string; bloques: Bloque[]; desde?: number }) {
+  const f = t.funciones;
+  return (
+    <div className="flex flex-col gap-6">
+      <Aparece className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h3 className="text-[30px] font-extrabold leading-tight tracking-tight text-teal-oscuro md:text-[38px]">{titulo}</h3>
+        <p className="text-[17px] font-medium text-teal-oscuro/75">{intro}</p>
+      </Aparece>
+      <ApareceGrupo className="grid grid-cols-1 gap-6 md:grid-cols-6">
+        {bloques.map((b, n) => {
+          const x = f[b.clave] as { titulo: string; texto: string };
+          return (
+            <ApareceItem
+              key={b.clave}
+              className={`flex min-h-44 flex-col gap-3 rounded-[28px] border-[3px] border-teal-oscuro p-6 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:-translate-y-1 ${b.color} ${b.span} ${(n + desde) % 2 ? "md:hover:rotate-1" : "md:hover:-rotate-1"}`}
+            >
+              <h4 className="text-[26px] font-extrabold leading-[1.05] tracking-tight text-teal-oscuro">{x.titulo}</h4>
+              <p className="text-[16px] font-medium leading-relaxed text-teal-oscuro/90">{x.texto}</p>
+              <Recorte de={b.clave} />
+            </ApareceItem>
+          );
+        })}
+      </ApareceGrupo>
+    </div>
+  );
+}
+
 function Funciones() {
   const f = t.funciones;
   return (
     <section id="funciones" className="relative scroll-mt-24 overflow-x-clip bg-white py-16 md:py-28" aria-labelledby="funciones-mas">
-      <div className={`${contenedor} flex flex-col gap-12`}>
+      <div className={`${contenedor} flex flex-col gap-14`}>
         <Aparece>
           <h2 id="funciones-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">
             {f.titulo}
           </h2>
         </Aparece>
-        <ApareceGrupo className="grid grid-cols-1 gap-6 md:grid-cols-6">
-          {BLOQUES.map((b, n) => {
-            const x = f[b.clave] as { titulo: string; texto: string };
-            return (
-              <ApareceItem
-                key={b.clave}
-                className={`flex min-h-44 flex-col gap-3 rounded-[28px] border-[3px] border-teal-oscuro p-6 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:-translate-y-1 ${b.color} ${b.span} ${n % 2 ? "md:hover:rotate-1" : "md:hover:-rotate-1"}`}
-              >
-                <h3 className="text-[26px] font-extrabold leading-[1.05] tracking-tight text-teal-oscuro">{x.titulo}</h3>
-                <p className="text-[16px] font-medium leading-relaxed text-teal-oscuro/90">{x.texto}</p>
-                <Recorte de={b.clave} />
-              </ApareceItem>
-            );
-          })}
-        </ApareceGrupo>
+        <GrupoFunciones titulo={f.tienda.titulo} intro={f.tienda.intro} bloques={TIENDA} />
+        <GrupoFunciones titulo={f.cuentas.titulo} intro={f.cuentas.intro} bloques={CUENTAS} desde={1} />
         <Aparece>
           <p className="max-w-3xl text-[17px] font-medium leading-relaxed text-teal-oscuro/80">{f.tambien}</p>
         </Aparece>
@@ -503,9 +572,9 @@ function Cierre({ conSesion }: { conSesion: boolean }) {
       <div className={`${contenedor} relative grid grid-cols-1 items-center gap-10 md:grid-cols-[1.15fr_0.85fr] md:gap-8`}>
         <Aparece className="relative z-10 flex flex-col items-start gap-7">
           <h2 id="cierre-mas" className="flex flex-col items-start gap-3 text-[40px] font-extrabold leading-[1.02] tracking-[-0.04em] md:text-[56px]">
-            <span>Dejá de prometer</span>
+            <span>{t.cierre.tituloInicio}</span>
             <span className="origin-left -rotate-1 rounded-[16px] border-[3px] border-limon bg-limon px-3 py-1 text-[28px] text-teal-oscuro shadow-[5px_5px_0_0_var(--color-mango)] sm:text-[34px] md:text-[44px] lg:text-[48px]">
-              lo que ya vendiste
+              {t.cierre.tituloMarca}
             </span>
           </h2>
           <p className="max-w-lg text-[18px] font-medium leading-relaxed text-white/90 md:text-[21px]">{t.cierre.texto}</p>
@@ -523,31 +592,6 @@ function Cierre({ conSesion }: { conSesion: boolean }) {
         </Aparece>
       </div>
     </section>
-  );
-}
-
-// ------------------------------------------------------------------ nombres (las que entrevistamos)
-
-const ETIQUETAS = ["-rotate-2 bg-limon", "rotate-2 bg-rosa", "-rotate-1 bg-celeste", "rotate-1 bg-mango", "-rotate-2 bg-crema"];
-
-function Nombres() {
-  return (
-    <div className="flex flex-col items-start gap-3" aria-label={t.hero.fuente}>
-      <p className="flex items-center gap-2 text-[16px] font-extrabold text-teal-oscuro">
-        <LotitoMas nombre="saluda" className="w-12 shrink-0" />
-        {t.hero.fuente}
-      </p>
-      <ul className="flex flex-wrap gap-3">
-        {t.hero.emprendimientos.map((e, i) => (
-          <li
-            key={e}
-            className={`rounded-full border-[3px] border-teal-oscuro px-5 py-1.5 text-[16px] font-extrabold text-teal-oscuro shadow-[3px_3px_0_0_var(--color-teal-oscuro)] ${ETIQUETAS[i]}`}
-          >
-            {e}
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }
 

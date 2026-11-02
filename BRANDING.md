@@ -152,6 +152,9 @@ La sombra dura siempre baja y a la derecha (4 px o 3 px; 6 px solo en el hero), 
 
 ## Voz y textos
 
+- **Qué decimos que es Lote** (2 de noviembre de 2026): "Tu tienda en línea y tus cuentas claras." Dos mitades: *afuera* (la tienda: catálogo, enlace, Marketplace, que te compren) y *adentro* (las cuentas: inventario, pedidos, cobros, ganancia, balance). Se dice **comprar** antes que apartar: apartar es la alternativa, no la promesa. "Vitrina" ya no se dice en ninguna pantalla (landing, panel, Marketplace ni la página de cada negocio): en lo público se dice "tienda" y en el panel **"tienda en línea"**, porque "Mi tienda" ya es la pantalla de ajustes del negocio y se confundiría. "Vitrina" queda solo como nombre interno (claves, rutas, funciones). Los avisos de WhatsApp (`avisos.ts`) también dicen "tienda en línea"; como las plantillas de Meta todavía no están aprobadas, cuando se manden a aprobar hay que usar estos mismos textos. Se evita "gestión", "exposición" y "inventario" como promesa principal: suenan a software y se quedan cortas.
+- **Una idea por titular.** En el hero van el titular y una sola línea; el detalle de afuera y adentro vive en la sección de funciones.
+
 - Español salvadoreño con **voseo** (tenés, mandá, apartés). Todos los textos en [src/lib/textos.ts](src/lib/textos.ts).
 - Corto, concreto, con calidez: "Todavía no hay pedidos. Cuando apartés algo, aparece acá."
 - Los estados vacíos hablan con la voz del monito y siempre traen una acción.

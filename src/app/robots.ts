@@ -19,6 +19,7 @@ export default function robots(): MetadataRoute.Robots {
         "/pedidos",
         "/clientes",
         "/dinero",
+        "/gestion",
         "/ganancia",
         "/ajustes",
         "/asistente",

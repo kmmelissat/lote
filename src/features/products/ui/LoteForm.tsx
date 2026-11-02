@@ -18,6 +18,7 @@ import { sugerirFicha } from "../actions/nuevo";
 import { MAXIMO_LOTE } from "../limites";
 import { Campo, CampoDinero } from "./campos";
 import { BloqueForm } from "./NuevoProductoForm";
+import { LugarDeCompra } from "../../gestion/ui/LugarDeCompra";
 import { ZonaFotos } from "./ZonaFotos";
 
 const t = textos.productos.lote;
@@ -165,6 +166,7 @@ export function LoteForm({ negocioId, categorias }: { negocioId: string; categor
                 />
                 <CampoDinero etiqueta={t.costoTotal} name="costoTotal" value={costo} onChange={(ev) => setCosto(ev.target.value)} />
               </div>
+              {costoTotal !== null && <LugarDeCompra />}
               <div aria-live="polite" className="flex flex-col gap-1 rounded-2xl bg-superficie px-4 py-3">
                 <p className="text-sm text-texto-2">
                   {porPieza.length ? t.reparto(formatearDolares(porPieza[0]), rutas.length) : t.repartoAyuda}

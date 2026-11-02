@@ -572,6 +572,7 @@ export type Database = {
           usuario_facebook?: string | null
           usuario_tiktok?: string | null
           visible_en_explorar: boolean
+          actividad: string
           tiene_local: boolean
           vitrina_activa: boolean
           tiempo_entrega?: string | null
@@ -603,6 +604,7 @@ export type Database = {
           usuario_facebook?: string | null
           usuario_tiktok?: string | null
           visible_en_explorar?: boolean
+          actividad?: string
           tiene_local?: boolean
           vitrina_activa?: boolean
           tiempo_entrega?: string | null
@@ -634,6 +636,7 @@ export type Database = {
           usuario_facebook?: string | null
           usuario_tiktok?: string | null
           visible_en_explorar?: boolean
+          actividad?: string
           tiene_local?: boolean
           vitrina_activa?: boolean
           tiempo_entrega?: string | null
@@ -982,6 +985,189 @@ export type Database = {
             referencedRelation: "pedido"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      abono_pasivo: {
+        Row: {
+          creado_en: string
+          id: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          nota: string | null
+          pasivo_id: string
+          usuario_id: string | null
+        }
+        Insert: {
+          creado_en?: string
+          id?: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          nota?: string | null
+          pasivo_id: string
+          usuario_id?: string | null
+        }
+        Update: {
+          creado_en?: string
+          id?: string
+          lugar?: string
+          monto?: number
+          negocio_id?: string
+          nota?: string | null
+          pasivo_id?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abono_pasivo_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abono_pasivo_pasivo_id_fkey"
+            columns: ["pasivo_id"]
+            isOneToOne: false
+            referencedRelation: "pasivo"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      ajuste_dinero: {
+        Row: {
+          creado_en: string
+          id: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          nota: string | null
+          tipo: string
+          usuario_id: string | null
+        }
+        Insert: {
+          creado_en?: string
+          id?: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          nota?: string | null
+          tipo: string
+          usuario_id?: string | null
+        }
+        Update: {
+          creado_en?: string
+          id?: string
+          lugar?: string
+          monto?: number
+          negocio_id?: string
+          nota?: string | null
+          tipo?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ajuste_dinero_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      compra_mercaderia: {
+        Row: {
+          creado_en: string
+          id: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          nota: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          creado_en?: string
+          id?: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          nota?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          creado_en?: string
+          id?: string
+          lugar?: string
+          monto?: number
+          negocio_id?: string
+          nota?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compra_mercaderia_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      pasivo: {
+        Row: {
+          acreedor: string
+          cuota: number | null
+          cuotas: number | null
+          dia_pago: number | null
+          creado_en: string
+          fecha_limite: string | null
+          id: string
+          monto: number
+          negocio_id: string
+          nota: string | null
+          recibido_en: string | null
+          tipo: string
+          usuario_id: string | null
+        }
+        Insert: {
+          acreedor: string
+          cuota?: number | null
+          cuotas?: number | null
+          dia_pago?: number | null
+          creado_en?: string
+          fecha_limite?: string | null
+          id?: string
+          monto: number
+          negocio_id: string
+          nota?: string | null
+          recibido_en?: string | null
+          tipo: string
+          usuario_id?: string | null
+        }
+        Update: {
+          acreedor?: string
+          cuota?: number | null
+          cuotas?: number | null
+          dia_pago?: number | null
+          creado_en?: string
+          fecha_limite?: string | null
+          id?: string
+          monto?: number
+          negocio_id?: string
+          nota?: string | null
+          recibido_en?: string | null
+          tipo?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pasivo_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          }
         ]
       }
       conteo_dinero: {
@@ -1622,6 +1808,30 @@ export type Database = {
         }
         Returns: string
       }
+      abonar_pasivo: {
+        Args: { p_lugar: string; p_monto: number; p_nota?: string; p_pasivo: string }
+        Returns: string
+      }
+      quitar_pasivo: {
+        Args: { p_pasivo: string }
+        Returns: undefined
+      }
+      registrar_ajuste_dinero: {
+        Args: { p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string; p_tipo: string }
+        Returns: string
+      }
+      registrar_compra_mercaderia: {
+        Args: { p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string }
+        Returns: string
+      }
+      editar_pasivo: {
+        Args: { p_acreedor: string; p_cuota?: number; p_cuotas?: number; p_dia_pago?: number; p_fecha_limite?: string; p_monto: number; p_nota?: string; p_pasivo: string }
+        Returns: undefined
+      }
+      registrar_pasivo: {
+        Args: { p_acreedor: string; p_cuota?: number; p_cuotas?: number; p_dia_pago?: number; p_fecha_limite?: string; p_monto: number; p_negocio: string; p_nota?: string; p_recibido_en?: string; p_tipo: string }
+        Returns: string
+      }
       registrar_conteo_dinero: {
         Args: {
           p_contado: number
@@ -1862,6 +2072,8 @@ export type Database = {
           opciones: number
           precio: number
           precio_maximo: number
+          /** Falta si todavía no se corrió precio_anterior_explorar.sql */
+          precio_anterior?: number | null
           tienda_nombre: string
           tienda_slug: string
           /** Falta si todavía no se corrió paginacion.sql */
@@ -1889,6 +2101,22 @@ export type Database = {
           destacado: boolean
           estrellas: number | null
           resenas: number
+        }[]
+      }
+      explorar_promociones: {
+        Args: { p_limite?: number }
+        Returns: {
+          tienda_slug: string
+          tienda_nombre: string
+          promocion_id: string
+          tipo: string
+          nombre: string
+          lleva: number | null
+          paga: number | null
+          fotos: string[] | null
+          productos: string[]
+          antes: number | null
+          ahora: number | null
         }[]
       }
       explorar_ofertas: {

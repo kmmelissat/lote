@@ -6,6 +6,7 @@ import { Monito } from "@/components/ui/Monito";
 import {
   explorarDestacados,
   explorarOfertas,
+  explorarPromociones,
   explorarProductos,
   explorarRubros,
   explorarTiendas,
@@ -152,7 +153,7 @@ export async function PaginaExplorar({
   );
   // La portada (sin buscar ni filtrar) abre con filas que atraen: destacados, ofertas o lo nuevo
   const portada = vista === "productos" && !filtrando && pagina === 1;
-  const [tiendas, { productos, total }, destacados, ofertas] =
+  const [tiendas, { productos, total }, destacados, ofertas, promociones] =
     await Promise.all([
       // En productos las tiendas son una fila de acceso rápido; en tiendas, el contenido principal
       explorarTiendas(
@@ -177,6 +178,7 @@ export async function PaginaExplorar({
         : Promise.resolve({ productos: [], total: null }),
       portada ? explorarDestacados(supabase, POR_FILA) : Promise.resolve([]),
       portada ? explorarOfertas(supabase, POR_FILA) : Promise.resolve([]),
+      portada ? explorarPromociones(supabase, POR_FILA) : Promise.resolve([]),
     ]);
   const hayMas = productos.length > POR_PAGINA;
   const visibles = productos.slice(0, POR_PAGINA);
@@ -243,13 +245,15 @@ export async function PaginaExplorar({
       ayuda: t.destacadosAyuda,
       icono: "★",
       productos: destacados,
+      promociones: [],
     },
-    ofertas.length >= MINIMO_FILA && {
+    ofertas.length + promociones.length >= MINIMO_FILA && {
       id: "ofertas",
       titulo: t.ofertasTitulo,
       ayuda: t.ofertasAyuda,
       icono: "%",
       productos: ofertas,
+      promociones,
     },
     {
       id: "nuevos",
@@ -257,6 +261,7 @@ export async function PaginaExplorar({
       ayuda: t.nuevosAyuda,
       icono: "✦",
       productos: visibles.slice(0, POR_FILA),
+      promociones: [],
     },
   ]
     .filter((x) => x !== false)
@@ -273,6 +278,7 @@ export async function PaginaExplorar({
           </span>
         }
         productos={filas[i].productos}
+        promociones={filas[i].promociones}
         marcaDe={marcaDe}
         eager={i === 0}
       />

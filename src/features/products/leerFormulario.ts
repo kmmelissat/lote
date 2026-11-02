@@ -14,7 +14,7 @@ export const valoresDe = (formData: FormData): Valores =>
   Object.fromEntries([...formData.entries()].filter(([k, v]) => typeof v === "string" && !k.startsWith("$"))) as Valores;
 
 /** Los rubros de costo por unidad que lleva el formulario de producto. */
-export const TIPOS_COSTO = ["compra", "envio", "importacion", "otro"] as const;
+export const TIPOS_COSTO = ["compra", "envio", "importacion", "mano_obra", "otro"] as const;
 
 /** Las fotos del formulario (un JSON en un campo oculto): solo las rutas del propio negocio, hasta el tope. */
 export function fotosValidas(json: string | undefined, negocioId: string): string[] {

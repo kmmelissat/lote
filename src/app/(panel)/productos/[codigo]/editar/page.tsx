@@ -83,6 +83,7 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
     compra: dolares(p.desglose?.compra),
     envio: dolares(p.desglose?.envio),
     importacion: dolares(p.desglose?.importacion),
+    mano_obra: dolares(p.desglose?.mano_obra),
     otro: dolares(p.desglose?.otro),
     detalles: JSON.stringify(extra.detalles),
     estado_detalle: extra.estadoDetalle ?? "",
@@ -94,6 +95,7 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
       negocioId={negocio.id}
       inicial={inicial}
       sugerencias={sugerencias}
+      actividad={negocio.actividad}
       modo={{
         tipo: "editar",
         codigo: p.codigo,

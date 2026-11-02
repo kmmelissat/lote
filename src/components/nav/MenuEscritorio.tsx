@@ -6,7 +6,7 @@ import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
 import { AccionRapida } from "./AccionRapida";
 import { BOTON_PERFIL, CascaronMenu } from "./CascaronMenu";
-import { ListaMenu } from "./ListaMenu";
+import { ListaMenuVertical } from "./ListaMenuVertical";
 import { ajustesEscritorio, pestanas, type DatosMenu } from "./menu";
 import { Buscar, PrimerosPasos, TarjetaPerfil } from "./PiezasMenu";
 import { ConRuta } from "./RutaActiva";
@@ -52,11 +52,11 @@ export function MenuEscritorio({ datos, cerrado, alternarMenu, abrirPaleta, rapi
         <>
           <AccionRapida abierta={rapida} alternar={() => setRapida((r) => !r)} />
           {/* El margen negativo con relleno deja lugar para la sombra y el levantarse del cuadro activo, que si no el scroll los recorta */}
-          <div className="-m-1 min-h-0 flex-1 overflow-y-auto p-1">
+          <div className="-m-1 min-h-0 flex-1 overflow-y-auto p-1 mt-2">
             <ConRuta
               hijos={(ruta) => (
                 <nav aria-label="Principal">
-                  <ListaMenu
+                  <ListaMenuVertical
                     items={datos.esDuena ? [...pestanas, ...ajustesEscritorio] : pestanas}
                     ruta={ruta}
                     porAtender={datos.porAtender}

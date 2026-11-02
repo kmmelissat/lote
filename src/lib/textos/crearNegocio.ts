@@ -10,14 +10,14 @@ export const crearNegocio = {
   errorFacebook: "Esa página no parece válida. Pegá el enlace o el usuario, por ejemplo mitienda.",
   vistaPrevia: "Así se va a ver",
   vistaPreviaNombre: "Tu negocio",
-  enlace: "Tu vitrina",
+  enlace: "Tu tienda en línea",
   enlaceAyuda: "Si ya existe, le agregamos algo al final.",
   vitrina: {
-    pregunta: "¿Querés una vitrina en línea?",
+    pregunta: "¿Querés una tienda en línea?",
     explicacion:
       "Es una página con el enlace de tu tienda, donde tus clientes ven tus productos. Vos elegís si pueden comprar, apartar o solo mirar como catálogo y escribirte.",
     si: {
-      titulo: "Sí, quiero una vitrina",
+      titulo: "Sí, quiero una tienda en línea",
       ayuda: "Compartís tu enlace en Instagram o WhatsApp.",
     },
     no: {

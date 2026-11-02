@@ -49,6 +49,7 @@ import {
   Truck,
   User,
   Users,
+  Scale,
   Wallet,
   X,
 } from "lucide-react";
@@ -88,6 +89,7 @@ const iconos = {
   hoja: FileSpreadsheet,
   banco: Landmark,
   billetera: Wallet,
+  balanza: Scale,
   efectivo: Banknote,
   copiar: Copy,
   mas_opciones: Ellipsis,

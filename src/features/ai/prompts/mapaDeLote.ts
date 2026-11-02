@@ -3,7 +3,7 @@
 // Los nombres son los que ve la persona en pantalla; las rutas sirven para dar el enlace.
 
 export const MAPA_DE_LOTE = `Qué es Lote:
-- Una herramienta para emprendedoras de El Salvador que venden por Instagram, Facebook y WhatsApp. Lleva el inventario, lo apartado, el cobro, el envío y la ganancia real de cada producto, y le da a cada tienda una vitrina con su propio enlace.
+- Una herramienta para emprendedoras de El Salvador que venden por Instagram, Facebook y WhatsApp. Es su tienda en línea y sus cuentas claras: lleva el inventario, los pedidos, el cobro, el envío, los gastos y la ganancia real de cada producto, y le da a cada tienda una vitrina (su tienda en línea) con su propio enlace, donde sus clientes compran, apartan o solo ven el catálogo.
 - "El negocio" es la tienda de la persona: tiene nombre, logo, color, productos, pedidos, clientes y un equipo. Lotito (vos) sos su asistente dentro del panel.
 
 Dónde está cada cosa en el panel (menú de abajo en celular, menú lateral en escritorio):

@@ -123,6 +123,33 @@ export function ZonaDeCompra({
   return (
     <>
       <div id="comprar" className="flex scroll-mt-4 flex-col gap-5">
+        {/* Lo primero que se mira: el precio grande, el de antes tachado, cuánto se ahorra y cuántos quedan */}
+        <div className="flex flex-col gap-2">
+          <p className="text-4xl font-bold tabular-nums leading-none tracking-tight text-teal md:text-[2.6rem]">
+            {!seleccionada && dims > 0 && Math.max(...precios) !== desde ? textos.vitrina.desde(formatearDolares(desde)) : formatearDolares(precio)}
+          </p>
+          {oferta && (
+            <p className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-texto-2 line-through tabular-nums">
+                <span className="sr-only">{textos.explorar.antes} </span>
+                {formatearDolares(oferta.antes)}
+              </span>
+              <span className="rounded-full border-2 border-teal-oscuro bg-limon px-2.5 py-0.5 text-xs font-extrabold">
+                {textos.promociones.ahorras(formatearDolares(oferta.antes - precio))}
+              </span>
+            </p>
+          )}
+          {seleccionada ? (
+            hayStock ? (
+              <StatusChip publico estado="disponible" texto={textos.productos.quedan(seleccionada.disponibles)} />
+            ) : (
+              <StatusChip publico estado="apartado" />
+            )
+          ) : (
+            <p className="text-sm text-texto-2">{t.stockElegi}</p>
+          )}
+        </div>
+
         {filas.map((fila, d) => (
           <div key={fila.titulo} className="flex flex-col gap-2">
             <h2 className="text-sm font-bold">{fila.titulo}</h2>
@@ -138,7 +165,7 @@ export function ZonaDeCompra({
                       disabled={!disponible && !activo}
                       onClick={() => elegir(d, valor)}
                       className={`inline-flex min-h-11 items-center rounded-full border-2 px-5 text-sm font-bold transition-colors ${
-                        activo ? "border-teal-oscuro bg-teal-fondo text-teal" : "border-teal-oscuro bg-crema hover:bg-limon"
+                        activo ? "border-teal-oscuro bg-accion text-accion-texto" : "border-teal-oscuro bg-crema hover:bg-limon"
                       } ${disponible || activo ? "" : "border-teal-oscuro/30 text-texto-2 line-through opacity-60"}`}
                     >
                       {valor}
@@ -151,57 +178,34 @@ export function ZonaDeCompra({
           </div>
         ))}
 
-        {/* Precio, cuántos quedan y la cantidad: lo primero que se mira al comprar */}
-        <div className="flex flex-wrap items-end justify-between gap-3 border-t border-teal-oscuro/20 pt-4">
-          <div className="flex flex-col gap-1">
-            <p className="text-4xl font-bold tabular-nums text-teal">
-              {!seleccionada && dims > 0 && Math.max(...precios) !== desde ? textos.vitrina.desde(formatearDolares(desde)) : formatearDolares(precio)}
-            </p>
-            {oferta && (
-              <p className="flex items-center gap-2 text-sm">
-                <span className="text-texto-2 line-through tabular-nums">{formatearDolares(oferta.antes)}</span>
-                <span className="rounded-full border-2 border-teal-oscuro bg-limon px-2.5 py-0.5 text-xs font-bold">{textos.vitrina.etiquetas.oferta(oferta.porcentaje)}</span>
-              </p>
-            )}
-            {seleccionada ? (
-              hayStock ? (
-                <StatusChip publico estado="disponible" texto={textos.productos.quedan(seleccionada.disponibles)} />
-              ) : (
-                <StatusChip publico estado="apartado" />
-              )
-            ) : (
-              <p className="text-sm text-texto-2">{t.stockElegi}</p>
-            )}
-          </div>
-          {hayStock && (
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-bold">{t.cantidad}</span>
-              <div className="flex h-11 items-center rounded-full border-2 border-teal-oscuro bg-white">
-                <button
-                  type="button"
-                  onClick={() => setCantidad(Math.max(1, unidades - 1))}
-                  disabled={unidades <= 1}
-                  aria-label={t.cantidadMenos}
-                  className="flex h-full w-11 items-center justify-center rounded-l-full text-xl font-bold hover:bg-limon/50 disabled:opacity-30"
-                >
-                  −
-                </button>
-                <span aria-live="polite" className="w-8 text-center font-bold tabular-nums">
-                  {unidades}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setCantidad(Math.min(tope, unidades + 1))}
-                  disabled={unidades >= tope}
-                  aria-label={t.cantidadMas}
-                  className="flex h-full w-11 items-center justify-center rounded-r-full text-xl font-bold hover:bg-limon/50 disabled:opacity-30"
-                >
-                  +
-                </button>
-              </div>
+        {hayStock && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold">{t.cantidad}</span>
+            <div className="flex h-11 items-center rounded-full border-2 border-teal-oscuro bg-white">
+              <button
+                type="button"
+                onClick={() => setCantidad(Math.max(1, unidades - 1))}
+                disabled={unidades <= 1}
+                aria-label={t.cantidadMenos}
+                className="flex h-full w-11 items-center justify-center rounded-l-full text-xl font-bold hover:bg-limon/50 disabled:opacity-30"
+              >
+                −
+              </button>
+              <span aria-live="polite" className="w-8 text-center font-bold tabular-nums">
+                {unidades}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCantidad(Math.min(tope, unidades + 1))}
+                disabled={unidades >= tope}
+                aria-label={t.cantidadMas}
+                className="flex h-full w-11 items-center justify-center rounded-r-full text-xl font-bold hover:bg-limon/50 disabled:opacity-30"
+              >
+                +
+              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Apartar ya no es un botón más: es la salida tranquila para quien todavía no se decide */}
         {permiteComprar && permiteApartar && (
@@ -272,9 +276,10 @@ export function ZonaDeCompra({
           <div className="pointer-events-auto flex flex-col gap-1 rounded-[28px] border-2 border-teal-oscuro bg-crema p-2 shadow-dura">
             {!listo && <p className="px-3 pt-1 text-center text-xs text-texto-2">{pista}</p>}
             <div className="flex items-center gap-2">
-              {/* En pantallas anchas el precio y lo que queda van a la izquierda; en el celular no entran */}
-              <div className="ml-3 mr-auto hidden min-w-0 flex-col leading-tight sm:flex">
-                <span className="truncate text-xs text-texto-2">{seleccionada ? textos.productos.quedan(seleccionada.disponibles) : t.stockElegi}</span>
+              {/* El precio siempre a la vista; lo que queda solo donde hay lugar */}
+              <div className="ml-3 mr-auto flex min-w-0 flex-col leading-tight">
+                <span className="hidden truncate text-xs text-texto-2 sm:block">{seleccionada ? textos.productos.quedan(seleccionada.disponibles) : t.stockElegi}</span>
+                {oferta && <span className="text-xs tabular-nums text-texto-2 line-through sm:hidden">{formatearDolares(oferta.antes * (seleccionada ? unidades : 1))}</span>}
                 <span className="text-xl font-bold tabular-nums">{formatearDolares(precio * (seleccionada ? unidades : 1))}</span>
               </div>
               {permiteComprar && (

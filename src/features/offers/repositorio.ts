@@ -65,6 +65,41 @@ export async function ofertasDe(supabase: Cliente, productoIds: string[]): Promi
   return [...lotes.values()];
 }
 
+/** Una oferta de la tienda con los productos que cubre (las variantes de un producto van en el mismo lote). */
+export type OfertaDeTienda = Omit<OfertaProducto, "productos"> & { productos: { codigo: number; nombre: string; variante: string | null }[] };
+
+/** Todas las ofertas programadas o activas de la tienda, agrupadas por lote. Vacío si todavía falta el SQL. */
+export async function ofertasDeTienda(supabase: Cliente, negocioId: string): Promise<OfertaDeTienda[]> {
+  const { data, error } = await supabase
+    .from("oferta")
+    .select("lote, tipo, valor, precio_oferta, desde, hasta, estado, producto(codigo, nombre, variante)")
+    .eq("negocio_id", negocioId)
+    .in("estado", ["programada", "activa"])
+    .order("desde");
+  if (error || !data) return [];
+
+  const lotes = new Map<string, OfertaDeTienda>();
+  for (const f of data) {
+    const producto = f.producto ? { codigo: f.producto.codigo, nombre: f.producto.nombre, variante: f.producto.variante } : null;
+    const actual = lotes.get(f.lote);
+    if (actual) {
+      if (producto) actual.productos.push(producto);
+      actual.precios.push(aCentavos(f.precio_oferta));
+    } else {
+      lotes.set(f.lote, {
+        lote: f.lote,
+        descuento: f.tipo === "monto" ? { tipo: "monto", valor: aCentavos(f.valor) } : { tipo: "porcentaje", valor: f.valor },
+        desde: f.desde,
+        hasta: f.hasta,
+        estado: f.estado === "activa" ? "activa" : "programada",
+        productos: producto ? [producto] : [],
+        precios: [aCentavos(f.precio_oferta)],
+      });
+    }
+  }
+  return [...lotes.values()];
+}
+
 export async function crearOferta(
   supabase: Cliente,
   negocioId: string,

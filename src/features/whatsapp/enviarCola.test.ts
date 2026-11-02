@@ -40,7 +40,7 @@ describe("enviarAvisosPendientes", () => {
     const { cola } = colaCon([aviso()], new Date("2026-10-27T10:00:00Z"));
     await enviarAvisosPendientes({ cola, canal, ahora });
     expect(canal.enviados[0].texto).toBe(
-      "Tenés un nuevo apartado en tu vitrina de Lote. @ana apartó Chaqueta y tiene 23 h para pagarlo. Revisalo en la sección de pedidos para confirmar el pago o liberar el producto.",
+      "Tenés un nuevo apartado en tu tienda en línea de Lote. @ana apartó Chaqueta y tiene 23 h para pagarlo. Revisalo en la sección de pedidos para confirmar el pago o liberar el producto.",
     );
   });
 

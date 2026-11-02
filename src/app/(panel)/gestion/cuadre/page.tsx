@@ -1,0 +1,114 @@
+import type { Metadata } from "next";
+import { PageHeader } from "@/components/nav/PageHeader";
+import { Aviso } from "@/components/ui/Aviso";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { cuotasRestantes, fechaLocalDe, LUGARES_DE_DINERO, proximoPago } from "@/domain";
+import { enlaceWhatsApp } from "@/features/catalog/enlaces";
+import { listarClientes } from "@/features/customers/repositorio";
+import { balanceDelNegocio } from "@/features/gestion/repositorio";
+import { BalanceGeneral } from "@/features/gestion/ui/BalanceGeneral";
+import { SeccionPasivos } from "@/features/gestion/ui/Pasivos";
+import { SeccionesGestion } from "@/features/gestion/ui/SeccionesGestion";
+import { TeDeben, type DeudaDeClienta } from "@/features/profit/ui/PiezasCuadre";
+import { formatearDolares, formatearFecha } from "@/lib/formato";
+import { negocioActual } from "@/lib/negocio";
+import { textos } from "@/lib/textos";
+
+const t = textos.gestion;
+
+export const metadata: Metadata = { title: t.cuadre.titulo };
+
+const DIAS_AVISO = 30;
+
+/** Una deuda con fecha límite pide atención cuando ya venció o faltan menos de 30 días. */
+function urgenciaDe(fechaLimite: string | null, ahora: Date): "vencida" | "pronto" | null {
+  if (!fechaLimite) return null;
+  const faltan = (Date.parse(`${fechaLimite}T23:59:59`) - ahora.getTime()) / 86_400_000;
+  return faltan < 0 ? "vencida" : faltan <= DIAS_AVISO ? "pronto" : null;
+}
+
+export default function Page() {
+  return <Contenido />;
+}
+
+async function Contenido() {
+  const { supabase, negocio } = await negocioActual();
+  if (!negocio.puedeGestionar) {
+    return (
+      <>
+        <PageHeader titulo={t.titulo} descripcion={t.descripciones.cuadre} />
+        <EmptyState texto={t.cuadre.soloDuena} />
+      </>
+    );
+  }
+
+  const ahora = new Date();
+  const [{ datos, balance, porTipo, porCobrar: deuda, inventario: valorInventario, sinCostoEnStock }, clientas] = await Promise.all([
+    balanceDelNegocio(supabase, negocio.id),
+    listarClientes(supabase, negocio.id),
+  ]);
+  const sinSaldo = LUGARES_DE_DINERO.filter((l) => datos.saldos[l] === null);
+
+  const deudas: DeudaDeClienta[] = clientas
+    .filter((c) => c.resumen.saldo > 0)
+    .map((c) => {
+      const abiertos = c.pedidos.filter((p) => p.estado !== "cancelado" && p.saldo > 0);
+      const masViejo = abiertos.reduce((min, p) => (p.creadoEn < min ? p.creadoEn : min), abiertos[0]?.creadoEn ?? ahora);
+      return {
+        id: c.id,
+        nombre: c.nombre,
+        saldo: c.resumen.saldo,
+        masViejo,
+        desde: formatearFecha(masViejo),
+        cobro: enlaceWhatsApp(c.contacto, textos.clientes.cobrarMensaje(c.nombre.split(" ")[0], formatearDolares(c.resumen.saldo), negocio.nombre)),
+      };
+    })
+    .sort((a, b) => a.masViejo.getTime() - b.masViejo.getTime())
+    .map((d) => ({ id: d.id, nombre: d.nombre, saldo: d.saldo, desde: d.desde, cobro: d.cobro }));
+
+  const pasivos = datos.pasivos.map((p) => ({
+    id: p.id,
+    tipo: p.tipo,
+    acreedor: p.acreedor,
+    monto: p.monto,
+    saldo: p.saldo,
+    urgencia: urgenciaDe(p.fechaLimite, ahora),
+    fechaLimite: p.fechaLimite,
+    cuota: p.cuota,
+    cuotas: p.cuotas,
+    diaPago: p.diaPago,
+    cuotasQuedan: p.cuota && p.saldo > 0 ? cuotasRestantes(p.saldo, p.cuota) : null,
+    toca: p.diaPago && p.saldo > 0 ? formatearFecha(new Date(`${proximoPago(p.diaPago, ahora)}T12:00:00`)) : null,
+    vence: p.fechaLimite ? formatearFecha(new Date(`${p.fechaLimite}T12:00:00`)) : null,
+    nota: p.nota,
+  }));
+
+  return (
+    <>
+      <PageHeader titulo={t.titulo} descripcion={t.descripciones.cuadre} />
+      <div className="flex flex-col gap-6">
+        <SeccionesGestion activa="cuadre" />
+
+        <BalanceGeneral
+          balance={balance}
+          activos={[
+            { clave: "efectivo", monto: datos.saldos.efectivo ?? 0 },
+            { clave: "transferencia", monto: datos.saldos.transferencia ?? 0 },
+            { clave: "porCobrar", monto: deuda.total },
+            { clave: "inventario", monto: valorInventario },
+          ]}
+          pasivos={porTipo}
+          saldos={datos.saldos}
+        />
+        {sinSaldo.length > 0 && <Aviso>{t.cuadre.sinSaldo(sinSaldo.map((l) => t.lugares[l].toLowerCase()).join(" y "))}</Aviso>}
+        {sinCostoEnStock > 0 && <Aviso>{t.cuadre.inventarioSinCosto(sinCostoEnStock)}</Aviso>}
+
+        <Aviso>{t.cuadre.compras}</Aviso>
+
+        <SeccionPasivos pasivos={pasivos} hoy={fechaLocalDe(ahora)} />
+
+        <TeDeben deudas={deudas} />
+      </div>
+    </>
+  );
+}

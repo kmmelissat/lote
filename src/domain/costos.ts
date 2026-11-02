@@ -19,6 +19,7 @@ export type DesgloseCosto = {
   compra?: Centavos;
   envio?: Centavos;
   importacion?: Centavos;
+  mano_obra?: Centavos;
   otro?: Centavos;
 };
 
@@ -38,7 +39,7 @@ export function desgloseDeFilas(filas: FilaCosto[], cantidad: number): DesgloseC
 /** Costo unitario real: suma de todos los rubros. Devuelve null si no hay ninguno. */
 export function costoUnitario(d: DesgloseCosto | undefined): Centavos | null {
   if (!d) return null;
-  const valores = [d.compra, d.envio, d.importacion, d.otro].filter(
+  const valores = [d.compra, d.envio, d.importacion, d.mano_obra, d.otro].filter(
     (v): v is Centavos => v !== undefined,
   );
   return valores.length ? valores.reduce((a, b) => a + b, 0) : null;

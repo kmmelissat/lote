@@ -4,6 +4,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { esFalta, esFiltroEstado, esOrden, FILTROS_ESTADO, type Falta, type Orden } from "@/features/products/filtro";
 import { listarCategorias, listarProductos } from "@/features/products/repositorio";
+import { productosQueNoSeMueven } from "@/features/profit/parados";
+import { DineroParado } from "@/features/profit/ui/PiezasCuadre";
+import { formatearDolares } from "@/lib/formato";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
 import { ListaProductos as ListaProductosVista } from "@/features/products/ui/ListaProductos";
 import { negocioActual } from "@/lib/negocio";
@@ -28,6 +31,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
   const categoria = typeof params.categoria === "string" ? params.categoria.slice(0, 40) : "";
   const orden: Orden = esOrden(String(params.orden)) ? (String(params.orden) as Orden) : "recientes";
   const faltaPedida: Falta | undefined = esFalta(String(params.falta)) ? (String(params.falta) as Falta) : undefined;
+  const abrirParados = params.parados === "1";
   const { supabase, negocio } = await negocioActual();
   const [todos, categorias] = await Promise.all([
     listarProductos(supabase, negocio.id, negocio.puedeGestionar),
@@ -56,6 +60,9 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
     );
   }
 
+  // Solo quien ve los costos: sin ellos no se sabe cuánto dinero hay parado
+  const parados = negocio.puedeGestionar ? await productosQueNoSeMueven(supabase, negocio.id, todos) : null;
+
   return (
     <>
       <PageHeader
@@ -77,6 +84,27 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
           ) : undefined
         }
       />
+      {parados && parados.filas.length > 0 && (
+        <details id="parados" open={abrirParados} className="group rounded-[24px] border-2 border-teal-oscuro/30 bg-superficie">
+          <summary className="flex min-h-12 cursor-pointer flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 font-bold md:px-5">
+            <span>{textos.dinero.cuadre.paradoTitulo}</span>
+            <span className="text-sm font-normal text-texto-2">
+              {textos.dinero.cuadre.paradoResumen(parados.filas.length, formatearDolares(parados.total))}
+            </span>
+          </summary>
+          <div className="p-2 pt-0 md:p-3 md:pt-0">
+            <DineroParado
+              fotos={Object.fromEntries(todos.map((p) => [p.id, p.fotos[0]]))}
+              productos={parados.filas}
+              total={parados.total}
+              pctDelInventario={parados.pctDelInventario}
+              inventario={parados.inventario}
+              dias={parados.dias}
+              sinCosto={parados.sinCosto}
+            />
+          </div>
+        </details>
+      )}
       <ListaProductosVista
         productos={todos.map((p) => ({ ...p, desglose: undefined }))}
         umbral={negocio.umbralPocoStock}

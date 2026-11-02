@@ -130,6 +130,7 @@ async function Contenido() {
             productos={parados.map((p) => ({ ...p, codigo: porId.get(p.id)?.codigo ?? 0 }))}
             total={totalParado}
             pctDelInventario={pctParado}
+            inventario={valorInventario}
             dias={DIAS_PARA_PARADO}
             sinCosto={parados.filter((p) => p.sinCosto).length}
           />

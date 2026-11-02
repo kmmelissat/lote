@@ -1,6 +1,6 @@
 # Lote: qué hace la app
 
-Lote es la herramienta para emprendedores de El Salvador que venden por redes sociales (Instagram, Facebook, WhatsApp): lleva el inventario, lo apartado, el cobro, el envío y la ganancia real de cada producto, y le da a cada tienda una vitrina con su propio enlace. Es un proyecto del curso Diseño de Productos y Servicios (ciclo 3).
+Lote es **tu tienda en línea y tus cuentas claras**, para emprendedores de El Salvador que venden por redes sociales (Instagram, Facebook, WhatsApp). **Afuera:** cada negocio tiene una vitrina con su propio enlace (su tienda en línea) y aparece, si quiere, en el Marketplace; sus clientes compran, apartan o solo ven el catálogo. **Adentro:** inventario, pedidos, cobros, envíos, gastos, ganancia real de cada producto y balance. Es un proyecto del curso Diseño de Productos y Servicios (ciclo 3).
 
 Este documento dice **qué se puede hacer hoy**. La especificación completa (incluido lo que falta) está en [app.md](app.md) y el estado de la construcción en [PROGRESO.md](PROGRESO.md).
 

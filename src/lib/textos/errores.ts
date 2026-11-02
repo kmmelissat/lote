@@ -17,7 +17,7 @@ export const errores = {
   noEncontradaPistasTitulo: "Puede ser que:",
   noEncontradaPistas: [
     "El enlace esté mal escrito o le falte un pedacito.",
-    "El producto ya se vendió o la tienda lo quitó de su vitrina.",
+    "El producto ya se vendió o la tienda lo quitó de su catálogo.",
     "La página se movió a otro lugar.",
   ],
   volver: "Volver atrás",

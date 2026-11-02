@@ -45,6 +45,7 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
     visibleEnExplorar: d.explorar,
     vitrinaActiva: d.vitrina,
     tieneLocal: d.local,
+    actividad: d.actividad,
     tiempoEntrega: d.tiempo_entrega || null,
     politicaCambios: d.politica_cambios || null,
   });

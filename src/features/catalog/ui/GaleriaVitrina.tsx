@@ -12,7 +12,7 @@ import { useFotosElegidas } from "./FotosPorVariante";
  * La foto grande del producto y miniaturas con todas las fotos, las de todas sus variantes. `de` dice de qué
  * variante es cada foto (las que no están son de todas). Al elegir una variante, salta a su foto.
  */
-export function GaleriaVitrina({ fotos, nombre, de = {} }: { fotos: string[]; nombre: string; de?: Record<string, string> }) {
+export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: string[]; nombre: string; de?: Record<string, string>; /** Lo que se rebaja ("−15 %"), sobre la foto; vacío si no hay oferta */ sello?: string }) {
   const { fotos: elegidas } = useFotosElegidas();
   const lista = [...new Set([...fotos, ...(elegidas ?? [])])];
   const clave = elegidas?.join("|") ?? "";
@@ -26,7 +26,7 @@ export function GaleriaVitrina({ fotos, nombre, de = {} }: { fotos: string[]; no
 
   if (!lista.length) {
     return (
-      <div aria-hidden="true" className="flex aspect-square items-center justify-center rounded-[24px] border border-teal-oscuro/20 bg-teal-fondo">
+      <div aria-hidden="true" className="flex aspect-square items-center justify-center rounded-[26px] bg-teal-fondo">
         <Monito nombre="caja" className="w-1/4 text-teal/40" />
       </div>
     );
@@ -38,7 +38,7 @@ export function GaleriaVitrina({ fotos, nombre, de = {} }: { fotos: string[]; no
         type="button"
         onClick={() => ampliada.current?.showModal()}
         aria-label={textos.vitrina.compra.ampliar}
-        className="relative aspect-square cursor-zoom-in overflow-hidden rounded-[24px] border border-teal-oscuro/20 bg-teal-fondo"
+        className="relative aspect-square cursor-zoom-in overflow-hidden rounded-[26px] bg-teal-fondo"
       >
         <Image
           src={urlFoto(foto)}
@@ -48,6 +48,11 @@ export function GaleriaVitrina({ fotos, nombre, de = {} }: { fotos: string[]; no
           sizes="(min-width: 768px) 50vw, 100vw"
           className="object-cover"
         />
+        {sello && (
+          <span className="absolute right-3 top-3 rotate-3 rounded-full border-2 border-teal-oscuro bg-accion px-3 py-1 text-sm font-extrabold text-accion-texto shadow-dura-chica">
+            {sello}
+          </span>
+        )}
         {de[foto] && (
           <span className="absolute bottom-3 left-3 rounded-full border-2 border-teal-oscuro bg-crema px-3 py-1 text-sm font-bold text-teal-oscuro">
             {de[foto]}
