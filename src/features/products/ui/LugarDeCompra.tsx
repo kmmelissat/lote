@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LUGARES_DE_DINERO } from "@/domain";
 import { textos } from "@/lib/textos";
 import { CAMPO_PAGO_COMPRA } from "@/features/gestion/campos";
-import { ChipsElegir } from "./VentanaConBoton";
+import { ChipsElegir } from "@/components/ui/VentanaConBoton";
 
 const t = textos.gestion.compra;
 

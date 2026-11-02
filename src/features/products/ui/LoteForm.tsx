@@ -17,7 +17,7 @@ import { sugerirFicha } from "../actions/nuevo";
 import { MAXIMO_LOTE } from "../limites";
 import { Campo, CampoDinero } from "./campos";
 import { BloqueForm } from "./BloqueForm";
-import { LugarDeCompra } from "@/components/ui/LugarDeCompra";
+import { LugarDeCompra } from "./LugarDeCompra";
 import { SelectorCategoria } from "./SelectorCategoria";
 import { ZonaFotos } from "./ZonaFotos";
 

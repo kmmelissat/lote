@@ -26,7 +26,7 @@ import {
   Etiqueta,
   estiloCampo,
 } from "./campos";
-import { LugarDeCompra } from "@/components/ui/LugarDeCompra";
+import { LugarDeCompra } from "./LugarDeCompra";
 import { SelectorCategoria } from "./SelectorCategoria";
 import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { EditorVariantes } from "./EditorVariantes";

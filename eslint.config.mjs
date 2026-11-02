@@ -35,6 +35,41 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // components/ es lo compartido: las features lo usan, no al revés.
+  {
+    files: ["src/components/**/*.{ts,tsx}"],
+    ignores: ["src/components/nav/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/app/*", "@/features/*"],
+              message: "components/ es compartido: no depende de las features ni de las rutas. Si solo lo usa una feature, va en su ui/.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // El menú es la carcasa de la app y conoce las features (cerrar sesión, la búsqueda, el avance): es la única excepción.
+  {
+    files: ["src/components/nav/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/app/*"],
+              message: "El menú no depende de las rutas: app/ importa de components/, no al revés.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // domain/ son reglas puras: no conoce la base, la interfaz ni las features.
   {
     files: ["src/domain/**/*.ts"],
