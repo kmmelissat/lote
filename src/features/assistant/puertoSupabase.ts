@@ -23,6 +23,18 @@ const falla = (tipo: Exclude<ErrorPuerto["tipo"], "sin_disponibilidad">): R<neve
 
 /** El asistente conectado a la base de datos real, con la sesión de quien escribe. */
 export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio: NegocioActual): Puerto {
+  const registrarVarios: Puerto["registrarPedidoVarios"] = async (p) => {
+    const r = await registrarPedido(supabase, negocio.id, {
+      cliente: p.cliente,
+      // El chat no pregunta el canal: una venta es en persona y un apartado suele venir de Instagram.
+      canal: (p.tipo === "venta" ? "presencial" : "instagram") satisfies Canal,
+      tipo: p.tipo,
+      items: p.items,
+      metodo: p.metodo ?? undefined,
+    });
+    return r.ok ? ok({ id: r.id, codigo: r.codigo }) : { ok: false, error: r.error as ErrorPuerto };
+  };
+
   return {
     async productos() {
       const lista = await listarProductos(supabase, negocio.id, negocio.puedeGestionar);
@@ -98,17 +110,10 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
       return r === "ok" ? ok(null) : falla(r);
     },
 
-    async registrarPedido(p) {
-      const r = await registrarPedido(supabase, negocio.id, {
-        cliente: p.cliente,
-        // El chat no pregunta el canal: una venta es en persona y un apartado suele venir de Instagram.
-        canal: (p.tipo === "venta" ? "presencial" : "instagram") satisfies Canal,
-        tipo: p.tipo,
-        items: [{ productoId: p.productoId, cantidad: p.cantidad }],
-        metodo: p.metodo ?? undefined,
-      });
-      return r.ok ? ok({ id: r.id, codigo: r.codigo }) : { ok: false, error: r.error as ErrorPuerto };
-    },
+    registrarPedido: (p) =>
+      registrarVarios({ cliente: p.cliente, tipo: p.tipo, items: [{ productoId: p.productoId, cantidad: p.cantidad }], metodo: p.metodo }),
+
+    registrarPedidoVarios: registrarVarios,
 
     async registrarPago(pedidoId, monto, metodo) {
       const r = await registrarPago(supabase, pedidoId, monto, metodo);

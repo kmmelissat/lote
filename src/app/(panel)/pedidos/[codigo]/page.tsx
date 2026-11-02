@@ -58,6 +58,8 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
   const s = t.detalle.siguiente;
   const cobraAlEntregar = p.contraEntrega && p.saldo > 0;
   const saldoTexto = formatearDolares(p.saldo);
+  // Con paquetera hay un paso más antes de enviar: que ella pase a recogerlo
+  const esperaPaquetera = envio?.modo === "paquetera";
   const siguiente = {
     pendiente: cobraAlEntregar
       ? {
@@ -69,7 +71,11 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
           ayuda: p.venceEn ? (p.venceEn > ahora ? t.vence(tiempoRestante(p.venceEn, ahora)) : t.venceVencido) : undefined,
         },
     pagado: { titulo: s.pagado, ayuda: s.pagadoAyuda },
-    preparando: { titulo: s.preparando, ayuda: s.preparandoAyuda },
+    preparando: esperaPaquetera
+      ? envio.listo
+        ? { titulo: s.listo, ayuda: s.listoAyuda }
+        : { titulo: s.preparando, ayuda: s.preparandoPaquetera }
+      : { titulo: s.preparando, ayuda: s.preparandoAyuda },
     enviado: { titulo: s.enviado, ayuda: cobraAlEntregar ? s.enviadoContra(saldoTexto) : s.enviadoAyuda },
     entregado: { titulo: s.entregado },
     cancelado: { titulo: t.detalle.cancelado },
@@ -88,6 +94,8 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
         <ProgresoPedido
           estado={p.estado}
           cobraAlEntregar={cobraAlEntregar}
+          paquetera={esperaPaquetera}
+          listo={Boolean(envio?.listo)}
           titulo={siguiente.titulo}
           ayuda={"ayuda" in siguiente ? siguiente.ayuda : undefined}
           accion={
@@ -100,6 +108,7 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
                 estado={p.estado}
                 contraEntrega={p.contraEntrega}
                 saldo={p.saldo}
+                esperaRecojo={esperaPaquetera && !envio.listo}
               />
             )
           }
@@ -180,6 +189,12 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
                   </li>
                 ))}
               </ul>
+              {p.descuento > 0 && (
+                <p className="flex justify-between border-t border-borde pt-3 text-sm">
+                  <span>{t.detalle.descuento}</span>
+                  <span className="tabular-nums">−{formatearDolares(p.descuento)}</span>
+                </p>
+              )}
               <p className="flex justify-between border-t border-borde pt-3 font-bold">
                 <span>{t.detalle.total}</span>
                 <span className="tabular-nums">{formatearDolares(p.total)}</span>

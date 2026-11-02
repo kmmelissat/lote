@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { nombreBase } from "@/domain";
+import { nombreBase, type AhorroPromocion } from "@/domain";
+import { calcularPromocionesDeVitrina } from "@/features/promotions/repositorio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 import { obtenerNegocioPublico, obtenerProductoPublico, type NegocioPublico, type ProductoPublico } from "./repositorio";
@@ -15,7 +16,7 @@ export async function cargarCompra(
   codigoTexto: string,
   cantidadTexto: string | undefined,
   que: "comprar" | "apartar",
-): Promise<{ negocio: NegocioPublico; producto: ProductoPublico; unidades: number }> {
+): Promise<{ negocio: NegocioPublico; producto: ProductoPublico; unidades: number; ahorros: AhorroPromocion[] }> {
   const codigo = Number(codigoTexto);
   if (!Number.isInteger(codigo)) notFound();
   const supabase = createPublicClient();
@@ -27,7 +28,9 @@ export async function cargarCompra(
   const unidades = Number.isInteger(pedidas) && pedidas >= 1 ? pedidas : 1;
   const permitido = que === "comprar" ? negocio.permiteComprar : negocio.permiteApartar;
   if (!permitido || producto.disponibles < unidades) redirect(`/c/${slug}/${codigo}`);
-  return { negocio, producto, unidades };
+  // Un 2x1 o un pack con las mismas unidades también se aplica comprando un solo producto
+  const ahorros = await calcularPromocionesDeVitrina(supabase, slug, [{ codigo, cantidad: unidades }]);
+  return { negocio, producto, unidades, ahorros };
 }
 
 /** El marco de las dos pantallas: volver, qué se hace, el producto siempre a la vista y el formulario. */
@@ -36,10 +39,12 @@ export function PantallaCompra({
   negocio,
   producto,
   unidades,
+  ahorros = [],
   titulo,
   ayuda,
   children,
 }: {
+  ahorros?: AhorroPromocion[];
   slug: string;
   negocio: NegocioPublico;
   producto: ProductoPublico;
@@ -55,7 +60,8 @@ export function PantallaCompra({
         <DosColumnas
           resumen={
             <ResumenPedido
-              total={producto.precio * unidades}
+              total={producto.precio * unidades - ahorros.reduce((suma, a) => suma + a.ahorro, 0)}
+              ahorros={ahorros}
               lineas={[
                 {
                   clave: String(producto.codigo),

@@ -6,4 +6,26 @@ export const comun = {
   yOtrosErrores: (primero: string, mas: number) => `${primero} (y ${mas === 1 ? "otro error" : `${mas} errores más`} en el formulario)`,
   confirmar: "Confirmar",
   cancelar: "Cancelar",
+  fecha: {
+    meses: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+    mesesCortos: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
+    // Domingo primero, como los calendarios de acá
+    diasCortos: ["D", "L", "M", "M", "J", "V", "S"],
+    diasLargos: ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
+    elegir: "Elegí una fecha",
+    anterior: "Mes anterior",
+    siguiente: "Mes siguiente",
+    hoy: "Hoy",
+    quitar: "Quitar fecha",
+    calendario: (mes: string) => `Calendario de ${mes}`,
+  },
+  descuento: {
+    titulo: "Descuento",
+    agregar: "Agregar descuento",
+    quitar: "Quitar descuento",
+    monto: "En dólares",
+    porcentaje: "En porcentaje",
+    valor: "Valor del descuento",
+    invalido: "Ese descuento no es válido.",
+  },
 } as const;

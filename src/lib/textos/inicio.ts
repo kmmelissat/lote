@@ -18,11 +18,12 @@ export const inicio = {
     todoListoTexto: "Tu negocio ya está armado. Desde acá ves lo que se aparta, se vende y cuánto ganás.",
     pasos: {
       producto: {
-        titulo: "Agregá tu primer producto",
-        texto: "Con una foto, el nombre, el precio y cuánto te costó ya queda.",
+        titulo: "Cargá tus productos",
+        texto: "Uno con foto, o todos de una vez desde tu Excel o tu hoja de Google.",
         gana: "Lotito arma la ficha y Lote calcula tu ganancia real: sin costo solo puede estimarla.",
         tiempo: "2 min",
         accion: "Agregar producto",
+        accionImportar: "Importar Excel",
       },
       pago: {
         titulo: "Poné cómo te pagan",

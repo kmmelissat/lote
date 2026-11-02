@@ -8,6 +8,7 @@ const fila = {
   canal: "whatsapp",
   estado: "pendiente",
   total: 25.5,
+  descuento: 2,
   saldo: 10.25,
   vence_en: "2026-10-30T12:00:00Z",
   envio_cobrado: 3,
@@ -22,7 +23,7 @@ describe("listarPedidos", () => {
   it("pasa los dólares de la base a centavos y arma el pedido", async () => {
     const { cliente } = supabaseFalso({ tablas: { pedido: { data: [fila], error: null } } });
     const [p] = await listarPedidos(cliente, "n1", "pendiente");
-    expect(p).toMatchObject({ codigo: 7, total: 2550, saldo: 1025, envioCobrado: 300, cliente: "Ana" });
+    expect(p).toMatchObject({ codigo: 7, total: 2550, descuento: 200, saldo: 1025, envioCobrado: 300, cliente: "Ana" });
     expect(p.venceEn).toEqual(new Date("2026-10-30T12:00:00Z"));
     expect(p.items).toEqual([{ cantidad: 2, precioFinal: 1275, nombre: "Funda", codigo: 3, foto: "a.jpg" }]);
   });
@@ -86,5 +87,24 @@ describe("registrarPedido", () => {
     const con = supabaseFalso({ rpc: { registrar_pedido: { data: "p9", error: null } }, tablas: { pedido: { data: { codigo: 5 }, error: null } } });
     await registrarPedido(con.cliente, "n1", { ...base, contacto: "7777 1234", aceptaWhatsapp: true });
     expect(con.llamadas[0].args).toMatchObject({ p_contacto: "7777 1234", p_acepta_whatsapp: true });
+  });
+
+  it("manda el descuento en dólares y solo si hay uno (para no romper sin descuento_pedido.sql)", async () => {
+    const sin = supabaseFalso({ rpc: { registrar_pedido: { data: "p9", error: null } }, tablas: { pedido: { data: { codigo: 5 }, error: null } } });
+    await registrarPedido(sin.cliente, "n1", base);
+    expect(sin.llamadas[0].args).not.toHaveProperty("p_descuento_tipo");
+
+    const monto = supabaseFalso({ rpc: { registrar_pedido: { data: "p9", error: null } }, tablas: { pedido: { data: { codigo: 5 }, error: null } } });
+    await registrarPedido(monto.cliente, "n1", { ...base, descuento: { tipo: "monto", valor: 250 } });
+    expect(monto.llamadas[0].args).toMatchObject({ p_descuento_tipo: "monto", p_descuento_valor: 2.5 });
+
+    const pct = supabaseFalso({ rpc: { registrar_pedido: { data: "p9", error: null } }, tablas: { pedido: { data: { codigo: 5 }, error: null } } });
+    await registrarPedido(pct.cliente, "n1", { ...base, descuento: { tipo: "porcentaje", valor: 10 } });
+    expect(pct.llamadas[0].args).toMatchObject({ p_descuento_tipo: "porcentaje", p_descuento_valor: 10 });
+  });
+
+  it("traduce el descuento rechazado por la base", async () => {
+    const { cliente } = supabaseFalso({ rpc: { registrar_pedido: { data: null, error: { message: "descuento_invalido", code: "22023" } } } });
+    expect(await registrarPedido(cliente, "n1", base)).toEqual({ ok: false, error: { tipo: "descuento_invalido" } });
   });
 });

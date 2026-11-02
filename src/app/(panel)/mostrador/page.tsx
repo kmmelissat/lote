@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { cajaAbierta, productosDeMostrador } from "@/features/counter/repositorio";
 import { Mostrador } from "@/features/counter/ui/Mostrador";
+import { calcularAhorro } from "@/features/promotions/actions/promociones";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -40,5 +41,12 @@ async function Pantalla() {
     cajaAbierta(supabase, negocio.id).catch(() => null),
   ]);
 
-  return <Mostrador productos={productos} puedeGestionar={negocio.puedeGestionar} cajaDesde={caja ? caja.abiertaEn.toISOString() : null} />;
+  return (
+    <Mostrador
+      productos={productos}
+      puedeGestionar={negocio.puedeGestionar}
+      cajaDesde={caja ? caja.abiertaEn.toISOString() : null}
+      calcularAhorro={calcularAhorro}
+    />
+  );
 }

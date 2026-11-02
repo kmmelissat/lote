@@ -196,6 +196,10 @@ export const asistente = {
   noSePuedeDeshacer: "Eso ya cambió desde entonces, así que no se puede deshacer solo. Revisalo en el panel.",
   descApartado: (producto: string, cliente: string) => `apartado de ${producto} para ${cliente}`,
   descVenta: (cantidad: number, producto: string) => `venta de ${cantidad} ${producto}`,
+  pedidoVarios: (tipo: "apartado" | "venta", cliente: string, lista: string, codigo: number) =>
+    tipo === "apartado" ? `Listo. Apartado #${codigo} para ${cliente}: ${lista}.` : `Listo. Venta #${codigo}${cliente ? ` a ${cliente}` : ""}: ${lista}.`,
+  descPedidoVarios: (tipo: "apartado" | "venta", cliente: string, lista: string) =>
+    tipo === "apartado" ? `apartado de ${lista} para ${cliente}` : `venta de ${lista}`,
   descProducto: (nombre: string) => `producto ${nombre}`,
   descRepuesto: (cantidad: number, producto: string) => `${cantidad} más de ${producto}`,
   descPago: (cliente: string | null, monto: string) => `pago de ${monto} de ${cliente ?? "un pedido"}`,

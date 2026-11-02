@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { calcularAhorro } from "@/features/promotions/actions/promociones";
 import { listarProductos } from "@/features/products/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -35,5 +36,5 @@ async function Formulario() {
       variante: p.variante,
     }));
 
-  return <NuevoPedidoForm productos={productos} />;
+  return <NuevoPedidoForm productos={productos} calcularAhorro={calcularAhorro} />;
 }

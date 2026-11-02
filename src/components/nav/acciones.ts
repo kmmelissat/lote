@@ -6,6 +6,7 @@ const r = textos.nav.rapida;
 /** Lo que se hace más seguido, para el menú de "Acción rápida" y para la paleta. */
 const ACCIONES: { href: string; etiqueta: string; icono: NombreIcono; tono: string }[] = [
   { href: "/productos/nuevo", etiqueta: r.producto, icono: "productos", tono: "bg-limon" },
+  { href: "/productos/importar", etiqueta: r.importar, icono: "hoja", tono: "bg-celeste/40" },
   { href: "/pedidos/nuevo", etiqueta: r.pedido, icono: "pedidos", tono: "bg-rosa" },
   { href: "/mostrador", etiqueta: r.mostrador, icono: "efectivo", tono: "bg-mango/40" },
   { href: "/asistente", etiqueta: r.asistente, icono: "chat", tono: "bg-teal-fondo" },

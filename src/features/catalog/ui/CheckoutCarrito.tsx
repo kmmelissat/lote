@@ -1,8 +1,11 @@
 "use client";
 
-import { totalDeLineas } from "@/domain";
+import { totalAhorro, totalDeLineas } from "@/domain";
 import Link from "next/link";
+import { useCallback } from "react";
 import { textos } from "@/lib/textos";
+import { useAhorroPromociones } from "@/lib/useAhorroPromociones";
+import { ahorroDelCarrito } from "../actions/carrito";
 import { useCarritoConDatos } from "../carritoDatos";
 import { lineasComprables } from "../lineasCarrito";
 import type { OpcionesDeCompra } from "../repositorio";
@@ -16,6 +19,8 @@ const t = textos.vitrina.carrito;
 export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opciones: OpcionesDeCompra; zonas: ZonasEntrega }) {
   const { lineas, estado } = useCarritoConDatos(slug);
   const comprables = lineasComprables(lineas);
+  const calcular = useCallback((l: { codigo: number; cantidad: number }[]) => ahorroDelCarrito(slug, l), [slug]);
+  const { ahorros } = useAhorroPromociones(calcular, comprables.map((l) => ({ codigo: l.codigo, cantidad: l.cantidad })));
 
   if (estado === "cargando") return <p role="status" className="py-8 text-center text-texto-2">{t.cargando}</p>;
   if (estado === "error") return <p role="alert" className="py-8 text-center font-medium text-error">{t.errorCargar}</p>;
@@ -30,7 +35,7 @@ export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opcio
     );
   }
 
-  const total = totalDeLineas(comprables);
+  const total = totalDeLineas(comprables) - totalAhorro(ahorros);
 
   return (
     <div className="flex flex-col gap-5">
@@ -43,6 +48,7 @@ export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opcio
         resumen={
           <ResumenPedido
             total={total}
+            ahorros={ahorros}
             lineas={comprables.map((l) => ({
               clave: String(l.codigo),
               nombre: l.nombre,
@@ -59,6 +65,7 @@ export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opcio
           slug={slug}
           lineas={comprables.map((l) => ({ codigo: l.codigo, cantidad: l.cantidad, precio: l.precio }))}
           carrito
+          ahorros={ahorros}
           opciones={opciones}
           zonas={zonas}
           volverHref={`/c/${slug}/carrito`}

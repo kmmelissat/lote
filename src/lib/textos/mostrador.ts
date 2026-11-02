@@ -21,12 +21,6 @@ export const mostrador = {
 
   subtotal: "Subtotal",
   descuento: "Descuento",
-  agregarDescuento: "Agregar descuento",
-  quitarDescuento: "Quitar descuento",
-  descuentoMonto: "En dólares",
-  descuentoPorcentaje: "En porcentaje",
-  descuentoValor: "Valor del descuento",
-  descuentoInvalido: "Ese descuento no es válido.",
   total: "Total",
 
   metodo: "Cómo paga",

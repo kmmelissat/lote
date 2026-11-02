@@ -28,7 +28,7 @@ function textoDeError(e: ErrorMostrador): string {
     case "sin_permiso":
       return t.errores.permiso;
     case "descuento_invalido":
-      return t.descuentoInvalido;
+      return textos.comun.descuento.invalido;
     default:
       return t.errores.general;
   }

@@ -20,13 +20,16 @@ export type PropsEscritorio = {
   setRapida: (v: boolean | ((r: boolean) => boolean)) => void;
 };
 
-function ListaPestanas({
+export function ListaPestanas({
   items,
   ruta,
   porAtender = 0,
   urgente = false,
   slug = "",
+  grande = false,
 }: {
+  /** El menú del celular: letras de 16 px e íconos más grandes, iguales en todas las filas */
+  grande?: boolean;
   items: Pestana[];
   ruta: string | null;
   porAtender?: number;
@@ -44,17 +47,17 @@ function ListaPestanas({
               href={p.href}
               aria-current={activa ? "page" : undefined}
               title={p.etiqueta}
-              className={`flex min-h-12 min-w-0 flex-1 items-center gap-3 px-1 text-sm group-data-[cerrado]:justify-center ${
+              className={`flex min-w-0 flex-1 items-center gap-3 px-1 ${grande ? "min-h-14 text-base" : "min-h-12 text-sm"} group-data-[cerrado]:justify-center ${
                 activa ? "font-bold text-teal-oscuro" : "font-medium text-texto-2 hover:text-teal"
               }`}
             >
-              <Icon nombre={p.icono} className="size-5 shrink-0" />
+              <Icon nombre={p.icono} className={`${grande ? "size-6" : "size-5"} shrink-0`} />
               <span className="min-w-0 flex-1 truncate group-data-[cerrado]:hidden">
                 <span className={activa ? "underline decoration-rosa decoration-2 underline-offset-2" : undefined}>{p.etiqueta}</span>
               </span>
               {p.href === "/pedidos" && <Insignia n={porAtender} urgente={urgente} />}
             </Link>
-            {vitrina && <AbrirVitrina slug={slug} className="flex size-11 shrink-0 items-center justify-center text-texto-2 hover:text-teal group-data-[cerrado]:hidden" />}
+            {vitrina && <AbrirVitrina slug={slug} iconoGrande={grande} className="flex size-11 shrink-0 items-center justify-center text-texto-2 hover:text-teal group-data-[cerrado]:hidden" />}
           </li>
         );
       })}
@@ -100,13 +103,10 @@ export function MenuEscritorio({ datos, cerrado, alternarMenu, abrirPaleta, rapi
               </button>
             </div>
           </div>
-          <p className="-rotate-1 self-start rounded-sm border-2 border-teal-oscuro bg-rosa px-2 py-0.5 font-logo text-xs tracking-widest text-teal-oscuro uppercase shadow-dura-chica group-data-[cerrado]:hidden">
-            {t.turno}
-          </p>
         </div>
         <div className="border-b-2 border-dashed border-teal-oscuro" />
         <div className="flex min-h-0 flex-1 flex-col gap-3 py-4 pl-6 pr-5">
-          <AccionRapida abierta={rapida} alternar={(abrir) => setRapida((r) => abrir ?? !r)} tieneLocal={datos.tieneLocal} />
+          <AccionRapida abierta={rapida} alternar={() => setRapida((r) => !r)} />
           <div className="min-h-0 flex-1 overflow-y-auto">
             <ConRuta
               hijos={(ruta) => (

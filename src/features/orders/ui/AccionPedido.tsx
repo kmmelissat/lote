@@ -8,20 +8,21 @@ import { useToast } from "@/components/ui/Toast";
 import type { EstadoPedido } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { cambiarEstado, pagarCompleto } from "../actions/estado";
+import { cambiarEstado, marcarListo, pagarCompleto } from "../actions/estado";
 import { METODOS_DE_COBRO } from "../repositorio";
 
 const t = textos.pedidos.lista;
 
-type Siguiente = "pagado" | "preparando" | "enviado" | "entregado";
+// "listo" no es un estado del pedido: con paquetera es el aviso de que ya se puede recoger, antes de marcarlo enviado
+type Siguiente = "pagado" | "preparando" | "listo" | "enviado" | "entregado";
 
-const ICONO_DEL_PASO: Record<Siguiente, NombreIcono> = { pagado: "moneda", preparando: "caja", enviado: "camion", entregado: "check" };
+const ICONO_DEL_PASO: Record<Siguiente, NombreIcono> = { pagado: "moneda", preparando: "caja", listo: "tienda", enviado: "camion", entregado: "check" };
 
 /** El paso que sigue para un pedido, o null si ya no hay (entregado, cancelado). */
-function siguientePaso(estado: EstadoPedido, contraEntrega: boolean): Siguiente | null {
+function siguientePaso(estado: EstadoPedido, contraEntrega: boolean, esperaRecojo: boolean): Siguiente | null {
   if (estado === "pendiente") return contraEntrega ? "preparando" : "pagado";
   if (estado === "pagado") return "preparando";
-  if (estado === "preparando") return "enviado";
+  if (estado === "preparando") return esperaRecojo ? "listo" : "enviado";
   if (estado === "enviado") return "entregado";
   return null;
 }
@@ -35,6 +36,7 @@ export function AccionPedido({
   contraEntrega,
   saldo,
   grande = false,
+  esperaRecojo = false,
 }: {
   pedidoId: string;
   codigo: number;
@@ -44,13 +46,15 @@ export function AccionPedido({
   saldo: number;
   /** En el detalle del pedido, donde es la acción principal */
   grande?: boolean;
+  /** Con paquetera y empacado: falta avisar que ya puede recogerlo antes de marcarlo enviado */
+  esperaRecojo?: boolean;
 }) {
   // No se usa useTransition: una acción asíncrona retiene las actualizaciones de estado hasta terminar, y el modal
   // de abajo tiene que abrirse mientras la función espera la respuesta (si no, el botón queda sin hacer nada).
   const [pendiente, setPendiente] = useState(false);
   const elegir = useElegir();
   const { avisar } = useToast();
-  const paso = siguientePaso(estado, contraEntrega);
+  const paso = siguientePaso(estado, contraEntrega, esperaRecojo);
   if (!paso) return null;
 
   async function avanzar() {
@@ -75,7 +79,7 @@ export function AccionPedido({
     try {
       if (cobra) error = (await pagarCompleto(pedidoId, metodo!)).error;
       // Con el saldo en cero la base no agrega su propio cobro "contra entrega" al entregar
-      if (!error && paso !== "pagado") error = (await cambiarEstado(pedidoId, paso)).error;
+      if (!error) error = paso === "listo" ? (await marcarListo(pedidoId)).error : paso !== "pagado" ? (await cambiarEstado(pedidoId, paso)).error : undefined;
     } catch {
       error = textos.pedidos.acciones.errorGeneral;
     } finally {

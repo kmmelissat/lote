@@ -7,6 +7,7 @@ import { respuestaDeElegir, respuestaNoEntendi } from "./ayudas";
 import { masParecidos } from "./resolver";
 import { deshacer, deshacerUltima } from "./deshacer";
 import { ejecutar } from "./ejecutar";
+import { pedidoConVarios } from "./intenciones/pedido";
 import { respuestaDeAyuda } from "./faq";
 
 export type { Boton, Comando, Entrada, Estado, Respuesta } from "./tipos";
@@ -80,13 +81,52 @@ async function turno(entrada: Entrada, d: Deps): Promise<Respuesta> {
   }
   if (!salida) return respuestaNoEntendi();
 
-  const r = aIntencion(salida);
-  if (!r.ok) {
-    const leido = entrada.foto ? `${t.fotoLeida(salida.producto)}\n` : "";
-    return { texto: leido + t.pregunta[r.falta], estado: { tipo: "completar", salida, falta: r.falta, extras } };
+  return correr(d, entrada, salida, confirmado, extras);
+}
+
+// Lo máximo que se hace de un solo mensaje; el resto se pide aparte.
+const MAX_ACCIONES = 5;
+
+/** Una derivada del id del mensaje para cada acción de la serie: así repetir el mensaje no repite ninguna. */
+const idDelPaso = (mensajeId: string, paso: number) => (paso === 0 ? mensajeId : `${mensajeId.slice(0, -2)}${paso.toString(16).padStart(2, "0")}`);
+
+/** Hace la acción y, si el mensaje traía más y esta no quedó esperando una respuesta, sigue con la siguiente. */
+async function correr(d: Deps, entrada: Entrada, salida: SalidaEntender, confirmado: boolean, extras: Extras | undefined, paso = 0): Promise<Respuesta> {
+  // Varios productos para la misma persona: un solo pedido
+  if (paso === 0 && !confirmado) {
+    const junto = await pedidoConVarios(d, entrada, salida);
+    if (junto) return junto;
   }
-  const respuesta = await ejecutar(d, entrada, r.intencion, salida, confirmado, extras);
-  return r.intencion.tipo === "no_entiendo" ? { ...respuesta, noEntendido: true } : respuesta;
+  const r = aIntencion(salida);
+  let respuesta: Respuesta;
+  if (!r.ok) {
+    const leido = entrada.foto && paso === 0 ? `${t.fotoLeida(salida.producto)}\n` : "";
+    respuesta = { texto: leido + t.pregunta[r.falta], estado: { tipo: "completar", salida, falta: r.falta, extras } };
+  } else {
+    const hecho = await ejecutar(d, { ...entrada, mensajeId: idDelPaso(entrada.mensajeId, paso) }, r.intencion, salida, confirmado, extras);
+    respuesta = r.intencion.tipo === "no_entiendo" ? { ...hecho, noEntendido: true } : hecho;
+  }
+
+  const [siguiente, ...resto] = salida.ademas;
+  // Si quedó esperando algo (un dato, una elección), lo que sigue viaja dentro de su estado y continúa después.
+  if (respuesta.estado || !siguiente || paso + 1 >= MAX_ACCIONES) return respuesta;
+  const despues = await correr(d, entrada, { ...salidaVacia(siguiente.intencion), ...siguiente, ademas: resto }, false, undefined, paso + 1);
+  return juntar(respuesta, despues);
+}
+
+/** Las respuestas de varias acciones seguidas, en una sola; los Deshacer se numeran para distinguirlos. */
+function juntar(a: Respuesta, b: Respuesta): Respuesta {
+  const botones = [...(a.botones ?? []), ...(b.botones ?? [])];
+  const deshaceres = botones.filter((x) => x.comando.tipo === "deshacer").length;
+  let n = 0;
+  return {
+    ...b,
+    texto: `${a.texto}\n${b.texto}`,
+    botones: botones.map((x) => (deshaceres > 1 && x.comando.tipo === "deshacer" ? { ...x, etiqueta: `${t.deshacer} ${++n}` } : x)),
+    enlaces: [...(a.enlaces ?? []), ...(b.enlaces ?? [])],
+    copiar: b.copiar ?? a.copiar,
+    noEntendido: a.noEntendido || b.noEntendido,
+  };
 }
 
 // Sin IA no hay quién distinga una respuesta de un mensaje nuevo, así que solo queda contar palabras: una frase

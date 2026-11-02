@@ -18,27 +18,29 @@ const CONFETI = [
 ];
 
 /**
- * El pedido como historieta: una viñeta por parada con Lotito haciendo lo de ese paso (recibe, empaca, va en camino, entrega). Las que ya pasaron llevan check, la actual
+ * El pedido como historieta: una viñeta por parada con Lotito haciendo lo de ese paso (recibe, empaca, espera a la paquetera, va en camino, entrega). Las que ya pasaron llevan check, la actual
  * se agranda, se inclina y lleva un sello, y las que faltan son su silueta con un "?". Al entregar, la última viñeta
- * celebra con confeti. Con retiro en tienda las dos últimas viñetas cambian de nombre.
+ * celebra con confeti. Con paquetera hay una más (por recoger); con retiro en tienda las dos últimas viñetas cambian de nombre.
  */
-export function HistorietaPedido({ estado, modo }: { estado: EstadoPedido; modo: Seguimiento["modo"] }) {
+export function HistorietaPedido({ estado, modo, listo }: { estado: EstadoPedido; modo: Seguimiento["modo"]; listo: boolean }) {
   const pasos = pasosDeSeguimiento(modo);
-  const actual = paradaActual(estado);
+  const actual = paradaActual(estado, modo, listo);
   const llego = estado === "entregado";
 
   return (
-    <ol aria-label={t.paradas} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <ol aria-label={t.paradas} className={`grid grid-cols-2 gap-3 ${pasos.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
       {pasos.map((paso, i) => {
         const hecho = i < actual || llego;
         const enCurso = i === actual && !llego;
         const ultima = llego && i === pasos.length - 1;
         const destacada = enCurso || ultima;
+        // Con cinco viñetas, en el celular la última ocupa todo el ancho para que no quede una sola, a medias
+        const suelta = pasos.length % 2 === 1 && i === pasos.length - 1;
         return (
           <li
             key={paso}
             aria-current={enCurso ? "step" : undefined}
-            className={`relative flex aspect-square items-end justify-center overflow-hidden rounded-lg border-[3px] border-teal-oscuro ${
+            className={`relative flex items-end justify-center overflow-hidden rounded-lg ${suelta ? "col-span-2 aspect-[2/1] sm:col-span-1 sm:aspect-square" : "aspect-square"} border-[3px] border-teal-oscuro ${
               destacada ? `z-10 scale-[1.04] -rotate-1 shadow-dura ${PUNTITOS} ${ultima ? "bg-rosa-palido" : "bg-celeste"}` : hecho ? `${PUNTITOS} bg-teal-fondo` : "bg-perla/60"
             }`}
           >

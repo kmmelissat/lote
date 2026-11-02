@@ -52,6 +52,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
     })),
     reponer: vi.fn(async () => ({ ok: true as const, valor: null })),
     registrarPedido: vi.fn(async () => ({ ok: true as const, valor: { id: "ped-nuevo", codigo: 7 } })),
+    registrarPedidoVarios: vi.fn(async () => ({ ok: true as const, valor: { id: "ped-varios", codigo: 8 } })),
     registrarPago: vi.fn(async () => ({ ok: true as const, valor: { pagoId: "pago-1" } })),
     cambiarEstado: vi.fn(async () => ({ ok: true as const, valor: null })),
     registrarGuia: vi.fn(async () => ({ ok: true as const, valor: null })),
@@ -580,6 +581,74 @@ describe("la IA decide si es la respuesta", () => {
     const estado = { tipo: "completar", salida: salidaVacia("cobrar"), falta: "pedido" } as const;
     const r = await procesar({ mensajeId: "m1", texto: "Ana", estado }, { ia, puerto, ahora });
     expect(r.texto).toContain("Hola Ana");
+  });
+});
+
+describe("varias acciones en un mensaje", () => {
+  const luis = { intencion: "apartar" as const, producto: "chaqueta roja", cliente: "Luis", pedido: null, cantidad: null, monto: null, metodo: null, categoria: null, nota: null };
+
+  it("las hace todas seguidas y numera los Deshacer", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno(
+      { mensajeId: "11111111-1111-4111-8111-111111111111" },
+      { intencion: "apartar", producto: "llavero", cliente: "Ana", ademas: [luis] },
+    );
+    expect(puerto.registrarPedido).toHaveBeenCalledTimes(2);
+    expect(puerto.registrarPedido).toHaveBeenNthCalledWith(1, expect.objectContaining({ cliente: "Ana", productoId: "prod-3" }));
+    expect(puerto.registrarPedido).toHaveBeenNthCalledWith(2, expect.objectContaining({ cliente: "Luis", productoId: "prod-2" }));
+    expect(r.texto).toContain("apartado para Ana");
+    expect(r.texto).toContain("apartado para Luis");
+    expect(r.botones?.map((b) => b.etiqueta)).toEqual(["Deshacer 1", "Deshacer 2"]);
+    // Cada acción tiene su propio id: repetir el mensaje no las repite
+    const ids = r.botones?.map((b) => (b.comando.tipo === "deshacer" ? b.comando.accionId : ""));
+    expect(new Set(ids).size).toBe(2);
+  });
+
+  it("si la primera pregunta algo, la siguiente espera y sigue al responder", async () => {
+    const { puerto, turno } = montar();
+    const duda = await turno(
+      { mensajeId: "22222222-2222-4222-8222-222222222222" },
+      { intencion: "apartar", producto: "chaqueta", cliente: "Ana", ademas: [{ ...luis, producto: "llavero" }] },
+    );
+    expect(duda.texto).toContain("¿Cuál de estos?");
+    expect(puerto.registrarPedido).not.toHaveBeenCalled();
+
+    const r = await turno({ mensajeId: "33333333-3333-4333-8333-333333333333", texto: "2", estado: duda.estado });
+    expect(puerto.registrarPedido).toHaveBeenCalledTimes(2);
+    expect(r.texto).toContain("Chaqueta roja S apartado para Ana");
+    expect(r.texto).toContain("Llaveros de gato apartado para Luis");
+  });
+
+  it("varios productos para la misma persona son un solo pedido", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno(
+      { mensajeId: "55555555-5555-4555-8555-555555555555" },
+      { intencion: "apartar", producto: "llavero", cliente: "Ana", ademas: [{ ...luis, producto: "chaqueta negra", cliente: "ana" }] },
+    );
+    expect(puerto.registrarPedido).not.toHaveBeenCalled();
+    expect(puerto.registrarPedidoVarios).toHaveBeenCalledTimes(1);
+    expect(puerto.registrarPedidoVarios).toHaveBeenCalledWith(
+      expect.objectContaining({ cliente: "Ana", tipo: "apartado", items: [{ productoId: "prod-3", cantidad: 1 }, { productoId: "prod-1", cantidad: 1 }] }),
+    );
+    expect(r.texto).toBe("Listo. Apartado #8 para Ana: Llaveros de gato ×1, Chaqueta negra M ×1.");
+    expect(r.botones).toHaveLength(1);
+  });
+
+  it("si un producto no queda claro, vuelve a una acción por producto y pregunta", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno(
+      { mensajeId: "66666666-6666-4666-8666-666666666666" },
+      { intencion: "apartar", producto: "llavero", cliente: "Ana", ademas: [{ ...luis, producto: "chaqueta", cliente: "Ana" }] },
+    );
+    expect(puerto.registrarPedidoVarios).not.toHaveBeenCalled();
+    expect(r.texto).toContain("apartado para Ana");
+    expect(r.texto).toContain("¿Cuál de estos?");
+  });
+
+  it("hace como mucho cinco de un mensaje", async () => {
+    const { puerto, turno } = montar();
+    await turno({ mensajeId: "44444444-4444-4444-8444-444444444444" }, { intencion: "apartar", producto: "llavero", cliente: "Ana", ademas: Array(8).fill({ ...luis, producto: "llavero" }) });
+    expect(puerto.registrarPedido).toHaveBeenCalledTimes(5);
   });
 });
 

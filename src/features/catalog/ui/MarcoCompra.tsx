@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { LineasPromocion } from "@/components/ui/LineasPromocion";
+import type { AhorroPromocion } from "@/domain";
 import { Monito } from "@/components/ui/Monito";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
@@ -41,7 +43,7 @@ export function EncabezadoCompra({
 export type LineaResumen = { clave: string; nombre: string; detalle: string; foto: string | undefined; precio: number };
 
 /** Lo que se compra, como un ticket: foto, nombre, cantidad y el total. */
-export function ResumenPedido({ lineas, total }: { lineas: LineaResumen[]; total: number }) {
+export function ResumenPedido({ lineas, total, ahorros = [] }: { lineas: LineaResumen[]; total: number; ahorros?: AhorroPromocion[] }) {
   return (
     <section aria-label={t.resumenTitulo} className="rounded-[24px] border-2 border-teal-oscuro bg-teal-fondo p-5 shadow-dura-chica">
       <h2 className="mb-3 font-bold">{t.tuPedido}</h2>
@@ -59,6 +61,7 @@ export function ResumenPedido({ lineas, total }: { lineas: LineaResumen[]; total
           </li>
         ))}
       </ul>
+      <LineasPromocion ahorros={ahorros} className="mt-3 border-t-2 border-dashed border-teal-oscuro/40 pt-3" />
       <p className="mt-3 flex items-baseline justify-between border-t-2 border-dashed border-teal-oscuro/40 pt-3">
         <span className="font-bold">{t.total}</span>
         <span className="text-2xl font-bold tabular-nums">{formatearDolares(total)}</span>

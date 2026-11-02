@@ -15,6 +15,9 @@ export const ENLACES_PASOS: Record<ClavePaso, string> = {
   pedido: "/pedidos/nuevo",
 };
 
+/** Un segundo camino para algún paso: cargar productos también se puede importando un Excel o una hoja de Google. */
+export const ENLACES_PASOS_EXTRA = { importar: "/productos/importar" } as const;
+
 /** Las cookies donde el navegador recuerda lo que no queda guardado en la base. */
 export const COOKIE_COMPARTIO = "lote-compartio";
 export const COOKIE_PASOS_VISTOS = "lote-pasos-vistos";

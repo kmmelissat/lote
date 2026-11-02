@@ -1,6 +1,6 @@
 "use client";
 
-import { totalDeLineas } from "@/domain";
+import { totalAhorro, totalDeLineas, type AhorroPromocion } from "@/domain";
 import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { MensajeError } from "@/components/ui/MensajeError";
@@ -69,7 +69,10 @@ export function CompraForm({
   opciones,
   zonas,
   volverHref,
+  ahorros = [],
 }: {
+  /** Las promociones que se aplican a lo que se compra; la base las vuelve a calcular al confirmar */
+  ahorros?: AhorroPromocion[];
   slug: string;
   /** Lo que se compra: un producto ("Comprar ahora") o los del carrito. Precio en centavos. */
   lineas: { codigo: number; cantidad: number; precio: number }[];
@@ -110,7 +113,8 @@ export function CompraForm({
 
   const costoDe = (d: string) => opciones.tarifas[d] ?? opciones.tarifaDefecto;
   const tarifa = entrega === "envio" && departamento ? costoDe(departamento) : 0;
-  const subtotal = totalDeLineas(lineas);
+  const promociones = totalAhorro(ahorros);
+  const subtotal = totalDeLineas(lineas) - promociones;
 
   /** Pasa al paso siguiente solo si lo de este paso está completo; si no, muestra qué falta. */
   function siguiente() {
@@ -302,8 +306,14 @@ export function CompraForm({
             <h2 className="mb-1 font-bold">{t.resumenTitulo}</h2>
             <p className="flex justify-between text-sm">
               <span className="text-texto-2">{t.subtotal}</span>
-              <span className="tabular-nums">{formatearDolares(subtotal)}</span>
+              <span className="tabular-nums">{formatearDolares(subtotal + promociones)}</span>
             </p>
+            {promociones > 0 && (
+              <p className="flex justify-between text-sm">
+                <span className="text-texto-2">{textos.promociones.ahorroLinea}</span>
+                <span className="tabular-nums">−{formatearDolares(promociones)}</span>
+              </p>
+            )}
             <p className="flex justify-between text-sm">
               <span className="text-texto-2">{t.envioLinea}</span>
               <span className="tabular-nums">{entrega === "retiro" ? t.envioGratis : departamento ? (tarifa === 0 ? t.envioGratis : formatearDolares(tarifa)) : "–"}</span>

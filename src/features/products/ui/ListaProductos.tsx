@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { BotonIconoLink } from "@/components/ui/BotonIcono";
 import { colorDeEstado } from "@/components/ui/StatusChip";
 import { TarjetaDato } from "@/components/ui/TarjetaDato";
 import { Card } from "@/components/ui/Card";
@@ -122,7 +121,6 @@ export function ListaProductos({
   categoriaInicial,
   ordenInicial,
   faltaInicial,
-  puedeGestionar,
 }: {
   productos: Producto[];
   umbral: number;
@@ -133,8 +131,6 @@ export function ListaProductos({
   categoriaInicial: string;
   ordenInicial: Orden;
   faltaInicial: Falta | undefined;
-  /** Crear e importar son de dueña y administradora: al resto no se le ofrecen */
-  puedeGestionar: boolean;
 }) {
   const [texto, setTexto] = useState(textoInicial);
   const [estado, setEstado] = useState(estadoInicial);
@@ -266,7 +262,6 @@ export function ListaProductos({
               <span className="rounded-full bg-teal-oscuro px-2 text-xs tabular-nums text-white">{filtrosActivos}</span>
             )}
           </Button>
-          {puedeGestionar && <BotonIconoLink icono="hoja" etiqueta={t.importar.boton} href="/productos/importar" />}
         </div>
       </div>
 

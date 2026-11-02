@@ -15,6 +15,8 @@ export type Seguimiento = {
   modo: "retiro" | "propio" | "paquetera" | null;
   paquetera: string | null;
   guia: string | null;
+  /** Con paquetera: ya está listo para que la paquetera lo recoja (solo viene después de correr listo_para_recoger.sql) */
+  listo: boolean;
 };
 
 /** Lo que un cliente puede ver de su pedido con el enlace. No lleva datos personales ni precios. */
@@ -34,5 +36,6 @@ export async function obtenerSeguimiento(supabase: Cliente, pedidoId: string): P
     modo: s.modo as Seguimiento["modo"],
     paquetera: s.paquetera,
     guia: s.guia,
+    listo: s.listo === true,
   };
 }

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { aCentavos, type Centavos, type EstadoPedido } from "@/domain";
+import { aCentavos, aDolares, type Centavos, type Descuento, type EstadoPedido } from "@/domain";
 import type { Busqueda } from "./busqueda";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -26,6 +26,8 @@ export type Pedido = {
   canal: Canal;
   estado: EstadoPedido;
   total: Centavos;
+  /** Lo que se rebajó del subtotal; 0 si no hubo descuento */
+  descuento: Centavos;
   saldo: Centavos;
   venceEn: Date | null;
   envioCobrado: Centavos;
@@ -37,7 +39,7 @@ export type Pedido = {
 };
 
 const columnas =
-  "id, codigo, canal, estado, total, saldo, vence_en, envio_cobrado, envio_absorbido, contra_entrega, creado_en, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, codigo, fotos))";
+  "id, codigo, canal, estado, total, descuento, saldo, vence_en, envio_cobrado, envio_absorbido, contra_entrega, creado_en, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, codigo, fotos))";
 
 type Fila = {
   id: string;
@@ -45,6 +47,7 @@ type Fila = {
   canal: string;
   estado: string;
   total: number;
+  descuento: number;
   saldo: number;
   vence_en: string | null;
   envio_cobrado: number;
@@ -66,6 +69,7 @@ const aPedido = (f: Fila): Pedido => ({
   canal: f.canal as Canal,
   estado: f.estado as EstadoPedido,
   total: aCentavos(f.total),
+  descuento: aCentavos(f.descuento),
   saldo: aCentavos(f.saldo),
   venceEn: f.vence_en ? new Date(f.vence_en) : null,
   envioCobrado: aCentavos(f.envio_cobrado),
@@ -178,13 +182,14 @@ export async function obtenerPedido(
 
 export type ErrorPedido =
   | { tipo: "sin_disponibilidad"; quien: string }
-  | { tipo: "falta_cliente" | "monto_invalido" | "sin_permiso" | "desconocido" };
+  | { tipo: "falta_cliente" | "monto_invalido" | "descuento_invalido" | "sin_permiso" | "desconocido" };
 
 // Los errores de las funciones de la base: 'sin_disponibilidad' trae en details quién tiene el apartado.
 function aErrorPedido(e: { code?: string; message: string; details?: string | null }): ErrorPedido {
   if (e.message === "sin_disponibilidad") return { tipo: "sin_disponibilidad", quien: e.details ?? "" };
   if (e.message === "falta_cliente") return { tipo: "falta_cliente" };
   if (e.message === "monto_invalido") return { tipo: "monto_invalido" };
+  if (e.message === "descuento_invalido") return { tipo: "descuento_invalido" };
   if (e.code === "42501") return { tipo: "sin_permiso" };
   return { tipo: "desconocido" };
 }
@@ -203,6 +208,8 @@ export async function registrarPedido(
     contacto?: string;
     /** Que el cliente aceptó recibir avisos por WhatsApp */
     aceptaWhatsapp?: boolean;
+    /** Rebaja sobre el subtotal; la base la calcula y valida con los precios reales */
+    descuento?: Descuento;
   },
 ): Promise<{ ok: true; id: string; codigo: number } | { ok: false; error: ErrorPedido }> {
   const { data: id, error } = await supabase.rpc("registrar_pedido", {
@@ -214,6 +221,13 @@ export async function registrarPedido(
     p_metodo: p.metodo,
     // Solo se mandan si hay algo: así sigue funcionando aunque falte correr pedido_cliente.sql
     ...(p.contacto ? { p_contacto: p.contacto, p_acepta_whatsapp: p.aceptaWhatsapp ?? false } : {}),
+    // Igual con el descuento: sin descuento no se manda nada y funciona aunque falte correr descuento_pedido.sql
+    ...(p.descuento
+      ? {
+          p_descuento_tipo: p.descuento.tipo,
+          p_descuento_valor: p.descuento.tipo === "monto" ? aDolares(p.descuento.valor) : p.descuento.valor,
+        }
+      : {}),
   });
   if (error) return { ok: false, error: aErrorPedido(error) };
 

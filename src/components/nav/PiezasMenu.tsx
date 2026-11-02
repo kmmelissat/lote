@@ -12,7 +12,7 @@ import { useCerrarAfuera } from "./useCerrarAfuera";
 const t = textos.nav;
 
 /** Abre la vitrina pública en otra pestaña. Va al lado de Mi tienda. */
-export function AbrirVitrina({ slug, className }: { slug: string; className?: string }) {
+export function AbrirVitrina({ slug, className, iconoGrande = false }: { slug: string; className?: string; iconoGrande?: boolean }) {
   return (
     <Link
       href={`/c/${slug}`}
@@ -22,7 +22,7 @@ export function AbrirVitrina({ slug, className }: { slug: string; className?: st
       title={t.verVitrina}
       className={className ?? "flex size-11 shrink-0 items-center justify-center text-texto-2 hover:text-teal"}
     >
-      <Icon nombre="enlace" className="size-4" />
+      <Icon nombre="enlace" className={iconoGrande ? "size-5" : "size-4"} />
       <span className="sr-only">{textos.explorar.sobre.nuevaPestana}</span>
     </Link>
   );
@@ -32,7 +32,7 @@ export function Insignia({ n, urgente }: { n: number; urgente: boolean }) {
   if (n === 0) return null;
   return (
     <span className="relative flex shrink-0 group-data-[cerrado]:absolute group-data-[cerrado]:right-1 group-data-[cerrado]:top-0.5">
-      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-teal-oscuro px-1.5 text-xs font-bold text-white">
+      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-teal-oscuro px-1.5 text-xs font-bold text-white max-md:h-6 max-md:min-w-6 max-md:text-sm">
         <span className="sr-only">{textos.nav.porAtender(n)}: </span>
         {n}
       </span>
@@ -74,10 +74,10 @@ export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]
   return (
     <Link href={pasos.siguiente.href} className="mt-auto flex flex-col gap-2 pt-1 text-teal-oscuro group-data-[cerrado]:hidden">
       <span className="flex items-center justify-between gap-2">
-        <span className="-rotate-1 rounded-sm border-2 border-teal-oscuro bg-celeste px-1.5 py-0.5 font-logo text-[10px] tracking-widest uppercase shadow-dura-chica">
+        <span className="-rotate-1 rounded-sm border-2 border-teal-oscuro bg-celeste px-1.5 py-0.5 font-logo text-[10px] tracking-widest uppercase shadow-dura-chica max-md:text-xs">
           {t.pasos.siguiente}
         </span>
-        <span className="font-logo text-sm tabular-nums">{t.pasos.avance(pasos.hechos, pasos.total)}</span>
+        <span className="font-logo text-sm tabular-nums max-md:text-base">{t.pasos.avance(pasos.hechos, pasos.total)}</span>
       </span>
       <span
         role="progressbar"
@@ -94,7 +94,7 @@ export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]
           />
         ))}
       </span>
-      <span className="text-sm font-bold leading-snug">{pasos.siguiente.titulo} →</span>
+      <span className="text-sm font-bold leading-snug max-md:text-base">{pasos.siguiente.titulo} →</span>
     </Link>
   );
 }
@@ -137,8 +137,8 @@ export function TarjetaPerfil({
           </span>
         )}
         <span className={`flex min-w-0 flex-1 flex-col leading-tight group-data-[cerrado]:hidden ${soloAvatar ? "hidden" : ""}`}>
-          <span className="truncate text-sm font-bold">{perfil.nombre}</span>
-          <span className={`text-xs ${claro ? "text-white/70" : "text-texto-2"}`}>{perfil.detalle}</span>
+          <span className="truncate text-sm font-bold max-md:text-base">{perfil.nombre}</span>
+          <span className={`text-xs max-md:text-sm ${claro ? "text-white/70" : "text-texto-2"}`}>{perfil.detalle}</span>
         </span>
         <Icon
           nombre="flecha"

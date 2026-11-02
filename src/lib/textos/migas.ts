@@ -22,6 +22,7 @@ export const migas = {
   tienda: "Mi tienda",
   resumen: "Resumen semanal",
   mostrador: "Mostrador",
+  promociones: "Promociones",
   caja: "Caja",
   categorias: "Categorías",
   resenas: "Reseñas",

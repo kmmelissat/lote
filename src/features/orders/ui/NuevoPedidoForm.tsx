@@ -2,15 +2,28 @@
 
 import Image from "next/image";
 import { useActionState, useMemo, useState } from "react";
-import { digitosLocales, normalizarTelefono, telefonoElSalvador } from "@/domain";
+import {
+  descuentoEnCentavos,
+  digitosLocales,
+  leerDescuento,
+  nombreVisible,
+  normalizarTelefono,
+  telefonoElSalvador,
+  totalAhorro,
+  type CalcularAhorro,
+  type Descuento,
+} from "@/domain";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { CampoDescuento } from "@/components/ui/CampoDescuento";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { LineasPromocion } from "@/components/ui/LineasPromocion";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Monito } from "@/components/ui/Monito";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { urlFoto } from "@/lib/fotos";
+import { useAhorroPromociones } from "@/lib/useAhorroPromociones";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { nuevoPedido, type EstadoNuevoPedido } from "../actions/nuevo";
@@ -33,7 +46,7 @@ export type OpcionProducto = {
   variante: string | null;
 };
 
-const nombreCompleto = (p: OpcionProducto) => (p.variante ? `${p.nombre} (${p.variante})` : p.nombre);
+const nombreCompleto = (p: OpcionProducto) => nombreVisible(p.nombre, p.variante);
 
 function presentarContacto(crudo: string): string {
   if (telefonoElSalvador(crudo)) return digitosLocales(crudo);
@@ -52,7 +65,14 @@ const METODOS: { clave: "efectivo" | "transferencia" | "billetera"; icono: Nombr
   { clave: "billetera", icono: "billetera" },
 ];
 
-export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) {
+export function NuevoPedidoForm({
+  productos,
+  calcularAhorro,
+}: {
+  productos: OpcionProducto[];
+  /** Pregunta a la base cuánto ahorran las promociones con lo que se eligió; sin esto no se muestran */
+  calcularAhorro?: CalcularAhorro;
+}) {
   const [estado, accion, pendiente] = useActionState<EstadoNuevoPedido, FormData>(nuevoPedido, {});
   const v = estado.valores ?? {};
   const [tipo, setTipo] = useState<"apartado" | "venta">(v.tipo === "venta" ? "venta" : "apartado");
@@ -62,6 +82,9 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
   const [busqueda, setBusqueda] = useState("");
   // id del producto -> cantidad (solo los que están en el pedido)
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
+  const [conDescuento, setConDescuento] = useState(false);
+  const [tipoDescuento, setTipoDescuento] = useState<Descuento["tipo"]>("monto");
+  const [textoDescuento, setTextoDescuento] = useState("");
 
   // Solo a un teléfono se le puede escribir por WhatsApp: ahí tiene sentido preguntar si acepta avisos
   const esTelefono = normalizarTelefono(contacto) !== null;
@@ -72,7 +95,16 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
     .filter(([, n]) => n > 0)
     .map(([productoId, cantidad]) => ({ productoId, cantidad }));
   const unidades = items.reduce((suma, i) => suma + i.cantidad, 0);
-  const total = items.reduce((suma, i) => suma + (porId.get(i.productoId)?.precio ?? 0) * i.cantidad, 0);
+  const subtotal = items.reduce((suma, i) => suma + (porId.get(i.productoId)?.precio ?? 0) * i.cantidad, 0);
+  // Las promociones primero; el descuento de la persona se calcula sobre lo que queda
+  const { ahorros, calculando } = useAhorroPromociones(calcularAhorro, items);
+  const promociones = totalAhorro(ahorros);
+  const conPromociones = subtotal - promociones;
+  // La base vuelve a calcularlo con los precios de ese momento; esto es lo que se ve mientras se arma el pedido
+  const descuentoLeido = conDescuento ? leerDescuento(tipoDescuento, textoDescuento) : null;
+  const descuentoInvalido = descuentoLeido === "invalido";
+  const descuento = descuentoLeido && descuentoLeido !== "invalido" ? descuentoEnCentavos(conPromociones, descuentoLeido) : 0;
+  const total = conPromociones - descuento;
 
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -107,6 +139,12 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
   return (
     <form action={accion} className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
       <input type="hidden" name="items" value={JSON.stringify(items)} />
+      {conDescuento && (
+        <>
+          <input type="hidden" name="descuentoTipo" value={tipoDescuento} />
+          <input type="hidden" name="descuentoTexto" value={textoDescuento} />
+        </>
+      )}
 
       <div className="flex min-w-0 flex-col gap-5">
         {/* 1. Qué se registra */}
@@ -345,6 +383,39 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
             </ul>
           )}
 
+          {items.length > 0 && (
+            <div className="flex flex-col gap-3 border-t-2 border-teal-oscuro pt-3">
+              {(descuento > 0 || promociones > 0) && (
+                <div className="flex flex-col gap-1 text-sm">
+                  <p className="flex justify-between gap-3">
+                    <span>{t.subtotal}</span>
+                    <span className="tabular-nums">{formatearDolares(subtotal)}</span>
+                  </p>
+                  <LineasPromocion ahorros={ahorros} />
+                  {descuento > 0 && (
+                    <p className="flex justify-between gap-3">
+                      <span>{t.descuento}</span>
+                      <span className="font-medium tabular-nums">−{formatearDolares(descuento)}</span>
+                    </p>
+                  )}
+                </div>
+              )}
+              <CampoDescuento
+                activo={conDescuento}
+                tipo={tipoDescuento}
+                texto={textoDescuento}
+                invalido={descuentoInvalido}
+                activar={() => setConDescuento(true)}
+                quitar={() => {
+                  setConDescuento(false);
+                  setTextoDescuento("");
+                }}
+                cambiarTipo={setTipoDescuento}
+                cambiarTexto={setTextoDescuento}
+              />
+            </div>
+          )}
+
           <div className="flex items-end justify-between gap-3 border-t-2 border-teal-oscuro pt-3">
             <div>
               <p className="text-sm font-medium">{t.total}</p>
@@ -360,7 +431,7 @@ export function NuevoPedidoForm({ productos }: { productos: OpcionProducto[] }) 
       </aside>
       <BarraFormulario>
         <p className="mr-auto text-sm font-bold tabular-nums">{formatearDolares(total)}</p>
-        <Button type="submit" variante="mango" disabled={pendiente || !items.length}>
+        <Button type="submit" variante="mango" disabled={pendiente || !items.length || descuentoInvalido || calculando}>
           {pendiente ? t.registrando : t.registrar}
         </Button>
       </BarraFormulario>

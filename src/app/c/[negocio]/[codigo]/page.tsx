@@ -8,6 +8,7 @@ import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { ComoComprar } from "@/features/catalog/ui/ComoComprar";
 import { Etiquetas } from "@/features/catalog/ui/Etiquetas";
 import { FichaDelProducto } from "@/features/catalog/ui/FichaDelProducto";
+import { PromocionesDelProducto } from "@/features/catalog/ui/PromocionesDelProducto";
 import { ResumenEnvio } from "@/features/catalog/ui/ResumenEnvio";
 import { Resenas } from "@/features/catalog/ui/Resenas";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
@@ -25,6 +26,8 @@ import { fotosDelGrupo } from "@/features/products/fotosVariantes";
 import { urlFoto } from "@/lib/fotos";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
+import { anuncioDePromocion } from "@/features/promotions/descripcion";
+import { promocionesDeVitrina } from "@/features/promotions/repositorio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 import { LogoTienda } from "@/features/catalog/ui/MarcaTienda";
@@ -104,7 +107,7 @@ async function Producto({
   if (!negocio || !p) notFound();
 
   // Todo lo que la tienda tiene a la vista: de ahí salen las variantes de este producto y los que se le parecen.
-  const todos = await listarProductosPublicos(supabase, slug);
+  const [todos, promociones] = await Promise.all([listarProductosPublicos(supabase, slug), promocionesDeVitrina(supabase, slug)]);
   // Las variantes hermanas con unidades o apartadas; el producto de esta página siempre cuenta.
   const hermanas = p.grupo
     ? todos.filter((o) => o.grupo === p.grupo && o.variante)
@@ -130,6 +133,15 @@ async function Producto({
           fotos: [],
         },
       ];
+  // Las promociones que tocan a este producto (o a cualquiera de sus variantes), con el nombre de lo que cubren
+  const codigosDeEstaPagina = new Set(variantes.map((v) => v.codigo));
+  const nombreDe = (c: number) => {
+    const o = todos.find((x) => x.codigo === c);
+    return o ? nombreBase(o.nombre, o.variante) : undefined;
+  };
+  const anuncios = promociones
+    .filter((pr) => pr.productos.some((x) => codigosDeEstaPagina.has(x.codigo)))
+    .map((pr) => ({ clave: pr.id, ...anuncioDePromocion(pr, nombreDe) }));
 
   const [opcionesDeCompra, resenas] = await Promise.all([
     obtenerOpcionesDeCompra(supabase, slug),
@@ -273,6 +285,8 @@ async function Producto({
                 estado={p.estadoDetalle}
                 usado={p.condicion === "usado"}
               />
+
+              <PromocionesDelProducto anuncios={anuncios} />
 
               <ZonaDeCompra
                 slug={slug}

@@ -40,13 +40,13 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
         <EmptyState
           monito="celular"
           titulo={textos.productos.vacioTitulo}
-          texto={textos.productos.vacioTexto}
+          texto={textos.productos.vacioTextoImportar}
           accion={
             <div className="flex flex-wrap justify-center gap-3">
-              <ButtonLink href="/productos/importar" variante="secundario" icono="hoja">
-                {textos.productos.importar.boton}
+              <ButtonLink href="/productos/importar" variante="mango" icono="hoja">
+                {textos.productos.importar.botonVacio}
               </ButtonLink>
-              <ButtonLink href="/productos/nuevo" variante="mango" icono="mas">
+              <ButtonLink href="/productos/nuevo" variante="secundario" icono="mas">
                 {textos.productos.agregar}
               </ButtonLink>
             </div>
@@ -63,9 +63,17 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
         descripcion={textos.productos.descripcion}
         accion={
           negocio.puedeGestionar ? (
-            <ButtonLink href="/productos/nuevo" variante="mango" icono="mas">
-              {textos.productos.agregar}
-            </ButtonLink>
+            <div className="flex flex-wrap items-center gap-2">
+              <ButtonLink href="/productos/importar" variante="secundario" icono="hoja">
+                {textos.productos.importar.boton}
+              </ButtonLink>
+              <ButtonLink href="/productos/promociones" variante="secundario" icono="etiqueta">
+                {textos.promociones.entrada}
+              </ButtonLink>
+              <ButtonLink href="/productos/nuevo" variante="mango" icono="mas">
+                {textos.productos.agregar}
+              </ButtonLink>
+            </div>
           ) : undefined
         }
       />
@@ -79,7 +87,6 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
         ordenInicial={orden}
         // "Sin costo" solo lo ve quien ve los costos
         faltaInicial={faltaPedida === "costo" && !negocio.puedeGestionar ? undefined : faltaPedida}
-        puedeGestionar={negocio.puedeGestionar}
       />
     </>
   );

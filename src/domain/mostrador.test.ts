@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cambioDe, cuadreDeCaja, descuentoEnCentavos, limpiarCodigoDeBarras, totalConDescuento } from "./mostrador";
+import { cambioDe, cuadreDeCaja, descuentoEnCentavos, leerDescuento, limpiarCodigoDeBarras, totalConDescuento } from "./mostrador";
 
 describe("descuentoEnCentavos", () => {
   it("sin descuento no descuenta", () => {
@@ -87,5 +87,26 @@ describe("limpiarCodigoDeBarras", () => {
   it("descarta lo muy corto o muy largo", () => {
     expect(limpiarCodigoDeBarras("12")).toBeNull();
     expect(limpiarCodigoDeBarras("x".repeat(65))).toBeNull();
+  });
+});
+
+describe("leerDescuento", () => {
+  it("vacío es sin descuento", () => {
+    expect(leerDescuento("monto", "")).toBeNull();
+    expect(leerDescuento("porcentaje", "  ")).toBeNull();
+  });
+
+  it("lee un monto en dólares como centavos", () => {
+    expect(leerDescuento("monto", "2.5")).toEqual({ tipo: "monto", valor: 250 });
+  });
+
+  it("lee un porcentaje con punto o coma", () => {
+    expect(leerDescuento("porcentaje", "12,5")).toEqual({ tipo: "porcentaje", valor: 12.5 });
+  });
+
+  it("rechaza lo que no se entiende o pasa de 100 %", () => {
+    expect(leerDescuento("monto", "abc")).toBe("invalido");
+    expect(leerDescuento("porcentaje", "101")).toBe("invalido");
+    expect(leerDescuento("porcentaje", "-5")).toBe("invalido");
   });
 });

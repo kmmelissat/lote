@@ -4,7 +4,7 @@ import type { Seguimiento } from "./repositorio";
 const m = textos.seguimiento.mensajes;
 
 /** Lo que se le dice a la clienta en grande, según en qué va su pedido. */
-export function mensajeDeEstado(s: Pick<Seguimiento, "estado" | "negocio" | "modo" | "paquetera">): { titulo: string; texto: string } {
+export function mensajeDeEstado(s: Pick<Seguimiento, "estado" | "negocio" | "modo" | "paquetera" | "listo">): { titulo: string; texto: string } {
   switch (s.estado) {
     case "enviado":
       if (s.modo === "retiro") return { titulo: m.enviado.retiroTitulo, texto: m.enviado.retiro(s.negocio) };
@@ -15,6 +15,7 @@ export function mensajeDeEstado(s: Pick<Seguimiento, "estado" | "negocio" | "mod
     case "pagado":
       return m.pagado;
     case "preparando":
+      if (s.modo === "paquetera" && s.listo) return { titulo: m.listo.titulo, texto: s.paquetera ? m.listo.paquetera(s.paquetera) : m.listo.paqueteraSinNombre };
       return m.preparando;
     default:
       return m.entregado;

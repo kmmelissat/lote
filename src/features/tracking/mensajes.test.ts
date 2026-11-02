@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mensajeDeEstado } from "./mensajes";
 
-const base = { negocio: "Velvet", modo: "paquetera" as const, paquetera: "Cargo Expreso" };
+const base = { negocio: "Velvet", modo: "paquetera" as const, paquetera: "Cargo Expreso", listo: false };
 
 describe("mensajeDeEstado", () => {
   it("en camino con paquetera dice quién lo tiene", () => {
@@ -18,6 +18,15 @@ describe("mensajeDeEstado", () => {
 
   it("un retiro está listo para recoger, no va en camino", () => {
     expect(mensajeDeEstado({ ...base, modo: "retiro", estado: "enviado" }).titulo).toBe("¡Listo para que lo recojas!");
+  });
+
+  it("con paquetera, empacado y listo dicen cosas distintas", () => {
+    expect(mensajeDeEstado({ ...base, estado: "preparando" }).titulo).toBe("Estamos empacando tus piezas");
+    expect(mensajeDeEstado({ ...base, estado: "preparando", listo: true })).toEqual({ titulo: "¡Ya está listo para salir!", texto: "Cargo Expreso pasa por tu pedido a la tienda." });
+  });
+
+  it("marcar listo no cambia nada si no es paquetera", () => {
+    expect(mensajeDeEstado({ ...base, modo: "propio", estado: "preparando", listo: true }).titulo).toBe("Estamos empacando tus piezas");
   });
 
   it("cada estado tiene su propio título", () => {

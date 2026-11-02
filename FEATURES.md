@@ -27,6 +27,9 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 - ✅ Comprobante con IA: subís la captura de la transferencia, Lotito lee el monto y vos confirmás.
 - ✅ Respuesta sugerida para "¿sigue disponible?".
 - ✅ Pedidos como tabla (o lista apilada en celular), con un botón para avanzar cada uno.
+- ✅ **Ofertas con fechas**: desde la ficha del producto (o de todas sus variantes) se programa una rebaja en dólares o porcentaje con día de inicio y de fin. Empieza y termina sola, y en la vitrina, el carrito, el Marketplace ("Ofertas"), el Mostrador y el pedido del panel se cobra el precio rebajado. Se puede cancelar. (Necesita `ofertas.sql`.)
+- ✅ **Promociones** (Productos → Promociones): **packs** (varios productos a un precio fijo) y **"llevá y pagá"** (2x1, 3x2, sobre un producto o sus variantes), con fechas opcionales y se pueden apagar. Se aplican solas en el pedido del panel, el Mostrador y la vitrina (compra, carrito y apartado); la ficha del producto y el carrito las anuncian. (Necesita `promociones.sql`.)
+- ✅ **Descuento** en el pedido del panel, en dólares o en porcentaje; se ve en el resumen y en el detalle del pedido. (Necesita `descuento_pedido.sql`.)
 
 ### Envíos
 - ✅ Dirección del pedido, tarifa por departamento, quién paga el envío (cliente, tienda o a medias) y zonas donde entrega.
@@ -110,6 +113,7 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 ## Seguridad y calidad
 - ✅ Acceso por roles, con las reglas críticas también en la base de datos (RLS y funciones con permisos). Las acciones públicas (apartar, comprar, reseñar) pasan por el servidor con límite de intentos y campo trampa contra robots.
 - ✅ Los montos y las reglas de estado viven en funciones puras con pruebas (más de 500 pruebas automáticas).
+- ✅ Selector de fecha propio (calendario en español, con teclado), en ofertas, promociones y gastos.
 - ✅ Pensada primero para celular: botones de 44 px, una columna y menú inferior flotante.
 
 ## Lo que falta
@@ -125,7 +129,7 @@ Todo lo que [app.md](app.md) pide y la app todavía no tiene. Entre paréntesis,
 - ❌ **Accesibilidad revisada con herramientas** (6.2): Lighthouse o axe en las pantallas principales y VoiceOver en el flujo crear producto, apartar y pagar. Lo que se arregla leyendo el código sí está hecho.
 
 ### Si sobra tiempo (P2)
-- ❌ **Descuentos y combos en un pedido del panel** (4.2): monto o porcentaje, y 2x1. La base ya guarda el descuento y el Mostrador lo usa, pero el pedido nuevo del panel no lo ofrece.
+- ✅ **Descuentos, ofertas y combos** (4.2): descuento en monto o porcentaje, ofertas con fechas, packs y "llevá y pagá". Falta aplicar un cupón o un código de descuento.
 - ❌ **Devoluciones y cambios** (4.7): devolver unidades al stock o descartarlas, reembolsar y cambiar por otro producto, con el estado "devuelto" y el ajuste de ventas y ganancia.
 - ❌ **Gastos recurrentes** (4.5): alquiler, plan de datos, suscripciones. En la base queda la columna `recurrente`, pero nada la usa. Tampoco **gastos de feria o evento**.
 - ❌ **Productos dormidos** (4.5): los que llevan más de 30 días sin moverse.

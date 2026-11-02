@@ -14,3 +14,5 @@ export * from "./variante";
 export * from "./movimientos";
 export * from "./equilibrio";
 export * from "./cuadre";
+export * from "./oferta";
+export * from "./promocion";

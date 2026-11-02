@@ -7,3 +7,10 @@ select cron.schedule(
   '*/10 * * * *',
   $$ select public.vencer_apartados(); $$
 );
+
+-- Ofertas con fechas (ofertas.sql): empezar y terminar a tiempo. Sin esto, las pone al día la tarea diaria de Vercel.
+select cron.schedule(
+  'sincronizar-ofertas',
+  '*/10 * * * *',
+  $$ select public.sincronizar_ofertas(); $$
+);

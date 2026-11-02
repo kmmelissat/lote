@@ -19,14 +19,20 @@ export type Envio = {
   referencia: string | null;
   costo: Centavos;
   paga: QuienPagaEnvio;
+  /** Con paquetera: ya está listo para que la paquetera lo recoja (la columna existe después de correr listo_para_recoger.sql) */
+  listo: boolean;
 };
 
 export async function obtenerEnvio(supabase: Cliente, pedidoId: string): Promise<Envio | null> {
-  const { data, error } = await supabase
-    .from("envio")
-    .select("modo, paquetera, guia, nombre, telefono, departamento, municipio, direccion, referencia, costo_real, paga")
-    .eq("pedido_id", pedidoId)
-    .maybeSingle();
+  const [{ data, error }, marca] = await Promise.all([
+    supabase
+      .from("envio")
+      .select("modo, paquetera, guia, nombre, telefono, departamento, municipio, direccion, referencia, costo_real, paga")
+      .eq("pedido_id", pedidoId)
+      .maybeSingle(),
+    // Aparte: si todavía no corrieron listo_para_recoger.sql la columna no existe, y eso no debe romper el pedido
+    supabase.from("envio").select("listo_en").eq("pedido_id", pedidoId).maybeSingle(),
+  ]);
   if (error) throw error;
   if (!data) return null;
   return {
@@ -41,6 +47,7 @@ export async function obtenerEnvio(supabase: Cliente, pedidoId: string): Promise
     referencia: data.referencia,
     costo: aCentavos(data.costo_real),
     paga: data.paga as QuienPagaEnvio,
+    listo: Boolean(marca.data?.listo_en),
   };
 }
 
@@ -116,7 +123,7 @@ export type ErrorEnvio = "falta_direccion" | "costo_bloqueado" | "costo_invalido
 export async function guardarEnvio(
   supabase: Cliente,
   pedidoId: string,
-  e: Envio & { cobrado: Centavos; absorbido: Centavos },
+  e: Omit<Envio, "listo"> & { cobrado: Centavos; absorbido: Centavos },
 ): Promise<{ ok: true } | { ok: false; error: ErrorEnvio }> {
   const { error } = await supabase.rpc("guardar_envio", {
     p_pedido: pedidoId,
@@ -139,4 +146,15 @@ export async function guardarEnvio(
   const conocidos: ErrorEnvio[] = ["falta_direccion", "costo_bloqueado", "costo_invalido"];
   const conocido = conocidos.find((c) => c === error.message);
   return { ok: false, error: conocido ?? "desconocido" };
+}
+
+/** Marca (o desmarca) que el pedido ya está empacado y listo para que la paquetera lo recoja. */
+export async function marcarListoParaRecoger(
+  supabase: Cliente,
+  pedidoId: string,
+  listo: boolean,
+): Promise<{ ok: true } | { ok: false; error: "sin_permiso" | "desconocido" }> {
+  const { error } = await supabase.rpc("marcar_listo_envio", { p_pedido: pedidoId, p_listo: listo });
+  if (!error) return { ok: true };
+  return { ok: false, error: error.code === "42501" ? "sin_permiso" : "desconocido" };
 }

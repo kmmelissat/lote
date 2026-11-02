@@ -42,4 +42,15 @@ describe("leerPedido", () => {
     expect(leerPedido(form({ metodo: "cripto" })).metodo).toBeUndefined();
     expect(leerPedido(form({ metodo: "efectivo" })).metodo).toBe("efectivo");
   });
+
+  it("lee el descuento: vacío es ninguno, un monto va en centavos y lo que no se entiende queda como inválido", () => {
+    expect(leerPedido(form({})).descuento).toBeNull();
+    expect(leerPedido(form({ descuentoTexto: "  " })).descuento).toBeNull();
+    expect(leerPedido(form({ descuentoTipo: "monto", descuentoTexto: "2.50" })).descuento).toEqual({ tipo: "monto", valor: 250 });
+    expect(leerPedido(form({ descuentoTipo: "porcentaje", descuentoTexto: "10" })).descuento).toEqual({ tipo: "porcentaje", valor: 10 });
+    expect(leerPedido(form({ descuentoTipo: "porcentaje", descuentoTexto: "150" })).descuento).toBe("invalido");
+    expect(leerPedido(form({ descuentoTexto: "abc" })).descuento).toBe("invalido");
+    // Un tipo desconocido cae a monto
+    expect(leerPedido(form({ descuentoTipo: "regalo", descuentoTexto: "1" })).descuento).toEqual({ tipo: "monto", valor: 100 });
+  });
 });

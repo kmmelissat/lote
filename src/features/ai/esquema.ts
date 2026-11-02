@@ -26,6 +26,20 @@ const INTENCIONES = [
 /** Una versión de un producto nuevo dicha en la línea ("chocolate 3", "red velvet 3.5"): su nombre corto, su precio y cuántas. */
 const VarianteDicha = z.object({ nombre: z.string(), precio: z.number().nullable(), cantidad: z.number().int().nullable() });
 
+/** Otra acción del mismo mensaje ("...y el cd para Luis"): con los mismos datos que la primera, repetidos en cada una. */
+const AccionExtra = z.object({
+  intencion: z.enum(["apartar", "vender", "reponer", "marcar_pagado", "abonar", "liberar", "enviar", "cobrar", "gasto"]),
+  producto: z.string().nullable(),
+  cliente: z.string().nullable(),
+  pedido: z.number().int().nullable(),
+  cantidad: z.number().int().nullable(),
+  monto: z.number().nullable(),
+  metodo: z.enum(["transferencia", "billetera", "efectivo"]).nullable(),
+  categoria: z.enum(["empaque", "publicidad", "transporte", "local", "comisiones", "otros"]).nullable(),
+  nota: z.string().nullable(),
+});
+export type AccionExtra = z.infer<typeof AccionExtra>;
+
 // Lo que la IA devuelve: la intención y los datos que dijo la persona, tal cual.
 // Plano y con todo anulable a propósito: la IA solo lee, y el código decide qué falta y qué se hace.
 export const SalidaEntender = z.object({
@@ -59,6 +73,8 @@ export const SalidaEntender = z.object({
   opcionVariante: z.string().nullable(),
   /** Solo si Lotito dejó una pregunta pendiente: true si el mensaje es la respuesta a esa pregunta, false si es otra cosa */
   esRespuesta: z.boolean(),
+  /** Las demás acciones del mismo mensaje, en el orden en que las dijo. Vacío si pidió una sola cosa. */
+  ademas: z.array(AccionExtra),
 });
 
 export type SalidaEntender = z.infer<typeof SalidaEntender>;
@@ -85,6 +101,7 @@ export const salidaVacia = (intencion: SalidaEntender["intencion"]): SalidaEnten
   variantes: [],
   opcionVariante: null,
   esRespuesta: false,
+  ademas: [],
 });
 
 // Lo que la IA saca de una foto de producto y de la línea que la acompaña.

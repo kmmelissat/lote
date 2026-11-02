@@ -62,6 +62,28 @@ describe.skipIf(!process.env.RUN_LIVE_AI)("entender mensajes con la IA real", ()
     expect(salida.esRespuesta).toBe(esRespuesta);
   }, 30_000);
 
+  it("separa dos acciones de un mismo mensaje", async () => {
+    const s = await ia!.entenderMensaje("apartá la chaqueta para Ana y el cd para Luis");
+    expect(s.intencion).toBe("apartar");
+    expect(s.cliente?.toLowerCase()).toContain("ana");
+    expect(s.ademas).toHaveLength(1);
+    expect(s.ademas[0]).toMatchObject({ intencion: "apartar" });
+    expect(s.ademas[0].cliente?.toLowerCase()).toContain("luis");
+    expect(s.ademas[0].producto?.toLowerCase()).toContain("cd");
+  }, 30_000);
+
+  it("repite el dato compartido en cada acción", async () => {
+    const s = await ia!.entenderMensaje("vendí 2 llaveros y 1 funda, efectivo");
+    expect(s).toMatchObject({ intencion: "vender", cantidad: 2, metodo: "efectivo" });
+    expect(s.ademas).toHaveLength(1);
+    expect(s.ademas[0]).toMatchObject({ intencion: "vender", cantidad: 1, metodo: "efectivo" });
+  }, 30_000);
+
+  it("una sola cosa no trae acciones de más", async () => {
+    const s = await ia!.entenderMensaje("apartá la chaqueta para @ana");
+    expect(s.ademas).toEqual([]);
+  }, 30_000);
+
   it("copia los nombres como los escribió la persona y deja en null lo que no dijo", async () => {
     const s = await ia!.entenderMensaje("apartá la chaqueta negra para @ana");
     expect(s.producto?.toLowerCase()).toContain("chaqueta");

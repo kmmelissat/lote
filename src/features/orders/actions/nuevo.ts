@@ -20,6 +20,8 @@ function textoDeError(e: ErrorPedido): string {
       return e.quien ? t.yaApartado(e.quien) : t.sinUnidades;
     case "falta_cliente":
       return t.errorCliente;
+    case "descuento_invalido":
+      return t.errorDescuento;
     case "sin_permiso":
       return t.errorPermiso;
     default:
@@ -31,13 +33,14 @@ export async function nuevoPedido(
   _anterior: EstadoNuevoPedido,
   formData: FormData,
 ): Promise<EstadoNuevoPedido> {
-  const { tipo, cliente, canal, contacto, acepta, metodo, items } = leerPedido(formData);
+  const { tipo, cliente, canal, contacto, acepta, metodo, items, descuento } = leerPedido(formData);
   const valores = { tipo, cliente, contacto, acepta, canal };
 
   if (!items) return { error: t.errorProductos, valores };
   if (tipo === "apartado" && !cliente) return { error: t.errorCliente, valores };
   // Un contacto sin nombre no se guarda en ningún lado
   if (contacto && !cliente) return { error: t.errorContactoSinNombre, valores };
+  if (descuento === "invalido") return { error: t.errorDescuento, valores };
 
   // El permiso y la disponibilidad los decide la base; acá solo se resuelve el negocio.
   const { supabase, negocio } = await negocioActual();
@@ -49,6 +52,7 @@ export async function nuevoPedido(
     metodo: tipo === "venta" ? metodo : undefined,
     contacto: contacto || undefined,
     aceptaWhatsapp: acepta,
+    descuento: descuento ?? undefined,
   });
   if (!r.ok) return { error: textoDeError(r.error), valores };
 

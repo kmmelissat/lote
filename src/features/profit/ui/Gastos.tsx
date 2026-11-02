@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
 import { CATEGORIAS_GASTO, METODOS_DE_DINERO, type CategoriaGasto, type MetodoMovimiento } from "@/domain/index";
@@ -139,10 +140,7 @@ export function RegistrarGasto({ hoy }: { hoy: string }) {
           </fieldset>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-bold">{t.form.fecha}</span>
-              <input type="date" name="fecha" defaultValue={hoy} max={hoy} className={campo} />
-            </label>
+            <SelectorFecha etiqueta={t.form.fecha} name="fecha" valorInicial={hoy} max={hoy} required />
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-bold">{t.form.nota}</span>
               <input name="nota" maxLength={120} placeholder={t.form.notaPlaceholder} className={campo} />

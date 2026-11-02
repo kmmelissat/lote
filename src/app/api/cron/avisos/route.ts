@@ -17,12 +17,15 @@ export async function GET(request: Request) {
   if (!autorizado(request)) return new Response("No autorizado", { status: 401 });
 
   try {
+    const supabase = createServiceClient();
     const resumen = await correrTareaDeAvisos({
-      supabase: createServiceClient(),
+      supabase,
       canal: canalWhatsApp(),
       ahora: new Date(),
     });
-    return Response.json(resumen);
+    // Las ofertas con fechas también se ponen al día acá (Vercel Hobby solo deja una tarea al día)
+    const { data: ofertas } = await supabase.rpc("sincronizar_ofertas");
+    return Response.json({ ...resumen, ofertas: ofertas ?? 0 });
   } catch {
     return Response.json({ error: "No se pudo procesar la cola" }, { status: 500 });
   }

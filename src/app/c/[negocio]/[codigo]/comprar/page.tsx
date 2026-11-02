@@ -20,14 +20,15 @@ async function Comprar({ params, searchParams }: Props) {
   await connection();
   const { negocio: slug, codigo } = await params;
   const { n } = await searchParams;
-  const { negocio, producto, unidades } = await cargarCompra(slug, codigo, n, "comprar");
+  const { negocio, producto, unidades, ahorros } = await cargarCompra(slug, codigo, n, "comprar");
   const opciones = await obtenerOpcionesDeCompra(createPublicClient(), slug);
 
   return (
-    <PantallaCompra slug={slug} negocio={negocio} producto={producto} unidades={unidades} titulo={t.hojaComprar} ayuda={t.comprarAyuda}>
+    <PantallaCompra slug={slug} negocio={negocio} producto={producto} unidades={unidades} ahorros={ahorros} titulo={t.hojaComprar} ayuda={t.comprarAyuda}>
       <CompraForm
         slug={slug}
         lineas={[{ codigo: producto.codigo, cantidad: unidades, precio: producto.precio }]}
+        ahorros={ahorros}
         opciones={opciones}
         zonas={negocio.zonasEntrega}
         volverHref={`/c/${slug}/${producto.codigo}`}

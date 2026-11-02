@@ -32,6 +32,7 @@ import { explorar } from "./explorar";
 import { mostrador, caja } from "./mostrador";
 import { errores } from "./errores";
 import { admin } from "./admin";
+import { promociones } from "./promociones";
 
 export const textos = {
   nombre: "Lote",
@@ -71,4 +72,5 @@ export const textos = {
   errores,
   caja,
   admin,
+  promociones,
 } as const;

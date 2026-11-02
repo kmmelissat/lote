@@ -79,7 +79,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
 
       {!cancelado && (
         <section aria-label={t.paradas}>
-          <HistorietaPedido estado={s.estado} modo={s.modo} />
+          <HistorietaPedido estado={s.estado} modo={s.modo} listo={s.listo} />
         </section>
       )}
 

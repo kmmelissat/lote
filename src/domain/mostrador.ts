@@ -1,4 +1,4 @@
-import type { Centavos } from "./dinero";
+import { leerDolares, type Centavos } from "./dinero";
 
 export type Descuento = { tipo: "monto"; valor: Centavos } | { tipo: "porcentaje"; valor: number };
 
@@ -11,6 +11,17 @@ export function descuentoEnCentavos(subtotal: Centavos, descuento: Descuento | n
   const bruto =
     descuento.tipo === "monto" ? Math.round(descuento.valor) : Math.round((subtotal * Math.min(descuento.valor, 100)) / 100);
   return Math.min(bruto, subtotal);
+}
+
+/** Lee el descuento escrito: null si está vacío, "invalido" si no se entiende o se pasa de 100 %. */
+export function leerDescuento(tipo: Descuento["tipo"], texto: string): Descuento | null | "invalido" {
+  if (!texto.trim()) return null;
+  if (tipo === "monto") {
+    const c = leerDolares(texto);
+    return c === null ? "invalido" : { tipo, valor: c };
+  }
+  const n = Number(texto.trim().replace(",", "."));
+  return Number.isFinite(n) && n >= 0 && n <= 100 ? { tipo, valor: n } : "invalido";
 }
 
 /** El total a cobrar: lo vendido menos el descuento. */

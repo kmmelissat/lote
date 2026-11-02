@@ -2,7 +2,7 @@
 
 Oct 20, 2026 · @Karla Melissa Torres Solorzano
 
-**Investigación de diseño de producto para jóvenes emprendedores de El Salvador.** Diego Cabezas, Camila Melara, René Morataya, Karla Torres, Lucia Turcios. Escuela Superior de Economía y Negocios · Diseño de Productos y Servicios · Prof. Adriana Landaverde · Lunes, 18 de octubre de 2026
+**Investigación de diseño de producto para jóvenes emprendedores de El Salvador.** 
 
 ## Introducción
 

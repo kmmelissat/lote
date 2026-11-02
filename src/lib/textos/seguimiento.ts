@@ -13,6 +13,7 @@ export const seguimiento = {
   cortos: {
     recibido: "Recibido",
     empacado: "Empacado",
+    recoge: "Por recoger",
     camino: "En camino",
     entregado: "Entregado",
     listo: "En tienda",
@@ -22,6 +23,11 @@ export const seguimiento = {
     pendiente: { titulo: "¡Recibimos tu pedido!", texto: (negocio: string) => `${negocio} lo está guardando para vos.` },
     pagado: { titulo: "¡Pago confirmado!", texto: "Gracias. Ahora toca prepararlo." },
     preparando: { titulo: "Estamos empacando tus piezas", texto: "Con mucho cariño. Pronto sale." },
+    listo: {
+      titulo: "¡Ya está listo para salir!",
+      paquetera: (paquetera: string) => `${paquetera} pasa por tu pedido a la tienda.`,
+      paqueteraSinNombre: "La paquetera pasa por tu pedido a la tienda.",
+    },
     enviado: {
       titulo: "¡Tu pedido va en camino!",
       paquetera: (paquetera: string) => `Lo tiene ${paquetera}.`,

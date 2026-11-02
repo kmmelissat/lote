@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { normalizarTelefono, telefonoElSalvador } from "@/domain";
+import { leerDescuento, normalizarTelefono, telefonoElSalvador } from "@/domain";
 import { esUuid } from "@/lib/uuid";
 import { METODOS_DE_COBRO, type Canal, type MetodoPago } from "./repositorio";
 
@@ -38,11 +38,18 @@ const pedidoSchema = z
       return telefonoElSalvador(s) ?? "";
     }),
     acepta: z.string().default(""),
+    descuentoTipo: z.enum(["monto", "porcentaje"]).catch("monto"),
+    descuentoTexto: texto,
     metodo: z.enum(METODOS_DE_COBRO as [MetodoPago, ...MetodoPago[]]).optional().catch(undefined),
     items,
   })
   // Solo se puede avisar a un teléfono; un @usuario no recibe WhatsApp.
-  .transform((d) => ({ ...d, acepta: d.acepta === "on" && normalizarTelefono(d.contacto) !== null }));
+  .transform(({ descuentoTipo, descuentoTexto, ...d }) => ({
+    ...d,
+    acepta: d.acepta === "on" && normalizarTelefono(d.contacto) !== null,
+    // null si no se escribió nada, "invalido" si no se entiende (la acción lo avisa en vez de ignorarlo)
+    descuento: leerDescuento(descuentoTipo, descuentoTexto),
+  }));
 
 export type DatosPedido = z.output<typeof pedidoSchema>;
 
@@ -55,6 +62,8 @@ export function leerPedido(formData: FormData): DatosPedido {
     contacto: campo("contacto") ?? undefined,
     acepta: campo("acepta") ?? undefined,
     metodo: campo("metodo") ?? undefined,
+    descuentoTipo: campo("descuentoTipo") ?? undefined,
+    descuentoTexto: campo("descuentoTexto") ?? undefined,
     items: campo("items") ?? undefined,
   });
 }

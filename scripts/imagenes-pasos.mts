@@ -1,4 +1,4 @@
-// Lotito en cada paso del seguimiento (public/seguimiento/paso-*.webp): recibe, empaca, va en camino, entrega, y las dos
+// Lotito en cada paso del seguimiento (public/seguimiento/paso-*.webp): recibe, empaca, espera a la paquetera, va en camino, entrega, y las dos
 // del retiro en tienda. Parte de los monitos originales (public/monitos) para mantener al personaje.
 //
 //   pnpm imagenes-pasos            genera las que falten
@@ -31,6 +31,12 @@ const PASOS: { archivo: string; ref: string; cuerpo: string; extra: string }[] =
     ref: "caja",
     cuerpo: "mango #ff9a2e",
     extra: "Empacando: cerrando una caja de cartón con un rollo de cinta, un moño rosa encima. Concentrado y contento, la lengüita afuera.",
+  },
+  {
+    archivo: "paso-recoge",
+    ref: "caja",
+    cuerpo: "limón #ffe27a con trazo #003844",
+    extra: "Parado junto a un paquete grande con una etiqueta de envío, con una mano en la frente como esperando a que llegue alguien, un poquito inclinado hacia un lado. Ojos abiertos atentos, sonrisa chiquita.",
   },
   {
     archivo: "paso-camino",

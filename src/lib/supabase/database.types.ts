@@ -278,6 +278,7 @@ export type Database = {
           departamento: string | null
           direccion: string | null
           guia: string | null
+          listo_en: string | null
           modo: string
           municipio: string | null
           negocio_id: string
@@ -294,6 +295,7 @@ export type Database = {
           departamento?: string | null
           direccion?: string | null
           guia?: string | null
+          listo_en?: string | null
           modo: string
           municipio?: string | null
           negocio_id: string
@@ -310,6 +312,7 @@ export type Database = {
           departamento?: string | null
           direccion?: string | null
           guia?: string | null
+          listo_en?: string | null
           modo?: string
           municipio?: string | null
           negocio_id?: string
@@ -690,6 +693,161 @@ export type Database = {
             columns: ["pedido_id"]
             isOneToOne: false
             referencedRelation: "pedido"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oferta: {
+        Row: {
+          creado_en: string
+          creado_por: string | null
+          desde: string
+          estado: string
+          hasta: string
+          id: string
+          lote: string
+          negocio_id: string
+          precio_anterior_normal: number | null
+          precio_normal: number | null
+          precio_oferta: number
+          producto_id: string
+          tipo: string
+          valor: number
+        }
+        Insert: {
+          creado_en?: string
+          creado_por?: string | null
+          desde: string
+          estado?: string
+          hasta: string
+          id?: string
+          lote: string
+          negocio_id: string
+          precio_anterior_normal?: number | null
+          precio_normal?: number | null
+          precio_oferta: number
+          producto_id: string
+          tipo: string
+          valor: number
+        }
+        Update: {
+          creado_en?: string
+          creado_por?: string | null
+          desde?: string
+          estado?: string
+          hasta?: string
+          id?: string
+          lote?: string
+          negocio_id?: string
+          precio_anterior_normal?: number | null
+          precio_normal?: number | null
+          precio_oferta?: number
+          producto_id?: string
+          tipo?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oferta_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oferta_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promocion: {
+        Row: {
+          activa: boolean
+          creado_en: string
+          creado_por: string | null
+          desde: string | null
+          hasta: string | null
+          id: string
+          lleva: number | null
+          negocio_id: string
+          nombre: string
+          paga: number | null
+          precio_pack: number | null
+          tipo: string
+        }
+        Insert: {
+          activa?: boolean
+          creado_en?: string
+          creado_por?: string | null
+          desde?: string | null
+          hasta?: string | null
+          id?: string
+          lleva?: number | null
+          negocio_id: string
+          nombre: string
+          paga?: number | null
+          precio_pack?: number | null
+          tipo: string
+        }
+        Update: {
+          activa?: boolean
+          creado_en?: string
+          creado_por?: string | null
+          desde?: string | null
+          hasta?: string | null
+          id?: string
+          lleva?: number | null
+          negocio_id?: string
+          nombre?: string
+          paga?: number | null
+          precio_pack?: number | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promocion_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promocion_item: {
+        Row: {
+          cantidad: number
+          negocio_id: string
+          producto_id: string
+          promocion_id: string
+        }
+        Insert: {
+          cantidad?: number
+          negocio_id: string
+          producto_id: string
+          promocion_id: string
+        }
+        Update: {
+          cantidad?: number
+          negocio_id?: string
+          producto_id?: string
+          promocion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promocion_item_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promocion_item_promocion_id_fkey"
+            columns: ["promocion_id"]
+            isOneToOne: false
+            referencedRelation: "promocion"
             referencedColumns: ["id"]
           },
         ]
@@ -1211,6 +1369,57 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calcular_promociones: {
+        Args: { p_items: Json; p_negocio: string }
+        Returns: { o_ahorro: number; o_nombre: string; o_promocion: string }[]
+      }
+      promociones_vitrina: {
+        Args: { p_items: Json; p_slug: string }
+        Returns: { o_ahorro: number; o_nombre: string; o_promocion: string }[]
+      }
+      promociones_de_vitrina: {
+        Args: { p_slug: string }
+        Returns: {
+          o_cantidades: number[]
+          o_codigos: number[]
+          o_id: string
+          o_lleva: number
+          o_nombre: string
+          o_paga: number
+          o_precio_pack: number
+          o_tipo: string
+        }[]
+      }
+      crear_promocion: {
+        Args: {
+          p_desde?: string
+          p_hasta?: string
+          p_lleva?: number
+          p_negocio: string
+          p_nombre: string
+          p_paga?: number
+          p_precio_pack?: number
+          p_productos: Json
+          p_tipo: string
+        }
+        Returns: string
+      }
+      cambiar_promocion: { Args: { p_activa: boolean; p_negocio: string; p_promocion: string }; Returns: undefined }
+      eliminar_promocion: { Args: { p_negocio: string; p_promocion: string }; Returns: undefined }
+      sincronizar_ofertas: { Args: { p_negocio?: string }; Returns: number }
+      actualizar_ofertas: { Args: { p_negocio: string }; Returns: number }
+      cancelar_oferta: { Args: { p_lote: string; p_negocio: string }; Returns: undefined }
+      crear_oferta: {
+        Args: {
+          p_desde: string
+          p_hasta: string
+          p_negocio: string
+          p_productos: string[]
+          p_tipo: string
+          p_valor: number
+        }
+        Returns: string
+      }
       aceptar_invitacion: { Args: { p_token: string }; Returns: string }
       equipo_del_negocio: {
         Args: { p_negocio: string }
@@ -1232,6 +1441,7 @@ export type Database = {
           modo: string | null
           paquetera: string | null
           guia: string | null
+          listo: boolean
         }[]
       }
       unidades_del_negocio: {
@@ -1386,6 +1596,10 @@ export type Database = {
         Args: { p_pedido: string; p_valor: boolean }
         Returns: undefined
       }
+      marcar_listo_envio: {
+        Args: { p_pedido: string; p_listo?: boolean }
+        Returns: undefined
+      }
       puede_gestionar: { Args: { p_negocio: string }; Returns: boolean }
       puede_vender: { Args: { p_negocio: string }; Returns: boolean }
       quien_tiene_apartado: { Args: { p_producto: string }; Returns: string }
@@ -1399,6 +1613,8 @@ export type Database = {
           p_canal: string
           p_cliente: string
           p_contacto?: string
+          p_descuento_tipo?: string
+          p_descuento_valor?: number
           p_items: Json
           p_metodo?: string
           p_negocio: string

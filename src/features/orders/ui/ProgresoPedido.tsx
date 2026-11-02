@@ -7,8 +7,8 @@ import { textos } from "@/lib/textos";
 
 const t = textos.pedidos.detalle;
 
-type Paso = "pendiente" | "pagado" | "preparando" | "enviado" | "entregado";
-const PASOS: Paso[] = ["pendiente", "pagado", "preparando", "enviado", "entregado"];
+type Paso = "pendiente" | "pagado" | "preparando" | "recoge" | "enviado" | "entregado";
+const PASOS: Paso[] = ["pendiente", "pagado", "preparando", "recoge", "enviado", "entregado"];
 
 /**
  * Dónde va el pedido y qué sigue: los pasos hechos con su check, el actual en limón y los que faltan en gris. Debajo,
@@ -17,6 +17,8 @@ const PASOS: Paso[] = ["pendiente", "pagado", "preparando", "enviado", "entregad
 export function ProgresoPedido({
   estado,
   cobraAlEntregar,
+  paquetera,
+  listo,
   titulo,
   ayuda,
   accion,
@@ -24,6 +26,10 @@ export function ProgresoPedido({
   estado: EstadoPedido;
   /** Contra entrega con saldo: no pasa por "pagado", se cobra al entregar */
   cobraAlEntregar: boolean;
+  /** Con paquetera hay un paso más: que la paquetera pase a recogerlo */
+  paquetera: boolean;
+  /** Ya avisaron que está listo para que la paquetera lo recoja */
+  listo: boolean;
   titulo: string;
   ayuda?: string;
   accion?: ReactNode;
@@ -31,8 +37,8 @@ export function ProgresoPedido({
   if (estado === "cancelado") {
     return <Card tono="error" className="flex items-center gap-3 font-medium">{t.cancelado}</Card>;
   }
-  const pasos: Paso[] = cobraAlEntregar ? PASOS.filter((p) => p !== "pagado") : PASOS;
-  const actual = pasos.indexOf(estado as Paso);
+  const pasos: Paso[] = PASOS.filter((p) => !(p === "pagado" && cobraAlEntregar) && !(p === "recoge" && !paquetera));
+  const actual = pasos.indexOf(estado === "preparando" && paquetera && listo ? "recoge" : (estado as Paso));
   const entregado = estado === "entregado";
   return (
     <Card role="region" aria-label={t.pasos} className="flex flex-col gap-4">
@@ -59,7 +65,7 @@ export function ProgresoPedido({
                 {hecho ? <Icon nombre="check" className="size-5" strokeWidth={2.5} /> : i + 1}
               </span>
               <span className={`text-xs sm:text-sm ${enCurso ? "font-bold" : hecho ? "font-medium" : "text-texto-2"}`}>
-                {textos.estadosPedido[p]}
+                {p === "recoge" ? t.pasoRecoge : textos.estadosPedido[p]}
                 {enCurso && <span className="sr-only"> ({t.pasoActual})</span>}
               </span>
             </li>

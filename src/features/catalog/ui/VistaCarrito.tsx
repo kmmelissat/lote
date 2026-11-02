@@ -2,11 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useCallback } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { LineasPromocion } from "@/components/ui/LineasPromocion";
 import { Monito } from "@/components/ui/Monito";
+import { totalAhorro } from "@/domain";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { useAhorroPromociones } from "@/lib/useAhorroPromociones";
+import { ahorroDelCarrito } from "../actions/carrito";
 import { cambiarCantidad, quitarDelCarrito } from "../carrito";
 import { useCarritoConDatos } from "../carritoDatos";
 import { MAX_CANTIDAD } from "../carritoReglas";
@@ -18,6 +23,9 @@ const t = textos.vitrina.carrito;
 export function VistaCarrito({ slug }: { slug: string }) {
   const { lineas, estado } = useCarritoConDatos(slug);
   const comprables = lineasComprables(lineas);
+  const calcular = useCallback((l: { codigo: number; cantidad: number }[]) => ahorroDelCarrito(slug, l), [slug]);
+  const { ahorros } = useAhorroPromociones(calcular, comprables.map((l) => ({ codigo: l.codigo, cantidad: l.cantidad })));
+  const promociones = totalAhorro(ahorros);
 
   if (estado === "cargando") return <p role="status" className="py-8 text-center text-texto-2">{t.cargando}</p>;
   if (estado === "error") return <p role="alert" className="py-8 text-center font-medium text-error">{t.errorCargar}</p>;
@@ -120,6 +128,7 @@ export function VistaCarrito({ slug }: { slug: string }) {
             <dt className="text-texto-2">{t.productosN(unidades)}</dt>
             <dd className="font-bold tabular-nums">{formatearDolares(totalDe(lineas))}</dd>
           </div>
+          {promociones > 0 && <LineasPromocion ahorros={ahorros} />}
           <div className="flex justify-between gap-3">
             <dt className="flex items-center gap-2 text-texto-2">
               <Icon nombre="camion" className="size-4" />
@@ -130,7 +139,7 @@ export function VistaCarrito({ slug }: { slug: string }) {
         </dl>
         <div className="flex items-baseline justify-between gap-3 border-t-2 border-dashed border-teal-oscuro/40 pt-3">
           <p className="font-bold">{t.totalAhora}</p>
-          <p className="text-3xl font-bold tabular-nums">{formatearDolares(totalDe(lineas))}</p>
+          <p className="text-3xl font-bold tabular-nums">{formatearDolares(totalDe(lineas) - promociones)}</p>
         </div>
 
         {comprables.length > 0 ? (

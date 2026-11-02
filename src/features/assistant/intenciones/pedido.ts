@@ -1,8 +1,11 @@
 import { type EstadoPedido, gananciaProductos } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import type { Ctx, Respuesta } from "../tipos";
+import type { Ctx, Deps, Entrada, Respuesta } from "../tipos";
+import { aIntencion } from "../intencion";
 import { listaDeProductos, pedidoDe, productoDe, registrar, textoDeError } from "../ayudas";
+import { resolverProducto } from "../resolver";
+import type { SalidaEntender } from "../../ai/esquema";
 
 const t = textos.asistente;
 
@@ -102,6 +105,54 @@ export async function enviar({ d, entrada, intencion, salida }: Ctx<"enviar">): 
       respuesta: { texto: t.enviado(p.cliente, intencion.guia) },
       inverso: { tipo: "estado", pedido_id: p.id, de: p.estado, a: "enviado" },
       descripcion: t.descEnviado(p.cliente),
+    };
+  });
+}
+
+const mismo = (a: string | null, b: string | null) => (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
+
+/**
+ * "Apartá la chaqueta y el cd para Ana": varios productos para la misma persona son un solo pedido, no uno por producto.
+ * Devuelve null si no aplica (otras acciones, otras personas, o un producto que no se reconoce claro): entonces
+ * se hace una acción por producto y el sistema pregunta lo que falte.
+ */
+export async function pedidoConVarios(d: Deps, entrada: Entrada, salida: SalidaEntender): Promise<Respuesta | null> {
+  const tipo = salida.intencion === "apartar" ? "apartado" : salida.intencion === "vender" ? "venta" : null;
+  if (!tipo || !salida.ademas.length) return null;
+  const todas = [salida, ...salida.ademas];
+  const cliente = salida.cliente?.trim() ?? "";
+  if (
+    todas.some((a) => a.intencion !== salida.intencion || !mismo(a.cliente, salida.cliente) || a.metodo !== salida.metodo || !a.producto?.trim() || (a.cantidad ?? 1) < 1) ||
+    (tipo === "apartado" && !cliente)
+  ) {
+    return null;
+  }
+  const base = aIntencion(salida);
+  if (!base.ok) return null;
+
+  const productos = await d.puerto.productos();
+  const lineas = new Map<string, { producto: (typeof productos)[number]; cantidad: number }>();
+  for (const a of todas) {
+    const r = resolverProducto(a.producto!, productos);
+    if (r.tipo !== "uno") return null;
+    const previa = lineas.get(r.valor.id);
+    lineas.set(r.valor.id, { producto: r.valor, cantidad: (previa?.cantidad ?? 0) + (a.cantidad ?? 1) });
+  }
+  const items = [...lineas.values()];
+  const lista = listaDeProductos(items.map((l) => ({ nombre: l.producto.nombre, cantidad: l.cantidad })));
+
+  return registrar(d, entrada, base.intencion, salida, async () => {
+    const r = await d.puerto.registrarPedidoVarios({
+      cliente,
+      tipo,
+      items: items.map((l) => ({ productoId: l.producto.id, cantidad: l.cantidad })),
+      metodo: tipo === "venta" ? (salida.metodo ?? "efectivo") : null,
+    });
+    if (!r.ok) return { respuesta: { texto: textoDeError(r.error, items.map((l) => l.producto.nombre).join(", ")) } };
+    return {
+      respuesta: { texto: t.pedidoVarios(tipo, cliente, lista, r.valor.codigo) },
+      inverso: { tipo: "pedido", id: r.valor.id },
+      descripcion: t.descPedidoVarios(tipo, cliente, lista),
     };
   });
 }

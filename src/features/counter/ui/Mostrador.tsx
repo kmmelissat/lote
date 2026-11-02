@@ -10,23 +10,28 @@ import {
 } from "react";
 import { BarraGuardar } from "@/components/ui/BarraGuardar";
 import { Button } from "@/components/ui/Button";
+import { CampoDescuento } from "@/components/ui/CampoDescuento";
 import { Icon } from "@/components/ui/Icon";
+import { LineasPromocion } from "@/components/ui/LineasPromocion";
 import { useToast } from "@/components/ui/Toast";
 import { TARJETA } from "@/components/ui/tarjeta";
 import {
   cambioDe,
   descuentoEnCentavos,
+  leerDescuento,
+  totalAhorro,
   leerDolares,
   limpiarCodigoDeBarras,
   totalDeLineas,
+  type CalcularAhorro,
   type Descuento,
 } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
+import { useAhorroPromociones } from "@/lib/useAhorroPromociones";
 import { textos } from "@/lib/textos";
 import { buscarPorCodigoDeBarras, cobrarVenta } from "../actions/vender";
 import {
   coincide,
-  leerDescuento,
   nombreCompleto,
   normalizar,
   type Linea,
@@ -35,7 +40,6 @@ import {
 import type { MetodoMostrador, ProductoMostrador } from "../repositorio";
 import { AsociarCodigo } from "./AsociarCodigo";
 import { ChipCaja } from "./ChipCaja";
-import { DescuentoVenta } from "./DescuentoVenta";
 import { camaraDisponible, EscanerCamara } from "./EscanerCamara";
 import { MetodoDeCobro } from "./MetodoDeCobro";
 import { ProductosDelMostrador } from "./ProductosDelMostrador";
@@ -46,7 +50,10 @@ export function Mostrador({
   productos,
   puedeGestionar,
   cajaDesde,
+  calcularAhorro,
 }: {
+  /** Pregunta a la base cuánto ahorran las promociones con lo que hay en la venta */
+  calcularAhorro?: CalcularAhorro;
   productos: ProductoMostrador[];
   puedeGestionar: boolean;
   /** Cuándo se abrió la caja de hoy (fecha ISO); null si no hay caja abierta */
@@ -108,6 +115,13 @@ export function Mostrador({
   });
   const subtotal = totalDeLineas(detalle.map((l) => ({ precio: l.producto.precio, cantidad: l.cantidad })));
   const unidades = detalle.reduce((s, l) => s + l.cantidad, 0);
+  // Las promociones primero; el descuento de la persona se calcula sobre lo que queda
+  const { ahorros, calculando } = useAhorroPromociones(
+    calcularAhorro,
+    detalle.map((l) => ({ productoId: l.productoId, cantidad: l.cantidad })),
+  );
+  const promociones = totalAhorro(ahorros);
+  const conPromociones = subtotal - promociones;
 
   const descuentoLeido = conDescuento
     ? leerDescuento(tipoDescuento, textoDescuento)
@@ -115,9 +129,9 @@ export function Mostrador({
   const descuentoInvalido = descuentoLeido === "invalido";
   const descuento =
     descuentoLeido && descuentoLeido !== "invalido"
-      ? descuentoEnCentavos(subtotal, descuentoLeido)
+      ? descuentoEnCentavos(conPromociones, descuentoLeido)
       : 0;
-  const total = subtotal - descuento;
+  const total = conPromociones - descuento;
 
   const recibidoLeido =
     metodo === "efectivo" && recibido.trim() ? leerDolares(recibido) : null;
@@ -202,7 +216,7 @@ export function Mostrador({
   }
 
   async function cobrar() {
-    if (cobrando || !detalle.length || descuentoInvalido) return;
+    if (cobrando || calculando || !detalle.length || descuentoInvalido) return;
     setCobrando(true);
     setError("");
     // Si se cae la red o la sesión, el botón no puede quedar en "Cobrando…" para siempre
@@ -383,6 +397,14 @@ export function Mostrador({
                       {formatearDolares(subtotal)}
                     </dd>
                   </div>
+                  {promociones > 0 && (
+                    <div className="text-texto-2">
+                      <dt className="sr-only">{textos.promociones.ahorroLinea}</dt>
+                      <dd>
+                        <LineasPromocion ahorros={ahorros} />
+                      </dd>
+                    </div>
+                  )}
                   {descuento > 0 && (
                     <div className="flex justify-between text-texto-2">
                       <dt>{t.descuento}</dt>
@@ -397,7 +419,7 @@ export function Mostrador({
                   </div>
                 </dl>
 
-                <DescuentoVenta
+                <CampoDescuento
                   activo={conDescuento}
                   tipo={tipoDescuento}
                   texto={textoDescuento}
@@ -427,7 +449,7 @@ export function Mostrador({
                     type="button"
                     variante="mango"
                     onClick={cobrar}
-                    disabled={cobrando || descuentoInvalido}
+                    disabled={cobrando || calculando || descuentoInvalido}
                     className="w-full"
                   >
                     {cobrando ? t.cobrando : t.cobrar(formatearDolares(total))}

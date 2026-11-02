@@ -10,6 +10,8 @@ import type { Estado } from "@/components/ui/StatusChip";
 import { nombreBase } from "@/domain";
 import { codigoDeBarrasDe } from "@/features/counter/repositorio";
 import { CodigoDeBarrasForm } from "@/features/counter/ui/CodigoDeBarrasForm";
+import { actualizarOfertas, ofertasDe } from "@/features/offers/repositorio";
+import { OfertaProducto } from "@/features/offers/ui/OfertaProducto";
 import { estadoVisible } from "@/features/products/estadoVisible";
 import { fotosDelGrupo } from "@/features/products/fotosVariantes";
 import { listarAvisosDeStock, listarGrupo, obtenerProducto, pedidosDeProducto, type Producto } from "@/features/products/repositorio";
@@ -100,6 +102,8 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
   const elegida = typeof variante === "string" ? Number(variante) : null;
 
   const { supabase, negocio } = await negocioActual();
+  // Antes de leer el producto, para que vea el precio de la oferta que ya empezó o ya terminó
+  if (negocio.puedeVender) await actualizarOfertas(supabase, negocio.id).catch(() => undefined);
   const encontrado = await obtenerProducto(supabase, negocio.id, codigo, negocio.puedeGestionar);
   if (!encontrado) notFound();
   const variantes = encontrado.grupo ? await listarGrupo(supabase, negocio.id, encontrado.grupo, negocio.puedeGestionar) : [];
@@ -117,9 +121,12 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
   const codigoDeBarras = !general && negocio.puedeGestionar && negocio.tieneLocal ? await codigoDeBarrasDe(supabase, p.id).catch(() => null) : null;
   // Quiénes esperan este producto (o cualquiera de sus variantes)
   const idsDelProducto = p.grupo ? variantes.map((v) => v.id) : [p.id];
-  const [avisos, pedidos] = await Promise.all([
+  // La oferta cubre lo que se está viendo: todas las variantes en la vista general, o solo la elegida
+  const idsDeOferta = general ? variantes.map((v) => v.id) : [p.id];
+  const [avisos, pedidos, ofertas] = await Promise.all([
     listarAvisosDeStock(supabase, idsDelProducto),
     pedidosDeProducto(supabase, negocio.id, idsDelProducto).catch(() => []),
+    negocio.puedeGestionar ? ofertasDe(supabase, idsDeOferta) : [],
   ]);
 
   const base = nombreBase(p.nombre, p.variante);
@@ -255,6 +262,14 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
 
           {!general && p.estado === "vendido" && p.fotos[0] && (
             <StickerVendido foto={urlFoto(p.fotos[0])} nombre={p.nombre} codigo={p.codigo} negocio={negocio.nombre} />
+          )}
+          {negocio.puedeGestionar && (
+            <OfertaProducto
+              codigo={p.codigo}
+              todas={general}
+              precios={general ? variantes.map((v) => v.precio) : [p.precio]}
+              ofertas={ofertas}
+            />
           )}
           {!general && negocio.puedeGestionar && negocio.tieneLocal && <CodigoDeBarrasForm productoId={p.id} actual={codigoDeBarras} />}
 

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { EstadoPedido } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
+import { marcarListoParaRecoger } from "@/features/shipping/repositorio";
 import { cambiarEstadoPedido, METODOS_DE_COBRO, registrarPago, saldoDelPedido, type MetodoPago } from "../repositorio";
 
 const ESTADOS: EstadoPedido[] = ["preparando", "enviado", "entregado", "cancelado"];
@@ -26,6 +27,16 @@ export async function cambiarEstado(
     return { error: a.errorGeneral };
   }
 
+  revalidatePath("/", "layout");
+  return {};
+}
+
+/** Con paquetera: avisa que el pedido ya está empacado y la paquetera puede pasar a recogerlo. */
+export async function marcarListo(pedidoId: string): Promise<{ error?: string }> {
+  const a = textos.pedidos.acciones;
+  const { supabase } = await negocioActual();
+  const r = await marcarListoParaRecoger(supabase, pedidoId, true);
+  if (!r.ok) return { error: r.error === "sin_permiso" ? a.errorPermiso : a.errorGeneral };
   revalidatePath("/", "layout");
   return {};
 }

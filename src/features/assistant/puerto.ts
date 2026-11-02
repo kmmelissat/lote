@@ -69,6 +69,13 @@ export interface Puerto {
     cantidad: number;
     metodo: Metodo | null;
   }): Promise<R<{ id: string; codigo: number }>>;
+  /** Un solo pedido con varios productos (apartado o venta): las promociones y el descuento se calculan sobre todo junto. */
+  registrarPedidoVarios(p: {
+    cliente: string;
+    tipo: "apartado" | "venta";
+    items: { productoId: string; cantidad: number }[];
+    metodo: Metodo | null;
+  }): Promise<R<{ id: string; codigo: number }>>;
   registrarPago(pedidoId: string, monto: Centavos, metodo: Metodo): Promise<R<{ pagoId: string }>>;
   cambiarEstado(pedidoId: string, estado: EstadoPedido): Promise<R<null>>;
   registrarGuia(pedidoId: string, paquetera: string | null, guia: string | null): Promise<R<null>>;

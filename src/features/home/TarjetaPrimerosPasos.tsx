@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { LotitoMas } from "@/components/ui/LotitoMas";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
-import { COOKIE_PASOS_VISTOS, ENLACES_PASOS, type ClavePaso, SOLO_CON_VITRINA, type PasoInicial } from "./primerosPasos";
+import { COOKIE_PASOS_VISTOS, ENLACES_PASOS, ENLACES_PASOS_EXTRA, type ClavePaso, SOLO_CON_VITRINA, type PasoInicial } from "./primerosPasos";
 import { useCompartirVitrina } from "./useCompartirVitrina";
 
 const t = textos.inicio.primerosPasos;
@@ -82,6 +82,17 @@ export function TarjetaPrimerosPasos({
         >
           <Icon nombre="chat" className="size-4" />
           {t.whatsapp}
+        </ButtonLink>
+      </span>
+    ) : clave === "producto" ? (
+      // Cargar productos tiene dos caminos y los dos van a la vista: de a uno con foto, o todos juntos desde un Excel
+      <span className="flex flex-wrap gap-2">
+        <ButtonLink tamano="chico" variante={principal ? "mango" : "suave"} href={ENLACES_PASOS.producto}>
+          {t.pasos.producto.accion}
+          <Icon nombre="diagonal" className="size-4" />
+        </ButtonLink>
+        <ButtonLink tamano="chico" variante="suave" icono="hoja" href={ENLACES_PASOS_EXTRA.importar}>
+          {t.pasos.producto.accionImportar}
         </ButtonLink>
       </span>
     ) : (
