@@ -69,7 +69,7 @@ export const mostrador = {
     descartar: "Ahora no",
     asociado: (nombre: string) => `Código asociado a ${nombre}`,
     sinStock: (nombre: string) => `${nombre} no tiene unidades disponibles.`,
-    soloGestion: "Ese código no está asociado a ningún producto. Pedile a la dueña o a la administradora que lo asocie.",
+    soloGestion: "Ese código no está asociado a ningún producto. Pedile a quien es titular o a quien administra que lo asocie.",
     repetido: "Ese código ya está en otro producto.",
     camaraCerrar: "Cerrar la cámara",
     camaraTitulo: "Apuntá al código de barras",
@@ -104,7 +104,7 @@ export const caja = {
   abierta: "Caja abierta",
 
   abiertaTitulo: (desde: string) => `Abierta desde las ${desde}`,
-  soloVer: "La caja la cierran la dueña o la administradora. Mientras tanto podés seguir vendiendo.",
+  soloVer: "La caja la cierran quien es titular o quien administra. Mientras tanto podés seguir vendiendo.",
 
   resumen: {
     titulo: "Lo que va del día",

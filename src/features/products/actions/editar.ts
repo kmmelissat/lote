@@ -17,6 +17,7 @@ import {
 } from "../repositorio";
 import type { EstadoNuevo } from "./nuevo";
 import { nombreConVariante } from "@/domain";
+import { borrarSiNadieLasUsa } from "@/lib/fotosSueltas";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -37,7 +38,7 @@ export async function editarProducto(
   const etiqueta = texto("variante");
   if ("variante" in valores && (!etiqueta || etiqueta.length > 40)) errores.variante = t.errorVariantes.etiqueta;
 
-  if (await categoriaNoExiste(texto("categoria"))) errores.categoria = t.categorias.errorNoExiste;
+  if (categoriaNoExiste(texto("categoria"))) errores.categoria = t.categorias.errorNoExiste;
 
   // Si el precio nuevo ya no es menor que el de antes, deja de ser una oferta: el tachado se quita solo, sin error
   const { info } = leerInfoExtra(valores, precio);
@@ -98,6 +99,9 @@ export async function editarProducto(
   const todas = producto.grupo ? (await listarGrupo(supabase, negocio.id, producto.grupo, false)).map((m) => m.id) : [producto.id];
   const okInfo = await guardarInfoExtra(supabase, { todas, esta: producto.id }, info);
   if (!okInfo && tieneInfoExtra(info)) return general;
+
+  // Las fotos que se quitaron ya no se usan (las variantes del mismo producto pueden compartirlas: eso lo comprueba el helper)
+  await borrarSiNadieLasUsa(supabase, producto.fotos.filter((f) => !fotos.includes(f)));
 
   revalidatePath("/", "layout");
   redirect(`/productos/${codigo}?guardado=${encodeURIComponent(nombre)}`);

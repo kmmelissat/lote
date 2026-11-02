@@ -51,7 +51,7 @@ function aCliente(f: Fila): ClienteConResumen {
 const LOTE_DE_CLIENTES = 500;
 const TOPE_DE_CLIENTES = 5000;
 
-/** Todas las clientas del negocio con sus pedidos (se piden de 500 en 500). Los que más deben primero. */
+/** Todas los clientes del negocio con sus pedidos (se piden de 500 en 500). Los que más deben primero. */
 export async function listarClientes(supabase: Cliente, negocioId: string): Promise<ClienteConResumen[]> {
   const todas: ClienteConResumen[] = [];
   for (let desde = 0; desde < TOPE_DE_CLIENTES; desde += LOTE_DE_CLIENTES) {

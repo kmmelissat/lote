@@ -3,7 +3,7 @@ import type { Seguimiento } from "./repositorio";
 
 const m = textos.seguimiento.mensajes;
 
-/** Lo que se le dice a la clienta en grande, según en qué va su pedido. */
+/** Lo que se le dice al cliente en grande, según en qué va su pedido. */
 export function mensajeDeEstado(s: Pick<Seguimiento, "estado" | "negocio" | "modo" | "paquetera" | "listo">): { titulo: string; texto: string } {
   switch (s.estado) {
     case "enviado":

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { ButtonLink } from "@/components/ui/Button";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
@@ -33,7 +33,7 @@ async function Invitacion({ params }: Pick<PageProps<"/invitacion/[token]">, "pa
         <Migas />
         {/* El monito se asoma por encima del borde de la tarjeta */}
         <div className="relative mt-10">
-          <Monito nombre="saluda" className="absolute -top-[4.25rem] right-6 w-24 text-rosa" />
+          <LotitoMas nombre="saluda" className="absolute -top-[4.25rem] right-6 w-24" />
           {!info ? (
             <div className={`${TARJETA} flex flex-col gap-2 bg-limon`}>
               <h1 className="text-xl font-bold">{t.invalidaTitulo}</h1>

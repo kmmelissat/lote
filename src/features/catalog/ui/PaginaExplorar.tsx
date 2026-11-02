@@ -3,6 +3,7 @@ import { permanentRedirect } from "next/navigation";
 import { connection } from "next/server";
 import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import {
   explorarDestacados,
   explorarOfertas,
@@ -14,7 +15,7 @@ import {
   type OrdenExplorar,
   rutaRubro,
 } from "../explorar";
-import { esRubro } from "../rubros";
+import { categoriaPorTexto, esRubro, rubroDeCategoria } from "../rubros";
 import { ejemplosDeBusqueda, rubroDeProducto } from "../portada";
 import { AIRE, MESA } from "../mercadito";
 import { colorDeMarca } from "../marca";
@@ -49,6 +50,8 @@ type Filtros = {
   busqueda: string;
   /** El rubro elegido ("ropa", "comida"…), o vacío */
   categoria: string;
+  /** Una categoría del catálogo dentro de ese rubro ("Brochas y esponjas"), o vacío */
+  sub: string;
   orden: OrdenExplorar;
   min: string;
   max: string;
@@ -69,6 +72,8 @@ function enlace(f: Filtros): string {
   if (f.vista !== "productos") p.set("vista", f.vista);
   if (f.busqueda) p.set("q", f.busqueda);
   if (f.categoria && !enRuta) p.set("categoria", f.categoria);
+  // Solo vale dentro de su rubro: al cambiar de rubro se descarta sola
+  if (f.sub && rubroDeCategoria(f.sub) === f.categoria) p.set("sub", f.sub);
   if (f.orden !== "recientes") p.set("orden", f.orden);
   if (f.min) p.set("min", f.min);
   if (f.max) p.set("max", f.max);
@@ -114,6 +119,8 @@ export async function PaginaExplorar({
   const busqueda = texto("q").trim();
   const pedida = (categoriaRuta ?? texto("categoria")).slice(0, 80).trim();
   const categoria = esRubro(pedida) ? pedida : "";
+  const subPedida = texto("sub").trim();
+  const sub = categoria && rubroDeCategoria(subPedida) === categoria ? subPedida : "";
   const orden = (ORDENES_EXPLORAR as readonly string[]).includes(texto("orden"))
     ? (texto("orden") as OrdenExplorar)
     : "recientes";
@@ -127,6 +134,7 @@ export async function PaginaExplorar({
     vista,
     busqueda,
     categoria,
+    sub,
     orden,
     min,
     max,
@@ -137,19 +145,17 @@ export async function PaginaExplorar({
 
   const supabase = createPublicClient();
   const rubros = await explorarRubros(supabase);
-  // Una dirección vieja con el nombre de una categoría ("Blusas") lleva a su rubro
+  // Una dirección vieja con el nombre de una categoría ("Blusas") lleva a su rubro y a su categoría del catálogo
   if (pedida && !categoria) {
-    const deEsa = rubros.find((r) =>
-      r.categorias.some((c) => c.toLowerCase() === pedida.toLowerCase()),
-    );
-    permanentRedirect(enlace({ ...f, categoria: deEsa?.id ?? "" }));
+    const deEsa = categoriaPorTexto(pedida);
+    permanentRedirect(enlace({ ...f, categoria: deEsa?.rubro ?? "", sub: deEsa?.nombre ?? "" }));
   }
   const rubro = rubros.find((r) => r.id === categoria);
   const nombreRubro = rubro?.nombre ?? "";
-  // Las categorías de las tiendas que caen en el rubro elegido
-  const claves = categoria ? (rubro?.claves ?? []) : undefined;
+  // Las categorías del catálogo que se piden: la elegida, o todas las del rubro
+  const categorias = categoria ? (sub ? [sub] : (rubro?.nombres ?? [])) : undefined;
   const filtrando = Boolean(
-    busqueda || categoria || min || max || depto || gratis || oferta,
+    busqueda || categoria || sub || min || max || depto || gratis || oferta,
   );
   // La portada (sin buscar ni filtrar) abre con filas que atraen: destacados, ofertas o lo nuevo
   const portada = vista === "productos" && !filtrando && pagina === 1;
@@ -159,13 +165,13 @@ export async function PaginaExplorar({
       explorarTiendas(
         supabase,
         vista === "tiendas" ? busqueda || undefined : undefined,
-        vista === "tiendas" ? claves : undefined,
+        vista === "tiendas" ? categorias : undefined,
       ),
       vista === "productos"
         ? // Uno de más, solo para saber si hay otra página
           explorarProductos(supabase, {
             busqueda: busqueda || undefined,
-            claves,
+            categorias,
             limite: POR_PAGINA + 1,
             desde: (pagina - 1) * POR_PAGINA,
             orden,
@@ -192,16 +198,17 @@ export async function PaginaExplorar({
   // Ejemplos del buscador, de productos reales (destacados y ofertas primero): cambian en cada visita
   const ejemplos = ejemplosDeBusqueda(
     [...destacados, ...ofertas, ...visibles],
-    rubroDeProducto(rubros),
+    rubroDeProducto,
     3,
   );
   // Cuántos filtros del panel hay puestos (el rubro tiene su propio resaltado)
   const activos = [min || max, depto, gratis, oferta].filter(Boolean).length;
   const quitar =
-    activos > 0 || categoria
+    activos > 0 || categoria || sub
       ? enlace({
           ...f,
           categoria: "",
+          sub: "",
           min: "",
           max: "",
           depto: "",
@@ -215,6 +222,7 @@ export async function PaginaExplorar({
       filtros={{
         busqueda,
         categoria,
+        sub,
         orden,
         min,
         max,
@@ -223,7 +231,8 @@ export async function PaginaExplorar({
         oferta,
       }}
       rubros={rubros}
-      enlaceRubro={(id) => enlaceExplorar({ ...f, categoria: id, pagina: 1 })}
+      enlaceRubro={(id) => enlaceExplorar({ ...f, categoria: id, sub: "", pagina: 1 })}
+      enlaceCategoria={(nombre) => enlaceExplorar({ ...f, sub: nombre, pagina: 1 })}
       limpiar={quitar}
     />
   );
@@ -312,6 +321,7 @@ export async function PaginaExplorar({
             {categoria && (
               <input type="hidden" name="categoria" value={categoria} />
             )}
+            {sub && <input type="hidden" name="sub" value={sub} />}
           </>
         }
         extra={
@@ -328,6 +338,7 @@ export async function PaginaExplorar({
                     {...enlaceExplorar({
                       ...f,
                       categoria: c.id,
+                      sub: "",
                       vista: "productos",
                       pagina: 1,
                     })}
@@ -350,9 +361,28 @@ export async function PaginaExplorar({
                 rubros={rubros}
                 activo={categoria}
                 enlace={(id) =>
-                  enlaceExplorar({ ...f, categoria: id, pagina: 1 })
+                  enlaceExplorar({ ...f, categoria: id, sub: "", pagina: 1 })
                 }
               />
+            )}
+            {/* En el celular el panel de filtros está cerrado: las categorías del rubro van como chips que se deslizan */}
+            {rubro && rubro.categorias.length > 1 && (
+              <nav aria-label={t.panel.categoriasDe(rubro.nombre)} className="-mx-1 lg:hidden">
+                <ul className="flex snap-x gap-2 overflow-x-auto px-1 pb-1">
+                  <li className="shrink-0">
+                    <Link {...enlaceExplorar({ ...f, sub: "", pagina: 1 })} aria-current={sub ? undefined : "true"} className={chip(!sub)}>
+                      {t.panel.todoElRubro}
+                    </Link>
+                  </li>
+                  {rubro.categorias.map((c) => (
+                    <li key={c.categoria} className="shrink-0 snap-start">
+                      <Link {...enlaceExplorar({ ...f, sub: c.categoria, pagina: 1 })} aria-current={sub === c.categoria ? "true" : undefined} className={chip(sub === c.categoria)}>
+                        {c.categoria}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             )}
             {/* Portada: las dos filas que atraen, la calle con las tiendas y después todo */}
             {portada && (
@@ -505,9 +535,8 @@ export async function PaginaExplorar({
                           href="/login"
                           className="relative flex h-full min-h-64 flex-col justify-end gap-2 overflow-hidden rounded-[24px] border-2 border-dashed border-teal-oscuro bg-rosa-palido p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:border-solid hover:shadow-dura"
                         >
-                          <Monito
-                            nombre="saluda"
-                            className="absolute right-4 top-4 w-20 text-rosa md:w-24"
+                          <LotitoMas nombre="saluda"
+                            className="absolute right-4 top-4 w-20 md:w-24"
                           />
                           <p className="text-lg font-bold leading-tight">
                             {t.armaTitulo}

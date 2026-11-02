@@ -2,7 +2,7 @@
 
 import { useEffect, useEffectEvent, useId, useMemo, useRef, useState, useTransition, type ChangeEvent, type DragEvent, } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { categoriasQueNoExisten } from "@/features/products/categorias";
+import { categoriasSinReconocer } from "@/features/catalog/rubros";
 import { useConfirmar } from "@/components/ui/Confirmar";
 import { Icon } from "@/components/ui/Icon";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
@@ -27,14 +27,15 @@ import { FotoFila } from "./FotoFila";
 import { parseXlsx, pareceExcelViejo, pareceXlsx } from "../xlsx";
 
 const t = textos.productos.importar;
-const FILAS_EN_PANTALLA = 20;
+// Se muestran todas las filas hasta aquí (la tabla se desplaza); el límite del archivo es MAXIMO_FILAS y se importan todas igual
+const FILAS_EN_PANTALLA = 200;
 const ACEPTA =
   ".csv,.tsv,.xlsx,.xlsm,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const REQUERIDOS: Campo[] = ["nombre", "precio"];
 
 type Archivo = { nombre: string; encabezados: string[]; filas: string[][] };
 
-export function ImportarCsv({ negocioId, categorias }: { negocioId: string; categorias: string[] }) {
+export function ImportarCsv({ negocioId }: { negocioId: string }) {
   const [archivo, setArchivo] = useState<Archivo | null>(null);
   const [mapeo, setMapeo] = useState<Mapeo>({});
   const [error, setError] = useState("");
@@ -54,10 +55,10 @@ export function ImportarCsv({ negocioId, categorias }: { negocioId: string; cate
   const malas = validadas.length - buenas;
   const grupos = new Set(validadas.flatMap((v) => (v.ok && v.fila.grupo ? [v.fila.grupo] : []))).size;
   const tieneRequeridos = REQUERIDOS.every((c) => mapeo[c] !== undefined);
-  // Las categorías del archivo que no están en la lista del negocio: esos productos se crean sin categoría
+  // Las categorías del archivo que no se parecen a ninguna del catálogo de Lote: esos productos se crean sin categoría
   const categoriasFaltan = useMemo(
-    () => categoriasQueNoExisten(categorias, validadas.flatMap((v) => (v.ok ? [v.fila.categoria] : []))),
-    [categorias, validadas],
+    () => categoriasSinReconocer(validadas.flatMap((v) => (v.ok ? [v.fila.categoria] : []))),
+    [validadas],
   );
 
   function cargarTabla(nombre: string, tabla: string[][]) {
@@ -312,10 +313,7 @@ export function ImportarCsv({ negocioId, categorias }: { negocioId: string; cate
               </p>
               {categoriasFaltan.length > 0 && (
                 <p className="mt-2 max-w-xl rounded-xl bg-limon px-3 py-2 text-sm font-medium">
-                  {t.categoriasFaltan(categoriasFaltan)}{" "}
-                  <a href="/ajustes/categorias" target="_blank" rel="noopener noreferrer" className="font-bold underline">
-                    {t.categoriasFaltanAccion}
-                  </a>
+                  {t.categoriasSinReconocer(categoriasFaltan)}
                 </p>
               )}
             </div>
@@ -343,9 +341,9 @@ export function ImportarCsv({ negocioId, categorias }: { negocioId: string; cate
               {t.resumenVariantes(grupos)}
             </p>
           )}
-          <div className="overflow-x-auto rounded-[18px] border-2 border-teal-oscuro">
+          <div className="max-h-[34rem] overflow-auto rounded-[18px] border-2 border-teal-oscuro">
             <table className="w-full text-left text-sm">
-              <thead className="bg-crema text-texto-2">
+              <thead className="sticky top-0 z-10 bg-crema text-texto-2">
                 <tr>
                   <th className="px-3 py-2 font-bold">{t.fila}</th>
                   <th className="px-3 py-2 font-bold">{t.foto}</th>

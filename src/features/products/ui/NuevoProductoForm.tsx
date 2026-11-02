@@ -19,6 +19,7 @@ import {
   precioSugerido,
 } from "@/domain/index";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { categoriaPorTexto } from "@/features/catalog/rubros";
 import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import {
@@ -119,8 +120,8 @@ export function NuevoProductoForm({
   negocioId: string;
   /** Valores con los que arranca el formulario: repetir un producto, o el producto que se edita */
   inicial?: Record<string, string>;
-  /** Categorías y marcas que ya usó, para completar mientras escribe */
-  sugerencias: { categorias: string[]; marcas: string[] };
+  /** Marcas que ya usó, para completar mientras escribe */
+  sugerencias: { marcas: string[] };
   modo?: Modo;
   /** Qué hace el negocio: cambia cómo se llaman y cuáles son los costos */
   actividad?: Actividad;
@@ -148,11 +149,6 @@ export function NuevoProductoForm({
   const [nombre, setNombre] = useState(v.nombre ?? "");
   const [cantidad, setCantidad] = useState(v.cantidad ?? "1");
   const [categoria, setCategoria] = useState(v.categoria ?? "");
-  const categorias = sugerencias.categorias;
-  // La categoría que Lotito vio en la foto y no está en la lista: se avisa y se manda a Ajustes, no se inventa
-  const [categoriaSugerida, setCategoriaSugerida] = useState<string | null>(
-    null,
-  );
   const [marca, setMarca] = useState(v.marca ?? "");
   const [descripcion, setDescripcion] = useState(v.descripcion ?? "");
   const [condicion, setCondicion] = useState<"nuevo" | "usado">(
@@ -220,12 +216,8 @@ export function NuevoProductoForm({
 
   // Lotito no pisa lo que escribió la persona: solo llena campos vacíos o los que él mismo había llenado.
   function aplicar(visto: FichaSugerida) {
-    const vista = visto.categoria?.trim() ?? "";
-    const existente = categorias.find(
-      (c) => c.toLowerCase() === vista.toLowerCase(),
-    );
-    if (vista && !existente && !categoria.trim()) setCategoriaSugerida(vista);
-    const f = { ...visto, categoria: existente ?? null };
+    // Lo que Lotito vio se pasa a la categoría del catálogo que más se parece; si no dice nada, queda vacío
+    const f = { ...visto, categoria: categoriaPorTexto(visto.categoria)?.nombre ?? null };
     const llenar = ORDEN_LOTITO.filter(
       (c) => f[c] && (!actuales[c].trim() || deLotito.has(c)),
     );
@@ -421,11 +413,9 @@ export function NuevoProductoForm({
                   etiqueta={t.categoria}
                   valor={categoria}
                   onCambio={editar("categoria")}
-                  opciones={categorias}
                   error={e.categoria}
                   lotito={deLotito.has("categoria")}
                   trabajando={brillo("categoria")}
-                  sugerida={categoriaSugerida}
                 />
               </div>
               {conVariantes ? (

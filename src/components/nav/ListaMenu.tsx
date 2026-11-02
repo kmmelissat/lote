@@ -19,6 +19,7 @@ export function ListaMenu({
   ruta,
   porAtender = 0,
   urgente = false,
+  enCamino = 0,
   slug = "",
   esDuena = false,
   grande = false,
@@ -27,6 +28,7 @@ export function ListaMenu({
   ruta: string | null;
   porAtender?: number;
   urgente?: boolean;
+  enCamino?: number;
   slug?: string;
   esDuena?: boolean;
   /** El menú del celular: letras de 16 px e íconos más grandes */
@@ -80,7 +82,7 @@ export function ListaMenu({
               title={p.etiqueta}
               className={`${forma} ${activa ? `${fondo} -translate-y-0.5 shadow-dura-chica` : `bg-superficie ${PINTA_HOVER_SECCION[p.href] ?? "hover:bg-limon/40"}`}`}
             >
-              {cabecera(p.icono, fondo, activa, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} /> : null)}
+              {cabecera(p.icono, fondo, activa, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} enCamino={enCamino} /> : null)}
               <span className="truncate">{p.etiqueta}</span>
             </Link>
             {/* El botón de la vitrina se pega a la esquina de arriba del cuadro, porque el cuadro es todo el enlace */}

@@ -13,7 +13,7 @@ export const gestion = {
     etiqueta: "Cuadre",
     titulo: "Cuadre",
     descripcion: "Tu balance: lo que tenés, lo que debés y lo que de verdad vale tu negocio.",
-    soloDuena: "Gestión es solo para la dueña y la administradora.",
+    soloDuena: "Gestión es solo para quien es titular y quien administra.",
     patrimonioTitulo: "Lo que es tuyo hoy",
     patrimonioAyuda: "Lo que tenés menos lo que debés. Es lo que valdría tu negocio si hoy cobraras todo y pagaras todas tus deudas.",
     ecuacion: { tenes: "Lo que tenés", debes: "Lo que debés", tuyo: "Lo que es tuyo" },
@@ -32,7 +32,7 @@ export const gestion = {
     partesAyuda: {
       efectivo: "El dinero que tenés en la mano o en la caja.",
       transferencia: "Lo que hay en tu cuenta del banco o tu cuenta digital.",
-      porCobrar: "Lo que tus clientas todavía te deben.",
+      porCobrar: "Lo que tus clientes todavía te deben.",
       inventario: "Lo que te costó lo que tenés para vender, no lo que vale al venderlo.",
     },
     tiposAyuda: {

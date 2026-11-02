@@ -7,7 +7,7 @@ export const invitacion = {
   unirme: (negocio: string) => `Unirme a ${negocio}`,
   uniendo: "Uniéndote…",
   invalidaTitulo: "Esta invitación no sirve",
-  invalida: "Ya se usó, venció o no existe. Pedile a la dueña del negocio que te mande una nueva.",
+  invalida: "Ya se usó, venció o no existe. Pedile a quien es titular del negocio que te mande una nueva.",
   yaTieneNegocio: "Tu cuenta ya pertenece a un negocio. Por ahora una persona usa un solo negocio.",
   errorGeneral: "No pudimos unirte. Probá de nuevo.",
 } as const;

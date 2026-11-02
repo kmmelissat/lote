@@ -1,15 +1,11 @@
 import type { ProductoExplorar } from "./explorar";
-import { claveDe, type Rubro, type RubroId } from "./rubros";
+import { rubroDeCategoria, type RubroId } from "./rubros";
 
 // Un ejemplo largo no entra en el buscador del celular
 const LARGO_EJEMPLO = 24;
 
-/** De qué rubro es cada producto, según la categoría que le puso su tienda. */
-export function rubroDeProducto(rubros: readonly Rubro[]) {
-  const mapa = new Map(rubros.flatMap((r) => r.claves.map((c) => [c, r.id] as const)));
-  return (p: Pick<ProductoExplorar, "tiendaSlug" | "categoria">): RubroId | undefined =>
-    p.categoria ? mapa.get(claveDe(p.tiendaSlug, p.categoria)) : undefined;
-}
+/** De qué rubro es cada producto: el de su categoría del catálogo. */
+export const rubroDeProducto = (p: Pick<ProductoExplorar, "categoria">): RubroId | undefined => rubroDeCategoria(p.categoria) ?? undefined;
 
 const mezclar = <T>(lista: readonly T[], azar: () => number) =>
   lista

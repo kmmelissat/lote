@@ -2,7 +2,7 @@ export const equipo = {
   titulo: "Equipo",
   descripcion: "Invitá a quien te ayuda y elegí qué puede hacer.",
   enlace: "Equipo",
-  enlaceTexto: "Invitá a una ayudante y manejá sus permisos.",
+  enlaceTexto: "Invitá a alguien que te ayuda y manejá sus permisos.",
   volver: "Volver a ajustes",
   miembros: "Quién tiene acceso",
   vos: "vos",
@@ -34,7 +34,7 @@ export const equipo = {
     vendedora: "Registra ventas, apartados y pagos. No ve costos ni ganancias, y no edita productos.",
     solo_lectura: "Solo mira productos, pedidos y clientes. No registra nada.",
   } as Record<string, string>,
-  soloDuena: "Solo la dueña maneja el equipo.",
+  soloDuena: "Solo quien es titular maneja el equipo.",
   errorRol: "Ese rol no se puede asignar.",
   errorGeneral: "No pudimos hacerlo. Probá de nuevo.",
 } as const;

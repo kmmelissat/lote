@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { LineasPromocion } from "@/components/ui/LineasPromocion";
 import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { totalAhorro } from "@/domain";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
@@ -33,7 +34,7 @@ export function VistaCarrito({ slug }: { slug: string }) {
   if (!lineas.length) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-teal-oscuro bg-superficie px-6 py-12 text-center">
-        <Monito nombre="asoma" className="w-24 text-rosa" />
+        <LotitoMas nombre="asoma" className="w-24" />
         <h2 className="text-lg font-bold">{t.vacioTitulo}</h2>
         <p className="max-w-sm text-texto-2">{t.vacioTexto}</p>
         <Link
@@ -122,7 +123,7 @@ export function VistaCarrito({ slug }: { slug: string }) {
 
       {/* El resumen, como un ticket, con el monito asomándose por arriba */}
       <section aria-label={t.total} className="relative mt-10 flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura">
-        <Monito nombre="asoma" className="pointer-events-none absolute bottom-full right-6 w-20 text-rosa" />
+        <LotitoMas nombre="asoma" className="pointer-events-none absolute bottom-full right-6 w-20" />
         <dl className="flex flex-col gap-2">
           <div className="flex justify-between gap-3">
             <dt className="text-texto-2">{t.productosN(unidades)}</dt>

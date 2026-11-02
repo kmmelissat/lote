@@ -4,7 +4,7 @@ import type { Seguimiento } from "./repositorio";
 export type ClavePaso = "recibido" | "empacado" | "recoge" | "camino" | "entregado" | "listo" | "recogido";
 
 /**
- * Las paradas que ve la clienta, según cómo le llega el pedido. Cobrar no es una parada: se paga antes, por transferencia,
+ * Las paradas que ve el cliente, según cómo le llega el pedido. Cobrar no es una parada: se paga antes, por transferencia,
  * o al entregar (contra entrega), y en ambos casos no cambia por dónde va el paquete. Con paquetera hay una más: la
  * paquetera pasa a recogerlo a la tienda antes de que salga.
  */

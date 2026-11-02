@@ -1,5 +1,5 @@
 import { Migas } from "@/components/nav/Migas";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { textos } from "@/lib/textos";
 
 // Páginas públicas: sin barra inferior ni menú, con la marca de Lote al pie (plan gratis).
@@ -11,7 +11,7 @@ export default function PublicoLayout({ children }: LayoutProps<"/c">) {
         <main className="flex-1">{children}</main>
         <footer className="flex flex-col items-center justify-center gap-3 pt-12 text-sm font-medium text-teal-oscuro">
           <span className="flex items-center gap-2">
-            <Monito nombre="saluda" className="w-6 text-rosa" />
+            <LotitoMas nombre="saluda" className="w-6" />
             {textos.vitrina.marca}
           </span>
         </footer>

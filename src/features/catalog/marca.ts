@@ -115,4 +115,4 @@ export function estiloDeMarca(guardado: string | null | undefined): Record<strin
 }
 
 /** Cuántas letras puede tener el contexto de la tienda para la IA (igual que el límite de la base). */
-export const LIMITE_CONTEXTO = 600;
+export const LIMITE_CONTEXTO = 1000;

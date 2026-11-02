@@ -12,6 +12,7 @@ import {
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
 import { fechaLocalDe, nombreConVariante, proximoPago, rangoPeriodo } from "@/domain";
 import { balanceDelNegocio } from "@/features/gestion/repositorio";
+import { contextoDeLaTienda } from "@/features/catalog/repositorio";
 import { registrarGasto, resumenDePeriodo } from "@/features/profit/repositorio";
 import { crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";
@@ -168,6 +169,11 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
           .map((p) => ({ acreedor: p.acreedor, saldo: p.saldo, cuota: p.cuota, toca: p.diaPago ? proximoPago(p.diaPago, hoy) : null })),
       });
     },
+
+    trato: negocio.trato,
+
+    // Si no se puede leer, Lotito sigue sin ese dato: no es para frenarlo
+    sobreElNegocio: () => contextoDeLaTienda(supabase, negocio.id).catch(() => ""),
 
     async mensajeCobro(codigoPedido) {
       const pedido = await obtenerPedido(supabase, negocio.id, codigoPedido);

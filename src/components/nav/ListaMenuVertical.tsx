@@ -25,6 +25,7 @@ export function ListaMenuVertical({
   ruta,
   porAtender = 0,
   urgente = false,
+  enCamino = 0,
   slug = "",
   esDuena = false,
 }: {
@@ -32,6 +33,7 @@ export function ListaMenuVertical({
   ruta: string | null;
   porAtender?: number;
   urgente?: boolean;
+  enCamino?: number;
   slug?: string;
   esDuena?: boolean;
 }) {
@@ -89,7 +91,7 @@ export function ListaMenuVertical({
                       title={p.etiqueta}
                       className={`${FILA} ${activa ? `border-teal-oscuro ${fondo} group-data-[cerrado]:border-transparent group-data-[cerrado]:bg-transparent` : `border-transparent ${PINTA_HOVER_SECCION[p.href] ?? ""}`}`}
                     >
-                      {fila(p.icono, p.etiqueta, activa, fondo, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} /> : null)}
+                      {fila(p.icono, p.etiqueta, activa, fondo, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} enCamino={enCamino} /> : null)}
                     </Link>
                     {p.href === "/ajustes/tienda" && slug ? (
                       <AbrirVitrina

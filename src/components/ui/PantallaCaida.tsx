@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button, estiloBoton } from "@/components/ui/Button";
 import { Gorila } from "@/components/ui/Gorila";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { textos } from "@/lib/textos";
 
 const t = textos.errores;
@@ -29,7 +29,7 @@ export function PantallaCaida({ error, retry }: { error?: unknown; retry: () => 
       <div className="flex w-full max-w-lg flex-1 flex-col justify-center py-10">
         {/* El monito se asoma por el borde de arriba de la tarjeta */}
         <div className="relative mx-auto -mb-2 h-24 w-40 overflow-hidden" aria-hidden="true">
-          <Monito nombre="asoma" className="absolute bottom-0 w-40 text-rosa motion-safe:animate-asomar" />
+          <LotitoMas nombre="asoma" className="absolute bottom-0 w-40 motion-safe:animate-asomar" />
         </div>
 
         <section className="relative motion-safe:animate-entra rounded-[28px] border-2 border-teal-oscuro bg-white px-6 pb-8 pt-10 text-center shadow-dura">

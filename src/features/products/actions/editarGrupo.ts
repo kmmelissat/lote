@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { nombreConVariante } from "@/domain";
+import { borrarSiNadieLasUsa } from "@/lib/fotosSueltas";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { leerFilas, validarFilas, type ErrorGrupo } from "../edicionGrupo";
@@ -48,7 +49,7 @@ export async function editarGrupo(codigo: number, _anterior: EstadoNuevo, formDa
 
   const nombre = texto("nombre");
   if (!nombre) errores.nombre = t.errorNombre;
-  if (await categoriaNoExiste(texto("categoria"))) errores.categoria = t.categorias.errorNoExiste;
+  if (categoriaNoExiste(texto("categoria"))) errores.categoria = t.categorias.errorNoExiste;
   // El precio de antes es de cada variante: en la edición de todas juntas no se toca
   const { info } = leerInfoExtra({ ...valores, precio_anterior: "" }, null);
   const { costos, errores: erroresCostos } = leerCostos({ ...valores, compra: "" });
@@ -125,6 +126,10 @@ export async function editarGrupo(codigo: number, _anterior: EstadoNuevo, formDa
   for (const m of quitadas) {
     if ((await eliminarProducto(supabase, m.id)) !== "ok") return general;
   }
+
+  // Las fotos que ya nadie usa: las quitadas de cada variante y las de las variantes borradas
+  const fotosDespues = new Set(filas.filter((f) => f.id).flatMap((f) => fotosDe(f.fotos)));
+  await borrarSiNadieLasUsa(supabase, [...miembros.flatMap((m) => m.fotos)].filter((f) => !fotosDespues.has(f)));
 
   // Detalles y estado son de todas; sin ficha_producto.sql esto falla y solo se avisa si se llenó algo
   const todas = (await listarGrupo(supabase, negocio.id, grupo, false)).map((m) => m.id);

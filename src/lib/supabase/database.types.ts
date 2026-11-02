@@ -197,37 +197,23 @@ export type Database = {
           },
         ]
       }
-      categoria: {
+      categoria_lote: {
         Row: {
-          creado_en: string
-          id: string
-          negocio_id: string
           nombre: string
+          orden: number
           rubro: string
         }
         Insert: {
-          creado_en?: string
-          id?: string
-          negocio_id: string
           nombre: string
-          rubro?: string
+          orden: number
+          rubro: string
         }
         Update: {
-          creado_en?: string
-          id?: string
-          negocio_id?: string
           nombre?: string
+          orden?: number
           rubro?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "categoria_negocio_id_fkey"
-            columns: ["negocio_id"]
-            isOneToOne: false
-            referencedRelation: "negocio"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       costo_producto: {
         Row: {
@@ -2037,7 +2023,7 @@ export type Database = {
         }[]
       }
       explorar_tiendas: {
-        Args: { p_busqueda?: string; p_claves?: string[] }
+        Args: { p_busqueda?: string; p_categorias?: string[] }
         Returns: {
           categorias: string[] | null
           color: string | null
@@ -2052,7 +2038,7 @@ export type Database = {
       explorar_productos: {
         Args: {
           p_busqueda?: string
-          p_claves?: string[]
+          p_categorias?: string[]
           p_desde?: number
           p_limite?: number
           p_orden?: string
@@ -2082,7 +2068,7 @@ export type Database = {
       }
       explorar_categorias: {
         Args: never
-        Returns: { tienda: string; categoria: string; rubro: string; productos: number }[]
+        Returns: { categoria: string; productos: number }[]
       }
       explorar_destacados: {
         Args: { p_limite?: number }

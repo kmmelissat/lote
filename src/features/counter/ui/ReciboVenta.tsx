@@ -1,5 +1,5 @@
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { Recibo } from "../mostrador";
@@ -16,7 +16,7 @@ export function ReciboVenta({
   const r = t.recibo;
   return (
     <div className="flex flex-col items-center gap-3 text-center" role="status">
-      <Monito nombre="thumbsup" className="w-24 text-teal" />
+      <LotitoMas nombre="thumbsup" className="w-24" />
       <h2 className="text-xl font-bold">{r.titulo}</h2>
       <p className="text-texto-2">{r.monito}</p>
       <dl className="w-full rounded-2xl border-2 border-dashed border-teal-oscuro/40 bg-superficie p-4">

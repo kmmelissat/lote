@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { canalWhatsApp } from "@/features/whatsapp";
 import { correrTareaDeAvisos } from "@/features/whatsapp/tarea";
+import { borrarRutas, encontrarSueltas } from "@/lib/fotosSueltas";
 import { createServiceClient } from "@/lib/supabase/servicio";
 
 // Lo llama Vercel Cron (ver vercel.json) con "Authorization: Bearer <CRON_SECRET>". Sin sesión de nadie:
@@ -25,7 +26,11 @@ export async function GET(request: Request) {
     });
     // Las ofertas con fechas también se ponen al día acá (Vercel Hobby solo deja una tarea al día)
     const { data: ofertas } = await supabase.rpc("sincronizar_ofertas");
-    return Response.json({ ...resumen, ofertas: ofertas ?? 0 });
+    // Y las fotos que ya nadie usa (subidas que nunca se guardaron, importaciones deshechas); lo de más de 24 h
+    const fotosBorradas = await encontrarSueltas(supabase)
+      .then(({ sueltas }) => borrarRutas(supabase, sueltas.map((a) => a.ruta)))
+      .catch(() => 0);
+    return Response.json({ ...resumen, ofertas: ofertas ?? 0, fotosBorradas });
   } catch {
     return Response.json({ error: "No se pudo procesar la cola" }, { status: 500 });
   }

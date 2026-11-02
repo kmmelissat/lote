@@ -71,6 +71,8 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
         deudas: [{ acreedor: "CUSCATLAN", saldo: 30000, cuota: 5000, toca: "2026-11-15" }],
       },
     })),
+    trato: "neutro" as const,
+    sobreElNegocio: async () => "",
     mensajeCobro: vi.fn(async () => "Hola Ana! Total: $25.00"),
     iniciarAccion: async ({ mensajeId }) => {
       if (acciones.has(mensajeId)) return { id: `a-${mensajeId}`, repetida: true, respuesta: acciones.get(mensajeId) };

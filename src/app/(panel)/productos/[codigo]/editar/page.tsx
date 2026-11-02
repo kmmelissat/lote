@@ -5,7 +5,6 @@ import { aDolares } from "@/domain/index";
 import { guardarProducto } from "@/features/products/actions/guardar";
 import { separarFotos } from "@/features/products/fotosVariantes";
 import {
-  listarCategorias,
   listarGrupo,
   listarProductos,
   obtenerInfoExtra,
@@ -47,7 +46,7 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
   // Lo que ya usó, para completar categoría y marca mientras escribe
   const existentes = await listarProductos(supabase, negocio.id, false);
   const unicos = (valores: (string | null)[]) => [...new Set(valores.filter((x): x is string => !!x?.trim()))].sort();
-  const sugerencias = { categorias: await listarCategorias(supabase, negocio.id), marcas: unicos(existentes.map((x) => x.marca)) };
+  const sugerencias = { marcas: unicos(existentes.map((x) => x.marca)) };
 
   const extra = await obtenerInfoExtra(supabase, p.id);
   const conVariante = p.grupo !== null && p.variante !== null;

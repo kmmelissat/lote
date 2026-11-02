@@ -14,7 +14,6 @@ const GRUPOS: { titulo: string; opciones: Opcion[] }[] = [
   {
     titulo: textos.ajustes.grupos.negocio,
     opciones: [
-      { href: "/ajustes/categorias", icono: "caja", tono: "bg-rosa-palido", titulo: textos.productos.categoriasPanel.enlace, texto: textos.productos.categoriasPanel.enlaceTexto },
       { href: "/ajustes/resenas", icono: "estrella", tono: "bg-limon", titulo: textos.resenas.enlace, texto: textos.resenas.enlaceTexto },
       { href: "/ajustes/equipo", icono: "clientes", tono: "bg-teal-fondo", titulo: textos.equipo.enlace, texto: textos.equipo.enlaceTexto, soloDuena: true },
       { href: "/ajustes/exportar", icono: "subir", tono: "bg-teal-fondo", titulo: textos.exportar.enlace, texto: textos.exportar.enlaceTexto, soloGestion: true },

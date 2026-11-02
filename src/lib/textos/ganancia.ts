@@ -2,7 +2,7 @@ export const ganancia = {
   titulo: "Ganancia",
   descripcion: "Cuánto vendés y cuánto te queda de verdad.",
   vacioTexto: "Registrá una venta y acá vas a ver cuánto te dejó.",
-  soloDuena: "La ganancia la ven la dueña y la administradora del negocio.",
+  soloDuena: "La ganancia la ven quien es titular y quien administra el negocio.",
   periodos: "Periodo",
   dia: "Hoy",
   semana: "Esta semana",

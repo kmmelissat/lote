@@ -1,5 +1,6 @@
 import type { CategoriaGasto, Centavos, DesgloseCosto, EstadoPedido, ResumenPeriodo, TipoPeriodo } from "@/domain";
 import type { Metodo } from "./intencion";
+import type { Trato } from "@/domain";
 
 // Todo lo que el asistente necesita del mundo exterior. El motor no sabe de Supabase:
 // con esta interfaz se prueba con datos de mentira, y mañana otro canal reusa el mismo motor.
@@ -97,6 +98,10 @@ export interface Puerto {
   ganancia(periodo: TipoPeriodo): Promise<R<ResumenPeriodo>>;
   /** El balance de hoy: lo que tiene, lo que debe y lo que es suyo. Solo dueña y administradora. */
   balance(): Promise<R<BalanceAsistente>>;
+  /** Cómo quiere la persona que le hable Lotito (lo eligió al crear su negocio) */
+  readonly trato: Trato;
+  /** Lo que quien lleva el negocio cuenta de su negocio (Mi tienda → Lotito, o al crearlo): rubro, estilo, público. Vacío si no escribió nada. */
+  sobreElNegocio(): Promise<string>;
   mensajeCobro(codigoPedido: number): Promise<string>;
 
   // Registro de acciones: idempotencia y deshacer.

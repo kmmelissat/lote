@@ -2,6 +2,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { type Actividad, ACTIVIDADES } from "@/domain/actividad";
+import { esTrato, TRATO_POR_DEFECTO, type Trato } from "@/domain/trato";
 import { createClient } from "@/lib/supabase/server";
 
 export type NegocioActual = {
@@ -23,6 +24,8 @@ export type NegocioActual = {
   umbralPocoStock: number;
   /** La persona que hace la petición */
   usuarioId: string;
+  /** Cómo quiere que le hable Lote (lo dijo al crear su negocio); sin género si no lo dijo */
+  trato: Trato;
   rol: string;
   puedeGestionar: boolean;
   puedeVender: boolean;
@@ -61,6 +64,7 @@ export const negocioActual = cache(async function negocioActual() {
     visibleEnExplorar: miembro.negocio?.visible_en_explorar ?? false,
     umbralPocoStock: miembro.negocio?.umbral_poco_stock ?? 2,
     usuarioId,
+    trato: esTrato(claims?.claims.user_metadata?.trato) ? (claims!.claims.user_metadata!.trato as Trato) : TRATO_POR_DEFECTO,
     rol: miembro.rol,
     puedeGestionar: miembro.rol === "duena" || miembro.rol === "administradora",
     puedeVender: miembro.rol !== "solo_lectura",

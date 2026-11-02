@@ -76,7 +76,7 @@ export async function apartarProducto(
   });
   if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
-  redirect(`/c/${slug}/apartado/${resultado.pedidoId}`);
+  redirect(`/c/${slug}/pedido/${resultado.pedidoId}`);
 }
 
 /** Comprar: lo mismo que apartar, más cómo se recibe (recoger o envío con dirección) y cómo se piensa pagar. */
@@ -109,7 +109,7 @@ export async function comprarProducto(
   });
   if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
-  redirect(`/c/${slug}/apartado/${resultado.pedidoId}`);
+  redirect(`/c/${slug}/pedido/${resultado.pedidoId}`);
 }
 
 /** Comprar el carrito: varios productos en un solo pedido, con los mismos datos de entrega y pago que una compra. */
@@ -137,7 +137,7 @@ export async function comprarCarrito(slug: string, _anterior: EstadoApartar, for
   if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
   // ?carrito=1: la pantalla de confirmación vacía el carrito del navegador
-  redirect(`/c/${slug}/apartado/${resultado.pedidoId}?carrito=1`);
+  redirect(`/c/${slug}/pedido/${resultado.pedidoId}?carrito=1`);
 }
 
 /** La dirección solo viaja si el pedido es con envío: recoger no deja dirección guardada. */

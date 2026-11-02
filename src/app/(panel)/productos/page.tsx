@@ -3,10 +3,11 @@ import { PageHeader } from "@/components/nav/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { esFalta, esFiltroEstado, esOrden, FILTROS_ESTADO, type Falta, type Orden } from "@/features/products/filtro";
-import { listarCategorias, listarProductos } from "@/features/products/repositorio";
+import { categoriasEnUso, listarProductos } from "@/features/products/repositorio";
 import { productosQueNoSeMueven } from "@/features/profit/parados";
 import { DineroParado } from "@/features/profit/ui/PiezasCuadre";
 import { formatearDolares } from "@/lib/formato";
+import { AcomodarCategorias } from "@/features/products/ui/AcomodarCategorias";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
 import { ListaProductos as ListaProductosVista } from "@/features/products/ui/ListaProductos";
 import { negocioActual } from "@/lib/negocio";
@@ -35,7 +36,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
   const { supabase, negocio } = await negocioActual();
   const [todos, categorias] = await Promise.all([
     listarProductos(supabase, negocio.id, negocio.puedeGestionar),
-    listarCategorias(supabase, negocio.id),
+    categoriasEnUso(supabase, negocio.id),
   ]);
   if (!todos.length) {
     return (
@@ -59,6 +60,9 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
       </>
     );
   }
+
+  // Productos que todavía no tienen una categoría del catálogo (una por producto, no por variante)
+  const sinCategoria = negocio.puedeGestionar ? new Set(todos.filter((p) => !p.categoria).map((p) => p.grupo ?? p.id)).size : 0;
 
   // Solo quien ve los costos: sin ellos no se sabe cuánto dinero hay parado
   const parados = negocio.puedeGestionar ? await productosQueNoSeMueven(supabase, negocio.id, todos) : null;
@@ -84,6 +88,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
           ) : undefined
         }
       />
+      {sinCategoria > 0 && <AcomodarCategorias sinCategoria={sinCategoria} />}
       {parados && parados.filas.length > 0 && (
         <details id="parados" open={abrirParados} className="group rounded-[24px] border-2 border-teal-oscuro/30 bg-superficie">
           <summary className="flex min-h-12 cursor-pointer flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 font-bold md:px-5">

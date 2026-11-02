@@ -6,7 +6,7 @@ describe("interpretarBusqueda", () => {
     expect(interpretarBusqueda("41")).toEqual({ codigo: 41 });
     expect(interpretarBusqueda(" #41 ")).toEqual({ codigo: 41 });
   });
-  it("lo demás es el nombre de la clienta", () => {
+  it("lo demás es el nombre del cliente", () => {
     expect(interpretarBusqueda("  Ana   López ")).toEqual({ nombre: "Ana López" });
   });
   it("quita lo que rompería la consulta", () => {

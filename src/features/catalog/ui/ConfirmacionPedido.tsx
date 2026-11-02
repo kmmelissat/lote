@@ -2,18 +2,24 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Icon } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas, type PoseLotito } from "@/components/ui/LotitoMas";
 import { obtenerApartadoPublico, obtenerNegocioPublico } from "../repositorio";
+import { EscribirALaTienda } from "./EscribirALaTienda";
+import { HojaCuaderno } from "./HojaCuaderno";
 import { LimpiarCarrito } from "./LimpiarCarrito";
 import { MarcaTienda } from "./MarcaTienda";
+import { TicketPedido } from "./TicketPedido";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 import { esUuid } from "@/lib/uuid";
 
 const t = textos.vitrina.confirmacion;
+const s = textos.seguimiento.mensajes;
 
-export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProps<"/c/[negocio]/apartado/[id]">, "params" | "searchParams">) {
+const POSE: Record<string, PoseLotito> = { pendiente: "thumbsup", pagado: "thumbsup", preparando: "asoma", enviado: "celular", entregado: "thumbsup", cancelado: "saluda" };
+
+export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProps<"/c/[negocio]/pedido/[id]">, "params" | "searchParams">) {
   await connection();
   const { negocio: slug, id } = await params;
   // Una compra del carrito llega con ?carrito=1: ahí el carrito del navegador ya se usó y se vacía
@@ -33,161 +39,143 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
   const eligio = a.metodoPreferido;
   // Si eligió transferencia, solo se le muestra esa; si no eligió (apartado), todas
   const metodosAMostrar = eligio === "transferencia" ? a.metodos.filter((m) => m.tipo === eligio) : eligio ? [] : a.metodos;
-  const pasos = [
-    ...(metodosAMostrar.length ? [t.pasoPagar, t.pasoComprobante] : []),
-    ...(a.entrega === "retiro" ? [t.pasoRecoger] : a.entrega === "envio" ? [a.contraEntrega ? t.pasoContraEntrega : t.pasoEnvio] : []),
-    ...(eligio === "efectivo" ? [t.pasoEfectivo] : []),
-  ];
 
-  const tarjeta = "rounded-[24px] border-2 border-teal-oscuro p-5 md:p-6";
-  const insignia = "flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro text-teal-oscuro";
+  // Lo que dice Lotito según en qué va el pedido: el recién hecho, o la etapa de hoy (pago, preparando, en camino, entregado)
+  const etapa =
+    a.estado === "pagado"
+      ? { titulo: s.pagado.titulo, texto: s.pagado.texto }
+      : a.estado === "preparando"
+        ? { titulo: s.preparando.titulo, texto: s.preparando.texto }
+        : a.estado === "enviado"
+          ? { titulo: a.entrega === "retiro" ? s.enviado.retiroTitulo : s.enviado.titulo, texto: t.ayudaSeguimiento }
+          : a.estado === "entregado"
+            ? { titulo: s.entregado.titulo, texto: s.entregado.texto }
+            : null;
+  const bocadillo = etapa ?? { titulo: compra ? t.tituloCompra : t.titulo, texto: compra ? t.ayudaCompra : t.avisar };
+  const abierto = a.estado === "pendiente" && !vencido;
+
+  // "Lo que sigue": el pago es el primer paso (con sus datos si hay que transferir), y después la entrega. Solo mientras el pedido está abierto.
+  const pasos: { texto: string; extra?: "metodos" }[] = [];
+  if (abierto && compra) {
+    if (eligio === "contra_entrega") pasos.push({ texto: t.pasoPagoContraEntrega(formatearDolares(a.saldo || a.total)) });
+    else if (eligio === "efectivo") pasos.push({ texto: t.pasoPagoEfectivo });
+    else if (metodosAMostrar.length) pasos.push({ texto: t.pasoPagar, extra: "metodos" }, { texto: t.pasoComprobante });
+    else pasos.push({ texto: t.sinDatos });
+    if (a.entrega === "retiro") pasos.push({ texto: t.pasoRecoger });
+    else if (a.entrega === "envio") pasos.push({ texto: a.contraEntrega ? t.pasoContraEntrega : t.pasoEnvio });
+    if (eligio === "efectivo") pasos.push({ texto: t.pasoEfectivo });
+  }
+  const lista = (
+    <ul className="mt-2 flex flex-col gap-2">
+      {metodosAMostrar.map((m) => (
+        <li key={m.tipo} className="flex items-start gap-3 rounded-2xl border-2 border-teal-oscuro/30 bg-white p-3">
+          <Icon nombre="banco" className="mt-0.5 size-5 shrink-0 text-teal" />
+          <div className="min-w-0">
+            <p className="font-bold">{textos.cobro.metodos[m.tipo]}</p>
+            {m.datos && <p className="whitespace-pre-line break-words text-texto-2">{m.datos}</p>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
     <MarcaTienda color={tienda?.color ?? null}>
       {vieneDelCarrito && <LimpiarCarrito slug={slug} />}
-      <div className="mx-auto flex max-w-4xl flex-col gap-6 pt-10">
-        {/* Lo primero: que se sepa que quedó */}
-        <header className="relative flex flex-col gap-2 rounded-[28px] border-2 border-teal-oscuro bg-limon p-6 pr-28 shadow-dura md:p-8 md:pr-48">
-          <Monito nombre="thumbsup" className="absolute -top-10 right-6 w-20 text-rosa md:-top-14 md:right-12 md:w-32" />
-          <p className="text-sm font-medium">{a.negocio}</p>
-          <h1 className="text-3xl font-bold leading-tight md:text-4xl">{compra ? t.tituloCompra : t.titulo}</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border-2 border-teal-oscuro bg-crema px-3 py-0.5 text-sm font-bold">{t.pedido(a.codigo)}</span>
-            {vigente && a.venceEn && !a.contraEntrega && (
-              <span role="status" className="inline-flex items-center gap-1.5 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold text-teal-oscuro">
-                <Icon nombre="reloj" className="size-4" />
-                {t.vence(tiempoRestante(a.venceEn, ahora))}
-              </span>
-            )}
-          </div>
-          {compra && <p className="mt-1 max-w-lg text-teal-oscuro/80">{t.ayudaCompra}</p>}
-        </header>
-
-        {vencido && (
-          <p role="status" className="rounded-2xl border-2 border-error bg-error-fondo px-4 py-3 font-medium text-error">
-            {a.estado === "cancelado" ? t.cancelado : compra ? t.vencidoCompra : t.vencido}
-          </p>
-        )}
-        {a.estado !== "pendiente" && a.estado !== "cancelado" && (
-          <p role="status" className="rounded-2xl border-2 border-teal-oscuro bg-celeste px-4 py-3 font-bold text-teal-oscuro">
-            {t.pagado}
-          </p>
-        )}
-
-        {/* En el celular van primero el pago y lo que sigue; en escritorio, el pedido a la izquierda y lo que hay que hacer a la derecha */}
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:gap-6">
-          <div className="contents lg:flex lg:flex-col lg:gap-5">
-            <section className={`${tarjeta} order-3 bg-white lg:order-none`}>
-              <h2 className="mb-3 text-lg font-bold">{t.productos}</h2>
-              <ul className="flex flex-col divide-y divide-borde">
-                {a.items.map((i) => (
-                  <li key={i.nombre} className="flex justify-between gap-3 py-2.5 first:pt-0">
-                    <span className="min-w-0">
-                      {i.nombre}
-                      <span className="ml-1.5 rounded-full border-2 border-teal-oscuro bg-celeste px-2 py-0.5 text-sm font-bold">×{i.cantidad}</span>
-                    </span>
-                    <span className="font-medium tabular-nums">{formatearDolares(i.precio * i.cantidad)}</span>
-                  </li>
-                ))}
-                {compra && (
-                  <li className="flex justify-between gap-3 py-2.5 text-texto-2">
-                    <span className="flex items-center gap-2">
-                      <Icon nombre="camion" className="size-4" />
-                      {t.envioCosto}
-                    </span>
-                    <span className="tabular-nums">{a.envioCosto > 0 ? formatearDolares(a.envioCosto) : t.envioGratis}</span>
-                  </li>
-                )}
-              </ul>
-              <p className="mt-2 flex items-baseline justify-between border-t-2 border-dashed border-teal-oscuro/40 pt-3">
-                <span className="font-bold">{t.total}</span>
-                <span className="text-3xl font-bold tabular-nums">{formatearDolares(a.total)}</span>
-              </p>
-              {a.saldo > 0 && a.saldo < a.total && (
-                <p className="mt-1 flex justify-between font-medium text-ambar-texto">
-                  <span>{t.saldo}</span>
-                  <span className="tabular-nums">{formatearDolares(a.saldo)}</span>
-                </p>
-              )}
-            </section>
-
-            {a.entrega && (
-              <section className={`${tarjeta} order-4 flex items-start gap-3 bg-white lg:order-none`}>
-                <span className={`${insignia} bg-rosa/40`}>
-                  <Icon nombre={a.entrega === "retiro" ? "tienda" : "camion"} className="size-5" />
+      <div className="mx-auto max-w-5xl pt-10">
+        <HojaCuaderno className="flex flex-col gap-6">
+          {/* La cabecera es el título de la hoja, como en el seguimiento: la tienda, "Tu pedido #N" y los dos botones */}
+          <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
+            <div className="flex flex-col items-start gap-2">
+              <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-accion px-3 py-1 text-sm font-bold text-accion-texto shadow-dura-chica">{a.negocio}</span>
+              <h1 className="font-logo text-4xl font-semibold leading-none">
+                <span className="bg-[linear-gradient(transparent_78%,var(--color-rosa)_78%,var(--color-rosa)_100%)] pb-0.5">{t.tituloPedido}</span>{" "}
+                <span className="text-teal">#{a.codigo}</span>
+              </h1>
+              {vigente && a.venceEn && !a.contraEntrega && (
+                <span role="status" className="inline-flex items-center gap-1.5 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold text-teal-oscuro">
+                  <Icon nombre="reloj" className="size-4" />
+                  {t.vence(tiempoRestante(a.venceEn, ahora))}
                 </span>
-                <div className="min-w-0">
-                  <h2 className="font-bold">{t.recibirTitulo}</h2>
-                  <p className="mt-1 text-texto-2">
-                    {a.entrega === "retiro" ? t.retiroEn(a.direccionRetiro ?? "") : t.envioA(a.envioDireccion ?? "")}
-                  </p>
-                </div>
-              </section>
-            )}
-          </div>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              {a.estado !== "cancelado" && (
+                <Link
+                  href={`/p/${id}`}
+                  className="inline-flex min-h-12 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-accion px-5 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+                >
+                  <Icon nombre="camion" className="size-5" />
+                  {t.verSeguimiento}
+                </Link>
+              )}
+              <EscribirALaTienda whatsapp={tienda?.whatsapp ?? null} negocio={a.negocio} codigo={a.codigo} />
+            </div>
+          </header>
 
-          <div className="contents lg:flex lg:flex-col lg:gap-5">
-            {vigente || a.contraEntrega ? (
-              <section className={`${tarjeta} order-1 bg-crema shadow-dura lg:order-none`}>
-                <div className="mb-3 flex items-center gap-3">
-                  <span className={`${insignia} bg-limon`}>
-                    <Icon nombre="moneda" className="size-5" />
-                  </span>
-                  <h2 className="text-lg font-bold">{compra ? t.pagarTitulo : t.datosPago}</h2>
-                </div>
-                {eligio === "efectivo" ? (
-                  <p>{t.pagoEfectivo}</p>
-                ) : eligio === "contra_entrega" ? (
-                  <p>{t.pagoContraEntrega}</p>
-                ) : metodosAMostrar.length ? (
-                  <ul className="flex flex-col gap-3">
-                    {metodosAMostrar.map((m) => (
-                      <li key={m.tipo} className="flex items-start gap-3 rounded-2xl border-2 border-teal-oscuro/30 bg-superficie p-3">
-                        <Icon nombre="banco" className="mt-0.5 size-5 shrink-0 text-teal" />
-                        <div className="min-w-0">
-                          <p className="font-bold">{textos.cobro.metodos[m.tipo]}</p>
-                          {m.datos && <p className="whitespace-pre-line break-words text-texto-2">{m.datos}</p>}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-texto-2">{t.sinDatos}</p>
-                )}
-                {!compra && <p className="mt-4 text-sm text-texto-2">{t.avisar}</p>}
-              </section>
-            ) : null}
+          {vencido && (
+            <p role="status" className="rounded-2xl border-2 border-error bg-error-fondo px-4 py-3 font-medium text-error">
+              {a.estado === "cancelado" ? t.cancelado : compra ? t.vencidoCompra : t.vencido}
+            </p>
+          )}
 
+          {/* Lotito cuenta cómo va, en un bocadillo del color de la tienda */}
+          <section aria-label={t.estadoPedido} className="flex items-end gap-3">
+            <LotitoMas nombre={POSE[a.estado] ?? "thumbsup"} className="w-24 shrink-0 motion-safe:animate-flotar sm:w-28 md:w-32" />
+            <div className="relative mb-2 flex-1 rounded-[24px] rounded-bl-md border-2 border-teal-oscuro bg-accion/25 p-4 shadow-dura">
+              <h2 className="font-logo text-2xl font-semibold leading-tight md:text-3xl">{bocadillo.titulo}</h2>
+              <p className="mt-1 font-medium">{bocadillo.texto}</p>
+            </div>
+          </section>
+
+          {/* Dos columnas en escritorio: lo que compró y lo que sigue. Sin nada que seguir, el ticket queda solo */}
+          <div className={`grid grid-cols-1 items-start gap-6 ${pasos.length || !compra ? "lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-8" : ""}`}>
+            <TicketPedido a={a} conDireccion />
             {compra && pasos.length > 0 && (
-              <section className={`${tarjeta} order-2 bg-white lg:order-none`}>
-                <h2 className="mb-3 text-lg font-bold">{t.pasosTitulo}</h2>
+              <section aria-labelledby="lo-que-sigue">
+                <h2 id="lo-que-sigue" className="mb-3 font-logo text-2xl font-semibold">
+                  {t.pasosTitulo}
+                </h2>
                 <ol className="flex flex-col gap-3">
                   {pasos.map((p, n) => (
-                    <li key={p} className="flex items-start gap-3">
-                      <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full border-2 border-teal-oscuro bg-mango text-sm font-bold text-teal-oscuro">
+                    <li key={p.texto} className="flex items-start gap-3">
+                      <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full border-2 border-teal-oscuro bg-accion text-sm font-bold text-accion-texto">
                         {n + 1}
                       </span>
-                      <span className="pt-0.5">{p}</span>
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        <p>{p.texto}</p>
+                        {p.extra === "metodos" && lista}
+                      </div>
                     </li>
                   ))}
                 </ol>
               </section>
             )}
+            {/* Un apartado sin envío ni retiro: los datos para pagar, como antes */}
+            {!compra && abierto && (
+              <section aria-labelledby="datos-pago" className="rounded-2xl border-2 border-teal-oscuro bg-white p-4">
+                <h2 id="datos-pago" className="font-logo text-2xl font-semibold">
+                  {t.datosPago}
+                </h2>
+                {metodosAMostrar.length ? lista : <p className="mt-2 text-texto-2">{t.sinDatos}</p>}
+                <p className="mt-3 text-sm text-texto-2">{t.avisar}</p>
+              </section>
+            )}
           </div>
-        </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 pt-2">
-          <Link
-            href={`/c/${slug}`}
-            className="inline-flex h-12 items-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
-          >
-            ← {textos.vitrina.verTodos}
-          </Link>
-          {/* Ya terminó con esta tienda: es el momento de mostrarle que hay más */}
-          <Link href="/marketplace" className="inline-flex min-h-11 items-center text-sm font-bold text-teal underline">
-            {t.seguirDescubriendo}
-          </Link>
-        </div>
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 pt-2">
+            <Link
+              href={`/c/${slug}`}
+              className="inline-flex h-12 items-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+            >
+              ← {textos.vitrina.verTodos}
+            </Link>
+            {/* Ya terminó con esta tienda: es el momento de mostrarle que hay más */}
+            <Link href="/marketplace" className="inline-flex min-h-11 items-center text-sm font-bold text-teal underline">
+              {t.seguirDescubriendo}
+            </Link>
+          </div>
+        </HojaCuaderno>
       </div>
     </MarcaTienda>
   );

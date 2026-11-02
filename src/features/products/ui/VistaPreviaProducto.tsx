@@ -11,7 +11,7 @@ const e = textos.explorar;
 const POCAS_UNIDADES = 5;
 
 /**
- * El producto como lo verá la clienta: la misma tarjeta de la vitrina (foto, categoría, precio y "Últimas N" si quedan pocas),
+ * El producto como lo verá el cliente: la misma tarjeta de la vitrina (foto, categoría, precio y "Últimas N" si quedan pocas),
  * armada con lo que se escribe en el formulario. Sin marco ni título propios: solo la tarjeta, con un rótulo arriba.
  */
 export function VistaPreviaProducto({

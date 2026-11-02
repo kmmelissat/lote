@@ -20,7 +20,7 @@ import { Field } from "@/components/ui/Field";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { LineasPromocion } from "@/components/ui/LineasPromocion";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { urlFoto } from "@/lib/fotos";
 import { useAhorroPromociones } from "@/lib/useAhorroPromociones";
@@ -364,7 +364,7 @@ export function NuevoPedidoForm({
 
       {/* Resumen: a un lado en pantalla ancha, al final en el celular */}
       <aside className="relative mt-8 lg:sticky lg:top-4 lg:mt-10">
-        <Monito nombre="calculadora" className="pointer-events-none absolute -top-[4.6rem] right-5 w-16 text-rosa" />
+        <LotitoMas nombre="calculadora" className="pointer-events-none absolute -top-[4.6rem] right-5 w-16" />
         <div className={`${TARJETA} flex flex-col gap-4 bg-limon shadow-dura`}>
           <h2 className="text-lg font-bold">{t.resumen}</h2>
 

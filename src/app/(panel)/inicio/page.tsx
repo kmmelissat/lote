@@ -40,6 +40,10 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   const { supabase, negocio } = await negocioActual();
   const galletas = await cookies();
   const ahora = new Date();
+  // El nombre de la persona, si lo contó al crear el negocio: la bienvenida la saluda a ella y no al negocio
+  const { data: claims } = bienvenida ? await supabase.auth.getClaims() : { data: null };
+  const nombrePersona = claims?.claims.user_metadata?.nombre_persona;
+  const persona = typeof nombrePersona === "string" ? nombrePersona.trim().split(/\s+/)[0] : "";
 
   const [unidades, pedidos, recientes, semanas, metodos, config] = await Promise.all([
     contarUnidades(supabase, negocio.id),
@@ -93,7 +97,7 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
     <TarjetaPrimerosPasos pasos={pasos} vistos={vistos} negocioId={negocio.id} slug={negocio.slug} integrada destacar />
   );
   const tarjetaBienvenida = bienvenida && (
-    <TarjetaBienvenida nombre={negocio.nombre} negocioId={negocio.id} slug={negocio.slug} conVitrina={negocio.vitrinaActiva} />
+    <TarjetaBienvenida nombre={persona || negocio.nombre} negocioId={negocio.id} slug={negocio.slug} conVitrina={negocio.vitrinaActiva} />
   );
 
   if (sinProductos) {
@@ -132,7 +136,7 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
 
         <AvisoResenas pendientes={pendientesResenas} />
 
-        <TarjetaAtencion r={r} ahora={ahora} pasos={pasosEnNota || undefined} />
+        <TarjetaAtencion r={r} ahora={ahora} pasos={pasosEnNota || undefined} sinAlDia={Boolean(tarjetaPasos)} />
 
         {!pasosEnNota && tarjetaPasos}
 

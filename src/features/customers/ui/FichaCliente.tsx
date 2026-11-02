@@ -11,7 +11,7 @@ import { inicialDe } from "./cara";
 
 const t = textos.clientes;
 
-/** La ficha de una clienta: quién es, lo que ha comprado, lo que debe y el historial de pedidos. */
+/** La ficha de un cliente: quién es, lo que ha comprado, lo que debe y el historial de pedidos. */
 export function FichaCliente({ cliente: c, negocio }: { cliente: ClienteConResumen; negocio: string }) {
   const debe = c.resumen.saldo > 0;
   const escribir = enlaceWhatsApp(

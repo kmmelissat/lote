@@ -13,7 +13,7 @@ export const asistente = {
   flotante: { abrir: "Hablar con Lotito", mover: "Podés arrastrarlo para moverlo.", cerrar: "Cerrar el chat", ampliar: "Abrir el chat en grande" },
   saludoInicial: "Anoto lo que vendiste, apartaste o cobraste. También preguntame cómo vas.",
   enLinea: "En línea",
-  vacioTexto: "Escribí como si le mandaras un mensaje a una ayudante. Probá una de estas:",
+  vacioTexto: "Escribí como si le mandaras un mensaje a alguien que te ayuda. Probá una de estas:",
   /** Lo que se ofrece en el chat vacío. "mandar" lo envía, "escribir" lo deja listo para completar, "foto" abre la cámara. */
   sugerencias: {
     inicio: [

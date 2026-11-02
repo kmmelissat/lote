@@ -41,7 +41,7 @@ export function HistorietaPedido({ estado, modo, listo }: { estado: EstadoPedido
             key={paso}
             aria-current={enCurso ? "step" : undefined}
             className={`relative flex items-end justify-center overflow-hidden rounded-lg ${suelta ? "col-span-2 aspect-[2/1] sm:col-span-1 sm:aspect-square" : "aspect-square"} border-[3px] border-teal-oscuro ${
-              destacada ? `z-10 scale-[1.04] -rotate-1 shadow-dura ${PUNTITOS} ${ultima ? "bg-rosa-palido" : "bg-celeste"}` : hecho ? `${PUNTITOS} bg-teal-fondo` : "bg-perla/60"
+              destacada ? `z-10 scale-[1.04] -rotate-1 shadow-dura ${PUNTITOS} ${ultima ? "bg-rosa-palido" : "bg-accion/35"}` : hecho ? `${PUNTITOS} bg-teal-fondo` : "bg-perla/60"
             }`}
           >
             {/* Lotito haciendo lo de ese paso (`pnpm imagenes-pasos`); si falta, solo su silueta */}

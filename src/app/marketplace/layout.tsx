@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { textos } from "@/lib/textos";
 
 // Explorar es público: sin menú del panel, con el logo para volver a la landing y la marca de Lote al pie.
@@ -24,7 +24,7 @@ export default function ExplorarLayout({ children }: LayoutProps<"/marketplace">
         <Migas />
         <main className="flex-1">{children}</main>
         <footer className="flex items-center justify-center gap-2 pt-12 text-sm font-medium text-teal-oscuro">
-          <Monito nombre="saluda" className="w-6 text-rosa" />
+          <LotitoMas nombre="saluda" className="w-6" />
           {textos.vitrina.marca}
         </footer>
       </div>

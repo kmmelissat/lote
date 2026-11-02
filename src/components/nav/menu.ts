@@ -7,6 +7,8 @@ const t = textos.nav;
 export type DatosMenu = {
   porAtender: number;
   urgente: boolean;
+  /** Pedidos enviados sin marcar como entregados: en el menú son un puntito, sin número */
+  enCamino: number;
   /** Cuántos primeros pasos hay hechos y cuántos son; null si ya terminó todo o no le toca configurar */
   pasos: { hechos: number; total: number; siguiente: { titulo: string; href: string } } | null;
   slug: string;

@@ -2,12 +2,14 @@ import { datosNavegacion } from "@/features/home/navegacion";
 import { ENLACES_PASOS } from "@/features/home/primerosPasos";
 import { urlFoto } from "@/lib/fotos";
 import { negocioActual } from "@/lib/negocio";
+import { rolPropio } from "@/domain";
 import { textos } from "@/lib/textos";
 import { Nav, type DatosMenu } from "./Nav";
 
 const SIN_DATOS: DatosMenu = {
   porAtender: 0,
   urgente: false,
+  enCamino: 0,
   pasos: null,
   slug: "",
   tieneLocal: false,
@@ -27,6 +29,7 @@ export async function NavConDatos() {
   const datos: DatosMenu = {
     porAtender: d.porAtender,
     urgente: d.urgente,
+    enCamino: d.enCamino,
     pasos:
       d.pasos && siguiente
         ? {
@@ -41,7 +44,8 @@ export async function NavConDatos() {
     esDuena: negocio.rol === "duena",
     perfil: {
       nombre: negocio.nombre || textos.perfil.nombre,
-      detalle: textos.perfil.roles[negocio.rol] ?? textos.perfil.detalle,
+      // Su propio rol, como ella lo quiere leer (Dueña, Dueño o Titular)
+      detalle: rolPropio(negocio.rol, negocio.trato) ?? textos.perfil.detalle,
       logo: negocio.logo ? urlFoto(negocio.logo) : null,
     },
   };

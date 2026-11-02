@@ -54,6 +54,8 @@ export const explorar = {
   panel: {
     rubro: "Rubro",
     todosLosRubros: "Todos",
+    todoElRubro: "Todo",
+    categoriasDe: (rubro: string) => `Categorías de ${rubro}`,
     entrega: "Entrega",
     departamento: "Departamento",
     todoElPais: "Todo el país",

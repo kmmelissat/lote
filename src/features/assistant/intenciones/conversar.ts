@@ -1,4 +1,4 @@
-import type { ResumenPeriodo, TipoPeriodo } from "@/domain";
+import { indicacionDeTrato, TRATO_POR_DEFECTO, type ResumenPeriodo, type TipoPeriodo, type Trato } from "@/domain";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { IANoDisponible } from "../../ai/provider";
@@ -32,6 +32,8 @@ export function datosParaResponder(
   pedidos: PedidoAsistente[],
   ganancias: Partial<Record<TipoPeriodo, ResumenPeriodo>>,
   ahora: Date,
+  sobre = "",
+  trato: Trato = TRATO_POR_DEFECTO,
 ): string {
   const conCosto = productos.some((p) => p.costoUnitario !== undefined);
   const ordenados = [...productos].sort((a, b) => b.vendidas - a.vendidas || b.disponibles - a.disponibles).slice(0, MAX_PRODUCTOS);
@@ -75,6 +77,8 @@ export function datosParaResponder(
 
   return [
     `Hoy es ${hoyEnSalvador.format(ahora)} (hora de El Salvador).`,
+    `Cómo hablarle a la persona: ${indicacionDeTrato(trato)}`,
+    ...(sobre.trim() ? [`Sobre el negocio (lo escribió quien lleva el negocio): ${sobre.trim().replace(/\s+/g, " ")}`] : []),
     "",
     `Productos (código | nombre | precio | disponibles | apartadas | vendidas${conCosto ? " | costo por unidad" : ""}):`,
     ...(lineasProductos.length ? lineasProductos : ["(todavía no hay productos)"]),
@@ -94,7 +98,8 @@ export function datosParaResponder(
 export async function conversar(d: Deps, entrada: Entrada): Promise<Respuesta> {
   if (!d.ia || !entrada.texto?.trim()) return respuestaNoEntendi();
   try {
-    const [productos, pedidos, ...ganancias] = await Promise.all([
+    const [sobre, productos, pedidos, ...ganancias] = await Promise.all([
+      d.puerto.sobreElNegocio(),
       d.puerto.productos(),
       d.puerto.pedidos(["pendiente", "pagado", "preparando", "enviado", "entregado"]),
       ...PERIODOS.map((p) => d.puerto.ganancia(p)),
@@ -102,7 +107,7 @@ export async function conversar(d: Deps, entrada: Entrada): Promise<Respuesta> {
     const porPeriodo = Object.fromEntries(
       PERIODOS.flatMap((p, i) => (ganancias[i].ok ? [[p, ganancias[i].valor]] : [])),
     ) as Partial<Record<TipoPeriodo, ResumenPeriodo>>;
-    const texto = await d.ia.responder(entrada.texto.trim(), datosParaResponder(productos, pedidos, porPeriodo, d.ahora), entrada.historial);
+    const texto = await d.ia.responder(entrada.texto.trim(), datosParaResponder(productos, pedidos, porPeriodo, d.ahora, sobre, d.puerto.trato), entrada.historial);
     return { texto };
   } catch (e) {
     return e instanceof IANoDisponible ? respuestaNoEntendi() : { texto: t.errorIA };

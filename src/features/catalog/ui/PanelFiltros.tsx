@@ -15,6 +15,8 @@ export type FiltrosPanel = {
   busqueda: string;
   /** El rubro elegido, o vacío */
   categoria: string;
+  /** La categoría del catálogo elegida dentro del rubro, o vacío */
+  sub: string;
   orden: string;
   min: string;
   max: string;
@@ -32,11 +34,14 @@ export function PanelFiltros({
   filtros,
   rubros,
   enlaceRubro,
+  enlaceCategoria,
   limpiar,
 }: {
   filtros: FiltrosPanel;
   rubros: Rubro[];
   enlaceRubro: (id: string) => { href: string; rel?: string };
+  /** Una categoría dentro del rubro elegido ("" = todo el rubro) */
+  enlaceCategoria: (nombre: string) => { href: string; rel?: string };
   /** A dónde lleva "Quitar filtros" (conserva solo la búsqueda y el orden) */
   limpiar: string | null;
 }) {
@@ -74,6 +79,25 @@ export function PanelFiltros({
                     {r.productos}
                   </span>
                 </Link>
+                {/* Las categorías del rubro elegido, un nivel adentro */}
+                {f.categoria === r.id && r.categorias.length > 1 && (
+                  <ul aria-label={t.panel.categoriasDe(r.nombre)} className="mb-1 ml-3 flex flex-col border-l-2 border-teal-oscuro/20">
+                    <li>
+                      <Link {...enlaceCategoria("")} aria-current={f.sub ? undefined : "true"} className={rubro(!f.sub)}>
+                        {t.panel.todoElRubro}
+                        <span className="text-xs tabular-nums text-texto-2">{r.productos}</span>
+                      </Link>
+                    </li>
+                    {r.categorias.map((c) => (
+                      <li key={c.categoria}>
+                        <Link {...enlaceCategoria(c.categoria)} aria-current={f.sub === c.categoria ? "true" : undefined} className={rubro(f.sub === c.categoria)}>
+                          {c.categoria}
+                          <span className="text-xs tabular-nums text-texto-2">{c.productos}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>
@@ -85,6 +109,7 @@ export function PanelFiltros({
         {f.categoria && (
           <input type="hidden" name="categoria" value={f.categoria} />
         )}
+        {f.sub && <input type="hidden" name="sub" value={f.sub} />}
         {f.orden !== "recientes" && (
           <input type="hidden" name="orden" value={f.orden} />
         )}

@@ -14,7 +14,6 @@ describe("buscarDestinos", () => {
 
   it("no importan las tildes ni las mayúsculas", () => {
     expect(hrefs("GESTIÓN")).toContain("/gestion");
-    expect(hrefs("categorías")).toContain("/ajustes/categorias");
   });
 
   it("todas las palabras tienen que aparecer", () => {

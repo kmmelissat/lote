@@ -28,7 +28,16 @@ export function AbrirVitrina({ slug, className, iconoGrande = false }: { slug: s
   );
 }
 
-export function Insignia({ n, urgente }: { n: number; urgente: boolean }) {
+export function Insignia({ n, urgente, enCamino = 0 }: { n: number; urgente: boolean; enCamino?: number }) {
+  // Sin nada por atender, un puntito avisa que hay pedidos en camino (enviados, sin marcar como entregados)
+  if (n === 0 && enCamino > 0) {
+    return (
+      <span className="relative flex shrink-0 group-data-[cerrado]:absolute group-data-[cerrado]:right-2 group-data-[cerrado]:top-1.5">
+        <span className="size-3 rounded-full border-2 border-teal-oscuro bg-celeste" />
+        <span className="sr-only">{textos.nav.enCamino(enCamino)}</span>
+      </span>
+    );
+  }
   if (n === 0) return null;
   return (
     <span className="relative flex shrink-0 group-data-[cerrado]:absolute group-data-[cerrado]:right-1 group-data-[cerrado]:top-0.5">

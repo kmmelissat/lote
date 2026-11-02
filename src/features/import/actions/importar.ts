@@ -9,8 +9,8 @@ import {
   type FilaImportable,
   type Mapeo,
 } from "../mapeo";
-import { categoriaDeLista, categoriasQueNoExisten } from "@/features/products/categorias";
-import { deshacerImportacion, importarProductos, listarCategorias } from "@/features/products/repositorio";
+import { categoriaPorTexto, categoriasSinReconocer } from "@/features/catalog/rubros";
+import { deshacerImportacion, importarProductos } from "@/features/products/repositorio";
 import { esRutaFoto } from "@/lib/fotos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -47,10 +47,10 @@ export async function importarCsv(
   });
   if (!buenas.length) return { ok: false, error: t.errorVacio };
 
-  // La categoría tiene que estar en la lista del negocio: las que no existen no se inventan, el producto se crea sin categoría.
-  const lista = await listarCategorias(supabase, negocio.id);
-  const sinCategoria = categoriasQueNoExisten(lista, buenas.map((f) => f.categoria));
-  const conCategoriaValida = buenas.map((f) => ({ ...f, categoria: categoriaDeLista(lista, f.categoria) ?? undefined }));
+  // Lo que dice el archivo ("Blusas", "esponja de maquillaje") se pasa a la categoría del catálogo que más se parece.
+  // Lo que no se reconoce no se inventa: el producto se crea sin categoría y se elige después.
+  const sinCategoria = categoriasSinReconocer(buenas.map((f) => f.categoria));
+  const conCategoriaValida = buenas.map((f) => ({ ...f, categoria: categoriaPorTexto(f.categoria)?.nombre }));
 
   const r = await importarProductos(supabase, negocio.id, archivo, mapeoLimpio, conCategoriaValida);
   if (!r.ok) return { ok: false, error: r.error === "sin_permiso" ? t.errorPermiso : t.errorGeneral };

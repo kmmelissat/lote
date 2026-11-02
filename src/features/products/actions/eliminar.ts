@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eliminarGrupo, eliminarProducto, obtenerProducto } from "../repositorio";
+import { eliminarGrupo, eliminarProducto, listarGrupo, obtenerProducto } from "../repositorio";
+import { borrarSiNadieLasUsa } from "@/lib/fotosSueltas";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -19,11 +20,14 @@ export async function borrarProducto(codigo: number, todas = false): Promise<{ e
   if (!p) return { error: t.errorGeneral };
 
   const grupo = todas ? p.grupo : null;
+  // Se guardan antes de borrar: después ya no hay de dónde leerlas
+  const fotos = grupo ? (await listarGrupo(supabase, negocio.id, grupo, false)).flatMap((m) => m.fotos) : p.fotos;
   const r = grupo ? await eliminarGrupo(supabase, negocio.id, grupo) : await eliminarProducto(supabase, p.id);
   if (r === "con_pedidos") return { error: grupo ? t.errorConPedidosTodas : t.errorConPedidos };
   if (r === "sin_permiso") return { error: t.errorPermiso };
   if (r !== "ok") return { error: t.errorGeneral };
 
+  await borrarSiNadieLasUsa(supabase, fotos);
   revalidatePath("/", "layout");
   return {};
 }

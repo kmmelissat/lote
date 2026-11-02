@@ -20,3 +20,4 @@ export * from "./balance";
 export * from "./actividad";
 export * from "./serieDiaria";
 export * from "./cuota";
+export * from "./trato";

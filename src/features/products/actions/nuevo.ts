@@ -52,7 +52,7 @@ export async function nuevoProducto(
   if (conVariantes) delete errores.precio;
 
   const categoria = (valores.categoria ?? "").trim();
-  if (await categoriaNoExiste(categoria)) errores.categoria = t.categorias.errorNoExiste;
+  if (categoriaNoExiste(categoria)) errores.categoria = t.categorias.errorNoExiste;
 
   const validadas = conVariantes ? validarFilas(leerFilas(valores.variantesFilas), new Map()) : null;
   if (validadas && !validadas.ok) errores.variantes = textoErrorFilas(validadas.error);

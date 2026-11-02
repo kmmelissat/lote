@@ -1,6 +1,6 @@
 export const resenas = {
   titulo: "Reseñas",
-  descripcion: "Lo que dicen tus clientas. Las que llegan de clientes esperan a que las publiques.",
+  descripcion: "Lo que dicen tus clientes. Las reseñas que llegan desde tu tienda esperan a que las publiques.",
   enlace: "Reseñas",
   enlaceTexto: "Publicá lo que dicen quienes te compraron.",
   pendientes: (n: number) => (n === 1 ? "1 reseña por revisar" : `${n} reseñas por revisar`),
@@ -17,7 +17,7 @@ export const resenas = {
   hecho: { publicada: "Reseña publicada.", oculta: "Reseña oculta.", borrada: "Reseña borrada." },
   nueva: {
     titulo: "Agregá una reseña tuya",
-    ayuda: "Por ejemplo, lo que te escribió una clienta por WhatsApp. Sale publicada y se marca como tuya.",
+    ayuda: "Por ejemplo, lo que te escribió un cliente por WhatsApp. Sale publicada y se marca como tuya.",
     nombre: "Nombre de quien opina",
     nombrePlaceholder: "Ana",
     estrellas: "Estrellas",
@@ -32,7 +32,7 @@ export const resenas = {
   errorDatos: "Revisá el nombre, las estrellas y que el texto no pase de 500 letras.",
   errorPermiso: "Tu rol no puede cambiar las reseñas.",
   errorGeneral: "No pudimos guardar. Probá de nuevo.",
-  soloGestion: "Solo la dueña y la administradora pueden ver las reseñas.",
+  soloGestion: "Solo quien es titular y quien administra pueden ver las reseñas.",
   cliente: {
     titulo: "¿Cómo te fue con tu pedido?",
     ayuda: "Tu opinión ayuda a otras personas. La tienda la revisa antes de publicarla y solo se muestra tu primer nombre.",

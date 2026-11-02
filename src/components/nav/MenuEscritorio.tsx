@@ -61,6 +61,7 @@ export function MenuEscritorio({ datos, cerrado, alternarMenu, abrirPaleta, rapi
                     ruta={ruta}
                     porAtender={datos.porAtender}
                     urgente={datos.urgente}
+                    enCamino={datos.enCamino}
                     slug={datos.slug}
                     esDuena={datos.esDuena}
                   />

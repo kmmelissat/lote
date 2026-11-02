@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { LotitoMas, type PoseLotito } from "@/components/ui/LotitoMas";
+import { EscribirALaTienda } from "@/features/catalog/ui/EscribirALaTienda";
+import { HojaCuaderno } from "@/features/catalog/ui/HojaCuaderno";
+import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
+import { TicketPedido } from "@/features/catalog/ui/TicketPedido";
+import { obtenerApartadoPublico, obtenerNegocioPublico } from "@/features/catalog/repositorio";
 import { DejarResena } from "@/features/reviews/ui/DejarResena";
 import { obtenerSeguimiento } from "@/features/tracking/repositorio";
 import { mensajeDeEstado } from "@/features/tracking/mensajes";
@@ -21,10 +27,10 @@ export const metadata: Metadata = { title: t.titulo, robots: { index: false, fol
 
 /** El color del bocadillo y la pose de Lotito en cada etapa */
 const FONDO = {
-  pendiente: "bg-limon",
+  pendiente: "bg-accion/25",
   pagado: "bg-teal-fondo",
   preparando: "bg-perla",
-  enviado: "bg-celeste",
+  enviado: "bg-accion/25",
   entregado: "bg-rosa-palido",
   cancelado: "bg-rosa-palido",
 } as const;
@@ -48,8 +54,14 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
   const { pedido } = await params;
   if (!esUuid(pedido)) notFound();
 
-  const s = await obtenerSeguimiento(createPublicClient(), pedido);
+  const supabase = createPublicClient();
+  const s = await obtenerSeguimiento(supabase, pedido);
   if (!s) notFound();
+  // El color y el WhatsApp de la tienda, y la compra con sus precios (por el mismo enlace privado del pedido). Si algo falta, la página sigue sin eso.
+  const [tienda, compra] = await Promise.all([
+    obtenerNegocioPublico(supabase, s.slug).catch(() => null),
+    obtenerApartadoPublico(supabase, s.slug, pedido).catch(() => null),
+  ]);
 
   const cancelado = s.estado === "cancelado";
   const entregado = s.estado === "entregado";
@@ -57,9 +69,11 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
   const mensaje = cancelado ? { titulo: t.cancelaste, texto: t.cancelado } : mensajeDeEstado(s);
 
   return (
+    <MarcaTienda color={tienda?.color ?? null}>
+    <HojaCuaderno>
     <div className="flex flex-col gap-6">
       <header className="flex flex-col items-start gap-2">
-        <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-white px-3 py-1 text-sm font-bold shadow-dura-chica">{s.negocio}</span>
+        <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-accion px-3 py-1 text-sm font-bold text-accion-texto shadow-dura-chica">{s.negocio}</span>
         <h1 className="font-logo text-4xl font-semibold leading-none">
           <span className="bg-[linear-gradient(transparent_78%,var(--color-rosa)_78%,var(--color-rosa)_100%)] pb-0.5">{t.tuPedido}</span>
         </h1>
@@ -68,6 +82,9 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
         </p>
       </header>
 
+      {/* En escritorio la hoja se reparte en dos: a la izquierda cómo va el pedido, a la derecha lo que compró y cómo escribirle a la tienda */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
+      <div className="flex min-w-0 flex-col gap-6">
       {/* Lotito cuenta cómo va, en un bocadillo del color de la etapa */}
       <section aria-label={t.estado} className="flex items-end gap-3">
         <LotitoMas nombre={POSE[s.estado]} className="w-24 shrink-0 animate-flotar sm:w-28" />
@@ -85,22 +102,39 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
 
       {mostrarGuia && <CopiarGuia guia={s.guia!} paquetera={s.paquetera} />}
 
-      <section aria-labelledby="tu-pedido" className="relative rounded-[28px] border-2 border-teal-oscuro bg-superficie p-5 shadow-dura-chica">
-        <h2 id="tu-pedido" className="mb-4 font-logo text-2xl font-semibold">
-          {t.productos}
-        </h2>
-        <ul className="flex flex-wrap gap-3">
-          {s.items.map((i, n) => (
-            <li
-              key={i.nombre}
-              className={`inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro py-1.5 pl-1.5 pr-4 font-bold shadow-dura-chica ${STICKERS[n % STICKERS.length]}`}
-            >
-              <span className="flex size-8 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white font-logo text-sm">×{i.cantidad}</span>
-              {i.nombre}
-            </li>
-          ))}
-        </ul>
-      </section>
+      </div>
+
+      <div className="flex min-w-0 flex-col gap-6">
+      {compra ? (
+        <TicketPedido a={compra} />
+      ) : (
+        <section aria-labelledby="tu-pedido" className="relative rounded-[28px] border-2 border-teal-oscuro bg-superficie p-5 shadow-dura-chica">
+          <h2 id="tu-pedido" className="mb-4 font-logo text-2xl font-semibold">
+            {t.productos}
+          </h2>
+          <ul className="flex flex-wrap gap-3">
+            {s.items.map((i, n) => (
+              <li
+                key={i.nombre}
+                className={`inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro py-1.5 pl-1.5 pr-4 font-bold shadow-dura-chica ${STICKERS[n % STICKERS.length]}`}
+              >
+                <span className="flex size-8 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white font-logo text-sm">×{i.cantidad}</span>
+                {i.nombre}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Escribirle a la tienda y, si quiere ver todo, el detalle del pedido */}
+      <div className="flex flex-col items-stretch gap-3">
+        <EscribirALaTienda whatsapp={tienda?.whatsapp ?? null} negocio={s.negocio} codigo={s.codigo} />
+        {compra && (
+          <Link href={`/c/${s.slug}/pedido/${pedido}`} className="inline-flex min-h-11 items-center justify-center text-sm font-bold text-teal underline">
+            {textos.vitrina.confirmacion.verDetalle} →
+          </Link>
+        )}
+      </div>
 
       {/* Ya lo recibió: es el momento de contar cómo le fue */}
       {entregado && s.items.some((i) => i.codigo !== undefined) && (
@@ -115,7 +149,10 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
         </section>
       )}
 
-      <section className="relative flex items-end justify-between gap-3 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-limon p-5 shadow-dura">
+      </div>
+      </div>
+
+      <section className="relative flex items-end justify-between gap-3 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-accion/25 p-5 shadow-dura">
         <div className="flex min-w-0 flex-col items-start gap-3">
           <p className="font-logo text-2xl font-semibold leading-tight">{t.masDelNegocio}</p>
           <ButtonLink href={`/c/${s.slug}`} variante="mango" icono="tienda">
@@ -126,5 +163,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
         <Icon nombre="estrella" aria-hidden="true" className="absolute right-4 top-4 size-5 animate-flotar fill-white text-teal-oscuro" />
       </section>
     </div>
+    </HojaCuaderno>
+    </MarcaTienda>
   );
 }

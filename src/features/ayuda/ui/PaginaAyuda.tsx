@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { TARJETA_BASE } from "@/components/ui/tarjeta";
 import { textos } from "@/lib/textos";
 
@@ -59,7 +59,7 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
             {conSesion ? t.hablarConLotito : t.empezar}
           </ButtonLink>
         </div>
-        <Monito nombre="saluda" className="absolute -bottom-3 right-4 hidden w-32 text-rosa motion-safe:animate-asomar sm:block md:right-8 md:w-36" />
+        <LotitoMas nombre="saluda" className="absolute -bottom-3 right-4 hidden w-32 motion-safe:animate-asomar sm:block md:right-8 md:w-36" />
       </section>
 
       <section aria-labelledby="atajos-ayuda" className="flex flex-col gap-3">
@@ -142,7 +142,7 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
             {conSesion ? t.cierreAccion : t.empezar}
           </ButtonLink>
         </div>
-        <Monito nombre="asoma" className="absolute -bottom-1 right-6 hidden w-24 text-rosa motion-safe:animate-asomar sm:block" />
+        <LotitoMas nombre="asoma" className="absolute -bottom-1 right-6 hidden w-24 motion-safe:animate-asomar sm:block" />
       </section>
     </div>
   );

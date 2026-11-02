@@ -16,7 +16,7 @@ export const ayuda = {
     { id: "lotito", titulo: "Hablar con Lotito", temas: ["asistente", "deshacer"] },
   ],
   cierreTitulo: "¿No encontrás lo que buscás?",
-  cierreTexto: "Escribile a Lotito como le escribirías a una ayudante: apartá, cobrá o preguntale cuánto ganaste.",
+  cierreTexto: "Escribile a Lotito como le escribirías a alguien que te ayuda: apartá, cobrá o preguntale cuánto ganaste.",
   cierreAccion: "Hablar con Lotito",
   cierreTituloFuera: "¿Querés que Lotito te ayude en tu negocio?",
   cierreTextoFuera: "Creá tu cuenta con Google o con tu correo. Gratis para empezar, sin tarjeta.",
@@ -62,7 +62,7 @@ export const ayuda = {
       donde: ["/dinero"],
       pregunta: "¿Cómo sé cuánto gané?",
       respuesta:
-        "En Dinero ves dos números: la ganancia de tus productos y la ganancia después de gastos. Si a algún producto le falta el costo, la ganancia aparece como estimada. Solo la ven la dueña y la administradora.",
+        "En Dinero ves dos números: la ganancia de tus productos y la ganancia después de gastos. Si a algún producto le falta el costo, la ganancia aparece como estimada. Solo la ven quien es titular y quien administra.",
     },
     {
       id: "balance",
@@ -70,7 +70,7 @@ export const ayuda = {
       donde: ["/gestion", "/dinero"],
       pregunta: "¿Qué es el Cuadre y cuánto vale mi negocio?",
       respuesta:
-        "El Cuadre es tu balance: suma lo que tenés (efectivo, cuenta digital, lo que te deben y tu mercadería a lo que te costó) y le resta lo que debés. Lo que queda es lo que es tuyo hoy. Un préstamo sube lo que tenés y también lo que debés, así que no cambia lo que es tuyo. Lo que es tuyo sube cuando vendés con ganancia y baja cuando gastás. Lo ven la dueña y la administradora.",
+        "El Cuadre es tu balance: suma lo que tenés (efectivo, cuenta digital, lo que te deben y tu mercadería a lo que te costó) y le resta lo que debés. Lo que queda es lo que es tuyo hoy. Un préstamo sube lo que tenés y también lo que debés, así que no cambia lo que es tuyo. Lo que es tuyo sube cuando vendés con ganancia y baja cuando gastás. Lo ven quien es titular y quien administra.",
     },
     {
       id: "saldo_inicial",
@@ -109,7 +109,7 @@ export const ayuda = {
       donde: [],
       pregunta: "¿Qué le puedo decir al asistente?",
       respuesta:
-        "Escribile como a una ayudante: \"apartá la chaqueta para @ana\", \"vendí 2 llaveros en persona\", \"ya pagó Ana\", \"gasté $5 en bolsas\" o \"¿cuánto gané esta semana?\". Si escribís \"ayuda\" te muestra más ejemplos.",
+        "Escribile como a alguien que te ayuda: \"apartá la chaqueta para @ana\", \"vendí 2 llaveros en persona\", \"ya pagó Ana\", \"gasté $5 en bolsas\" o \"¿cuánto gané esta semana?\". Si escribís \"ayuda\" te muestra más ejemplos.",
     },
     {
       id: "deshacer",
@@ -132,7 +132,7 @@ export const ayuda = {
       donde: [],
       pregunta: "¿Quién puede ver mis costos y mi ganancia?",
       respuesta:
-        "Solo la dueña y la administradora. Una vendedora puede registrar ventas, apartados y pagos, pero no ve costos ni ganancias.",
+        "Solo quien es titular y quien administra. Quien está en Ventas puede registrar ventas, apartados y pagos, pero no ve costos ni ganancias.",
     },
     {
       id: "exportar",
@@ -179,7 +179,7 @@ export const ayuda = {
       donde: ["/ajustes", "/pedidos"],
       pregunta: "¿Dónde pongo mis datos de pago?",
       respuesta:
-        "En Ajustes, en Mi tienda, pestaña Pagos. Prendé los métodos con los que cobrás (transferencia, efectivo o contra entrega) y escribí los datos de cada uno. Salen en cada mensaje de cobro. Solo la dueña puede cambiarlos.",
+        "En Ajustes, en Mi tienda, pestaña Pagos. Prendé los métodos con los que cobrás (transferencia, efectivo o contra entrega) y escribí los datos de cada uno. Salen en cada mensaje de cobro. Solo quien es titular puede cambiarlos.",
     },
     {
       id: "envios_config",
@@ -187,7 +187,7 @@ export const ayuda = {
       donde: ["/ajustes", "/pedidos"],
       pregunta: "¿Dónde configuro mis envíos?",
       respuesta:
-        "En Ajustes, en Mi tienda, pestaña Envíos. Ahí decís si se puede recoger en la tienda, a qué departamentos entregás y cuánto cobrás por el envío (una tarifa para todos, o distinta en algún departamento). Que Lote gestione tus envíos con una paquetera viene pronto. Solo la dueña puede cambiarlo.",
+        "En Ajustes, en Mi tienda, pestaña Envíos. Ahí decís si se puede recoger en la tienda, a qué departamentos entregás y cuánto cobrás por el envío (una tarifa para todos, o distinta en algún departamento). Que Lote gestione tus envíos con una paquetera viene pronto. Solo quien es titular puede cambiarlo.",
     },
     {
       id: "pagar_pedido",
@@ -210,7 +210,7 @@ export const ayuda = {
       donde: ["/productos/nuevo", "/productos"],
       pregunta: "¿Cómo organizo mis productos en categorías?",
       respuesta:
-        "Las categorías se crean una vez y después se eligen de una lista al crear o editar un producto. Si Lotito ve una que todavía no existe, te ofrece crearla.",
+        "Las categorías son una lista fija de Lote, la misma para todas las tiendas: al crear o editar un producto elegís el rubro y después la categoría (por ejemplo, Belleza y Brochas y esponjas). Así tus productos aparecen en el lugar correcto del Marketplace. Si subís una foto, Lotito te propone la categoría.",
     },
   ],
 } as const;

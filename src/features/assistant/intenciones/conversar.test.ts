@@ -29,6 +29,17 @@ const pedido: PedidoAsistente = {
 };
 const ahora = new Date("2026-10-29T20:00:00Z");
 
+describe("lo que la dueña cuenta del negocio", () => {
+  it("va a los datos para que Lotito aconseje a la medida, en una sola línea", () => {
+    const datos = datosParaResponder([producto(1, "Llavero", 1, null)], [], {}, ahora, "Vendo postres\ncaseros en Santa Tecla");
+    expect(datos).toContain("Sobre el negocio (lo escribió quien lleva el negocio): Vendo postres caseros en Santa Tecla");
+  });
+
+  it("si no escribió nada, no aparece la línea", () => {
+    expect(datosParaResponder([producto(1, "Llavero", 1, null)], [], {}, ahora, "  ")).not.toContain("Sobre el negocio");
+  });
+});
+
 describe("datosParaResponder", () => {
   it("pone primero lo que más se vende, con sus costos si se pueden ver", () => {
     const datos = datosParaResponder([producto(1, "Llavero", 1, null), producto(2, "Funda", 9, 400)], [pedido], {}, ahora);
@@ -49,5 +60,12 @@ describe("datosParaResponder", () => {
     const datos = datosParaResponder([], [], { semana: resumenDelPeriodo([], []) }, ahora);
     expect(datos).toContain("Ganancia después de gastos:");
     expect(datos).toContain("esta semana: vendido $0.00 en 0 pedidos");
+  });
+});
+
+describe("cómo hablarle a la persona", () => {
+  it("siempre le dice a Lotito el trato, y por defecto es sin género", () => {
+    expect(datosParaResponder([producto(1, "Llavero", 1, null)], [], {}, ahora)).toContain("Cómo hablarle a la persona: Hablale sin género");
+    expect(datosParaResponder([producto(1, "Llavero", 1, null)], [], {}, ahora, "", "el")).toContain("masculino");
   });
 });

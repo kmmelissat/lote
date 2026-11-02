@@ -13,7 +13,7 @@ const sinSuscripcion = () => () => {};
 const origenActual = () => window.location.origin;
 const origenServidor = () => "";
 
-/** El enlace público que ve la clienta para seguir su pedido: a la vista, para copiarlo o abrirlo como lo ve ella. */
+/** El enlace público que ve el cliente para seguir su pedido: a la vista, para copiarlo o abrirlo como lo ve ella. */
 export function EnlaceSeguimiento({ pedidoId }: { pedidoId: string }) {
   const { avisar } = useToast();
   const origen = useSyncExternalStore(sinSuscripcion, origenActual, origenServidor);

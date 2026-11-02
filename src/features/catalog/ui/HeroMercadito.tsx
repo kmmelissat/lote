@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { Toldo } from "@/components/ui/Toldo";
 import { textos } from "@/lib/textos";
 
@@ -150,7 +150,7 @@ export function HeroMercadito({
             </p>
             {/* Lotito con una lupa en la mano: al enfocar el buscador la levanta, como si mirara de cerca */}
             <div className="relative">
-              <Monito nombre="asoma" className={`w-24 text-teal transition-transform duration-300 md:w-28 ${enfocado ? "translate-y-0" : "translate-y-2"}`} />
+              <LotitoMas nombre="asoma" className={`w-24 transition-transform duration-300 md:w-28 ${enfocado ? "translate-y-0" : "translate-y-2"}`} />
               <svg
                 viewBox="0 0 100 130"
                 aria-hidden="true"

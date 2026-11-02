@@ -14,6 +14,8 @@ export type DatosNavegacion = {
   porAtender: number;
   /** Hay un apartado a punto de vencer */
   urgente: boolean;
+  /** Pedidos enviados que todavía no se marcaron como entregados: no piden nada, pero siguen abiertos */
+  enCamino: number;
   /** Los primeros pasos que faltan, o null si ya están todos (o la persona no configura el negocio) */
   pasos: PasoInicial[] | null;
 };
@@ -26,7 +28,7 @@ export async function datosNavegacion(
   const ahora = new Date();
   const [unidades, pedidos, metodos, config, galletas] = await Promise.all([
     contarUnidades(supabase, negocio.id),
-    buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
+    buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando", "enviado"]),
     negocio.puedeGestionar ? listarMetodos(supabase, negocio.id) : null,
     negocio.puedeGestionar ? leerConfiguracion(supabase, negocio.id) : null,
     cookies(),
@@ -47,6 +49,7 @@ export async function datosNavegacion(
   return {
     porAtender: r.porPagar + r.porEnviar,
     urgente: r.seEnfrian.length > 0,
+    enCamino: pedidos.filter((p) => p.estado === "enviado").length,
     pasos: pasos && faltanPasos(pasos) ? pasos : null,
   };
 }

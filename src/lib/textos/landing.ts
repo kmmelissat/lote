@@ -187,7 +187,7 @@ export const landing = {
       titulo: "Que te descubran",
       texto: "Aparecé en el Marketplace si querés, y mostrá las reseñas de quienes ya te compraron.",
       cita: "Llegó rapidísimo y tal cual la foto.",
-      quien: "Una clienta",
+      quien: "Un cliente",
     },
     tambien:
       "También: variantes (talla, tono, color), ofertas y promociones con fechas, carrito de varios productos, resumen semanal, ayudante con permisos, y exportar tus datos cuando quieras.",
@@ -233,7 +233,7 @@ export const landing = {
     gratis: {
       nombre: "Gratis",
       precio: "$0",
-      texto: "Para vender y llevar el control solo o con una ayudante.",
+      texto: "Para vender y llevar el control solo o con alguien que te ayuda.",
       lista: [
         "Fichas de producto, fotos y estados",
         "Tu tienda en línea con tu enlace",

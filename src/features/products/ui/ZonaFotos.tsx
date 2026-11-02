@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useId, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
@@ -91,7 +91,7 @@ export function ZonaFotos({
           compacto ? "rounded-2xl p-3 sm:flex-row sm:text-left" : "rounded-[24px] p-5"
         } ${encima ? "bg-limon" : "bg-crema"} ${rutas.length && !compacto ? "sm:flex-row sm:text-left" : ""}`}
       >
-        {!compacto && <Monito nombre="celular" className={`shrink-0 text-teal ${rutas.length ? "w-12" : "w-16"}`} />}
+        {!compacto && <LotitoMas nombre="celular" className={`shrink-0 ${rutas.length ? "w-12" : "w-16"}`} />}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {!compacto && (
             <>

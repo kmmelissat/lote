@@ -17,7 +17,8 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 - ✅ "Otra igual" (copia precio, costo y categoría), editar, borrar (si no tiene pedidos) y poco stock con umbral propio.
 - ✅ Importar desde CSV o desde una hoja pública de Google Sheets (vista previa con errores, ficha y variantes, **deshacer** la importación completa).
 - ✅ Texto listo para el post y sticker "VENDIDO" para stories.
-- ✅ Categorías: crear, renombrar y borrar desde Ajustes.
+- ✅ Categorías fijas de Lote en dos niveles (rubro > categoría, ej. Belleza > Brochas y esponjas): el producto elige una de la lista, nadie la inventa. Lotito y el importador de CSV la deducen del texto.
+- ❌ **Etiquetas propias** de la tienda ("Favoritos del mes"): solo para su vitrina, sin tocar Explorar.
 
 ### Vender y cobrar
 - ✅ Apartar, vender y liberar. **Bloqueo de doble promesa**: si algo ya está apartado, la app dice para quién. Pedidos con varios productos.
@@ -92,7 +93,7 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 
 ## Marketplace (`/marketplace`)
 
-- ✅ Todos los productos de las tiendas que quieran aparecer, juntos: buscador, **rubros** (Ropa, Comida, Hogar, Tecnología, Mascotas…), precio, orden y páginas numeradas.
+- ✅ Todos los productos de las tiendas que quieran aparecer, juntos: buscador, **rubros** (Ropa, Comida, Hogar, Tecnología, Mascotas…) y, dentro de cada uno, sus categorías, precio, orden y páginas numeradas.
 - ✅ "Destacados" y "Ofertas" arriba, y una vista de tiendas.
 - ✅ Cada tienda decide si aparece. Es la antigua "Explorar".
 

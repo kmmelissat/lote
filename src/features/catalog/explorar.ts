@@ -43,9 +43,9 @@ export type OrdenExplorar = (typeof ORDENES_EXPLORAR)[number];
 /** Lo que se pide al buscar: texto vacío significa "sin filtro". */
 const limpio = (t: string | undefined) => (t?.trim() ? t.trim().slice(0, 80) : undefined);
 
-/** `claves` son las categorías del rubro elegido ("tienda|categoría"); sin rubro, no se pasan. */
-export async function explorarTiendas(supabase: Cliente, busqueda?: string, claves?: string[]): Promise<TiendaExplorar[]> {
-  const { data, error } = await supabase.rpc("explorar_tiendas", { p_busqueda: limpio(busqueda), p_claves: claves });
+/** `categorias` son las del catálogo que se piden (las de un rubro, o una sola); sin filtro, no se pasan. */
+export async function explorarTiendas(supabase: Cliente, busqueda?: string, categorias?: string[]): Promise<TiendaExplorar[]> {
+  const { data, error } = await supabase.rpc("explorar_tiendas", { p_busqueda: limpio(busqueda), p_categorias: categorias });
   if (error) throw error;
   return data.map((t) => ({
     slug: t.slug,
@@ -64,8 +64,8 @@ export async function explorarProductos(
   supabase: Cliente,
   opciones: {
     busqueda?: string;
-    /** Las categorías del rubro elegido ("tienda|categoría") */
-    claves?: string[];
+    /** Las categorías del catálogo que se piden (las de un rubro, o una sola) */
+    categorias?: string[];
     limite: number;
     desde: number;
     orden?: OrdenExplorar;
@@ -82,7 +82,7 @@ export async function explorarProductos(
 ): Promise<{ productos: ProductoExplorar[]; total: number | null }> {
   const { data, error } = await supabase.rpc("explorar_productos", {
     p_busqueda: limpio(opciones.busqueda),
-    p_claves: opciones.claves,
+    p_categorias: opciones.categorias,
     p_limite: opciones.limite,
     p_desde: opciones.desde,
     p_orden: opciones.orden,
@@ -175,7 +175,7 @@ export async function explorarPromociones(supabase: Cliente, limite: number): Pr
   }));
 }
 
-/** Los rubros con productos a la vista, armados con las categorías de todas las tiendas. */
+/** Los rubros con productos a la vista, armados con las categorías del catálogo que tienen productos. */
 export async function explorarRubros(supabase: Cliente): Promise<Rubro[]> {
   const { data, error } = await supabase.rpc("explorar_categorias");
   if (error) throw error;

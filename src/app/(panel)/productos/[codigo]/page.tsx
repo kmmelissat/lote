@@ -191,7 +191,7 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
       </section>
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
-        {/* A la izquierda, el producto como lo ve la clienta en la vitrina */}
+        {/* A la izquierda, el producto como lo ve el cliente en la vitrina */}
         <div className="flex flex-col gap-3 lg:sticky lg:top-4">
           <VistaPreviaProducto
             soloFicha

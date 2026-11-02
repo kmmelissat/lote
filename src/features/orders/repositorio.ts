@@ -104,7 +104,7 @@ export async function listarPedidos(
 
 /**
  * Una página de pedidos, los más recientes primero. Sin filtros son los de cualquier estado; con `estado` solo ese, y con
- * `busqueda` solo el pedido con ese número o los de la clienta que se llame así (sin importar mayúsculas).
+ * `busqueda` solo el pedido con ese número o los del cliente que se llame así (sin importar mayúsculas).
  */
 export async function paginaDePedidos(
   supabase: Cliente,

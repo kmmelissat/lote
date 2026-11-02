@@ -2,7 +2,7 @@ export const ajustes = {
   titulo: "Ajustes",
   descripcion: "Tu tienda, tu equipo y tus datos.",
   grupos: { negocio: "Tu negocio", ayuda: "Ayuda" },
-  vacioTexto: "Acá están tu tienda, las categorías, las reseñas, el equipo y tus datos.",
+  vacioTexto: "Acá están tu tienda, las reseñas, el equipo y tus datos.",
   tienda: {
     enlace: "Mi tienda",
     enlaceTexto: "Tu marca, tu número y cómo piden tus clientes.",
@@ -47,7 +47,7 @@ export const ajustes = {
     errorTiktok: "Ese usuario de TikTok no parece válido. Pegá el enlace de tu perfil o tu usuario, por ejemplo mitienda.",
     errorFacebook: "Esa página no parece válida. Pegá el enlace o el usuario, por ejemplo mitienda.",
     errorFacebookNombre: "Eso parece el nombre de tu página, no su enlace. Abrí tu página en Facebook, copiá la dirección de arriba (facebook.com/…) y pegala acá.",
-    errorContexto: "El contexto puede tener hasta 600 letras.",
+    errorContexto: "El contexto puede tener hasta 1000 letras.",
     secciones: {
       marca: "Datos de la tienda",
       marcaAyuda: "El nombre, el logo, tu número y tus redes. No hace falta tener tienda en línea.",
@@ -93,12 +93,12 @@ export const ajustes = {
     ideasTitulo: "Tocá una idea y seguí escribiendo",
     ideas: [
       { titulo: "Qué vendés", inicio: "Vendo " },
-      { titulo: "Quiénes te compran", inicio: "Mis clientas son " },
+      { titulo: "Quiénes te compran", inicio: "Mis clientes son " },
       { titulo: "Cómo querés los nombres", inicio: "Los nombres siempre con talla y color, por ejemplo \"Chaqueta negra M\". " },
       { titulo: "Qué no debe inventar", inicio: "No inventes marcas, medidas ni el estado de la prenda. " },
     ],
     lotitoNota: "Lotito usa esto solo para leer fotos. Los precios y costos nunca los inventa.",
-    soloDuena: "Solo la dueña del negocio puede cambiar la tienda.",
+    soloDuena: "Solo quien es titular del negocio puede cambiar la tienda.",
   },
   vitrina: {
     enlace: "Tienda en línea",
@@ -184,7 +184,7 @@ export const ajustes = {
     errorWhatsapp: "Ese número no parece válido. Son 8 números de El Salvador, por ejemplo 7000 1234.",
     errorInstagram: "Ese usuario no parece válido.",
     errorGeneral: "No pudimos guardar. Probá de nuevo.",
-    soloDuena: "Solo la dueña del negocio puede cambiar la tienda en línea.",
+    soloDuena: "Solo quien es titular del negocio puede cambiar la tienda en línea.",
   },
   envios: {
     enlace: "Envíos",
@@ -240,8 +240,8 @@ export const ajustes = {
     errorMonto: "Revisá los montos: usá números como 3 o 3.50.",
     errorGeneral: "No pudimos guardar. Probá de nuevo.",
     previaGratis: "Gratis",
-    soloDuenaTitulo: "Solo la dueña",
-    soloDuena: "Solo la dueña del negocio puede cambiar los envíos.",
+    soloDuenaTitulo: "Solo quien es titular",
+    soloDuena: "Solo quien es titular del negocio puede cambiar los envíos.",
   },
   pagos: {
     enlace: "Datos de pago",
@@ -254,7 +254,7 @@ export const ajustes = {
     apagado: "Apagado",
     datos: "Datos para pagar",
     sinMetodos: "No tenés ningún método activo: tus mensajes de cobro salen sin decir cómo pagar.",
-    faltanDatos: "Falta poner los datos: sin ellos tu clienta no sabe a dónde pagar.",
+    faltanDatos: "Falta poner los datos: sin ellos tu cliente no sabe a dónde pagar.",
     usarPlantilla: "Usar plantilla",
     plantilla: {
       transferencia: "Banco: \nTipo de cuenta: \nNúmero: \nA nombre de: ",
@@ -270,6 +270,6 @@ export const ajustes = {
     sinCambios: "Todo guardado",
     cambiosSinGuardar: "Tenés cambios sin guardar",
     errorGeneral: "No pudimos guardar. Probá de nuevo.",
-    soloDuena: "Solo la dueña del negocio puede cambiar los datos de pago.",
+    soloDuena: "Solo quien es titular del negocio puede cambiar los datos de pago.",
   },
 } as const;

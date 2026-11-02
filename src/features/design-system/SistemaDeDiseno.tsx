@@ -801,7 +801,7 @@ export function SistemaDeDiseno() {
             <Button
               variante="secundario"
               onClick={async () => {
-                if (await confirmar({ titulo: "¿Marcar como enviado?", texto: "Le avisamos a la clienta por WhatsApp.", confirmar: "Marcar enviado" })) avisar("Pedido enviado.", { tipo: "exito" });
+                if (await confirmar({ titulo: "¿Marcar como enviado?", texto: "Le avisamos al cliente por WhatsApp.", confirmar: "Marcar enviado" })) avisar("Pedido enviado.", { tipo: "exito" });
               }}
             >
               Confirmar

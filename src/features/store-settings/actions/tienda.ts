@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { colorDeMarca } from "@/features/catalog/marca";
 import { guardarTienda as guardar } from "@/features/catalog/repositorio";
 import { esRutaFoto } from "@/lib/fotos";
+import { borrarSiNadieLasUsa } from "@/lib/fotosSueltas";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { leerTienda } from "../formulario";
@@ -51,6 +52,9 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
   });
   if (ok === "slug_repetido") return { error: t.slug.errorRepetida };
   if (ok !== "ok") return { error: t.errorGeneral };
+
+  // El logo de antes ya no se usa: se borra del bucket
+  if (negocio.logo && negocio.logo !== (d.logo || null)) await borrarSiNadieLasUsa(supabase, [negocio.logo]);
 
   revalidatePath("/", "layout");
   return { listo: true };

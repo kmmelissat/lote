@@ -22,8 +22,10 @@ function Fila({ href, icono, children }: { href: string; icono: NombreIcono; chi
 }
 
 /** Lo que hay que hacer hoy (y, si todavía faltan, el siguiente de los primeros pasos como una fila más): es lo primero que se ve en Inicio, y lo único con relleno de color y sombra. */
-export function TarjetaAtencion({ r, ahora, pasos }: { r: ResumenInicio; ahora: Date; pasos?: React.ReactNode }) {
+export function TarjetaAtencion({ r, ahora, pasos, sinAlDia = false }: { r: ResumenInicio; ahora: Date; pasos?: React.ReactNode; sinAlDia?: boolean }) {
   const hayAccion = r.porPagar > 0 || r.porEnviar > 0 || r.seEnfrian.length > 0;
+  // "Todo al día" no sale si la pantalla ya está celebrando que todo quedó listo: serían dos mensajes diciendo lo mismo
+  if (!hayAccion && !pasos && sinAlDia) return null;
   if (!hayAccion && !pasos) {
     return (
       <Card role="region" aria-labelledby="atencion" className="flex items-center gap-4">

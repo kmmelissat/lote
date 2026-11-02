@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { LineasPromocion } from "@/components/ui/LineasPromocion";
 import type { AhorroPromocion } from "@/domain";
 import { Monito } from "@/components/ui/Monito";
+import { LotitoMas } from "@/components/ui/LotitoMas";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -31,7 +32,7 @@ export function EncabezadoCompra({
         ← {volverTexto}
       </Link>
       <header className="relative flex flex-col items-start gap-2 pr-24 sm:pr-40">
-        <Monito nombre="celular" className="pointer-events-none absolute -top-2 right-0 w-20 text-rosa sm:w-28" />
+        <LotitoMas nombre="celular" className="pointer-events-none absolute -top-2 right-0 w-20 sm:w-28" />
         <span className="rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold">{tienda}</span>
         <h1 className="text-4xl font-bold leading-tight">{titulo}</h1>
         <p className="max-w-xl text-texto-2">{ayuda}</p>

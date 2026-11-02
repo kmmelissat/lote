@@ -1,9 +1,9 @@
 import { leerDolares } from "@/domain";
 import { esRutaFoto } from "@/lib/fotos";
-import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { MAXIMO_FOTOS } from "./limites";
-import { listarCategorias, type NuevoProducto } from "./repositorio";
+import { categoriaDeNombre } from "@/features/catalog/rubros";
+import type { NuevoProducto } from "./repositorio";
 
 const t = textos.productos.form;
 
@@ -50,9 +50,5 @@ export function leerCostos(valores: Valores) {
   return { costos, errores };
 }
 
-/** La categoría se elige de la lista del negocio: una escrita a mano que no exista se rechaza. Vacía no cuenta como error. */
-export async function categoriaNoExiste(categoria: string): Promise<boolean> {
-  if (!categoria) return false;
-  const { supabase, negocio } = await negocioActual();
-  return !(await listarCategorias(supabase, negocio.id)).some((c) => c.toLowerCase() === categoria.toLowerCase());
-}
+/** La categoría se elige del catálogo de Lote: una que no esté en la lista se rechaza. Vacía no cuenta como error. */
+export const categoriaNoExiste = (categoria: string): boolean => Boolean(categoria) && !categoriaDeNombre(categoria);

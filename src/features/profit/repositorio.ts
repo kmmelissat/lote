@@ -205,7 +205,7 @@ export async function eliminarGasto(supabase: Cliente, gastoId: string): Promise
   return !error;
 }
 
-/** Lo que debe cada clienta todavía, sumado, y cuántas clientas son. Los pedidos sin clienta cuentan en el total pero no como clienta. */
+/** Lo que debe cada cliente todavía, sumado, y cuántas clientas son. Los pedidos sin clienta cuentan en el total pero no como clienta. */
 export async function saldosPorCobrar(supabase: Cliente, negocioId: string): Promise<{ total: Centavos; clientas: number }> {
   const { data, error } = await supabase
     .from("pedido")

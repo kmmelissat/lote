@@ -24,7 +24,7 @@ import { ZonaFotos } from "./ZonaFotos";
 const t = textos.productos.lote;
 const f = textos.productos.form;
 
-export function LoteForm({ negocioId, categorias }: { negocioId: string; categorias: string[] }) {
+export function LoteForm({ negocioId }: { negocioId: string }) {
   const [estado, accion, pendiente] = useActionState<EstadoLote, FormData>(crearLote, {});
   const [rutas, setRutas] = useState<string[]>([]);
   // Lo que se escribe por pieza se guarda por ruta: si se quita una foto, no se corren las demás.
@@ -187,7 +187,7 @@ export function LoteForm({ negocioId, categorias }: { negocioId: string; categor
           {rutas.length > 0 && (
             <BloqueForm numero={4} titulo={b.detalles.titulo} ayuda={b.detalles.ayuda} tono="celeste" listo>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <SelectorCategoria etiqueta={f.categoria} valor={categoria} onCambio={setCategoria} opciones={categorias} />
+                <SelectorCategoria etiqueta={f.categoria} valor={categoria} onCambio={setCategoria} />
                 <fieldset className="flex flex-col">
                   <legend className="mb-1.5 text-sm font-medium">{f.condicion}</legend>
                   <div className="flex flex-wrap gap-2">
