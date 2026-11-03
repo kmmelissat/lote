@@ -17,7 +17,7 @@ describe("buscarDestinos", () => {
   });
 
   it("todas las palabras tienen que aparecer", () => {
-    expect(hrefs("abrir caja")[0]).toBe("/mostrador/caja");
+    expect(hrefs("abrir caja")[0]).toBe("/vender/caja");
     expect(hrefs("abrir zzz")).toEqual([]);
   });
 
@@ -36,12 +36,13 @@ describe("buscarDestinos", () => {
 });
 
 describe("destinosDe", () => {
-  it("el Mostrador solo aparece con local y lo de Mi tienda solo para la dueña", () => {
+  it("Vender es para todas, la caja solo con venta en persona y lo de Mi tienda solo para la dueña", () => {
     const sin = destinosDe({ tieneLocal: false, esDuena: false }).map((d) => d.href);
-    expect(sin).not.toContain("/mostrador");
+    expect(sin).toContain("/vender");
+    expect(sin).not.toContain("/vender/caja");
     expect(sin).not.toContain("/ajustes/equipo");
     const con = destinosDe({ tieneLocal: true, esDuena: true }).map((d) => d.href);
-    expect(con).toContain("/mostrador");
+    expect(con).toContain("/vender/caja");
     expect(con).toContain("/ajustes/equipo");
   });
 });

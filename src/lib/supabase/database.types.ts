@@ -163,29 +163,35 @@ export type Database = {
         Row: {
           acepta_whatsapp: boolean
           contacto: string | null
+          correo: string | null
           creado_en: string
           id: string
           negocio_id: string
           nombre: string
           notas: string | null
+          usuario: string | null
         }
         Insert: {
           acepta_whatsapp?: boolean
           contacto?: string | null
+          correo?: string | null
           creado_en?: string
           id?: string
           negocio_id: string
           nombre: string
           notas?: string | null
+          usuario?: string | null
         }
         Update: {
           acepta_whatsapp?: boolean
           contacto?: string | null
+          correo?: string | null
           creado_en?: string
           id?: string
           negocio_id?: string
           nombre?: string
           notas?: string | null
+          usuario?: string | null
         }
         Relationships: [
           {
@@ -1850,6 +1856,10 @@ export type Database = {
       registrar_ajuste_dinero: {
         Args: { p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string; p_tipo: string }
         Returns: string
+      }
+      guardar_contacto_de_pedido: {
+        Args: { p_acepta_whatsapp?: boolean; p_correo?: string; p_pedido: string; p_telefono?: string; p_usuario?: string }
+        Returns: undefined
       }
       pagar_paquetera: {
         Args: { p_lugar: string; p_monto: number; p_pedido: string }

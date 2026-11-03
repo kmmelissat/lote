@@ -6,6 +6,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
+import { ResumenCompacto } from "@/components/ui/ResumenCompacto";
 import { colorDeEstado } from "@/components/ui/StatusChip";
 import { TarjetaDato } from "@/components/ui/TarjetaDato";
 import { interpretarBusqueda } from "@/features/orders/busqueda";
@@ -68,14 +69,23 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
         descripcion={t.descripcion}
         accion={
           negocio.puedeVender ? (
-            <ButtonLink href="/pedidos/nuevo" variante="mango" icono="mas">
+            <ButtonLink href="/vender" variante="mango" icono="mas" className="w-full md:w-auto">
               {t.registrar}
             </ButtonLink>
           ) : undefined
         }
       />
       <div className="flex flex-col gap-4">
-        <section aria-label={t.stats.titulo} className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <ResumenCompacto
+          titulo={t.stats.titulo}
+          datos={[
+            { etiqueta: t.stats.porCobrar, valor: formatearDolares(debido), banda: colorDeEstado("pagado"), href: enlace({ estado: "todos" }) },
+            { etiqueta: t.stats.esperando, valor: cuentas.pendiente, banda: colorDeEstado("pendiente"), href: enlace({ estado: "pendiente" }) },
+            { etiqueta: t.stats.porEnviar, valor: cuentas.pagado + cuentas.preparando, banda: colorDeEstado("preparando"), href: enlace({ estado: "pagado" }) },
+            { etiqueta: t.stats.enCamino, valor: cuentas.enviado, banda: colorDeEstado("enviado"), href: enlace({ estado: "enviado" }) },
+          ]}
+        />
+        <section aria-label={t.stats.titulo} className="hidden gap-4 md:grid md:grid-cols-4">
           <TarjetaDato etiqueta={t.stats.porCobrar} valor={formatearDolares(debido)} texto={t.stats.porCobrarNota} href={enlace({ estado: "todos" })} banda={colorDeEstado("pagado")} icono="moneda" />
           <TarjetaDato etiqueta={t.stats.esperando} valor={cuentas.pendiente} texto={t.stats.esperandoNota(cuentas.pendiente)} href={enlace({ estado: "pendiente" })} banda={colorDeEstado("pendiente")} icono="reloj" />
           <TarjetaDato etiqueta={t.stats.porEnviar} valor={cuentas.pagado + cuentas.preparando} texto={t.stats.porEnviarNota} href={enlace({ estado: "pagado" })} banda={colorDeEstado("preparando")} icono="caja" />

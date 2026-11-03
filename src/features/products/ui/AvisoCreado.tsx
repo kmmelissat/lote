@@ -16,6 +16,8 @@ export function AvisoCreado() {
     const guardado = url.searchParams.get("guardado");
     const lote = Number(url.searchParams.get("lote"));
     const registrado = url.searchParams.get("registrado");
+    // Lo que no salió al registrar desde Vender aunque el pedido quedó guardado (separado por comas)
+    const problemas = (url.searchParams.get("problemas") ?? "").split(",").filter(Boolean);
     const mensaje = creado
       ? textos.productos.form.creado(creado)
       : guardado
@@ -26,11 +28,13 @@ export function AvisoCreado() {
             ? textos.pedidos.registrado[registrado]
             : null;
     if (!mensaje) return;
-    avisar(mensaje, { tipo: "exito" });
+    const problema = problemas.map((p) => textos.mostrador.problemas[p as keyof typeof textos.mostrador.problemas]).find(Boolean);
+    avisar(problema ?? mensaje, { tipo: problema ? "info" : "exito" });
     url.searchParams.delete("creado");
     url.searchParams.delete("guardado");
     url.searchParams.delete("lote");
     url.searchParams.delete("registrado");
+    url.searchParams.delete("problemas");
     window.history.replaceState(null, "", url.pathname + url.search);
   }, [avisar]);
   return null;

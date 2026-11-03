@@ -34,6 +34,14 @@
   --color-celeste: #8fd6f4;
   --color-celeste-palido: #e2f4fc;
   --color-crema: #fff7e8;
+  /* Más acentos vivos, a la altura del rosa y el celeste: cada sección del menú tiene el suyo y ninguno se repite. */
+  --color-menta: #8fdcb0;
+  --color-coral: #ff9c8a;
+  --color-lila: #c4b0f5;
+  --color-turquesa: #6fd6cc;
+  --color-lima: #d2ea7e;
+  --color-pervinca: #9fb7ff;
+  --color-orquidea: #e8a0f0;
   /* El color de la acción principal: mango, salvo en las páginas de una tienda que eligió su color (ver marca.ts) */
   --color-accion: #ff9a2e;
   --color-accion-texto: #003844;

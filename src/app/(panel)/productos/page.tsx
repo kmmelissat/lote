@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { MenuAcciones } from "@/components/ui/MenuAcciones";
 import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { esFalta, esFiltroEstado, esOrden, FILTROS_ESTADO, type Falta, type Orden } from "@/features/products/filtro";
@@ -74,18 +75,32 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
         descripcion={textos.productos.descripcion}
         accion={
           negocio.puedeGestionar ? (
-            // En celular: lo principal arriba y ancho, y lo secundario en dos mitades debajo
-            <div className="grid w-full grid-cols-2 gap-2 md:flex md:w-auto md:flex-wrap md:items-center">
-              <ButtonLink href="/productos/nuevo" variante="mango" icono="mas" className="col-span-2 md:order-last md:col-span-1">
-                {textos.productos.agregar}
-              </ButtonLink>
-              <ButtonLink href="/productos/importar" variante="secundario" icono="hoja">
-                {textos.productos.importar.boton}
-              </ButtonLink>
-              <ButtonLink href="/productos/promociones" variante="secundario" icono="etiqueta">
-                {textos.promociones.entrada}
-              </ButtonLink>
-            </div>
+            <>
+              {/* En celular: lo principal ancho y lo demás guardado en el menú "⋯" */}
+              <div className="flex w-full items-center gap-2 md:hidden">
+                <ButtonLink href="/productos/nuevo" variante="mango" icono="mas" className="flex-1">
+                  {textos.productos.agregar}
+                </ButtonLink>
+                <MenuAcciones
+                  etiqueta={textos.productos.buscar.masAcciones}
+                  acciones={[
+                    { etiqueta: textos.productos.importar.boton, icono: "hoja", href: "/productos/importar" },
+                    { etiqueta: textos.promociones.entrada, icono: "etiqueta", href: "/productos/promociones" },
+                  ]}
+                />
+              </div>
+              <div className="hidden flex-wrap items-center gap-2 md:flex">
+                <ButtonLink href="/productos/importar" variante="secundario" icono="hoja">
+                  {textos.productos.importar.boton}
+                </ButtonLink>
+                <ButtonLink href="/productos/promociones" variante="secundario" icono="etiqueta">
+                  {textos.promociones.entrada}
+                </ButtonLink>
+                <ButtonLink href="/productos/nuevo" variante="mango" icono="mas">
+                  {textos.productos.agregar}
+                </ButtonLink>
+              </div>
+            </>
           ) : undefined
         }
       />

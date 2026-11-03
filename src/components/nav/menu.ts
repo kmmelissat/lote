@@ -25,6 +25,7 @@ export type Pestana = { href: Route; etiqueta: string; icono: NombreIcono };
 
 export const pestanas: Pestana[] = [
   { href: "/inicio", etiqueta: t.inicio, icono: "inicio" },
+  { href: "/vender", etiqueta: t.mostrador, icono: "efectivo" },
   { href: "/productos", etiqueta: t.productos, icono: "productos" },
   { href: "/pedidos", etiqueta: t.pedidos, icono: "pedidos" },
   { href: "/clientes", etiqueta: t.clientes, icono: "clientes" },
@@ -40,23 +41,24 @@ export const ajustesEscritorio: Pestana[] = [
 
 /** Las secciones del menú de escritorio, por grupos. Lo externo (Marketplace, vitrina) va al final de "Tu negocio". */
 export const gruposMenu: { titulo: string; rutas: Route[] }[] = [
-  { titulo: t.grupos.vender, rutas: ["/inicio", "/productos", "/pedidos", "/clientes"] },
+  { titulo: t.grupos.vender, rutas: ["/inicio", "/vender", "/productos", "/pedidos", "/clientes"] },
   { titulo: t.grupos.dinero, rutas: ["/dinero", "/gestion"] },
   { titulo: t.grupos.negocio, rutas: ["/asistente", "/ajustes/tienda"] },
 ];
 
-/** El relleno de color de cada sección en el menú. Clases completas, para que Tailwind las vea. */
+/** El relleno de color de cada sección en el menú: uno vivo y distinto por sección, sin repetir. Clases completas, para que Tailwind las vea. */
 export const FONDO_SECCION: Record<string, string> = {
   "/inicio": "bg-limon",
-  "/productos": "bg-mango",
-  "/pedidos": "bg-rosa",
-  "/clientes": "bg-celeste",
-  "/dinero": "bg-limon",
-  "/gestion": "bg-celeste",
-  "/asistente": "bg-teal-fondo",
-  "/ajustes/tienda": "bg-rosa-palido",
-  "/marketplace": "bg-perla",
-  "/vitrina": "bg-rosa-palido",
+  "/vender": "bg-mango",
+  "/productos": "bg-rosa",
+  "/pedidos": "bg-celeste",
+  "/clientes": "bg-menta",
+  "/dinero": "bg-coral",
+  "/gestion": "bg-lila",
+  "/asistente": "bg-turquesa",
+  "/ajustes/tienda": "bg-pervinca",
+  "/marketplace": "bg-lima",
+  "/vitrina": "bg-orquidea",
 };
 
 /**
@@ -65,15 +67,16 @@ export const FONDO_SECCION: Record<string, string> = {
  */
 export const PINTA_HOVER_SECCION: Record<string, string> = {
   "/inicio": "hover:bg-[color-mix(in_srgb,var(--color-limon)_50%,white)]",
-  "/productos": "hover:bg-[color-mix(in_srgb,var(--color-mango)_50%,white)]",
-  "/pedidos": "hover:bg-[color-mix(in_srgb,var(--color-rosa)_50%,white)]",
-  "/clientes": "hover:bg-[color-mix(in_srgb,var(--color-celeste)_50%,white)]",
-  "/dinero": "hover:bg-[color-mix(in_srgb,var(--color-limon)_50%,white)]",
-  "/gestion": "hover:bg-[color-mix(in_srgb,var(--color-celeste)_50%,white)]",
-  "/asistente": "hover:bg-[color-mix(in_srgb,var(--color-teal-fondo)_50%,white)]",
-  "/ajustes/tienda": "hover:bg-[color-mix(in_srgb,var(--color-rosa-palido)_50%,white)]",
-  "/marketplace": "hover:bg-[color-mix(in_srgb,var(--color-perla)_50%,white)]",
-  "/vitrina": "hover:bg-[color-mix(in_srgb,var(--color-rosa-palido)_50%,white)]",
+  "/vender": "hover:bg-[color-mix(in_srgb,var(--color-mango)_50%,white)]",
+  "/productos": "hover:bg-[color-mix(in_srgb,var(--color-rosa)_50%,white)]",
+  "/pedidos": "hover:bg-[color-mix(in_srgb,var(--color-celeste)_50%,white)]",
+  "/clientes": "hover:bg-[color-mix(in_srgb,var(--color-menta)_50%,white)]",
+  "/dinero": "hover:bg-[color-mix(in_srgb,var(--color-coral)_50%,white)]",
+  "/gestion": "hover:bg-[color-mix(in_srgb,var(--color-lila)_50%,white)]",
+  "/asistente": "hover:bg-[color-mix(in_srgb,var(--color-turquesa)_50%,white)]",
+  "/ajustes/tienda": "hover:bg-[color-mix(in_srgb,var(--color-pervinca)_50%,white)]",
+  "/marketplace": "hover:bg-[color-mix(in_srgb,var(--color-lima)_50%,white)]",
+  "/vitrina": "hover:bg-[color-mix(in_srgb,var(--color-orquidea)_50%,white)]",
 };
 
 export const CLAVE_CERRADO = "lote_menu_cerrado";

@@ -27,7 +27,12 @@ export function FichaCliente({ cliente: c, negocio }: { cliente: ClienteConResum
         </span>
         <div className="min-w-0 flex-1 basis-56">
           <p className="truncate font-logo text-2xl font-bold leading-tight">{c.nombre}</p>
-          <p className="text-texto-2">{c.contacto ?? t.sinContacto}</p>
+          <p className="flex flex-wrap gap-x-3 text-texto-2">
+            {[c.contacto, c.usuario, c.correo].filter(Boolean).map((v) => (
+              <span key={v}>{v}</span>
+            ))}
+            {!c.contacto && !c.usuario && !c.correo && t.sinContacto}
+          </p>
           {c.resumen.ultimoPedido && (
             <p className="text-sm text-texto-2">
               {t.ultimoPedido}: {formatearFecha(c.resumen.ultimoPedido)}

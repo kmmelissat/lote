@@ -13,7 +13,7 @@ export const ENLACES_PASOS: Record<ClavePaso, Route> = {
   envio: "/ajustes/tienda?seccion=envios",
   pago: "/ajustes/tienda?seccion=pagos",
   compartir: "/inicio",
-  pedido: "/pedidos/nuevo",
+  pedido: "/vender",
 };
 
 /** Un segundo camino para algún paso: cargar productos también se puede importando un Excel o una hoja de Google. */

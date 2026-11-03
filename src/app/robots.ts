@@ -23,7 +23,7 @@ export default function robots(): MetadataRoute.Robots {
         "/ganancia",
         "/ajustes",
         "/asistente",
-        "/mostrador",
+        "/vender",
         "/admin",
       ],
     },

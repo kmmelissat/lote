@@ -1,4 +1,5 @@
 import { soloNumero } from "@/lib/entrada";
+import { Icon } from "./Icon";
 import { textos } from "@/lib/textos";
 import type { Descuento } from "@/domain";
 
@@ -24,38 +25,38 @@ export function CampoDescuento({
   cambiarTexto: (texto: string) => void;
 }) {
   return activo ? (
-    <fieldset className="flex flex-col gap-2">
+    <fieldset className="flex flex-col gap-1">
       <legend className="sr-only">{t.titulo}</legend>
-      <div className="flex gap-2">
-        {(["monto", "porcentaje"] as const).map((opcion) => (
-          <button
-            key={opcion}
-            type="button"
-            aria-pressed={tipo === opcion}
-            onClick={() => cambiarTipo(opcion)}
-            className={`min-h-11 flex-1 rounded-full border-2 border-teal-oscuro px-3 text-sm font-medium ${tipo === opcion ? "bg-limon font-bold" : "bg-superficie"}`}
-          >
-            {opcion === "monto" ? t.monto : t.porcentaje}
-          </button>
-        ))}
-      </div>
+      {/* Todo en una línea: dólares o porcentaje, el valor y quitar */}
       <div className="flex items-center gap-2">
+        <span className="text-sm text-texto-2">{t.titulo}</span>
+        <div role="group" aria-label={t.titulo} className="flex shrink-0 rounded-full border-2 border-teal-oscuro bg-superficie p-0.5">
+          {(["monto", "porcentaje"] as const).map((opcion) => (
+            <button
+              key={opcion}
+              type="button"
+              aria-pressed={tipo === opcion}
+              aria-label={opcion === "monto" ? t.monto : t.porcentaje}
+              title={opcion === "monto" ? t.monto : t.porcentaje}
+              onClick={() => cambiarTipo(opcion)}
+              className={`grid size-9 place-items-center rounded-full text-base font-bold ${tipo === opcion ? "bg-limon" : "text-texto-2"}`}
+            >
+              {opcion === "monto" ? "$" : "%"}
+            </button>
+          ))}
+        </div>
         <input
           inputMode="decimal"
           value={texto}
           onChange={(e) => cambiarTexto(soloNumero(e.target.value, true))}
           aria-label={t.valor}
           aria-invalid={invalido || undefined}
-          placeholder={tipo === "monto" ? "$0.00" : "10 %"}
-          className="h-12 min-w-0 flex-1 rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal"
+          placeholder={tipo === "monto" ? "0.00" : "10"}
+          className={`h-11 min-w-0 flex-1 rounded-[14px] border-2 bg-superficie px-3 text-right text-base font-bold tabular-nums focus:border-teal ${invalido ? "border-error" : "border-borde-control"}`}
         />
         {quitar && (
-          <button
-            type="button"
-            onClick={quitar}
-            className="min-h-11 px-2 text-sm font-medium text-teal underline underline-offset-2"
-          >
-            {t.quitar}
+          <button type="button" onClick={quitar} aria-label={t.quitar} title={t.quitar} className="grid size-11 shrink-0 place-items-center rounded-full text-texto-2 hover:bg-teal-fondo">
+            <Icon nombre="x" className="size-5" />
           </button>
         )}
       </div>
@@ -65,8 +66,9 @@ export function CampoDescuento({
     <button
       type="button"
       onClick={() => activar()}
-      className="min-h-11 self-start text-sm font-medium text-teal underline underline-offset-2"
+      className="flex min-h-11 items-center gap-1.5 self-start text-sm font-bold text-teal"
     >
+      <Icon nombre="mas" className="size-4" />
       {t.agregar}
     </button>
   );

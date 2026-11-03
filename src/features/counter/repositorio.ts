@@ -138,7 +138,7 @@ export async function venderEnMostrador(
     metodo: MetodoMostrador;
     cliente?: string;
   },
-): Promise<Resultado<{ codigo: number }>> {
+): Promise<Resultado<{ codigo: number; id: string }>> {
   const { data: id, error } = await supabase.rpc("vender_mostrador", {
     p_negocio: negocioId,
     p_items: venta.items.map((i) => ({
@@ -157,7 +157,7 @@ export async function venderEnMostrador(
     .eq("id", id)
     .single();
   return data
-    ? { ok: true, codigo: data.codigo }
+    ? { ok: true, codigo: data.codigo, id }
     : { ok: false, error: { tipo: "desconocido" } };
 }
 
@@ -319,4 +319,22 @@ export async function ultimosCierres(
     diferencia: aCentavos(c.diferencia ?? 0),
     nota: c.nota,
   }));
+}
+
+/** Cómo contactar a la cliente: teléfono (`+503 7000 1234`), usuario (`@ana`) y correo, todo ya normalizado y cada uno opcional. */
+export type ContactosDeVenta = { telefono?: string; usuario?: string; correo?: string; aceptaWhatsapp?: boolean };
+
+/**
+ * Guarda cómo contactar a la cliente de un pedido, en un paso aparte de la venta: si todavía no se corrió cliente_contactos.sql
+ * o falla, la venta ya quedó hecha y no se estorba; devuelve false para que la pantalla lo avise.
+ */
+export async function guardarContactoDeVenta(supabase: Cliente, pedidoId: string, c: ContactosDeVenta): Promise<boolean> {
+  const { error } = await supabase.rpc("guardar_contacto_de_pedido", {
+    p_pedido: pedidoId,
+    ...(c.telefono ? { p_telefono: c.telefono } : {}),
+    ...(c.usuario ? { p_usuario: c.usuario } : {}),
+    ...(c.correo ? { p_correo: c.correo } : {}),
+    p_acepta_whatsapp: c.aceptaWhatsapp ?? false,
+  });
+  return !error;
 }

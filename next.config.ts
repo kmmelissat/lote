@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
       // Ganancia pasó a llamarse Dinero (con Resumen, Movimientos y Cuadre)
       { source: "/ganancia", destination: "/dinero", permanent: true },
       { source: "/ganancia/resumen", destination: "/dinero/resumen", permanent: true },
+      // El Mostrador pasó a llamarse Vender (y ahora también sirve para apartar)
+      { source: "/mostrador", destination: "/vender", permanent: true },
+      { source: "/mostrador/caja", destination: "/vender/caja", permanent: true },
     ];
   },
   images: {

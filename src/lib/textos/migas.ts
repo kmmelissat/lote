@@ -22,7 +22,7 @@ export const migas = {
   vitrina: "Tienda en línea",
   tienda: "Mi tienda",
   resumen: "Resumen semanal",
-  mostrador: "Mostrador",
+  vender: "Vender",
   promociones: "Promociones",
   caja: "Caja",
   categorias: "Categorías",

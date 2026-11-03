@@ -53,7 +53,7 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
   const opciones = useMemo<Opcion[]>(() => {
     const q = normalizar(consulta);
     const destinos = destinosDe({ tieneLocal, esDuena });
-    const rapidas: Opcion[] = accionesDe(tieneLocal).map((a) => ({ clave: `a-${a.href}`, grupo: textos.nav.rapida.titulo, titulo: a.etiqueta, href: a.href, icono: a.icono }));
+    const rapidas: Opcion[] = accionesDe().map((a) => ({ clave: `a-${a.href}`, grupo: textos.nav.rapida.titulo, titulo: a.etiqueta, href: a.href, icono: a.icono }));
     const pantallas: Opcion[] = buscarDestinos(q, destinos).map((x) => ({ clave: `p-${x.href}`, grupo: t.acciones, titulo: x.titulo, detalle: x.detalle, href: x.href, icono: x.icono }));
     // Sin nada escrito: lo que más se hace y las pantallas principales. Escribiendo: las pantallas que responden (las rápidas ya están entre ellas)
     const locales = q ? pantallas : [...rapidas, ...pantallas.slice(0, 8)];

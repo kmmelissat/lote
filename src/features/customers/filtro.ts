@@ -1,7 +1,7 @@
 import { normalizarTexto } from "@/domain";
 import type { ClienteConResumen } from "./repositorio";
 
-/** Filtra por nombre o contacto, y opcionalmente deja solo a quienes todavía deben. */
+/** Filtra por nombre, teléfono, usuario o correo, y opcionalmente deja solo a quienes todavía deben. */
 export function filtrarClientes(
   clientes: ClienteConResumen[],
   { texto, soloConSaldo }: { texto: string; soloConSaldo: boolean },
@@ -10,7 +10,7 @@ export function filtrarClientes(
   return clientes.filter((c) => {
     if (soloConSaldo && c.resumen.saldo <= 0) return false;
     if (!buscado) return true;
-    return [c.nombre, c.contacto ?? ""].some((campo) => normalizarTexto(campo).includes(buscado));
+    return [c.nombre, c.contacto ?? "", c.usuario ?? "", c.correo ?? ""].some((campo) => normalizarTexto(campo).includes(buscado));
   });
 }
 

@@ -40,7 +40,7 @@ export async function abrirLaCaja(
 
   revalidatePath("/", "layout");
   // Con la caja abierta, lo que sigue es vender.
-  redirect("/mostrador");
+  redirect("/vender");
 }
 
 export async function cerrarLaCaja(

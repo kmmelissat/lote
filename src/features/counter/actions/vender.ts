@@ -7,6 +7,7 @@ import { textos } from "@/lib/textos";
 import {
   METODOS_MOSTRADOR,
   asignarCodigoDeBarras,
+  guardarContactoDeVenta,
   productoPorBarras,
   venderEnMostrador,
   type ErrorMostrador,
@@ -39,10 +40,16 @@ export type EntradaVenta = {
   /** En centavos, ya calculado en pantalla; la base verifica que no pase de lo vendido */
   descuento: number;
   metodo: string;
+  /** Opcional: a quién se le vendió y cómo contactarla (ya normalizado) */
+  cliente?: string;
+  telefono?: string;
+  usuario?: string;
+  correo?: string;
+  acepta?: boolean;
 };
 
 export type ResultadoVenta =
-  | { ok: true; codigo: number }
+  | { ok: true; codigo: number; contactoFallo?: boolean }
   | { ok: false; error: string };
 
 /** Cobra una venta de mostrador: pedido entregado y pagado. Los precios y la disponibilidad los decide la base. */
@@ -75,11 +82,18 @@ export async function cobrarVenta(
     })),
     descuento: entrada.descuento,
     metodo,
+    cliente: typeof entrada.cliente === "string" ? entrada.cliente.trim().slice(0, 120) : undefined,
   });
   if (!r.ok) return { ok: false, error: textoDeError(r.error) };
 
+  // El contacto va aparte de la venta: si no se pudo guardar, la venta igual quedó cobrada
+  const limpio = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+  const contactos = { telefono: limpio(entrada.telefono, 30), usuario: limpio(entrada.usuario, 60), correo: limpio(entrada.correo, 120) };
+  const hayContacto = Boolean(contactos.telefono || contactos.usuario || contactos.correo);
+  const contactoFallo = hayContacto && !(await guardarContactoDeVenta(supabase, r.id, { ...contactos, aceptaWhatsapp: entrada.acepta === true }));
+
   revalidatePath("/", "layout");
-  return { ok: true, codigo: r.codigo };
+  return { ok: true, codigo: r.codigo, ...(contactoFallo ? { contactoFallo } : {}) };
 }
 
 /** Busca un producto por su código de barras cuando no está entre los que ya cargó la pantalla. */

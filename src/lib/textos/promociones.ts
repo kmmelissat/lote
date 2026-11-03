@@ -17,7 +17,7 @@ export const promociones = {
   volver: "Productos",
   entrada: "Promociones",
   vacioTitulo: "Todavía no tenés promociones",
-  vacioTexto: "Armá un pack con varios productos a un precio fijo, o un 2x1. Se aplican solas en la tienda en línea, el Mostrador y los pedidos.",
+  vacioTexto: "Armá un pack con varios productos a un precio fijo, o un 2x1. Se aplican solas en la tienda en línea y al vender.",
   sinSql: "Las promociones todavía no están listas en la base de datos.",
 
   nueva: "Nueva promoción",

@@ -11,7 +11,16 @@ export const ICONO_METODO = {
 } as const;
 
 export type Linea = { productoId: string; cantidad: number };
-export type Recibo = { codigo: number; total: number; cambio: number | null };
+/** Lo que se guardó: una venta, un apartado o un contra entrega. `problemas` es lo que no salió aunque quedó guardado. */
+export type Recibo = {
+  codigo: number;
+  total: number;
+  cambio: number | null;
+  clase: "venta" | "apartado" | "contra";
+  /** Ya está pagado pero falta entregarlo (retiro o envío) */
+  pendienteDeEntrega: boolean;
+  problemas: string[];
+};
 
 export const normalizar = normalizarTexto;
 export const nombreCompleto = (p: ProductoMostrador) => nombreVisible(p.nombre, p.variante);

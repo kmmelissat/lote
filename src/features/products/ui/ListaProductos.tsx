@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { colorDeEstado } from "@/components/ui/StatusChip";
+import { ResumenCompacto } from "@/components/ui/ResumenCompacto";
 import { TarjetaDato } from "@/components/ui/TarjetaDato";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -197,37 +198,17 @@ export function ListaProductos({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* En celular, una sola tarjeta con las cuatro cifras: cuatro tarjetas sueltas empujaban la lista fuera de la pantalla */}
-      <section aria-label={t.inventario.titulo} className="grid grid-cols-2 gap-px overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-borde md:hidden">
-        {[
-          { clave: "disponible", etiqueta: t.inventario.unidades, valor: String(inventario.unidades), banda: colorDeEstado("disponible"), alTocar: () => elegirEstado("disponible") },
-          { clave: "poco", etiqueta: t.inventario.poco, valor: String(pocoStockCuenta), banda: colorDeEstado("poco_stock"), alTocar: () => elegirEstado("poco") },
-          { clave: "valen", etiqueta: t.inventario.valen, valor: formatearDolares(inventario.valorVenta), banda: colorDeEstado("pagado"), alTocar: () => elegirEstado("todos") },
+      <ResumenCompacto
+        titulo={t.inventario.titulo}
+        datos={[
+          { etiqueta: t.inventario.unidades, valor: inventario.unidades, banda: colorDeEstado("disponible"), alTocar: () => elegirEstado("disponible") },
+          { etiqueta: t.inventario.poco, valor: pocoStockCuenta, banda: colorDeEstado("poco_stock"), alTocar: () => elegirEstado("poco") },
+          { etiqueta: t.inventario.valen, valor: formatearDolares(inventario.valorVenta), banda: colorDeEstado("pagado"), alTocar: () => elegirEstado("todos") },
           ...(inventario.gananciaPotencial !== null
-            ? [{ clave: "ganancia", etiqueta: t.inventario.ganancia, valor: formatearDolares(inventario.gananciaPotencial), banda: colorDeEstado("entregado"), alTocar: undefined }]
+            ? [{ etiqueta: t.inventario.ganancia, valor: formatearDolares(inventario.gananciaPotencial), banda: colorDeEstado("entregado"), href: "/dinero" as const }]
             : []),
-        ].map((d, i, todas) => {
-          const clase = `flex min-h-16 flex-col items-start justify-center gap-0.5 bg-superficie px-4 py-2 text-left ${todas.length === 3 && i === 2 ? "col-span-2" : ""}`;
-          const contenido = (
-            <>
-              <span className="flex items-center gap-1.5 text-xs font-medium text-texto-2">
-                <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${d.banda}`} />
-                {d.etiqueta}
-              </span>
-              <span className="font-logo text-xl font-bold tabular-nums">{d.valor}</span>
-            </>
-          );
-          return d.alTocar ? (
-            <button key={d.clave} type="button" onClick={d.alTocar} className={`${clase} active:bg-teal-fondo/50`}>
-              {contenido}
-            </button>
-          ) : (
-            <Link key={d.clave} href="/dinero" className={`${clase} active:bg-teal-fondo/50`}>
-              {contenido}
-            </Link>
-          );
-        })}
-      </section>
+        ]}
+      />
       <section aria-label={t.inventario.titulo} className="hidden gap-4 md:grid md:grid-cols-4">
         <TarjetaDato
           etiqueta={t.inventario.unidades}
@@ -298,7 +279,7 @@ export function ListaProductos({
 
       <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
         <div role="group" aria-label={t.buscar.estados} className="flex min-w-full gap-2 md:min-w-0 md:flex-wrap">
-          {FILTROS_ESTADO.filter((e) => e === "todos" || e === estado || cantidades[e] > 0).map((e) => {
+          {FILTROS_ESTADO.filter((e) => e === "todos" || e === estado || (cantidades[e] > 0 && cantidades[e] < cantidades.todos)).map((e) => {
             const activo = e === estado;
             return (
               <button

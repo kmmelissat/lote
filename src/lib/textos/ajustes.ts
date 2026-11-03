@@ -130,11 +130,11 @@ export const ajustes = {
       ambos: { titulo: "Las dos cosas", ayuda: "Revendés y también producís." },
     },
     local: {
-      titulo: "Local en vivo",
+      titulo: "Venta en persona",
       texto: "Si además de las redes vendés en persona desde un local, feria o puesto fijo.",
-      interruptor: "Tengo un local donde vendo en persona",
-      ayuda: "Prende el Mostrador, para cobrar en pocos toques, y la caja, para cuadrar el efectivo al cerrar. Es opcional: si solo vendés por redes, no lo necesitás.",
-      prendido: "Listo: ahora aparecen Vender en el Mostrador, la caja y el código de barras en cada producto. Lo ya vendido no cambia.",
+      interruptor: "Vendo en persona (local, feria o puesto)",
+      ayuda: "Prende la caja, para contar el efectivo al cerrar, y el código de barras en cada producto. Vender ya está para todas, con o sin esto.",
+      prendido: "Listo: ahora aparecen la caja y el código de barras en cada producto. Lo ya vendido no cambia.",
     },
     confianza: {
       titulo: "Para dar confianza",

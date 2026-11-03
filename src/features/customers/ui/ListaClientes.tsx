@@ -121,7 +121,7 @@ export function ListaClientes({
                       <Link href={`/clientes/${c.id}`} className="block truncate font-medium after:absolute after:inset-0">
                         {c.nombre}
                       </Link>
-                      <p className="truncate text-sm text-texto-2">{c.contacto ?? t.sinContacto}</p>
+                      <p className="truncate text-sm text-texto-2">{[c.contacto, c.usuario, c.correo].filter(Boolean).join(" · ") || t.sinContacto}</p>
                     </div>
                     <p className="hidden text-sm tabular-nums lg:block">{c.resumen.pedidos}</p>
                     <p className="whitespace-nowrap text-right font-bold tabular-nums max-md:hidden">{formatearDolares(c.resumen.comprado)}</p>

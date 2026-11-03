@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { leerDescuento, normalizarTelefono, telefonoElSalvador } from "@/domain";
+import { esCorreo, leerDescuento, normalizarTelefono, telefonoElSalvador } from "@/domain";
 import { esUuid } from "@/lib/uuid";
 import { METODOS_DE_COBRO, type Canal, type MetodoPago } from "./repositorio";
 
@@ -34,6 +34,7 @@ const pedidoSchema = z
     canal: z.enum(CANALES).catch("presencial"),
     contacto: texto.transform((s) => {
       if (!s) return "";
+      if (esCorreo(s)) return s.toLowerCase().slice(0, 120);
       if (/[A-Za-z@]/.test(s)) return s.replace(/[^A-Za-z0-9@._]/g, "").slice(0, 60);
       return telefonoElSalvador(s) ?? "";
     }),

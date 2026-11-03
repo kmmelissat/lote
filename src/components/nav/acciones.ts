@@ -8,13 +8,11 @@ const r = textos.nav.rapida;
 const ACCIONES: { href: Route; etiqueta: string; icono: NombreIcono; tono: string }[] = [
   { href: "/productos/nuevo", etiqueta: r.producto, icono: "productos", tono: "bg-limon" },
   { href: "/productos/importar", etiqueta: r.importar, icono: "hoja", tono: "bg-celeste/40" },
-  { href: "/pedidos/nuevo", etiqueta: r.pedido, icono: "pedidos", tono: "bg-rosa" },
-  { href: "/mostrador", etiqueta: r.mostrador, icono: "efectivo", tono: "bg-mango/40" },
+  { href: "/vender", etiqueta: r.mostrador, icono: "efectivo", tono: "bg-mango/40" },
   { href: "/asistente", etiqueta: r.asistente, icono: "chat", tono: "bg-teal-fondo" },
 ];
 
-/** Las acciones que le tocan a este negocio: el Mostrador solo aparece si tiene un local. */
-export const accionesDe = (tieneLocal: boolean) => ACCIONES.filter((a) => a.href !== "/mostrador" || tieneLocal);
+export const accionesDe = () => ACCIONES;
 
 /** Las pantallas del panel, para saltar con la paleta. */
 export const PANTALLAS: { href: Route; etiqueta: string; icono: NombreIcono }[] = [

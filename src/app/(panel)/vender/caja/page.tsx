@@ -21,7 +21,7 @@ export default function CajaPage() {
       <PageHeader
         titulo={t.titulo}
         descripcion={t.descripcion}
-        volver={{ href: "/mostrador", etiqueta: t.volver }}
+        volver={{ href: "/vender", etiqueta: t.volver }}
       />
       <Contenido />
     </>

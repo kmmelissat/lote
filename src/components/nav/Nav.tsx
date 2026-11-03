@@ -62,7 +62,7 @@ export function Nav({ datos }: { datos: DatosMenu }) {
         abrirMas={() => setMas(true)}
       />
       {/* Una sola ventana, al centro, para el celular y para la computadora */}
-      {rapida && <ModalAcciones cerrar={() => setRapida(false)} tieneLocal={datos.tieneLocal} />}
+      {rapida && <ModalAcciones cerrar={() => setRapida(false)} />}
       {mas && <BarraLateral datos={datos} ruta={pathname} abrirPaleta={() => setPaleta(true)} cerrar={() => setMas(false)} />}
 
       {paleta && <Paleta cerrar={() => setPaleta(false)} tieneLocal={datos.tieneLocal} esDuena={datos.esDuena} />}

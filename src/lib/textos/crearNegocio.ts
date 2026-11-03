@@ -51,7 +51,7 @@ export const crearNegocio = {
         instagram: { titulo: "Instagram", dato: "Tu usuario de Instagram", placeholder: "mitienda" },
         whatsapp: { titulo: "WhatsApp", dato: "Tu WhatsApp para recibir pedidos", aviso: "Si tenés tienda en línea, tus clientes lo ven ahí." },
         facebook: { titulo: "Facebook", dato: "Enlace de tu página de Facebook" },
-        presencial: { titulo: "En persona", ayuda: "feria o local", aviso: "Prendemos el Mostrador: cobrás con código de barras y cerrás tu caja." },
+        presencial: { titulo: "En persona", ayuda: "feria o local", aviso: "Prendemos la caja y el código de barras para que cobrés y cerrés tu caja." },
       },
       tienda: "¿Querés una tienda en línea?",
     },

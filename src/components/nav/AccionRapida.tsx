@@ -12,7 +12,7 @@ const t = textos.nav;
  * Las cosas que se hacen más seguido, en una ventana al centro de la pantalla (igual en el celular y en la computadora).
  * Se cierra con la X, con Escape, tocando afuera o al elegir una; al abrirse, el foco queda en la primera.
  */
-export function ModalAcciones({ cerrar, tieneLocal }: { cerrar: () => void; tieneLocal: boolean }) {
+export function ModalAcciones({ cerrar }: { cerrar: () => void }) {
   const lista = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function ModalAcciones({ cerrar, tieneLocal }: { cerrar: () => void; tien
         </div>
         <div className="shrink-0 border-b-2 border-dashed border-teal-oscuro" />
         <ul ref={lista} className="grid min-h-0 grid-cols-2 gap-3 overflow-y-auto p-5">
-          {accionesDe(tieneLocal).map((a) => (
+          {accionesDe().map((a) => (
             <li key={a.href}>
               <Link
                 href={a.href}

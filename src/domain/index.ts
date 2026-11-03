@@ -18,6 +18,7 @@ export * from "./oferta";
 export * from "./promocion";
 export * from "./balance";
 export * from "./actividad";
+export * from "./contacto";
 export * from "./diferenciaCobrado";
 export * from "./serieDiaria";
 export * from "./cuota";

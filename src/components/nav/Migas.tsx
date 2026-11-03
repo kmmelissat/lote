@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
-const PANEL = new Set(["inicio", "productos", "pedidos", "clientes", "dinero", "ajustes", "asistente", "mostrador"]);
+const PANEL = new Set(["inicio", "productos", "pedidos", "clientes", "dinero", "ajustes", "asistente", "vender"]);
 const SALTAR = new Set(["c", "p"]);
 const SIN_MIGAS = new Set(["login", "crear-negocio", "auth", "landing-mas"]);
 
