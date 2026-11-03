@@ -12,7 +12,6 @@ alter table public.categoria
   check (rubro in ('ropa','belleza','comida','hogar','tecnologia','musica','mascotas','ninos',
                    'joyeria','arte','papeleria','deportes','salud','fiestas','autos','otros'));
 
-create or replace function public.rubro_de_nombre(p_nombre text)
 returns text
 language sql immutable
 set search_path = ''

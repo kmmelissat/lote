@@ -6,10 +6,12 @@ Es un proyecto del curso Diseño de Productos y Servicios (ciclo 3), no un produ
 
 ## Documentos
 
-- [FEATURES.md](FEATURES.md): qué hace la app hoy, por tipo de persona (quien vende, quien compra, Marketplace, admin).
-- [app.md](app.md): especificación del producto. Es la fuente de verdad.
-- [PROGRESO.md](PROGRESO.md): estado de la construcción, decisiones y lo que sigue. Empezar por acá para retomar.
-- [BRANDING.md](BRANDING.md): colores, formas, monitos y voz. Leer antes de tocar una pantalla.
+- [FEATURES.md](docs/FEATURES.md): qué hace la app hoy, por tipo de persona (quien vende, quien compra, Marketplace, admin).
+- [app.md](docs/app.md): especificación del producto. Es la fuente de verdad.
+- [PROGRESO.md](docs/PROGRESO.md): estado de la construcción, decisiones y lo que sigue. Empezar por acá para retomar.
+- [BRANDING.md](docs/BRANDING.md): colores, formas, monitos y voz. Leer antes de tocar una pantalla.
+- [REDISENO.md](docs/REDISENO.md): rediseño del panel, componentes y estado por pantalla.
+- [GESTION.md](docs/GESTION.md): el balance general (dinero, deudas e inventario).
 - [AGENTS.md](AGENTS.md): aviso sobre la versión de Next.js (tiene cambios; leer `node_modules/next/dist/docs/` antes de escribir código).
 
 ## Stack
@@ -40,7 +42,7 @@ Crear `.env.local` (no se sube a git):
 
 ### Base de datos
 
-El SQL vive en [supabase/](supabase/) y se corre a mano en el SQL Editor de Supabase, **una sola vez cada archivo y en este orden**: `schema`, `productos`, `reponer`, `fotos`, `importar`, `pedidos`, `cobros`, `envios`, `vitrina`, `asistente`, `gastos`, `asistente_gasto`, `rendimiento`, `unidades`, `seguimiento`, `variantes`, `equipo`, `avisos`, `avisos_eventos`, `avisos_tiempo`. `cron.sql` es opcional (vence apartados con `pg_cron`). El estado de cuáles ya se corrieron está en PROGRESO.md.
+El SQL vive en [supabase/](supabase/) y se corre a mano en el SQL Editor de Supabase, **una sola vez cada archivo y en orden**: varias funciones se vuelven a crear en archivos posteriores y la última gana. El orden completo y cuáles ya se corrieron están en [PROGRESO.md](docs/PROGRESO.md#sql-en-supabase). `cron.sql` es opcional (vence apartados con `pg_cron`).
 
 ## Verificación
 
@@ -55,14 +57,31 @@ Las pruebas contra la IA real se saltan salvo con `RUN_LIVE_AI=1`. Después de `
 
 ## Estructura
 
-Organizado por funcionalidad. `src/app/` solo tiene rutas delgadas.
+Organizado por funcionalidad. Todo se renderiza en el servidor; `"use client"` solo donde hay interacción.
 
-- `src/features/<tema>/`: todo lo de un tema (`repositorio.ts`, `ui/`, `actions/`). Temas: `products`, `orders`, `payments`, `shipping`, `profit`, `catalog`, `customers`, `import`, `export`, `assistant`, `ai`, `auth`, `team`, `tracking`, `whatsapp`, `home`.
-- `src/domain/`: reglas de dinero y estados, funciones puras con pruebas. No importa de nada fuera de sí mismo.
-- `src/components/` y `src/lib/`: piezas compartidas; los textos en español salvadoreño están en `src/lib/textos.ts`.
+- `src/app/`: las rutas de Next, delgadas. Piden los datos y arman la pantalla con lo que traen de las features.
+- `src/features/<tema>/`: todo lo de un tema: `repositorio.ts` (la base), `ui/` (componentes), `actions/` (Server Actions) y su lógica con pruebas al lado (`*.test.ts`). Temas:
+  - Vender: `products`, `orders`, `customers`, `payments`, `shipping`, `tracking`, `offers`, `promotions`, `counter` (el Mostrador), `import`, `export`.
+  - Dinero: `gestion` (balance general), `profit` (ganancia y gastos).
+  - La tienda afuera: `catalog` (vitrina y Marketplace), `reviews`, `store-settings`, `search`.
+  - Lotito y avisos: `assistant`, `ai`, `whatsapp`.
+  - El resto: `auth`, `team`, `home` (Inicio), `landing`, `ayuda`, `admin`, `design-system`.
+- `src/domain/`: reglas de dinero, estados, fechas y texto. Funciones puras con pruebas; no importa de nada fuera de sí mismo.
+- `src/components/`: piezas de interfaz compartidas: `ui/` (botones, tarjetas, campos) y `nav/` (el menú).
+- `src/lib/`: lo compartido que no es interfaz: Supabase, formato de dinero y fechas, fotos, enlaces (`ruta.ts`) y los textos en español salvadoreño (`src/lib/textos/`, un archivo por pantalla).
+- `src/proxy.ts`: qué rutas piden sesión. `src/test/`: el Supabase falso de las pruebas.
 - `supabase/*.sql`: esquema y funciones.
 
-ESLint hace cumplir las fronteras: entre features solo se importa `repositorio.ts`, tipos y lógica, nunca `ui/` ni `actions/`.
+ESLint hace cumplir las fronteras:
+
+- Entre features solo se importa `repositorio.ts`, tipos y lógica, nunca `ui/` ni `actions/`.
+- `components/` no importa de las features ni de las rutas. La excepción es `components/nav/`: el menú es la carcasa de la app y conoce las features (cerrar sesión, la búsqueda).
+- `domain/` no importa de nada.
+
+Otras reglas que revisa el compilador:
+
+- **Enlaces tipados** (`typedRoutes`): cada `href` de `Link` y cada `router.push` se valida contra las páginas que existen. Una ruta armada con datos se guarda con `ruta()`, y una con parámetros con `conBusqueda()` (`src/lib/ruta.ts`); nunca con `as Route`, que acepta cualquier texto.
+- **Secretos solo en el servidor**: los archivos que leen claves (`SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`, `WHATSAPP_TOKEN`, `HUELLA_SECRETO`) importan `server-only`: si algo del navegador los importa, el build falla.
 
 ## Despliegue
 
