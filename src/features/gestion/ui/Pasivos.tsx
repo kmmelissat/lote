@@ -97,7 +97,15 @@ function FormPasivo({ hoy, cerrar, pasivo }: { hoy: string; cerrar: () => void; 
         <input name="acreedor" required maxLength={120} placeholder={t.acreedorPlaceholder} defaultValue={pasivo?.acreedor} className={estiloCampo} />
       </label>
 
-      <Monto name="monto" etiqueta={t.monto} placeholder="100.00" defaultValue={enDolares(pasivo?.monto ?? null)} />
+      <div className="flex flex-col gap-1.5">
+        <Monto
+          name="monto"
+          etiqueta={editando ? t.monto : recibido ? t.montoPrestado : t.montoPendiente}
+          placeholder="100.00"
+          defaultValue={enDolares(pasivo?.monto ?? null)}
+        />
+        {!editando && !recibido && <p className="text-sm text-texto-2">{t.montoPendienteAyuda}</p>}
+      </div>
 
       {!editando && (
         <fieldset className="flex flex-col gap-2">

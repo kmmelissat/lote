@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { aCentavos, aDolares, type Centavos, type Descuento, type EstadoPedido } from "@/domain";
+import { aCentavos, aDolares, fechaLocalDe, type Centavos, type Descuento, type EstadoPedido } from "@/domain";
 import type { Busqueda } from "./busqueda";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -282,6 +282,8 @@ export async function registrarPago(
     p_pedido: pedidoId,
     p_monto: monto / 100,
     p_metodo: metodo,
+    // La base cuenta el día en UTC: desde las 6 de la tarde en El Salvador ya sería mañana
+    p_fecha: fechaLocalDe(new Date()),
   });
   return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
 }

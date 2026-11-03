@@ -1,4 +1,5 @@
 import type { Centavos } from "./dinero";
+import { fechaLocalDe } from "./periodo";
 import { normalizarTexto } from "./texto";
 
 export type MetodoMovimiento = "efectivo" | "transferencia";
@@ -29,6 +30,20 @@ export type GastoSaliente = {
   metodo: string | null;
 };
 
+/** Lo que mueve el dinero pero no es ingreso ni gasto: préstamos, pagos de deudas, mercadería y ajustes de saldo. */
+export type ClaseAparte = "prestamo" | "pago_deuda" | "compra" | "ajuste" | "paquetera";
+
+export type PartidaAparte = {
+  id: string;
+  creadoEn: string;
+  monto: Centavos;
+  metodo: string | null;
+  /** Si el dinero entró o salió de donde estaba */
+  sentido: "entra" | "sale";
+  clase: ClaseAparte;
+  titulo: string;
+};
+
 export type Movimiento =
   | {
       tipo: "entrada";
@@ -55,6 +70,18 @@ export type Movimiento =
       clase: "gasto";
       categoria: string;
       nota: string | null;
+    }
+  | {
+      /** Mueve el dinero y el balance, pero no cuenta en lo que entró ni en lo que salió. */
+      tipo: "aparte";
+      id: string;
+      fecha: string;
+      creadoEn: string;
+      monto: Centavos;
+      metodo: MetodoMovimiento | null;
+      sentido: "entra" | "sale";
+      clase: ClaseAparte;
+      titulo: string;
     };
 
 export type FiltroMovimientos = {
@@ -71,8 +98,8 @@ const METODOS: readonly string[] = ["efectivo", "transferencia"];
 const metodoDe = (m: string | null): MetodoMovimiento | null =>
   m === "contra_entrega" ? "efectivo" : m && METODOS.includes(m) ? (m as MetodoMovimiento) : null;
 
-/** Junta pagos y gastos en una sola lista, la más reciente primero. */
-export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly GastoSaliente[]): Movimiento[] {
+/** Junta pagos, gastos y partidas aparte en una sola lista, la más reciente primero. */
+export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly GastoSaliente[], apartes: readonly PartidaAparte[] = []): Movimiento[] {
   const entradas: Movimiento[] = pagos.map((p) => ({
     tipo: "entrada",
     id: p.id,
@@ -97,7 +124,18 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
     categoria: g.categoria,
     nota: g.nota,
   }));
-  return [...entradas, ...salidas].sort(
+  const aparte: Movimiento[] = apartes.map((a) => ({
+    tipo: "aparte",
+    id: a.id,
+    fecha: fechaLocalDe(new Date(a.creadoEn)),
+    creadoEn: a.creadoEn,
+    monto: a.monto,
+    metodo: metodoDe(a.metodo),
+    sentido: a.sentido,
+    clase: a.clase,
+    titulo: a.titulo,
+  }));
+  return [...entradas, ...salidas, ...aparte].sort(
     (a, b) => b.fecha.localeCompare(a.fecha) || b.creadoEn.localeCompare(a.creadoEn) || a.id.localeCompare(b.id),
   );
 }
@@ -106,24 +144,27 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
 export function filtrarMovimientos(movimientos: readonly Movimiento[], filtro: FiltroMovimientos): Movimiento[] {
   const q = filtro.q ? normalizarTexto(filtro.q.trim()) : "";
   return movimientos.filter((m) => {
-    if (filtro.tipo && m.tipo !== filtro.tipo) return false;
+    const sentido = m.tipo === "aparte" ? (m.sentido === "entra" ? "entrada" : "salida") : m.tipo;
+    if (filtro.tipo && sentido !== filtro.tipo) return false;
     if (filtro.metodo === "sin_metodo" ? m.metodo !== null : filtro.metodo && m.metodo !== filtro.metodo) return false;
     if (!q) return true;
     const textos =
       m.tipo === "entrada"
         ? [m.cliente, m.producto, `#${m.pedidoCodigo}`]
-        : [m.nota, m.categoria];
+        : m.tipo === "aparte"
+          ? [m.titulo]
+          : [m.nota, m.categoria];
     return textos.some((t) => t && normalizarTexto(t).includes(q));
   });
 }
 
-/** Entradas, salidas y neto de todo lo que se está viendo (no solo de la página). */
+/** Entradas, salidas y neto de todo lo que se está viendo (no solo de la página). Las partidas aparte no suman, pero sí cuentan en `cantidad`. */
 export function resumirMovimientos(movimientos: readonly Movimiento[]): ResumenMovimientos {
   let entradas = 0;
   let salidas = 0;
   for (const m of movimientos) {
     if (m.tipo === "entrada") entradas += m.monto;
-    else salidas += m.monto;
+    else if (m.tipo === "salida") salidas += m.monto;
   }
   return { entradas, salidas, neto: entradas - salidas, cantidad: movimientos.length };
 }

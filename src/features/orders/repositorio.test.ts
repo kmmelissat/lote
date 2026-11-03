@@ -60,7 +60,7 @@ describe("registrarPago", () => {
   it("manda el monto a la base en dólares", async () => {
     const { cliente, llamadas } = supabaseFalso();
     expect(await registrarPago(cliente, "p1", 1250, "efectivo")).toEqual({ ok: true });
-    expect(llamadas[0]).toEqual({ nombre: "registrar_pago", args: { p_pedido: "p1", p_monto: 12.5, p_metodo: "efectivo" } });
+    expect(llamadas[0]).toEqual({ nombre: "registrar_pago", args: { p_pedido: "p1", p_monto: 12.5, p_metodo: "efectivo", p_fecha: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) } });
   });
 });
 

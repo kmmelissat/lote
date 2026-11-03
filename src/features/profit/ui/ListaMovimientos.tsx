@@ -11,6 +11,8 @@ const t = textos.dinero;
 /** La fecha del movimiento es un día (no una hora): al mediodía UTC cae el mismo día en El Salvador. */
 const diaDe = (fecha: string) => new Date(`${fecha}T12:00:00Z`);
 
+const aparte = textos.gestion.libro;
+
 const ICONO_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco" };
 
 function ChipMetodo({ metodo }: { metodo: MetodoMovimiento | null }) {
@@ -21,12 +23,15 @@ function ChipMetodo({ metodo }: { metodo: MetodoMovimiento | null }) {
   );
 }
 
+/** Si el dinero entró (un pago, un préstamo o un ajuste a favor) o salió. */
+const entra = (m: Movimiento) => (m.tipo === "aparte" ? m.sentido === "entra" : m.tipo === "entrada");
+
 /** El círculo de cada fila: limón si entró, rosa si salió, con el ícono de dónde estaba el dinero. */
 function Icono({ m }: { m: Movimiento }) {
   return (
     <span
       aria-hidden="true"
-      className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${m.tipo === "entrada" ? "bg-limon" : "bg-rosa"}`}
+      className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${entra(m) ? "bg-limon" : "bg-rosa"}`}
     >
       <Icon nombre={m.metodo ? ICONO_METODO[m.metodo] : "moneda"} className="size-5" />
     </span>
@@ -35,7 +40,7 @@ function Icono({ m }: { m: Movimiento }) {
 
 /** Verde con + para lo que entró y rojo con − para lo que salió: el signo dice lo mismo que el color. */
 function Monto({ m }: { m: Movimiento }) {
-  const entrada = m.tipo === "entrada";
+  const entrada = entra(m);
   return (
     <span className={`whitespace-nowrap font-bold tabular-nums ${entrada ? "text-teal" : "text-error"}`}>
       <span className="sr-only">{entrada ? t.entradaSigno : t.salidaSigno}: </span>
@@ -46,6 +51,7 @@ function Monto({ m }: { m: Movimiento }) {
 }
 
 function titulo(m: Movimiento): string {
+  if (m.tipo === "aparte") return m.titulo;
   if (m.tipo === "salida") return m.nota ?? textos.ganancia.categorias[m.categoria as keyof typeof textos.ganancia.categorias] ?? m.categoria;
   return m.cliente ?? t.concepto.pedido(m.pedidoCodigo);
 }
@@ -56,6 +62,7 @@ function subtitulo(m: Movimiento, conFecha: boolean): string {
 }
 
 function detalle(m: Movimiento): string {
+  if (m.tipo === "aparte") return `${aparte.aparte} · ${aparte.clases[m.clase]}`;
   if (m.tipo === "salida") {
     const categoria = textos.ganancia.categorias[m.categoria as keyof typeof textos.ganancia.categorias] ?? m.categoria;
     return t.concepto.gasto(categoria);
@@ -75,7 +82,7 @@ const Concepto = ({ m, conFecha }: { m: Movimiento; conFecha: boolean }) => (
       ) : (
         <span className="block truncate font-bold">{titulo(m)}</span>
       )}
-      <span className="block truncate text-sm text-texto-2">{subtitulo(m, conFecha)}</span>
+      <span className="block line-clamp-2 text-sm text-texto-2">{subtitulo(m, conFecha)}</span>
     </div>
   </div>
 );
@@ -92,7 +99,7 @@ function porDia(movimientos: Movimiento[]): Dia[] {
       dias.push(dia);
     }
     dia.movimientos.push(m);
-    dia.neto += m.tipo === "entrada" ? m.monto : -m.monto;
+    if (m.tipo !== "aparte") dia.neto += m.tipo === "entrada" ? m.monto : -m.monto;
   }
   return dias;
 }

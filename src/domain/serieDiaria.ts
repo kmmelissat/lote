@@ -10,10 +10,11 @@ const aFecha = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
 /**
  * Cuánto entró y cuánto salió cada día del periodo, con los días sin movimiento en cero para que el gráfico no salte.
+ * Las partidas "aparte" (deudas, mercadería, ajustes) no son ingreso ni gasto y no se dibujan.
  * `desde` es inclusive y `hasta` exclusive (AAAA-MM-DD, como en un periodo). Lo que cae fuera se ignora.
  */
 export function serieDiaria(
-  partidas: readonly { fecha: string; tipo: "entrada" | "salida"; monto: Centavos }[],
+  partidas: readonly { fecha: string; tipo: "entrada" | "salida" | "aparte"; monto: Centavos }[],
   desde: string,
   hasta: string,
 ): DiaDeDinero[] {
@@ -25,7 +26,7 @@ export function serieDiaria(
     const dia = dias.get(p.fecha);
     if (!dia) continue;
     if (p.tipo === "entrada") dia.entra += p.monto;
-    else dia.sale += p.monto;
+    else if (p.tipo === "salida") dia.sale += p.monto;
   }
   return [...dias.values()];
 }

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
 import type { LugarDeDinero } from "@/domain/index";
@@ -59,18 +60,29 @@ function FormSaldo({ lugar, esperado, cerrar }: { lugar: LugarDeDinero; esperado
   );
 }
 
-/** El botón de cada lugar donde hay dinero: pone el saldo inicial la primera vez y después sirve para cuadrar con lo que hay de verdad. */
-export function BotonSaldo({ lugar, saldo }: { lugar: LugarDeDinero; saldo: number | null }) {
+/**
+ * El botón de cada lugar donde hay dinero: pone el saldo inicial la primera vez y después sirve para ajustarlo a lo que hay de verdad.
+ * `discreto` lo dibuja como un enlace de texto, para ir en una línea de la lista sin pesar más que el monto.
+ */
+export function BotonSaldo({ lugar, saldo, discreto = false }: { lugar: LugarDeDinero; saldo: number | null; discreto?: boolean }) {
   const nombre = textos.gestion.lugares[lugar].toLowerCase();
+  const etiqueta = saldo === null ? t.ponerInicial : t.ajustar;
   return (
     <VentanaConBoton
       id={`saldo-${lugar}`}
       titulo={saldo === null ? t.inicialTitulo(nombre) : t.ajusteTitulo(nombre)}
-      boton={(abrir) => (
-        <Button type="button" variante="suave" tamano="chico" onClick={abrir}>
-          {saldo === null ? t.ponerInicial : t.ajustar}
-        </Button>
-      )}
+      boton={(abrir) =>
+        discreto ? (
+          <button type="button" onClick={abrir} className="-mx-2 inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-sm font-bold text-teal underline decoration-teal/40 underline-offset-4 hover:bg-teal-fondo">
+            <Icon nombre="filtros" className="size-4" />
+            {etiqueta}
+          </button>
+        ) : (
+          <Button type="button" variante="suave" tamano="chico" onClick={abrir}>
+            {etiqueta}
+          </Button>
+        )
+      }
     >
       {(cerrar) => <FormSaldo lugar={lugar} esperado={saldo} cerrar={cerrar} />}
     </VentanaConBoton>

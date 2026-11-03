@@ -48,11 +48,11 @@ export const asistente = {
       { texto: "cobrale a Ana", modo: "escribir" },
     ],
   } as Record<string, { texto: string; modo: "mandar" | "escribir" | "foto" }[]>,
-  verCuadre: "Ver el Cuadre",
+  verCuadre: "Ver el Balance",
   balance: {
     resumen: (tenes: string, debes: string, tuyo: string) => `Hoy tenés ${tenes}, debés ${debes} y lo que es tuyo son ${tuyo}.`,
     linea: (nombre: string, monto: string) => `• ${nombre}: ${monto}`,
-    sinSaldo: (nombre: string) => `• ${nombre}: falta el saldo inicial (ponelo en Gestión → Cuadre)`,
+    sinSaldo: (nombre: string) => `• ${nombre}: falta el saldo inicial (ponelo en Gestión → Balance)`,
     sinDeudas: "No debés nada.",
     debes: "Lo que debés:",
     deuda: (acreedor: string, saldo: string, cuota: string | null) => `• ${acreedor}: ${saldo}${cuota ? ` (${cuota})` : ""}`,

@@ -66,7 +66,7 @@ export const nav = {
     clientes: "Quién te compra y quién te debe",
     gestionResumen: "Resumen de Gestión",
     gestionResumenDetalle: "Cuánto ganaste y cómo se movió tu dinero",
-    cuadre: "Cuadre: lo que tenés y lo que debés",
+    cuadre: "Balance: lo que tenés y lo que debés",
     cuadreDetalle: "Balance, saldos, deudas y cuotas",
     movimientosGestion: "Movimientos de Gestión",
     movimientosGestionDetalle: "Todo lo que entró y salió, día por día",

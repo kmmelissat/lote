@@ -74,15 +74,16 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
         descripcion={textos.productos.descripcion}
         accion={
           negocio.puedeGestionar ? (
-            <div className="flex flex-wrap items-center gap-2">
+            // En celular: lo principal arriba y ancho, y lo secundario en dos mitades debajo
+            <div className="grid w-full grid-cols-2 gap-2 md:flex md:w-auto md:flex-wrap md:items-center">
+              <ButtonLink href="/productos/nuevo" variante="mango" icono="mas" className="col-span-2 md:order-last md:col-span-1">
+                {textos.productos.agregar}
+              </ButtonLink>
               <ButtonLink href="/productos/importar" variante="secundario" icono="hoja">
                 {textos.productos.importar.boton}
               </ButtonLink>
               <ButtonLink href="/productos/promociones" variante="secundario" icono="etiqueta">
                 {textos.promociones.entrada}
-              </ButtonLink>
-              <ButtonLink href="/productos/nuevo" variante="mango" icono="mas">
-                {textos.productos.agregar}
               </ButtonLink>
             </div>
           ) : undefined

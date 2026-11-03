@@ -197,7 +197,38 @@ export function ListaProductos({
 
   return (
     <div className="flex flex-col gap-4">
-      <section aria-label={t.inventario.titulo} className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {/* En celular, una sola tarjeta con las cuatro cifras: cuatro tarjetas sueltas empujaban la lista fuera de la pantalla */}
+      <section aria-label={t.inventario.titulo} className="grid grid-cols-2 gap-px overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-borde md:hidden">
+        {[
+          { clave: "disponible", etiqueta: t.inventario.unidades, valor: String(inventario.unidades), banda: colorDeEstado("disponible"), alTocar: () => elegirEstado("disponible") },
+          { clave: "poco", etiqueta: t.inventario.poco, valor: String(pocoStockCuenta), banda: colorDeEstado("poco_stock"), alTocar: () => elegirEstado("poco") },
+          { clave: "valen", etiqueta: t.inventario.valen, valor: formatearDolares(inventario.valorVenta), banda: colorDeEstado("pagado"), alTocar: () => elegirEstado("todos") },
+          ...(inventario.gananciaPotencial !== null
+            ? [{ clave: "ganancia", etiqueta: t.inventario.ganancia, valor: formatearDolares(inventario.gananciaPotencial), banda: colorDeEstado("entregado"), alTocar: undefined }]
+            : []),
+        ].map((d, i, todas) => {
+          const clase = `flex min-h-16 flex-col items-start justify-center gap-0.5 bg-superficie px-4 py-2 text-left ${todas.length === 3 && i === 2 ? "col-span-2" : ""}`;
+          const contenido = (
+            <>
+              <span className="flex items-center gap-1.5 text-xs font-medium text-texto-2">
+                <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${d.banda}`} />
+                {d.etiqueta}
+              </span>
+              <span className="font-logo text-xl font-bold tabular-nums">{d.valor}</span>
+            </>
+          );
+          return d.alTocar ? (
+            <button key={d.clave} type="button" onClick={d.alTocar} className={`${clase} active:bg-teal-fondo/50`}>
+              {contenido}
+            </button>
+          ) : (
+            <Link key={d.clave} href="/dinero" className={`${clase} active:bg-teal-fondo/50`}>
+              {contenido}
+            </Link>
+          );
+        })}
+      </section>
+      <section aria-label={t.inventario.titulo} className="hidden gap-4 md:grid md:grid-cols-4">
         <TarjetaDato
           etiqueta={t.inventario.unidades}
           valor={inventario.unidades}

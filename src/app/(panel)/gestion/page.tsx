@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { fechaLocalDe, rangoPeriodo, resumenDelPeriodo, serieDiaria, unirMovimientos } from "@/domain";
+import { diferenciaCobrado, fechaLocalDe, rangoPeriodo, resumenDelPeriodo, serieDiaria, unirMovimientos } from "@/domain";
 import { balanceDelNegocio } from "@/features/gestion/repositorio";
 import { GraficoEntraSale } from "@/features/gestion/ui/GraficoEntraSale";
 import { SeccionesGestion } from "@/features/gestion/ui/SeccionesGestion";
@@ -77,7 +77,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/gestion">, "searchPa
 
   // Lo vendido y lo que entró casi nunca coinciden (abonos, pedidos sin cobrar): se dice cuánto falta para que no parezca un error
   const entro = pagos.reduce((s, x) => s + x.monto, 0);
-  const sinCuadrar = r.vendido - entro;
+  const { abonosEnCurso, cobradoAntes } = diferenciaCobrado(r.vendido, pagos);
 
   return (
     <>
@@ -117,6 +117,18 @@ async function Contenido({ searchParams }: Pick<PageProps<"/gestion">, "searchPa
                 <dt>− {p.costoProductos}</dt>
                 <dd className="font-bold tabular-nums">{formatearDolares(r.costoProductos)}</dd>
               </div>
+              {r.descuentos > 0 && (
+              <div className="flex justify-between gap-3">
+                <dt>− {p.descuentosMenos}</dt>
+                <dd className="font-bold tabular-nums">{formatearDolares(r.descuentos)}</dd>
+              </div>
+              )}
+              {r.envioAbsorbido > 0 && (
+              <div className="flex justify-between gap-3">
+                <dt>− {p.envioMenos}</dt>
+                <dd className="font-bold tabular-nums">{formatearDolares(r.envioAbsorbido)}</dd>
+              </div>
+              )}
               <div className="flex justify-between gap-3">
                 <dt>− {p.gastosMenos}</dt>
                 <dd className="font-bold tabular-nums">{formatearDolares(r.gastos)}</dd>
@@ -132,7 +144,15 @@ async function Contenido({ searchParams }: Pick<PageProps<"/gestion">, "searchPa
         </section>
 
         <GraficoEntraSale titulo={t.grafico.titulo} dias={dias} />
-        {sinCuadrar !== 0 && r.pedidos > 0 && <p className="text-sm text-texto-2">{p.cobrado(formatearDolares(r.vendido), formatearDolares(entro), formatearDolares(Math.abs(sinCuadrar)))}</p>}
+        {r.pedidos > 0 && (abonosEnCurso > 0 || cobradoAntes > 0) && (
+          <div className="flex flex-col gap-1 text-sm text-texto-2">
+            <p>{p.cobrado(formatearDolares(r.vendido), formatearDolares(entro))}</p>
+            <ul className="list-disc pl-5">
+              {abonosEnCurso > 0 && <li>{p.cobradoAbonos(formatearDolares(abonosEnCurso))}</li>}
+              {cobradoAntes > 0 && <li>{p.cobradoAntes(formatearDolares(cobradoAntes))}</li>}
+            </ul>
+          </div>
+        )}
 
         <section aria-label={p.datos} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <DatoSencillo color="rosa" etiqueta={p.vendido} valor={formatearDolares(r.vendido)} texto={p.pedidos(r.pedidos)} href={`/gestion/movimientos?periodo=${clave}&tipo=entrada`} />

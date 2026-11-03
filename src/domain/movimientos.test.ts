@@ -78,3 +78,17 @@ describe("resumirMovimientos", () => {
     expect(resumirMovimientos([])).toEqual({ entradas: 0, salidas: 0, neto: 0, cantidad: 0 });
   });
 });
+
+describe("partidas aparte", () => {
+  const prestamo = { id: "p-1", creadoEn: "2026-10-20T17:00:00Z", monto: 9000, metodo: "efectivo", sentido: "entra", clase: "prestamo", titulo: "Préstamo de Tía Rosa" } as const;
+  const lista = unirMovimientos([pago({ monto: 2500 })], [gasto({ monto: 700 })], [prestamo]);
+
+  it("salen en la misma lista pero no suman en entradas ni salidas", () => {
+    expect(lista).toHaveLength(3);
+    expect(resumirMovimientos(lista)).toEqual({ entradas: 2500, salidas: 700, neto: 1800, cantidad: 3 });
+  });
+  it("el filtro por tipo usa si el dinero entró o salió, y la búsqueda mira el título", () => {
+    expect(filtrarMovimientos(lista, { tipo: "entrada" })).toHaveLength(2);
+    expect(filtrarMovimientos(lista, { q: "tia rosa" })).toHaveLength(1);
+  });
+});

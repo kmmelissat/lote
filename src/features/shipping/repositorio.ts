@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { aCentavos, type Centavos, type QuienPagaEnvio } from "@/domain";
+import { aCentavos, type Centavos, type LugarDeDinero, type QuienPagaEnvio } from "@/domain";
 import { leerZonas, type ZonasEntrega } from "@/lib/departamentos";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -157,4 +157,19 @@ export async function marcarListoParaRecoger(
   const { error } = await supabase.rpc("marcar_listo_envio", { p_pedido: pedidoId, p_listo: listo });
   if (!error) return { ok: true };
   return { ok: false, error: error.code === "42501" ? "sin_permiso" : "desconocido" };
+}
+
+export type PagoAPaquetera = { monto: Centavos; lugar: LugarDeDinero };
+
+/** Lo que ya se le pagó a la paquetera por este envío. Solo dueña y administradora lo ven (RLS); sin pago_paquetera.sql no hay tabla y da null. */
+export async function obtenerPagoPaquetera(supabase: Cliente, pedidoId: string): Promise<PagoAPaquetera | null> {
+  const { data, error } = await supabase.from("pago_paquetera").select("monto, lugar").eq("pedido_id", pedidoId).maybeSingle();
+  if (error || !data) return null;
+  return { monto: aCentavos(data.monto), lugar: data.lugar as LugarDeDinero };
+}
+
+/** Anota (o corrige) lo que se le pagó a la paquetera y de dónde salió el dinero. */
+export async function registrarPagoPaquetera(supabase: Cliente, pedidoId: string, pago: PagoAPaquetera): Promise<boolean> {
+  const { error } = await supabase.rpc("pagar_paquetera", { p_pedido: pedidoId, p_monto: pago.monto / 100, p_lugar: pago.lugar });
+  return !error;
 }

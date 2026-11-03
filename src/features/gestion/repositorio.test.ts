@@ -38,6 +38,14 @@ const tablas = {
 };
 
 describe("datosDeGestion", () => {
+  it("lo que se le pagó a la paquetera sale del lugar de donde se pagó", async () => {
+    const conPaquetera = { ...tablas, pago_paquetera: ok([{ id: "e1", lugar: "efectivo", monto: 3.5, creado_en: "2026-10-07T00:00:00Z", pedido: { codigo: 12 } }]) };
+    const d = await datosDeGestion(supabaseFalso({ tablas: conPaquetera }).cliente, "n1");
+    // Los 145 de antes, menos 3.50
+    expect(d.saldos.efectivo).toBe(14150);
+    expect(d.paquetera).toEqual([{ id: "e1", pedidoCodigo: 12, lugar: "efectivo", monto: 350, creadoEn: "2026-10-07T00:00:00Z" }]);
+  });
+
   it("arma el saldo de cada lugar: contra entrega entra como efectivo y los gastos sin método no restan", async () => {
     const { cliente } = supabaseFalso({ tablas });
     const d = await datosDeGestion(cliente, "n1");

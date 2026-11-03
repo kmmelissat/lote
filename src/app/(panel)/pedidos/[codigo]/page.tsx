@@ -6,7 +6,7 @@ import { puedeCancelarse } from "@/domain";
 import { listarPagos, obtenerPedido } from "@/features/orders/repositorio";
 import { cobraAlEntregar, siguientePaso } from "@/features/orders/siguientePaso";
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
-import { obtenerEnvio, obtenerTarifas } from "@/features/shipping/repositorio";
+import { obtenerEnvio, obtenerPagoPaquetera, obtenerTarifas } from "@/features/shipping/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
@@ -18,6 +18,7 @@ import { ResumenPedido } from "@/features/orders/ui/ResumenPedido";
 import { CobroPedido } from "@/features/payments/ui/CobroPedido";
 import { EnlaceSeguimiento } from "@/features/tracking/ui/EnlaceSeguimiento";
 import { EnvioPedido } from "@/features/shipping/ui/EnvioPedido";
+import { PagoPaquetera } from "@/features/shipping/ui/PagoPaquetera";
 
 const t = textos.pedidos;
 
@@ -116,6 +117,10 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
               tarifas={tarifas}
               puedeVender={negocio.puedeVender}
             />
+
+            {negocio.puedeGestionar && envio?.modo === "paquetera" && envio.costo > 0 && p.estado !== "cancelado" && (
+              <PagoPaquetera pedidoId={p.id} costo={envio.costo} pago={await obtenerPagoPaquetera(supabase, p.id)} />
+            )}
           </div>
         </div>
       </div>

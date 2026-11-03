@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { leerDolares, repartirEnvio, telefonoElSalvador, type QuienPagaEnvio } from "@/domain";
+import { LUGARES_DE_DINERO, leerDolares, repartirEnvio, telefonoElSalvador, type QuienPagaEnvio } from "@/domain";
 import { esDepartamento } from "@/lib/departamentos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { guardarEnvio, type ModoEntrega } from "../repositorio";
+import { guardarEnvio, registrarPagoPaquetera, type ModoEntrega } from "../repositorio";
 
 export type EstadoEnvio = { error?: string; listo?: string };
 
@@ -64,6 +64,26 @@ export async function guardarEnvioDelPedido(
     absorbido,
   });
   if (!r.ok) return { error: textoDeErrorEnvio[r.error] ?? t.errorGeneral };
+
+  revalidatePath("/", "layout");
+  return { listo: t.guardado };
+}
+
+// Lo que se le pagó a la paquetera sale del efectivo o de la cuenta digital. No es un gasto: la parte que absorbés ya cuenta en la ganancia.
+export async function pagarPaqueteraDelPedido(
+  pedidoId: string,
+  _anterior: EstadoEnvio,
+  formData: FormData,
+): Promise<EstadoEnvio> {
+  const t = textos.pedidos.envio.pagoPaquetera;
+  const lugar = LUGARES_DE_DINERO.find((l) => l === String(formData.get("lugar") ?? ""));
+  const monto = leerDolares(String(formData.get("monto") ?? "").trim());
+  if (!lugar) return { error: t.errorLugar };
+  if (monto === null || monto <= 0) return { error: t.errorMonto };
+
+  const { supabase, negocio } = await negocioActual();
+  if (!negocio.puedeGestionar) return { error: t.errorPermiso };
+  if (!(await registrarPagoPaquetera(supabase, pedidoId, { monto, lugar }))) return { error: t.errorGeneral };
 
   revalidatePath("/", "layout");
   return { listo: t.guardado };

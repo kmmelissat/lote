@@ -1100,6 +1100,51 @@ export type Database = {
           }
         ]
       }
+      pago_paquetera: {
+        Row: {
+          creado_en: string
+          id: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          pedido_id: string
+          usuario_id: string | null
+        }
+        Insert: {
+          creado_en?: string
+          id?: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          pedido_id: string
+          usuario_id?: string | null
+        }
+        Update: {
+          creado_en?: string
+          id?: string
+          lugar?: string
+          monto?: number
+          negocio_id?: string
+          pedido_id?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pago_paquetera_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pago_paquetera_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: true
+            referencedRelation: "pedido"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       pasivo: {
         Row: {
           acreedor: string
@@ -1805,6 +1850,10 @@ export type Database = {
       registrar_ajuste_dinero: {
         Args: { p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string; p_tipo: string }
         Returns: string
+      }
+      pagar_paquetera: {
+        Args: { p_lugar: string; p_monto: number; p_pedido: string }
+        Returns: undefined
       }
       registrar_compra_mercaderia: {
         Args: { p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string }

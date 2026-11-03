@@ -41,6 +41,8 @@ export type CompraMercaderia = { id: string; lugar: LugarDeDinero; monto: Centav
 
 export type AjusteRegistrado = { id: string; lugar: LugarDeDinero; monto: Centavos; nota: string | null; creadoEn: string };
 
+export type PagoAPaquetera = { id: string; pedidoCodigo: number; lugar: LugarDeDinero; monto: Centavos; creadoEn: string };
+
 export type DatosDeGestion = {
   /** null mientras no haya saldo inicial: sin él no se puede saber cuánto hay */
   saldos: Record<LugarDeDinero, Centavos | null>;
@@ -49,6 +51,8 @@ export type DatosDeGestion = {
   compras: CompraMercaderia[];
   /** Las correcciones a mano del saldo (no el saldo inicial) */
   ajustes: AjusteRegistrado[];
+  /** Lo que se le pagó a la paquetera por los envíos */
+  paquetera: PagoAPaquetera[];
 };
 
 type FilaPasivo = { cuota?: number | null; cuotas?: number | null; dia_pago?: number | null; id: string; tipo: TipoPasivo; acreedor: string; monto: number; recibido_en: LugarDeDinero | null; fecha_limite: string | null; nota: string | null; creado_en: string };
@@ -61,15 +65,26 @@ type FilaAjuste = { id: string; nota: string | null; lugar: LugarDeDinero; tipo:
  */
 export async function datosDeGestion(supabase: Cliente, negocioId: string): Promise<DatosDeGestion> {
   const db = supabase;
-  const [ajustes, pasivos, abonos, pagos, gastos, compras] = await Promise.all([
+  const [ajustes, pasivos, abonos, pagos, gastos, compras, paquetera] = await Promise.all([
     db.from("ajuste_dinero").select("id, lugar, tipo, monto, nota, creado_en").eq("negocio_id", negocioId).limit(TOPE),
     db.from("pasivo").select("*").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
     db.from("abono_pasivo").select("pasivo_id, monto, lugar, creado_en").eq("negocio_id", negocioId).limit(TOPE),
     supabase.from("pago").select("monto, metodo, creado_en").eq("negocio_id", negocioId).limit(TOPE),
     supabase.from("gasto").select("monto, metodo, creado_en").eq("negocio_id", negocioId).limit(TOPE),
     db.from("compra_mercaderia").select("id, lugar, monto, nota, creado_en").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
+    db.from("pago_paquetera").select("id, lugar, monto, creado_en, pedido(codigo)").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
   ]);
   for (const r of [ajustes, pasivos, abonos, pagos, gastos, compras]) if (r.error) throw r.error;
+  // Aparte: si todavía no corrieron pago_paquetera.sql la tabla no existe, y eso no debe romper el balance
+  const pagosPaquetera: PagoAPaquetera[] = paquetera.error || !paquetera.data
+    ? []
+    : (paquetera.data as unknown as { id: string; lugar: LugarDeDinero; monto: number; creado_en: string; pedido: { codigo: number } | null }[]).map((x) => ({
+        id: x.id,
+        pedidoCodigo: x.pedido?.codigo ?? 0,
+        lugar: x.lugar,
+        monto: aCentavos(x.monto),
+        creadoEn: x.creado_en,
+      }));
 
   const filasAjuste = ajustes.data as FilaAjuste[];
   const todosAbonos: Abono[] = (abonos.data as FilaAbono[]).map((a) => ({ pasivoId: a.pasivo_id, monto: aCentavos(a.monto), lugar: a.lugar, creadoEn: a.creado_en }));
@@ -103,6 +118,8 @@ export async function datosDeGestion(supabase: Cliente, negocioId: string): Prom
   }));
   // Lo que se pagó por mercadería también sale del lugar de donde se pagó
   for (const c of todasCompras) salidas.push({ lugar: c.lugar, monto: c.monto, creadoEn: c.creadoEn });
+  // Y lo que se le pagó a la paquetera
+  for (const x of pagosPaquetera) salidas.push({ lugar: x.lugar, monto: x.monto, creadoEn: x.creadoEn });
 
   const saldos = {} as Record<LugarDeDinero, Centavos | null>;
   for (const lugar of LUGARES_DE_DINERO) {
@@ -138,7 +155,7 @@ export async function datosDeGestion(supabase: Cliente, negocioId: string): Prom
     .filter((a) => a.tipo === "ajuste")
     .map((a) => ({ id: a.id, lugar: a.lugar, monto: aCentavos(a.monto), nota: a.nota, creadoEn: a.creado_en }));
 
-  return { saldos, pasivos: conSaldo, abonos: todosAbonos, compras: todasCompras, ajustes: ajustesHechos };
+  return { saldos, pasivos: conSaldo, abonos: todosAbonos, compras: todasCompras, ajustes: ajustesHechos, paquetera: pagosPaquetera };
 }
 
 export async function registrarPasivo(

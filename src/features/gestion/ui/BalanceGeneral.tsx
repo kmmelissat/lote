@@ -75,15 +75,15 @@ export function BalanceGeneral({
               <li key={a.clave} className="flex flex-col gap-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-bold">{t.partes[a.clave]}</span>
-                  <span className="flex items-center gap-2">
-                    {(a.clave === "efectivo" || a.clave === "transferencia") && <BotonSaldo lugar={a.clave} saldo={saldos[a.clave]} />}
-                    <span className="font-bold tabular-nums">{saldos[a.clave as "efectivo"] === null && (a.clave === "efectivo" || a.clave === "transferencia") ? textos.gestion.saldo.sinSaldoFila : formatearDolares(a.monto)}</span>
-                  </span>
+                  <span className="font-bold tabular-nums">{saldos[a.clave as "efectivo"] === null && (a.clave === "efectivo" || a.clave === "transferencia") ? textos.gestion.saldo.sinSaldoFila : formatearDolares(a.monto)}</span>
                 </div>
                 <div aria-hidden="true" className="h-3 overflow-hidden rounded-full bg-fondo">
                   <span className={`block h-full rounded-full border border-teal-oscuro ${COLOR[a.clave]}`} style={{ width: `${(a.monto / mayor) * 100}%`, minWidth: a.monto > 0 ? "0.75rem" : 0 }} />
                 </div>
-                <span className="text-sm text-texto-2">{t.partesAyuda[a.clave]}</span>
+                <div className="flex flex-wrap items-center justify-between gap-x-4">
+                  <span className="text-sm text-texto-2">{t.partesAyuda[a.clave]}</span>
+                  {(a.clave === "efectivo" || a.clave === "transferencia") && <BotonSaldo lugar={a.clave} saldo={saldos[a.clave]} discreto />}
+                </div>
               </li>
             ))}
           </ul>

@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import Form from "next/form";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Aviso } from "@/components/ui/Aviso";
@@ -10,7 +9,6 @@ import {
   fechaLocalDe,
   filtrarMovimientos,
   type FiltroMovimientos,
-  type Periodo,
   rangoPeriodo,
   serieDiaria,
   resumirMovimientos,
@@ -21,6 +19,7 @@ import { CLAVES_PERIODO, esClavePeriodo, PERIODOS, type ClavePeriodo } from "@/f
 import { FiltroDinero } from "@/features/profit/ui/FiltroDinero";
 import { HeroMovimientos } from "@/features/profit/ui/PortadaDinero";
 import { RegistrarGasto } from "@/features/profit/ui/Gastos";
+import { apartesDelPeriodo } from "@/features/gestion/apartes";
 import { GraficoEntraSale } from "@/features/gestion/ui/GraficoEntraSale";
 import { SeccionesGestion } from "@/features/gestion/ui/SeccionesGestion";
 import { SeccionesDinero } from "@/features/profit/ui/SeccionesDinero";
@@ -40,16 +39,15 @@ const uno = (v: string | string[] | undefined) => (typeof v === "string" ? v : "
 
 /**
  * La lista de movimientos (pagos que entraron y gastos que salieron) con sus filtros. La comparten Dinero y Gestión:
- * `seccion` decide las pestañas, los enlaces y los títulos, y `despues` deja agregar algo debajo de la lista.
+ * `seccion` decide las pestañas, los enlaces y los títulos. Gestión suma además los préstamos, pagos de deudas,
+ * mercadería y ajustes de saldo, que se ven en la lista pero no cuentan como ingreso ni gasto.
  */
 export async function PantallaMovimientos({
   searchParams,
   seccion,
-  despues,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
   seccion: "dinero" | "gestion";
-  despues?: (periodo: Periodo) => ReactNode;
 }) {
   const t = seccion === "gestion" ? { ...textos.dinero, titulo: textos.gestion.titulo, descripcion: textos.gestion.descripciones.movimientos } : textos.dinero;
   const ruta = seccion === "gestion" ? "/gestion/movimientos" : "/dinero/movimientos";
@@ -72,9 +70,10 @@ export async function PantallaMovimientos({
 
   const { tipo: tipoPeriodo, desplazar } = PERIODOS[clave];
   const periodo = rangoPeriodo(tipoPeriodo, new Date(), desplazar);
-  const [pagos, gastos] = await Promise.all([
+  const [pagos, gastos, apartes] = await Promise.all([
     pagosDelPeriodo(supabase, negocio.id, periodo),
     gastosComoSalidas(supabase, negocio.id, periodo),
+    seccion === "gestion" ? apartesDelPeriodo(supabase, negocio.id, periodo) : [],
   ]);
 
   const filtro: FiltroMovimientos = {
@@ -82,7 +81,7 @@ export async function PantallaMovimientos({
     metodo: metodo === "todos" ? undefined : metodo,
     q: q || undefined,
   };
-  const visibles = filtrarMovimientos(unirMovimientos(pagos, gastos), filtro);
+  const visibles = filtrarMovimientos(unirMovimientos(pagos, gastos, apartes), filtro);
   // El pie suma todo lo que cumple el filtro, no solo la página que se ve
   const totales = resumirMovimientos(visibles);
   const pagina_ = visibles.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
@@ -154,6 +153,12 @@ export async function PantallaMovimientos({
         </Form>
 
         <Aviso>{t.diferenciaAyuda}</Aviso>
+        {seccion === "gestion" && (
+          <details className="rounded-[14px] bg-fondo px-4 text-sm">
+            <summary className="flex min-h-11 cursor-pointer items-center font-bold">{textos.gestion.libro.aparteResumen}</summary>
+            <p className="pb-3 text-texto-2">{textos.gestion.libro.aparteAyuda}</p>
+          </details>
+        )}
 
         {!pagina_.length ? (
           <EmptyState monito="asoma" texto={q ? t.buscar.sinResultados(q) : hayFiltros ? t.vacioFiltro : t.vacio} />
@@ -181,8 +186,6 @@ export async function PantallaMovimientos({
             )}
           </nav>
         )}
-
-        {despues?.(periodo)}
       </div>
     </>
   );
