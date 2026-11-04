@@ -9,9 +9,13 @@ import { Icon } from "@/components/ui/Icon";
 import { ResumenCompacto } from "@/components/ui/ResumenCompacto";
 import { colorDeEstado } from "@/components/ui/StatusChip";
 import { TarjetaDato } from "@/components/ui/TarjetaDato";
+import { rangoPeriodo } from "@/domain";
 import { interpretarBusqueda } from "@/features/orders/busqueda";
-import { contarPedidosPorEstado, paginaDePedidos } from "@/features/orders/repositorio";
+import { resumenDelMes } from "@/features/orders/delMes";
+import { DIAS_EN_CAMINO, pedidosPorAtender } from "@/features/orders/porAtender";
+import { buscarPedidos, contarPedidosPorEstado, paginaDePedidos, pedidosDesde } from "@/features/orders/repositorio";
 import { ListaPedidos } from "@/features/orders/ui/ListaPedidos";
+import { ResumenDelMes } from "@/features/orders/ui/ResumenDelMes";
 import { porCobrar } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
@@ -30,6 +34,9 @@ const esPestana = (s: string | undefined): s is Pestana => PESTANAS.includes(s a
 /** Todas las listas van por páginas: con el tiempo, un solo estado (los entregados) puede pasar de cientos de pedidos. */
 const POR_PAGINA = 30;
 
+/** Ahí está quién debe y el botón para cobrarle por WhatsApp. */
+const CLIENTES_CON_SALDO = conBusqueda("/clientes", "saldo=1");
+
 export default function Page({ searchParams }: PageProps<"/pedidos">) {
   return <Lista searchParams={searchParams} />;
 }
@@ -42,7 +49,8 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
   const busqueda = interpretarBusqueda(q);
 
   const { supabase, negocio } = await negocioActual();
-  const [pedidos, cuentas, debido] = await Promise.all([
+  const ahora = new Date();
+  const [pedidos, cuentas, debido, abiertos, recientes] = await Promise.all([
     // Uno de más, solo para saber si hay otra página
     paginaDePedidos(supabase, negocio.id, (pagina - 1) * POR_PAGINA, POR_PAGINA + 1, {
       estado: estado === "todos" ? undefined : estado,
@@ -50,7 +58,12 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
     }),
     contarPedidosPorEstado(supabase, negocio.id),
     porCobrar(supabase, negocio.id),
+    buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando", "enviado"]),
+    pedidosDesde(supabase, negocio.id, rangoPeriodo("mes", ahora, -1).desde),
   ]);
+  const atender = pedidosPorAtender(abiertos, ahora);
+  // "Por enviar" junta tres grupos: el enlace abre el primero que tenga algo
+  const estadoPorEnviar = atender.pagados ? "pagado" : atender.preparando ? "preparando" : atender.contraEntrega ? "pendiente" : "pagado";
   const total = Object.values(cuentas).reduce((suma, n) => suma + n, 0);
   const hayMas = pedidos.length > POR_PAGINA;
   const visibles = pedidos.slice(0, POR_PAGINA);
@@ -79,18 +92,36 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
         <ResumenCompacto
           titulo={t.stats.titulo}
           datos={[
-            { etiqueta: t.stats.porCobrar, valor: formatearDolares(debido), banda: colorDeEstado("pagado"), href: enlace({ estado: "todos" }) },
-            { etiqueta: t.stats.esperando, valor: cuentas.pendiente, banda: colorDeEstado("pendiente"), href: enlace({ estado: "pendiente" }) },
-            { etiqueta: t.stats.porEnviar, valor: cuentas.pagado + cuentas.preparando, banda: colorDeEstado("preparando"), href: enlace({ estado: "pagado" }) },
+            { etiqueta: t.stats.porCobrar, valor: formatearDolares(debido.monto), banda: colorDeEstado("pagado"), href: CLIENTES_CON_SALDO },
+            { etiqueta: t.stats.esperando, valor: atender.porPagar, banda: colorDeEstado("pendiente"), href: enlace({ estado: "pendiente" }) },
+            { etiqueta: t.stats.porEnviar, valor: atender.porEnviar, banda: colorDeEstado("preparando"), href: enlace({ estado: estadoPorEnviar }) },
             { etiqueta: t.stats.enCamino, valor: cuentas.enviado, banda: colorDeEstado("enviado"), href: enlace({ estado: "enviado" }) },
           ]}
         />
         <section aria-label={t.stats.titulo} className="hidden gap-4 md:grid md:grid-cols-4">
-          <TarjetaDato etiqueta={t.stats.porCobrar} valor={formatearDolares(debido)} texto={t.stats.porCobrarNota} href={enlace({ estado: "todos" })} banda={colorDeEstado("pagado")} icono="moneda" />
-          <TarjetaDato etiqueta={t.stats.esperando} valor={cuentas.pendiente} texto={t.stats.esperandoNota(cuentas.pendiente)} href={enlace({ estado: "pendiente" })} banda={colorDeEstado("pendiente")} icono="reloj" />
-          <TarjetaDato etiqueta={t.stats.porEnviar} valor={cuentas.pagado + cuentas.preparando} texto={t.stats.porEnviarNota} href={enlace({ estado: "pagado" })} banda={colorDeEstado("preparando")} icono="caja" />
-          <TarjetaDato etiqueta={t.stats.enCamino} valor={cuentas.enviado} texto={t.stats.enCaminoNota} href={enlace({ estado: "enviado" })} banda={colorDeEstado("enviado")} icono="camion" />
+          <TarjetaDato etiqueta={t.stats.porCobrar} valor={formatearDolares(debido.monto)} texto={t.stats.porCobrarNota(debido.pedidos)} href={CLIENTES_CON_SALDO} banda={colorDeEstado("pagado")} icono="moneda" />
+          <TarjetaDato
+            etiqueta={t.stats.esperando}
+            valor={atender.porPagar}
+            texto={t.stats.esperandoNota}
+            chip={atender.seEnfrian.length ? { texto: t.stats.porVencer(atender.seEnfrian.length) } : undefined}
+            href={enlace({ estado: "pendiente" })}
+            banda={colorDeEstado("pendiente")}
+            icono="reloj"
+          />
+          <TarjetaDato etiqueta={t.stats.porEnviar} valor={atender.porEnviar} texto={t.stats.porEnviarNota(atender)} href={enlace({ estado: estadoPorEnviar })} banda={colorDeEstado("preparando")} icono="caja" />
+          <TarjetaDato
+            etiqueta={t.stats.enCamino}
+            valor={cuentas.enviado}
+            texto={atender.atascados ? t.stats.atascadosNota : t.stats.enCaminoNota}
+            chip={atender.atascados ? { texto: t.stats.atascados(atender.atascados, DIAS_EN_CAMINO) } : undefined}
+            href={enlace({ estado: "enviado" })}
+            banda={colorDeEstado("enviado")}
+            icono="camion"
+          />
         </section>
+
+        <ResumenDelMes mes={resumenDelMes(recientes, ahora)} />
 
         <Form action="/pedidos" className="flex flex-wrap items-center gap-2">
           <input type="hidden" name="estado" value={estado} />
@@ -126,7 +157,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
             texto={q ? t.buscar.sinResultados(q) : total === 0 || estado === "todos" ? t.vacioTexto : t.lista.vacio[estado]}
           />
         ) : (
-          <ListaPedidos pedidos={visibles} ahora={new Date()} puedeVender={negocio.puedeVender} mostrarEstado={estado === "todos"} />
+          <ListaPedidos pedidos={visibles} ahora={ahora} puedeVender={negocio.puedeVender} mostrarEstado={estado === "todos"} />
         )}
 
         {(pagina > 1 || hayMas) && (

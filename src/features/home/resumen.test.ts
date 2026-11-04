@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { pedidosPorAtender } from "@/features/orders/porAtender";
 import type { Pedido } from "@/features/orders/repositorio";
 import type { Unidades } from "@/features/products/repositorio";
 import { resumenInicio } from "./resumen";
@@ -8,7 +9,7 @@ const enHoras = (h: number) => new Date(ahora.getTime() + h * 3_600_000);
 
 const unidades = (extra: Partial<Unidades> = {}): Unidades => ({ disponibles: 0, apartadas: 0, vendidas: 0, ...extra });
 const pedido = (codigo: number, extra: Partial<Pedido>): Pedido =>
-  ({ codigo, estado: "pendiente", venceEn: enHoras(20), contraEntrega: false, ...extra }) as Pedido;
+  ({ codigo, estado: "pendiente", venceEn: enHoras(20), contraEntrega: false, creadoEn: ahora, ...extra }) as Pedido;
 
 describe("resumenInicio", () => {
   it("pasa las unidades del negocio tal como vienen", () => {
@@ -30,6 +31,32 @@ describe("resumenInicio", () => {
     );
     expect(r.porPagar).toBe(1);
     expect(r.porEnviar).toBe(3);
+  });
+
+  it("desglosa lo que falta enviar para la pantalla de Pedidos", () => {
+    const r = pedidosPorAtender(
+      [
+        pedido(1, { estado: "pagado" }),
+        pedido(2, { estado: "pagado" }),
+        pedido(3, { estado: "preparando" }),
+        pedido(4, { contraEntrega: true, venceEn: null }),
+        pedido(5, { contraEntrega: true, venceEn: enHoras(-1) }),
+      ],
+      ahora,
+    );
+    expect(r).toMatchObject({ pagados: 2, preparando: 1, contraEntrega: 2, porEnviar: 5, porPagar: 0 });
+  });
+
+  it("marca como atascados los enviados de hace más de una semana", () => {
+    const r = pedidosPorAtender(
+      [
+        pedido(1, { estado: "enviado", creadoEn: enHoras(-8 * 24) }),
+        pedido(2, { estado: "enviado", creadoEn: enHoras(-2 * 24) }),
+        pedido(3, { estado: "pagado", creadoEn: enHoras(-30 * 24) }),
+      ],
+      ahora,
+    );
+    expect(r.atascados).toBe(1);
   });
 
   it("un apartado vencido no cuenta", () => {

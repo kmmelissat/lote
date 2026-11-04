@@ -7,13 +7,40 @@ export const pedidos = {
   stats: {
     titulo: "Resumen de pedidos",
     porCobrar: "Por cobrar",
-    porCobrarNota: "Lo que te deben los clientes",
+    porCobrarNota: (n: number) =>
+      n === 0 ? "Nadie te debe nada" : n === 1 ? "El saldo de 1 pedido" : `El saldo de ${n} pedidos`,
     esperando: "Esperando pago",
-    esperandoNota: (n: number) => (n === 1 ? "1 apartado sin pagar" : `${n} apartados sin pagar`),
+    esperandoNota: "Apartados vigentes, sin pagar",
+    porVencer: (n: number) => (n === 1 ? "1 vence pronto" : `${n} vencen pronto`),
     porEnviar: "Por enviar",
-    porEnviarNota: "Pagados que faltan por mandar",
+    porEnviarNota: ({ pagados, preparando, contraEntrega }: { pagados: number; preparando: number; contraEntrega: number }) => {
+      const partes = [
+        pagados && (pagados === 1 ? "1 pagado" : `${pagados} pagados`),
+        preparando && `${preparando} preparando`,
+        contraEntrega && `${contraEntrega} contra entrega`,
+      ].filter(Boolean);
+      return partes.length ? partes.join(" · ") : "Nada pendiente de mandar";
+    },
     enCamino: "En camino",
     enCaminoNota: "Enviados, sin entregar",
+    atascados: (n: number, dias: number) => (n === 1 ? `1 lleva más de ${dias} días` : `${n} llevan más de ${dias} días`),
+    atascadosNota: "¿Ya llegaron? Marcalos entregados",
+  },
+  mes: {
+    titulo: "Este mes",
+    ventas: "Pedidos vendidos",
+    ventasNota: (ahora: number, antes: number, mes: string) => {
+      const diferencia = ahora - antes;
+      if (diferencia === 0) return `Igual que a esta altura de ${mes}`;
+      const cuantos = Math.abs(diferencia);
+      return `${cuantos} ${diferencia > 0 ? "más" : "menos"} que a esta altura de ${mes}`;
+    },
+    ticket: "Ticket promedio",
+    ticketNota: (total: string) => `Lo que deja cada pedido · ${total} en total`,
+    apartados: "Apartados que se pagan",
+    apartadosNota: (pagados: number, caidos: number) =>
+      `${pagados === 1 ? "1 pagó" : `${pagados} pagaron`} · ${caidos === 1 ? "1 se cayó" : `${caidos} se cayeron`}`,
+    sinApartados: "Todavía no se cerró ningún apartado",
   },
   buscar: {
     etiqueta: "Buscar pedido",

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { aCentavos, aDolares, fechaLocalDe, type Centavos, type Descuento, type EstadoPedido } from "@/domain";
 import type { Busqueda } from "./busqueda";
+import type { PedidoDelMes } from "./delMes";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -146,6 +147,24 @@ export async function contarPedidosPorEstado(
   const cuentas = { pendiente: 0, pagado: 0, preparando: 0, enviado: 0, entregado: 0, cancelado: 0 } as Record<EstadoPedido, number>;
   for (const f of data) if (f.estado in cuentas) cuentas[f.estado as EstadoPedido] += 1;
   return cuentas;
+}
+
+/** Lo justo de cada pedido creado desde esa fecha para contar cómo va el mes (`resumenDelMes`). */
+export async function pedidosDesde(supabase: Cliente, negocioId: string, desde: Date): Promise<PedidoDelMes[]> {
+  const { data, error } = await supabase
+    .from("pedido")
+    .select("estado, total, vence_en, contra_entrega, creado_en")
+    .eq("negocio_id", negocioId)
+    .gte("creado_en", desde.toISOString())
+    .limit(5000);
+  if (error) throw error;
+  return data.map((f) => ({
+    estado: f.estado as EstadoPedido,
+    total: aCentavos(f.total),
+    venceEn: f.vence_en ? new Date(f.vence_en) : null,
+    contraEntrega: f.contra_entrega,
+    creadoEn: new Date(f.creado_en),
+  }));
 }
 
 /** Pedidos en cualquiera de esos estados, los más recientes primero. */

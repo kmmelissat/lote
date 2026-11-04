@@ -199,7 +199,7 @@ export async function saldosPorCobrar(supabase: Cliente, negocioId: string): Pro
 }
 
 /** Lo que clientas deben todavía: el saldo de los pedidos que siguen abiertos. */
-export async function porCobrar(supabase: Cliente, negocioId: string): Promise<Centavos> {
+export async function porCobrar(supabase: Cliente, negocioId: string): Promise<{ monto: Centavos; pedidos: number }> {
   const { data, error } = await supabase
     .from("pedido")
     .select("saldo")
@@ -207,5 +207,5 @@ export async function porCobrar(supabase: Cliente, negocioId: string): Promise<C
     .neq("estado", "cancelado")
     .gt("saldo", 0);
   if (error) throw error;
-  return data.reduce((suma, p) => suma + aCentavos(p.saldo), 0);
+  return { monto: data.reduce((suma, p) => suma + aCentavos(p.saldo), 0), pedidos: data.length };
 }
