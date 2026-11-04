@@ -47,7 +47,7 @@ export function PasoDeCobro({
   const verCliente = clienteVisible || abiertoAMano;
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       <div className="flex flex-col gap-3">
         <button type="button" onClick={volver} className="flex min-h-11 w-fit items-center gap-1.5 rounded-full pr-3 text-sm font-bold text-teal">
           <Icon nombre="atras" className="size-5" />

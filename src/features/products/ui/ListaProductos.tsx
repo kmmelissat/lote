@@ -4,9 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { colorDeEstado } from "@/components/ui/StatusChip";
-import { ResumenCompacto } from "@/components/ui/ResumenCompacto";
-import { TarjetaDato } from "@/components/ui/TarjetaDato";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
@@ -17,6 +14,7 @@ import { textos } from "@/lib/textos";
 import { filtrarProductos, FILTROS_ESTADO, ordenarGrupos, ORDENES, resumenDeInventario, type Falta, type FiltroEstado, type Orden } from "../filtro";
 import type { Producto } from "../repositorio";
 import { agruparProductos, type GrupoProducto } from "../variantes";
+import { ResumenInventario } from "./ResumenInventario";
 import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 
@@ -158,9 +156,13 @@ export function ListaProductos({
     [productos, texto, estado, umbral, categoria, falta, orden],
   );
   const inventario = useMemo(() => resumenDeInventario(productos), [productos]);
-  // Cuántos productos se están acabando, sin importar los otros filtros: es un dato del inventario, no de la búsqueda
+  // Cuántos productos se están acabando o se agotaron, sin importar los otros filtros: es un dato del inventario, no de la búsqueda
   const pocoStockCuenta = useMemo(
     () => agruparProductos(filtrarProductos(productos, { texto: "", estado: "poco", umbral })).length,
+    [productos, umbral],
+  );
+  const agotadosCuenta = useMemo(
+    () => agruparProductos(filtrarProductos(productos, { texto: "", estado: "vendido", umbral })).length,
     [productos, umbral],
   );
   const veCostos = inventario.valorCosto !== null;
@@ -198,56 +200,13 @@ export function ListaProductos({
 
   return (
     <div className="flex flex-col gap-4">
-      <ResumenCompacto
-        titulo={t.inventario.titulo}
-        datos={[
-          { etiqueta: t.inventario.unidades, valor: inventario.unidades, banda: colorDeEstado("disponible"), alTocar: () => elegirEstado("disponible") },
-          { etiqueta: t.inventario.poco, valor: pocoStockCuenta, banda: colorDeEstado("poco_stock"), alTocar: () => elegirEstado("poco") },
-          { etiqueta: t.inventario.valen, valor: formatearDolares(inventario.valorVenta), banda: colorDeEstado("pagado"), alTocar: () => elegirEstado("todos") },
-          ...(inventario.gananciaPotencial !== null
-            ? [{ etiqueta: t.inventario.ganancia, valor: formatearDolares(inventario.gananciaPotencial), banda: colorDeEstado("entregado"), href: "/gestion" as const }]
-            : []),
-        ]}
+      <ResumenInventario
+        resumen={inventario}
+        acabando={pocoStockCuenta}
+        agotados={agotadosCuenta}
+        verAcabando={() => elegirEstado("poco")}
+        verAgotados={() => elegirEstado("vendido")}
       />
-      <section aria-label={t.inventario.titulo} className="hidden gap-4 md:grid md:grid-cols-4">
-        <TarjetaDato
-          etiqueta={t.inventario.unidades}
-          valor={inventario.unidades}
-          texto={t.inventario.unidadesNota(inventario.productos)}
-          href="/productos?estado=disponible"
-          banda={colorDeEstado("disponible")}
-          icono="caja"
-          alTocar={() => elegirEstado("disponible")}
-        />
-        <TarjetaDato
-          etiqueta={t.inventario.poco}
-          valor={pocoStockCuenta}
-          texto={t.inventario.pocoNota}
-          href="/productos?estado=poco"
-          banda={colorDeEstado("poco_stock")}
-          icono="reloj"
-          alTocar={() => elegirEstado("poco")}
-        />
-        <TarjetaDato
-          etiqueta={t.inventario.valen}
-          valor={formatearDolares(inventario.valorVenta)}
-          texto={t.inventario.valenNota}
-          href="/productos"
-          banda={colorDeEstado("pagado")}
-          icono="moneda"
-          alTocar={() => elegirEstado("todos")}
-        />
-        {inventario.gananciaPotencial !== null && (
-          <TarjetaDato
-            etiqueta={t.inventario.ganancia}
-            valor={formatearDolares(inventario.gananciaPotencial)}
-            texto={inventario.sinCosto > 0 ? t.inventario.sinCosto(inventario.sinCosto) : t.inventario.gananciaNota}
-            href="/gestion"
-            banda={colorDeEstado("entregado")}
-            icono="ganancia"
-          />
-        )}
-      </section>
 
       <div className="flex flex-wrap items-center gap-2">
         <CampoBusqueda

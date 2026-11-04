@@ -78,6 +78,8 @@ export type ResumenInventario = {
   valorVenta: Centavos;
   /** Lo que costó lo disponible; null si la persona no ve costos */
   valorCosto: Centavos | null;
+  /** El valor de venta de lo que tiene costo: contra esto se comparan el costo y la ganancia */
+  ventaConCosto: Centavos | null;
   /** Valor de venta menos costo, solo de lo que tiene costo; null si no ve costos */
   gananciaPotencial: Centavos | null;
   /** Unidades disponibles de fichas sin costo: no entran en la ganancia */
@@ -109,6 +111,7 @@ export function resumenDeInventario(productos: Producto[]): ResumenInventario {
     unidades,
     valorVenta,
     valorCosto: veCostos ? valorCosto : null,
+    ventaConCosto: veCostos ? ventaConCosto : null,
     gananciaPotencial: veCostos ? ventaConCosto - valorCosto : null,
     sinCosto,
   };

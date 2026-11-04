@@ -25,7 +25,7 @@ export function CampoDescuento({
   cambiarTexto: (texto: string) => void;
 }) {
   return activo ? (
-    <fieldset className="flex flex-col gap-1">
+    <fieldset className="flex min-w-0 flex-col gap-1">
       <legend className="sr-only">{t.titulo}</legend>
       {/* Todo en una línea: dólares o porcentaje, el valor y quitar */}
       <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export function CampoDescuento({
           aria-label={t.valor}
           aria-invalid={invalido || undefined}
           placeholder={tipo === "monto" ? "0.00" : "10"}
-          className={`h-11 min-w-0 flex-1 rounded-[14px] border-2 bg-superficie px-3 text-right text-base font-bold tabular-nums focus:border-teal ${invalido ? "border-error" : "border-borde-control"}`}
+          className={`h-11 w-0 min-w-0 flex-1 rounded-[14px] border-2 bg-superficie px-3 text-right text-base font-bold tabular-nums focus:border-teal ${invalido ? "border-error" : "border-borde-control"}`}
         />
         {quitar && (
           <button type="button" onClick={quitar} aria-label={t.quitar} title={t.quitar} className="grid size-11 shrink-0 place-items-center rounded-full text-texto-2 hover:bg-teal-fondo">

@@ -87,11 +87,12 @@ describe("resumenDeInventario", () => {
 
   it("suma unidades, valor y ganancia solo de lo disponible y con costo", () => {
     const r = resumenDeInventario([q("a", 1000, 2, 400), q("b", 500, 4, null), q("c", 900, 0, 100), q("d", 800, 1, 300, "g"), q("e", 800, 1, 300, "g")]);
-    expect(r).toEqual({ productos: 3, unidades: 8, valorVenta: 2000 + 2000 + 800 + 800, valorCosto: 800 + 300 + 300, gananciaPotencial: 2000 + 800 + 800 - (800 + 300 + 300), sinCosto: 4 });
+    expect(r).toEqual({ productos: 3, unidades: 8, valorVenta: 2000 + 2000 + 800 + 800, valorCosto: 800 + 300 + 300, ventaConCosto: 2000 + 800 + 800, gananciaPotencial: 2000 + 800 + 800 - (800 + 300 + 300), sinCosto: 4 });
   });
   it("sin permiso para ver costos no muestra costo ni ganancia", () => {
     const r = resumenDeInventario([q("a", 1000, 2, undefined)]);
     expect(r.valorCosto).toBeNull();
+    expect(r.ventaConCosto).toBeNull();
     expect(r.gananciaPotencial).toBeNull();
     expect(r.valorVenta).toBe(2000);
   });
