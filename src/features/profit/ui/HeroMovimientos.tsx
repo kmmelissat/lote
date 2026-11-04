@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 
@@ -44,6 +45,28 @@ export function HeroMovimientos({
           <dd className="font-logo text-2xl font-bold tabular-nums md:text-3xl">−{formatearDolares(salidas)}</dd>
         </div>
       </dl>
+    </section>
+  );
+}
+
+/**
+ * Lo que se movió fuera de ventas y gastos (préstamos, mercadería, deudas, envíos, ajustes). Se dice aparte para que el «Te quedó» de
+ * arriba no confunda: esto cambia el balance, no la ganancia. No se dibuja si no hubo nada.
+ */
+export function OtrosMovimientos({ entran, salen }: { entran: number; salen: number }) {
+  if (entran === 0 && salen === 0) return null;
+  const o = textos.gestion.libro.otros;
+  return (
+    <section aria-label={o.titulo} className="flex flex-col gap-2 rounded-[20px] bg-fondo p-4 text-sm">
+      <h2 className="font-bold">{o.titulo}</h2>
+      <p className="flex flex-wrap gap-x-4 gap-y-1 font-bold tabular-nums">
+        {entran > 0 && <span className="text-teal">{o.entraron(formatearDolares(entran))}</span>}
+        {salen > 0 && <span className="text-error">{o.salieron(formatearDolares(salen))}</span>}
+      </p>
+      <p className="text-texto-2">{o.ayuda}</p>
+      <Link href="/gestion/cuadre" className="inline-flex min-h-11 w-fit items-center font-bold text-teal underline underline-offset-4 md:min-h-10">
+        {o.verBalance}
+      </Link>
     </section>
   );
 }

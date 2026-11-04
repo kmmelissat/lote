@@ -14,7 +14,7 @@ Auditoría **de solo lectura**. Entrega un informe priorizado; no edites archivo
 3. Define el **alcance**: lo que la usuaria indicó (feature, carpeta, rama). Si no indicó nada, usa `git diff main...HEAD` más el estado sin commitear; si está vacío, pregunta. No audites todo el repo de golpe.
 4. Corre las comprobaciones mecánicas en el alcance y guarda el resultado en el informe:
    - `npx tsc --noEmit`
-   - `npm run lint`
+   - `pnpm lint`
    - `npx vitest run` (las pruebas con IA real se saltan solas sin `RUN_LIVE_AI=1`)
 
 ## 1. Reglas de arquitectura del proyecto

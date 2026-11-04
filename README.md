@@ -21,8 +21,8 @@ Next.js 16, React 19, TypeScript, Tailwind 4, Supabase (base de datos, autentica
 ## Cómo correrlo
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Abrir [http://localhost:3000](http://localhost:3000).
@@ -53,7 +53,7 @@ npx vitest run
 npx next build
 ```
 
-Las pruebas contra la IA real se saltan salvo con `RUN_LIVE_AI=1`. Después de `next build`, reiniciar `npm run dev`.
+Las pruebas contra la IA real se saltan salvo con `RUN_LIVE_AI=1`. Después de `next build`, reiniciar `pnpm dev`.
 
 ## Estructura
 

@@ -4,7 +4,7 @@ export const gestion = {
   descripcion: "Todo el contexto de tu negocio: qué tenés, qué debés y cuánto vale hoy.",
   descripciones: {
     resumen: "¿Cómo te va? Lo que ganaste en el periodo y cómo se movió tu dinero.",
-    movimientos: "¿Qué pasó? Todo lo que entró y salió, día por día y partida por partida.",
+    movimientos: "Lo que cobraste, lo que gastaste y otros movimientos de tu dinero, partida por partida.",
     cuadre: "¿Qué tenés y qué debés? Tu balance de hoy, con todo lo que es tuyo y lo que no.",
   },
   resumen: "Resumen",
@@ -238,8 +238,8 @@ export const gestion = {
       "La ganancia cuenta una venta cuando el pedido se paga completo. El dinero que entró cuenta cada cobro, aunque sea un abono. Por eso los dos números pueden ser distintos."
   },
   neto: {
-    titulo: "Dinero que entró, neto",
-    ayuda: "Lo que entró menos lo que salió. No es tu ganancia: un abono o un préstamo cuentan acá.",
+    titulo: "Te quedó",
+    ayuda: "Lo que cobraste menos lo que gastaste. Cuenta cada abono, por eso puede no coincidir con tu ganancia.",
   },
   grafico: {
     titulo: "Lo que entró y salió cada día",
@@ -257,9 +257,14 @@ export const gestion = {
     anotada: (nota: string) => `Compra de ${nota}`,
   },
   libro: {
-    aparteAyuda: "Son partidas que mueven tu dinero y tu balance pero no cuentan como ingreso ni como gasto: préstamos que recibiste, pagos de deudas, mercadería, pagos a la paquetera y ajustes de saldo.",
     aparte: "Fuera de ganancia",
-    aparteResumen: "¿Qué significa «Fuera de ganancia»?",
+    otros: {
+      titulo: "También se movió dinero que no es venta ni gasto",
+      entraron: (monto: string) => `Entraron ${monto}`,
+      salieron: (monto: string) => `Salieron ${monto}`,
+      ayuda: "Préstamos, mercadería, pagos de deudas, envíos y ajustes de saldo. Cambian tu balance, pero no tu ganancia.",
+      verBalance: "Ver mi balance",
+    },
     clases: { prestamo: "Préstamo", pago_deuda: "Pago de deuda", compra: "Mercadería", ajuste: "Ajuste de saldo", paquetera: "Pago a paquetera" },
     prestamo: (acreedor: string) => `Préstamo de ${acreedor}`,
     abono: (acreedor: string) => `Pago a ${acreedor}`,

@@ -91,7 +91,15 @@ export type FiltroMovimientos = {
   q?: string;
 };
 
-export type ResumenMovimientos = { entradas: Centavos; salidas: Centavos; neto: Centavos; cantidad: number };
+export type ResumenMovimientos = {
+  entradas: Centavos;
+  salidas: Centavos;
+  neto: Centavos;
+  cantidad: number;
+  /** Lo que entró y salió por partidas aparte (préstamos, mercadería, deudas, envíos, ajustes): cambia el balance, no la ganancia */
+  otrosEntran: Centavos;
+  otrosSalen: Centavos;
+};
 
 const METODOS: readonly string[] = ["efectivo", "transferencia"];
 // "contra_entrega" es un pago real: el dinero se cobró en mano, así que cuenta como efectivo.
@@ -158,13 +166,17 @@ export function filtrarMovimientos(movimientos: readonly Movimiento[], filtro: F
   });
 }
 
-/** Entradas, salidas y neto de todo lo que se está viendo (no solo de la página). Las partidas aparte no suman, pero sí cuentan en `cantidad`. */
+/** Entradas, salidas y neto de todo lo que se está viendo (no solo de la página). Las partidas aparte no suman ahí: van en `otrosEntran` y `otrosSalen`, y cuentan en `cantidad`. */
 export function resumirMovimientos(movimientos: readonly Movimiento[]): ResumenMovimientos {
   let entradas = 0;
   let salidas = 0;
+  let otrosEntran = 0;
+  let otrosSalen = 0;
   for (const m of movimientos) {
     if (m.tipo === "entrada") entradas += m.monto;
     else if (m.tipo === "salida") salidas += m.monto;
+    else if (m.sentido === "entra") otrosEntran += m.monto;
+    else otrosSalen += m.monto;
   }
-  return { entradas, salidas, neto: entradas - salidas, cantidad: movimientos.length };
+  return { entradas, salidas, neto: entradas - salidas, cantidad: movimientos.length, otrosEntran, otrosSalen };
 }

@@ -72,10 +72,10 @@ describe("filtrarMovimientos", () => {
 describe("resumirMovimientos", () => {
   it("suma entradas y salidas y saca el neto", () => {
     const r = resumirMovimientos(unirMovimientos([pago({ monto: 2500 }), pago({ id: "b", monto: 1000 })], [gasto({ monto: 700 })]));
-    expect(r).toEqual({ entradas: 3500, salidas: 700, neto: 2800, cantidad: 3 });
+    expect(r).toEqual({ entradas: 3500, salidas: 700, neto: 2800, cantidad: 3, otrosEntran: 0, otrosSalen: 0 });
   });
   it("con una lista vacía todo es cero", () => {
-    expect(resumirMovimientos([])).toEqual({ entradas: 0, salidas: 0, neto: 0, cantidad: 0 });
+    expect(resumirMovimientos([])).toEqual({ entradas: 0, salidas: 0, neto: 0, cantidad: 0, otrosEntran: 0, otrosSalen: 0 });
   });
 });
 
@@ -85,7 +85,7 @@ describe("partidas aparte", () => {
 
   it("salen en la misma lista pero no suman en entradas ni salidas", () => {
     expect(lista).toHaveLength(3);
-    expect(resumirMovimientos(lista)).toEqual({ entradas: 2500, salidas: 700, neto: 1800, cantidad: 3 });
+    expect(resumirMovimientos(lista)).toEqual({ entradas: 2500, salidas: 700, neto: 1800, cantidad: 3, otrosEntran: 9000, otrosSalen: 0 });
   });
   it("el filtro por tipo usa si el dinero entró o salió, y la búsqueda mira el título", () => {
     expect(filtrarMovimientos(lista, { tipo: "entrada" })).toHaveLength(2);

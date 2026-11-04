@@ -1,13 +1,14 @@
 // Lotito en cada paso del seguimiento (public/seguimiento/paso-*.webp): recibe, empaca, espera a la paquetera, va en camino, entrega, y las dos
 // del retiro en tienda. Parte de los monitos originales (public/monitos) para mantener al personaje.
 //
-//   pnpm imagenes-pasos            genera las que falten
-//   pnpm imagenes-pasos --todas    vuelve a generarlas todas
+//   pnpm imagenes-pasos                        genera las que falten
+//   pnpm imagenes-pasos --solo=paso-recoge     solo esa (más opciones en opcionesImagenes.mts)
 
-import { existsSync, mkdirSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import OpenAI, { toFile } from "openai";
 import sharp from "sharp";
+import { opcionesImagenes } from "./opcionesImagenes.mts";
 
 // El mismo personaje que en imagenes-landing.mts
 const PERSONAJE =
@@ -69,13 +70,13 @@ if (!process.env.OPENAI_API_KEY) {
   process.exit(1);
 }
 mkdirSync("public/seguimiento", { recursive: true });
-const todas = process.argv.includes("--todas");
+const { calidad, toca } = opcionesImagenes(PASOS.map((p) => p.archivo));
 const openai = new OpenAI();
 
 await Promise.all(
   PASOS.map(async ({ archivo, ref, cuerpo, extra }) => {
     const ruta = `public/seguimiento/${archivo}.webp`;
-    if (!todas && existsSync(ruta)) return console.log(`· ${archivo}: ya está`);
+    if (!toca(archivo, ruta)) return console.log(`· ${archivo}: ya está`);
     // Amarillo de fondo: así se ve la carita (en el SVG es un hueco).
     const png = await sharp(`public/monitos/monito_${ref}.svg`)
       .resize(1024, 1024, { fit: "contain", background: { r: 255, g: 226, b: 122, alpha: 1 } })
@@ -91,7 +92,7 @@ await Promise.all(
         "La zona amarilla del hocico ES LA CARA: pintala crema y dibujá bien los ojos y la boca. " +
         "Sacá el fondo amarillo; el fondo final es transparente. Cuerpo completo dentro del cuadro, sin cortar nada.",
       background: "transparent",
-      quality: "high",
+      quality: calidad,
       size: "1024x1024",
       n: 1,
     });

@@ -1,13 +1,14 @@
 // Ilustraciones de la landing (public/landing/*.webp): productos del mock, chat, ganancia y Lotito.
 //
-//   pnpm imagenes-landing            genera las que falten
-//   pnpm imagenes-landing --todas    vuelve a generarlas todas
-//   pnpm imagenes-landing --lotitos  solo regenera a Lotito a partir de public/monitos
+//   pnpm imagenes-landing                       genera las que falten
+//   pnpm imagenes-landing --solo=lotito-saluda  solo esa (más opciones en opcionesImagenes.mts)
+//   pnpm imagenes-landing --lotitos             solo regenera a Lotito a partir de public/monitos
 
-import { mkdirSync, existsSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import OpenAI, { toFile } from "openai";
 import sharp from "sharp";
+import { opcionesImagenes } from "./opcionesImagenes.mts";
 
 const ESTILO =
   "Ilustración plana estilo sticker, trazo grueso en azul petróleo oscuro (#003844), colores cálidos y alegres (mango, rosa, crema, verde azulado), sombreado mínimo. " +
@@ -68,34 +69,34 @@ if (!process.env.OPENAI_API_KEY) {
   process.exit(1);
 }
 mkdirSync("public/landing", { recursive: true });
-const todas = process.argv.includes("--todas");
+const archivosLotitos = LOTITOS.map((l) => l.archivo);
+const { calidad, toca } = opcionesImagenes(
+  [...Object.keys(OBJETOS), ...archivosLotitos],
+  process.argv.includes("--lotitos") ? archivosLotitos : undefined,
+);
 const openai = new OpenAI();
 
-const soloLotitos = process.argv.includes("--lotitos");
-
 await Promise.all([
-  ...(soloLotitos
-    ? []
-    : Object.entries(OBJETOS).map(async ([nombre, objeto]) => {
-        const ruta = `public/landing/${nombre}.webp`;
-        if (!todas && existsSync(ruta)) return console.log(`· ${nombre}: ya está`);
-        const r = await openai.images.generate({
-          model: "gpt-image-1-mini",
-          prompt: `${objeto}. ${ESTILO}`,
-          size: "1024x1024",
-          quality: "medium",
-          background: "transparent",
-          output_format: "png",
-          n: 1,
-        });
-        const b64 = r.data?.[0]?.b64_json;
-        if (!b64) return console.warn(`   ✗ ${nombre}: vino vacía`);
-        await writeFile(ruta, await sharp(Buffer.from(b64, "base64")).resize(512, 512).webp({ quality: 90 }).toBuffer());
-        console.log(`   ✓ ${nombre}`);
-      })),
+  ...Object.entries(OBJETOS).map(async ([nombre, objeto]) => {
+    const ruta = `public/landing/${nombre}.webp`;
+    if (!toca(nombre, ruta)) return console.log(`· ${nombre}: ya está`);
+    const r = await openai.images.generate({
+      model: "gpt-image-1-mini",
+      prompt: `${objeto}. ${ESTILO}`,
+      size: "1024x1024",
+      quality: calidad,
+      background: "transparent",
+      output_format: "png",
+      n: 1,
+    });
+    const b64 = r.data?.[0]?.b64_json;
+    if (!b64) return console.warn(`   ✗ ${nombre}: vino vacía`);
+    await writeFile(ruta, await sharp(Buffer.from(b64, "base64")).resize(512, 512).webp({ quality: 90 }).toBuffer());
+    console.log(`   ✓ ${nombre}`);
+  }),
   ...LOTITOS.map(async ({ archivo, ref, cuerpo, extra }) => {
     const ruta = `public/landing/${archivo}.webp`;
-    if (!todas && !soloLotitos && existsSync(ruta)) return console.log(`· ${archivo}: ya está`);
+    if (!toca(archivo, ruta)) return console.log(`· ${archivo}: ya está`);
     // Amarillo como en la landing: así se ve la carita (en el SVG es un hueco).
     const png = await sharp(`public/monitos/monito_${ref}.svg`)
       .resize(1024, 1024, { fit: "contain", background: { r: 255, g: 226, b: 122, alpha: 1 } })
@@ -111,7 +112,7 @@ await Promise.all([
         "La zona amarilla del hocico ES LA CARA: pintala crema y dibujá bien los ojos y la boca. " +
         "Sacá el fondo amarillo; el fondo final es transparente.",
       background: "transparent",
-      quality: "high",
+      quality: calidad,
       size: "1024x1024",
       n: 1,
     });

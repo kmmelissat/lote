@@ -1267,50 +1267,6 @@ export type Database = {
           }
         ]
       }
-      conteo_dinero: {
-        Row: {
-          contado: number
-          contado_en: string
-          diferencia: number | null
-          esperado: number | null
-          id: string
-          metodo: string
-          negocio_id: string
-          nota: string | null
-          usuario_id: string | null
-        }
-        Insert: {
-          contado: number
-          contado_en?: string
-          diferencia?: number | null
-          esperado?: number | null
-          id?: string
-          metodo: string
-          negocio_id: string
-          nota?: string | null
-          usuario_id?: string | null
-        }
-        Update: {
-          contado?: number
-          contado_en?: string
-          diferencia?: number | null
-          esperado?: number | null
-          id?: string
-          metodo?: string
-          negocio_id?: string
-          nota?: string | null
-          usuario_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conteo_dinero_negocio_id_fkey"
-            columns: ["negocio_id"]
-            isOneToOne: false
-            referencedRelation: "negocio"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       cierre_caja: {
         Row: {
           abierta_en: string
@@ -1935,16 +1891,6 @@ export type Database = {
       }
       registrar_pasivo: {
         Args: { p_acreedor: string; p_cuota?: number; p_cuotas?: number; p_dia_pago?: number; p_fecha_limite?: string; p_monto: number; p_negocio: string; p_nota?: string; p_recibido_en?: string; p_tipo: string }
-        Returns: string
-      }
-      registrar_conteo_dinero: {
-        Args: {
-          p_contado: number
-          p_esperado?: number
-          p_metodo: string
-          p_negocio: string
-          p_nota?: string
-        }
         Returns: string
       }
       registrar_gasto: {

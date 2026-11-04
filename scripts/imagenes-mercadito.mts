@@ -1,12 +1,12 @@
 // Las ilustraciones del hero del mercadito (public/mercadito/*.webp), hechas con OpenAI, con fondo transparente.
 //
-//   pnpm imagenes-mercadito          genera las que falten
-//   pnpm imagenes-mercadito --todas  vuelve a generarlas todas
+//   pnpm imagenes-mercadito                 genera las que falten
+//   pnpm imagenes-mercadito --solo=taza     solo esa (más opciones en opcionesImagenes.mts)
 
-import { existsSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import OpenAI from "openai";
 import sharp from "sharp";
+import { opcionesImagenes } from "./opcionesImagenes.mts";
 
 const ESTILO =
   "Ilustración plana estilo sticker, trazo grueso en azul petróleo oscuro (#003844), colores cálidos y alegres (mango, rosa, crema, verde azulado), sombreado mínimo. " +
@@ -29,18 +29,18 @@ if (!process.env.OPENAI_API_KEY) {
   console.error("Falta OPENAI_API_KEY en .env.local");
   process.exit(1);
 }
-const todas = process.argv.includes("--todas");
+const { calidad, toca } = opcionesImagenes(Object.keys(OBJETOS));
 const openai = new OpenAI();
 
 await Promise.all(
   Object.entries(OBJETOS).map(async ([nombre, objeto]) => {
     const ruta = `public/mercadito/${nombre}.webp`;
-    if (!todas && existsSync(ruta)) return console.log(`· ${nombre}: ya está`);
+    if (!toca(nombre, ruta)) return console.log(`· ${nombre}: ya está`);
     const r = await openai.images.generate({
       model: "gpt-image-1-mini",
       prompt: `${objeto}. ${ESTILO}`,
       size: "1024x1024",
-      quality: "medium",
+      quality: calidad,
       background: "transparent",
       output_format: "png",
       n: 1,

@@ -1,28 +1,53 @@
+"use client";
+
+import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
 import { agruparPorSemana, DIAS_MINIMOS_PARA_DIARIO, type DiaDeDinero } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 
 const t = textos.gestion.grafico;
 
-/** "2026-11-02" → "2": el día del mes basta como etiqueta del eje. */
+/** "2026-11-02" → "2": el día del mes basta como etiqueta del eje cuando hay muchos días. */
 const diaDelMes = (fecha: string) => String(Number(fecha.slice(8, 10)));
 const diaCompleto = (fecha: string) => new Date(`${fecha}T12:00:00Z`).toLocaleDateString("es-SV", { day: "numeric", month: "short", timeZone: "UTC" });
+const dolares = (v: number) => formatearDolares(Math.round(v * 100));
+
+type Punto = { fecha: string; etiqueta: string; entra: number; sale: number };
+
+function Detalle({ active, payload, porSemana }: TooltipContentProps & { porSemana: boolean }) {
+  const punto = payload?.[0]?.payload as Punto | undefined;
+  if (!active || !punto) return null;
+  const texto = porSemana ? t.semana : t.dia;
+  return (
+    <div className="rounded-xl border border-borde bg-superficie px-3 py-2 text-xs shadow-lg">
+      <p className="font-medium">{texto(diaCompleto(punto.fecha), dolares(punto.entra), dolares(punto.sale))}</p>
+    </div>
+  );
+}
 
 /**
- * Lo que entró y salió cada día, en barras de a dos (teal entra, rosa sale). Va sin ejes: arriba dice cuál fue el día más alto,
- * cada día se nombra al pasar el mouse o con el lector de pantalla, y la tabla escondida trae los mismos números.
+ * Lo que entró y salió cada día, en barras de a dos (teal entra, rosa sale), con Recharts como el gráfico de Inicio.
+ * Con pocos días con movimiento se agrupa por semana; con pocas barras cada una dice cuánto fue. La tabla escondida trae los mismos números.
  */
 export function GraficoEntraSale({ dias: diarios, titulo }: { dias: DiaDeDinero[]; titulo: string }) {
   // Con pocos días con movimiento se agrupa por semana: un mes con una barra y veintisiete vacías no dice nada
   const activos = diarios.filter((d) => d.entra > 0 || d.sale > 0).length;
   const porSemana = diarios.length > 7 && activos < DIAS_MINIMOS_PARA_DIARIO;
   const dias = porSemana ? agruparPorSemana(diarios) : diarios;
-  const maximo = Math.max(0, ...dias.flatMap((d) => [d.entra, d.sale]));
-  const hayDatos = maximo > 0;
+  const hayDatos = dias.some((d) => d.entra > 0 || d.sale > 0);
   const entro = dias.reduce((s, d) => s + d.entra, 0);
   const salio = dias.reduce((s, d) => s + d.sale, 0);
+  // Con pocas barras (un periodo que apenas empieza) cada una es ancha y dice cuánto fue
+  const pocas = dias.length <= 7;
   // Con muchos días no caben todos los números: se rotulan algunos
-  const cada = porSemana ? 1 : dias.length > 14 ? 7 : dias.length > 7 ? 2 : 1;
+  const cada = porSemana || pocas ? 1 : dias.length > 14 ? 7 : 2;
+  const datos: Punto[] = dias.map((d) => ({
+    fecha: d.fecha,
+    etiqueta: porSemana || pocas ? diaCompleto(d.fecha) : diaDelMes(d.fecha),
+    entra: d.entra / 100,
+    sale: d.sale / 100,
+  }));
+  const rotulo = (v: unknown) => (typeof v === "number" && v > 0 ? dolares(v) : "");
 
   return (
     <figure className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5" aria-label={titulo}>
@@ -42,40 +67,50 @@ export function GraficoEntraSale({ dias: diarios, titulo }: { dias: DiaDeDinero[
 
       {hayDatos ? (
         <>
-          <div className="flex h-36 items-end gap-[3px] border-b-2 border-teal-oscuro/30 md:h-44" aria-hidden="true">
-            {dias.map((d) => (
-              <div key={d.fecha} title={porSemana ? t.semana(diaCompleto(d.fecha), formatearDolares(d.entra), formatearDolares(d.sale)) : t.dia(diaCompleto(d.fecha), formatearDolares(d.entra), formatearDolares(d.sale))} className="flex h-full min-w-0 flex-1 items-end justify-center gap-px">
-                <span className="w-full max-w-3 rounded-t-[3px] bg-teal" style={{ height: `${(d.entra / maximo) * 100}%` }} />
-                <span className="w-full max-w-3 rounded-t-[3px] bg-rosa" style={{ height: `${(d.sale / maximo) * 100}%` }} />
-              </div>
-            ))}
+          <div className="h-52 w-full min-w-0 md:h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={datos} margin={{ top: pocas ? 18 : 4, right: 4, bottom: 0, left: 0 }} barGap={2} accessibilityLayer>
+                <CartesianGrid vertical={false} stroke="var(--color-borde)" />
+                <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} interval={cada - 1} tick={{ fontSize: 11, fill: "var(--color-texto-2)" }} />
+                <YAxis
+                  width={44}
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 11, fill: "var(--color-texto-2)" }}
+                  tickFormatter={(v: number) => `$${v.toLocaleString("en-US")}`}
+                />
+                <Tooltip cursor={{ fill: "var(--color-fondo)" }} content={(props) => <Detalle {...props} porSemana={porSemana} />} />
+                <Bar dataKey="entra" name={t.entro} fill="var(--color-teal)" radius={[4, 4, 0, 0]} maxBarSize={pocas ? 44 : 16}>
+                  {pocas && <LabelList dataKey="entra" position="top" formatter={rotulo} style={{ fontSize: 11, fontWeight: 700, fill: "var(--color-teal)" }} />}
+                </Bar>
+                <Bar dataKey="sale" name={t.salio} fill="var(--color-rosa)" radius={[4, 4, 0, 0]} maxBarSize={pocas ? 44 : 16}>
+                  {pocas && <LabelList dataKey="sale" position="top" formatter={rotulo} style={{ fontSize: 11, fontWeight: 700, fill: "var(--color-error)" }} />}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          <div className="flex gap-[3px] text-xs text-texto-2" aria-hidden="true">
-            {dias.map((d, i) => (
-              <span key={d.fecha} className="min-w-0 flex-1 text-center tabular-nums">
-                {i % cada === 0 ? (porSemana ? diaCompleto(d.fecha) : diaDelMes(d.fecha)) : ""}
-              </span>
-            ))}
-          </div>
-          <table className="sr-only">
-            <caption>{titulo}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{t.fecha}</th>
-                <th scope="col">{t.entro}</th>
-                <th scope="col">{t.salio}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dias.map((d) => (
-                <tr key={d.fecha}>
-                  <th scope="row">{diaCompleto(d.fecha)}</th>
-                  <td>{formatearDolares(d.entra)}</td>
-                  <td>{formatearDolares(d.sale)}</td>
+          {/* En un div: un <table> con sr-only ignora el ancho de 1px y ensancha toda la página en móvil. */}
+          <div className="sr-only">
+            <table>
+              <caption>{titulo}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{t.fecha}</th>
+                  <th scope="col">{t.entro}</th>
+                  <th scope="col">{t.salio}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {dias.map((d) => (
+                  <tr key={d.fecha}>
+                    <th scope="row">{diaCompleto(d.fecha)}</th>
+                    <td>{formatearDolares(d.entra)}</td>
+                    <td>{formatearDolares(d.sale)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       ) : (
         <p className="py-6 text-center text-texto-2">{t.vacio}</p>

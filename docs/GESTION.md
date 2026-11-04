@@ -20,7 +20,7 @@ El Cuadre de Dinero era una cuadratura de caja (contar el dinero y compararlo co
 - **Pasivos** (lo que debe): deudas, préstamos y créditos.
 - **Patrimonio** = activos − pasivos. Es lo que de verdad vale el negocio.
 - "Te deben" y "dinero parado en producto" se quedan como detalle de *por cobrar* e *inventario*.
-- **Ya no hay "lo que contaste"**. Los 2 conteos viejos (`conteo_dinero`) quedan como historial, sin usarse.
+- **Ya no hay "lo que contaste"**. La tabla `conteo_dinero` se quitó con [supabase/quitar_conteo_dinero.sql](../supabase/quitar_conteo_dinero.sql).
 
 ### Saldos que se actualizan solos
 

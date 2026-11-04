@@ -108,7 +108,6 @@ Archivo: [NuevoProductoForm.tsx](src/features/products/ui/NuevoProductoForm.tsx)
 | `supabase/categorias_fijas.sql` | Rubro por categoría y restricción para que el producto solo tenga categorías de su lista | **Corrido** (verificado). El archivo quedó con una sola palabra por un accidente en el IDE: su contenido se perdió, la base sí está bien. |
 | `supabase/rubros_guardados.sql` | Explorar usa el rubro guardado | **Corrido** (`explorar_categorias` ya devuelve `rubro`). |
 | `supabase/gasto_metodo.sql` | Cada gasto guarda su método de pago (Dinero) | **Corrido** (existe la columna). |
-| `supabase/conteo_dinero.sql` | Conteos del Cuadre (Dinero) | **Sin correr** al escribir esto. |
 
 ---
 
@@ -127,7 +126,7 @@ Archivo: [NuevoProductoForm.tsx](src/features/products/ui/NuevoProductoForm.tsx)
 
 ## 8. Verificación y trampas
 
-- Antes de dar algo por hecho: `npx tsc --noEmit`, `npx eslint src`, `npx vitest run` y, para cambios grandes, `npx next build` (y reiniciar `npm run dev` después).
+- Antes de dar algo por hecho: `npx tsc --noEmit`, `npx eslint src`, `npx vitest run` y, para cambios grandes, `npx next build` (y reiniciar `pnpm dev` después).
 - **Ningún cambio de diseño se vio en pantalla desde el agente** (las pantallas necesitan sesión). Siempre dile a la dueña que lo revise y pide captura.
 - **El panel quita el relleno de abajo** (`has-[.barra-formulario]:pb-0` en [src/app/(panel)/layout.tsx](src/app/(panel)/layout.tsx)) cuando hay una barra de guardar en la página, aunque esté oculta. Si ocultas la barra en una pantalla, el contenido queda pegado al borde.
 - **Dos cosas pegajosas anidadas se empujan y se pisan.** Pega solo la de afuera.
