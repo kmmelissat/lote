@@ -129,6 +129,7 @@ export const pedidos = {
     departamento: "Departamento",
     elegirDepartamento: "Elegí un departamento",
     municipio: "Municipio",
+    elegirMunicipio: "Elegí un municipio",
     direccion: "Dirección",
     referencia: "Punto de referencia (opcional)",
     costo: "Costo del envío ($)",

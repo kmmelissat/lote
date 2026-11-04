@@ -205,7 +205,7 @@ export function ListaProductos({
           { etiqueta: t.inventario.poco, valor: pocoStockCuenta, banda: colorDeEstado("poco_stock"), alTocar: () => elegirEstado("poco") },
           { etiqueta: t.inventario.valen, valor: formatearDolares(inventario.valorVenta), banda: colorDeEstado("pagado"), alTocar: () => elegirEstado("todos") },
           ...(inventario.gananciaPotencial !== null
-            ? [{ etiqueta: t.inventario.ganancia, valor: formatearDolares(inventario.gananciaPotencial), banda: colorDeEstado("entregado"), href: "/dinero" as const }]
+            ? [{ etiqueta: t.inventario.ganancia, valor: formatearDolares(inventario.gananciaPotencial), banda: colorDeEstado("entregado"), href: "/gestion" as const }]
             : []),
         ]}
       />
@@ -242,7 +242,7 @@ export function ListaProductos({
             etiqueta={t.inventario.ganancia}
             valor={formatearDolares(inventario.gananciaPotencial)}
             texto={inventario.sinCosto > 0 ? t.inventario.sinCosto(inventario.sinCosto) : t.inventario.gananciaNota}
-            href="/dinero"
+            href="/gestion"
             banda={colorDeEstado("entregado")}
             icono="ganancia"
           />

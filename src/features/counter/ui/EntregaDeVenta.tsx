@@ -5,7 +5,7 @@ import { Field } from "@/components/ui/Field";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { Select } from "@/components/ui/Select";
 import { repartirEnvio, leerDolares, type QuienPagaEnvio } from "@/domain";
-import { DEPARTAMENTOS } from "@/lib/departamentos";
+import { DEPARTAMENTOS, esDepartamento, MUNICIPIOS } from "@/lib/departamentos";
 import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { tarifaDe, type Tarifas } from "@/features/shipping/repositorio";
@@ -78,7 +78,7 @@ export function EntregaDeVenta({
 
   function elegirDepartamento(d: string) {
     // Se propone la tarifa del departamento mientras el costo no se haya tocado a mano
-    cambiarDatos({ departamento: d, ...(d && !datos.costoTocado ? { costo: dolaresTexto(tarifaDe(tarifas, d)) } : {}) });
+    cambiarDatos({ departamento: d, municipio: "", ...(d && !datos.costoTocado ? { costo: dolaresTexto(tarifaDe(tarifas, d)) } : {}) });
   }
 
   return (
@@ -121,7 +121,19 @@ export function EntregaDeVenta({
               ))}
             </Select>
           </label>
-          <Field etiqueta={te.municipio} value={datos.municipio} onChange={(e) => cambiarDatos({ municipio: e.target.value })} autoComplete="off" />
+          {esDepartamento(datos.departamento) && (
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">{te.municipio}</span>
+              <Select value={datos.municipio} onChange={(e) => cambiarDatos({ municipio: e.target.value })}>
+                <option value="">{te.elegirMunicipio}</option>
+                {MUNICIPIOS[datos.departamento].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </Select>
+            </label>
+          )}
           <Field etiqueta={te.direccion} value={datos.direccion} onChange={(e) => cambiarDatos({ direccion: e.target.value })} autoComplete="off" required />
           <Field etiqueta={te.referencia} value={datos.referencia} onChange={(e) => cambiarDatos({ referencia: e.target.value })} autoComplete="off" />
           {entrega === "paquetera" && <Field etiqueta={te.paquetera} value={datos.paquetera} onChange={(e) => cambiarDatos({ paquetera: e.target.value })} autoComplete="off" />}

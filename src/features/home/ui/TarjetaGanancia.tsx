@@ -41,7 +41,7 @@ export function TarjetaGanancia({
         {!vs && !estimada && <span className="text-texto-2">{t.quePasa.ganancia}</span>}
       </div>
       <Link
-        href="/dinero"
+        href="/gestion"
         aria-label={t.verGanancia}
         className="flex size-8 max-md:size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro hover:bg-teal-fondo"
       >

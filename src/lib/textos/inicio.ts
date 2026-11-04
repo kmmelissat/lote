@@ -87,7 +87,7 @@ export const inicio = {
   agotado: "Agotado",
   porEnviarEtiqueta: "Por enviar",
   seEnfrianChip: (n: number) => (n === 1 ? "1 se enfría" : `${n} se enfrían`),
-  flujoTitulo: "Balance general",
+  flujoTitulo: "Tus últimas semanas",
   flujoTexto: "Las últimas 6 semanas, de lunes a domingo.",
   flujoVendido: "Vendiste",
   flujoGastos: "Gastos",

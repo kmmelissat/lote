@@ -380,15 +380,7 @@ export function Mostrador({
 
   function descartarVenta() {
     setLineas([]);
-    setConDescuento(false);
-    setTextoDescuento("");
-    setRecibido("");
-    setError("");
-    setEntregaElegida(null);
-    setCanalElegido(null);
-    setDatosEntrega(ENTREGA_VACIA);
-    setPaso("productos");
-    setHoja(false);
+    limpiarVenta();
   }
 
   // El teléfono de la clienta, si dejó uno: sirve también para quien recibe el envío
@@ -418,6 +410,12 @@ export function Mostrador({
 
   // Sin productos no hay nada que cobrar
   const enCobro = paso === "cobro" && detalle.length > 0;
+
+  // Contra entrega solo existe con envío: si se cambia a retiro o "ahora", el pago vuelve a efectivo en vez de quedar un apartado sin marcar
+  function elegirEntrega(e: Entrega) {
+    setEntregaElegida(e);
+    if (pago === "contra_entrega" && !llevaEnvio(e)) setPago("efectivo");
+  }
 
   // Elegir "Contra entrega" supone que se lleva a una dirección: si no había envío, se propone la paquetera
   function elegirPago(p: PagoClave) {
@@ -509,7 +507,7 @@ export function Mostrador({
   const entregaNodo = (
     <EntregaDeVenta
       entrega={entrega}
-      cambiarEntrega={setEntregaElegida}
+      cambiarEntrega={elegirEntrega}
       datos={datosEntrega}
       cambiarDatos={(parcial) => setDatosEntrega((d) => ({ ...d, ...parcial }))}
       tarifas={tarifas}
