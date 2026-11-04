@@ -2,7 +2,7 @@
 
 Lote es **tu tienda en línea y tus cuentas claras**, para emprendedores de El Salvador que venden por redes sociales (Instagram, Facebook, WhatsApp). **Afuera:** cada negocio tiene una vitrina con su propio enlace (su tienda en línea) y aparece, si quiere, en el Marketplace; sus clientes compran, apartan o solo ven el catálogo. **Adentro:** inventario, pedidos, cobros, envíos, gastos, ganancia real de cada producto y balance. Es un proyecto del curso Diseño de Productos y Servicios (ciclo 3).
 
-Este documento dice **qué se puede hacer hoy**. La especificación completa (incluido lo que falta) está en [app.md](app.md) y el estado de la construcción en [PROGRESO.md](PROGRESO.md).
+Este documento dice **qué se puede hacer hoy** y, al final, **dónde vive cada cosa** (rutas y código). Es el documento para retomar el proyecto. La especificación completa (incluido lo que falta) está en [app.md](app.md); [PROGRESO.md](PROGRESO.md) es histórico y está desactualizado.
 
 Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla con datos o personas reales · **⏳** depende de un tercero (Meta) · **❌** no está.
 
@@ -11,12 +11,13 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 ### Productos
 - ✅ Crear con foto: Lotito (la IA) lee la foto y propone nombre, categoría, marca y descripción; vos confirmás. También "foto + una línea" ("chaqueta negra M, 25, me costó 10").
 - ✅ Código corto por producto (#12), cantidad, reponer (recalcula el costo promedio), marca, categoría de una lista, estado (nuevo o usado con nota), detalles (Material, Medidas…) y precio de antes (oferta).
-- ✅ Costo real por rubro (compra, envío, importación, otros) y ganancia con margen en vivo. El costo se puede poner después.
+- ✅ Costo real por tipo y ganancia con margen en vivo. El costo se puede poner después. Los tipos dependen de «¿Qué hacés?» (Ajustes → Mi tienda): quien revende ve compra, envío, importación y otros; quien produce, materiales y mano de obra; quien hace las dos cosas, todos.
 - ✅ Variantes con cruce (modelo × color, hasta 30 combinaciones), cada una con su stock, precio y costo. Convertir un producto en variantes y agregar variantes después.
 - ✅ Lote de fotos: un producto por foto, con el costo total repartido.
 - ✅ "Otra igual" (copia precio, costo y categoría), editar, borrar (si no tiene pedidos) y poco stock con umbral propio.
 - ✅ Importar desde CSV o desde una hoja pública de Google Sheets (vista previa con errores, ficha y variantes, **deshacer** la importación completa).
 - ✅ Texto listo para el post y sticker "VENDIDO" para stories.
+- ✅ **Productos que no se mueven**: sección plegable arriba de la lista de Productos, solo para quien ve costos.
 - ✅ Categorías fijas de Lote en dos niveles (rubro > categoría, ej. Belleza > Brochas y esponjas): el producto elige una de la lista, nadie la inventa. Lotito y el importador de CSV la deducen del texto.
 - ❌ **Etiquetas propias** de la tienda ("Favoritos del mes"): solo para su vitrina, sin tocar Explorar.
 
@@ -24,7 +25,7 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 - ✅ Apartar, vender y liberar. **Bloqueo de doble promesa**: si algo ya está apartado, la app dice para quién. Pedidos con varios productos.
 - ✅ Estados: pendiente → pagado → preparando → enviado → entregado (o cancelado). Los apartados vencen solos.
 - ✅ Pagos completos o abonos, contra entrega, fiado ("quién me debe") y saldo por cobrar.
-- ✅ Datos de pago de la tienda (transferencia, efectivo, contra entrega) y mensaje de cobro listo para mandar.
+- ✅ Datos de pago de la tienda (transferencia, efectivo, contra entrega) y mensaje de cobro listo para mandar. Los métodos son **efectivo** y **cuenta digital** (en la base, `transferencia`); la billetera móvil se quitó.
 - ✅ Comprobante con IA: subís la captura de la transferencia, Lotito lee el monto y vos confirmás.
 - ✅ Respuesta sugerida para "¿sigue disponible?".
 - ✅ Pedidos como tabla (o lista apilada en celular), con un botón para avanzar cada uno.
@@ -35,36 +36,46 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 ### Envíos
 - ✅ Dirección del pedido, tarifa por departamento, quién paga el envío (cliente, tienda o a medias) y zonas donde entrega.
 - ✅ Guía manual de la paquetera y mensaje de envío con el enlace de seguimiento.
-- ✅ Seguimiento público para el cliente en `/p/<pedido>`.
+- ✅ Paso «Listo para que la paquetera lo recoja», entre empacado y en camino (es una marca en el envío, no un estado nuevo).
+- ✅ Lo que se le paga a la paquetera sale del efectivo o de la cuenta digital, una vez por pedido.
+- ✅ Seguimiento público para el cliente en `/p/<pedido>`, con Lotito ilustrado en cada paso (también los del retiro en tienda).
 - ❌ Paquetera integrada (cotizar, crear guía y etiqueta desde la app).
 
-### Dinero
-- ✅ **Ganancia real**: hoy, semana, mes y mes pasado, con comparación, productos sin costo marcados como estimados, "por cobrar" y dinero parado en inventario.
-- ✅ Gastos (empaque, publicidad, transporte, local, comisiones, otros) por chat o formulario, ligados o no a un pedido.
-- ✅ Resumen semanal estilo "Wrapped" (lo vendido, el mejor producto, lo apartado, la ganancia).
+### Dinero: Gestión y Movimientos
+Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`/dinero`) y "Ganancia" (`/ganancia`) ya no existen: redirigen acá.
+- ✅ **Gestión → Resumen** (`/gestion`): la ganancia del periodo (vendiste − costo − gastos), con comparación y productos sin costo marcados como estimados; el gráfico de lo que entró y salió por día; y lo que es tuyo.
+- ✅ **Gestión → Balance** (`/gestion/cuadre`): lo que tenés (efectivo, cuenta digital, por cobrar, inventario a costo) − lo que debés = lo que es tuyo, con un «¿Cómo leo esto?» escrito con los números reales.
+- ✅ **Saldos que se actualizan solos**: saldo inicial + lo que entra − lo que sale, con ajuste a mano. Un préstamo recibido o el abono a una deuda no son ingreso ni gasto.
+- ✅ **Deudas** (deuda, préstamo, crédito) con abonos y cuota opcional (monto, cuántas cuotas, día del mes), editable sin perder los abonos.
+- ✅ **«¿De dónde salió el dinero?»** al crear, reponer o cargar un lote: la compra de mercadería baja el saldo de ese lugar (opcional).
+- ✅ **Movimientos** (`/movimientos`): el libro de ingresos, gastos y costos, con filtros de periodo, tipo, método y búsqueda que mandan sobre los totales, el gráfico y la lista.
+- ✅ Gastos (empaque, publicidad, transporte, local, comisiones, otros) por chat o formulario, ligados o no a un pedido, con el método con que se pagaron.
+- ✅ **Gastos fijos** (Movimientos → Registrar gasto → «Cada mes»): se anotan una vez y se registran solos cada mes (al abrir Inicio, Gestión o Movimientos, y en la tarea diaria), sin repetir meses.
 - ✅ Una venta cuenta cuando el pedido se paga completo.
-- ❌ Gastos recurrentes, editar un gasto, rango de fechas a medida.
 
-### Mostrador (solo si tenés un local)
-- ✅ Se prende con el interruptor "Tengo un local" en Ajustes → Mi tienda. Sin él no aparece nada.
-- ✅ Buscar por nombre o código, escanear el código de barras (lector USB/Bluetooth o la cámara en Chrome y Edge), descuento en dólares o porcentaje, cambio y recibo en pantalla. Cada venta queda como pedido entregado y pagado.
+### Vender (el antiguo Mostrador, `/vender`)
+- ✅ Para todas las tiendas: vender, apartar o crear un pedido rápido. Buscar por nombre o código, escanear el código de barras (lector USB/Bluetooth o la cámara en Chrome y Edge), descuento en dólares o porcentaje, cambio y recibo en pantalla. Cada venta queda como pedido entregado y pagado.
 - ✅ Código de barras por producto, único por tienda; un código desconocido se puede asociar al momento.
-- ✅ Caja: abrir con el efectivo inicial y cerrar contando; muestra si sobra o falta y guarda el historial. La vendedora vende, pero los montos de la caja solo los ven dueña y administradora.
+- ✅ **Caja** (`/vender/caja`), solo si está prendido «Vendo en persona» en Ajustes → Mi tienda: abrir con el efectivo inicial y cerrar contando; muestra si sobra o falta y guarda el historial. La vendedora vende, pero los montos de la caja solo los ven dueña y administradora.
 - ❌ Vender sin conexión, recibo por WhatsApp o impreso, etiquetas con código de barras.
 
 ### Clientes
-- ✅ Se crean solos al apartar o vender: contacto, historial, total comprado y saldo.
+- ✅ Se crean solos al apartar o vender: contacto (teléfono, usuario de red y correo), historial, total comprado y saldo. Los avisos de WhatsApp salen al teléfono.
 - ✅ Buscar clientes y ver su ficha.
 
 ### Lotito, el asistente
 - ✅ Chat dentro del panel (y burbuja flotante en todas las pantallas): "apartá la chaqueta para Ana", "ya pagó", "gasté $5 en bolsas", "¿cuánto gané esta semana?", "¿quién me debe?".
 - ✅ **Todo se puede deshacer.** Lo delicado se confirma; los montos los calcula el código, nunca la IA.
 - ✅ Preguntas frecuentes con respuesta fija (la IA solo elige el tema) y memoria corta para mensajes como "¿y el mes pasado?".
-- ✅ Funciona sin IA para "ayuda" y "deshacer". Usa OpenAI.
+- ✅ Conoce el balance: responde «¿cuánto debo?» y «¿cuánto vale mi negocio?» con cada deuda y su cuota.
+- ✅ Habla según el trato que eligió cada persona (Ella, Él o Sin género).
+- ✅ Lo que no entiende se guarda (solo el texto) para mejorarlo después.
+- ✅ Funciona sin IA para "ayuda" y "deshacer". Usa OpenAI (`gpt-4.1-mini`).
 - ❌ Chatear con Lotito desde el celular por WhatsApp (falta el webhook de entrada).
 
 ### Tienda, equipo y datos
-- ✅ **Mi tienda**: nombre, frase, logo, color de marca, dirección de la vitrina (`/c/<tu-tienda>`), contacto (WhatsApp, Instagram, Facebook), tiempo de entrega y política de cambios, y contexto para Lotito.
+- ✅ **Mi tienda**: nombre, frase, logo, color de marca, dirección de la vitrina (`/c/<tu-tienda>`), contacto (WhatsApp, Instagram, Facebook, TikTok), «¿Qué hacés?» (revendo, produzco o ambos), tiempo de entrega y política de cambios, y contexto para Lotito.
+- ✅ **Crear negocio** (`/crear-negocio`): un cuaderno de cinco hojas (nombre y trato, de qué es el negocio, qué hacés, cómo vendés y la tienda en línea, revisar). Solo el nombre es obligatorio.
 - ✅ La vitrina es opcional: se prende y se apaga. También se decide si se puede comprar, apartar o solo escribir, y si aparecer en el Marketplace.
 - ✅ **Equipo y roles**: la dueña invita por enlace de un solo uso (vence en 7 días) y asigna rol; una persona se puede quitar al instante.
 
@@ -84,16 +95,17 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 ## Para quien compra (la vitrina, `/c/<tienda>`)
 
 - ✅ Vitrina con logo, color y frase de la tienda; buscador, filtro por modelo, orden y botón de WhatsApp.
+- ✅ Datos de confianza de la tienda (verificada, desde cuándo vende en Lote, unidades vendidas) y estrellas promedio en las tarjetas.
 - ✅ Página del producto: galería, variantes (sin preseleccionar), stock y precio de la elegida, precio anterior tachado, etiquetas (nuevo, últimas unidades), envío estimado, reseñas y "avisame cuando haya" si está agotado.
 - ✅ **Comprar ahora** en tres pasos cortos (datos, entrega, pago) o **apartar** sin pagar durante unas horas. No hace falta crear cuenta.
 - ✅ **Carrito** por tienda (hasta 10 productos distintos) que se compra como un solo pedido. No hay carrito entre tiendas: cada una es otro vendedor.
-- ✅ Pantalla de confirmación con el resumen, cómo pagar y lo que sigue.
+- ✅ Confirmación en `/c/<tienda>/pedido/<id>` (la dirección vieja `/apartado/` redirige): la etapa real del pedido, el ticket de la compra, cómo pagar y un botón para escribirle a la tienda por WhatsApp.
 - ✅ Seguimiento del pedido y reseña del producto cuando llega entregado.
 - ✅ Aceptar que la tienda escriba por WhatsApp es obligatorio para confirmar.
 
 ## Marketplace (`/marketplace`)
 
-- ✅ Todos los productos de las tiendas que quieran aparecer, juntos: buscador, **rubros** (Ropa, Comida, Hogar, Tecnología, Mascotas…) y, dentro de cada uno, sus categorías, precio, orden y páginas numeradas.
+- ✅ Todos los productos de las tiendas que quieran aparecer, juntos: buscador, **rubros** (Ropa, Comida, Hogar, Tecnología, Mascotas…) y, dentro de cada uno, sus categorías, precio, solo ofertas, envío gratis, «entregan en mi departamento», orden y páginas numeradas.
 - ✅ "Destacados" y "Ofertas" arriba, y una vista de tiendas.
 - ✅ Cada tienda decide si aparece. Es la antigua "Explorar".
 
@@ -132,8 +144,8 @@ Todo lo que [app.md](app.md) pide y la app todavía no tiene. Entre paréntesis,
 ### Si sobra tiempo (P2)
 - ✅ **Descuentos, ofertas y combos** (4.2): descuento en monto o porcentaje, ofertas con fechas, packs y "llevá y pagá". Falta aplicar un cupón o un código de descuento.
 - ❌ **Devoluciones y cambios** (4.7): devolver unidades al stock o descartarlas, reembolsar y cambiar por otro producto, con el estado "devuelto" y el ajuste de ventas y ganancia.
-- ❌ **Gastos recurrentes** (4.5): alquiler, plan de datos, suscripciones. En la base queda la columna `recurrente`, pero nada la usa. Tampoco **gastos de feria o evento**.
-- ❌ **Productos dormidos** (4.5): los que llevan más de 30 días sin moverse.
+- ✅ **Gastos recurrentes** (4.5): los gastos fijos de cada mes se registran solos. Faltan los **gastos de feria o evento**.
+- ✅ **Productos dormidos** (4.5): «Productos que no se mueven», en Productos.
 - ❌ **Conteo de inventario** (4.12): contar una ubicación a mano o escaneando y ajustar la diferencia con un motivo (merma, error, hallazgo).
 - ❌ **Consignación** (4.7): productos con dueño externo y comisión, con lo que se le debe a quien lo dio.
 - ❌ **Clientes frecuentes** (4.7): avisar cuando llega algo de la categoría que ese cliente suele comprar.
@@ -155,11 +167,35 @@ Todo lo que [app.md](app.md) pide y la app todavía no tiene. Entre paréntesis,
 - ❌ Analítica de uso (12): se hizo una vez y se quitó, porque el proyecto es una tarea.
 - ❌ Pegar el chat de un cliente para que Lotito arme los pedidos: existió y se quitó el 30 de octubre.
 
-## Mapa de pantallas
+## Mapa del repo
 
-| Para quién | Rutas |
-|---|---|
-| Quien vende | `/inicio`, `/productos` (`/nuevo`, `/lote`, `/importar`, `/<código>`), `/pedidos` (`/nuevo`, `/<código>`), `/clientes`, `/ganancia` (`/resumen`), `/asistente`, `/mostrador` (`/caja`), `/ajustes/*` (tienda, pagos, envíos, equipo, categorías, reseñas, exportar, ayuda) |
-| Quien compra | `/c/<tienda>`, `/c/<tienda>/<código>` (`/comprar`, `/apartar`), `/c/<tienda>/carrito` (`/comprar`), `/c/<tienda>/apartado/<id>`, `/p/<pedido>` |
-| Todas | `/` (landing), `/marketplace`, `/ayuda`, `/privacidad`, `/login`, `/invitacion/<token>` |
-| Admin | `/admin` |
+Cada sección, sus rutas y dónde está su código (en `src/features/` salvo que se diga otra cosa). Las páginas viven en `src/app/` y son delgadas: piden los datos a la feature y arman la pantalla.
+
+| Sección | Rutas | Código |
+|---|---|---|
+| Inicio | `/inicio` | `home` |
+| Productos | `/productos` (`/nuevo`, `/lote`, `/importar`, `/promociones`, `/<código>`, `/<código>/editar`) | `products`, `import`, `offers` (ofertas con fechas), `promotions` (packs y llevá y pagá) |
+| Pedidos | `/pedidos` (`/nuevo`, `/<código>`) | `orders`, `payments` (cobros y comprobante con IA), `shipping` (envíos y paquetera) |
+| Clientes | `/clientes` (`/<id>`) | `customers` |
+| Gestión | `/gestion` (Resumen), `/gestion/cuadre` (Balance) | `gestion` (balance, saldos, deudas, compras de mercadería, gastos fijos) |
+| Movimientos | `/movimientos` | `profit` (ganancia por periodo, gastos, movimientos, productos que no se mueven); la pantalla está en `src/app/(panel)/_pantallas/` |
+| Vender y caja | `/vender`, `/vender/caja` | `counter` |
+| Lotito | `/asistente` (y la burbuja en todo el panel) | `assistant` (`motor.ts` decide qué hacer; `intenciones/` cada acción), `ai` (OpenAI y los prompts) |
+| Ajustes | `/ajustes/tienda` (con secciones; `/ajustes/pagos`, `/envios` y `/vitrina` redirigen ahí), `/ajustes/equipo`, `/resenas`, `/exportar` | `store-settings`, `team`, `reviews`, `export` (`/api/exportar/<tipo>`) |
+| Vitrina | `/c/<tienda>`, `/c/<tienda>/<código>` (`/comprar`, `/apartar`), `/c/<tienda>/carrito` (`/comprar`), `/c/<tienda>/pedido/<id>` | `catalog`, `reviews` |
+| Seguimiento | `/p/<pedido>` | `tracking` |
+| Marketplace | `/marketplace`, `/marketplace/categoria/<nombre>` (`/calle` y `/mercadito` eran prototipos y redirigen) | `catalog` |
+| Admin | `/admin` | `admin` |
+| Entrar y empezar | `/login`, `/crear-negocio`, `/invitacion/<token>`, `/auth/callback` | `auth`, `team` |
+| Landing y ayuda | `/`, `/ayuda`, `/privacidad` | `landing`, `ayuda` |
+| Avisos por WhatsApp | `/api/cron/avisos` (tarea diaria de Vercel; también registra los gastos fijos) | `whatsapp` |
+| Sistema de diseño | `/design-system` | `design-system` |
+
+Lo compartido:
+
+- `src/domain/`: las reglas de dinero, estados, fechas y texto. Funciones puras con pruebas; acá se calculan todos los montos.
+- `src/components/ui/` (botones, campos, tarjetas, modales) y `src/components/nav/` (menú, buscador ⌘K con sus destinos en `destinos.ts`).
+- `src/lib/`: Supabase (`supabase/`, con los tipos generados en `database.types.ts`), formato de dinero y fechas, enlaces tipados (`ruta.ts`) y los textos de la interfaz (`textos/`, un archivo por tema).
+- Base de datos: `supabase/*.sql` (se corren a mano en Supabase) y [esquema_actual.sql](esquema_actual.sql), la versión vigente de cada tabla y función (`pnpm esquema`; solo para leer).
+- `scripts/`: datos de prueba (`pnpm semilla`), limpiar fotos sin usar (`pnpm fotos-sueltas`), generar ilustraciones con OpenAI (`pnpm imagenes-*`) y el esquema (`pnpm esquema`).
+- Las direcciones viejas (`/explorar`, `/ganancia`, `/dinero`, `/mostrador`, `/gestion/movimientos`) redirigen desde `next.config.ts`.

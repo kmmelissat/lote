@@ -3,8 +3,9 @@
 //
 //   pnpm esquema
 //
-// Orden: el de "SQL en Supabase" en docs/PROGRESO.md; los archivos que no están ahí van después, por fecha de su
-// primer commit (y los sin commit al final). cron.sql no está corrido y no entra.
+// Orden: el de "SQL en Supabase" en docs/PROGRESO.md (histórico: ya no se actualiza, pero ese orden sigue valiendo);
+// los archivos que no están ahí van después, por fecha de su primer commit (y los sin commit al final).
+// cron.sql no está corrido y no entra.
 
 import { execSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -163,9 +164,12 @@ function guardar<T extends Def>(mapa: Map<string, T>, clave: string, valor: T) {
 
 const ID = String.raw`("[^"]+"|[\w.]+)`;
 const SI_EXISTE = String.raw`(?:if\s+exists\s+)?`;
+const vacios: string[] = [];
 
 for (const archivo of orden) {
-  for (const sql of sentencias(readFileSync(`${CARPETA}/${archivo}.sql`, "utf8"))) {
+  const todas = sentencias(readFileSync(`${CARPETA}/${archivo}.sql`, "utf8"));
+  if (!todas.some((s) => s.endsWith(";"))) vacios.push(archivo);
+  for (const sql of todas) {
     let m: RegExpExecArray | null;
     if ((m = new RegExp(String.raw`^create\s+(?:or\s+replace\s+)?function\s+${ID}\s*\(`, "i").exec(sql))) {
       const clave = `${nombre(m[1])}(${firma(entreParentesis(sql, m[0].length - 1))})`;
@@ -234,8 +238,8 @@ writeFileSync(SALIDA, lineas.join("\n"));
 console.log(
   `✓ ${SALIDA}: ${tablas.size} tablas, ${funciones.size} funciones, ${vistas.size} vistas, ${politicas.size} políticas, ${triggers.size} triggers, ${indices.size} índices`,
 );
-if (porFecha.length) console.log(`· No están en el orden de PROGRESO.md (van por fecha de commit): ${porFecha.join(", ")}`);
 for (const d of dudas) console.warn(`  ¿Cuál ganó? ${d}`);
+if (vacios.length) console.warn(`  Sin SQL adentro (¿se perdió el contenido?): ${vacios.map((v) => `${v}.sql`).join(", ")}`);
 
 // Contra los tipos generados de la base: lo que está allá y no en ningún .sql se creó a mano en Supabase.
 // (Al revés no se avisa por funciones: los tipos no traen las de trigger ni las internas.)

@@ -6,9 +6,9 @@ Es un proyecto del curso Diseño de Productos y Servicios (ciclo 3), no un produ
 
 ## Documentos
 
-- [FEATURES.md](docs/FEATURES.md): qué hace la app hoy, por tipo de persona (quien vende, quien compra, Marketplace, admin).
+- [FEATURES.md](docs/FEATURES.md): qué hace la app hoy y el mapa del repo (cada sección, sus rutas y su código). **Empezar por acá para retomar.**
 - [app.md](docs/app.md): especificación del producto. Es la fuente de verdad.
-- [PROGRESO.md](docs/PROGRESO.md): estado de la construcción, decisiones y lo que sigue. Empezar por acá para retomar.
+- [PROGRESO.md](docs/PROGRESO.md): bitácora de la construcción. Histórico, está desactualizado.
 - [BRANDING.md](docs/BRANDING.md): colores, formas, monitos y voz. Leer antes de tocar una pantalla.
 - [REDISENO.md](docs/REDISENO.md): rediseño del panel, componentes y estado por pantalla.
 - [GESTION.md](docs/GESTION.md): el balance general (dinero, deudas e inventario).
