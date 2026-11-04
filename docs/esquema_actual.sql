@@ -6,8 +6,23 @@
 -- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero.
 
 -- ====================================================================================================
--- TABLAS (32)
+-- TABLAS (35)
 -- ====================================================================================================
+
+-- tabla abono_pasivo
+-- gestion.sql
+create table if not exists public.abono_pasivo (
+  id uuid primary key default gen_random_uuid(),
+  pasivo_id uuid not null references public.pasivo(id) on delete cascade,
+  negocio_id uuid not null references public.negocio(id) on delete cascade,
+  monto numeric(12,2) not null check (monto > 0),
+  lugar text not null check (lugar in ('efectivo', 'transferencia')),
+  nota text,
+  creado_en timestamptz not null default now(),
+  usuario_id uuid references auth.users(id) on delete set null
+);
+-- gestion.sql
+alter table public.abono_pasivo enable row level security;
 
 -- tabla accion
 -- asistente.sql
@@ -28,6 +43,22 @@ create table if not exists public.accion (
 );
 -- asistente.sql
 alter table public.accion enable row level security;
+
+-- tabla ajuste_dinero
+-- gestion.sql
+create table if not exists public.ajuste_dinero (
+  id uuid primary key default gen_random_uuid(),
+  negocio_id uuid not null references public.negocio(id) on delete cascade,
+  lugar text not null check (lugar in ('efectivo', 'transferencia')),
+  tipo text not null check (tipo in ('saldo_inicial', 'ajuste')),
+  monto numeric(12,2) not null,
+  nota text,
+  creado_en timestamptz not null default now(),
+  usuario_id uuid references auth.users(id) on delete set null,
+  check (monto <> 0 or tipo = 'saldo_inicial')
+);
+-- gestion.sql
+alter table public.ajuste_dinero enable row level security;
 
 -- tabla asistente_fallo
 -- asistente_fallos.sql
@@ -404,6 +435,16 @@ alter table public.negocio
   add column if not exists usuario_tiktok text check (usuario_tiktok is null or char_length(usuario_tiktok) between 2 and 24);
 -- vitrina_perfil.sql
 alter table public.negocio add column if not exists verificada boolean not null default false;
+-- gestion.sql
+alter table public.negocio add column if not exists actividad text not null default 'compro_vendo';
+-- gestion.sql
+alter table public.negocio drop constraint if exists negocio_actividad_check;
+-- gestion.sql
+alter table public.negocio add constraint negocio_actividad_check check (actividad in ('compro_vendo', 'produzco', 'ambos'));
+-- contexto_largo.sql
+alter table public.negocio drop constraint if exists negocio_contexto_ia_check;
+-- contexto_largo.sql
+alter table public.negocio add constraint negocio_contexto_ia_check check (contexto_ia is null or char_length(contexto_ia) <= 1000);
 
 -- tabla oferta
 -- ofertas.sql
@@ -466,6 +507,29 @@ create table if not exists public.pago_paquetera (
 );
 -- pago_paquetera.sql
 alter table public.pago_paquetera enable row level security;
+
+-- tabla pasivo
+-- gestion.sql
+create table if not exists public.pasivo (
+  id uuid primary key default gen_random_uuid(),
+  negocio_id uuid not null references public.negocio(id) on delete cascade,
+  tipo text not null check (tipo in ('deuda', 'prestamo', 'credito')),
+  acreedor text not null check (length(trim(acreedor)) between 1 and 120),
+  monto numeric(12,2) not null check (monto > 0),
+  recibido_en text check (recibido_en in ('efectivo', 'transferencia')),
+  fecha_limite date,
+  nota text,
+  creado_en timestamptz not null default now(),
+  usuario_id uuid references auth.users(id) on delete set null
+);
+-- gestion.sql
+alter table public.pasivo enable row level security;
+-- pasivo_cuota.sql
+alter table public.pasivo add column if not exists cuota numeric(12,2) check (cuota is null or cuota > 0);
+-- pasivo_cuota.sql
+alter table public.pasivo add column if not exists cuotas integer check (cuotas is null or cuotas > 0);
+-- pasivo_cuota.sql
+alter table public.pasivo add column if not exists dia_pago integer check (dia_pago is null or dia_pago between 1 and 31);
 
 -- tabla pedido
 -- pedidos.sql
@@ -674,8 +738,44 @@ alter table public.ubicacion enable row level security;
 
 
 -- ====================================================================================================
--- FUNCIONES (103)
+-- FUNCIONES (107)
 -- ====================================================================================================
+
+-- función abonar_pasivo(uuid, numeric, text, text)
+-- gestion.sql
+create or replace function public.abonar_pasivo(p_pasivo uuid, p_monto numeric, p_lugar text, p_nota text default null)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_negocio uuid;
+  v_monto numeric;
+  v_abonado numeric;
+  v_id uuid;
+begin
+  select negocio_id, monto into v_negocio, v_monto from public.pasivo where id = p_pasivo for update;
+  if v_negocio is null or not public.puede_gestionar(v_negocio) then
+    raise exception 'Sin permiso' using errcode = '42501';
+  end if;
+  if p_lugar not in ('efectivo', 'transferencia') then
+    raise exception 'Lugar no válido' using errcode = '22023';
+  end if;
+  if p_monto is null or p_monto <= 0 then
+    raise exception 'Monto no válido' using errcode = '22023';
+  end if;
+  select coalesce(sum(monto), 0) into v_abonado from public.abono_pasivo where pasivo_id = p_pasivo;
+  if p_monto > v_monto - v_abonado then
+    raise exception 'Es más de lo que falta pagar' using errcode = '22023';
+  end if;
+
+  insert into public.abono_pasivo (pasivo_id, negocio_id, monto, lugar, nota, usuario_id)
+  values (p_pasivo, v_negocio, p_monto, p_lugar, nullif(trim(p_nota), ''), auth.uid())
+  returning id into v_id;
+  return v_id;
+end;
+$$;
 
 -- función abrir_caja(uuid, numeric)
 -- mostrador.sql
@@ -2596,6 +2696,37 @@ as $$
   limit least(greatest(p_limite, 1), 100) offset greatest(p_desde, 0)
 $$;
 
+-- función explorar_promociones(integer)
+-- explorar_promociones.sql
+create or replace function public.explorar_promociones(p_limite integer default 10)
+returns table(tienda_slug text, tienda_nombre text, promocion_id uuid, tipo text, nombre text, lleva integer, paga integer,
+              fotos text[], productos text[], antes numeric, ahora numeric)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select n.slug, n.nombre, pr.id, pr.tipo, pr.nombre, pr.lleva, pr.paga,
+         array_agg(p.fotos[1] order by p.codigo) filter (where p.fotos[1] is not null),
+         array_agg(distinct coalesce(nullif(split_part(p.nombre, ' · ', 1), ''), p.nombre)),
+         case when pr.tipo = 'pack' then sum(p.precio * i.cantidad)
+              when min(p.precio) = max(p.precio) then pr.lleva * min(p.precio) end,
+         case when pr.tipo = 'pack' then pr.precio_pack
+              when min(p.precio) = max(p.precio) then pr.paga * min(p.precio) end
+  from public.promocion pr
+  join public.negocio n on n.id = pr.negocio_id
+  join public.promocion_item i on i.promocion_id = pr.id
+  join public.producto p on p.id = i.producto_id
+  cross join lateral (select public.disponibles_de(p.id) as disp) d
+  where n.visible_en_explorar and n.vitrina_activa and pr.activa
+    and (pr.desde is null or pr.desde <= public.hoy_el_salvador())
+    and (pr.hasta is null or pr.hasta >= public.hoy_el_salvador())
+  group by pr.id, n.slug, n.nombre
+  having case when pr.tipo = 'pack' then bool_and(d.disp >= i.cantidad) else sum(d.disp) >= pr.lleva end
+  order by pr.creado_en desc
+  limit least(greatest(p_limite, 1), 30)
+$$;
+
 -- función explorar_tiendas(text, text[])
 -- catalogo_fijo.sql
 create or replace function public.explorar_tiendas(p_busqueda text default null, p_categorias text[] default null)
@@ -3361,6 +3492,58 @@ as $$
   where i.producto_id = p_producto
     and p.estado = 'pendiente'
     and (p.vence_en is null or p.vence_en > now())
+$$;
+
+-- función quitar_pasivo(uuid)
+-- gestion.sql
+create or replace function public.quitar_pasivo(p_pasivo uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_negocio uuid;
+begin
+  select negocio_id into v_negocio from public.pasivo where id = p_pasivo;
+  if v_negocio is null or not public.puede_gestionar(v_negocio) then
+    raise exception 'Sin permiso' using errcode = '42501';
+  end if;
+  delete from public.pasivo where id = p_pasivo;
+end;
+$$;
+
+-- función registrar_ajuste_dinero(uuid, text, text, numeric, text)
+-- gestion.sql
+create or replace function public.registrar_ajuste_dinero(p_negocio uuid, p_lugar text, p_tipo text, p_monto numeric, p_nota text default null)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_id uuid;
+begin
+  if not public.puede_gestionar(p_negocio) then
+    raise exception 'Sin permiso' using errcode = '42501';
+  end if;
+  if p_lugar not in ('efectivo', 'transferencia') or p_tipo not in ('saldo_inicial', 'ajuste') then
+    raise exception 'Dato no válido' using errcode = '22023';
+  end if;
+  if p_monto is null or (p_tipo = 'ajuste' and p_monto = 0) or (p_tipo = 'saldo_inicial' and p_monto < 0) then
+    raise exception 'Monto no válido' using errcode = '22023';
+  end if;
+  if p_tipo = 'saldo_inicial' and exists (
+    select 1 from public.ajuste_dinero where negocio_id = p_negocio and lugar = p_lugar and tipo = 'saldo_inicial'
+  ) then
+    raise exception 'Ya hay un saldo inicial; hacé un ajuste' using errcode = '22023';
+  end if;
+
+  insert into public.ajuste_dinero (negocio_id, lugar, tipo, monto, nota, usuario_id)
+  values (p_negocio, p_lugar, p_tipo, p_monto, nullif(trim(p_nota), ''), auth.uid())
+  returning id into v_id;
+  return v_id;
+end;
 $$;
 
 -- función registrar_compra_mercaderia(uuid, numeric, text, text)
@@ -4474,14 +4657,22 @@ $$;
 
 
 -- ====================================================================================================
--- POLÍTICAS (48)
+-- POLÍTICAS (51)
 -- ====================================================================================================
+
+-- política abono_pasivo · abono_pasivo_ver
+-- gestion.sql
+create policy abono_pasivo_ver on public.abono_pasivo for select to authenticated using (public.puede_gestionar(negocio_id));
 
 -- política accion · accion_ver
 -- rendimiento.sql
 create policy accion_ver on public.accion
   for select to authenticated
   using (public.es_miembro(negocio_id) and (usuario_id = (select auth.uid()) or public.es_duena(negocio_id)));
+
+-- política ajuste_dinero · ajuste_dinero_ver
+-- gestion.sql
+create policy ajuste_dinero_ver on public.ajuste_dinero for select to authenticated using (public.puede_gestionar(negocio_id));
 
 -- política asistente_fallo · asistente_fallo_anotar
 -- asistente_fallos.sql
@@ -4648,6 +4839,10 @@ create policy pago_ver on public.pago
 create policy pago_paquetera_ver on public.pago_paquetera
   for select to authenticated using (public.puede_gestionar(negocio_id));
 
+-- política pasivo · pasivo_ver
+-- gestion.sql
+create policy pasivo_ver on public.pasivo for select to authenticated using (public.puede_gestionar(negocio_id));
+
 -- política pedido · pedido_ver
 -- pedidos.sql
 create policy pedido_ver on public.pedido
@@ -4760,12 +4955,24 @@ create trigger avisar_apartado_vitrina
 
 
 -- ====================================================================================================
--- ÍNDICES (38)
+-- ÍNDICES (42)
 -- ====================================================================================================
+
+-- índice abono_pasivo_idx (tabla abono_pasivo)
+-- gestion.sql
+create index if not exists abono_pasivo_idx on public.abono_pasivo (negocio_id, creado_en desc);
+
+-- índice abono_pasivo_pasivo_idx (tabla abono_pasivo)
+-- gestion.sql
+create index if not exists abono_pasivo_pasivo_idx on public.abono_pasivo (pasivo_id);
 
 -- índice accion_usuario_idx (tabla accion)
 -- asistente.sql
 create index if not exists accion_usuario_idx on public.accion (negocio_id, usuario_id, creada_en desc);
+
+-- índice ajuste_dinero_idx (tabla ajuste_dinero)
+-- gestion.sql
+create index if not exists ajuste_dinero_idx on public.ajuste_dinero (negocio_id, lugar, creado_en desc);
 
 -- índice asistente_fallo_idx (tabla asistente_fallo)
 -- asistente_fallos.sql
@@ -4856,6 +5063,10 @@ create index if not exists pago_paquetera_idx on public.pago_paquetera (negocio_
 -- índice pago_pedido_idx (tabla pago)
 -- cobros.sql
 create index if not exists pago_pedido_idx on public.pago (pedido_id);
+
+-- índice pasivo_negocio_idx (tabla pasivo)
+-- gestion.sql
+create index if not exists pasivo_negocio_idx on public.pasivo (negocio_id, creado_en desc);
 
 -- índice pedido_cliente_idx (tabla pedido)
 -- rendimiento.sql
