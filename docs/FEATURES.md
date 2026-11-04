@@ -30,7 +30,7 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 - ✅ Respuesta sugerida para "¿sigue disponible?".
 - ✅ Pedidos como tabla (o lista apilada en celular), con un botón para avanzar cada uno.
 - ✅ **Ofertas con fechas**: desde la ficha del producto (o de todas sus variantes) se programa una rebaja en dólares o porcentaje con día de inicio y de fin. Empieza y termina sola, y en la vitrina, el carrito, el Marketplace ("Ofertas"), el Mostrador y el pedido del panel se cobra el precio rebajado. Se puede cancelar. (Necesita `ofertas.sql`.)
-- ✅ **Promociones** (Productos → Promociones): **packs** (varios productos a un precio fijo) y **"llevá y pagá"** (2x1, 3x2, sobre un producto o sus variantes), con fechas opcionales y se pueden apagar. Se aplican solas en el pedido del panel, el Mostrador y la vitrina (compra, carrito y apartado); la ficha del producto y el carrito las anuncian. (Necesita `promociones.sql`.)
+- ✅ **Promociones** (Productos → Promociones): **packs** (varios productos a un precio fijo) y **"llevá y pagá"** (2x1, 3x2, sobre un producto o sus variantes), con fechas opcionales y se pueden apagar. Se aplican solas en el pedido del panel, el Mostrador y la vitrina (compra, carrito y apartado); la ficha del producto y el carrito las anuncian. La pantalla muestra lo que está corriendo (packs, llevá y pagá y ofertas, cada uno con su sello, interruptor para apagarlo o botón para cancelarlo); para crear se va a **Nueva promoción** (`/productos/promociones/nueva`, acepta `?tipo=pack|llevas_pagas|oferta`), que pide el tipo y arma cada uno con su vista previa. En pantallas angostas el botón de crear queda pegado abajo con lo que falta o el precio. (Necesita `promociones.sql`.)
 - ✅ **Descuento** en el pedido del panel, en dólares o en porcentaje; se ve en el resumen y en el detalle del pedido. (Necesita `descuento_pedido.sql`.)
 
 ### Envíos
@@ -55,6 +55,8 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 
 ### Vender (el antiguo Mostrador, `/vender`)
 - ✅ Para todas las tiendas: vender, apartar o crear un pedido rápido. Buscar por nombre o código, escanear el código de barras (lector USB/Bluetooth o la cámara en Chrome y Edge), descuento en dólares o porcentaje, cambio y recibo en pantalla. Cada venta queda como pedido entregado y pagado.
+- ✅ Un producto con variantes es una sola tarjeta («N opciones», «Desde $X»); al tocarla, la grilla muestra sus variantes con su foto, precio y stock (se pueden agregar varias) y «Todos los productos» vuelve. Si la búsqueda deja una sola variante, aparece directo; escanear su código la agrega sin preguntar.
+- ✅ Las tarjetas muestran la oferta (precio de antes tachado y «−N %»), la promoción vigente que la cubre («2x1», «Pack», y con qué otros productos va: «Pack con Taza: $12.00») y resaltan «Queda 1» cuando quedan pocas (el umbral de Ajustes). Al abrir Vender se ponen al día las ofertas que empiezan o terminan hoy.
 - ✅ Código de barras por producto, único por tienda; un código desconocido se puede asociar al momento.
 - ✅ **Caja** (`/vender/caja`), solo si está prendido «Vendo en persona» en Ajustes → Mi tienda: abrir con el efectivo inicial y cerrar contando; muestra si sobra o falta y guarda el historial. La vendedora vende, pero los montos de la caja solo los ven dueña y administradora.
 - ❌ Vender sin conexión, recibo por WhatsApp o impreso, etiquetas con código de barras.
@@ -174,7 +176,7 @@ Cada sección, sus rutas y dónde está su código (en `src/features/` salvo que
 | Sección | Rutas | Código |
 |---|---|---|
 | Inicio | `/inicio` | `home` |
-| Productos | `/productos` (`/nuevo`, `/lote`, `/importar`, `/promociones`, `/<código>`, `/<código>/editar`) | `products`, `import`, `offers` (ofertas con fechas), `promotions` (packs y llevá y pagá) |
+| Productos | `/productos` (`/nuevo`, `/lote`, `/importar`, `/promociones`, `/promociones/nueva`, `/<código>`, `/<código>/editar`) | `products`, `import`, `offers` (ofertas con fechas), `promotions` (packs y llevá y pagá) |
 | Pedidos | `/pedidos` (`/nuevo`, `/<código>`) | `orders`, `payments` (cobros y comprobante con IA), `shipping` (envíos y paquetera) |
 | Clientes | `/clientes` (`/<id>`) | `customers` |
 | Gestión | `/gestion` (Resumen), `/gestion/cuadre` (Balance) | `gestion` (balance, saldos, deudas, compras de mercadería, gastos fijos) |

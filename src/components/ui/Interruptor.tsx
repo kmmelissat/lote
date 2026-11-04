@@ -9,6 +9,8 @@ export function Interruptor({
   activo,
   onCambio,
   name,
+  etiqueta,
+  disabled,
 }: {
   titulo: string;
   ayuda?: string;
@@ -16,14 +18,26 @@ export function Interruptor({
   onCambio: (v: boolean) => void;
   /** Si va dentro de un formulario, el nombre con el que viaja ("on" cuando está prendido) */
   name?: string;
+  /** Para lectores de pantalla, cuando hay varios en la pantalla y el título solo no dice de qué es */
+  etiqueta?: string;
+  disabled?: boolean;
 }) {
   return (
-    <label className="flex min-h-12 cursor-pointer items-center gap-3">
+    <label className="flex min-h-12 cursor-pointer items-center gap-3 has-[:disabled]:cursor-wait has-[:disabled]:opacity-60">
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="font-bold">{titulo}</span>
         {ayuda && <span className="text-sm text-texto-2">{ayuda}</span>}
       </span>
-      <input type="checkbox" role="switch" name={name} checked={activo} onChange={(e) => onCambio(e.target.checked)} className="peer sr-only" />
+      <input
+        type="checkbox"
+        role="switch"
+        name={name}
+        aria-label={etiqueta}
+        checked={activo}
+        disabled={disabled}
+        onChange={(e) => onCambio(e.target.checked)}
+        className="peer sr-only"
+      />
       <span
         aria-hidden="true"
         className="relative h-8 w-14 shrink-0 rounded-full border-2 border-teal-oscuro bg-limon/50 shadow-dura-chica transition-colors duration-150 peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal peer-checked:[&>span]:translate-x-6 peer-checked:[&>span>svg]:opacity-100"

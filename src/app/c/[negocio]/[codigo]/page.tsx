@@ -12,13 +12,8 @@ import { LineaConfianza } from "@/features/catalog/ui/LineaConfianza";
 import { Plegable } from "@/features/catalog/ui/Plegable";
 import { Resenas } from "@/features/catalog/ui/Resenas";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
-import {
-  listarProductosPublicos,
-  obtenerNegocioPublico,
-  obtenerOpcionesDeCompra,
-  obtenerProductoPublico,
-  obtenerResenas,
-} from "@/features/catalog/repositorio";
+import { negocioPublico, productoPublico, productosPublicos } from "@/features/catalog/publico";
+import { obtenerOpcionesDeCompra, obtenerResenas } from "@/features/catalog/repositorio";
 import { nombreBase } from "@/domain";
 import { armarFichaPublica } from "@/features/catalog/fichaPublica";
 import { formatearDolares } from "@/lib/formato";
@@ -44,11 +39,10 @@ export async function generateMetadata({
   const codigo = Number(codigoTexto);
   if (!Number.isInteger(codigo))
     return { title: t.titulo, robots: { index: false } };
-  const supabase = createPublicClient();
   const [negocio, p, todos] = await Promise.all([
-    obtenerNegocioPublico(supabase, slug),
-    obtenerProductoPublico(supabase, slug, codigo),
-    listarProductosPublicos(supabase, slug),
+    negocioPublico(slug),
+    productoPublico(slug, codigo),
+    productosPublicos(slug),
   ]);
   if (!negocio || !p) return { title: t.titulo, robots: { index: false } };
   // Las variantes son casi la misma página: todas le dicen al buscador que la buena es la de menor código
@@ -95,14 +89,14 @@ async function Producto({
 
   const supabase = createPublicClient();
   const [negocio, p] = await Promise.all([
-    obtenerNegocioPublico(supabase, slug),
-    obtenerProductoPublico(supabase, slug, codigo),
+    negocioPublico(slug),
+    productoPublico(slug, codigo),
   ]);
   if (!negocio || !p) notFound();
 
   // Todo lo que la tienda tiene a la vista: de ahí salen las variantes de este producto y los que se le parecen.
   const [todos, promociones, opcionesDeCompra, resenas] = await Promise.all([
-    listarProductosPublicos(supabase, slug),
+    productosPublicos(slug),
     promocionesDeVitrina(supabase, slug),
     obtenerOpcionesDeCompra(supabase, slug),
     obtenerResenas(supabase, slug, p.codigo),

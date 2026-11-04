@@ -26,6 +26,7 @@ export const DESTINOS: Destino[] = [
   { href: "/productos/lote", titulo: d.loteFotos, detalle: d.loteFotosDetalle, icono: "camara", claves: ["varias fotos", "muchas fotos", "subir muchas", "un producto por foto"] },
   { href: "/productos/importar", titulo: d.importar, detalle: d.importarDetalle, icono: "hoja", claves: ["excel", "csv", "google sheets", "hoja de calculo", "cargar muchos", "migrar"] },
   { href: "/productos/promociones", titulo: d.promociones, detalle: d.promocionesDetalle, icono: "etiqueta", claves: ["pack", "2x1", "3x2", "llevas pagas", "descuento", "oferta"] },
+  { href: "/productos/promociones/nueva", titulo: d.nuevaPromocion, detalle: d.nuevaPromocionDetalle, icono: "mas", claves: ["crear promocion", "nuevo pack", "hacer un 2x1", "poner en oferta", "rebajar precio"] },
   { href: "/productos?parados=1#parados", titulo: d.parados, detalle: d.paradosDetalle, icono: "caja", claves: ["parados", "sin vender", "no se venden", "inventario parado", "dinero parado", "rotacion"] },
   { href: "/pedidos", titulo: textos.nav.pedidos, detalle: d.pedidos, icono: "pedidos", claves: ["ventas", "apartados", "cobros", "envios", "por cobrar", "pagados", "entregados"] },
   { href: "/clientes", titulo: textos.nav.clientes, detalle: d.clientes, icono: "clientes", claves: ["quien me debe", "contactos", "compradoras", "saldo", "cobrar"] },

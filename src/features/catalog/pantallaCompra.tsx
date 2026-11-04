@@ -5,7 +5,8 @@ import { nombreBase, type AhorroPromocion } from "@/domain";
 import { calcularPromocionesDeVitrina } from "@/features/promotions/repositorio";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
-import { obtenerNegocioPublico, obtenerProductoPublico, type NegocioPublico, type ProductoPublico } from "./repositorio";
+import { negocioPublico, productoPublico } from "./publico";
+import type { NegocioPublico, ProductoPublico } from "./repositorio";
 import { MarcaTienda } from "./ui/MarcaTienda";
 import { DosColumnas, EncabezadoCompra, ResumenPedido } from "./ui/MarcoCompra";
 
@@ -21,7 +22,7 @@ export async function cargarCompra(
   const codigo = Number(codigoTexto);
   if (!Number.isInteger(codigo)) notFound();
   const supabase = createPublicClient();
-  const [negocio, producto] = await Promise.all([obtenerNegocioPublico(supabase, slug), obtenerProductoPublico(supabase, slug, codigo)]);
+  const [negocio, producto] = await Promise.all([negocioPublico(slug), productoPublico(slug, codigo)]);
   if (!negocio || !producto) notFound();
 
   // Si ya no se puede (la tienda lo apagó, se agotó o la cantidad no alcanza), se vuelve al producto a elegir de nuevo.

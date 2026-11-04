@@ -64,6 +64,7 @@ export function Mostrador({
   clientes,
   tarifas,
   cajaDesde,
+  umbral,
   calcularAhorro,
 }: {
   /** Pregunta a la base cuánto ahorran las promociones con lo que hay en la venta */
@@ -78,6 +79,8 @@ export function Mostrador({
   conCaja: boolean;
   /** Cuándo se abrió la caja de hoy (fecha ISO); null si no hay caja abierta */
   cajaDesde: string | null;
+  /** Con cuántas unidades se avisa que quedan pocas */
+  umbral: number;
 }) {
   const { avisar } = useToast();
   const [consulta, setConsulta] = useState("");
@@ -586,7 +589,7 @@ export function Mostrador({
   );
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_34rem] xl:gap-x-6 2xl:grid-cols-[minmax(0,1fr)_40rem]">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_26rem] xl:gap-x-6 2xl:grid-cols-[minmax(0,1fr)_30rem]">
       {/* Izquierda: primero los productos; después el cliente, cómo paga y la entrega */}
       <div className="flex min-w-0 flex-col gap-4">
         {enCobro ? (
@@ -611,7 +614,7 @@ export function Mostrador({
           <>
             {buscador}
             <section aria-label={t.titulo}>
-              <ProductosDelMostrador todos={todos} visibles={visibles} lineas={lineas} agregar={agregar} />
+              <ProductosDelMostrador todos={todos} visibles={visibles} lineas={lineas} umbral={umbral} agregar={agregar} />
             </section>
           </>
         )}

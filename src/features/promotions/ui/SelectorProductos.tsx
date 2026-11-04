@@ -30,17 +30,19 @@ function Foto({ foto, tamano = "size-12" }: { foto: string | null; tamano?: stri
   );
 }
 
-/** Lo que se sabe de una opción además de su precio: si está agotada, cuánto queda y si ya está en otra promoción. */
+/** Lo que se sabe de una opción además de su precio: si está agotada y si ya está en otra promoción. Va en su propia línea. */
 function Notas({ p }: { p: OpcionProductoPromocion }) {
+  if (p.disponibles !== 0 && !p.enPromocion) return null;
   return (
-    <>
-      {p.disponibles === 0 ? <span className="font-bold text-error"> · {t.agotado}</span> : null}
-      {p.enPromocion ? <span className="font-medium text-teal-oscuro"> · {t.yaEn(p.enPromocion)}</span> : null}
-    </>
+    <p className="line-clamp-2 text-xs">
+      {p.disponibles === 0 && <span className="font-bold text-error">{t.agotado}</span>}
+      {p.disponibles === 0 && p.enPromocion && " · "}
+      {p.enPromocion && <span className="font-medium text-teal">{t.yaEn(p.enPromocion)}</span>}
+    </p>
   );
 }
 
-const boton = "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold";
+const boton = "inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-full border-2 border-teal-oscuro px-3 text-sm font-bold sm:px-4";
 
 /** El control de cantidad de un producto del pack: − 1 +. */
 export function Cantidad({ p, n, cambiar }: { p: OpcionProductoPromocion; n: number; cambiar: (id: string, diferencia: number) => void }) {
@@ -106,9 +108,9 @@ export function SelectorProductos({
 
   function agregar(p: OpcionProductoPromocion) {
     return (
-      <button type="button" onClick={() => cambiar(p.id, 1)} className={`${boton} bg-superficie hover:bg-limon`}>
+      <button type="button" onClick={() => cambiar(p.id, 1)} aria-label={`${t.agregar} ${nombreDeOpcion(p)}`} className={`${boton} bg-superficie hover:bg-limon`}>
         <Icon nombre="mas" className="size-4" />
-        {t.agregar}
+        <span className="max-sm:sr-only">{t.agregar}</span>
       </button>
     );
   }
@@ -119,7 +121,7 @@ export function SelectorProductos({
       {visibles.length === 0 ? (
         <p className="py-6 text-center text-texto-2">{t.sinResultados}</p>
       ) : (
-        <ul className="h-80 overflow-y-auto overscroll-contain rounded-2xl border-2 border-borde bg-superficie">
+        <ul className="max-h-[26rem] overflow-y-auto overscroll-contain rounded-2xl border-2 border-borde bg-superficie">
           {visibles.map((g) => {
             const unico = g.miembros.length === 1 ? g.miembros[0] : null;
             const abierto = buscando || abiertos.has(g.clave);
@@ -132,26 +134,27 @@ export function SelectorProductos({
                     <p className="line-clamp-2 text-sm font-medium">{unico ? nombreDeOpcion(unico) : g.nombre}</p>
                     <p className="text-sm text-texto-2">
                       <span className="font-bold tabular-nums text-texto">{t.rangoPrecio(formatearDolares(g.precioMin), formatearDolares(g.precioMax))}</span>
-                      {unico ? (
-                        <>
-                          {" · #"}
-                          {unico.codigo}
-                          <Notas p={unico} />
-                        </>
-                      ) : (
-                        <> · {t.variantes(g.miembros.length)}</>
-                      )}
+                      {unico ? ` · #${unico.codigo}` : ` · ${t.variantes(g.miembros.length)}`}
                     </p>
+                    {unico && <Notas p={unico} />}
                   </div>
                   {modo === "llevas_pagas" ? (
                     <button
                       type="button"
                       aria-pressed={elegido}
+                      aria-label={unico ? t.elegirEtiqueta(nombreDeOpcion(unico)) : t.elegirTodasEtiqueta(g.nombre)}
                       onClick={() => elegirGrupo(g)}
                       className={`${boton} ${elegido ? "bg-limon" : "bg-superficie hover:bg-limon"}`}
                     >
                       {elegido && <Icon nombre="check" className="size-4" />}
-                      {unico ? t.elegirProducto : t.elegirTodas}
+                      {unico ? (
+                        t.elegirProducto
+                      ) : (
+                        <>
+                          <span className="sm:hidden">{t.elegirProducto}</span>
+                          <span className="max-sm:hidden">{t.elegirTodas}</span>
+                        </>
+                      )}
                     </button>
                   ) : unico ? (
                     elegidos[unico.id] > 0 ? (
@@ -176,13 +179,13 @@ export function SelectorProductos({
                 {!unico && modo === "pack" && abierto && (
                   <ul className="border-t border-borde bg-fondo/60">
                     {g.miembros.map((m) => (
-                      <li key={m.id} className="flex items-center gap-3 border-t border-borde py-2 pl-6 pr-3 first:border-t-0">
+                      <li key={m.id} className="flex items-center gap-3 border-t border-borde py-2 pl-6 pr-3 first:border-t-0 sm:pl-[4.5rem]">
                         <div className="min-w-0 flex-1">
                           <p className="line-clamp-2 text-sm font-medium">{m.variante ?? nombreDeOpcion(m)}</p>
                           <p className="text-sm text-texto-2">
                             <span className="font-bold tabular-nums text-texto">{formatearDolares(m.precio)}</span> · #{m.codigo}
-                            <Notas p={m} />
                           </p>
+                          <Notas p={m} />
                         </div>
                         {elegidos[m.id] > 0 ? <Cantidad p={m} n={elegidos[m.id]} cambiar={cambiar} /> : agregar(m)}
                       </li>
@@ -202,9 +205,9 @@ export function SelectorProductos({
 export function EnTuPack({ productos, elegidos, cambiar }: { productos: OpcionProductoPromocion[]; elegidos: Elegidos; cambiar: (id: string, diferencia: number) => void }) {
   return (
     <section aria-labelledby="en-tu-pack" className="flex flex-col gap-2 rounded-2xl border-2 border-teal-oscuro bg-crema p-3">
-      <h4 id="en-tu-pack" className="text-sm font-bold">
+      <h3 id="en-tu-pack" className="text-sm font-bold">
         {t.enTuPack}
-      </h4>
+      </h3>
       {productos.length === 0 ? (
         <p className="text-sm text-texto-2">{t.enTuPackVacio}</p>
       ) : (
@@ -243,9 +246,9 @@ export function ProductoElegido({
       <div className="flex items-center gap-3">
         <Foto foto={grupo.foto} />
         <div className="min-w-0 flex-1">
-          <h4 id="producto-elegido" className="text-sm font-bold">
+          <h3 id="producto-elegido" className="text-sm font-bold">
             {t.productoElegido}
-          </h4>
+          </h3>
           <p className="line-clamp-2 text-sm">{grupo.nombre}</p>
         </div>
         <button type="button" onClick={cambiarProducto} className="min-h-11 shrink-0 px-2 text-sm font-medium text-teal underline underline-offset-2">

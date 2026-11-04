@@ -7,7 +7,6 @@ import { esFalta, esFiltroEstado, esOrden, FILTROS_ESTADO, type Falta, type Orde
 import { categoriasEnUso, listarProductos } from "@/features/products/repositorio";
 import { productosQueNoSeMueven } from "@/features/profit/parados";
 import { DineroParado } from "@/features/profit/ui/PiezasCuadre";
-import { formatearDolares } from "@/lib/formato";
 import { AcomodarCategorias } from "@/features/products/ui/AcomodarCategorias";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
 import { ListaProductos as ListaProductosVista } from "@/features/products/ui/ListaProductos";
@@ -104,17 +103,13 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
           ) : undefined
         }
       />
-      {sinCategoria > 0 && <AcomodarCategorias sinCategoria={sinCategoria} />}
-      {parados && parados.filas.length > 0 && (
-        <details id="parados" open={abrirParados} className="group rounded-[24px] border-2 border-teal-oscuro/30 bg-superficie">
-          <summary className="flex min-h-12 cursor-pointer flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 font-bold md:px-5">
-            <span>{textos.dinero.cuadre.paradoTitulo}</span>
-            <span className="text-sm font-normal text-texto-2">
-              {textos.dinero.cuadre.paradoResumen(parados.filas.length, formatearDolares(parados.total))}
-            </span>
-          </summary>
-          <div className="p-2 pt-0 md:p-3 md:pt-0">
+      {(sinCategoria > 0 || (parados && parados.filas.length > 0)) && (
+        <div className="mb-4 flex flex-col gap-3">
+          {sinCategoria > 0 && <AcomodarCategorias sinCategoria={sinCategoria} />}
+          {parados && parados.filas.length > 0 && (
             <DineroParado
+              id="parados"
+              abierto={abrirParados}
               fotos={Object.fromEntries(todos.map((p) => [p.id, p.fotos[0]]))}
               productos={parados.filas}
               total={parados.total}
@@ -123,8 +118,8 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
               dias={parados.dias}
               sinCosto={parados.sinCosto}
             />
-          </div>
-        </details>
+          )}
+        </div>
       )}
       <ListaProductosVista
         productos={todos.map((p) => ({ ...p, desglose: undefined }))}

@@ -10,7 +10,7 @@ import type { AnalisisLlevasPagas, AnalisisPack, Pendiente } from "../analisis";
 
 const t = textos.promociones;
 
-const PENDIENTE: Record<Pendiente, string> = {
+export const PENDIENTE: Record<Pendiente, string> = {
   productos_pack: t.faltaProductosPack,
   productos_llevas_pagas: t.faltaProductosLlevasPagas,
   precio_pack: t.faltaPrecioPack,

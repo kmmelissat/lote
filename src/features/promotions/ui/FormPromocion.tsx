@@ -3,11 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { AtajosDeFechas } from "@/components/ui/AtajosDeFechas";
+import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { Select } from "@/components/ui/Select";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { useToast } from "@/components/ui/Toast";
@@ -20,22 +20,28 @@ import { anuncioDePromocion } from "../descripcion";
 import { agruparOpciones, nombreDeOpcion, type GrupoDeProductos, type OpcionProductoPromocion } from "../grupos";
 import type { TipoPromocion } from "../repositorio";
 import { EnTuPack, MAXIMO_POR_PACK, ProductoElegido, SelectorProductos, type Elegidos } from "./SelectorProductos";
-import { VistaPreviaPromocion } from "./VistaPreviaPromocion";
+import { PENDIENTE, VistaPreviaPromocion } from "./VistaPreviaPromocion";
 
 const t = textos.promociones;
 
 /**
- * Crear un pack o un "llevá y pagá". A la izquierda se arma (tipo, productos, precio o regla, fechas); a la derecha se ve
- * cómo queda en la vitrina, cuánto ahorra el cliente, cuánto le queda a la tienda, qué avisos hay y qué falta.
+ * Crear un pack o un "llevá y pagá". A la izquierda se arma (productos, precio o regla, fechas); a la derecha (o debajo,
+ * en pantallas angostas) se ve cómo queda en la vitrina, cuánto ahorra el cliente, cuánto le queda a la tienda, qué
+ * avisos hay y qué falta. En pantallas angostas el botón de crear queda pegado abajo.
  */
-export function FormPromocion({ productos }: { productos: OpcionProductoPromocion[] }) {
+export function FormPromocion({ tipo, productos }: { tipo: TipoPromocion; productos: OpcionProductoPromocion[] }) {
   const router = useRouter();
   const { avisar } = useToast();
   const [pendiente, empezar] = useTransition();
   const [error, setError] = useState<string>();
-  const [tipo, setTipo] = useState<TipoPromocion>("pack");
   const [nombre, setNombre] = useState("");
   const [elegidos, setElegidos] = useState<Elegidos>({});
+  // Lo elegido para un pack no sirve para un "llevá y pagá" (que es de un solo producto), y al revés
+  const [tipoAnterior, setTipoAnterior] = useState(tipo);
+  if (tipo !== tipoAnterior) {
+    setTipoAnterior(tipo);
+    setElegidos({});
+  }
   const [precioPack, setPrecioPack] = useState("");
   const [lleva, setLleva] = useState(2);
   const [paga, setPaga] = useState(1);
@@ -92,13 +98,6 @@ export function FormPromocion({ productos }: { productos: OpcionProductoPromocio
     });
   }
 
-  function cambiarTipo(nuevo: TipoPromocion) {
-    if (nuevo === tipo) return;
-    // Lo elegido para un pack no sirve para un "llevá y pagá" (que es de un solo producto), y al revés
-    setElegidos({});
-    setTipo(nuevo);
-  }
-
   function crear() {
     setError(undefined);
     empezar(async () => {
@@ -114,50 +113,31 @@ export function FormPromocion({ productos }: { productos: OpcionProductoPromocio
       });
       if (r.error) return setError(r.error);
       avisar(t.creada, { tipo: "exito" });
-      setNombre("");
-      setElegidos({});
-      setPrecioPack("");
-      setDesde("");
-      setHasta("");
-      router.refresh();
+      router.push("/productos/promociones");
     });
   }
+
+  const boton = (
+    <Button type="submit" variante="mango" disabled={pendiente || pendientes.length > 0} className="w-full">
+      {pendiente ? t.creando : t.crear}
+    </Button>
+  );
 
   return (
     <form
       id="form-promocion"
-      className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]"
+      className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_21rem] xl:gap-5 xl:pb-8"
       onSubmit={(e) => {
         e.preventDefault();
         if (!pendientes.length) crear();
       }}
     >
-      <Card role="region" aria-labelledby="nueva-promocion" className="flex min-w-0 flex-col gap-6">
-        <h2 id="nueva-promocion" className="text-lg font-bold">
-          {t.nueva}
-        </h2>
-
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-1 text-sm font-medium">{t.tipo}</legend>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <OpcionRadio forma="tarjeta" icono="etiqueta" titulo={t.pack} ayuda={t.packAyuda} name="tipo" checked={tipo === "pack"} onChange={() => cambiarTipo("pack")} />
-            <OpcionRadio
-              forma="tarjeta"
-              icono="mas"
-              titulo={t.llevasPagas}
-              ayuda={t.llevasPagasAyuda}
-              name="tipo"
-              checked={tipo === "llevas_pagas"}
-              onChange={() => cambiarTipo("llevas_pagas")}
-            />
-          </div>
-        </fieldset>
-
+      <Card role="region" aria-label={t.nueva} className="flex min-w-0 flex-col gap-6">
         <section aria-labelledby="productos-promocion" className="flex flex-col gap-3">
           <div>
-            <h3 id="productos-promocion" className="text-sm font-medium">
+            <h2 id="productos-promocion" className="font-bold">
               {t.productos}
-            </h3>
+            </h2>
             <p className="text-sm text-texto-2">{tipo === "pack" ? t.productosPack : t.productosLlevasPagas}</p>
           </div>
           {tipo === "pack" && <EnTuPack productos={seleccionados} elegidos={elegidos} cambiar={cambiar} />}
@@ -245,7 +225,7 @@ export function FormPromocion({ productos }: { productos: OpcionProductoPromocio
         <Field etiqueta={t.nombre} value={nombre} maxLength={60} placeholder={sugerido} onChange={(e) => setNombre(e.target.value)} />
       </Card>
 
-      <aside className="lg:sticky lg:top-4">
+      <aside className="min-w-0 xl:sticky xl:top-4">
         <VistaPreviaPromocion
           tipo={tipo}
           nombre={nombreFinal}
@@ -261,12 +241,29 @@ export function FormPromocion({ productos }: { productos: OpcionProductoPromocio
           avisos={avisos}
           pendientes={pendientes}
         >
-          <MensajeError>{error}</MensajeError>
-          <Button type="submit" variante="mango" disabled={pendiente || pendientes.length > 0} className="w-full">
-            {pendiente ? t.creando : t.crear}
-          </Button>
+          <div className="hidden flex-col gap-3 xl:flex">
+            <MensajeError>{error}</MensajeError>
+            {boton}
+          </div>
         </VistaPreviaPromocion>
       </aside>
+
+      <BarraFormulario className="xl:hidden">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <MensajeError>{error}</MensajeError>
+          <p className="line-clamp-2 text-sm">
+            {pendientes.length ? (
+              <span className="text-texto-2">{t.faltaCorto(PENDIENTE[pendientes[0]])}</span>
+            ) : (
+              <>
+                <span className="font-bold">{anuncio?.titulo ?? nombreFinal}</span>
+                {analisisPack?.ahorro ? <span className="text-texto-2"> · {t.ahorras(formatearDolares(analisisPack.ahorro))}</span> : null}
+              </>
+            )}
+          </p>
+        </div>
+        <div className="shrink-0">{boton}</div>
+      </BarraFormulario>
     </form>
   );
 }

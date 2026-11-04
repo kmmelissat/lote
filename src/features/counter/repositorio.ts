@@ -1,9 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { aCentavos, aDolares, type Centavos } from "@/domain";
+import { aCentavos, aDolares, hoyEnElSalvador, type Centavos } from "@/domain";
 import {
   listarProductos,
   obtenerProducto,
 } from "@/features/products/repositorio";
+import { listarPromociones } from "@/features/promotions/repositorio";
+import { promocionesPorCodigo, type PromocionMostrador } from "./mostrador";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -22,31 +24,44 @@ export type ProductoMostrador = {
   id: string;
   codigo: number;
   nombre: string;
+  /** Las variantes de un mismo producto comparten grupo */
+  grupo: string | null;
   variante: string | null;
   precio: Centavos;
+  /** El precio tachado (el de antes de una oferta); null si no hay o no es mayor que el de ahora */
+  precioAnterior: Centavos | null;
+  /** La promoción vigente que lo cubre; null si no hay */
+  promocion: PromocionMostrador | null;
   disponibles: number;
   foto: string | undefined;
   codigoBarras: string | null;
 };
 
-/** Los productos que se pueden vender ahora, con su código de barras. */
+const anteriorSiRebaja = (anterior: number | null | undefined, precio: Centavos): Centavos | null => {
+  const centavos = anterior == null ? null : aCentavos(anterior);
+  return centavos !== null && centavos > precio ? centavos : null;
+};
+
+/** Los productos que se pueden vender ahora, con su código de barras, su oferta y su promoción. */
 export async function productosDeMostrador(
   supabase: Cliente,
   negocioId: string,
 ): Promise<ProductoMostrador[]> {
-  const [productos, barras] = await Promise.all([
+  const [productos, extra, promociones] = await Promise.all([
     listarProductos(supabase, negocioId, false, {
       desde: 0,
       cantidad: MAXIMO_PRODUCTOS,
     }),
     supabase
       .from("producto")
-      .select("id, codigo_barras")
+      .select("id, codigo_barras, precio_anterior")
       .eq("negocio_id", negocioId)
-      .not("codigo_barras", "is", null),
+      .or("codigo_barras.not.is.null,precio_anterior.not.is.null"),
+    listarPromociones(supabase, negocioId),
   ]);
-  if (barras.error) throw barras.error;
-  const porId = new Map(barras.data.map((b) => [b.id, b.codigo_barras]));
+  if (extra.error) throw extra.error;
+  const porId = new Map(extra.data.map((b) => [b.id, b]));
+  const promocionDe = promocionesPorCodigo(promociones, hoyEnElSalvador(new Date()));
 
   return productos
     .filter((p) => p.disponibles > 0)
@@ -54,11 +69,14 @@ export async function productosDeMostrador(
       id: p.id,
       codigo: p.codigo,
       nombre: p.nombre,
+      grupo: p.grupo,
       variante: p.variante,
       precio: p.precio,
+      precioAnterior: anteriorSiRebaja(porId.get(p.id)?.precio_anterior, p.precio),
+      promocion: promocionDe.get(p.codigo) ?? null,
       disponibles: p.disponibles,
       foto: p.fotos[0],
-      codigoBarras: porId.get(p.id) ?? null,
+      codigoBarras: porId.get(p.id)?.codigo_barras ?? null,
     }));
 }
 
@@ -70,7 +88,7 @@ export async function productoPorBarras(
 ): Promise<ProductoMostrador | null> {
   const { data, error } = await supabase
     .from("producto")
-    .select("codigo")
+    .select("codigo, precio_anterior")
     .eq("negocio_id", negocioId)
     .eq("codigo_barras", codigoBarras)
     .maybeSingle();
@@ -83,8 +101,12 @@ export async function productoPorBarras(
     id: p.id,
     codigo: p.codigo,
     nombre: p.nombre,
+    grupo: p.grupo,
     variante: p.variante,
     precio: p.precio,
+    precioAnterior: anteriorSiRebaja(data.precio_anterior, p.precio),
+    // Se agrega directo a la venta y el resumen ya muestra lo que ahorra
+    promocion: null,
     disponibles: p.disponibles,
     foto: p.fotos[0],
     codigoBarras,

@@ -4,6 +4,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { cajaAbierta, productosDeMostrador } from "@/features/counter/repositorio";
 import { Mostrador } from "@/features/counter/ui/Mostrador";
 import { clientesParaVender } from "@/features/customers/repositorio";
+import { actualizarOfertas } from "@/features/offers/repositorio";
 import { obtenerTarifas } from "@/features/shipping/repositorio";
 import { calcularAhorro } from "@/features/promotions/actions/promociones";
 import { negocioActual } from "@/lib/negocio";
@@ -44,6 +45,8 @@ async function Pantalla() {
     );
   }
 
+  // Antes de leer los precios: una oferta que empieza o termina hoy se cobra bien aunque la tarea diaria no haya corrido
+  await actualizarOfertas(supabase, negocio.id).catch(() => undefined);
   const [productos, clientes, tarifas, caja] = await Promise.all([
     productosDeMostrador(supabase, negocio.id),
     clientesParaVender(supabase, negocio.id),
@@ -62,6 +65,7 @@ async function Pantalla() {
         clientes={clientes}
         tarifas={tarifas}
         cajaDesde={caja ? caja.abiertaEn.toISOString() : null}
+        umbral={negocio.umbralPocoStock}
         calcularAhorro={calcularAhorro}
       />
     </>

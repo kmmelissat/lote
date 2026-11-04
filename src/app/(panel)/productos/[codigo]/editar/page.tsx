@@ -44,22 +44,25 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
   const p = await obtenerProducto(supabase, negocio.id, codigo, true);
   if (!p) notFound();
 
-  // Lo que ya usó, para completar categoría y marca mientras escribe
-  const existentes = await listarProductos(supabase, negocio.id, false);
+  const conVariante = p.grupo !== null && p.variante !== null;
+  const [existentes, extra, [miembros, nombresDeVariante]] = await Promise.all([
+    // Lo que ya usó, para completar categoría y marca mientras escribe
+    listarProductos(supabase, negocio.id, false),
+    obtenerInfoExtra(supabase, p.id),
+    // Con variantes se editan todas juntas, en el mismo editor que al crear
+    conVariante
+      ? listarGrupo(supabase, negocio.id, p.grupo!, true).then(async (m) => [m, m.length ? await opcionesDeVariante(supabase, m[0].id) : []] as const)
+      : ([[], []] as const),
+  ]);
   const unicos = (valores: (string | null)[]) => [...new Set(valores.filter((x): x is string => !!x?.trim()))].sort();
   const sugerencias = { marcas: unicos(existentes.map((x) => x.marca)) };
-
-  const extra = await obtenerInfoExtra(supabase, p.id);
-  const conVariante = p.grupo !== null && p.variante !== null;
   const dolares = (c: number | undefined) => (c === undefined ? "" : String(aDolares(c)));
-  // Con variantes se editan todas juntas, en el mismo editor que al crear
-  const miembros = conVariante ? await listarGrupo(supabase, negocio.id, p.grupo!, true) : [];
   // Las que tienen todas las variantes son las del producto (arriba); el resto, las propias de cada una
   const { generales, propias } = separarFotos(miembros.map((m) => m.fotos));
   const fotosProducto = conVariante ? generales : p.fotos;
   const variantes = conVariante
     ? {
-        nombres: await opcionesDeVariante(supabase, miembros[0].id),
+        nombres: [...nombresDeVariante],
         filas: miembros.map((m, i) => ({
           etiqueta: m.variante ?? m.nombre,
           id: m.id,

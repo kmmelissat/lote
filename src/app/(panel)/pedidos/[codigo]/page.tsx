@@ -42,11 +42,12 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
   if (!p) notFound();
 
   const ahora = new Date();
-  const [pagos, envio, tarifas, mensaje] = await Promise.all([
+  const [pagos, envio, tarifas, mensaje, pagoPaquetera] = await Promise.all([
     listarPagos(supabase, p.id),
     obtenerEnvio(supabase, p.id),
     obtenerTarifas(supabase, negocio.id),
     mensajeDeCobro(supabase, negocio.id, p, ahora),
+    negocio.puedeGestionar ? obtenerPagoPaquetera(supabase, p.id) : null,
   ]);
 
   const cliente = p.cliente ?? t.sinCliente;
@@ -119,7 +120,7 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
             />
 
             {negocio.puedeGestionar && envio?.modo === "paquetera" && envio.costo > 0 && p.estado !== "cancelado" && (
-              <PagoPaquetera pedidoId={p.id} costo={envio.costo} pago={await obtenerPagoPaquetera(supabase, p.id)} />
+              <PagoPaquetera pedidoId={p.id} costo={envio.costo} pago={pagoPaquetera} />
             )}
           </div>
         </div>

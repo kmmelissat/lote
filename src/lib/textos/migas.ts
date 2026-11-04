@@ -9,6 +9,7 @@ export const migas = {
   cuadre: "Cuadre",
   ajustes: "Ajustes",
   nuevo: "Nuevo",
+  nueva: "Nueva",
   asistente: "Asistente",
   importar: "Importar",
   lote: "Lote de fotos",

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { DIAS_PARA_PARADO, nombreConVariante, productosParados } from "@/domain";
+import { DIAS_PARA_PARADO, nombreVisible, productosParados } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
 import type { listarProductos } from "@/features/products/repositorio";
 import type { ProductoParadoConCodigo } from "./ui/PiezasCuadre";
@@ -56,7 +56,7 @@ export async function productosQueNoSeMueven(
   const filas = productosParados(
     enStock.map((p) => ({
       id: p.id,
-      nombre: p.variante ? nombreConVariante(p.nombre, p.variante) : p.nombre,
+      nombre: nombreVisible(p.nombre, p.variante),
       disponibles: p.disponibles,
       costoUnitario: p.costoUnitario ?? null,
       creadoEn: actividad.get(p.id)?.creadoEn ?? ahora.toISOString(),

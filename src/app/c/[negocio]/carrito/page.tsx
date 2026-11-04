@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
-import { obtenerNegocioPublico } from "@/features/catalog/repositorio";
+import { negocioPublico } from "@/features/catalog/publico";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { VistaCarrito } from "@/features/catalog/ui/VistaCarrito";
-import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
 
 const t = textos.vitrina.carrito;
@@ -21,7 +20,7 @@ export default function CarritoPage({ params }: Props) {
 async function Carrito({ params }: Props) {
   await connection();
   const { negocio: slug } = await params;
-  const negocio = await obtenerNegocioPublico(createPublicClient(), slug);
+  const negocio = await negocioPublico(slug);
   if (!negocio) notFound();
   // Si la tienda no recibe pedidos desde la vitrina, no hay nada que comprar acá
   if (!negocio.permiteComprar) redirect(`/c/${slug}`);

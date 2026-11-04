@@ -12,7 +12,8 @@ import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { RedesTienda } from "@/features/catalog/ui/RedesTienda";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { enlaceFacebook, enlaceTiktok, mensajePedirVitrina } from "@/features/catalog/enlaces";
-import { listarProductosPublicos, obtenerEstrellas, obtenerNegocioPublico, obtenerOpcionesDeCompra, obtenerPerfil, obtenerResenas } from "@/features/catalog/repositorio";
+import { negocioPublico, productosPublicos } from "@/features/catalog/publico";
+import { obtenerEstrellas, obtenerOpcionesDeCompra, obtenerPerfil, obtenerResenas } from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
 import { PromocionesDelProducto } from "@/features/catalog/ui/PromocionesDelProducto";
 import { anunciosDePromociones } from "@/features/promotions/descripcion";
@@ -28,10 +29,9 @@ const t = textos.vitrina;
 export async function generateMetadata({ params }: PageProps<"/c/[negocio]">): Promise<Metadata> {
   await connection();
   const slug = (await params).negocio;
-  const supabase = createPublicClient();
-  const negocio = await obtenerNegocioPublico(supabase, slug);
+  const negocio = await negocioPublico(slug);
   if (!negocio) return { title: t.titulo, robots: { index: false } };
-  const piezas = (await listarProductosPublicos(supabase, slug)).reduce((n, p) => n + p.disponibles, 0);
+  const piezas = (await productosPublicos(slug)).reduce((n, p) => n + p.disponibles, 0);
   const descripcion = negocio.descripcion?.trim() || t.seo.descripcionTienda(negocio.nombre, piezas);
   const titulo = t.seo.tituloTienda(negocio.nombre);
   return {
@@ -54,11 +54,11 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
   await connection();
   const slug = (await params).negocio;
   const supabase = createPublicClient();
-  const negocio = await obtenerNegocioPublico(supabase, slug);
+  const negocio = await negocioPublico(slug);
   if (!negocio) notFound();
   // Las variantes de un mismo producto (talla, tono) se muestran en una sola tarjeta.
   const [lista, opciones, estrellas, perfil, resenas, promociones] = await Promise.all([
-    listarProductosPublicos(supabase, slug),
+    productosPublicos(slug),
     obtenerOpcionesDeCompra(supabase, slug),
     obtenerEstrellas(supabase, slug),
     obtenerPerfil(supabase, slug),

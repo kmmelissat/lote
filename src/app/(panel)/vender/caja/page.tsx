@@ -33,8 +33,12 @@ async function Contenido() {
   if (!negocio.tieneLocal) notFound();
   if (!negocio.puedeVender) return <p className="text-texto-2">{textos.mostrador.errorPermiso}</p>;
 
-  const abierta = await cajaAbierta(supabase, negocio.id);
-  const cierres = negocio.puedeGestionar ? await ultimosCierres(supabase, negocio.id) : [];
+  const [abierta, cierres, detalle] = await Promise.all([
+    cajaAbierta(supabase, negocio.id),
+    negocio.puedeGestionar ? ultimosCierres(supabase, negocio.id) : [],
+    // Los montos solo los ve quien gestiona; si no hay caja abierta, vuelve null y no se usa.
+    negocio.puedeGestionar ? detalleDeCajaAbierta(supabase, negocio.id) : null,
+  ]);
 
   if (!abierta) {
     return (
@@ -56,7 +60,6 @@ async function Contenido() {
     );
   }
 
-  const detalle = await detalleDeCajaAbierta(supabase, negocio.id);
   if (!detalle) return null;
   const resumen = await resumenDeCaja(supabase, detalle.id);
   const cuadreInicial = cuadreDeCaja({ inicial: detalle.efectivoInicial, ventasEnEfectivo: resumen.efectivo, contado: 0 });

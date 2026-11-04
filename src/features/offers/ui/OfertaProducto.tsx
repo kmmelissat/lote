@@ -41,17 +41,20 @@ function rango(precios: Centavos[]): string {
 /**
  * Poner un producto (o todas sus variantes, con `todas`) en oferta unos días, y ver o cancelar la que ya tiene.
  * `precios` son los precios normales de lo que cubre la oferta, solo para la vista previa: la base calcula los de verdad.
+ * Con `alProgramar`, al programarla se sigue ahí en vez de quedarse en la misma pantalla.
  */
 export function OfertaProducto({
   codigo,
   todas,
   precios,
   ofertas,
+  alProgramar,
 }: {
   codigo: number;
   todas: boolean;
   precios: Centavos[];
   ofertas: OfertaProducto[];
+  alProgramar?: () => void;
 }) {
   const router = useRouter();
   const confirmar = useConfirmar();
@@ -83,6 +86,7 @@ export function OfertaProducto({
       const r = await programarOferta(codigo, todas, { tipo, texto: textoRebaja, desde, hasta });
       if (r.error) return setError(r.error);
       avisar(t.hecha, { tipo: "exito" });
+      if (alProgramar) return alProgramar();
       setValor("");
       setHasta("");
       router.refresh();

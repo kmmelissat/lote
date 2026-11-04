@@ -2,7 +2,8 @@ import { ruta } from "@/lib/ruta";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
-import { obtenerNegocioPublico, obtenerOpcionesDeCompra } from "@/features/catalog/repositorio";
+import { negocioPublico } from "@/features/catalog/publico";
+import { obtenerOpcionesDeCompra } from "@/features/catalog/repositorio";
 import { CheckoutCarrito } from "@/features/catalog/ui/CheckoutCarrito";
 import { EncabezadoCompra } from "@/features/catalog/ui/MarcoCompra";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
@@ -23,10 +24,9 @@ async function ComprarCarrito({ params }: Props) {
   await connection();
   const { negocio: slug } = await params;
   const supabase = createPublicClient();
-  const negocio = await obtenerNegocioPublico(supabase, slug);
+  const [negocio, opciones] = await Promise.all([negocioPublico(slug), obtenerOpcionesDeCompra(supabase, slug)]);
   if (!negocio) notFound();
   if (!negocio.permiteComprar) redirect(`/c/${slug}`);
-  const opciones = await obtenerOpcionesDeCompra(supabase, slug);
 
   return (
     <MarcaTienda color={negocio.color}>

@@ -57,8 +57,13 @@ export function TeDeben({ deudas }: { deudas: DeudaDeClienta[] }) {
 
 export type ProductoParadoConCodigo = ProductoParado & { codigo: number };
 
-/** Productos que no se mueven: con su foto, lo que costaron y cuántos días llevan sin venderse. */
+/**
+ * Productos que no se mueven, plegado en una sola tarjeta: arriba cuántos son y cuánto costaron; al abrirla, cada uno con
+ * su foto, lo que costó y cuántos días lleva sin venderse. `id` sirve para llegar con un enlace (`#parados`).
+ */
 export function DineroParado({
+  id,
+  abierto,
   productos,
   fotos,
   total,
@@ -67,6 +72,8 @@ export function DineroParado({
   dias,
   sinCosto,
 }: {
+  id?: string;
+  abierto?: boolean;
   productos: ProductoParadoConCodigo[];
   fotos: Record<string, string | undefined>;
   total: number;
@@ -77,18 +84,24 @@ export function DineroParado({
   sinCosto: number;
 }) {
   return (
-    <section aria-labelledby="dinero-parado" className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie">
-      <div className="border-b-2 border-teal-oscuro bg-ambar px-4 py-3 md:px-5">
-        <h2 id="dinero-parado" className="font-logo text-lg font-bold">
-          {t.paradoTitulo}
-        </h2>
-        <p className="text-sm">{t.paradoAyuda(dias)}</p>
-        {productos.length > 0 && <p className="text-sm font-bold">{t.paradoTotal(formatearDolares(total), pctDelInventario, formatearDolares(inventario))}</p>}
-      </div>
+    <details id={id} open={abierto} className="group overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-3 hover:bg-fondo md:px-5 [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-ambar">
+          <Icon nombre="reloj" className="size-5" />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <h2 className="font-bold">{t.paradoTitulo}</h2>
+          <span className="text-sm text-texto-2">{t.paradoResumen(productos.length, formatearDolares(total))}</span>
+        </span>
+        <Icon nombre="flecha" className="size-5 shrink-0 text-texto-2 transition-transform group-open:rotate-180" />
+      </summary>
+      <p className="border-t-2 border-teal-oscuro bg-perla px-4 py-2 text-sm md:px-5">
+        {t.paradoAyuda(dias)} <span className="font-bold">{t.paradoTotal(formatearDolares(total), pctDelInventario, formatearDolares(inventario))}</span>
+      </p>
       {productos.length === 0 ? (
-        <p className="px-4 py-4 text-texto-2 md:px-5">{t.paradoVacio}</p>
+        <p className="border-t border-borde px-4 py-4 text-texto-2 md:px-5">{t.paradoVacio}</p>
       ) : (
-        <ul>
+        <ul className="border-t border-borde">
           {productos.slice(0, 8).map((p) => {
             const foto = fotos[p.id];
             return (
@@ -101,7 +114,7 @@ export function DineroParado({
                   </span>
                 )}
                 <div className="min-w-0 flex-1">
-                  <Link href={`/productos/${p.codigo}`} className="block truncate font-bold after:absolute after:inset-0">
+                  <Link href={`/productos/${p.codigo}`} className="line-clamp-2 font-bold leading-tight after:absolute after:inset-0">
                     {p.nombre}
                   </Link>
                   <p className="text-sm text-texto-2">{t.paradoFila(p.disponibles, p.dias)}</p>
@@ -113,6 +126,6 @@ export function DineroParado({
         </ul>
       )}
       {sinCosto > 0 && <p className="border-t border-borde px-4 py-3 text-sm text-texto-2 md:px-5">{t.paradoSinCosto(sinCosto)}</p>}
-    </section>
+    </details>
   );
 }

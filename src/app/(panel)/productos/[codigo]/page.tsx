@@ -67,16 +67,16 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
   const general = conVariantes && !enFoco;
   const p = enFoco ?? encontrado;
   const otraVariante = variantes.find((v) => v.codigo !== p.codigo);
-  // Aparte y sin romper nada: si todavía no existe la columna, la ficha se ve igual.
-  const codigoDeBarras = !general && negocio.puedeGestionar && negocio.tieneLocal ? await codigoDeBarrasDe(supabase, p.id).catch(() => null) : null;
   // Quiénes esperan este producto (o cualquiera de sus variantes)
   const idsDelProducto = p.grupo ? variantes.map((v) => v.id) : [p.id];
   // La oferta cubre lo que se está viendo: todas las variantes en la vista general, o solo la elegida
   const idsDeOferta = general ? variantes.map((v) => v.id) : [p.id];
-  const [avisos, pedidos, ofertas] = await Promise.all([
+  const [avisos, pedidos, ofertas, codigoDeBarras] = await Promise.all([
     listarAvisosDeStock(supabase, idsDelProducto),
     pedidosDeProducto(supabase, negocio.id, idsDelProducto).catch(() => []),
     negocio.puedeGestionar ? ofertasDe(supabase, idsDeOferta) : [],
+    // Aparte y sin romper nada: si todavía no existe la columna, la ficha se ve igual.
+    !general && negocio.puedeGestionar && negocio.tieneLocal ? codigoDeBarrasDe(supabase, p.id).catch(() => null) : null,
   ]);
 
   const base = nombreBase(p.nombre, p.variante);

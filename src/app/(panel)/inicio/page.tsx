@@ -47,18 +47,19 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   const nombrePersona = claims?.claims.user_metadata?.nombre_persona;
   const persona = typeof nombrePersona === "string" ? nombrePersona.trim().split(/\s+/)[0] : "";
 
-  // La ganancia de la semana descuenta los gastos fijos que ya tocaron: se registran antes de calcularla
-  if (negocio.puedeGestionar) await aplicarGastosFijos(supabase, negocio.id, fechaLocalDe(ahora));
-
-  const [unidades, pedidos, recientes, semanas, metodos, config] = await Promise.all([
+  const [unidades, pedidos, recientes, semanas, metodos, config, pendientesResenas] = await Promise.all([
     contarUnidades(supabase, negocio.id),
     buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando"]),
     paginaDePedidos(supabase, negocio.id, 0, 5),
-    // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia.
-    negocio.puedeGestionar ? resumenPorSemana(supabase, negocio.id, ahora, SEMANAS_DEL_GRAFICO) : null,
+    // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia. La de la semana descuenta los gastos
+    // fijos que ya tocaron, así que se registran antes de calcularla (lo demás no los espera).
+    negocio.puedeGestionar
+      ? aplicarGastosFijos(supabase, negocio.id, fechaLocalDe(ahora)).then(() => resumenPorSemana(supabase, negocio.id, ahora, SEMANAS_DEL_GRAFICO))
+      : null,
     // Los primeros pasos son para quien configura el negocio.
     negocio.puedeGestionar ? listarMetodos(supabase, negocio.id) : null,
     negocio.puedeGestionar ? leerConfiguracion(supabase, negocio.id) : null,
+    negocio.puedeGestionar ? contarPendientes(supabase, negocio.id) : 0,
   ]);
 
   const encabezado = (
@@ -127,7 +128,6 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   // La semana actual es la última del gráfico: no hace falta pedirla aparte.
   const ganancia = semanas?.at(-1)?.resumen ?? null;
   const anterior = semanas?.at(-2)?.resumen.gananciaDespuesDeGastos ?? null;
-  const pendientesResenas = negocio.puedeGestionar ? await contarPendientes(supabase, negocio.id) : 0;
 
   // Sin ningún pedido todavía no hay nada que graficar ni listar: se esconde en vez de mostrar widgets vacíos.
   const sinMovimiento = recientes.length === 0;

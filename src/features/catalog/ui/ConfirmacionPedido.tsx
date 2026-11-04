@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Icon } from "@/components/ui/Icon";
 import { LotitoMas, type PoseLotito } from "@/components/ui/LotitoMas";
-import { obtenerApartadoPublico, obtenerNegocioPublico } from "../repositorio";
+import { negocioPublico } from "../publico";
+import { obtenerApartadoPublico } from "../repositorio";
 import { EscribirALaTienda } from "./EscribirALaTienda";
 import { HojaCuaderno } from "./HojaCuaderno";
 import { LimpiarCarrito } from "./LimpiarCarrito";
@@ -27,7 +28,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
   if (!esUuid(id)) notFound();
 
   const supabase = createPublicClient();
-  const [a, tienda] = await Promise.all([obtenerApartadoPublico(supabase, slug, id), obtenerNegocioPublico(supabase, slug)]);
+  const [a, tienda] = await Promise.all([obtenerApartadoPublico(supabase, slug, id), negocioPublico(slug)]);
   if (!a) notFound();
 
   const ahora = new Date();
