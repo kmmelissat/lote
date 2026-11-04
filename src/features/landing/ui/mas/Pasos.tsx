@@ -22,13 +22,13 @@ function MockPaso({ n }: { n: 0 | 1 | 2 }) {
         <Icon nombre="flecha" className="size-5 self-center text-teal-oscuro" />
         <div className="flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro bg-crema p-3">
           <Mini src="/landing/chaqueta.webp" />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate font-extrabold">{s.ficha.nombre}</span>
+          <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+            <span className="block w-full truncate font-extrabold">{s.ficha.nombre}</span>
             <span className="text-sm text-texto-2">
               {s.ficha.precio} · {s.ficha.costo}
             </span>
+            <StatusChip publico estado="disponible" />
           </span>
-          <StatusChip publico estado="disponible" />
         </div>
       </div>
     );
