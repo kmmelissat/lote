@@ -12,7 +12,8 @@
     "imagenes-mercadito": "node --env-file=.env.local scripts/imagenes-mercadito.mts",
     "imagenes-pasos": "node --env-file=.env.local scripts/imagenes-pasos.mts",
     "imagenes-landing": "node --env-file=.env.local scripts/imagenes-landing.mts",
-    "fotos-sueltas": "node --env-file=.env.local scripts/fotos-sueltas.mts"
+    "fotos-sueltas": "node --env-file=.env.local scripts/fotos-sueltas.mts",
+    "esquema": "node scripts/esquema-actual.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

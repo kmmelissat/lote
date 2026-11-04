@@ -44,6 +44,8 @@ Crear `.env.local` (no se sube a git):
 
 El SQL vive en [supabase/](supabase/) y se corre a mano en el SQL Editor de Supabase, **una sola vez cada archivo y en orden**: varias funciones se vuelven a crear en archivos posteriores y la última gana. El orden completo y cuáles ya se corrieron están en [PROGRESO.md](docs/PROGRESO.md#sql-en-supabase). `cron.sql` es opcional (vence apartados con `pg_cron`).
 
+Para ver cómo queda la base sin recorrer todos los archivos: `pnpm esquema` arma [docs/esquema_actual.sql](docs/esquema_actual.sql) con la última versión de cada tabla, función y política (solo para leer, no se corre). También avisa lo que está en la base y en ningún `.sql`.
+
 ## Verificación
 
 ```bash
