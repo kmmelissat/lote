@@ -2,55 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { estiloBoton } from "@/components/ui/Button";
-import type { ParteDelNegocio, ProductoParado } from "@/domain";
+import type { ProductoParado } from "@/domain";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 
 const t = textos.dinero.cuadre;
-
-const COLOR: Record<ParteDelNegocio["clave"], string> = {
-  efectivo: "bg-teal",
-  transferencia: "bg-celeste",
-  porCobrar: "bg-limon",
-  inventario: "bg-mango",
-};
-
-/** Lo que vale el negocio hoy: el total grande en limón sobre fondo oscuro y una barra partida por colores, con su leyenda. */
-export function ValorDelNegocio({ total, partes, sinContar }: { total: number; partes: (ParteDelNegocio & { pct: number })[]; sinContar: string[] }) {
-  return (
-    <section aria-labelledby="valor-negocio" className="flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-teal-oscuro p-5 text-white md:p-6">
-      <div>
-        <h2 id="valor-negocio" className="text-sm font-bold text-celeste">
-          {t.valorTitulo}
-        </h2>
-        <p className="font-logo text-5xl font-bold tabular-nums text-limon md:text-6xl">{formatearDolares(total)}</p>
-      </div>
-      <div
-        role="img"
-        aria-label={partes.map((p) => `${t.partes[p.clave]}: ${formatearDolares(p.monto)}`).join(". ")}
-        className="flex h-5 overflow-hidden rounded-full border-2 border-white bg-white/15"
-      >
-        {partes.filter((p) => p.monto > 0).map((p) => (
-          <span key={p.clave} className={`h-full ${COLOR[p.clave]}`} style={{ width: `${p.pct}%` }} />
-        ))}
-      </div>
-      <ul className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
-        {partes.map((p) => (
-          <li key={p.clave} className="flex items-center justify-between gap-2">
-            <span className="flex items-center gap-2">
-              <span aria-hidden="true" className={`size-3.5 rounded-full border-2 border-white ${COLOR[p.clave]}`} />
-              {t.partes[p.clave]}
-            </span>
-            <span className="font-bold tabular-nums">{formatearDolares(p.monto)}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="text-sm text-white/80">{t.valorAyuda}</p>
-      {sinContar.length > 0 && <p className="w-fit rounded-full bg-limon px-3 py-1 text-sm font-bold text-teal-oscuro">{t.sinContarAviso(sinContar.join(", "))}</p>}
-    </section>
-  );
-}
 
 export type DeudaDeClienta = { id: string; nombre: string; saldo: number; desde: string; cobro: string | null };
 

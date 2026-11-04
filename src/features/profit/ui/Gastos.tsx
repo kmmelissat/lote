@@ -1,16 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
 import { CATEGORIAS_GASTO, METODOS_DE_DINERO, type CategoriaGasto, type MetodoMovimiento } from "@/domain/index";
-import type { Gasto } from "../repositorio";
 import { soloNumero } from "@/lib/entrada";
-import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { agregarGasto, quitarGasto, type EstadoGasto } from "../actions/gastos";
+import { agregarGasto, type EstadoGasto } from "../actions/gastos";
 import { Button } from "@/components/ui/Button";
 
 const t = textos.ganancia;
@@ -207,65 +205,5 @@ export function RegistrarGasto({ hoy, guardarFijo }: { hoy: string; guardarFijo?
         </form>
       </dialog>
     </>
-  );
-}
-
-/** Cuánto se fue en cada categoría, de la que más a la que menos. */
-export function DesgloseGastos({ porCategoria }: { porCategoria: Partial<Record<CategoriaGasto, number>> }) {
-  const filas = (Object.entries(porCategoria) as [CategoriaGasto, number][]).filter(([, m]) => m > 0).sort((a, b) => b[1] - a[1]);
-  if (!filas.length) return null;
-  return (
-    <ul aria-label={t.gastosDesglose} className="flex flex-wrap gap-2">
-      {filas.map(([c, monto]) => (
-        <li key={c} className="inline-flex items-center gap-1.5 rounded-full bg-fondo px-3 py-1 text-sm">
-          <Icon nombre={ICONOS[c]} className="size-4" />
-          {t.categorias[c]}
-          <span className="font-bold tabular-nums">{formatearDolares(monto)}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-export function ListaGastos({ gastos }: { gastos: Gasto[] }) {
-  const [error, setError] = useState("");
-  const [pendiente, empezar] = useTransition();
-
-  function quitar(id: string) {
-    setError("");
-    empezar(async () => {
-      const r = await quitarGasto(id);
-      if (r.error) setError(r.error);
-    });
-  }
-
-  if (!gastos.length) return <p className="text-texto-2">{t.sinGastos}</p>;
-  return (
-    <div className="flex flex-col gap-2">
-      <ul className="flex flex-col divide-y divide-borde">
-        {gastos.map((g) => (
-          <li key={g.id} className="flex items-center gap-3 py-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro bg-mango">
-              <Icon nombre={ICONOS[g.categoria]} className="size-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-bold">{t.categorias[g.categoria]}</p>
-              <p className="truncate text-sm text-texto-2">{[g.fecha, g.metodo ? textos.dinero.metodos[g.metodo] : null, g.nota].filter(Boolean).join(" · ")}</p>
-            </div>
-            <span className="font-bold tabular-nums">{formatearDolares(g.monto)}</span>
-            <button
-              type="button"
-              disabled={pendiente}
-              onClick={() => quitar(g.id)}
-              aria-label={`${t.form.eliminar}: ${t.categorias[g.categoria]} ${formatearDolares(g.monto)}`}
-              className="flex size-9 shrink-0 items-center justify-center rounded-lg text-texto-2 hover:bg-error-fondo hover:text-error disabled:opacity-50"
-            >
-              <Icon nombre="x" className="size-4" />
-            </button>
-          </li>
-        ))}
-      </ul>
-      <MensajeError>{error}</MensajeError>
-    </div>
   );
 }

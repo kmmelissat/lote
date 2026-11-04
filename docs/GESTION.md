@@ -1,6 +1,6 @@
 # Gestión: el balance del negocio
 
-Nota de diseño de la charla del 2 nov 2026. **Gestión es la sección nueva** (`/gestion`). **Dinero (`/dinero`) se eliminó (3 nov)**: sus rutas redirigen (`/dinero` y `/dinero/resumen` a `/gestion`, `/dinero/movimientos` a `/movimientos`, `/dinero/cuadre` a `/gestion/cuadre`). [DINERO.md](DINERO.md) queda como historia de lo que había.
+Nota de diseño de la charla del 2 nov 2026. **Gestión es la sección nueva** (`/gestion`). **Dinero (`/dinero`) se eliminó (3 nov)**: sus rutas redirigen (`/dinero` y `/dinero/resumen` a `/gestion`, `/dinero/movimientos` a `/movimientos`, `/dinero/cuadre` a `/gestion/cuadre`).
 
 ## Por qué
 

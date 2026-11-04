@@ -1,6 +1,6 @@
 # Rediseño del panel: lo hecho, lo decidido y lo que sigue
 
-Nota de traspaso entre chats. **Última actualización: 31 de octubre de 2026.** Léela completa antes de tocar una pantalla del panel. Complementa a [PROGRESO.md](PROGRESO.md) (estado general), [BRANDING.md](BRANDING.md) (la marca) y [DINERO.md](DINERO.md) (la sección de dinero, que construye otro agente).
+Nota de traspaso entre chats. **Última actualización: 31 de octubre de 2026.** Léela completa antes de tocar una pantalla del panel. Complementa a [PROGRESO.md](PROGRESO.md) (estado general), [BRANDING.md](BRANDING.md) (la marca) y [GESTION.md](GESTION.md) (las finanzas del negocio).
 
 El sistema de diseño vivo está en la página `/design-system` del panel ([src/features/design-system/SistemaDeDiseno.tsx](src/features/design-system/SistemaDeDiseno.tsx)). Ahí se documentan los componentes con ejemplos que funcionan. Si cambias una regla, actualízala ahí también.
 
@@ -74,7 +74,7 @@ Para "mostrar cuántos hay de algo" usar `TarjetaDato`: contorno de 2 px, banda 
 - Pedido (detalle) y **nuevo pedido**, y el **Mostrador** y su caja.
 - Ajustes (la página principal) y las demás pestañas de ajustes (categorías ya está, falta equipo, reseñas, ayuda, exportar, vitrina).
 - Importar productos (`ImportarCsv`) y el formulario de **varias fotos** (`LoteForm`, que solo se tocó un poco).
-- Ganancia: la está reemplazando **Dinero** (otro agente, ver [DINERO.md](DINERO.md)).
+- Ganancia: la reemplazó Dinero, y Dinero se eliminó el 3 de nov. Hoy es Gestión y Movimientos (ver [GESTION.md](GESTION.md)).
 - Asistente (chat) y la burbuja de Lotito.
 - `Pestanas` de Ganancia/Clientes ya cambiaron, pero revisar que se vean bien.
 
@@ -139,4 +139,4 @@ Archivo: [NuevoProductoForm.tsx](src/features/products/ui/NuevoProductoForm.tsx)
 
 ## 9. Prototipos (artifacts)
 
-Son privados de la cuenta de la dueña; los HTML no se guardaron todos en el repo. Los que vale la pena rescatar: [docs/dinero-prototipo.html](docs/dinero-prototipo.html) (Dinero). Los de variantes, formulario y detalle del producto se pueden regenerar a partir de las capturas y de este documento.
+Son privados de la cuenta de la dueña; los HTML no se guardaron todos en el repo. Los de variantes, formulario y detalle del producto se pueden regenerar a partir de las capturas y de este documento.

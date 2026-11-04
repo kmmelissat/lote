@@ -4,7 +4,6 @@ export const migas = {
   productos: "Productos",
   pedidos: "Pedidos",
   clientes: "Clientes",
-  dinero: "Dinero",
   gestion: "Gestión",
   movimientos: "Movimientos",
   cuadre: "Cuadre",

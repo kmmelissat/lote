@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   aCentavos,
-  fechaLocalDe,
   type CategoriaGasto,
   type Centavos,
   type GastoPeriodo,
@@ -37,22 +36,6 @@ export type NuevoGasto = {
   pedidoId?: string;
   metodo?: MetodoMovimiento;
 };
-
-/** Lo que van a dejar los pedidos pendientes (apartados vigentes y contra entrega), con su costo congelado. Solo dueña y administradora. */
-export async function ventasPorEntrar(supabase: Cliente, negocioId: string): Promise<LineaVendida[]> {
-  const { data, error } = await supabase.rpc("ventas_por_cobrar", { p_negocio: negocioId });
-  if (error) throw error;
-  return data.map((v) => ({
-    pedidoId: v.pedido_id,
-    productoId: v.producto_id,
-    nombre: v.nombre,
-    cantidad: v.cantidad,
-    precioFinal: aCentavos(v.precio_final),
-    costoUnitario: v.costo_unitario === null ? null : aCentavos(v.costo_unitario),
-    descuento: aCentavos(v.descuento),
-    envioAbsorbido: aCentavos(v.envio_absorbido),
-  }));
-}
 
 /** Ventas del periodo con el costo que tenían al venderse. Solo dueña y administradora (lo exige la base). */
 export async function ventasDelPeriodo(
@@ -200,11 +183,6 @@ export async function registrarGasto(
   return error ? null : data;
 }
 
-export async function eliminarGasto(supabase: Cliente, gastoId: string): Promise<boolean> {
-  const { error } = await supabase.rpc("eliminar_gasto", { p_gasto: gastoId });
-  return !error;
-}
-
 /** Lo que debe cada cliente todavía, sumado, y cuántas clientas son. Los pedidos sin clienta cuentan en el total pero no como clienta. */
 export async function saldosPorCobrar(supabase: Cliente, negocioId: string): Promise<{ total: Centavos; clientas: number }> {
   const { data, error } = await supabase
@@ -218,20 +196,6 @@ export async function saldosPorCobrar(supabase: Cliente, negocioId: string): Pro
     total: data.reduce((suma, p) => suma + aCentavos(p.saldo), 0),
     clientas: new Set(data.map((p) => p.cliente_id).filter(Boolean)).size,
   };
-}
-
-/** La fecha local (AAAA-MM-DD) de cada pedido que cuenta como venta en el periodo, para repartir lo vendido por día. */
-export async function fechasDePedidos(supabase: Cliente, negocioId: string, periodo: Periodo): Promise<Map<string, string>> {
-  const { data, error } = await supabase
-    .from("pedido")
-    .select("id, creado_en")
-    .eq("negocio_id", negocioId)
-    .in("estado", ESTADOS_DE_VENTA)
-    .gte("creado_en", periodo.desde.toISOString())
-    .lt("creado_en", periodo.hasta.toISOString())
-    .limit(5000);
-  if (error) throw error;
-  return new Map(data.map((f) => [f.id, fechaLocalDe(new Date(f.creado_en))]));
 }
 
 /** Lo que clientas deben todavía: el saldo de los pedidos que siguen abiertos. */

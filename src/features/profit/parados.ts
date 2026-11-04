@@ -2,10 +2,34 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { DIAS_PARA_PARADO, nombreConVariante, productosParados } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
 import type { listarProductos } from "@/features/products/repositorio";
-import { actividadDeProductos } from "./cuadre";
 import type { ProductoParadoConCodigo } from "./ui/PiezasCuadre";
 
 type Lista = Awaited<ReturnType<typeof listarProductos>>;
+
+const TOPE = 5000;
+const ESTADOS_DE_VENTA = ["pagado", "preparando", "enviado", "entregado"];
+
+/** Cuándo se creó y cuándo se vendió por última vez cada producto, para saber cuáles están parados. */
+async function actividadDeProductos(supabase: SupabaseClient<Database>, negocioId: string): Promise<Map<string, { creadoEn: string; ultimaVenta: string | null }>> {
+  const [productos, ventas] = await Promise.all([
+    supabase.from("producto").select("id, creado_en").eq("negocio_id", negocioId).limit(TOPE),
+    supabase
+      .from("pedido_item")
+      .select("producto_id, pedido!inner(creado_en)")
+      .eq("pedido.negocio_id", negocioId)
+      .in("pedido.estado", ESTADOS_DE_VENTA)
+      .limit(TOPE),
+  ]);
+  if (productos.error) throw productos.error;
+  if (ventas.error) throw ventas.error;
+
+  const mapa = new Map(productos.data.map((p) => [p.id, { creadoEn: p.creado_en, ultimaVenta: null as string | null }]));
+  for (const v of ventas.data as unknown as { producto_id: string; pedido: { creado_en: string } }[]) {
+    const a = mapa.get(v.producto_id);
+    if (a && (!a.ultimaVenta || v.pedido.creado_en > a.ultimaVenta)) a.ultimaVenta = v.pedido.creado_en;
+  }
+  return mapa;
+}
 
 export type ProductosQueNoSeMueven = {
   filas: ProductoParadoConCodigo[];

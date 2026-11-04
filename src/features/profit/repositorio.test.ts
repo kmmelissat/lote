@@ -1,16 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { supabaseFalso } from "@/test/supabaseFalso";
-import { paginaDeGastos, registrarGasto, saldosPorCobrar, ventasPorEntrar } from "./repositorio";
-
-describe("ventasPorEntrar", () => {
-  it("pasa los montos a centavos y deja el costo en null si no lo hay", async () => {
-    const data = [{ pedido_id: "p1", producto_id: "x", nombre: "Blusa", cantidad: 2, precio_final: 12.5, costo_unitario: null, descuento: 1, envio_absorbido: 0.5 }];
-    const { cliente } = supabaseFalso({ rpc: { ventas_por_cobrar: { data, error: null } } });
-    expect(await ventasPorEntrar(cliente, "n1")).toEqual([
-      { pedidoId: "p1", productoId: "x", nombre: "Blusa", cantidad: 2, precioFinal: 1250, costoUnitario: null, descuento: 100, envioAbsorbido: 50 },
-    ]);
-  });
-});
+import { paginaDeGastos, registrarGasto, saldosPorCobrar } from "./repositorio";
 
 describe("paginaDeGastos", () => {
   it("un método que no es efectivo ni transferencia queda en null", async () => {

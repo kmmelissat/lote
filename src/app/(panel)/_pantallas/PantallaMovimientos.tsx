@@ -18,7 +18,7 @@ import {
 import { gastosComoSalidas, pagosDelPeriodo } from "@/features/profit/movimientos";
 import { CLAVES_PERIODO, esClavePeriodo, PERIODOS, type ClavePeriodo } from "@/features/profit/periodos";
 import { FiltroDinero } from "@/features/profit/ui/FiltroDinero";
-import { HeroMovimientos } from "@/features/profit/ui/PortadaDinero";
+import { HeroMovimientos } from "@/features/profit/ui/HeroMovimientos";
 import { RegistrarGasto } from "@/features/profit/ui/Gastos";
 import { apartesDelPeriodo } from "@/features/gestion/apartes";
 import { guardarFijo } from "@/features/gestion/actions/gastosFijos";

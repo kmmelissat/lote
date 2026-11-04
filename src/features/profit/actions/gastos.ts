@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { CATEGORIAS_GASTO, fechaLocalDe, leerDolares, METODOS_DE_DINERO, type CategoriaGasto, type MetodoMovimiento } from "@/domain/index";
-import { eliminarGasto, registrarGasto } from "../repositorio";
+import { registrarGasto } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -46,11 +46,4 @@ export async function agregarGasto(previo: EstadoGasto, datos: FormData): Promis
 
   revalidatePath("/", "layout");
   return { listo: t.listo, guardados: (previo.guardados ?? 0) + 1 };
-}
-
-export async function quitarGasto(gastoId: string): Promise<{ error?: string }> {
-  const { supabase } = await negocioActual();
-  if (!(await eliminarGasto(supabase, gastoId))) return { error: t.errorEliminar };
-  revalidatePath("/", "layout");
-  return {};
 }
