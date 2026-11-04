@@ -928,6 +928,7 @@ export type Database = {
           creado_en: string
           creado_por: string | null
           fecha: string
+          gasto_fijo_id: string | null
           id: string
           metodo: string | null
           monto: number
@@ -941,6 +942,7 @@ export type Database = {
           creado_en?: string
           creado_por?: string | null
           fecha?: string
+          gasto_fijo_id?: string | null
           id?: string
           metodo?: string | null
           monto: number
@@ -954,6 +956,7 @@ export type Database = {
           creado_en?: string
           creado_por?: string | null
           fecha?: string
+          gasto_fijo_id?: string | null
           id?: string
           metodo?: string | null
           monto?: number
@@ -963,6 +966,13 @@ export type Database = {
           recurrente?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "gasto_gasto_fijo_id_fkey"
+            columns: ["gasto_fijo_id"]
+            isOneToOne: false
+            referencedRelation: "gasto_fijo"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "gasto_negocio_id_fkey"
             columns: ["negocio_id"]
@@ -975,6 +985,56 @@ export type Database = {
             columns: ["pedido_id"]
             isOneToOne: false
             referencedRelation: "pedido"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gasto_fijo: {
+        Row: {
+          activo: boolean
+          categoria: string
+          creado_en: string
+          desde: string
+          dia_del_mes: number
+          id: string
+          metodo: string | null
+          monto: number
+          negocio_id: string
+          nombre: string
+          ultimo_mes: string | null
+        }
+        Insert: {
+          activo?: boolean
+          categoria: string
+          creado_en?: string
+          desde: string
+          dia_del_mes: number
+          id?: string
+          metodo?: string | null
+          monto: number
+          negocio_id: string
+          nombre: string
+          ultimo_mes?: string | null
+        }
+        Update: {
+          activo?: boolean
+          categoria?: string
+          creado_en?: string
+          desde?: string
+          dia_del_mes?: number
+          id?: string
+          metodo?: string | null
+          monto?: number
+          negocio_id?: string
+          nombre?: string
+          ultimo_mes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gasto_fijo_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
             referencedColumns: ["id"]
           },
         ]
@@ -1962,6 +2022,23 @@ export type Database = {
         }[]
       }
       eliminar_gasto: { Args: { p_gasto: string }; Returns: undefined }
+      guardar_gasto_fijo: {
+        Args: {
+          p_categoria: string
+          p_dia: number
+          p_hoy?: string
+          p_id: string | null
+          p_metodo?: string
+          p_monto: number
+          p_negocio: string
+          p_nombre: string
+        }
+        Returns: string
+      }
+      cambiar_gasto_fijo_activo: { Args: { p_activo: boolean; p_hoy?: string; p_id: string }; Returns: undefined }
+      eliminar_gasto_fijo: { Args: { p_id: string }; Returns: undefined }
+      aplicar_gastos_fijos: { Args: { p_hoy?: string; p_negocio: string }; Returns: number }
+      aplicar_gastos_fijos_de_todos: { Args: { p_hoy?: string }; Returns: number }
       ventas_por_cobrar: {
         Args: { p_negocio: string }
         Returns: {

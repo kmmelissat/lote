@@ -16,12 +16,19 @@ const nextConfig: NextConfig = {
       { source: "/explorar", destination: "/marketplace", permanent: true },
       { source: "/explorar/:ruta*", destination: "/marketplace/:ruta*", permanent: true },
       { source: "/ajustes/ayuda", destination: "/ayuda", permanent: true },
-      // Ganancia pasó a llamarse Dinero (con Resumen, Movimientos y Cuadre)
-      { source: "/ganancia", destination: "/dinero", permanent: true },
-      { source: "/ganancia/resumen", destination: "/dinero/resumen", permanent: true },
+      // Ganancia pasó a llamarse Dinero y después a Gestión
+      { source: "/ganancia", destination: "/gestion", permanent: true },
+      { source: "/ganancia/resumen", destination: "/gestion", permanent: true },
       // El Mostrador pasó a llamarse Vender (y ahora también sirve para apartar)
       { source: "/mostrador", destination: "/vender", permanent: true },
       { source: "/mostrador/caja", destination: "/vender/caja", permanent: true },
+      // Dinero se fue: su resumen, movimientos y cuadre viven en Gestión y en Movimientos
+      { source: "/dinero", destination: "/gestion", permanent: true },
+      { source: "/dinero/resumen", destination: "/gestion", permanent: true },
+      { source: "/dinero/movimientos", destination: "/movimientos", permanent: true },
+      { source: "/dinero/cuadre", destination: "/gestion/cuadre", permanent: true },
+      // Movimientos pasó a ser su propia página, fuera de Gestión
+      { source: "/gestion/movimientos", destination: "/movimientos", permanent: true },
     ];
   },
   images: {

@@ -38,7 +38,7 @@ export type FilaPasivo = {
   nota: string | null;
 };
 
-function Monto({ name, etiqueta, placeholder, defaultValue, requerido = true }: { name: string; etiqueta: string; placeholder?: string; defaultValue?: string; requerido?: boolean }) {
+export function Monto({ name, etiqueta, placeholder, defaultValue, requerido = true }: { name: string; etiqueta: string; placeholder?: string; defaultValue?: string; requerido?: boolean }) {
   return (
     <label className="flex flex-col gap-1.5">
       <span className="text-sm font-bold">{etiqueta}</span>
@@ -63,7 +63,7 @@ function Monto({ name, etiqueta, placeholder, defaultValue, requerido = true }: 
   );
 }
 
-const enDolares = (centavos: number | null) => (centavos === null ? undefined : aDolares(centavos).toFixed(2));
+export const enDolares = (centavos: number | null) => (centavos === null ? undefined : aDolares(centavos).toFixed(2));
 
 /** El mismo formulario para anotar una deuda y para corregirla: al corregir no se pide el tipo ni dónde entró el dinero. */
 function FormPasivo({ hoy, cerrar, pasivo }: { hoy: string; cerrar: () => void; pasivo?: FilaPasivo }) {

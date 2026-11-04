@@ -27,7 +27,7 @@ export const asistente = {
       { texto: "llegaron 10 más de los llaveros", modo: "escribir" },
       { texto: "¿Qué tengo agotado?", modo: "mandar" },
     ],
-    "/dinero": [
+    "/movimientos": [
       { texto: "¿Cuánto gané esta semana?", modo: "mandar" },
       { texto: "¿Cuánto gané este mes?", modo: "mandar" },
       { texto: "gasté $5 en bolsas", modo: "escribir" },

@@ -42,7 +42,6 @@ export function GraficoEntraSale({ dias: diarios, titulo }: { dias: DiaDeDinero[
 
       {hayDatos ? (
         <>
-          <p className="text-xs text-texto-2">{porSemana ? t.masAltaSemana(formatearDolares(maximo)) : t.masAlto(formatearDolares(maximo))}</p>
           <div className="flex h-36 items-end gap-[3px] border-b-2 border-teal-oscuro/30 md:h-44" aria-hidden="true">
             {dias.map((d) => (
               <div key={d.fecha} title={porSemana ? t.semana(diaCompleto(d.fecha), formatearDolares(d.entra), formatearDolares(d.sale)) : t.dia(diaCompleto(d.fecha), formatearDolares(d.entra), formatearDolares(d.sale))} className="flex h-full min-w-0 flex-1 items-end justify-center gap-px">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { diferenciaCobrado, fechaLocalDe, rangoPeriodo, resumenDelPeriodo, serieDiaria, unirMovimientos } from "@/domain";
+import { aplicarGastosFijos } from "@/features/gestion/gastosFijos";
 import { balanceDelNegocio } from "@/features/gestion/repositorio";
 import { GraficoEntraSale } from "@/features/gestion/ui/GraficoEntraSale";
 import { SeccionesGestion } from "@/features/gestion/ui/SeccionesGestion";
@@ -44,6 +45,8 @@ async function Contenido({ searchParams }: Pick<PageProps<"/gestion">, "searchPa
   }
 
   const ahora = new Date();
+  // Los gastos fijos que ya tocaron se registran antes de calcular la ganancia
+  await aplicarGastosFijos(supabase, negocio.id, fechaLocalDe(ahora));
   const { tipo, desplazar } = PERIODOS[clave];
   const periodo = rangoPeriodo(tipo, ahora, desplazar);
   const [ventas, gastos, anterior, pagos, salidas, { balance, datos, productos }] = await Promise.all([
@@ -155,8 +158,8 @@ async function Contenido({ searchParams }: Pick<PageProps<"/gestion">, "searchPa
         )}
 
         <section aria-label={p.datos} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <DatoSencillo color="rosa" etiqueta={p.vendido} valor={formatearDolares(r.vendido)} texto={p.pedidos(r.pedidos)} href={`/gestion/movimientos?periodo=${clave}&tipo=entrada`} />
-          <DatoSencillo color="ambar" etiqueta={p.gastos} valor={formatearDolares(r.gastos)} texto={p.categorias(categorias)} href={`/gestion/movimientos?periodo=${clave}&tipo=salida`} />
+          <DatoSencillo color="rosa" etiqueta={p.vendido} valor={formatearDolares(r.vendido)} texto={p.pedidos(r.pedidos)} href={`/movimientos?periodo=${clave}&tipo=entrada`} />
+          <DatoSencillo color="ambar" etiqueta={p.gastos} valor={formatearDolares(r.gastos)} texto={p.categorias(categorias)} href={`/movimientos?periodo=${clave}&tipo=salida`} />
           <DatoSencillo color="limon" etiqueta={p.debes} valor={formatearDolares(balance.pasivos)} texto={deudasAbiertas ? p.deudasAbiertas(deudasAbiertas) : p.sinDeudas} href="/gestion/cuadre" />
         </section>
 

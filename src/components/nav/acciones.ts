@@ -20,7 +20,7 @@ export const PANTALLAS: { href: Route; etiqueta: string; icono: NombreIcono }[] 
   { href: "/productos", etiqueta: textos.nav.productos, icono: "productos" },
   { href: "/pedidos", etiqueta: textos.nav.pedidos, icono: "pedidos" },
   { href: "/clientes", etiqueta: textos.nav.clientes, icono: "clientes" },
-  { href: "/dinero", etiqueta: textos.nav.dinero, icono: "moneda" },
+  { href: "/movimientos", etiqueta: textos.nav.movimientos, icono: "billetera" },
   { href: "/gestion", etiqueta: textos.nav.gestion, icono: "balanza" },
   { href: "/asistente", etiqueta: textos.nav.asistente, icono: "chat" },
   { href: textos.ayuda.ruta, etiqueta: textos.nav.ayuda, icono: "info" },

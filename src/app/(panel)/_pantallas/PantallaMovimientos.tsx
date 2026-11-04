@@ -11,6 +11,7 @@ import {
   type FiltroMovimientos,
   rangoPeriodo,
   serieDiaria,
+  proximoPago,
   resumirMovimientos,
   unirMovimientos,
 } from "@/domain";
@@ -20,11 +21,13 @@ import { FiltroDinero } from "@/features/profit/ui/FiltroDinero";
 import { HeroMovimientos } from "@/features/profit/ui/PortadaDinero";
 import { RegistrarGasto } from "@/features/profit/ui/Gastos";
 import { apartesDelPeriodo } from "@/features/gestion/apartes";
+import { guardarFijo } from "@/features/gestion/actions/gastosFijos";
+import { aplicarGastosFijos, listarGastosFijos } from "@/features/gestion/gastosFijos";
 import { GraficoEntraSale } from "@/features/gestion/ui/GraficoEntraSale";
-import { SeccionesGestion } from "@/features/gestion/ui/SeccionesGestion";
-import { SeccionesDinero } from "@/features/profit/ui/SeccionesDinero";
+import { SeccionGastosFijos } from "@/features/gestion/ui/GastosFijos";
 import { ListaMovimientos } from "@/features/profit/ui/ListaMovimientos";
 import { negocioActual } from "@/lib/negocio";
+import { formatearFecha } from "@/lib/formato";
 import { conBusqueda } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 
@@ -38,19 +41,13 @@ type Metodo = (typeof METODOS)[number];
 const uno = (v: string | string[] | undefined) => (typeof v === "string" ? v : "");
 
 /**
- * La lista de movimientos (pagos que entraron y gastos que salieron) con sus filtros. La comparten Dinero y Gestión:
- * `seccion` decide las pestañas, los enlaces y los títulos. Gestión suma además los préstamos, pagos de deudas,
- * mercadería y ajustes de saldo, que se ven en la lista pero no cuentan como ingreso ni gasto.
+ * La página de Movimientos: los pagos que entraron y los gastos que salieron, con sus filtros, el gráfico y los gastos fijos.
+ * Suma además los préstamos, pagos de deudas, mercadería y ajustes de saldo, que se ven en la lista pero no cuentan como
+ * ingreso ni gasto.
  */
-export async function PantallaMovimientos({
-  searchParams,
-  seccion,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-  seccion: "dinero" | "gestion";
-}) {
-  const t = seccion === "gestion" ? { ...textos.dinero, titulo: textos.gestion.titulo, descripcion: textos.gestion.descripciones.movimientos } : textos.dinero;
-  const ruta = seccion === "gestion" ? "/gestion/movimientos" : "/dinero/movimientos";
+export async function PantallaMovimientos({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const t = { ...textos.dinero, titulo: textos.gestion.movimientos, descripcion: textos.gestion.descripciones.movimientos };
+  const ruta = "/movimientos";
   const params = await searchParams;
   const clave: ClavePeriodo = esClavePeriodo(uno(params.periodo)) ? (uno(params.periodo) as ClavePeriodo) : "mes";
   const tipo: Tipo = TIPOS.includes(uno(params.tipo) as Tipo) ? (uno(params.tipo) as Tipo) : "todos";
@@ -70,11 +67,19 @@ export async function PantallaMovimientos({
 
   const { tipo: tipoPeriodo, desplazar } = PERIODOS[clave];
   const periodo = rangoPeriodo(tipoPeriodo, new Date(), desplazar);
-  const [pagos, gastos, apartes] = await Promise.all([
+  // Antes de leer los gastos: los fijos que ya tocaron se registran para que cuenten
+  await aplicarGastosFijos(supabase, negocio.id, fechaLocalDe(new Date()));
+  const [pagos, gastos, apartes, fijos] = await Promise.all([
     pagosDelPeriodo(supabase, negocio.id, periodo),
     gastosComoSalidas(supabase, negocio.id, periodo),
-    seccion === "gestion" ? apartesDelPeriodo(supabase, negocio.id, periodo) : [],
+    apartesDelPeriodo(supabase, negocio.id, periodo),
+    listarGastosFijos(supabase, negocio.id),
   ]);
+  // El próximo cobro cuenta desde mañana: el de hoy, si tocaba, ya se registró
+  const manana = new Date();
+  manana.setDate(manana.getDate() + 1);
+  const filasFijas = fijos.map((f) => ({ ...f, proximo: formatearFecha(new Date(`${proximoPago(f.dia, manana)}T12:00:00`)) }));
+  const totalFijos = fijos.filter((f) => f.activo).reduce((suma, f) => suma + f.monto, 0);
 
   const filtro: FiltroMovimientos = {
     tipo: tipo === "todos" ? undefined : tipo,
@@ -106,64 +111,70 @@ export async function PantallaMovimientos({
   );
   const hayFiltros = tipo !== "todos" || metodo !== "todos" || q !== "";
 
+  // Los filtros de tipo, método y búsqueda. En Movimientos van en la misma barra que el periodo (`contents`: sus campos se acomodan en esa fila)
+  const formulario = (clase: string) => (
+    <Form action={ruta} className={clase}>
+      <input type="hidden" name="periodo" value={clave} />
+      <input type="hidden" name="tipo" value={tipo} />
+      <input type="hidden" name="metodo" value={metodo} />
+      <CampoBusqueda name="q" defaultValue={q} key={q} className="min-w-48 flex-1 md:max-w-md" aria-label={t.buscar.etiqueta} placeholder={t.buscar.placeholder} />
+      <FiltroDinero
+        etiqueta={t.tipos.etiqueta}
+        valor={tipo}
+        className="w-[calc(50%-0.25rem)] sm:w-40"
+        opciones={TIPOS.map((v) => ({ valor: v, etiqueta: t.tipos[v], href: enlace({ tipo: v, pagina: 1 }) }))}
+      />
+      <FiltroDinero
+        etiqueta={t.metodos.etiqueta}
+        valor={metodo}
+        className="w-[calc(50%-0.25rem)] sm:w-44"
+        opciones={METODOS.map((v) => ({ valor: v, etiqueta: t.metodos[v], href: enlace({ metodo: v, pagina: 1 }) }))}
+      />
+      {q && (
+        <ButtonLink href={enlace({ sinQ: true })} variante="suave" icono="x">
+          {t.buscar.quitar}
+        </ButtonLink>
+      )}
+    </Form>
+  );
+
   return (
     <>
       <PageHeader
         titulo={t.titulo}
         descripcion={t.descripcion}
-        accion={<RegistrarGasto hoy={fechaLocalDe(new Date())} />}
+        accion={<RegistrarGasto hoy={fechaLocalDe(new Date())} guardarFijo={guardarFijo} />}
       />
       <div className="flex flex-col gap-4">
-        {seccion === "gestion" ? <SeccionesGestion activa="movimientos" filtro={filtroPeriodo} /> : <SeccionesDinero activa="movimientos" periodo={clave} filtro={filtroPeriodo} />}
+        {/* Los filtros mandan sobre todo lo de abajo: los totales, el gráfico y la lista */}
+        <div className="flex flex-wrap items-center gap-2">
+          {filtroPeriodo}
+          {formulario("contents")}
+        </div>
 
         {visibles.length > 0 && <HeroMovimientos
             entradas={totales.entradas}
             salidas={totales.salidas}
             neto={totales.neto}
             cantidad={totales.cantidad}
-            {...(seccion === "gestion" ? { titulo: textos.gestion.neto.titulo, ayuda: textos.gestion.neto.ayuda } : {})}
+            titulo={textos.gestion.neto.titulo}
+            ayuda={textos.gestion.neto.ayuda}
           />}
 
-        {seccion === "gestion" && visibles.length > 0 && (
-          <GraficoEntraSale titulo={textos.gestion.grafico.titulo} dias={serieDiaria(visibles, periodo.desdeFecha, periodo.hastaFecha)} />
-        )}
+        {visibles.length > 0 && <GraficoEntraSale titulo={textos.gestion.grafico.titulo} dias={serieDiaria(visibles, periodo.desdeFecha, periodo.hastaFecha)} />}
 
-        <Form action={ruta} className="flex flex-wrap items-center gap-2">
-          <input type="hidden" name="periodo" value={clave} />
-          <input type="hidden" name="tipo" value={tipo} />
-          <input type="hidden" name="metodo" value={metodo} />
-          <CampoBusqueda name="q" defaultValue={q} key={q} className="min-w-48 flex-1 md:max-w-md" aria-label={t.buscar.etiqueta} placeholder={t.buscar.placeholder} />
-          <FiltroDinero
-            etiqueta={t.tipos.etiqueta}
-            valor={tipo}
-            className="w-[calc(50%-0.25rem)] sm:w-40"
-            opciones={TIPOS.map((v) => ({ valor: v, etiqueta: t.tipos[v], href: enlace({ tipo: v, pagina: 1 }) }))}
-          />
-          <FiltroDinero
-            etiqueta={t.metodos.etiqueta}
-            valor={metodo}
-            className="w-[calc(50%-0.25rem)] sm:w-44"
-            opciones={METODOS.map((v) => ({ valor: v, etiqueta: t.metodos[v], href: enlace({ metodo: v, pagina: 1 }) }))}
-          />
-          {q && (
-            <ButtonLink href={enlace({ sinQ: true })} variante="suave" icono="x">
-              {t.buscar.quitar}
-            </ButtonLink>
-          )}
-        </Form>
+        <SeccionGastosFijos fijos={filasFijas} totalMensual={totalFijos} />
 
         <Aviso>{t.diferenciaAyuda}</Aviso>
-        {seccion === "gestion" && (
-          <details className="rounded-[14px] bg-fondo px-4 text-sm">
-            <summary className="flex min-h-11 cursor-pointer items-center font-bold">{textos.gestion.libro.aparteResumen}</summary>
-            <p className="pb-3 text-texto-2">{textos.gestion.libro.aparteAyuda}</p>
-          </details>
-        )}
+        <details className="rounded-[14px] bg-fondo px-4 text-sm">
+          <summary className="flex min-h-11 cursor-pointer items-center font-bold">{textos.gestion.libro.aparteResumen}</summary>
+          <p className="pb-3 text-texto-2">{textos.gestion.libro.aparteAyuda}</p>
+        </details>
 
         {!pagina_.length ? (
           <EmptyState monito="asoma" texto={q ? t.buscar.sinResultados(q) : hayFiltros ? t.vacioFiltro : t.vacio} />
         ) : (
-          <ListaMovimientos movimientos={pagina_} hoy={fechaLocalDe(new Date())} conFecha={seccion === "gestion"} />
+          <ListaMovimientos movimientos={pagina_} hoy={fechaLocalDe(new Date())} conFecha />
         )}
 
         {(pagina > 1 || hayMas) && (

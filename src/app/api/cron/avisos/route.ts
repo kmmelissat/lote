@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { fechaLocalDe } from "@/domain";
 import { canalWhatsApp } from "@/features/whatsapp";
 import { correrTareaDeAvisos } from "@/features/whatsapp/tarea";
 import { borrarRutas, encontrarSueltas } from "@/lib/fotosSueltas";
@@ -26,6 +27,8 @@ export async function GET(request: Request) {
     });
     // Las ofertas con fechas también se ponen al día acá (Vercel Hobby solo deja una tarea al día)
     const { data: ofertas } = await supabase.rpc("sincronizar_ofertas");
+    // Los gastos fijos que tocaron hoy, para que la ganancia y los avisos semanales los cuenten aunque nadie abra la app
+    const { data: gastosFijos } = await supabase.rpc("aplicar_gastos_fijos_de_todos", { p_hoy: fechaLocalDe(new Date()) });
     // Y las fotos que ya nadie usa (subidas que nunca se guardaron, importaciones deshechas); lo de más de 24 h
     const fotosBorradas = await encontrarSueltas(supabase)
       .then(({ sueltas }) => borrarRutas(supabase, sueltas.map((a) => a.ruta)))
@@ -33,7 +36,7 @@ export async function GET(request: Request) {
         console.error("cron/avisos: no se pudieron borrar las fotos sueltas", error);
         return 0;
       });
-    return Response.json({ ...resumen, ofertas: ofertas ?? 0, fotosBorradas });
+    return Response.json({ ...resumen, ofertas: ofertas ?? 0, gastosFijos: gastosFijos ?? 0, fotosBorradas });
   } catch (error) {
     console.error("cron/avisos: falló la tarea", error);
     return Response.json({ error: "No se pudo procesar la cola" }, { status: 500 });

@@ -29,7 +29,7 @@ export const pestanas: Pestana[] = [
   { href: "/productos", etiqueta: t.productos, icono: "productos" },
   { href: "/pedidos", etiqueta: t.pedidos, icono: "pedidos" },
   { href: "/clientes", etiqueta: t.clientes, icono: "clientes" },
-  { href: "/dinero", etiqueta: t.dinero, icono: "moneda" },
+  { href: "/movimientos", etiqueta: t.movimientos, icono: "billetera" },
   { href: "/gestion", etiqueta: t.gestion, icono: "balanza" },
   { href: "/asistente", etiqueta: t.asistente, icono: "chat" },
 ];
@@ -42,7 +42,7 @@ export const ajustesEscritorio: Pestana[] = [
 /** Las secciones del menú de escritorio, por grupos. Lo externo (Marketplace, vitrina) va al final de "Tu negocio". */
 export const gruposMenu: { titulo: string; rutas: Route[] }[] = [
   { titulo: t.grupos.vender, rutas: ["/inicio", "/vender", "/productos", "/pedidos", "/clientes"] },
-  { titulo: t.grupos.dinero, rutas: ["/dinero", "/gestion"] },
+  { titulo: t.grupos.dinero, rutas: ["/movimientos", "/gestion"] },
   { titulo: t.grupos.negocio, rutas: ["/asistente", "/ajustes/tienda"] },
 ];
 
@@ -53,7 +53,7 @@ export const FONDO_SECCION: Record<string, string> = {
   "/productos": "bg-rosa",
   "/pedidos": "bg-celeste",
   "/clientes": "bg-menta",
-  "/dinero": "bg-coral",
+  "/movimientos": "bg-ambar",
   "/gestion": "bg-lila",
   "/asistente": "bg-turquesa",
   "/ajustes/tienda": "bg-pervinca",
@@ -71,7 +71,7 @@ export const PINTA_HOVER_SECCION: Record<string, string> = {
   "/productos": "hover:bg-[color-mix(in_srgb,var(--color-rosa)_50%,white)]",
   "/pedidos": "hover:bg-[color-mix(in_srgb,var(--color-celeste)_50%,white)]",
   "/clientes": "hover:bg-[color-mix(in_srgb,var(--color-menta)_50%,white)]",
-  "/dinero": "hover:bg-[color-mix(in_srgb,var(--color-coral)_50%,white)]",
+  "/movimientos": "hover:bg-[color-mix(in_srgb,var(--color-ambar)_50%,white)]",
   "/gestion": "hover:bg-[color-mix(in_srgb,var(--color-lila)_50%,white)]",
   "/asistente": "hover:bg-[color-mix(in_srgb,var(--color-turquesa)_50%,white)]",
   "/ajustes/tienda": "hover:bg-[color-mix(in_srgb,var(--color-pervinca)_50%,white)]",

@@ -22,6 +22,8 @@ import { buscarPedidos, paginaDePedidos } from "@/features/orders/repositorio";
 import { listarMetodos } from "@/features/payments/repositorio";
 import { contarUnidades } from "@/features/products/repositorio";
 import { resumenPorSemana } from "@/features/profit/repositorio";
+import { fechaLocalDe } from "@/domain";
+import { aplicarGastosFijos } from "@/features/gestion/gastosFijos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 
@@ -44,6 +46,9 @@ async function Contenido({ bienvenida }: { bienvenida: boolean }) {
   const { data: claims } = bienvenida ? await supabase.auth.getClaims() : { data: null };
   const nombrePersona = claims?.claims.user_metadata?.nombre_persona;
   const persona = typeof nombrePersona === "string" ? nombrePersona.trim().split(/\s+/)[0] : "";
+
+  // La ganancia de la semana descuenta los gastos fijos que ya tocaron: se registran antes de calcularla
+  if (negocio.puedeGestionar) await aplicarGastosFijos(supabase, negocio.id, fechaLocalDe(ahora));
 
   const [unidades, pedidos, recientes, semanas, metodos, config] = await Promise.all([
     contarUnidades(supabase, negocio.id),

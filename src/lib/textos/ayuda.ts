@@ -12,7 +12,7 @@ export const ayuda = {
     { id: "productos", titulo: "Tus productos", temas: ["producto_nuevo", "importar", "variantes", "categorias", "lotito_foto"] },
     { id: "ventas", titulo: "Cobrar y enviar", temas: ["apartado_vitrina", "cobrar", "pagar_pedido", "datos_de_pago", "envios_config", "seguimiento"] },
     { id: "vitrina", titulo: "Tu tienda en línea", temas: ["vitrina", "explorar"] },
-    { id: "negocio", titulo: "Tu negocio", temas: ["ganancia", "balance", "saldo_inicial", "deuda", "cuota_deuda", "actividad", "permisos", "equipo", "exportar"] },
+    { id: "negocio", titulo: "Tu negocio", temas: ["ganancia", "balance", "saldo_inicial", "deuda", "cuota_deuda", "gastos_fijos", "actividad", "permisos", "equipo", "exportar"] },
     { id: "lotito", titulo: "Hablar con Lotito", temas: ["asistente", "deshacer"] },
   ],
   cierreTitulo: "¿No encontrás lo que buscás?",
@@ -58,16 +58,16 @@ export const ayuda = {
     },
     {
       id: "ganancia",
-      enlace: { href: "/dinero", etiqueta: "Ver Dinero" },
-      donde: ["/dinero"],
+      enlace: { href: "/gestion", etiqueta: "Ver Gestión" },
+      donde: ["/gestion", "/movimientos"],
       pregunta: "¿Cómo sé cuánto gané?",
       respuesta:
-        "En Dinero ves dos números: la ganancia de tus productos y la ganancia después de gastos. Si a algún producto le falta el costo, la ganancia aparece como estimada. Solo la ven quien es titular y quien administra.",
+        "En Gestión, en el Resumen, ves cuánto ganaste en el periodo: lo vendido menos lo que costaron los productos y menos tus gastos. Si a algún producto le falta el costo, la ganancia aparece como estimada. Solo la ven quien es titular y quien administra.",
     },
     {
       id: "balance",
       enlace: { href: "/gestion/cuadre", etiqueta: "Ver el Balance" },
-      donde: ["/gestion", "/dinero"],
+      donde: ["/gestion"],
       pregunta: "¿Qué es el Balance y cuánto vale mi negocio?",
       respuesta:
         "El Balance es lo que tenés y lo que debés: suma lo que tenés (efectivo, cuenta digital, lo que te deben y tu mercadería a lo que te costó) y le resta lo que debés. Lo que queda es lo que es tuyo hoy. Un préstamo sube lo que tenés y también lo que debés, así que no cambia lo que es tuyo. Lo que es tuyo sube cuando vendés con ganancia y baja cuando gastás. Lo ven quien es titular y quien administra.",
@@ -95,6 +95,14 @@ export const ayuda = {
       pregunta: "¿Cómo guardo la cuota de una deuda que pago cada mes?",
       respuesta:
         "Al anotar la deuda, o con Editar si ya la tenés, completá la cuota: cuánto pagás cada vez, cuántas cuotas son y qué día del mes toca. Lote te muestra cuántas cuotas faltan y cuándo toca pagar, y al abonar ya te pone el monto de la cuota. Podés cambiarla cuando quieras.",
+    },
+    {
+      id: "gastos_fijos",
+      enlace: { href: "/movimientos", etiqueta: "Ver mis gastos fijos" },
+      donde: ["/movimientos"],
+      pregunta: "¿Cómo anoto un gasto que pago todos los meses, como el alquiler?",
+      respuesta:
+        "En Movimientos, tocá Registrar gasto, elegí «Cada mes» en «¿Cuándo?», y escribí qué es, cuánto cuesta, la categoría y qué día del mes se paga. Desde ahí Lote lo registra solo cada mes, y tu ganancia ya lo descuenta. Cuenta desde hoy: si este mes ya lo pagaste, anotalo aparte como un gasto normal. Si un mes es más corto, se registra el último día. Podés editar el monto, pausarlo o quitarlo; lo que ya se registró se queda.",
     },
     {
       id: "actividad",

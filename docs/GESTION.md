@@ -1,6 +1,6 @@
 # Gestión: el balance del negocio
 
-Nota de diseño de la charla del 2 nov 2026. **Gestión es la sección nueva** (`/gestion`). **Dinero (`/dinero`) queda como está, congelado**, mientras se hace bien Gestión. Ver [DINERO.md](DINERO.md) para lo que ya hay allá.
+Nota de diseño de la charla del 2 nov 2026. **Gestión es la sección nueva** (`/gestion`). **Dinero (`/dinero`) se eliminó (3 nov)**: sus rutas redirigen (`/dinero` y `/dinero/resumen` a `/gestion`, `/dinero/movimientos` a `/movimientos`, `/dinero/cuadre` a `/gestion/cuadre`). [DINERO.md](DINERO.md) queda como historia de lo que había.
 
 ## Por qué
 
@@ -102,3 +102,22 @@ Ver la lista de abajo; se va marcando.
 - **Crear negocio en escritorio (2 nov):** el diseño del cuaderno se queda igual; solo se reorganiza el espacio. Desde pantallas anchas (`lg`) la hoja se ensancha y se reparte en dos columnas: a la izquierda la pregunta, su ayuda y Lotito con su nota; a la derecha lo que se responde y los botones. En celular y tableta sigue una sola columna, con Lotito debajo.
 - **De qué es el negocio, como lista desplegable (2 nov):** en la hoja 2 los 16 rubros ya no salen como chips: es una lista desplegable con un solo rubro (el que más se parece, opcional). Las categorías iniciales salen de ese rubro.
 - **Páginas del cliente (2 nov):** la confirmación ahora vive en `/c/<tienda>/pedido/<id>` (la dirección vieja `/apartado/` redirige) y cuenta la etapa real del pedido (pago confirmado, preparando, en camino, entregado) con un botón al seguimiento. Las dos páginas, el seguimiento `/p/<id>` y el detalle, son una hoja de cuaderno en los colores de la tienda ([HojaCuaderno.tsx](src/features/catalog/ui/HojaCuaderno.tsx)), con la compra como un ticket pegado ([TicketPedido.tsx](src/features/catalog/ui/TicketPedido.tsx): productos, envío, total y cómo paga; la dirección solo en el detalle) y un botón para escribirle a la tienda por WhatsApp ([EscribirALaTienda.tsx](src/features/catalog/ui/EscribirALaTienda.tsx)); si la tienda no tiene WhatsApp, el botón no sale.
+
+## Gastos fijos recurrentes (3 nov)
+
+Lo que se paga cada mes (alquiler, internet, plan de la tienda) se anota **una vez** y se registra solo.
+
+- **Dónde:** se anotan en Movimientos → Registrar gasto → «Cada mes» (en «¿Cuándo?»). La tarjeta «Gastos fijos» solo aparece cuando hay alguno; ahí se editan, pausan o quitan. Muestra lo que suman al mes y el próximo cobro de cada uno.
+- **Cómo funciona:** `gasto_fijo` es la plantilla (nombre, categoría, monto, método, día del mes). Cada mes que pasa, `aplicar_gastos_fijos` crea el gasto de verdad (`recurrente = true`, con `gasto_fijo_id`), así que la ganancia, los movimientos y los saldos lo cuentan como cualquier otro.
+- **Cuándo se registra:** al abrir Inicio, Gestión o Movimientos (dueña y administradora) y en la tarea diaria de Vercel (`/api/cron/avisos`), para todos los negocios. Lo que no se registró a tiempo se registra después con su fecha correcta.
+- **Reglas:** nunca repite un mes (la plantilla guarda hasta qué mes registró y hay un índice único por plantilla y fecha); un día 31 en un mes corto cae el último día; cuenta **desde el día en que se crea o se reanuda** (no inventa meses atrás); si se quita un gasto ya registrado no vuelve; si se quita la plantilla, lo ya registrado se queda; un cambio de monto vale desde el próximo mes que se registre.
+- **Sin SQL todavía:** la pantalla no se rompe: la lista sale vacía y no se registra nada. SQL: [supabase/gastos_fijos.sql](../supabase/gastos_fijos.sql) (después de `gasto_metodo.sql`).
+- **Lo que sigue:** con los gastos fijos conocidos, el punto de equilibrio y la meta del mes se pueden calcular de antemano.
+
+## Movimientos, su propia página (3 nov)
+
+Movimientos dejó de ser una pestaña de Gestión: ahora es `/movimientos`, con su entrada en el menú (grupo Finanzas, entre Dinero y Gestión). Gestión queda con dos pestañas: Resumen y Balance. `/gestion/movimientos` redirige a `/movimientos`.
+
+- Los filtros (periodo, tipo, método y búsqueda) van juntos arriba y mandan sobre todo lo de abajo: los totales, el gráfico y la lista.
+- El gráfico ya no escribe la frase del día o la semana más alta.
+- Dinero ya no existe (ver arriba): la página de Movimientos solo sirve a `/movimientos`.
