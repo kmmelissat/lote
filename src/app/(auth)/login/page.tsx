@@ -29,6 +29,10 @@ export default function LoginPage() {
         {textos.acceso.privacidad}{" "}
         <Link href="/privacidad" className="text-teal underline">
           {textos.acceso.privacidadEnlace}
+        </Link>{" "}
+        {textos.acceso.y}{" "}
+        <Link href="/terminos" className="text-teal underline">
+          {textos.acceso.terminosEnlace}
         </Link>
         .
       </p>

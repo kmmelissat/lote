@@ -301,6 +301,7 @@ export const landing = {
   pie: {
     proyecto: "Proyecto del curso Diseño de Productos y Servicios · ESEN",
     privacidad: "Aviso de privacidad",
+    terminos: "Términos de uso",
     gorila: "Hasta la próxima.",
   },
 } as const;

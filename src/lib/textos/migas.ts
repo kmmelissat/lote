@@ -35,6 +35,7 @@ export const migas = {
   comprar: "Comprar",
   apartado: "Apartado",
   privacidad: "Privacidad",
+  terminos: "Términos",
   admin: "Admin",
   invitacion: "Invitación",
 } as Record<string, string>;

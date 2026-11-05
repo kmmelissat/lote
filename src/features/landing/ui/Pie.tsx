@@ -27,6 +27,9 @@ export function Pie() {
             <Link href="/privacidad" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">
               {t.pie.privacidad}
             </Link>
+            <Link href="/terminos" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">
+              {t.pie.terminos}
+            </Link>
             <Link href="/login" className="inline-flex min-h-11 items-center hover:text-teal hover:underline">
               {t.entrar}
             </Link>

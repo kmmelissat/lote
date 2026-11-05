@@ -127,7 +127,7 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 
 ## Landing, ayuda y marca
 - ✅ Landing en `/` con SEO completo, y un centro de ayuda en `/ayuda`.
-- ✅ Aviso de privacidad, login con Google o correo, y páginas de error con el monito.
+- ✅ Aviso de privacidad y términos de uso (`/terminos`), login con Google o correo, y páginas de error con el monito.
 - ✅ Una marca propia (colores, formas, monitos y voz) en [BRANDING.md](BRANDING.md), aplicada también al panel.
 
 ## Seguridad y calidad
@@ -194,7 +194,7 @@ Cada sección, sus rutas y dónde está su código (en `src/features/` salvo que
 | Marketplace | `/marketplace`, `/marketplace/categoria/<nombre>` (`/calle` y `/mercadito` eran prototipos y redirigen) | `catalog` |
 | Admin | `/admin` | `admin` |
 | Entrar y empezar | `/login`, `/crear-negocio`, `/invitacion/<token>`, `/auth/callback` | `auth`, `team` |
-| Landing y ayuda | `/`, `/ayuda`, `/privacidad` | `landing`, `ayuda` |
+| Landing y ayuda | `/`, `/ayuda`, `/privacidad`, `/terminos` | `landing`, `ayuda` |
 | Avisos por WhatsApp | `/api/cron/avisos` (tarea diaria de Vercel; también registra los gastos fijos) | `whatsapp` |
 | Sistema de diseño | `/design-system` | `design-system` |
 

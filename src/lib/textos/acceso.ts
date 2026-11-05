@@ -29,4 +29,6 @@ export const acceso = {
   explorar: "¿Solo querés mirar? Entrá al Marketplace",
   privacidad: "Al entrar aceptás el",
   privacidadEnlace: "aviso de privacidad",
+  terminosEnlace: "términos de uso",
+  y: "y los",
 } as const;

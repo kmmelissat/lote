@@ -14,6 +14,7 @@ import { asistente } from "./asistente";
 import { avisos } from "./avisos";
 import { vitrina } from "./vitrina";
 import { privacidad } from "./privacidad";
+import { terminos } from "./terminos";
 import { equipo } from "./equipo";
 import { invitacion } from "./invitacion";
 import { ayuda } from "./ayuda";
@@ -55,6 +56,7 @@ export const textos = {
   avisos,
   vitrina,
   privacidad,
+  terminos,
   equipo,
   invitacion,
   ayuda,

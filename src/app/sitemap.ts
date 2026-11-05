@@ -16,6 +16,7 @@ const fijas: MetadataRoute.Sitemap = [
   { url: urlSitio, changeFrequency: "monthly", priority: 1 },
   { url: `${urlSitio}/marketplace`, changeFrequency: "daily", priority: 0.8 },
   { url: `${urlSitio}/privacidad`, changeFrequency: "yearly", priority: 0.3 },
+  { url: `${urlSitio}/terminos`, changeFrequency: "yearly", priority: 0.3 },
   { url: `${urlSitio}/ayuda`, changeFrequency: "monthly", priority: 0.4 },
 ];
 
