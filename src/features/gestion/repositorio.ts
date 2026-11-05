@@ -4,24 +4,60 @@ import {
   type Abono,
   type Balance,
   balanceGeneral,
+  type Cuenta,
   pasivosPorTipo,
   type Centavos,
   type LugarDeDinero,
   LUGARES_DE_DINERO,
-  type MovimientoDeLugar,
+  type MovimientoDeCuenta,
   type Pasivo,
-  saldoDeLugar,
+  saldoDeCuenta,
   type TipoPasivo,
 } from "@/domain";
 import { listarProductos } from "@/features/products/repositorio";
 import { saldosPorCobrar } from "@/features/profit/repositorio";
 import type { Database } from "@/lib/supabase/database.types";
+import { textos } from "@/lib/textos";
 
 type Cliente = SupabaseClient<Database>;
 const TOPE = 5000;
 // Contra entrega se cobra en mano: cuenta como efectivo.
-const lugarDe = (m: string): LugarDeDinero | null =>
-  m === "contra_entrega" ? "efectivo" : (LUGARES_DE_DINERO as readonly string[]).includes(m) ? (m as LugarDeDinero) : null;
+const lugarDe = (m: string | null | undefined): LugarDeDinero | null =>
+  m === "contra_entrega" ? "efectivo" : (LUGARES_DE_DINERO as readonly string[]).includes(m ?? "") ? (m as LugarDeDinero) : null;
+
+/**
+ * Las dos cuentas de siempre mientras no se corra cuentas.sql: su id es el lugar, así lo que llegue sin cuenta cae en ellas
+ * y los formularios siguen mandando "efectivo" o "transferencia".
+ */
+const CUENTAS_DE_SIEMPRE: Cuenta[] = LUGARES_DE_DINERO.map((l) => ({
+  id: l,
+  nombre: textos.gestion.lugares[l],
+  tipo: l,
+  principal: true,
+  archivada: false,
+}));
+
+/** Una cuenta de las de siempre (antes de cuentas.sql): no tiene fila propia en la base */
+export const esCuentaDeSiempre = (c: Pick<Cuenta, "id">) => (LUGARES_DE_DINERO as readonly string[]).includes(c.id);
+
+/** Las cuentas del negocio, las principales primero y después en el orden en que se crearon. Incluye las archivadas. */
+export async function cuentasDelNegocio(supabase: Cliente, negocioId: string): Promise<Cuenta[]> {
+  const { data, error } = await supabase
+    .from("cuenta")
+    .select("id, nombre, tipo, principal, archivada, creado_en")
+    .eq("negocio_id", negocioId)
+    .order("creado_en")
+    .limit(200);
+  // Sin cuentas.sql la tabla no existe: el dinero sigue en los dos lugares de siempre
+  if (error || !data?.length) return CUENTAS_DE_SIEMPRE;
+  const cuentas = data.map((c) => ({ id: c.id, nombre: c.nombre, tipo: c.tipo as LugarDeDinero, principal: c.principal, archivada: c.archivada }));
+  return [...cuentas.filter((c) => c.principal), ...cuentas.filter((c) => !c.principal)];
+}
+
+export type CuentaConSaldo = Cuenta & {
+  /** null mientras no tenga saldo inicial: sin él no se puede saber cuánto hay */
+  saldo: Centavos | null;
+};
 
 export type PasivoConSaldo = Pasivo & {
   fechaLimite: string | null;
@@ -37,15 +73,21 @@ export type PasivoConSaldo = Pasivo & {
 /** Lo que la persona puede decir de la cuota de una deuda */
 export type CuotaDePasivo = { cuota?: Centavos; cuotas?: number; diaPago?: number };
 
-export type CompraMercaderia = { id: string; lugar: LugarDeDinero; monto: Centavos; nota: string | null; creadoEn: string };
+export type CompraMercaderia = { id: string; lugar: LugarDeDinero; cuenta: string; monto: Centavos; nota: string | null; creadoEn: string };
 
-export type AjusteRegistrado = { id: string; lugar: LugarDeDinero; monto: Centavos; nota: string | null; creadoEn: string };
+export type AjusteRegistrado = { id: string; lugar: LugarDeDinero; cuenta: string; monto: Centavos; nota: string | null; creadoEn: string };
 
-export type PagoAPaquetera = { id: string; pedidoCodigo: number; lugar: LugarDeDinero; monto: Centavos; creadoEn: string };
+export type PagoAPaquetera = { id: string; pedidoCodigo: number; lugar: LugarDeDinero; cuenta: string; monto: Centavos; creadoEn: string };
+
+export type MovimientoEntreCuentas = { id: string; desde: string; hacia: string; monto: Centavos; nota: string | null; creadoEn: string };
 
 export type DatosDeGestion = {
-  /** null mientras no haya saldo inicial: sin él no se puede saber cuánto hay */
+  /** Cada cuenta con lo que tiene; las archivadas también, para poder nombrarlas en lo ya guardado */
+  cuentas: CuentaConSaldo[];
+  /** Lo que hay de cada tipo, sumando sus cuentas; null si ninguna de ese tipo tiene saldo inicial */
   saldos: Record<LugarDeDinero, Centavos | null>;
+  /** Lo que hay en todas las cuentas con saldo */
+  dinero: Centavos;
   pasivos: PasivoConSaldo[];
   abonos: Abono[];
   compras: CompraMercaderia[];
@@ -53,91 +95,117 @@ export type DatosDeGestion = {
   ajustes: AjusteRegistrado[];
   /** Lo que se le pagó a la paquetera por los envíos */
   paquetera: PagoAPaquetera[];
+  /** El dinero que se pasó de una cuenta a otra */
+  entreCuentas: MovimientoEntreCuentas[];
 };
 
-type FilaPasivo = { cuota?: number | null; cuotas?: number | null; dia_pago?: number | null; id: string; tipo: TipoPasivo; acreedor: string; monto: number; recibido_en: LugarDeDinero | null; fecha_limite: string | null; nota: string | null; creado_en: string };
-type FilaAbono = { pasivo_id: string; monto: number; lugar: LugarDeDinero; creado_en: string };
-type FilaAjuste = { id: string; nota: string | null; lugar: LugarDeDinero; tipo: "saldo_inicial" | "ajuste"; monto: number; creado_en: string };
+type FilaPasivo = Database["public"]["Tables"]["pasivo"]["Row"];
+type FilaAjuste = Database["public"]["Tables"]["ajuste_dinero"]["Row"];
 
 /**
- * Lo que necesita el balance: cuánto dinero hay en cada lugar (saldo inicial + lo que entró − lo que salió) y los pasivos con lo que falta pagar.
- * Solo dueña y administradora (RLS).
+ * Lo que necesita el balance: cuánto dinero hay en cada cuenta (saldo inicial + lo que entró − lo que salió) y los pasivos
+ * con lo que falta pagar. Solo dueña y administradora (RLS).
+ * Se pide `*` (y no columnas sueltas) para que la cuenta de cada movimiento llegue si ya está la columna y no rompa si no.
  */
 export async function datosDeGestion(supabase: Cliente, negocioId: string): Promise<DatosDeGestion> {
   const db = supabase;
-  const [ajustes, pasivos, abonos, pagos, gastos, compras, paquetera] = await Promise.all([
-    db.from("ajuste_dinero").select("id, lugar, tipo, monto, nota, creado_en").eq("negocio_id", negocioId).limit(TOPE),
+  const [cuentas, ajustes, pasivos, abonos, pagos, gastos, compras, paquetera, entre] = await Promise.all([
+    cuentasDelNegocio(supabase, negocioId),
+    db.from("ajuste_dinero").select("*").eq("negocio_id", negocioId).limit(TOPE),
     db.from("pasivo").select("*").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
-    db.from("abono_pasivo").select("pasivo_id, monto, lugar, creado_en").eq("negocio_id", negocioId).limit(TOPE),
-    supabase.from("pago").select("monto, metodo, creado_en").eq("negocio_id", negocioId).limit(TOPE),
-    supabase.from("gasto").select("monto, metodo, creado_en").eq("negocio_id", negocioId).limit(TOPE),
-    db.from("compra_mercaderia").select("id, lugar, monto, nota, creado_en").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
-    db.from("pago_paquetera").select("id, lugar, monto, creado_en, pedido(codigo)").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
+    db.from("abono_pasivo").select("*").eq("negocio_id", negocioId).limit(TOPE),
+    supabase.from("pago").select("*").eq("negocio_id", negocioId).limit(TOPE),
+    supabase.from("gasto").select("*").eq("negocio_id", negocioId).limit(TOPE),
+    db.from("compra_mercaderia").select("*").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
+    db.from("pago_paquetera").select("*, pedido(codigo)").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
+    db.from("movimiento_entre_cuentas").select("*").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
   ]);
   for (const r of [ajustes, pasivos, abonos, pagos, gastos, compras]) if (r.error) throw r.error;
+
+  // La cuenta de un movimiento: la que tiene guardada o, si no tiene (antes de cuentas.sql), la principal de su tipo
+  const principal = new Map(cuentas.filter((c) => c.principal).map((c) => [c.tipo, c.id]));
+  const cuentaDe = (guardada: string | null | undefined, lugar: LugarDeDinero) => guardada ?? principal.get(lugar) ?? lugar;
+
   // Aparte: si todavía no corrieron pago_paquetera.sql la tabla no existe, y eso no debe romper el balance
   const pagosPaquetera: PagoAPaquetera[] = paquetera.error || !paquetera.data
     ? []
-    : (paquetera.data as unknown as { id: string; lugar: LugarDeDinero; monto: number; creado_en: string; pedido: { codigo: number } | null }[]).map((x) => ({
+    : (paquetera.data as unknown as { id: string; lugar: LugarDeDinero; cuenta_id?: string | null; monto: number; creado_en: string; pedido: { codigo: number } | null }[]).map((x) => ({
         id: x.id,
         pedidoCodigo: x.pedido?.codigo ?? 0,
         lugar: x.lugar,
+        cuenta: cuentaDe(x.cuenta_id, x.lugar),
         monto: aCentavos(x.monto),
         creadoEn: x.creado_en,
       }));
+  // Lo mismo sin cuentas.sql: no hay movimientos entre cuentas
+  const movidos: MovimientoEntreCuentas[] = entre.error || !entre.data
+    ? []
+    : entre.data.map((m) => ({ id: m.id, desde: m.desde_cuenta, hacia: m.hacia_cuenta, monto: aCentavos(m.monto), nota: m.nota, creadoEn: m.creado_en }));
 
-  const filasAjuste = ajustes.data as FilaAjuste[];
-  const todosAbonos: Abono[] = (abonos.data as FilaAbono[]).map((a) => ({ pasivoId: a.pasivo_id, monto: aCentavos(a.monto), lugar: a.lugar, creadoEn: a.creado_en }));
-  const todosPasivos: Pasivo[] = (pasivos.data as FilaPasivo[]).map((p) => ({
-    id: p.id,
-    tipo: p.tipo,
-    acreedor: p.acreedor,
-    monto: aCentavos(p.monto),
-    recibidoEn: p.recibido_en,
-    creadoEn: p.creado_en,
+  const filasAjuste = (ajustes.data ?? []) as FilaAjuste[];
+  const filasPasivo = (pasivos.data ?? []) as FilaPasivo[];
+  const todosAbonos: Abono[] = (abonos.data ?? []).map((a) => ({
+    pasivoId: a.pasivo_id,
+    monto: aCentavos(a.monto),
+    lugar: a.lugar as LugarDeDinero,
+    cuenta: cuentaDe(a.cuenta_id, a.lugar as LugarDeDinero),
+    creadoEn: a.creado_en,
   }));
-
-  const entradas: MovimientoDeLugar[] = [];
-  for (const p of pagos.data ?? []) {
-    const lugar = lugarDe(p.metodo);
-    if (lugar) entradas.push({ lugar, monto: aCentavos(p.monto), creadoEn: p.creado_en });
-  }
-  // Los gastos sin método no se restan de ningún lugar.
-  const salidas: MovimientoDeLugar[] = [];
-  for (const g of gastos.data ?? []) {
-    const lugar = g.metodo ? lugarDe(g.metodo) : null;
-    if (lugar) salidas.push({ lugar, monto: aCentavos(g.monto), creadoEn: g.creado_en });
-  }
-
-  const todasCompras: CompraMercaderia[] = (compras.data as { id: string; lugar: LugarDeDinero; monto: number; nota: string | null; creado_en: string }[]).map((c) => ({
+  const todosPasivos: Pasivo[] = filasPasivo.map((p) => {
+    const recibidoEn = lugarDe(p.recibido_en);
+    return {
+      id: p.id,
+      tipo: p.tipo as TipoPasivo,
+      acreedor: p.acreedor,
+      monto: aCentavos(p.monto),
+      recibidoEn,
+      recibidoCuenta: recibidoEn ? cuentaDe(p.recibido_cuenta_id, recibidoEn) : null,
+      creadoEn: p.creado_en,
+    };
+  });
+  const todasCompras: CompraMercaderia[] = (compras.data ?? []).map((c) => ({
     id: c.id,
-    lugar: c.lugar,
+    lugar: c.lugar as LugarDeDinero,
+    cuenta: cuentaDe(c.cuenta_id, c.lugar as LugarDeDinero),
     monto: aCentavos(c.monto),
     nota: c.nota,
     creadoEn: c.creado_en,
   }));
-  // Lo que se pagó por mercadería también sale del lugar de donde se pagó
-  for (const c of todasCompras) salidas.push({ lugar: c.lugar, monto: c.monto, creadoEn: c.creadoEn });
-  // Y lo que se le pagó a la paquetera
-  for (const x of pagosPaquetera) salidas.push({ lugar: x.lugar, monto: x.monto, creadoEn: x.creadoEn });
+
+  // Todo lo que entra (+) y sale (−) de cada cuenta
+  const movimientos: MovimientoDeCuenta[] = [];
+  for (const p of pagos.data ?? []) {
+    const lugar = lugarDe(p.metodo);
+    if (lugar) movimientos.push({ cuenta: cuentaDe(p.cuenta_id, lugar), monto: aCentavos(p.monto), creadoEn: p.creado_en });
+  }
+  // Los gastos sin método no se restan de ninguna cuenta.
+  for (const g of gastos.data ?? []) {
+    const lugar = lugarDe(g.metodo);
+    if (lugar) movimientos.push({ cuenta: cuentaDe(g.cuenta_id, lugar), monto: -aCentavos(g.monto), creadoEn: g.creado_en });
+  }
+  for (const p of todosPasivos) if (p.recibidoCuenta) movimientos.push({ cuenta: p.recibidoCuenta, monto: p.monto, creadoEn: p.creadoEn });
+  for (const a of todosAbonos) movimientos.push({ cuenta: a.cuenta, monto: -a.monto, creadoEn: a.creadoEn });
+  // Lo que se pagó por mercadería y a la paquetera sale de la cuenta de donde se pagó
+  for (const c of todasCompras) movimientos.push({ cuenta: c.cuenta, monto: -c.monto, creadoEn: c.creadoEn });
+  for (const x of pagosPaquetera) movimientos.push({ cuenta: x.cuenta, monto: -x.monto, creadoEn: x.creadoEn });
+  for (const m of movidos) {
+    movimientos.push({ cuenta: m.desde, monto: -m.monto, creadoEn: m.creadoEn });
+    movimientos.push({ cuenta: m.hacia, monto: m.monto, creadoEn: m.creadoEn });
+  }
+
+  const ajustesDeCuenta = filasAjuste.map((a) => ({ cuenta: cuentaDe(a.cuenta_id, a.lugar as LugarDeDinero), monto: aCentavos(a.monto), creadoEn: a.creado_en }));
+  const conSaldo: CuentaConSaldo[] = cuentas.map((c) => {
+    const inicial = filasAjuste.find((a) => a.tipo === "saldo_inicial" && cuentaDe(a.cuenta_id, a.lugar as LugarDeDinero) === c.id);
+    return { ...c, saldo: inicial ? saldoDeCuenta({ cuenta: c.id, desde: inicial.creado_en, ajustes: ajustesDeCuenta, movimientos }) : null };
+  });
 
   const saldos = {} as Record<LugarDeDinero, Centavos | null>;
   for (const lugar of LUGARES_DE_DINERO) {
-    const inicial = filasAjuste.find((a) => a.lugar === lugar && a.tipo === "saldo_inicial");
-    saldos[lugar] = inicial
-      ? saldoDeLugar({
-          lugar,
-          desde: inicial.creado_en,
-          ajustes: filasAjuste.map((a) => ({ lugar: a.lugar, monto: aCentavos(a.monto) })),
-          entradas,
-          salidas,
-          pasivos: todosPasivos,
-          abonos: todosAbonos,
-        })
-      : null;
+    const conocidos = conSaldo.filter((c) => c.tipo === lugar && c.saldo !== null);
+    saldos[lugar] = conocidos.length ? conocidos.reduce((s, c) => s + (c.saldo ?? 0), 0) : null;
   }
 
-  const conSaldo: PasivoConSaldo[] = (pasivos.data as FilaPasivo[]).map((p, i) => {
+  const pasivosConSaldo: PasivoConSaldo[] = filasPasivo.map((p, i) => {
     const abonado = todosAbonos.filter((a) => a.pasivoId === p.id).reduce((s, a) => s + a.monto, 0);
     return {
       ...todosPasivos[i],
@@ -153,15 +221,32 @@ export async function datosDeGestion(supabase: Cliente, negocioId: string): Prom
 
   const ajustesHechos: AjusteRegistrado[] = filasAjuste
     .filter((a) => a.tipo === "ajuste")
-    .map((a) => ({ id: a.id, lugar: a.lugar, monto: aCentavos(a.monto), nota: a.nota, creadoEn: a.creado_en }));
+    .map((a) => ({
+      id: a.id,
+      lugar: a.lugar as LugarDeDinero,
+      cuenta: cuentaDe(a.cuenta_id, a.lugar as LugarDeDinero),
+      monto: aCentavos(a.monto),
+      nota: a.nota,
+      creadoEn: a.creado_en,
+    }));
 
-  return { saldos, pasivos: conSaldo, abonos: todosAbonos, compras: todasCompras, ajustes: ajustesHechos, paquetera: pagosPaquetera };
+  return {
+    cuentas: conSaldo,
+    saldos,
+    dinero: conSaldo.reduce((s, c) => s + (c.saldo ?? 0), 0),
+    pasivos: pasivosConSaldo,
+    abonos: todosAbonos,
+    compras: todasCompras,
+    ajustes: ajustesHechos,
+    paquetera: pagosPaquetera,
+    entreCuentas: movidos,
+  };
 }
 
 export async function registrarPasivo(
   supabase: Cliente,
   negocioId: string,
-  p: { tipo: TipoPasivo; acreedor: string; monto: Centavos; recibidoEn?: LugarDeDinero; fechaLimite?: string; nota?: string } & CuotaDePasivo,
+  p: { tipo: TipoPasivo; acreedor: string; monto: Centavos; recibidoEn?: LugarDeDinero; recibidoCuenta?: string; fechaLimite?: string; nota?: string } & CuotaDePasivo,
 ): Promise<boolean> {
   const { error } = await supabase.rpc("registrar_pasivo", {
     p_negocio: negocioId,
@@ -169,6 +254,7 @@ export async function registrarPasivo(
     p_acreedor: p.acreedor,
     p_monto: p.monto / 100,
     ...(p.recibidoEn ? { p_recibido_en: p.recibidoEn } : {}),
+    ...(p.recibidoCuenta ? { p_recibido_cuenta: p.recibidoCuenta } : {}),
     ...(p.fechaLimite ? { p_fecha_limite: p.fechaLimite } : {}),
     ...(p.nota ? { p_nota: p.nota } : {}),
     ...(p.cuota ? { p_cuota: p.cuota / 100 } : {}),
@@ -197,12 +283,13 @@ export async function editarPasivo(
   return !error;
 }
 
-export async function abonarPasivo(supabase: Cliente, pasivoId: string, a: { monto: Centavos; lugar: LugarDeDinero; nota?: string }): Promise<boolean> {
+export async function abonarPasivo(supabase: Cliente, pasivoId: string, a: { monto: Centavos; lugar: LugarDeDinero; cuenta?: string; nota?: string }): Promise<boolean> {
   const { error } = await supabase.rpc("abonar_pasivo", {
     p_pasivo: pasivoId,
     p_monto: a.monto / 100,
     p_lugar: a.lugar,
     ...(a.nota ? { p_nota: a.nota } : {}),
+    ...(a.cuenta ? { p_cuenta: a.cuenta } : {}),
   });
   return !error;
 }
@@ -215,13 +302,14 @@ export async function quitarPasivo(supabase: Cliente, pasivoId: string): Promise
 export async function registrarCompraMercaderia(
   supabase: Cliente,
   negocioId: string,
-  c: { monto: Centavos; lugar: LugarDeDinero; nota?: string },
+  c: { monto: Centavos; lugar: LugarDeDinero; cuenta?: string; nota?: string },
 ): Promise<boolean> {
   const { error } = await supabase.rpc("registrar_compra_mercaderia", {
     p_negocio: negocioId,
     p_monto: c.monto / 100,
     p_lugar: c.lugar,
     ...(c.nota ? { p_nota: c.nota } : {}),
+    ...(c.cuenta ? { p_cuenta: c.cuenta } : {}),
   });
   return !error;
 }
@@ -241,6 +329,50 @@ export async function registrarAjuste(
   return !error;
 }
 
+/** El saldo inicial o un ajuste de una cuenta. Las de siempre (antes de cuentas.sql) van por el lugar. */
+export async function registrarAjusteDeCuenta(
+  supabase: Cliente,
+  negocioId: string,
+  cuenta: Cuenta,
+  a: { tipo: "saldo_inicial" | "ajuste"; monto: Centavos; nota?: string },
+): Promise<boolean> {
+  if (esCuentaDeSiempre(cuenta)) return registrarAjuste(supabase, negocioId, { lugar: cuenta.tipo, ...a });
+  const { error } = await supabase.rpc("registrar_ajuste_cuenta", {
+    p_cuenta: cuenta.id,
+    p_tipo: a.tipo,
+    p_monto: a.monto / 100,
+    ...(a.nota ? { p_nota: a.nota } : {}),
+  });
+  return !error;
+}
+
+/** Lo que pasa con una cuenta nueva o editada: el error que entiende la persona, o el id */
+export type ResultadoCuenta = { ok: true; id?: string } | { ok: false; repetida: boolean };
+
+export async function crearCuenta(supabase: Cliente, negocioId: string, c: { nombre: string; tipo: LugarDeDinero }): Promise<ResultadoCuenta> {
+  const { data, error } = await supabase.rpc("crear_cuenta", { p_negocio: negocioId, p_nombre: c.nombre, p_tipo: c.tipo });
+  return error ? { ok: false, repetida: error.code === "23505" } : { ok: true, id: data ?? undefined };
+}
+
+export async function editarCuenta(
+  supabase: Cliente,
+  cuentaId: string,
+  c: { nombre: string; principal: boolean; archivada: boolean },
+): Promise<ResultadoCuenta> {
+  const { error } = await supabase.rpc("editar_cuenta", { p_cuenta: cuentaId, p_nombre: c.nombre, p_principal: c.principal, p_archivada: c.archivada });
+  return error ? { ok: false, repetida: error.code === "23505" } : { ok: true };
+}
+
+export async function moverEntreCuentas(supabase: Cliente, m: { desde: string; hacia: string; monto: Centavos; nota?: string }): Promise<boolean> {
+  const { error } = await supabase.rpc("mover_entre_cuentas", {
+    p_desde: m.desde,
+    p_hacia: m.hacia,
+    p_monto: m.monto / 100,
+    ...(m.nota ? { p_nota: m.nota } : {}),
+  });
+  return !error;
+}
+
 export type BalanceDelNegocio = {
   datos: DatosDeGestion;
   balance: Balance;
@@ -252,7 +384,7 @@ export type BalanceDelNegocio = {
   productos: Awaited<ReturnType<typeof listarProductos>>;
 };
 
-/** Todo lo que se necesita para el balance: el dinero de cada lugar, lo que te deben, el inventario a costo y lo que debés. */
+/** Todo lo que se necesita para el balance: el dinero de cada cuenta, lo que te deben, el inventario a costo y lo que debés. */
 export async function balanceDelNegocio(supabase: Cliente, negocioId: string): Promise<BalanceDelNegocio> {
   const [datos, porCobrar, productos] = await Promise.all([
     datosDeGestion(supabase, negocioId),
@@ -264,8 +396,7 @@ export async function balanceDelNegocio(supabase: Cliente, negocioId: string): P
   const inventario = enStock.reduce((suma, p) => suma + (p.costoUnitario ?? 0) * p.disponibles, 0);
   const porTipo = pasivosPorTipo(datos.pasivos, datos.abonos);
   const balance = balanceGeneral({
-    efectivo: datos.saldos.efectivo ?? 0,
-    transferencia: datos.saldos.transferencia ?? 0,
+    dinero: datos.dinero,
     porCobrar: porCobrar.total,
     inventario,
     pasivos: porTipo,

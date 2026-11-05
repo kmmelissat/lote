@@ -16,8 +16,8 @@ describe("listarGastosFijos", () => {
       },
     });
     expect(await listarGastosFijos(cliente, "n1")).toEqual([
-      { id: "g1", nombre: "Alquiler", categoria: "local", monto: 15050, metodo: "transferencia", dia: 5, activo: true },
-      { id: "g2", nombre: "Internet", categoria: "otros", monto: 2500, metodo: null, dia: 31, activo: false },
+      { id: "g1", nombre: "Alquiler", categoria: "local", monto: 15050, metodo: "transferencia", cuenta: null, dia: 5, activo: true },
+      { id: "g2", nombre: "Internet", categoria: "otros", monto: 2500, metodo: null, cuenta: null, dia: 31, activo: false },
     ]);
   });
 

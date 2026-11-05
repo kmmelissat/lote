@@ -62,7 +62,7 @@ export function ProductosDelMostrador({
               key={m.id}
               nombre={m.variante ?? nombreCompleto(m)}
               etiqueta={nombreCompleto(m)}
-              foto={m.foto}
+              foto={m.fotoPropia ?? m.foto}
               precio={formatearDolares(m.precio)}
               precioAnterior={m.precioAnterior}
               descuento={porcentajeDeRebaja(m)}

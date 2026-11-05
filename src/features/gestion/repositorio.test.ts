@@ -43,7 +43,7 @@ describe("datosDeGestion", () => {
     const d = await datosDeGestion(supabaseFalso({ tablas: conPaquetera }).cliente, "n1");
     // Los 145 de antes, menos 3.50
     expect(d.saldos.efectivo).toBe(14150);
-    expect(d.paquetera).toEqual([{ id: "e1", pedidoCodigo: 12, lugar: "efectivo", monto: 350, creadoEn: "2026-10-07T00:00:00Z" }]);
+    expect(d.paquetera).toEqual([{ id: "e1", pedidoCodigo: 12, lugar: "efectivo", cuenta: "efectivo", monto: 350, creadoEn: "2026-10-07T00:00:00Z" }]);
   });
 
   it("arma el saldo de cada lugar: contra entrega entra como efectivo y los gastos sin método no restan", async () => {
@@ -64,8 +64,53 @@ describe("datosDeGestion", () => {
   it("los ajustes a mano no incluyen el saldo inicial", async () => {
     const { cliente } = supabaseFalso({ tablas });
     const d = await datosDeGestion(cliente, "n1");
-    expect(d.ajustes).toEqual([{ id: "a2", lugar: "efectivo", monto: -500, nota: "faltante", creadoEn: "2026-10-05T00:00:00Z" }]);
+    expect(d.ajustes).toEqual([{ id: "a2", lugar: "efectivo", cuenta: "efectivo", monto: -500, nota: "faltante", creadoEn: "2026-10-05T00:00:00Z" }]);
     expect(d.compras[0].monto).toBe(600);
+  });
+
+  it("con varias cuentas, cada movimiento va a la suya y lo movido entre cuentas no cambia el total", async () => {
+    const conCuentas = {
+      cuenta: ok([
+        { id: "caja", nombre: "Caja", tipo: "efectivo", principal: true, archivada: false, creado_en: "2026-09-01T00:00:00Z" },
+        { id: "agricola", nombre: "Banco Agrícola", tipo: "transferencia", principal: true, archivada: false, creado_en: "2026-09-01T00:00:00Z" },
+        { id: "tigo", nombre: "Tigo Money", tipo: "transferencia", principal: false, archivada: false, creado_en: "2026-09-02T00:00:00Z" },
+      ]),
+      ajuste_dinero: ok([
+        { id: "i1", lugar: "efectivo", cuenta_id: "caja", tipo: "saldo_inicial", monto: 100, nota: null, creado_en: "2026-10-01T00:00:00Z" },
+        { id: "i2", lugar: "transferencia", cuenta_id: "agricola", tipo: "saldo_inicial", monto: 200, nota: null, creado_en: "2026-10-01T00:00:00Z" },
+        { id: "i3", lugar: "transferencia", cuenta_id: "tigo", tipo: "saldo_inicial", monto: 0, nota: null, creado_en: "2026-10-01T00:00:00Z" },
+      ]),
+      pago: ok([
+        // Sin cuenta guardada: cae en la principal de su tipo
+        { monto: 30, metodo: "transferencia", cuenta_id: null, creado_en: "2026-10-04T00:00:00Z" },
+        { monto: 15, metodo: "transferencia", cuenta_id: "tigo", creado_en: "2026-10-04T00:00:00Z" },
+      ]),
+      gasto: ok([{ monto: 5, metodo: "transferencia", cuenta_id: "tigo", creado_en: "2026-10-04T00:00:00Z" }]),
+      movimiento_entre_cuentas: ok([
+        { id: "m1", desde_cuenta: "caja", hacia_cuenta: "agricola", monto: 40, nota: "depósito", creado_en: "2026-10-05T00:00:00Z" },
+      ]),
+    };
+    const d = await datosDeGestion(supabaseFalso({ tablas: conCuentas }).cliente, "n1");
+    const saldo = (id: string) => d.cuentas.find((c) => c.id === id)?.saldo;
+    expect(saldo("caja")).toBe(6000);
+    expect(saldo("agricola")).toBe(27000);
+    expect(saldo("tigo")).toBe(1000);
+    expect(d.saldos).toEqual({ efectivo: 6000, transferencia: 28000 });
+    expect(d.dinero).toBe(34000);
+    expect(d.entreCuentas).toEqual([{ id: "m1", desde: "caja", hacia: "agricola", monto: 4000, nota: "depósito", creadoEn: "2026-10-05T00:00:00Z" }]);
+  });
+
+  it("una cuenta sin saldo inicial no suma: se sabe lo de las otras", async () => {
+    const conCuentas = {
+      cuenta: ok([
+        { id: "caja", nombre: "Caja", tipo: "efectivo", principal: true, archivada: false, creado_en: "2026-09-01T00:00:00Z" },
+        { id: "tigo", nombre: "Tigo Money", tipo: "transferencia", principal: true, archivada: false, creado_en: "2026-09-02T00:00:00Z" },
+      ]),
+      ajuste_dinero: ok([{ id: "i1", lugar: "efectivo", cuenta_id: "caja", tipo: "saldo_inicial", monto: 100, nota: null, creado_en: "2026-10-01T00:00:00Z" }]),
+    };
+    const d = await datosDeGestion(supabaseFalso({ tablas: conCuentas }).cliente, "n1");
+    expect(d.cuentas.map((c) => c.saldo)).toEqual([10000, null]);
+    expect(d.saldos).toEqual({ efectivo: 10000, transferencia: null });
   });
 
   it("si una consulta falla, lanza el error", async () => {

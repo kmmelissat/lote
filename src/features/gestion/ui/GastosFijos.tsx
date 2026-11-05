@@ -6,12 +6,13 @@ import { Card } from "@/components/ui/Card";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { ChipsElegir, estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
 import { useAvisarListo } from "@/components/ui/Toast";
-import { CATEGORIAS_GASTO, METODOS_DE_DINERO } from "@/domain/index";
+import { CATEGORIAS_GASTO, type Cuenta } from "@/domain/index";
 import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { borrarFijo, guardarFijo, pausarFijo } from "../actions/gastosFijos";
 import type { EstadoGestion } from "../actions/gestion";
+import { cuentaInicial, opcionesDeCuentas } from "../elegirCuenta";
 import type { GastoFijo } from "../gastosFijos";
 import { enDolares, Monto } from "./Pasivos";
 
@@ -20,10 +21,15 @@ const t = textos.gestion.fijos;
 /** Un gasto fijo listo para mostrar: la fecha del próximo cobro viene escrita desde el servidor. */
 export type FilaFijo = GastoFijo & { proximo: string };
 
-function FormFijo({ fijo, cerrar }: { fijo?: FilaFijo; cerrar: () => void }) {
+/** De dónde sale: su cuenta o, si no eligió una, la principal de su método (ahí cae cada mes) */
+const cuentaDelFijo = (f: GastoFijo, cuentas: readonly Cuenta[]) =>
+  (f.cuenta ? cuentas.find((c) => c.id === f.cuenta && !c.archivada) : undefined) ??
+  (f.metodo ? cuentas.find((c) => c.principal && c.tipo === f.metodo) : undefined);
+
+function FormFijo({ fijo, cuentas, cerrar }: { fijo?: FilaFijo; cuentas: readonly Cuenta[]; cerrar: () => void }) {
   const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(guardarFijo, {});
   const [categoria, setCategoria] = useState<string>(fijo?.categoria ?? "local");
-  const [metodo, setMetodo] = useState<string>(fijo?.metodo ?? "");
+  const [metodo, setMetodo] = useState<string>(fijo?.metodo ? (cuentaDelFijo(fijo, cuentas)?.id ?? cuentaInicial(cuentas, fijo.metodo)) : "");
   useAvisarListo(estado);
   useEffect(() => {
     if (estado.guardados) cerrar();
@@ -68,7 +74,7 @@ function FormFijo({ fijo, cerrar }: { fijo?: FilaFijo; cerrar: () => void }) {
           name="metodo"
           valor={metodo}
           onCambio={setMetodo}
-          opciones={[...METODOS_DE_DINERO.map((m) => ({ valor: m, etiqueta: textos.dinero.metodos[m] })), { valor: "", etiqueta: t.sinMetodo }]}
+          opciones={[...opcionesDeCuentas(cuentas), { valor: "", etiqueta: t.sinMetodo }]}
         />
         <p className="text-sm text-texto-2">{t.metodoAyuda}</p>
       </fieldset>
@@ -83,7 +89,7 @@ function FormFijo({ fijo, cerrar }: { fijo?: FilaFijo; cerrar: () => void }) {
   );
 }
 
-function ListaFijos({ fijos }: { fijos: FilaFijo[] }) {
+function ListaFijos({ fijos, cuentas }: { fijos: FilaFijo[]; cuentas: readonly Cuenta[] }) {
   const [error, setError] = useState("");
   const [pendiente, empezar] = useTransition();
 
@@ -103,7 +109,13 @@ function ListaFijos({ fijos }: { fijos: FilaFijo[] }) {
             <div className={`min-w-0 flex-1 basis-48 ${f.activo ? "" : "opacity-60"}`}>
               <p className="truncate font-bold">{f.nombre}</p>
               <p className="truncate text-sm text-texto-2">
-                {[textos.ganancia.categorias[f.categoria], f.metodo ? textos.dinero.metodos[f.metodo] : null, f.activo ? t.proximo(f.proximo) : t.pausado].filter(Boolean).join(" · ")}
+                {[
+                  textos.ganancia.categorias[f.categoria],
+                  f.metodo ? (cuentaDelFijo(f, cuentas)?.nombre ?? textos.dinero.metodos[f.metodo]) : null,
+                  f.activo ? t.proximo(f.proximo) : t.pausado,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             </div>
             <div className={`text-right ${f.activo ? "" : "opacity-60"}`}>
@@ -120,7 +132,7 @@ function ListaFijos({ fijos }: { fijos: FilaFijo[] }) {
                   </Button>
                 )}
               >
-                {(cerrar) => <FormFijo fijo={f} cerrar={cerrar} />}
+                {(cerrar) => <FormFijo fijo={f} cuentas={cuentas} cerrar={cerrar} />}
               </VentanaConBoton>
               <button
                 type="button"
@@ -152,13 +164,13 @@ function ListaFijos({ fijos }: { fijos: FilaFijo[] }) {
  * Los gastos que se pagan cada mes, con lo que suman. Solo se dibuja si hay alguno: se anotan desde «Registrar gasto»
  * con «Se repite cada mes», y acá se editan, pausan o quitan.
  */
-export function SeccionGastosFijos({ fijos, totalMensual }: { fijos: FilaFijo[]; totalMensual: number }) {
+export function SeccionGastosFijos({ fijos, totalMensual, cuentas }: { fijos: FilaFijo[]; totalMensual: number; cuentas: readonly Cuenta[] }) {
   if (!fijos.length) return null;
   return (
     <Card className="flex flex-col gap-1">
       <h2 className="font-bold">{t.titulo}</h2>
       {totalMensual > 0 && <p className="text-sm font-bold text-teal">{t.resumen(formatearDolares(totalMensual))}</p>}
-      <ListaFijos fijos={fijos} />
+      <ListaFijos fijos={fijos} cuentas={cuentas} />
     </Card>
   );
 }

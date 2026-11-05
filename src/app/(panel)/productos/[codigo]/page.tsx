@@ -8,6 +8,7 @@ import { TarjetaDato } from "@/components/ui/TarjetaDato";
 import { nombreBase } from "@/domain";
 import { codigoDeBarrasDe } from "@/features/counter/repositorio";
 import { CodigoDeBarrasForm } from "@/features/counter/ui/CodigoDeBarrasForm";
+import { cuentasDelNegocio } from "@/features/gestion/repositorio";
 import { actualizarOfertas, ofertasDe } from "@/features/offers/repositorio";
 import { OfertaProducto } from "@/features/offers/ui/OfertaProducto";
 import { fotosDelGrupo } from "@/features/products/fotosVariantes";
@@ -71,10 +72,11 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
   const idsDelProducto = p.grupo ? variantes.map((v) => v.id) : [p.id];
   // La oferta cubre lo que se está viendo: todas las variantes en la vista general, o solo la elegida
   const idsDeOferta = general ? variantes.map((v) => v.id) : [p.id];
-  const [avisos, pedidos, ofertas, codigoDeBarras] = await Promise.all([
+  const [avisos, pedidos, ofertas, cuentas, codigoDeBarras] = await Promise.all([
     listarAvisosDeStock(supabase, idsDelProducto),
     pedidosDeProducto(supabase, negocio.id, idsDelProducto).catch(() => []),
     negocio.puedeGestionar ? ofertasDe(supabase, idsDeOferta) : [],
+    negocio.puedeGestionar ? cuentasDelNegocio(supabase, negocio.id) : [],
     // Aparte y sin romper nada: si todavía no existe la columna, la ficha se ve igual.
     !general && negocio.puedeGestionar && negocio.tieneLocal ? codigoDeBarrasDe(supabase, p.id).catch(() => null) : null,
   ]);
@@ -106,6 +108,7 @@ async function Detalle({ params, searchParams }: Pick<PageProps<"/productos/[cod
                 precio={p.precio}
                 variantes={sumaVariantes}
                 puedeAgregarVariante={variantes.length < MAXIMO_VARIANTES}
+                cuentas={cuentas}
               />
             </div>
           )

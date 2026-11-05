@@ -5,10 +5,11 @@ import { useId, useRef, useState, type ChangeEvent, type DragEvent } from "react
 import { Icon } from "@/components/ui/Icon";
 import { LotitoMas } from "@/components/ui/LotitoMas";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { SelectorGaleria } from "@/components/ui/SelectorGaleria";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 import { MAXIMO_FOTOS } from "../limites";
-import { subirFotos } from "../subirFotos";
+import { subirFotos } from "@/lib/subirFotos";
 
 const t = textos.productos.fotos;
 const l = textos.productos.form.lotito;
@@ -39,7 +40,6 @@ export function ZonaFotos({
   conMiniaturas?: boolean;
 }) {
   const id = useId();
-  const galeria = useRef<HTMLInputElement>(null);
   const camara = useRef<HTMLInputElement>(null);
   const [subiendo, setSubiendo] = useState(false);
   const [encima, setEncima] = useState(false);
@@ -102,17 +102,20 @@ export function ZonaFotos({
           {compacto && <p className="text-sm text-texto-2">{rutas.length ? l.agregarOtra : t.zonaTextoSimple}</p>}
         </div>
         <div className={`flex flex-wrap justify-center gap-2 ${compacto ? "w-full sm:w-auto" : ""}`}>
-          <button type="button" disabled={subiendo || lleno} onClick={() => galeria.current?.click()} className={`${boton} bg-white`}>
-            <Icon nombre="subir" className="size-4" />
-            {l.elegir}
-          </button>
+          {/* «Elegir fotos» abre Mi galería: ahí se eligen las que ya subiste o se suben nuevas */}
+          <SelectorGaleria
+            negocioId={negocioId}
+            etiqueta={l.elegir}
+            yaPuestas={rutas}
+            maximo={maximo - rutas.length}
+            onElegir={(elegidas) => onCambio([...rutas, ...elegidas])}
+          />
           {/* En el celular, abre la cámara directo */}
           <button type="button" disabled={subiendo || lleno} onClick={() => camara.current?.click()} className={`${boton} bg-white md:hidden`}>
             <Icon nombre="camara" className="size-4" />
             {l.sacar}
           </button>
         </div>
-        <input ref={galeria} type="file" accept="image/*" multiple hidden onChange={elegidas} aria-labelledby={`${id}-t`} />
         <input ref={camara} type="file" accept="image/*" capture="environment" hidden onChange={elegidas} aria-label={l.sacar} />
       </div>
 

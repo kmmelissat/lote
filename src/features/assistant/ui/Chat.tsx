@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { LotitoMas } from "@/components/ui/LotitoMas";
 import type { Boton, Comando, Estado, Respuesta } from "../motor";
 import { textos } from "@/lib/textos";
-import { subirFotos } from "@/features/products/subirFotos";
+import { subirFotos } from "@/lib/subirFotos";
 import { urlFoto } from "@/lib/fotos";
 import type { Turno } from "@/features/ai/provider";
 import { enviarAlAsistente } from "../actions/enviar";

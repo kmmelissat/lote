@@ -1,10 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { LUGARES_DE_DINERO, type Centavos, type LugarDeDinero } from "@/domain";
+import { elegirCuenta, type Centavos } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
-import { registrarCompraMercaderia } from "./repositorio";
-
-export const lugarDeCompra = (valor: string | undefined | null): LugarDeDinero | null =>
-  LUGARES_DE_DINERO.find((l) => l === valor) ?? null;
+import { cuentasDelNegocio, esCuentaDeSiempre, registrarCompraMercaderia } from "./repositorio";
 
 /**
  * Lo que costó de verdad la mercadería: compra, envío, importación y otros. La mano de obra no sale de la caja:
@@ -15,17 +12,24 @@ export function plataDeCompra(costos: readonly { tipo: string; monto: Centavos }
 }
 
 /**
- * Anota que se pagó una compra de mercadería, si la persona dijo de dónde salió el dinero. Nunca estorba lo que ya se guardó:
+ * Anota que se pagó una compra de mercadería, si la persona dijo de dónde salió el dinero (el id de una cuenta, o el
+ * lugar de siempre, que es la principal de ese tipo). Nunca estorba lo que ya se guardó:
  * si falla, el producto igual quedó creado y el saldo se puede ajustar.
  */
 export async function anotarCompra(
   supabase: SupabaseClient<Database>,
   negocioId: string,
-  lugar: string | undefined | null,
+  cuentaElegida: string | undefined | null,
   monto: Centavos,
   nota: string,
 ): Promise<void> {
-  const donde = lugarDeCompra(lugar);
-  if (!donde || monto <= 0) return;
-  await registrarCompraMercaderia(supabase, negocioId, { monto, lugar: donde, nota: nota.slice(0, 120) });
+  if (!cuentaElegida || monto <= 0) return;
+  const cuenta = elegirCuenta(await cuentasDelNegocio(supabase, negocioId), cuentaElegida);
+  if (!cuenta) return;
+  await registrarCompraMercaderia(supabase, negocioId, {
+    monto,
+    lugar: cuenta.tipo,
+    cuenta: esCuentaDeSiempre(cuenta) ? undefined : cuenta.id,
+    nota: nota.slice(0, 120),
+  });
 }

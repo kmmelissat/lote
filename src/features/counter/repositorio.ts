@@ -4,6 +4,7 @@ import {
   listarProductos,
   obtenerProducto,
 } from "@/features/products/repositorio";
+import { separarFotos } from "@/features/products/fotosVariantes";
 import { listarPromociones } from "@/features/promotions/repositorio";
 import { promocionesPorCodigo, type PromocionMostrador } from "./mostrador";
 import type { Database } from "@/lib/supabase/database.types";
@@ -34,6 +35,8 @@ export type ProductoMostrador = {
   promocion: PromocionMostrador | null;
   disponibles: number;
   foto: string | undefined;
+  /** La primera foto que es solo de esta variante (no la comparten sus hermanas); undefined si usa las del producto */
+  fotoPropia: string | undefined;
   codigoBarras: string | null;
 };
 
@@ -62,6 +65,7 @@ export async function productosDeMostrador(
   if (extra.error) throw extra.error;
   const porId = new Map(extra.data.map((b) => [b.id, b]));
   const promocionDe = promocionesPorCodigo(promociones, hoyEnElSalvador(new Date()));
+  const fotoPropiaDe = fotosPropias(productos);
 
   return productos
     .filter((p) => p.disponibles > 0)
@@ -76,8 +80,24 @@ export async function productosDeMostrador(
       promocion: promocionDe.get(p.codigo) ?? null,
       disponibles: p.disponibles,
       foto: p.fotos[0],
+      fotoPropia: fotoPropiaDe.get(p.id),
       codigoBarras: porId.get(p.id)?.codigo_barras ?? null,
     }));
+}
+
+/** La primera foto propia de cada variante, separando las que comparte todo el grupo (también las agotadas). */
+function fotosPropias(productos: readonly { id: string; grupo: string | null; fotos: string[] }[]): Map<string, string> {
+  const grupos = new Map<string, typeof productos[number][]>();
+  for (const p of productos) if (p.grupo) grupos.set(p.grupo, [...(grupos.get(p.grupo) ?? []), p]);
+  const propia = new Map<string, string>();
+  for (const variantes of grupos.values()) {
+    if (variantes.length < 2) continue;
+    const { propias } = separarFotos(variantes.map((v) => v.fotos));
+    variantes.forEach((v, i) => {
+      if (propias[i][0]) propia.set(v.id, propias[i][0]);
+    });
+  }
+  return propia;
 }
 
 /** El producto que tiene ese código de barras, aunque no esté entre los cargados. Null si no hay ninguno. */
@@ -109,6 +129,8 @@ export async function productoPorBarras(
     promocion: null,
     disponibles: p.disponibles,
     foto: p.fotos[0],
+    // Va directo a la venta: no se muestra en la grilla
+    fotoPropia: undefined,
     codigoBarras,
   };
 }

@@ -1,6 +1,6 @@
 # Gestión: el balance del negocio
 
-Nota de diseño de la charla del 2 nov 2026. **Gestión es la sección nueva** (`/gestion`). **Dinero (`/dinero`) se eliminó (3 nov)**: sus rutas redirigen (`/dinero` y `/dinero/resumen` a `/gestion`, `/dinero/movimientos` a `/movimientos`, `/dinero/cuadre` a `/gestion/cuadre`).
+Nota de diseño de la charla del 2 nov 2026. **Gestión es la sección nueva** y desde el 4 nov se llama **Balance** (`/balance/resumen` y `/balance/detalle`; antes `/gestion` y `/gestion/cuadre`, que redirigen). **Dinero (`/dinero`) se eliminó (3 nov)**: sus rutas redirigen (`/dinero` y `/dinero/resumen` a `/gestion`, `/dinero/movimientos` a `/movimientos`, `/dinero/cuadre` a `/gestion/cuadre`).
 
 ## Por qué
 
@@ -71,7 +71,7 @@ Para después: **materia prima como activo** (comprar 10 kg de harina y desconta
 ## Reglas que no cambian
 
 - Solo dinero del negocio. Nada de dinero personal ni retiros.
-- No hay billetera móvil. Los métodos son **efectivo** y **cuenta digital** (en la base sigue llamándose `transferencia`).
+- No hay billetera móvil como método aparte. Cada movimiento es de un **tipo**, efectivo o transferencia (en pantalla, "Banco o billetera"), y va a una **cuenta** de ese tipo (ver "Varias cuentas").
 - **El SQL lo corre la dueña.** Cada cambio va en un archivo nuevo de `supabase/`.
 
 ## Estado
@@ -121,3 +121,20 @@ Movimientos dejó de ser una pestaña de Gestión: ahora es `/movimientos`, con 
 - Los filtros (periodo, tipo, método y búsqueda) van juntos arriba y mandan sobre todo lo de abajo: los totales, el gráfico y la lista.
 - El gráfico ya no escribe la frase del día o la semana más alta.
 - Dinero ya no existe (ver arriba): la página de Movimientos solo sirve a `/movimientos`.
+
+## Varias cuentas (4 nov)
+
+El dinero ya no vive en dos lugares fijos: cada negocio tiene las cuentas que quiera ("Caja", "Banco Agrícola", "Tigo Money"). SQL: [supabase/cuentas.sql](../supabase/cuentas.sql).
+
+- **Tabla `cuenta`**: nombre, tipo (`efectivo` o `transferencia`), si es la **principal** de su tipo y si está archivada. Al correr el SQL cada negocio recibe "Efectivo" y "Cuenta digital" como principales, y todo lo que ya estaba guardado queda en ellas.
+- **Cada movimiento guarda su cuenta** (`cuenta_id` en pago, gasto, abono, ajuste, compra de mercadería y pago a la paquetera; `recibido_cuenta_id` en el préstamo). El tipo sigue en `lugar` / `metodo` como siempre. Un trigger pone la principal de su tipo a lo que se guarda sin cuenta (cobros, Mostrador, gastos fijos, Lotito) **en el momento de guardarse**, así cambiar de principal no mueve el pasado; y rechaza una cuenta de otro negocio, archivada o de otro tipo.
+- **Saldo por cuenta**: saldo inicial (uno por cuenta) + lo que entró − lo que salió, con ajuste a mano. El balance suma todas las cuentas en "Dinero".
+- **Mover dinero entre cuentas** (`movimiento_entre_cuentas`, función `mover_entre_cuentas`): depositar la caja en el banco no es ingreso ni gasto. No deja sacar más de lo que Lote sabe que hay.
+- **Pantalla**: en Balance, entre la ecuación y Activos/Pasivos, hay una tarjeta «Tus cuentas» a todo el ancho: cada cuenta es una tarjetita con su saldo en grande, «Poner saldo inicial» / «Ajustar saldo» y Editar (nombre, hacerla principal, archivarla si está en cero y no es la principal). Arriba a la derecha, «Agregar cuenta» y «Mover dinero». La fila Dinero de Activos quedó solo con su barra.
+- **Dónde se elige la cuenta**: abono y préstamo recibido (Balance), gasto (Movimientos y Resumen), pago a la paquetera (pedido), compra de mercadería (crear, cargar varios y reponer producto) y gastos fijos. Un valor suelto "efectivo" o "transferencia" sigue sirviendo: es la principal del tipo.
+- **Sin el SQL corrido** todo sigue como antes: se leen dos cuentas "de siempre" (su id es el lugar) y no se pueden crear cuentas.
+
+Movimientos: cada fila dice de qué cuenta es, hay un filtro por cuenta (si hay más de una) y lo que se pasó de una cuenta a otra sale como fila «Caja → Banco», sin sumar en lo que entró ni en lo que salió.
+
+Pendiente: tarjetas de crédito (una tarjeta es lo que debés: gastar con ella sube la deuda, pagarla baja el banco y la deuda; con día de corte y de pago como recordatorio).
+

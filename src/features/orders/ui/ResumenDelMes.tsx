@@ -1,44 +1,69 @@
+import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { ResumenDelMes as Resumen } from "../delMes";
+import type { Canal } from "../repositorio";
 
 const t = textos.pedidos.mes;
 
-/** Cómo va el mes, en una franja secundaria (borde fino, sin sombra) para no competir con las tarjetas de lo que hay que hacer. */
-export function ResumenDelMes({ mes }: { mes: Resumen }) {
+const ICONO_CANAL = { instagram: "camara", whatsapp: "chat", presencial: "tienda", vitrina: "carrito" } as const satisfies Record<Canal, string>;
+const COLOR_CANAL = { instagram: "bg-rosa", whatsapp: "bg-menta", presencial: "bg-mango", vitrina: "bg-celeste" } as const satisfies Record<Canal, string>;
+
+/**
+ * Cómo va el mes: cuánto se vendió contra el mes pasado y por dónde llegan los pedidos. Va con el fondo de la marca, como
+ * el resumen del pedido: es la cifra que se mira primero. El ticket y los apartados van al pie y solo cuando dicen algo.
+ */
+export function ResumenDelMes({ mes, className = "" }: { mes: Resumen; className?: string }) {
+  const diferencia = mes.ventas - mes.ventasAntes;
   const cerrados = mes.apartadosPagados + mes.apartadosCaidos;
-  const datos = [
-    {
-      etiqueta: t.ventas,
-      valor: String(mes.ventas),
-      nota: t.ventasNota(mes.ventas, mes.ventasAntes, textos.comun.fecha.meses[mes.mesAnterior]),
-      sube: mes.ventas > mes.ventasAntes,
-    },
-    { etiqueta: t.ticket, valor: formatearDolares(mes.ticket), nota: t.ticketNota(formatearDolares(mes.vendido)) },
-    {
-      etiqueta: t.apartados,
-      valor: cerrados ? `${Math.round((mes.apartadosPagados / cerrados) * 100)} %` : "—",
-      nota: cerrados ? t.apartadosNota(mes.apartadosPagados, mes.apartadosCaidos) : t.sinApartados,
-    },
-  ];
+  const pie = [
+    mes.ventas >= 2 && t.ticket(formatearDolares(mes.ticket)),
+    cerrados > 0 && t.apartados(mes.apartadosPagados, cerrados),
+  ].filter((p): p is string => Boolean(p));
 
   return (
-    <section
-      aria-labelledby="resumen-del-mes"
-      className="rounded-[24px] border border-borde bg-fondo px-4 py-3 md:flex md:items-center md:gap-2 md:px-6 md:py-4"
-    >
-      <h2 id="resumen-del-mes" className="mb-2 text-xs font-bold uppercase tracking-wide text-texto-2 md:mb-0 md:w-24 md:shrink-0">
-        {t.titulo}
-      </h2>
-      <dl className="grid flex-1 grid-cols-3 divide-x divide-borde">
-        {datos.map((d) => (
-          <div key={d.etiqueta} className="flex flex-col gap-0.5 px-3 first:pl-0 last:pr-0 md:px-6">
-            <dt className="text-xs leading-tight text-texto-2 md:text-sm">{d.etiqueta}</dt>
-            <dd className="font-logo text-lg font-bold tabular-nums md:text-2xl">{d.valor}</dd>
-            <dd className={`hidden text-xs md:block ${d.sube ? "font-medium text-teal-oscuro" : "text-texto-2"}`}>{d.nota}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+    <Card tono="marca" className={`flex flex-col gap-4 ${className}`}>
+      <div className="flex flex-col gap-1">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-limon">{t.titulo}</h2>
+        {mes.ventas > 0 ? (
+          <p className="flex flex-wrap items-baseline gap-x-2">
+            <span className="font-logo text-4xl font-bold tabular-nums">{formatearDolares(mes.vendido)}</span>
+            <span className="text-white/85">{t.vendido(mes.ventas)}</span>
+          </p>
+        ) : (
+          <p className="text-white/85">{t.sinVentas}</p>
+        )}
+        {(mes.ventas > 0 || mes.ventasAntes > 0) && (
+          <p className={`text-sm ${diferencia > 0 ? "font-bold text-limon" : "text-white/85"}`}>
+            {t.comparado(diferencia, textos.comun.fecha.meses[mes.mesAnterior])}
+          </p>
+        )}
+      </div>
+
+      {mes.canales.length > 0 && (
+        <section className="flex flex-col gap-2 border-t border-white/30 pt-4">
+          <h3 className="text-sm font-bold text-white/85">{t.canales}</h3>
+          <ul className="flex flex-col gap-2.5">
+            {mes.canales.map((c) => (
+              <li key={c.canal} className="flex flex-col gap-1">
+                <span className="flex items-center justify-between gap-3 text-sm">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Icon nombre={ICONO_CANAL[c.canal]} className="size-4" />
+                    {textos.pedidos.canales[c.canal]}
+                  </span>
+                  <span className="tabular-nums text-white/85">{t.canal(c.pedidos, formatearDolares(c.vendido))}</span>
+                </span>
+                <span aria-hidden="true" className="h-3 overflow-hidden rounded-full border-2 border-teal-oscuro bg-teal-oscuro/40">
+                  <span className={`block h-full ${COLOR_CANAL[c.canal]}`} style={{ width: `${(c.pedidos / mes.ventas) * 100}%` }} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {pie.length > 0 && <p className="mt-auto border-t border-white/30 pt-3 text-sm text-white/85">{pie.join(" · ")}</p>}
+    </Card>
   );
 }

@@ -13,7 +13,7 @@ import { AccionPedido } from "./AccionPedido";
 
 const t = textos.pedidos;
 
-const clasesUrgencia = {
+export const clasesUrgencia = {
   normal: "text-texto-2",
   pronto: "text-ambar-texto",
   critica: "font-medium text-error",

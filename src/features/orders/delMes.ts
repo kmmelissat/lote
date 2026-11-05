@@ -1,12 +1,16 @@
 import { rangoPeriodo, type Centavos, type EstadoPedido } from "@/domain";
+import type { Canal } from "./repositorio";
 
 export type PedidoDelMes = {
   estado: EstadoPedido;
+  canal: Canal;
   total: Centavos;
   venceEn: Date | null;
   contraEntrega: boolean;
   creadoEn: Date;
 };
+
+export type VentasDeCanal = { canal: Canal; pedidos: number; vendido: Centavos };
 
 export type ResumenDelMes = {
   ventas: number;
@@ -17,6 +21,8 @@ export type ResumenDelMes = {
   ventasAntes: number;
   /** 0 = enero */
   mesAnterior: number;
+  /** De dónde vinieron las ventas del mes, el canal que más vendió primero; sin los canales que no vendieron */
+  canales: VentasDeCanal[];
   /** Apartados del mes que ya se resolvieron: los que pagaron y los que vencieron o se cancelaron */
   apartadosPagados: number;
   apartadosCaidos: number;
@@ -34,6 +40,12 @@ export function resumenDelMes(pedidos: PedidoDelMes[], ahora: Date): ResumenDelM
   const delMes = vendidos.filter((p) => p.creadoEn >= mes.desde && p.creadoEn < mes.hasta);
   const vendido = delMes.reduce((suma, p) => suma + p.total, 0);
 
+  const porCanal = new Map<Canal, VentasDeCanal>();
+  for (const p of delMes) {
+    const c = porCanal.get(p.canal) ?? { canal: p.canal, pedidos: 0, vendido: 0 };
+    porCanal.set(p.canal, { ...c, pedidos: c.pedidos + 1, vendido: c.vendido + p.total });
+  }
+
   const apartados = pedidos.filter((p) => p.venceEn !== null && !p.contraEntrega && p.creadoEn >= mes.desde && p.creadoEn < mes.hasta);
   const caidos = apartados.filter((p) => p.estado === "cancelado" || (p.estado === "pendiente" && p.venceEn! <= ahora));
 
@@ -43,6 +55,7 @@ export function resumenDelMes(pedidos: PedidoDelMes[], ahora: Date): ResumenDelM
     ticket: delMes.length ? Math.round(vendido / delMes.length) : 0,
     ventasAntes: vendidos.filter((p) => p.creadoEn >= antes.desde && p.creadoEn.getTime() < corteAntes).length,
     mesAnterior: Number(antes.desdeFecha.slice(5, 7)) - 1,
+    canales: [...porCanal.values()].sort((a, b) => b.pedidos - a.pedidos || b.vendido - a.vendido),
     apartadosPagados: apartados.filter((p) => DE_VENTA.includes(p.estado)).length,
     apartadosCaidos: caidos.length,
   };

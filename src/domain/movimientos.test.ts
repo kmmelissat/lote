@@ -92,3 +92,25 @@ describe("partidas aparte", () => {
     expect(filtrarMovimientos(lista, { q: "tia rosa" })).toHaveLength(1);
   });
 });
+
+describe("cuentas y traslados", () => {
+  const traslado = { id: "t-1", creadoEn: "2026-10-20T18:00:00Z", monto: 4000, desde: "caja", hacia: "banco", titulo: "Caja → Banco" };
+  const lista = unirMovimientos([pago({ monto: 2500, cuenta: "banco" })], [gasto({ monto: 700, cuenta: "caja" })], [], [traslado]);
+
+  it("un traslado sale en la lista pero no suma en nada", () => {
+    expect(lista).toHaveLength(3);
+    expect(resumirMovimientos(lista)).toEqual({ entradas: 2500, salidas: 700, neto: 1800, cantidad: 3, otrosEntran: 0, otrosSalen: 0 });
+  });
+  it("filtrar por cuenta deja sus movimientos y los traslados desde o hacia ella", () => {
+    expect(filtrarMovimientos(lista, { cuenta: "banco" }).map((m) => m.tipo).sort()).toEqual(["entrada", "traslado"]);
+    expect(filtrarMovimientos(lista, { cuenta: "caja" }).map((m) => m.tipo).sort()).toEqual(["salida", "traslado"]);
+    expect(filtrarMovimientos(lista, { cuenta: "otra" })).toHaveLength(0);
+  });
+  it("con filtro de tipo o de método no salen los traslados, que no entran ni salen ni tienen método", () => {
+    expect(filtrarMovimientos(lista, { tipo: "salida" }).map((m) => m.tipo)).toEqual(["salida"]);
+    expect(filtrarMovimientos(lista, { metodo: "sin_metodo" }).map((m) => m.tipo)).toEqual(["salida"]);
+  });
+  it("la búsqueda mira el título del traslado", () => {
+    expect(filtrarMovimientos(lista, { q: "caja" }).map((m) => m.tipo)).toEqual(["traslado"]);
+  });
+});

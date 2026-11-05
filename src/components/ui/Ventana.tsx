@@ -12,11 +12,14 @@ export function Ventana({
   ref,
   titulo,
   ayuda,
+  amplia = false,
   children,
 }: {
   ref: RefObject<HTMLDialogElement | null>;
   titulo: string;
   ayuda?: string;
+  /** Más ancha, para contenido en cuadrícula (la galería de fotos) */
+  amplia?: boolean;
   children: ReactNode;
 }) {
   const id = useId();
@@ -26,7 +29,7 @@ export function Ventana({
     <dialog
       ref={ref}
       aria-labelledby={id}
-      className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 backdrop:bg-teal-oscuro/40"
+      className={`m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] ${amplia ? "w-[min(46rem,calc(100vw-1.5rem))]" : "w-[min(32rem,calc(100vw-1.5rem))]"} overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 backdrop:bg-teal-oscuro/40`}
       onClick={(e) => e.target === e.currentTarget && cerrar()}
     >
       <div className="flex flex-col gap-4 p-5">

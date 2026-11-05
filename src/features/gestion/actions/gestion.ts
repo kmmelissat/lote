@@ -1,11 +1,21 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { LUGARES_DE_DINERO, leerDolares, TIPOS_DE_PASIVO, type LugarDeDinero, type TipoPasivo } from "@/domain/index";
+import { elegirCuenta, leerDolares, TIPOS_DE_PASIVO, type TipoPasivo } from "@/domain/index";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
-import { abonarPasivo, datosDeGestion, editarPasivo, quitarPasivo, registrarAjuste, registrarPasivo, type CuotaDePasivo } from "../repositorio";
+import {
+  abonarPasivo,
+  cuentasDelNegocio,
+  datosDeGestion,
+  editarPasivo,
+  esCuentaDeSiempre,
+  quitarPasivo,
+  registrarAjusteDeCuenta,
+  registrarPasivo,
+  type CuotaDePasivo,
+} from "../repositorio";
 
 /** `guardados` cuenta lo guardado: los formularios lo usan para vaciarse. */
 export type EstadoGestion = { error?: string; listo?: string; guardados?: number };
@@ -13,7 +23,6 @@ export type EstadoGestion = { error?: string; listo?: string; guardados?: number
 const s = textos.gestion.saldo;
 const p = textos.gestion.pasivos;
 
-const esLugar = (v: string): v is LugarDeDinero => (LUGARES_DE_DINERO as readonly string[]).includes(v);
 const esTipo = (v: string): v is TipoPasivo => (TIPOS_DE_PASIVO as readonly string[]).includes(v);
 const texto = (d: FormData, campo: string, max = 120) => String(d.get(campo) ?? "").trim().slice(0, max);
 
@@ -31,10 +40,8 @@ function leerCuota(datos: FormData): { cuota: CuotaDePasivo } | { error: string 
   return { cuota: { cuota: cuota ?? undefined, cuotas: cuotas ?? undefined, diaPago: diaPago ?? undefined } };
 }
 
-/** El saldo inicial (la primera vez) o un ajuste hacia lo que hay de verdad. La diferencia la calcula el servidor. */
+/** El saldo inicial (la primera vez) o un ajuste hacia lo que hay de verdad, en una cuenta. La diferencia la calcula el servidor. */
 export async function guardarSaldo(previo: EstadoGestion, datos: FormData): Promise<EstadoGestion> {
-  const lugar = texto(datos, "lugar");
-  if (!esLugar(lugar)) return { ...previo, error: s.errorLugar, listo: undefined };
   // Cero es válido (no hay nada); un campo vacío o con letras no.
   const real = leerDolares(texto(datos, "monto"));
   if (real === null) return { ...previo, error: s.errorMonto, listo: undefined };
@@ -42,7 +49,10 @@ export async function guardarSaldo(previo: EstadoGestion, datos: FormData): Prom
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { ...previo, error: s.errorPermiso, listo: undefined };
 
-  const actual = (await datosDeGestion(supabase, negocio.id)).saldos[lugar];
+  const gestion = await datosDeGestion(supabase, negocio.id);
+  const cuenta = elegirCuenta(gestion.cuentas, texto(datos, "cuenta"));
+  if (!cuenta) return { ...previo, error: s.errorLugar, listo: undefined };
+  const actual = gestion.cuentas.find((c) => c.id === cuenta.id)?.saldo ?? null;
   const inicial = actual === null;
   const monto = inicial ? real : real - actual;
   const nota = texto(datos, "nota");
@@ -50,7 +60,7 @@ export async function guardarSaldo(previo: EstadoGestion, datos: FormData): Prom
   // Un ajuste mueve el dinero sin que haya pasado nada: tiene que quedar dicho por qué
   if (!inicial && !nota) return { ...previo, error: s.errorMotivo, listo: undefined };
 
-  const ok = await registrarAjuste(supabase, negocio.id, { lugar, tipo: inicial ? "saldo_inicial" : "ajuste", monto, nota: nota || undefined });
+  const ok = await registrarAjusteDeCuenta(supabase, negocio.id, cuenta, { tipo: inicial ? "saldo_inicial" : "ajuste", monto, nota: nota || undefined });
   if (!ok) return { ...previo, error: s.errorGeneral, listo: undefined };
 
   revalidatePath("/", "layout");
@@ -66,9 +76,8 @@ export async function agregarPasivo(previo: EstadoGestion, datos: FormData): Pro
   const monto = leerDolares(texto(datos, "monto"));
   if (monto === null || monto <= 0) return { ...previo, error: p.errorMonto, listo: undefined };
 
-  // Vacío = no entró dinero (ej. algo fiado); cualquier otra cosa que no sea un lugar es un error.
+  // Vacío = no entró dinero (ej. algo fiado); cualquier otra cosa que no sea una cuenta es un error.
   const recibido = texto(datos, "recibido_en");
-  if (recibido && !esLugar(recibido)) return { ...previo, error: p.errorLugar, listo: undefined };
   const fecha = texto(datos, "fecha_limite");
   if (fecha && (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || Number.isNaN(Date.parse(fecha)))) return { ...previo, error: p.errorFecha, listo: undefined };
 
@@ -77,13 +86,16 @@ export async function agregarPasivo(previo: EstadoGestion, datos: FormData): Pro
 
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { ...previo, error: p.errorPermiso, listo: undefined };
+  const cuenta = recibido ? elegirCuenta(await cuentasDelNegocio(supabase, negocio.id), recibido) : null;
+  if (recibido && !cuenta) return { ...previo, error: p.errorLugar, listo: undefined };
 
   const ok = await registrarPasivo(supabase, negocio.id, {
     ...cuota.cuota,
     tipo,
     acreedor,
     monto,
-    recibidoEn: recibido && esLugar(recibido) ? recibido : undefined,
+    recibidoEn: cuenta?.tipo,
+    recibidoCuenta: cuenta && !esCuentaDeSiempre(cuenta) ? cuenta.id : undefined,
     fechaLimite: fecha || undefined,
     nota: texto(datos, "nota") || undefined,
   });
@@ -123,21 +135,27 @@ export async function cambiarPasivo(previo: EstadoGestion, datos: FormData): Pro
 
 export async function agregarAbono(previo: EstadoGestion, datos: FormData): Promise<EstadoGestion> {
   const pasivoId = texto(datos, "pasivo");
-  const lugar = texto(datos, "lugar");
   if (!pasivoId) return { ...previo, error: p.errorGeneral, listo: undefined };
-  if (!esLugar(lugar)) return { ...previo, error: p.errorLugar, listo: undefined };
   const monto = leerDolares(texto(datos, "monto"));
   if (monto === null || monto <= 0) return { ...previo, error: p.errorMonto, listo: undefined };
 
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { ...previo, error: p.errorPermiso, listo: undefined };
 
+  const gestion = await datosDeGestion(supabase, negocio.id);
+  const cuenta = elegirCuenta(gestion.cuentas, texto(datos, "cuenta"));
+  if (!cuenta) return { ...previo, error: p.errorLugar, listo: undefined };
   // La base no deja pagar de más, pero acá se dice con claridad.
-  const pasivo = (await datosDeGestion(supabase, negocio.id)).pasivos.find((x) => x.id === pasivoId);
+  const pasivo = gestion.pasivos.find((x) => x.id === pasivoId);
   if (!pasivo) return { ...previo, error: p.errorGeneral, listo: undefined };
   if (monto > pasivo.saldo) return { ...previo, error: p.errorExcede, listo: undefined };
 
-  const ok = await abonarPasivo(supabase, pasivoId, { monto, lugar, nota: texto(datos, "nota") || undefined });
+  const ok = await abonarPasivo(supabase, pasivoId, {
+    monto,
+    lugar: cuenta.tipo,
+    cuenta: esCuentaDeSiempre(cuenta) ? undefined : cuenta.id,
+    nota: texto(datos, "nota") || undefined,
+  });
   if (!ok) return { ...previo, error: p.errorGeneral, listo: undefined };
 
   revalidatePath("/", "layout");

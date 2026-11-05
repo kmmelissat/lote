@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ClipboardEvent, type KeyboardEvent } from "react";
+import { useRef, useState, type ClipboardEvent, type KeyboardEvent } from "react";
 import { Aviso } from "@/components/ui/Aviso";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -27,7 +27,7 @@ import {
   type EstadoEditor,
 } from "../editorVariantes";
 import { ChipLotito, estiloCampo } from "./campos";
-import { ZonaFotos } from "./ZonaFotos";
+import { SelectorGaleria } from "@/components/ui/SelectorGaleria";
 
 const t = textos.productos.form.variantes;
 const g = textos.productos.editar.grupo;
@@ -109,6 +109,7 @@ function Fichas({ etiqueta, valores, onCambio }: { etiqueta: string; valores: st
  */
 export function EditorVariantes({
   negocioId,
+  fotosProducto = [],
   estado: e,
   onCambio,
   error,
@@ -116,6 +117,8 @@ export function EditorVariantes({
   deLotito = false,
 }: {
   negocioId: string;
+  /** Las fotos de arriba: el comienzo de «Mi galería» */
+  fotosProducto?: string[];
   estado: EstadoEditor;
   onCambio: (e: EstadoEditor) => void;
   error?: string;
@@ -126,7 +129,9 @@ export function EditorVariantes({
 }) {
   const [editando, setEditando] = useState<string | null>(null);
   const [abiertos, setAbiertos] = useState<Record<string, boolean>>({});
-  const [fotosAbiertas, setFotosAbiertas] = useState<string | null>(null);
+  // Mi galería es un solo modal: se abre desde la miniatura de la variante (o del grupo) que se toque
+  const galeriaRef = useRef<{ abrir: (elegidas?: string[]) => void } | null>(null);
+  const [destino, setDestino] = useState<string[]>([]);
   const filas = combinaciones(e);
   const agrupado = seAgrupaPorPrimera(e);
   const grupos = gruposDe(e);
@@ -134,6 +139,8 @@ export function EditorVariantes({
   const sobran = huerfanas(e);
   const unidades = filas.reduce((suma, etiqueta) => suma + (Number(filaDe(e, etiqueta).cantidad) || 0), 0);
 
+  // Mi galería: todas las fotos del producto, estén en la variante que estén
+  const galeria = [...new Set([...fotosProducto, ...Object.values(e.filas).flatMap((f) => f.fotos)])];
   const poner = (etiquetas: string[], cambio: Partial<DatosFila>) =>
     onCambio({ ...e, filas: { ...e.filas, ...Object.fromEntries(etiquetas.map((et) => [et, { ...filaDe(e, et), ...cambio }])) } });
   const cambiarFotos = (etiquetas: string[], fotos: string[]) => {
@@ -168,17 +175,21 @@ export function EditorVariantes({
   };
   const hayVarios = (etiquetas: string[], k: "precio" | "compra") => new Set(etiquetas.map((et) => filaDe(e, et)[k])).size > 1;
 
-  const miniatura = (etiquetas: string[], foto: string | undefined, clave: string, nombre: string) => {
-    const abierta = fotosAbiertas === clave;
+  const miniatura = (etiquetas: string[], propias: string[], nombre: string) => {
+    // Sin fotos elegidas la variante usa las del producto (arriba): se ven y se abren marcadas, la primera es la principal
+    const fotos = propias.length ? propias : fotosProducto;
+    const foto = fotos[0];
     return (
       <button
         type="button"
-        onClick={() => setFotosAbiertas(abierta ? null : clave)}
-        aria-expanded={abierta}
+        onClick={() => {
+          setDestino(etiquetas);
+          galeriaRef.current?.abrir(fotos);
+        }}
         aria-label={g.verFotos(nombre)}
         title={g.verFotos(nombre)}
         className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 transition-colors hover:border-teal-oscuro ${
-          foto ? "border-teal-oscuro" : abierta ? "border-teal-oscuro bg-teal-fondo" : "border-dashed border-borde-control bg-superficie"
+          foto ? "border-teal-oscuro" : "border-dashed border-borde-control bg-superficie"
         }`}
       >
         {foto ? <Image src={urlFoto(foto)} alt="" width={44} height={44} className="size-full object-cover" /> : <Icon nombre="camara" className="size-5 text-texto-2" />}
@@ -187,14 +198,6 @@ export function EditorVariantes({
     );
   };
 
-  const panelFotos = (clave: string, etiquetas: string[], fotos: string[], ayuda: string) =>
-    fotosAbiertas === clave && (
-      <li className="flex flex-col gap-2 border-t border-borde bg-fondo px-3 py-3">
-        <p className="text-sm text-texto-2">{ayuda}</p>
-        <ZonaFotos negocioId={negocioId} rutas={fotos} compacto onCambio={(nuevas) => cambiarFotos(etiquetas, nuevas)} />
-      </li>
-    );
-
   const filaVariante = (etiqueta: string, hijo: boolean) => {
     const f = filaDe(e, etiqueta);
     const nombre = agrupado ? restoDe(etiqueta) : etiqueta;
@@ -202,7 +205,7 @@ export function EditorVariantes({
       <li key={etiqueta} className={hijo ? "bg-fondo" : ""}>
         <div className={`${COLUMNAS} border-t border-borde px-3 py-2 ${hijo ? "pl-6 md:pl-10" : ""}`}>
           <div className="flex min-w-0 items-center gap-2">
-            {miniatura([etiqueta], f.fotos[0], `fila:${etiqueta}`, nombre)}
+            {miniatura([etiqueta], f.fotos, nombre)}
             <p className="min-w-0 font-bold">
               <span className="block truncate">{nombre}</span>
               {!f.id && <span className="rounded-full bg-teal-fondo px-2 text-xs font-medium">{g.nueva}</span>}
@@ -231,13 +234,19 @@ export function EditorVariantes({
           </button>
         </div>
         {f.comprometidas > 0 && <p className={`px-3 pb-2 text-xs text-texto-2 ${hijo ? "pl-6 md:pl-10" : ""}`}>{g.minimo(f.comprometidas)}</p>}
-        <ul>{panelFotos(`fila:${etiqueta}`, [etiqueta], f.fotos, t.fotosPropiasAyuda)}</ul>
       </li>
     );
   };
 
   return (
     <section aria-labelledby="editor-variantes" className="flex flex-col gap-4">
+      <SelectorGaleria
+        negocioId={negocioId}
+        controlRef={galeriaRef}
+        reemplazar
+        tambien={galeria}
+        onElegir={(fotos) => cambiarFotos(destino, fotos)}
+      />
       <input type="hidden" name="variantesFilas" value={JSON.stringify(filasParaGuardar(e, idLibre))} />
       <input type="hidden" name="opcionesNombres" value={JSON.stringify(nombresDeOpciones(e))} />
       <h3 id="editor-variantes" className="sr-only">
@@ -342,7 +351,7 @@ export function EditorVariantes({
                       <li key={grupo.clave} className="border-t border-borde first:border-t-0">
                         <div className={`${COLUMNAS} px-3 py-2`}>
                           <div className="flex min-w-0 items-center gap-2">
-                            {miniatura(grupo.filas, fotosDelGrupo[0], `grupo:${grupo.clave}`, grupo.clave)}
+                            {miniatura(grupo.filas, fotosDelGrupo, grupo.clave)}
                             <button
                               type="button"
                               aria-expanded={abierto}
@@ -380,7 +389,6 @@ export function EditorVariantes({
                             <Icon nombre="flecha" className={`size-5 transition-transform ${abierto ? "rotate-180" : ""}`} />
                           </button>
                         </div>
-                        <ul>{panelFotos(`grupo:${grupo.clave}`, grupo.filas, fotosDelGrupo, t.fotosGrupoAyuda(grupo.clave))}</ul>
                         {abierto && <ul>{grupo.filas.map((et) => filaVariante(et, true))}</ul>}
                       </li>
                     );

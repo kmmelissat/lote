@@ -11,35 +11,42 @@ export type GastoFijo = {
   categoria: CategoriaGasto;
   monto: Centavos;
   metodo: MetodoMovimiento | null;
+  /** La cuenta de donde sale; null = cada mes la principal de su método */
+  cuenta: string | null;
   /** Día del mes en que toca; en los meses más cortos cae el último día */
   dia: number;
   activo: boolean;
 };
 
-export type NuevoGastoFijo = Omit<GastoFijo, "id" | "activo"> & { id?: string };
+export type NuevoGastoFijo = Omit<GastoFijo, "id" | "activo" | "cuenta"> & { id?: string; cuenta?: string };
 
 /**
  * Los gastos fijos del negocio, los activos primero. Si todavía no se corrió gastos_fijos.sql la tabla no existe:
  * la pantalla sigue funcionando sin ellos en vez de romperse.
+ * Se pide `*` para que la cuenta llegue si ya se corrió cuentas.sql y no rompa si no.
  */
 export async function listarGastosFijos(supabase: Cliente, negocioId: string): Promise<GastoFijo[]> {
   const { data, error } = await supabase
     .from("gasto_fijo")
-    .select("id, nombre, categoria, monto, metodo, dia_del_mes, activo")
+    .select("*")
     .eq("negocio_id", negocioId)
     .order("activo", { ascending: false })
     .order("dia_del_mes")
     .order("nombre");
   if (error) return [];
-  return data.map((g) => ({
-    id: g.id,
-    nombre: g.nombre,
-    categoria: g.categoria as CategoriaGasto,
-    monto: aCentavos(g.monto),
-    metodo: g.metodo === "efectivo" || g.metodo === "transferencia" ? g.metodo : null,
-    dia: g.dia_del_mes,
-    activo: g.activo,
-  }));
+  return data.map((g) => {
+    const metodo = g.metodo === "efectivo" || g.metodo === "transferencia" ? g.metodo : null;
+    return {
+      id: g.id,
+      nombre: g.nombre,
+      categoria: g.categoria as CategoriaGasto,
+      monto: aCentavos(g.monto),
+      metodo,
+      cuenta: metodo ? (g.cuenta_id ?? null) : null,
+      dia: g.dia_del_mes,
+      activo: g.activo,
+    };
+  });
 }
 
 /** Crea el gasto fijo, o lo corrige si trae `id`. `hoy` es la fecha local: desde ahí cuenta. */
@@ -53,6 +60,7 @@ export async function guardarGastoFijo(supabase: Cliente, negocioId: string, g: 
     p_dia: g.dia,
     ...(g.metodo ? { p_metodo: g.metodo } : {}),
     p_hoy: hoy,
+    ...(g.metodo && g.cuenta ? { p_cuenta: g.cuenta } : {}),
   });
   return !error;
 }

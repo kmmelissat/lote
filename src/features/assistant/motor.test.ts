@@ -758,7 +758,7 @@ describe("el balance", () => {
     expect(r.texto).toContain("• Efectivo: $240.00");
     expect(r.texto).toContain("• Cuenta digital: falta el saldo inicial");
     expect(r.texto).toContain("• CUSCATLAN: $300.00 (cuota de $50.00, toca el 15 nov)");
-    expect(r.enlaces?.[0].href).toBe("/gestion/cuadre");
+    expect(r.enlaces?.[0].href).toBe("/balance/detalle");
   });
 
   it("si la persona no puede ver el dinero, no se lo cuenta", async () => {

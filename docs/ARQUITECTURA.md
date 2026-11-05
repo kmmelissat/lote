@@ -52,7 +52,7 @@ flowchart LR
 - **Server Components por defecto.** Cada página de `src/app/` es delgada: lee los parámetros, pide los datos a la feature (`repositorio.ts`) y arma la pantalla. El HTML llega completo; `cacheComponents` está apagado a propósito para no llenar todo de `<Suspense>`.
 - **`"use client"` solo donde hay interacción** (unos 120 archivos): formularios, el chat de Lotito, el escáner de códigos, el carrito, los modales. Va en la pieza más chica que lo necesita, no en la página entera.
 - **Grupos de rutas** en `src/app/`:
-  - `(panel)`: todo lo de quien vende (`/inicio`, `/productos`, `/pedidos`, `/gestion`, `/vender`…), con el menú y la burbuja de Lotito en su `layout.tsx`.
+  - `(panel)`: todo lo de quien vende (`/inicio`, `/productos`, `/pedidos`, `/balance`, `/vender`…), con el menú y la burbuja de Lotito en su `layout.tsx`.
   - `(auth)`: el login. `(onboarding)`: crear el negocio, a pantalla completa.
   - Afuera de los grupos, lo público: `/` (landing), `/c/<tienda>` (vitrina), `/p/<pedido>` (seguimiento), `/marketplace`, `/ayuda`, `/privacidad`.
 - **Estilos:** Tailwind 4 con tokens de marca en `src/app/globals.css` (colores, radios, sombras). Las reglas visuales están en [BRANDING.md](BRANDING.md). Fuentes con `next/font`: Plus Jakarta Sans para el texto y Fredoka para el logo.

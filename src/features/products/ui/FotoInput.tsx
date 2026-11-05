@@ -6,7 +6,7 @@ import { MensajeError } from "@/components/ui/MensajeError";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 import { MAXIMO_FOTOS } from "../limites";
-import { subirFotos } from "../subirFotos";
+import { subirFotos } from "@/lib/subirFotos";
 
 const t = textos.productos.fotos;
 

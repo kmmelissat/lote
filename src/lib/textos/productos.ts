@@ -681,7 +681,6 @@ export const productos = {
       variantesDelGrupo: (n: number) => (n === 1 ? "1 variante" : `${n} variantes`),
       abrirGrupo: (nombre: string) => `Ver las variantes de ${nombre}`,
       cerrarGrupo: (nombre: string) => `Ocultar las variantes de ${nombre}`,
-      fotosGrupoAyuda: (nombre: string) => `Estas fotos van en todas las variantes de ${nombre}. Para una foto distinta en una sola, usá su miniatura.`,
       total: (variantes: number, unidades: number) =>
         `${variantes === 1 ? "1 variante" : `${variantes} variantes`} · ${unidades === 1 ? "1 unidad" : `${unidades} unidades`} en total`,
       cruceTitulo: "¿Qué cambia entre las variantes?",
@@ -697,7 +696,8 @@ export const productos = {
       paraTodas: "Para todas",
       aplicarTodas: "Aplicar a todas",
       fotosDelProducto: "Solo las del producto",
-      fotosPropiasAyuda: "Fotos de esta variante. Se muestran después de las fotos del producto.",
+      galeriaTitulo: "Mi galería",
+      galeriaFoto: (n: number) => `Foto ${n} de la galería`,
       fotosDe: (nombre: string) => `Fotos de ${nombre}`,
       fotosDeAyuda: "Se usa en todas las combinaciones de acá abajo.",
       fotosModo: "Cómo poner las fotos",

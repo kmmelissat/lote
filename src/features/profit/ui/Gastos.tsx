@@ -5,7 +5,7 @@ import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
-import { CATEGORIAS_GASTO, METODOS_DE_DINERO, type CategoriaGasto, type MetodoMovimiento } from "@/domain/index";
+import { CATEGORIAS_GASTO, METODOS_DE_DINERO, type CategoriaGasto, type Cuenta, type MetodoMovimiento } from "@/domain/index";
 import { soloNumero } from "@/lib/entrada";
 import { textos } from "@/lib/textos";
 import { agregarGasto, type EstadoGasto } from "../actions/gastos";
@@ -25,11 +25,26 @@ const ICONOS: Record<CategoriaGasto, NombreIcono> = {
 
 const ICONOS_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco" };
 
+/** De dónde salió el dinero: cada cuenta activa o, sin cuentas, los dos lugares de siempre */
+const opcionesDeMetodo = (cuentas: readonly Cuenta[] | undefined): { valor: string; etiqueta: string; tipo: MetodoMovimiento | null }[] =>
+  cuentas?.some((c) => !c.archivada)
+    ? cuentas.filter((c) => !c.archivada).map((c) => ({ valor: c.id, etiqueta: c.nombre, tipo: c.tipo }))
+    : METODOS_DE_DINERO.map((m) => ({ valor: m, etiqueta: textos.dinero.metodos[m], tipo: m }));
+
 const campo =
   "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal";
 
 /** "+ Registrar gasto": un botón que abre el formulario en una ventana, en vez de ocupar media página siempre. */
-export function RegistrarGasto({ hoy, guardarFijo }: { hoy: string; guardarFijo?: (previo: EstadoGasto, datos: FormData) => Promise<EstadoGasto> }) {
+export function RegistrarGasto({
+  hoy,
+  guardarFijo,
+  cuentas,
+}: {
+  hoy: string;
+  guardarFijo?: (previo: EstadoGasto, datos: FormData) => Promise<EstadoGasto>;
+  /** Las cuentas para elegir de dónde salió; sin ellas, los dos lugares de siempre */
+  cuentas?: readonly Cuenta[];
+}) {
   // Con "Se repite cada mes" el mismo formulario crea un gasto fijo en vez de un gasto suelto. La acción la pone quien arma la
   // pantalla (los gastos fijos son de Gestión); sin ella el interruptor no aparece.
   const [repite, setRepite] = useState(false);
@@ -176,18 +191,18 @@ export function RegistrarGasto({ hoy, guardarFijo }: { hoy: string; guardarFijo?
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-1 text-sm font-bold">{t.form.metodo}</legend>
             <div className="flex flex-wrap gap-2">
-              {([...METODOS_DE_DINERO, ""] as const).map((m) => (
-                <label key={m || "ninguno"} className="cursor-pointer">
+              {[...opcionesDeMetodo(cuentas), { valor: "", etiqueta: t.form.sinMetodo, tipo: null }].map((m) => (
+                <label key={m.valor || "ninguno"} className="cursor-pointer">
                   <input
                     type="radio"
                     name="metodo"
-                    value={m}
-                    defaultChecked={m === ""}
+                    value={m.valor}
+                    defaultChecked={m.valor === ""}
                     className="peer sr-only"
                   />
                   <span className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-teal-fondo peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
-                    {m && <Icon nombre={ICONOS_METODO[m]} className="size-4" />}
-                    {m ? textos.dinero.metodos[m] : t.form.sinMetodo}
+                    {m.tipo && <Icon nombre={ICONOS_METODO[m.tipo]} className="size-4" />}
+                    {m.etiqueta}
                   </span>
                 </label>
               ))}

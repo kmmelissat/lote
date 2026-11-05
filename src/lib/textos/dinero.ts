@@ -30,6 +30,7 @@ export const dinero = {
   mesPasado: "Mes pasado",
   tipos: { etiqueta: "Qué ver", todos: "Todo", entrada: "Lo que entró", salida: "Lo que salió" },
   metodos: { etiqueta: "Método", todos: "Cualquiera", efectivo: "Efectivo", transferencia: "Cuenta digital", sin_metodo: "Sin método" },
+  cuentas: { etiqueta: "Cuenta", todas: "Todas las cuentas" },
   buscar: { etiqueta: "Buscar movimientos", placeholder: "Cliente, producto o nota del gasto", sinResultados: (q: string) => `No encontramos movimientos con "${q}".` },
   vacio: "Todavía no hay movimientos en este periodo. Cuando cobrés o gastés, aparecen acá.",
   vacioFiltro: "Ningún movimiento cumple esos filtros.",

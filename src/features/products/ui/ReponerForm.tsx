@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
+import type { Cuenta } from "@/domain/index";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
@@ -19,8 +20,10 @@ const t = textos.productos.reponer;
 export function ReponerForm({
   codigo,
   variantes = [],
+  cuentas,
 }: {
   codigo: number;
+  cuentas: readonly Cuenta[];
   variantes?: { codigo: number; etiqueta: string }[];
 }) {
   const [estado, accion, pendiente] = useActionState<EstadoReponer, FormData>(reponerElegido, {});
@@ -55,7 +58,7 @@ export function ReponerForm({
       )}
       <Field etiqueta={t.llegan} name="llegan" inputMode="numeric" required error={e.llegan} />
       <Field etiqueta={t.costo} name="costo" inputMode="decimal" error={e.costo} />
-      <LugarDeCompra />
+      <LugarDeCompra cuentas={cuentas} />
       <Button type="submit" variante="mango" disabled={pendiente}>
         {pendiente ? t.guardando : t.boton}
       </Button>

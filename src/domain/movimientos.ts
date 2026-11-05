@@ -17,6 +17,8 @@ export type PagoEntrante = {
   cliente: string | null;
   producto: string | null;
   saldoDespues: Centavos;
+  /** La cuenta donde entró; falta en lo que se guardó antes de que hubiera cuentas */
+  cuenta?: string | null;
 };
 
 /** Un gasto que salió. El método puede faltar: los gastos viejos no lo guardaban. */
@@ -28,6 +30,7 @@ export type GastoSaliente = {
   categoria: string;
   nota: string | null;
   metodo: string | null;
+  cuenta?: string | null;
 };
 
 /** Lo que mueve el dinero pero no es ingreso ni gasto: préstamos, pagos de deudas, mercadería y ajustes de saldo. */
@@ -41,6 +44,19 @@ export type PartidaAparte = {
   /** Si el dinero entró o salió de donde estaba */
   sentido: "entra" | "sale";
   clase: ClaseAparte;
+  titulo: string;
+  cuenta?: string | null;
+};
+
+/** Dinero que pasó de una cuenta a otra: baja una y sube la otra, así que no es ingreso ni gasto. */
+export type TrasladoEntreCuentas = {
+  id: string;
+  creadoEn: string;
+  monto: Centavos;
+  /** Ids de las cuentas */
+  desde: string;
+  hacia: string;
+  /** Lo que se lee en la lista, por ejemplo «Caja → Banco» */
   titulo: string;
 };
 
@@ -59,6 +75,7 @@ export type Movimiento =
       cliente: string | null;
       producto: string | null;
       saldoDespues: Centavos;
+      cuenta: string | null;
     }
   | {
       tipo: "salida";
@@ -70,6 +87,7 @@ export type Movimiento =
       clase: "gasto";
       categoria: string;
       nota: string | null;
+      cuenta: string | null;
     }
   | {
       /** Mueve el dinero y el balance, pero no cuenta en lo que entró ni en lo que salió. */
@@ -82,11 +100,26 @@ export type Movimiento =
       sentido: "entra" | "sale";
       clase: ClaseAparte;
       titulo: string;
+      cuenta: string | null;
+    }
+  | {
+      /** Pasa dinero de una cuenta a otra: no cuenta en lo que entró ni en lo que salió, ni en el balance. */
+      tipo: "traslado";
+      id: string;
+      fecha: string;
+      creadoEn: string;
+      monto: Centavos;
+      metodo: null;
+      desde: string;
+      hacia: string;
+      titulo: string;
     };
 
 export type FiltroMovimientos = {
   tipo?: "entrada" | "salida";
   metodo?: MetodoMovimiento | "sin_metodo";
+  /** Id de una cuenta: sus movimientos y lo que se pasó desde o hacia ella */
+  cuenta?: string;
   /** Texto libre: clienta, producto o nota del gasto. */
   q?: string;
 };
@@ -107,7 +140,7 @@ const metodoDe = (m: string | null): MetodoMovimiento | null =>
   m === "contra_entrega" ? "efectivo" : m && METODOS.includes(m) ? (m as MetodoMovimiento) : null;
 
 /** Junta pagos, gastos y partidas aparte en una sola lista, la más reciente primero. */
-export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly GastoSaliente[], apartes: readonly PartidaAparte[] = []): Movimiento[] {
+export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly GastoSaliente[], apartes: readonly PartidaAparte[] = [], traslados: readonly TrasladoEntreCuentas[] = []): Movimiento[] {
   const entradas: Movimiento[] = pagos.map((p) => ({
     tipo: "entrada",
     id: p.id,
@@ -120,6 +153,7 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
     cliente: p.cliente,
     producto: p.producto,
     saldoDespues: p.saldoDespues,
+    cuenta: p.cuenta ?? null,
   }));
   const salidas: Movimiento[] = gastos.map((g) => ({
     tipo: "salida",
@@ -131,6 +165,7 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
     clase: "gasto",
     categoria: g.categoria,
     nota: g.nota,
+    cuenta: g.cuenta ?? null,
   }));
   const aparte: Movimiento[] = apartes.map((a) => ({
     tipo: "aparte",
@@ -142,8 +177,20 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
     sentido: a.sentido,
     clase: a.clase,
     titulo: a.titulo,
+    cuenta: a.cuenta ?? null,
   }));
-  return [...entradas, ...salidas, ...aparte].sort(
+  const movidos: Movimiento[] = traslados.map((x) => ({
+    tipo: "traslado",
+    id: x.id,
+    fecha: fechaLocalDe(new Date(x.creadoEn)),
+    creadoEn: x.creadoEn,
+    monto: x.monto,
+    metodo: null,
+    desde: x.desde,
+    hacia: x.hacia,
+    titulo: x.titulo,
+  }));
+  return [...entradas, ...salidas, ...aparte, ...movidos].sort(
     (a, b) => b.fecha.localeCompare(a.fecha) || b.creadoEn.localeCompare(a.creadoEn) || a.id.localeCompare(b.id),
   );
 }
@@ -152,8 +199,15 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
 export function filtrarMovimientos(movimientos: readonly Movimiento[], filtro: FiltroMovimientos): Movimiento[] {
   const q = filtro.q ? normalizarTexto(filtro.q.trim()) : "";
   return movimientos.filter((m) => {
+    if (m.tipo === "traslado") {
+      // Ni entra ni sale, y no tiene método: solo se ve sin esos filtros, o al mirar una de sus dos cuentas
+      if (filtro.tipo || filtro.metodo) return false;
+      if (filtro.cuenta && m.desde !== filtro.cuenta && m.hacia !== filtro.cuenta) return false;
+      return !q || normalizarTexto(m.titulo).includes(q);
+    }
     const sentido = m.tipo === "aparte" ? (m.sentido === "entra" ? "entrada" : "salida") : m.tipo;
     if (filtro.tipo && sentido !== filtro.tipo) return false;
+    if (filtro.cuenta && m.cuenta !== filtro.cuenta) return false;
     if (filtro.metodo === "sin_metodo" ? m.metodo !== null : filtro.metodo && m.metodo !== filtro.metodo) return false;
     if (!q) return true;
     const textos =
@@ -173,6 +227,7 @@ export function resumirMovimientos(movimientos: readonly Movimiento[]): ResumenM
   let otrosEntran = 0;
   let otrosSalen = 0;
   for (const m of movimientos) {
+    if (m.tipo === "traslado") continue;
     if (m.tipo === "entrada") entradas += m.monto;
     else if (m.tipo === "salida") salidas += m.monto;
     else if (m.sentido === "entra") otrosEntran += m.monto;

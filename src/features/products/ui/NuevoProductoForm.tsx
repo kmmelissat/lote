@@ -4,6 +4,7 @@ import { useAvisarErrores } from "@/components/ui/Toast";
 import { useActionState, useId, useRef, useState, type FormEvent } from "react";
 import {
   type Actividad,
+  type Cuenta,
   costoUnitario,
   leerDolares,
   MARGEN_POR_DEFECTO,
@@ -91,8 +92,12 @@ export function NuevoProductoForm({
   sugerencias,
   modo = { tipo: "crear" },
   actividad = "compro_vendo",
+  cuentas = [],
 }: {
   negocioId: string;
+  /** Las cuentas del negocio, para elegir de cuál salió el dinero de la compra */
+  /** (solo al crear; al editar no hay compra) */
+  cuentas?: readonly Cuenta[];
   /** Valores con los que arranca el formulario: repetir un producto, o el producto que se edita */
   inicial?: Record<string, string>;
   /** Marcas que ya usó, para completar mientras escribe */
@@ -165,6 +170,17 @@ export function NuevoProductoForm({
     setRutas,
   });
 
+  // Una foto que se quita de la galería (arriba) también sale de las variantes que la tenían
+  function cambiarFotosYVariantes(nuevas: string[]) {
+    const quitadas = rutas.filter((r) => !nuevas.includes(r));
+    if (quitadas.length)
+      setEditor((ed) => ({
+        ...ed,
+        filas: Object.fromEntries(Object.entries(ed.filas).map(([k, f]) => [k, { ...f, fotos: f.fotos.filter((r) => !quitadas.includes(r)) }])),
+      }));
+    cambiarFotos(nuevas);
+  }
+
   // Ganancia en vivo: precio − costo por unidad, con las mismas funciones que usa el servidor.
   function recalcular(ev: FormEvent<HTMLFormElement>) {
     const f = new FormData(ev.currentTarget);
@@ -220,7 +236,7 @@ export function NuevoProductoForm({
         <div className="flex min-w-0 flex-col gap-6">
           <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-borde [&>*+*]:pt-6">
             <BloqueForm numero={1} titulo={b.foto.titulo} ayuda={b.foto.ayuda} tono="limon" listo={rutas.length > 0}>
-              <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotos} conLotito />
+              <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotosYVariantes} conLotito />
               <input type="hidden" name="fotos" value={JSON.stringify(rutas)} />
               <CartelLotito
                 estado={estadoLotito}
@@ -374,6 +390,7 @@ export function NuevoProductoForm({
                   <EditorVariantes
                     deLotito={extrasLotito.variantes}
                     negocioId={negocioId}
+                    fotosProducto={rutas}
                     estado={editor}
                     onCambio={setEditor}
                     error={e.variantes}
@@ -413,7 +430,6 @@ export function NuevoProductoForm({
                   <CampoDinero key={k} etiqueta={t[k]} name={k} defaultValue={v[k]} error={e[k]} />
                 ))}
               </div>
-              {!editando && <LugarDeCompra />}
               {sugerido !== null && !conVariantes && (
                 <div className="flex flex-wrap items-end gap-4">
                   {/* Sin name: el margen es solo para calcular, no se guarda */}
@@ -429,6 +445,13 @@ export function NuevoProductoForm({
                 </div>
               )}
             </BloqueForm>
+
+            {/* Fuera del bloque de costos, que viene cerrado: así se ve sin tener que abrirlo */}
+            {!editando && (
+              <div className="border-t border-borde pt-4">
+                <LugarDeCompra cuentas={cuentas} />
+              </div>
+            )}
           </Card>
 
           <MensajeError>{e.general}</MensajeError>

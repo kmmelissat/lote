@@ -2,16 +2,16 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { useAvisarListo } from "@/components/ui/Toast";
-import { aDolares, LUGARES_DE_DINERO, TIPOS_DE_PASIVO, type TipoPasivo } from "@/domain/index";
+import { aDolares, TIPOS_DE_PASIVO, type Cuenta, type TipoPasivo } from "@/domain/index";
 import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { agregarAbono, agregarPasivo, borrarPasivo, cambiarPasivo, type EstadoGestion } from "../actions/gestion";
 import { ChipsElegir, estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
+import { cuentaInicial, opcionesDeCuentas } from "../elegirCuenta";
 
 const t = textos.gestion.pasivos;
 
@@ -66,7 +66,7 @@ export function Monto({ name, etiqueta, placeholder, defaultValue, requerido = t
 export const enDolares = (centavos: number | null) => (centavos === null ? undefined : aDolares(centavos).toFixed(2));
 
 /** El mismo formulario para anotar una deuda y para corregirla: al corregir no se pide el tipo ni dónde entró el dinero. */
-function FormPasivo({ hoy, cerrar, pasivo }: { hoy: string; cerrar: () => void; pasivo?: FilaPasivo }) {
+function FormPasivo({ hoy, cerrar, pasivo, cuentas = [] }: { hoy: string; cerrar: () => void; pasivo?: FilaPasivo; cuentas?: readonly Cuenta[] }) {
   const editando = Boolean(pasivo);
   const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(editando ? cambiarPasivo : agregarPasivo, {});
   const [tipo, setTipo] = useState<TipoPasivo>("prestamo");
@@ -114,7 +114,7 @@ function FormPasivo({ hoy, cerrar, pasivo }: { hoy: string; cerrar: () => void; 
             name="recibido_en"
             valor={recibido}
             onCambio={setRecibido}
-            opciones={[{ valor: "", etiqueta: t.recibidoNo }, ...LUGARES_DE_DINERO.map((l) => ({ valor: l, etiqueta: textos.gestion.lugares[l] }))]}
+            opciones={[{ valor: "", etiqueta: t.recibidoNo }, ...opcionesDeCuentas(cuentas)]}
           />
           <p className="text-sm text-texto-2">{t.recibidoAyuda}</p>
         </fieldset>
@@ -152,7 +152,7 @@ function FormPasivo({ hoy, cerrar, pasivo }: { hoy: string; cerrar: () => void; 
   );
 }
 
-export function AnotarPasivo({ hoy }: { hoy: string }) {
+export function AnotarPasivo({ hoy, cuentas }: { hoy: string; cuentas: readonly Cuenta[] }) {
   return (
     <VentanaConBoton
       id="anotar-pasivo"
@@ -163,14 +163,14 @@ export function AnotarPasivo({ hoy }: { hoy: string }) {
         </Button>
       )}
     >
-      {(cerrar) => <FormPasivo hoy={hoy} cerrar={cerrar} />}
+      {(cerrar) => <FormPasivo hoy={hoy} cerrar={cerrar} cuentas={cuentas} />}
     </VentanaConBoton>
   );
 }
 
-function FormAbono({ pasivo, cerrar }: { pasivo: FilaPasivo; cerrar: () => void }) {
+function FormAbono({ pasivo, cerrar, cuentas }: { pasivo: FilaPasivo; cerrar: () => void; cuentas: readonly Cuenta[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(agregarAbono, {});
-  const [lugar, setLugar] = useState("efectivo");
+  const [cuenta, setCuenta] = useState(cuentaInicial(cuentas));
   useAvisarListo(estado);
   useEffect(() => {
     if (estado.guardados) cerrar();
@@ -183,7 +183,7 @@ function FormAbono({ pasivo, cerrar }: { pasivo: FilaPasivo; cerrar: () => void 
       <Monto name="monto" etiqueta={t.abonoMonto} placeholder={aDolares(pasivo.saldo).toFixed(2)} defaultValue={pasivo.cuota ? enDolares(Math.min(pasivo.cuota, pasivo.saldo)) : undefined} />
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-sm font-bold">{t.abonoLugar}</legend>
-        <ChipsElegir name="lugar" valor={lugar} onCambio={setLugar} opciones={LUGARES_DE_DINERO.map((l) => ({ valor: l, etiqueta: textos.gestion.lugares[l] }))} />
+        <ChipsElegir name="cuenta" valor={cuenta} onCambio={setCuenta} opciones={opcionesDeCuentas(cuentas)} />
       </fieldset>
       <MensajeError>{estado.error}</MensajeError>
       <Button type="submit" variante="mango" icono="check" disabled={pendiente}>
@@ -194,7 +194,7 @@ function FormAbono({ pasivo, cerrar }: { pasivo: FilaPasivo; cerrar: () => void 
 }
 
 /** Los pasivos con lo que falta pagar de cada uno, y los botones para abonar o quitar. */
-export function ListaPasivos({ pasivos }: { pasivos: FilaPasivo[] }) {
+export function ListaPasivos({ pasivos, cuentas }: { pasivos: FilaPasivo[]; cuentas: readonly Cuenta[] }) {
   const [error, setError] = useState("");
   const [pendiente, empezar] = useTransition();
 
@@ -210,10 +210,16 @@ export function ListaPasivos({ pasivos }: { pasivos: FilaPasivo[] }) {
   if (!pasivos.length) return <p className="text-texto-2">{textos.gestion.cuadre.sinPasivos}</p>;
   return (
     <div className="flex flex-col gap-2">
-      <ul className="flex flex-col divide-y divide-borde">
+      <ul className="flex flex-col gap-2">
         {pasivos.map((p) => (
-          <li key={p.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
-            <div className="min-w-0 flex-1 basis-48">
+          <li key={p.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[20px] bg-fondo p-3">
+            <span
+              aria-hidden="true"
+              className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro font-logo text-lg font-bold ${p.saldo > 0 ? "bg-rosa" : "bg-teal-fondo"}`}
+            >
+              {p.acreedor.trim().charAt(0).toUpperCase()}
+            </span>
+            <div className="min-w-0 flex-1 basis-40">
               <p className="truncate font-bold">{p.acreedor}</p>
               <p className="truncate text-sm text-texto-2">{[t.tipos[p.tipo], p.vence ? t.vence(p.vence) : null, p.nota].filter(Boolean).join(" · ")}</p>
               {p.cuota && p.saldo > 0 && (
@@ -230,7 +236,7 @@ export function ListaPasivos({ pasivos }: { pasivos: FilaPasivo[] }) {
             <div className="text-right">
               {p.saldo > 0 ? (
                 <>
-                  <p className="font-bold tabular-nums">{formatearDolares(p.saldo)}</p>
+                  <p className="font-logo text-xl font-bold tabular-nums">{formatearDolares(p.saldo)}</p>
                   {p.saldo < p.monto && <p className="text-xs text-texto-2">{t.de(formatearDolares(p.monto))}</p>}
                 </>
               ) : (
@@ -248,7 +254,7 @@ export function ListaPasivos({ pasivos }: { pasivos: FilaPasivo[] }) {
                     </Button>
                   )}
                 >
-                  {(cerrar) => <FormAbono pasivo={p} cerrar={cerrar} />}
+                  {(cerrar) => <FormAbono pasivo={p} cerrar={cerrar} cuentas={cuentas} />}
                 </VentanaConBoton>
               )}
               <VentanaConBoton
@@ -279,14 +285,22 @@ export function ListaPasivos({ pasivos }: { pasivos: FilaPasivo[] }) {
   );
 }
 
-export function SeccionPasivos({ pasivos, hoy }: { pasivos: FilaPasivo[]; hoy: string }) {
+export function SeccionPasivos({ pasivos, hoy, cuentas }: { pasivos: FilaPasivo[]; hoy: string; cuentas: readonly Cuenta[] }) {
+  const falta = pasivos.reduce((suma, p) => suma + p.saldo, 0);
   return (
-    <Card className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-bold">{t.titulo}</h2>
-        <AnotarPasivo hoy={hoy} />
+    <section aria-labelledby="deudas" className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b-2 border-teal-oscuro bg-rosa px-4 py-3 md:px-5">
+        <h2 id="deudas" className="font-logo text-lg font-bold">
+          {t.titulo}
+        </h2>
+        <div className="flex items-center gap-3">
+          {falta > 0 && <span className="font-logo text-xl font-bold tabular-nums">{formatearDolares(falta)}</span>}
+          <AnotarPasivo hoy={hoy} cuentas={cuentas} />
+        </div>
       </div>
-      <ListaPasivos pasivos={pasivos} />
-    </Card>
+      <div className="p-3 md:p-4">
+        <ListaPasivos pasivos={pasivos} cuentas={cuentas} />
+      </div>
+    </section>
   );
 }

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { PartidaAparte, Periodo } from "@/domain";
+import type { PartidaAparte, Periodo, TrasladoEntreCuentas } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
 import { textos } from "@/lib/textos";
 import { datosDeGestion } from "./repositorio";
@@ -11,14 +11,24 @@ const t = textos.gestion.libro;
  * Mueven el dinero pero no son ingreso ni gasto, por eso van como partidas aparte dentro de los movimientos.
  */
 export async function apartesDelPeriodo(supabase: SupabaseClient<Database>, negocioId: string, periodo: Periodo): Promise<PartidaAparte[]> {
+  return (await partidasDelPeriodo(supabase, negocioId, periodo)).apartes;
+}
+
+/** Lo mismo que `apartesDelPeriodo`, y además el dinero que se pasó de una cuenta a otra (que ni entra ni sale). Una sola lectura. */
+export async function partidasDelPeriodo(
+  supabase: SupabaseClient<Database>,
+  negocioId: string,
+  periodo: Periodo,
+): Promise<{ apartes: PartidaAparte[]; traslados: TrasladoEntreCuentas[] }> {
   const datos = await datosDeGestion(supabase, negocioId);
   const dentro = (iso?: string): iso is string => !!iso && new Date(iso) >= periodo.desde && new Date(iso) < periodo.hasta;
   const acreedor = new Map(datos.pasivos.map((p) => [p.id, p.acreedor]));
+  const nombreDe = new Map(datos.cuentas.map((c) => [c.id, c.nombre]));
 
-  return [
+  const apartes: PartidaAparte[] = [
     ...datos.pasivos
       .filter((p) => p.recibidoEn && dentro(p.creadoEn))
-      .map((p): PartidaAparte => ({ id: `p-${p.id}`, creadoEn: p.creadoEn, monto: p.monto, metodo: p.recibidoEn, sentido: "entra", clase: "prestamo", titulo: t.prestamo(p.acreedor) })),
+      .map((p): PartidaAparte => ({ id: `p-${p.id}`, creadoEn: p.creadoEn, monto: p.monto, metodo: p.recibidoEn, sentido: "entra", clase: "prestamo", titulo: t.prestamo(p.acreedor), cuenta: p.recibidoCuenta })),
     ...datos.ajustes
       .filter((a) => dentro(a.creadoEn))
       .map((a): PartidaAparte => ({
@@ -28,16 +38,28 @@ export async function apartesDelPeriodo(supabase: SupabaseClient<Database>, nego
         metodo: a.lugar,
         sentido: a.monto > 0 ? "entra" : "sale",
         clase: "ajuste",
-        titulo: t.ajuste(textos.gestion.lugares[a.lugar].toLowerCase(), a.nota ?? ""),
+        cuenta: a.cuenta,
+        titulo: t.ajuste(nombreDe.get(a.cuenta) ?? textos.gestion.lugares[a.lugar], a.nota ?? ""),
       })),
     ...datos.compras
       .filter((c) => dentro(c.creadoEn))
-      .map((c): PartidaAparte => ({ id: `c-${c.id}`, creadoEn: c.creadoEn, monto: c.monto, metodo: c.lugar, sentido: "sale", clase: "compra", titulo: t.compra(c.nota ?? "") })),
+      .map((c): PartidaAparte => ({ id: `c-${c.id}`, creadoEn: c.creadoEn, monto: c.monto, metodo: c.lugar, sentido: "sale", clase: "compra", titulo: t.compra(c.nota ?? ""), cuenta: c.cuenta })),
     ...datos.abonos
       .filter((a) => dentro(a.creadoEn))
-      .map((a, i): PartidaAparte => ({ id: `a-${a.pasivoId}-${i}`, creadoEn: a.creadoEn!, monto: a.monto, metodo: a.lugar, sentido: "sale", clase: "pago_deuda", titulo: t.abono(acreedor.get(a.pasivoId) ?? "—") })),
+      .map((a, i): PartidaAparte => ({ id: `a-${a.pasivoId}-${i}`, creadoEn: a.creadoEn!, monto: a.monto, metodo: a.lugar, sentido: "sale", clase: "pago_deuda", titulo: t.abono(acreedor.get(a.pasivoId) ?? "—"), cuenta: a.cuenta })),
     ...datos.paquetera
       .filter((x) => dentro(x.creadoEn))
-      .map((x): PartidaAparte => ({ id: `e-${x.id}`, creadoEn: x.creadoEn, monto: x.monto, metodo: x.lugar, sentido: "sale", clase: "paquetera", titulo: t.paquetera(x.pedidoCodigo) })),
+      .map((x): PartidaAparte => ({ id: `e-${x.id}`, creadoEn: x.creadoEn, monto: x.monto, metodo: x.lugar, sentido: "sale", clase: "paquetera", titulo: t.paquetera(x.pedidoCodigo), cuenta: x.cuenta })),
   ];
+  const traslados: TrasladoEntreCuentas[] = datos.entreCuentas
+    .filter((m) => dentro(m.creadoEn))
+    .map((m) => ({
+      id: `t-${m.id}`,
+      creadoEn: m.creadoEn,
+      monto: m.monto,
+      desde: m.desde,
+      hacia: m.hacia,
+      titulo: t.traslado(nombreDe.get(m.desde) ?? "—", nombreDe.get(m.hacia) ?? "—"),
+    }));
+  return { apartes, traslados };
 }

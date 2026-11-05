@@ -9,6 +9,7 @@ import { crearNegocio } from "./crearNegocio";
 import { perfil } from "./perfil";
 import { inicio } from "./inicio";
 import { productos } from "./productos";
+import { galeria } from "./galeria";
 import { asistente } from "./asistente";
 import { avisos } from "./avisos";
 import { vitrina } from "./vitrina";
@@ -49,6 +50,7 @@ export const textos = {
   perfil,
   inicio,
   productos,
+  galeria,
   asistente,
   avisos,
   vitrina,

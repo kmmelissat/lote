@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { aCentavos, aDolares, fechaLocalDe, type Centavos, type Descuento, type EstadoPedido } from "@/domain";
 import type { Busqueda } from "./busqueda";
 import type { PedidoDelMes } from "./delMes";
+import type { FiltrosPedido } from "./filtros";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -112,10 +113,15 @@ export async function paginaDePedidos(
   negocioId: string,
   desde: number,
   cantidad: number,
-  filtros: { estado?: EstadoPedido; busqueda?: Busqueda } = {},
+  filtros: { estado?: EstadoPedido; busqueda?: Busqueda } & FiltrosPedido = {},
 ): Promise<Pedido[]> {
   let consulta = supabase.from("pedido").select(columnas).eq("negocio_id", negocioId);
   if (filtros.estado) consulta = consulta.eq("estado", filtros.estado);
+  if (filtros.canal) consulta = consulta.eq("canal", filtros.canal);
+  if (filtros.desde) consulta = consulta.gte("creado_en", filtros.desde.toISOString());
+  if (filtros.hasta) consulta = consulta.lt("creado_en", filtros.hasta.toISOString());
+  if (filtros.cobro === "debe") consulta = consulta.gt("saldo", 0);
+  if (filtros.cobro === "contra_entrega") consulta = consulta.eq("contra_entrega", true);
   if (filtros.busqueda && "codigo" in filtros.busqueda) consulta = consulta.eq("codigo", filtros.busqueda.codigo);
   if (filtros.busqueda && "nombre" in filtros.busqueda) {
     if (!filtros.busqueda.nombre) return [];
@@ -137,12 +143,19 @@ export async function paginaDePedidos(
   return data.map(aPedido);
 }
 
-/** Cuántos pedidos hay en cada estado (para los contadores de las pestañas). */
+/** Cuántos pedidos hay en cada estado (para los contadores de las pestañas), con los mismos filtros que la lista. */
 export async function contarPedidosPorEstado(
   supabase: Cliente,
   negocioId: string,
+  filtros: FiltrosPedido = {},
 ): Promise<Record<EstadoPedido, number>> {
-  const { data, error } = await supabase.from("pedido").select("estado").eq("negocio_id", negocioId).limit(5000);
+  let consulta = supabase.from("pedido").select("estado").eq("negocio_id", negocioId);
+  if (filtros.canal) consulta = consulta.eq("canal", filtros.canal);
+  if (filtros.desde) consulta = consulta.gte("creado_en", filtros.desde.toISOString());
+  if (filtros.hasta) consulta = consulta.lt("creado_en", filtros.hasta.toISOString());
+  if (filtros.cobro === "debe") consulta = consulta.gt("saldo", 0);
+  if (filtros.cobro === "contra_entrega") consulta = consulta.eq("contra_entrega", true);
+  const { data, error } = await consulta.limit(5000);
   if (error) throw error;
   const cuentas = { pendiente: 0, pagado: 0, preparando: 0, enviado: 0, entregado: 0, cancelado: 0 } as Record<EstadoPedido, number>;
   for (const f of data) if (f.estado in cuentas) cuentas[f.estado as EstadoPedido] += 1;
@@ -153,13 +166,14 @@ export async function contarPedidosPorEstado(
 export async function pedidosDesde(supabase: Cliente, negocioId: string, desde: Date): Promise<PedidoDelMes[]> {
   const { data, error } = await supabase
     .from("pedido")
-    .select("estado, total, vence_en, contra_entrega, creado_en")
+    .select("estado, canal, total, vence_en, contra_entrega, creado_en")
     .eq("negocio_id", negocioId)
     .gte("creado_en", desde.toISOString())
     .limit(5000);
   if (error) throw error;
   return data.map((f) => ({
     estado: f.estado as EstadoPedido,
+    canal: f.canal as Canal,
     total: aCentavos(f.total),
     venceEn: f.vence_en ? new Date(f.vence_en) : null,
     contraEntrega: f.contra_entrega,

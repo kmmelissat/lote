@@ -2,21 +2,21 @@
 
 import { useActionState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
 import { useAvisarListo } from "@/components/ui/Toast";
 import { estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
-import { LUGARES_DE_DINERO, type Centavos } from "@/domain/index";
+import type { Centavos, Cuenta } from "@/domain/index";
 import { soloNumero } from "@/lib/entrada";
 import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { pagarPaqueteraDelPedido, type EstadoEnvio } from "../actions/envio";
 import type { PagoAPaquetera } from "../repositorio";
+import { cuentaInicial, opcionesDeCuentas } from "@/features/gestion/elegirCuenta";
 
 const t = textos.pedidos.envio.pagoPaquetera;
 
-function FormPago({ pedidoId, costo, pago, cerrar }: { pedidoId: string; costo: Centavos; pago: PagoAPaquetera | null; cerrar: () => void }) {
+function FormPago({ pedidoId, costo, pago, cuentas, cerrar }: { pedidoId: string; costo: Centavos; pago: PagoAPaquetera | null; cuentas: readonly Cuenta[]; cerrar: () => void }) {
   const [estado, accion, pendiente] = useActionState<EstadoEnvio, FormData>(pagarPaqueteraDelPedido.bind(null, pedidoId), {});
   useAvisarListo(estado);
   useEffect(() => {
@@ -25,6 +25,7 @@ function FormPago({ pedidoId, costo, pago, cerrar }: { pedidoId: string; costo: 
 
   return (
     <form action={accion} className="flex flex-col gap-4">
+      <p className="text-sm text-texto-2">{t.ayuda}</p>
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-bold">{t.monto}</span>
         <span className="relative">
@@ -46,10 +47,10 @@ function FormPago({ pedidoId, costo, pago, cerrar }: { pedidoId: string; costo: 
       </label>
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-bold">{t.lugar}</span>
-        <Select name="lugar" defaultValue={pago?.lugar ?? "efectivo"}>
-          {LUGARES_DE_DINERO.map((l) => (
-            <option key={l} value={l}>
-              {textos.gestion.lugares[l]}
+        <Select name="lugar" defaultValue={pago?.cuenta ?? cuentaInicial(cuentas, pago?.lugar)}>
+          {opcionesDeCuentas(cuentas).map((c) => (
+            <option key={c.valor} value={c.valor}>
+              {c.etiqueta}
             </option>
           ))}
         </Select>
@@ -62,15 +63,19 @@ function FormPago({ pedidoId, costo, pago, cerrar }: { pedidoId: string; costo: 
   );
 }
 
-/** Lo que se le pagó a la paquetera por el envío. Baja el efectivo o la cuenta digital; no es un gasto. */
-export function PagoPaquetera({ pedidoId, costo, pago }: { pedidoId: string; costo: Centavos; pago: PagoAPaquetera | null }) {
+/** Lo que se le pagó a la paquetera por el envío, al pie de la tarjeta del envío. Baja el efectivo o la cuenta digital; no es un gasto. */
+export function PagoPaquetera({ pedidoId, costo, pago, cuentas }: { pedidoId: string; costo: Centavos; pago: PagoAPaquetera | null; cuentas: readonly Cuenta[] }) {
+  const deDonde = cuentas.find((c) => c.id === pago?.cuenta)?.nombre ?? (pago ? textos.gestion.lugares[pago.lugar] : "");
   return (
-    <Card role="region" aria-labelledby="pagopaquetera" className="flex flex-col gap-3">
-      <h2 id="pagopaquetera" className="text-lg font-bold">
-        {t.titulo}
-      </h2>
-      <p className="text-sm text-texto-2">{t.ayuda}</p>
-      {pago && <p className="font-medium">{t.pagado(formatearDolares(pago.monto), textos.gestion.lugares[pago.lugar].toLowerCase())}</p>}
+    <section aria-labelledby="pagopaquetera" className="flex flex-wrap items-center justify-between gap-3 border-t border-borde pt-4">
+      <div className="min-w-0">
+        <h3 id="pagopaquetera" className="font-bold">
+          {t.titulo}
+        </h3>
+        <p className="text-sm text-texto-2">
+          {pago ? t.pagado(formatearDolares(pago.monto), deDonde) : t.sinPago}
+        </p>
+      </div>
       <div>
         <VentanaConBoton
           id="pago-paquetera"
@@ -81,9 +86,9 @@ export function PagoPaquetera({ pedidoId, costo, pago }: { pedidoId: string; cos
             </Button>
           )}
         >
-          {(cerrar) => <FormPago pedidoId={pedidoId} costo={costo} pago={pago} cerrar={cerrar} />}
+          {(cerrar) => <FormPago pedidoId={pedidoId} costo={costo} pago={pago} cuentas={cuentas} cerrar={cerrar} />}
         </VentanaConBoton>
       </div>
-    </Card>
+    </section>
   );
 }

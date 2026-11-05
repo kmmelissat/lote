@@ -15,31 +15,34 @@ const aparte = textos.gestion.libro;
 
 const ICONO_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco" };
 
-function ChipMetodo({ metodo }: { metodo: MetodoMovimiento | null }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-fondo px-3 py-1 text-sm font-bold text-teal-oscuro">
-      {metodo ? t.metodos[metodo] : t.sinMetodo}
-    </span>
-  );
+/** De qué cuenta es el movimiento; si no se sabe (lo de antes de las cuentas), el método. Un traslado dice que es entre cuentas. */
+function ChipCuenta({ m, nombres }: { m: Movimiento; nombres: Record<string, string> }) {
+  const texto =
+    m.tipo === "traslado"
+      ? aparte.trasladoChip
+      : ((m.cuenta ? nombres[m.cuenta] : undefined) ?? (m.metodo ? t.metodos[m.metodo] : t.sinMetodo));
+  return <span className="inline-flex items-center gap-1 rounded-full bg-fondo px-3 py-1 text-sm font-bold text-teal-oscuro">{texto}</span>;
 }
 
 /** Si el dinero entró (un pago, un préstamo o un ajuste a favor) o salió. */
 const entra = (m: Movimiento) => (m.tipo === "aparte" ? m.sentido === "entra" : m.tipo === "entrada");
+
 
 /** El círculo de cada fila: limón si entró, rosa si salió, con el ícono de dónde estaba el dinero. */
 function Icono({ m }: { m: Movimiento }) {
   return (
     <span
       aria-hidden="true"
-      className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${entra(m) ? "bg-limon" : "bg-rosa"}`}
+      className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${m.tipo === "traslado" ? "bg-fondo" : entra(m) ? "bg-limon" : "bg-rosa"}`}
     >
-      <Icon nombre={m.metodo ? ICONO_METODO[m.metodo] : "moneda"} className="size-5" />
+      <Icon nombre={m.tipo === "traslado" ? "flecha" : m.metodo ? ICONO_METODO[m.metodo] : "moneda"} className="size-5" />
     </span>
   );
 }
 
 /** Verde con + para lo que entró y rojo con − para lo que salió: el signo dice lo mismo que el color. */
 function Monto({ m }: { m: Movimiento }) {
+  if (m.tipo === "traslado") return <span className="whitespace-nowrap font-bold tabular-nums">{formatearDolares(m.monto)}</span>;
   const entrada = entra(m);
   return (
     <span className={`whitespace-nowrap font-bold tabular-nums ${entrada ? "text-teal" : "text-error"}`}>
@@ -51,7 +54,7 @@ function Monto({ m }: { m: Movimiento }) {
 }
 
 function titulo(m: Movimiento): string {
-  if (m.tipo === "aparte") return m.titulo;
+  if (m.tipo === "aparte" || m.tipo === "traslado") return m.titulo;
   if (m.tipo === "salida") return m.nota ?? textos.ganancia.categorias[m.categoria as keyof typeof textos.ganancia.categorias] ?? m.categoria;
   return m.cliente ?? t.concepto.pedido(m.pedidoCodigo);
 }
@@ -62,6 +65,7 @@ function subtitulo(m: Movimiento, conFecha: boolean): string {
 }
 
 function detalle(m: Movimiento): string {
+  if (m.tipo === "traslado") return aparte.trasladoDetalle;
   if (m.tipo === "aparte") return `${aparte.aparte} · ${aparte.clases[m.clase]}`;
   if (m.tipo === "salida") {
     const categoria = textos.ganancia.categorias[m.categoria as keyof typeof textos.ganancia.categorias] ?? m.categoria;
@@ -99,7 +103,7 @@ function porDia(movimientos: Movimiento[]): Dia[] {
       dias.push(dia);
     }
     dia.movimientos.push(m);
-    if (m.tipo !== "aparte") dia.neto += m.tipo === "entrada" ? m.monto : -m.monto;
+    if (m.tipo === "entrada" || m.tipo === "salida") dia.neto += m.tipo === "entrada" ? m.monto : -m.monto;
   }
   return dias;
 }
@@ -120,7 +124,19 @@ function NetoDelDia({ neto }: { neto: number }) {
 }
 
 /** Tabla cuando hay lugar (ancho del propio contenedor) y lista apilada cuando no, con un encabezado por cada día. */
-export function ListaMovimientos({ movimientos, hoy, conFecha = false }: { movimientos: Movimiento[]; hoy: string; /** Pone el día en cada fila, no solo en el encabezado del grupo */ conFecha?: boolean }) {
+export function ListaMovimientos({
+  movimientos,
+  hoy,
+  conFecha = false,
+  nombresDeCuenta = {},
+}: {
+  movimientos: Movimiento[];
+  hoy: string;
+  /** Pone el día en cada fila, no solo en el encabezado del grupo */
+  conFecha?: boolean;
+  /** El nombre de cada cuenta por su id */
+  nombresDeCuenta?: Record<string, string>;
+}) {
   const dias = porDia(movimientos);
   return (
     <div className="@container">
@@ -149,7 +165,7 @@ export function ListaMovimientos({ movimientos, hoy, conFecha = false }: { movim
                     <Concepto m={m} conFecha={conFecha} />
                   </td>
                   <td className="px-2 py-3">
-                    <ChipMetodo metodo={m.metodo} />
+                    <ChipCuenta m={m} nombres={nombresDeCuenta} />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Monto m={m} />
@@ -176,7 +192,7 @@ export function ListaMovimientos({ movimientos, hoy, conFecha = false }: { movim
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <Monto m={m} />
-                    <ChipMetodo metodo={m.metodo} />
+                    <ChipCuenta m={m} nombres={nombresDeCuenta} />
                   </div>
                 </li>
               ))}

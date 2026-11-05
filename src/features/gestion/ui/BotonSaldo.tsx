@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
-import type { LugarDeDinero } from "@/domain/index";
 import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -14,7 +13,7 @@ import { estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
 
 const t = textos.gestion.saldo;
 
-function FormSaldo({ lugar, esperado, cerrar }: { lugar: LugarDeDinero; esperado: number | null; cerrar: () => void }) {
+function FormSaldo({ cuenta, esperado, cerrar }: { cuenta: string; esperado: number | null; cerrar: () => void }) {
   const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(guardarSaldo, {});
   const inicial = esperado === null;
   useAvisarListo(estado);
@@ -25,7 +24,7 @@ function FormSaldo({ lugar, esperado, cerrar }: { lugar: LugarDeDinero; esperado
 
   return (
     <form key={estado.guardados ?? 0} action={accion} className="flex flex-col gap-4">
-      <input type="hidden" name="lugar" value={lugar} />
+      <input type="hidden" name="cuenta" value={cuenta} />
       <p className="text-sm text-texto-2">{inicial ? t.empezaPor : t.ajusteAyuda(formatearDolares(esperado))}</p>
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-bold">{inicial ? t.saldoInicial : t.loQueHay}</span>
@@ -61,15 +60,15 @@ function FormSaldo({ lugar, esperado, cerrar }: { lugar: LugarDeDinero; esperado
 }
 
 /**
- * El botón de cada lugar donde hay dinero: pone el saldo inicial la primera vez y después sirve para ajustarlo a lo que hay de verdad.
+ * El botón de cada cuenta: pone el saldo inicial la primera vez y después sirve para ajustarlo a lo que hay de verdad.
  * `discreto` lo dibuja como un enlace de texto, para ir en una línea de la lista sin pesar más que el monto.
  */
-export function BotonSaldo({ lugar, saldo, discreto = false }: { lugar: LugarDeDinero; saldo: number | null; discreto?: boolean }) {
-  const nombre = textos.gestion.lugares[lugar].toLowerCase();
+export function BotonSaldo({ cuenta, saldo, discreto = false }: { cuenta: { id: string; nombre: string }; saldo: number | null; discreto?: boolean }) {
+  const nombre = cuenta.nombre;
   const etiqueta = saldo === null ? t.ponerInicial : t.ajustar;
   return (
     <VentanaConBoton
-      id={`saldo-${lugar}`}
+      id={`saldo-${cuenta.id}`}
       titulo={saldo === null ? t.inicialTitulo(nombre) : t.ajusteTitulo(nombre)}
       boton={(abrir) =>
         discreto ? (
@@ -84,7 +83,7 @@ export function BotonSaldo({ lugar, saldo, discreto = false }: { lugar: LugarDeD
         )
       }
     >
-      {(cerrar) => <FormSaldo lugar={lugar} esperado={saldo} cerrar={cerrar} />}
+      {(cerrar) => <FormSaldo cuenta={cuenta.id} esperado={saldo} cerrar={cerrar} />}
     </VentanaConBoton>
   );
 }

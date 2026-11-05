@@ -37,7 +37,7 @@ export const asistente = {
       { texto: "¿Qué falta enviar?", modo: "mandar" },
       { texto: "ya pagó Ana", modo: "escribir" },
     ],
-    "/gestion": [
+    "/balance": [
       { texto: "¿Cuánto debo?", modo: "mandar" },
       { texto: "¿Cuánto vale mi negocio?", modo: "mandar" },
       { texto: "¿Cuánto gané esta semana?", modo: "mandar" },
@@ -52,7 +52,7 @@ export const asistente = {
   balance: {
     resumen: (tenes: string, debes: string, tuyo: string) => `Hoy tenés ${tenes}, debés ${debes} y lo que es tuyo son ${tuyo}.`,
     linea: (nombre: string, monto: string) => `• ${nombre}: ${monto}`,
-    sinSaldo: (nombre: string) => `• ${nombre}: falta el saldo inicial (ponelo en Gestión → Balance)`,
+    sinSaldo: (nombre: string) => `• ${nombre}: falta el saldo inicial (ponelo en Balance → Detalle)`,
     sinDeudas: "No debés nada.",
     debes: "Lo que debés:",
     deuda: (acreedor: string, saldo: string, cuota: string | null) => `• ${acreedor}: ${saldo}${cuota ? ` (${cuota})` : ""}`,

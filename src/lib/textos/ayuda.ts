@@ -58,40 +58,40 @@ export const ayuda = {
     },
     {
       id: "ganancia",
-      enlace: { href: "/gestion", etiqueta: "Ver Gestión" },
-      donde: ["/gestion", "/movimientos"],
+      enlace: { href: "/balance", etiqueta: "Ver Gestión" },
+      donde: ["/balance", "/movimientos"],
       pregunta: "¿Cómo sé cuánto gané?",
       respuesta:
         "En Gestión, en el Resumen, ves cuánto ganaste en el periodo: lo vendido menos lo que costaron los productos y menos tus gastos. Si a algún producto le falta el costo, la ganancia aparece como estimada. Solo la ven quien es titular y quien administra.",
     },
     {
       id: "balance",
-      enlace: { href: "/gestion/cuadre", etiqueta: "Ver el Balance" },
-      donde: ["/gestion"],
+      enlace: { href: "/balance/detalle", etiqueta: "Ver el Balance" },
+      donde: ["/balance"],
       pregunta: "¿Qué es el Balance y cuánto vale mi negocio?",
       respuesta:
         "El Balance es lo que tenés y lo que debés: suma lo que tenés (efectivo, cuenta digital, lo que te deben y tu mercadería a lo que te costó) y le resta lo que debés. Lo que queda es lo que es tuyo hoy. Un préstamo sube lo que tenés y también lo que debés, así que no cambia lo que es tuyo. Lo que es tuyo sube cuando vendés con ganancia y baja cuando gastás. Lo ven quien es titular y quien administra.",
     },
     {
       id: "saldo_inicial",
-      enlace: { href: "/gestion/cuadre", etiqueta: "Poner mi saldo" },
-      donde: ["/gestion"],
+      enlace: { href: "/balance/detalle", etiqueta: "Poner mi saldo" },
+      donde: ["/balance"],
       pregunta: "¿Cómo pongo cuánto dinero tengo en efectivo y en mi cuenta?",
       respuesta:
         "En Gestión, en Balance, tocá Poner saldo inicial en Efectivo y en Cuenta digital y escribí cuánto hay hoy. Se hace una sola vez: desde ahí el saldo sube con lo que cobrás y baja con lo que gastás y pagás. Si un día no calza con lo que hay de verdad, tocá Ajustar saldo, escribí lo que hay y por qué la diferencia: queda anotado como ajuste.",
     },
     {
       id: "deuda",
-      enlace: { href: "/gestion/cuadre", etiqueta: "Anotar una deuda" },
-      donde: ["/gestion"],
+      enlace: { href: "/balance/detalle", etiqueta: "Anotar una deuda" },
+      donde: ["/balance"],
       pregunta: "¿Cómo anoto una deuda, un préstamo o un crédito?",
       respuesta:
         "En Gestión, en Balance, tocá Anotar lo que debés. Elegí si es deuda, préstamo o crédito, a quién se lo debés y cuánto. Si te prestaron dinero y lo recibiste, elegí dónde entró (efectivo o cuenta digital) para que ese saldo suba. Cada vez que pagués, tocá Abonar y elegí de dónde sale el dinero. Pagar una deuda no es un gasto: no baja tu ganancia.",
     },
     {
       id: "cuota_deuda",
-      enlace: { href: "/gestion/cuadre", etiqueta: "Ver mis deudas" },
-      donde: ["/gestion"],
+      enlace: { href: "/balance/detalle", etiqueta: "Ver mis deudas" },
+      donde: ["/balance"],
       pregunta: "¿Cómo guardo la cuota de una deuda que pago cada mes?",
       respuesta:
         "Al anotar la deuda, o con Editar si ya la tenés, completá la cuota: cuánto pagás cada vez, cuántas cuotas son y qué día del mes toca. Lote te muestra cuántas cuotas faltan y cuándo toca pagar, y al abonar ya te pone el monto de la cuota. Podés cambiarla cuando quieras.",

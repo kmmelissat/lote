@@ -2,17 +2,17 @@ import { describe, expect, it } from "vitest";
 import { fotosDeVariante, fotosDelGrupo, separarFotos } from "./fotosVariantes";
 
 describe("fotosDeVariante", () => {
-  it("la general va primero y después la propia, sin repetir", () => {
-    expect(fotosDeVariante(["general"], ["sabor", "general"])).toEqual(["general", "sabor"]);
+  it("usa las que eligió de la galería, en su orden y sin repetir", () => {
+    expect(fotosDeVariante(["a", "b", "c"], ["c", "a", "c"])).toEqual(["c", "a"]);
   });
 
-  it("sin propias quedan solo las generales; sin generales, solo las propias", () => {
-    expect(fotosDeVariante(["general"], [])).toEqual(["general"]);
-    expect(fotosDeVariante([], ["sabor"])).toEqual(["sabor"]);
+  it("sin elegir ninguna, usa todas las de la galería", () => {
+    expect(fotosDeVariante(["a", "b"], [])).toEqual(["a", "b"]);
+    expect(fotosDeVariante([], [])).toEqual([]);
   });
 
   it("no pasa del tope de fotos", () => {
-    expect(fotosDeVariante(["a", "b", "c", "d", "e"], ["f", "g", "h", "i", "j"])).toHaveLength(8);
+    expect(fotosDeVariante([], ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])).toHaveLength(8);
   });
 });
 

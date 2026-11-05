@@ -57,16 +57,17 @@ export async function archivosDelBucket(supabase: Cliente): Promise<Archivo[]> {
   return archivos;
 }
 
-/** Cuenta como usada cualquier ruta de producto.fotos, negocio.logo, pago.comprobante o importacion.archivo. */
+/** Cuenta como usada cualquier ruta de producto.fotos, negocio.logo, pago.comprobante, importacion.archivo o galeria.ruta. */
 export async function rutasUsadas(supabase: Cliente): Promise<Set<string>> {
-  const [productos, negocios, pagos, importaciones] = await Promise.all([
+  const [productos, negocios, pagos, importaciones, galeria] = await Promise.all([
     todas<{ fotos: string[] | null }>(supabase, "producto", "fotos"),
     todas<{ logo: string | null }>(supabase, "negocio", "logo"),
     todas<{ comprobante: string | null }>(supabase, "pago", "comprobante"),
     todas<{ archivo: string | null }>(supabase, "importacion", "archivo"),
+    todas<{ ruta: string | null }>(supabase, "galeria", "ruta"),
   ]);
   return new Set(
-    [...productos.flatMap((p) => p.fotos ?? []), ...negocios.map((n) => n.logo), ...pagos.map((p) => p.comprobante), ...importaciones.map((i) => i.archivo)].filter(
+    [...productos.flatMap((p) => p.fotos ?? []), ...negocios.map((n) => n.logo), ...pagos.map((p) => p.comprobante), ...importaciones.map((i) => i.archivo), ...galeria.map((g) => g.ruta)].filter(
       (r): r is string => !!r,
     ),
   );

@@ -30,7 +30,7 @@ export const pestanas: Pestana[] = [
   { href: "/pedidos", etiqueta: t.pedidos, icono: "pedidos" },
   { href: "/clientes", etiqueta: t.clientes, icono: "clientes" },
   { href: "/movimientos", etiqueta: t.movimientos, icono: "billetera" },
-  { href: "/gestion", etiqueta: t.gestion, icono: "balanza" },
+  { href: "/balance", etiqueta: t.gestion, icono: "balanza" },
   { href: "/asistente", etiqueta: t.asistente, icono: "chat" },
 ];
 
@@ -42,7 +42,7 @@ export const ajustesEscritorio: Pestana[] = [
 /** Las secciones del menú de escritorio, por grupos. Lo externo (Marketplace, vitrina) va al final de "Tu negocio". */
 export const gruposMenu: { titulo: string; rutas: Route[] }[] = [
   { titulo: t.grupos.vender, rutas: ["/inicio", "/vender", "/productos", "/pedidos", "/clientes"] },
-  { titulo: t.grupos.dinero, rutas: ["/movimientos", "/gestion"] },
+  { titulo: t.grupos.dinero, rutas: ["/movimientos", "/balance"] },
   { titulo: t.grupos.negocio, rutas: ["/asistente", "/ajustes/tienda"] },
 ];
 
@@ -54,7 +54,7 @@ export const FONDO_SECCION: Record<string, string> = {
   "/pedidos": "bg-celeste",
   "/clientes": "bg-menta",
   "/movimientos": "bg-ambar",
-  "/gestion": "bg-lila",
+  "/balance": "bg-lila",
   "/asistente": "bg-turquesa",
   "/ajustes/tienda": "bg-pervinca",
   "/marketplace": "bg-lima",
@@ -72,7 +72,7 @@ export const PINTA_HOVER_SECCION: Record<string, string> = {
   "/pedidos": "hover:bg-[color-mix(in_srgb,var(--color-celeste)_50%,white)]",
   "/clientes": "hover:bg-[color-mix(in_srgb,var(--color-menta)_50%,white)]",
   "/movimientos": "hover:bg-[color-mix(in_srgb,var(--color-ambar)_50%,white)]",
-  "/gestion": "hover:bg-[color-mix(in_srgb,var(--color-lila)_50%,white)]",
+  "/balance": "hover:bg-[color-mix(in_srgb,var(--color-lila)_50%,white)]",
   "/asistente": "hover:bg-[color-mix(in_srgb,var(--color-turquesa)_50%,white)]",
   "/ajustes/tienda": "hover:bg-[color-mix(in_srgb,var(--color-pervinca)_50%,white)]",
   "/marketplace": "hover:bg-[color-mix(in_srgb,var(--color-lima)_50%,white)]",

@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
-const PANEL = new Set(["inicio", "productos", "pedidos", "clientes", "movimientos", "ajustes", "asistente", "vender"]);
+const PANEL = new Set(["inicio", "productos", "pedidos", "clientes", "movimientos", "balance", "ajustes", "asistente", "vender"]);
 const SALTAR = new Set(["c", "p"]);
 const SIN_MIGAS = new Set(["login", "crear-negocio", "auth", "landing-mas"]);
 
@@ -16,8 +16,8 @@ type Casa = { href: Route; etiqueta: string; icono: "inicio" | "tienda" };
 type Miga = { href: Route; etiqueta: string };
 
 function etiquetaDe(tramo: string, padre?: string) {
-  // En Gestión la pestaña se llama Balance; en Dinero, Cuadre
-  if (tramo === "cuadre" && padre === "gestion") return textos.gestion.cuadre.etiqueta;
+  // Dentro de Balance, «resumen» es la pestaña de la ganancia, no el resumen semanal de Ajustes
+  if (tramo === "resumen" && padre === "balance") return textos.gestion.resumen;
   const conocido = textos.migas[tramo];
   if (conocido) return conocido;
   if (ID.test(tramo)) return textos.nav.detalle;

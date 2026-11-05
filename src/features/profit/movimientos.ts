@@ -14,6 +14,7 @@ type FilaPago = {
   creado_en: string;
   monto: number;
   metodo: string;
+  cuenta_id: string | null;
   pedido_id: string;
   pedido: {
     codigo: number;
@@ -37,7 +38,7 @@ function productoDe(items: { producto: { nombre: string } | null }[]): string | 
 export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, periodo: Periodo): Promise<PagoEntrante[]> {
   const { data, error } = await supabase
     .from("pago")
-    .select("id, fecha, creado_en, monto, metodo, pedido_id, pedido(codigo, total, cliente(nombre), pedido_item(producto(nombre)))")
+    .select("id, fecha, creado_en, monto, metodo, cuenta_id, pedido_id, pedido(codigo, total, cliente(nombre), pedido_item(producto(nombre)))")
     .eq("negocio_id", negocioId)
     .gte("fecha", periodo.desdeFecha)
     .lt("fecha", periodo.hastaFecha)
@@ -72,6 +73,7 @@ export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, peri
       creadoEn: f.creado_en,
       monto: aCentavos(f.monto),
       metodo: f.metodo,
+      cuenta: f.cuenta_id,
       pedidoCodigo: f.pedido?.codigo ?? 0,
       cliente: f.pedido?.cliente?.nombre ?? null,
       producto: f.pedido ? productoDe(f.pedido.pedido_item) : null,
@@ -84,7 +86,7 @@ export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, peri
 export async function gastosComoSalidas(supabase: Cliente, negocioId: string, periodo: Periodo): Promise<GastoSaliente[]> {
   const { data, error } = await supabase
     .from("gasto")
-    .select("id, fecha, creado_en, monto, categoria, nota, metodo")
+    .select("id, fecha, creado_en, monto, categoria, nota, metodo, cuenta_id")
     .eq("negocio_id", negocioId)
     .gte("fecha", periodo.desdeFecha)
     .lt("fecha", periodo.hastaFecha)
@@ -99,5 +101,6 @@ export async function gastosComoSalidas(supabase: Cliente, negocioId: string, pe
     categoria: g.categoria,
     nota: g.nota,
     metodo: g.metodo,
+    cuenta: g.cuenta_id,
   }));
 }

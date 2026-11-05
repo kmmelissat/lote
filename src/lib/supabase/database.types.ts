@@ -643,6 +643,7 @@ export type Database = {
       }
       pago: {
         Row: {
+          cuenta_id: string | null
           comprobante: string | null
           creado_en: string
           fecha: string
@@ -654,6 +655,7 @@ export type Database = {
           usuario_id: string | null
         }
         Insert: {
+          cuenta_id?: string | null
           comprobante?: string | null
           creado_en?: string
           fecha?: string
@@ -665,6 +667,7 @@ export type Database = {
           usuario_id?: string | null
         }
         Update: {
+          cuenta_id?: string | null
           comprobante?: string | null
           creado_en?: string
           fecha?: string
@@ -924,6 +927,7 @@ export type Database = {
       }
       gasto: {
         Row: {
+          cuenta_id: string | null
           categoria: string
           creado_en: string
           creado_por: string | null
@@ -938,6 +942,7 @@ export type Database = {
           recurrente: boolean
         }
         Insert: {
+          cuenta_id?: string | null
           categoria: string
           creado_en?: string
           creado_por?: string | null
@@ -952,6 +957,7 @@ export type Database = {
           recurrente?: boolean
         }
         Update: {
+          cuenta_id?: string | null
           categoria?: string
           creado_en?: string
           creado_por?: string | null
@@ -994,6 +1000,7 @@ export type Database = {
           activo: boolean
           categoria: string
           creado_en: string
+          cuenta_id: string | null
           desde: string
           dia_del_mes: number
           id: string
@@ -1007,6 +1014,7 @@ export type Database = {
           activo?: boolean
           categoria: string
           creado_en?: string
+          cuenta_id?: string | null
           desde: string
           dia_del_mes: number
           id?: string
@@ -1020,6 +1028,7 @@ export type Database = {
           activo?: boolean
           categoria?: string
           creado_en?: string
+          cuenta_id?: string | null
           desde?: string
           dia_del_mes?: number
           id?: string
@@ -1031,6 +1040,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "gasto_fijo_cuenta_id_fkey"
+            columns: ["cuenta_id"]
+            isOneToOne: false
+            referencedRelation: "cuenta"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "gasto_fijo_negocio_id_fkey"
             columns: ["negocio_id"]
             isOneToOne: false
@@ -1041,6 +1057,7 @@ export type Database = {
       }
       abono_pasivo: {
         Row: {
+          cuenta_id: string | null
           creado_en: string
           id: string
           lugar: string
@@ -1051,6 +1068,7 @@ export type Database = {
           usuario_id: string | null
         }
         Insert: {
+          cuenta_id?: string | null
           creado_en?: string
           id?: string
           lugar: string
@@ -1061,6 +1079,7 @@ export type Database = {
           usuario_id?: string | null
         }
         Update: {
+          cuenta_id?: string | null
           creado_en?: string
           id?: string
           lugar?: string
@@ -1087,8 +1106,88 @@ export type Database = {
           }
         ]
       }
+      cuenta: {
+        Row: {
+          archivada: boolean
+          creado_en: string
+          id: string
+          negocio_id: string
+          nombre: string
+          principal: boolean
+          tipo: string
+        }
+        Insert: {
+          archivada?: boolean
+          creado_en?: string
+          id?: string
+          negocio_id: string
+          nombre: string
+          principal?: boolean
+          tipo: string
+        }
+        Update: {
+          archivada?: boolean
+          creado_en?: string
+          id?: string
+          negocio_id?: string
+          nombre?: string
+          principal?: boolean
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cuenta_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      movimiento_entre_cuentas: {
+        Row: {
+          creado_en: string
+          desde_cuenta: string
+          hacia_cuenta: string
+          id: string
+          monto: number
+          negocio_id: string
+          nota: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          creado_en?: string
+          desde_cuenta: string
+          hacia_cuenta: string
+          id?: string
+          monto: number
+          negocio_id: string
+          nota?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          creado_en?: string
+          desde_cuenta?: string
+          hacia_cuenta?: string
+          id?: string
+          monto?: number
+          negocio_id?: string
+          nota?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimiento_entre_cuentas_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       ajuste_dinero: {
         Row: {
+          cuenta_id: string | null
           creado_en: string
           id: string
           lugar: string
@@ -1099,6 +1198,7 @@ export type Database = {
           usuario_id: string | null
         }
         Insert: {
+          cuenta_id?: string | null
           creado_en?: string
           id?: string
           lugar: string
@@ -1109,6 +1209,7 @@ export type Database = {
           usuario_id?: string | null
         }
         Update: {
+          cuenta_id?: string | null
           creado_en?: string
           id?: string
           lugar?: string
@@ -1130,6 +1231,7 @@ export type Database = {
       }
       compra_mercaderia: {
         Row: {
+          cuenta_id: string | null
           creado_en: string
           id: string
           lugar: string
@@ -1139,6 +1241,7 @@ export type Database = {
           usuario_id: string | null
         }
         Insert: {
+          cuenta_id?: string | null
           creado_en?: string
           id?: string
           lugar: string
@@ -1148,6 +1251,7 @@ export type Database = {
           usuario_id?: string | null
         }
         Update: {
+          cuenta_id?: string | null
           creado_en?: string
           id?: string
           lugar?: string
@@ -1168,6 +1272,7 @@ export type Database = {
       }
       pago_paquetera: {
         Row: {
+          cuenta_id: string | null
           creado_en: string
           id: string
           lugar: string
@@ -1177,6 +1282,7 @@ export type Database = {
           usuario_id: string | null
         }
         Insert: {
+          cuenta_id?: string | null
           creado_en?: string
           id?: string
           lugar: string
@@ -1186,6 +1292,7 @@ export type Database = {
           usuario_id?: string | null
         }
         Update: {
+          cuenta_id?: string | null
           creado_en?: string
           id?: string
           lugar?: string
@@ -1213,6 +1320,7 @@ export type Database = {
       }
       pasivo: {
         Row: {
+          recibido_cuenta_id: string | null
           acreedor: string
           cuota: number | null
           cuotas: number | null
@@ -1228,6 +1336,7 @@ export type Database = {
           usuario_id: string | null
         }
         Insert: {
+          recibido_cuenta_id?: string | null
           acreedor: string
           cuota?: number | null
           cuotas?: number | null
@@ -1243,6 +1352,7 @@ export type Database = {
           usuario_id?: string | null
         }
         Update: {
+          recibido_cuenta_id?: string | null
           acreedor?: string
           cuota?: number | null
           cuotas?: number | null
@@ -1862,12 +1972,28 @@ export type Database = {
         Returns: string
       }
       abonar_pasivo: {
-        Args: { p_lugar: string; p_monto: number; p_nota?: string; p_pasivo: string }
+        Args: { p_cuenta?: string; p_lugar: string; p_monto: number; p_nota?: string; p_pasivo: string }
         Returns: string
       }
       quitar_pasivo: {
         Args: { p_pasivo: string }
         Returns: undefined
+      }
+      mover_entre_cuentas: {
+        Args: { p_desde: string; p_hacia: string; p_monto: number; p_nota?: string }
+        Returns: string
+      }
+      crear_cuenta: {
+        Args: { p_negocio: string; p_nombre: string; p_tipo: string }
+        Returns: string
+      }
+      editar_cuenta: {
+        Args: { p_archivada?: boolean; p_cuenta: string; p_nombre: string; p_principal?: boolean }
+        Returns: undefined
+      }
+      registrar_ajuste_cuenta: {
+        Args: { p_cuenta: string; p_monto: number; p_nota?: string; p_tipo: string }
+        Returns: string
       }
       registrar_ajuste_dinero: {
         Args: { p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string; p_tipo: string }
@@ -1878,11 +2004,11 @@ export type Database = {
         Returns: undefined
       }
       pagar_paquetera: {
-        Args: { p_lugar: string; p_monto: number; p_pedido: string }
+        Args: { p_cuenta?: string; p_lugar: string; p_monto: number; p_pedido: string }
         Returns: undefined
       }
       registrar_compra_mercaderia: {
-        Args: { p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string }
+        Args: { p_cuenta?: string; p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string }
         Returns: string
       }
       editar_pasivo: {
@@ -1890,12 +2016,13 @@ export type Database = {
         Returns: undefined
       }
       registrar_pasivo: {
-        Args: { p_acreedor: string; p_cuota?: number; p_cuotas?: number; p_dia_pago?: number; p_fecha_limite?: string; p_monto: number; p_negocio: string; p_nota?: string; p_recibido_en?: string; p_tipo: string }
+        Args: { p_acreedor: string; p_cuota?: number; p_cuotas?: number; p_dia_pago?: number; p_fecha_limite?: string; p_monto: number; p_negocio: string; p_nota?: string; p_recibido_cuenta?: string; p_recibido_en?: string; p_tipo: string }
         Returns: string
       }
       registrar_gasto: {
         Args: {
           p_categoria: string
+          p_cuenta?: string
           p_fecha?: string
           p_metodo?: string
           p_monto: number
@@ -1971,6 +2098,7 @@ export type Database = {
       guardar_gasto_fijo: {
         Args: {
           p_categoria: string
+          p_cuenta?: string
           p_dia: number
           p_hoy?: string
           p_id: string | null

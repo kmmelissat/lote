@@ -12,8 +12,8 @@ export function SeccionesGestion({ activa, filtro }: { activa: "resumen" | "cuad
       etiqueta={t.secciones}
       activa={activa}
       pestanas={[
-        { valor: "resumen", etiqueta: t.resumen, href: "/gestion" },
-        { valor: "cuadre", etiqueta: t.cuadre.etiqueta, href: "/gestion/cuadre" },
+        { valor: "resumen", etiqueta: t.resumen, href: "/balance/resumen" },
+        { valor: "cuadre", etiqueta: t.cuadre.etiqueta, href: "/balance/detalle" },
       ]}
       />
       {filtro}

@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { LUGARES_DE_DINERO, leerDolares, repartirEnvio, telefonoElSalvador, type QuienPagaEnvio } from "@/domain";
+import { elegirCuenta, leerDolares, repartirEnvio, telefonoElSalvador, type QuienPagaEnvio } from "@/domain";
+import { cuentasDelNegocio, esCuentaDeSiempre } from "@/features/gestion/repositorio";
 import { esDepartamento } from "@/lib/departamentos";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -69,21 +70,22 @@ export async function guardarEnvioDelPedido(
   return { listo: t.guardado };
 }
 
-// Lo que se le pagó a la paquetera sale del efectivo o de la cuenta digital. No es un gasto: la parte que absorbés ya cuenta en la ganancia.
+// Lo que se le pagó a la paquetera sale de una cuenta. No es un gasto: la parte que absorbés ya cuenta en la ganancia.
 export async function pagarPaqueteraDelPedido(
   pedidoId: string,
   _anterior: EstadoEnvio,
   formData: FormData,
 ): Promise<EstadoEnvio> {
   const t = textos.pedidos.envio.pagoPaquetera;
-  const lugar = LUGARES_DE_DINERO.find((l) => l === String(formData.get("lugar") ?? ""));
   const monto = leerDolares(String(formData.get("monto") ?? "").trim());
-  if (!lugar) return { error: t.errorLugar };
   if (monto === null || monto <= 0) return { error: t.errorMonto };
 
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { error: t.errorPermiso };
-  if (!(await registrarPagoPaquetera(supabase, pedidoId, { monto, lugar }))) return { error: t.errorGeneral };
+  const cuenta = elegirCuenta(await cuentasDelNegocio(supabase, negocio.id), String(formData.get("lugar") ?? ""));
+  if (!cuenta) return { error: t.errorLugar };
+  const pago = { monto, lugar: cuenta.tipo, cuenta: esCuentaDeSiempre(cuenta) ? undefined : cuenta.id };
+  if (!(await registrarPagoPaquetera(supabase, pedidoId, pago))) return { error: t.errorGeneral };
 
   revalidatePath("/", "layout");
   return { listo: t.guardado };

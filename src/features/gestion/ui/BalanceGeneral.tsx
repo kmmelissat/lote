@@ -1,14 +1,114 @@
-import type { Balance, TipoPasivo } from "@/domain";
+import type { Balance, Cuenta, TipoPasivo } from "@/domain";
 import { Icon } from "@/components/ui/Icon";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { BotonSaldo } from "./BotonSaldo";
+import { BotonCuenta, MoverDinero } from "./Cuentas";
 
 const t = textos.gestion.cuadre;
+const tc = textos.gestion.cuentas;
 
-export type ParteActivos = { clave: "efectivo" | "transferencia" | "porCobrar" | "inventario"; monto: number };
+export type ParteActivos = { clave: "dinero" | "porCobrar" | "inventario"; monto: number };
 
-const COLOR: Record<ParteActivos["clave"], string> = { efectivo: "bg-teal", transferencia: "bg-celeste", porCobrar: "bg-limon", inventario: "bg-mango" };
+const COLOR: Record<ParteActivos["clave"], string> = { dinero: "bg-limon", porCobrar: "bg-celeste", inventario: "bg-mango" };
+
+type CuentaConSaldo = Cuenta & { saldo: number | null };
+
+/** Una cuenta como fila de monedero: su círculo, nombre, lo que tiene en grande y, a un lado, poner o ajustar el saldo y editarla */
+function FilaCuenta({ cuenta: c, editable }: { cuenta: CuentaConSaldo; editable: boolean }) {
+  return (
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[28px] bg-superficie p-2 pr-4">
+      <span
+        aria-hidden="true"
+        className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${c.tipo === "efectivo" ? "bg-limon" : "bg-celeste"}`}
+      >
+        <Icon nombre={c.tipo === "efectivo" ? "efectivo" : "banco"} className="size-5 text-teal-oscuro" />
+      </span>
+      <span className="min-w-0 flex-1 basis-32">
+        <span className="block truncate font-bold">{c.nombre}</span>
+        {c.principal && editable && (
+          <span title={tc.principalAyuda} className="text-xs font-bold text-texto-2">
+            {tc.principal}
+          </span>
+        )}
+      </span>
+      {c.saldo === null ? (
+        <span className="rounded-full border-2 border-teal-oscuro bg-limon px-3 py-1 text-sm font-bold">{textos.gestion.saldo.sinSaldoFila}</span>
+      ) : (
+        <span className={`font-logo text-2xl font-bold tabular-nums ${c.saldo < 0 ? "text-error" : ""}`}>
+          {c.saldo < 0 ? "−" : ""}
+          {formatearDolares(Math.abs(c.saldo))}
+        </span>
+      )}
+      <span className="flex basis-full flex-wrap items-center gap-x-4 pl-14 sm:basis-auto sm:pl-0">
+        <BotonSaldo cuenta={c} saldo={c.saldo} discreto />
+        {editable && <BotonCuenta cuenta={c} />}
+      </span>
+    </li>
+  );
+}
+
+/** Las cuentas del negocio, a todo el ancho: es lo que se toca seguido (saldos, mover dinero) */
+function TusCuentas({ cuentas, editables }: { cuentas: readonly CuentaConSaldo[]; editables: boolean }) {
+  return (
+    <section aria-labelledby="tus-cuentas" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-teal-fondo p-4 md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <div>
+          <h3 id="tus-cuentas" className="font-logo text-lg font-bold">
+            {tc.titulo}
+          </h3>
+          <p className="text-sm text-texto-2">{tc.tarjetaAyuda}</p>
+        </div>
+        {editables && (
+          <div className="flex flex-wrap gap-2">
+            <BotonCuenta />
+            <MoverDinero cuentas={cuentas} />
+          </div>
+        )}
+      </div>
+      <ul className="grid grid-cols-1 gap-2 lg:grid-cols-2">
+        {cuentas.map((c) => (
+          <FilaCuenta key={c.id} cuenta={c} editable={editables} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Una barra con todo lo que tenés, partida en lo que es cada cosa: se ve de un vistazo en qué está el dinero */
+function BarraDeActivos({ activos, total }: { activos: ParteActivos[]; total: number }) {
+  const partes = activos.filter((a) => a.monto > 0);
+  return (
+    <section aria-labelledby="en-que-esta" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura md:p-5">
+      <div>
+        <h3 id="en-que-esta" className="font-logo text-lg font-bold">
+          {t.enQueEsta}
+        </h3>
+        <p className="text-sm text-texto-2">{t.activosAyuda}</p>
+      </div>
+      <div role="img" aria-label={activos.map((a) => `${t.partes[a.clave]} ${formatearDolares(a.monto)}`).join(", ")} className="flex h-11 overflow-hidden rounded-full border-2 border-teal-oscuro bg-fondo">
+        {total > 0 &&
+          partes.map((a, i) => (
+            <span
+              key={a.clave}
+              className={`flex min-w-3 items-center overflow-hidden whitespace-nowrap px-3 font-logo text-sm font-semibold ${COLOR[a.clave]} ${i > 0 ? "border-l-2 border-teal-oscuro" : ""}`}
+              style={{ width: `${(a.monto / total) * 100}%` }}
+            >
+              {a.monto / total > 0.2 ? t.partes[a.clave] : ""}
+            </span>
+          ))}
+      </div>
+      <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-bold">
+        {activos.map((a) => (
+          <li key={a.clave} className="flex items-center gap-1.5">
+            <span aria-hidden="true" className={`size-3 rounded-full border-2 border-teal-oscuro ${COLOR[a.clave]}`} />
+            {t.partes[a.clave]} <span className="tabular-nums">{formatearDolares(a.monto)}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 function Ficha({ etiqueta, monto, fondo, signo }: { etiqueta: string; monto: number; fondo: string; signo?: string }) {
   return (
@@ -31,18 +131,19 @@ export function BalanceGeneral({
   balance,
   activos,
   pasivos,
-  saldos,
+  cuentas,
+  editables,
 }: {
   balance: Balance;
   activos: ParteActivos[];
   pasivos: Record<TipoPasivo, number>;
-  /** Lo que hay en cada lugar; null si falta el saldo inicial */
-  saldos: Record<"efectivo" | "transferencia", number | null>;
+  /** Las cuentas activas con lo que tiene cada una; null si les falta el saldo inicial */
+  cuentas: readonly CuentaConSaldo[];
+  /** Con cuentas.sql corrido: se pueden agregar, editar y mover dinero entre ellas */
+  editables: boolean;
 }) {
   const p = textos.gestion.pasivos;
-  const mayor = Math.max(1, ...activos.map((a) => a.monto));
   const filasPasivos = (Object.keys(pasivos) as TipoPasivo[]).filter((k) => pasivos[k] > 0);
-  const mayorPasivo = Math.max(1, ...filasPasivos.map((k) => pasivos[k]));
 
   return (
     <section aria-labelledby="patrimonio" className="flex flex-col gap-4">
@@ -64,61 +165,61 @@ export function BalanceGeneral({
         </div>
       </div>
 
+      <BarraDeActivos activos={activos} total={balance.activos} />
+
+      <TusCuentas cuentas={cuentas} editables={editables} />
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5">
+        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5">
           <div>
-            <h3 className="font-bold">{t.activosTitulo}</h3>
-            <p className="text-sm text-texto-2">{t.activosAyuda}</p>
+            <h3 className="font-logo text-lg font-bold">{t.activosTitulo}</h3>
           </div>
-          <ul className="flex flex-col gap-4">
+          <ul className="flex flex-col gap-3">
             {activos.map((a) => (
-              <li key={a.clave} className="flex flex-col gap-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-bold">{t.partes[a.clave]}</span>
-                  <span className="font-bold tabular-nums">{saldos[a.clave as "efectivo"] === null && (a.clave === "efectivo" || a.clave === "transferencia") ? textos.gestion.saldo.sinSaldoFila : formatearDolares(a.monto)}</span>
-                </div>
-                <div aria-hidden="true" className="h-3 overflow-hidden rounded-full bg-fondo">
-                  <span className={`block h-full rounded-full border border-teal-oscuro ${COLOR[a.clave]}`} style={{ width: `${(a.monto / mayor) * 100}%`, minWidth: a.monto > 0 ? "0.75rem" : 0 }} />
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-x-4">
+              <li key={a.clave} className="flex items-start gap-3">
+                <span aria-hidden="true" className={`mt-0.5 size-7 shrink-0 rounded-full border-2 border-teal-oscuro ${COLOR[a.clave]}`} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-bold">{t.partes[a.clave]}</span>
+                    <span className="font-logo text-lg font-bold tabular-nums">{formatearDolares(a.monto)}</span>
+                  </div>
                   <span className="text-sm text-texto-2">{t.partesAyuda[a.clave]}</span>
-                  {(a.clave === "efectivo" || a.clave === "transferencia") && <BotonSaldo lugar={a.clave} saldo={saldos[a.clave]} discreto />}
                 </div>
               </li>
             ))}
           </ul>
-          <p className="mt-auto flex items-center justify-between gap-2 border-t border-borde pt-2 font-bold">
+          <p className="mt-auto flex items-center justify-between gap-2 border-t-2 border-dotted border-teal-oscuro/40 pt-2 font-bold">
             {t.total}
-            <span className="tabular-nums">{formatearDolares(balance.activos)}</span>
+            <span className="font-logo text-lg tabular-nums">{formatearDolares(balance.activos)}</span>
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-5">
+        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-4 md:p-5">
           <div>
-            <h3 className="font-bold">{t.pasivosTitulo}</h3>
+            <h3 className="font-logo text-lg font-bold">{t.pasivosTitulo}</h3>
             <p className="text-sm text-texto-2">{t.pasivosAyuda}</p>
           </div>
           {filasPasivos.length ? (
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-3">
               {filasPasivos.map((k) => (
-                <li key={k} className="flex flex-col gap-1">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-bold">{p.tipos[k]}</span>
-                    <span className="font-bold tabular-nums">{formatearDolares(pasivos[k])}</span>
+                <li key={k} className="flex items-start gap-3">
+                  <span aria-hidden="true" className="mt-0.5 size-7 shrink-0 rounded-full border-2 border-teal-oscuro bg-rosa" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="font-bold">{p.tipos[k]}</span>
+                      <span className="font-logo text-lg font-bold tabular-nums">{formatearDolares(pasivos[k])}</span>
+                    </div>
+                    <span className="text-sm text-texto-2">{t.tiposAyuda[k]}</span>
                   </div>
-                  <div aria-hidden="true" className="h-3 overflow-hidden rounded-full bg-fondo">
-                    <span className="block h-full rounded-full border border-teal-oscuro bg-rosa" style={{ width: `${(pasivos[k] / mayorPasivo) * 100}%`, minWidth: "0.75rem" }} />
-                  </div>
-                  <span className="text-sm text-texto-2">{t.tiposAyuda[k]}</span>
                 </li>
               ))}
             </ul>
           ) : (
             <p className="text-sm text-texto-2">{t.sinPasivos}</p>
           )}
-          <p className="mt-auto flex items-center justify-between gap-2 border-t border-borde pt-2 font-bold">
+          <p className="mt-auto flex items-center justify-between gap-2 border-t-2 border-dotted border-teal-oscuro/40 pt-2 font-bold">
             {t.total}
-            <span className="tabular-nums">{formatearDolares(balance.pasivos)}</span>
+            <span className="font-logo text-lg tabular-nums">{formatearDolares(balance.pasivos)}</span>
           </p>
         </div>
       </div>

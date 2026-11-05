@@ -3,9 +3,12 @@ import { MAXIMO_FOTOS } from "./limites";
 // Las fotos de un producto con variantes: las generales (las del producto, arriba en el formulario) van en
 // todas las variantes y siempre primero; después, las propias de cada una (por ejemplo la del sabor).
 
-/** Lo que se guarda en una variante: las generales primero, después las suyas, sin repetir y hasta el tope. */
-export function fotosDeVariante(generales: readonly string[], propias: readonly string[]): string[] {
-  return [...new Set([...generales, ...propias])].slice(0, MAXIMO_FOTOS);
+/**
+ * Lo que se guarda en una variante: las que eligió de «Mi galería» (en el orden en que las eligió), sin repetir y hasta el
+ * tope. Si no eligió ninguna, usa todas las de la galería (las de arriba).
+ */
+export function fotosDeVariante(galeria: readonly string[], elegidas: readonly string[]): string[] {
+  return [...new Set(elegidas.length ? elegidas : galeria)].slice(0, MAXIMO_FOTOS);
 }
 
 /**

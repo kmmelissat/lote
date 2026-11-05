@@ -1,6 +1,9 @@
+import { registrarEnGaleria } from "@/lib/galeria";
 import { createClient } from "@/lib/supabase/client";
 
-const LADO_MAXIMO = 1280;
+const LADO_MAXIMO = 1080;
+/** Calidad del webp de las fotos de producto: a 0.75 pesan cerca de la mitad que a 0.82 y casi no se nota en pantalla. */
+const CALIDAD = 0.75;
 
 // Reduce la foto antes de subir: el celular manda 4-8 MB y la vitrina no los necesita.
 async function comprimir(archivo: File, ladoMaximo = LADO_MAXIMO): Promise<Blob> {
@@ -12,7 +15,7 @@ async function comprimir(archivo: File, ladoMaximo = LADO_MAXIMO): Promise<Blob>
   lienzo.getContext("2d")!.drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
   imagen.close();
   return new Promise((resolver, rechazar) =>
-    lienzo.toBlob((b) => (b ? resolver(b) : rechazar(new Error("No se pudo comprimir"))), "image/webp", 0.82),
+    lienzo.toBlob((b) => (b ? resolver(b) : rechazar(new Error("No se pudo comprimir"))), "image/webp", CALIDAD),
   );
 }
 
@@ -28,6 +31,8 @@ export async function subirFotos(archivos: File[], negocioId: string): Promise<s
     if (error) throw error;
     rutas.push(ruta);
   }
+  // Cada foto que se sube queda en Mi galería para usarla en cualquier otro lado
+  await registrarEnGaleria(supabase, negocioId, rutas).catch(() => undefined);
   return rutas;
 }
 

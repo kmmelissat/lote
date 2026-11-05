@@ -6,14 +6,14 @@ const hrefs = (q: string, o = { tieneLocal: true, esDuena: true }) => buscarDest
 
 describe("buscarDestinos", () => {
   it("encuentra por sinónimos que no están en el título", () => {
-    expect(hrefs("deudas")[0]).toBe("/gestion/cuadre");
-    expect(hrefs("cuota")[0]).toBe("/gestion/cuadre");
-    expect(hrefs("prestamo")[0]).toBe("/gestion/cuadre");
+    expect(hrefs("deudas")[0]).toBe("/balance/detalle");
+    expect(hrefs("cuota")[0]).toBe("/balance/detalle");
+    expect(hrefs("prestamo")[0]).toBe("/balance/detalle");
     expect(hrefs("excel")[0]).toBe("/productos/importar");
   });
 
   it("no importan las tildes ni las mayúsculas", () => {
-    expect(hrefs("GESTIÓN")).toContain("/gestion");
+    expect(hrefs("GESTIÓN")).toContain("/balance/resumen");
   });
 
   it("todas las palabras tienen que aparecer", () => {
@@ -27,7 +27,7 @@ describe("buscarDestinos", () => {
   });
 
   it("encuentra con la palabra a medio escribir", () => {
-    expect(hrefs("cuad")[0]).toBe("/gestion/cuadre");
+    expect(hrefs("cuad")[0]).toBe("/balance/detalle");
   });
 
   it("sin nada escrito devuelve todo en su orden", () => {

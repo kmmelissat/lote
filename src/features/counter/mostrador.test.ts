@@ -11,6 +11,7 @@ const producto = (p: Partial<ProductoMostrador> & Pick<ProductoMostrador, "id" |
   promocion: null,
   disponibles: 1,
   foto: undefined,
+  fotoPropia: undefined,
   codigoBarras: null,
   ...p,
 });

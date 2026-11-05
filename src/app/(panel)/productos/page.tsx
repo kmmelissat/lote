@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
+import { SelectorGaleria } from "@/components/ui/SelectorGaleria";
 import { MenuAcciones } from "@/components/ui/MenuAcciones";
 import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -95,6 +96,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
                 <ButtonLink href="/productos/promociones" variante="secundario" icono="etiqueta">
                   {textos.promociones.entrada}
                 </ButtonLink>
+                <SelectorGaleria negocioId={negocio.id} />
                 <ButtonLink href="/productos/nuevo" variante="mango" icono="mas">
                   {textos.productos.agregar}
                 </ButtonLink>

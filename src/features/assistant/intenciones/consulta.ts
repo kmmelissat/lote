@@ -12,7 +12,7 @@ export async function consultar({ d, entrada, intencion, salida }: Ctx<"consulta
     return registrar(d, entrada, intencion, salida, async () => {
       const r = await d.puerto.balance();
       if (!r.ok) return { respuesta: { texto: textoDeError(r.error) } };
-      return { respuesta: { texto: textoDelBalance(r.valor), enlaces: [{ etiqueta: t.verCuadre, href: "/gestion/cuadre" }] } };
+      return { respuesta: { texto: textoDelBalance(r.valor), enlaces: [{ etiqueta: t.verCuadre, href: "/balance/detalle" }] } };
     });
   }
   return registrar(d, entrada, intencion, salida, async () => ({ respuesta: await consultaFija(d, intencion.consulta as "apartados" | "por_cobrar" | "por_enviar") }));

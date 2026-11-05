@@ -7,6 +7,7 @@ const dia = (fecha: string) => new Date(`${fecha}T18:00:00Z`);
 
 const pedido = (extra: Partial<PedidoDelMes>): PedidoDelMes => ({
   estado: "entregado",
+  canal: "instagram",
   total: 2000,
   venceEn: null,
   contraEntrega: false,
@@ -58,5 +59,22 @@ describe("resumenDelMes", () => {
       ahora,
     );
     expect(r).toMatchObject({ apartadosPagados: 2, apartadosCaidos: 2 });
+  });
+
+  it("dice de qué canal vienen las ventas del mes, el que más vendió primero", () => {
+    const r = resumenDelMes(
+      [
+        pedido({ canal: "whatsapp", total: 1000 }),
+        pedido({ canal: "instagram", total: 2000 }),
+        pedido({ canal: "instagram", total: 3000 }),
+        pedido({ canal: "vitrina", estado: "cancelado" }),
+        pedido({ canal: "presencial", creadoEn: dia("2026-10-20") }),
+      ],
+      ahora,
+    );
+    expect(r.canales).toEqual([
+      { canal: "instagram", pedidos: 2, vendido: 5000 },
+      { canal: "whatsapp", pedidos: 1, vendido: 1000 },
+    ]);
   });
 });

@@ -3,10 +3,10 @@
 -- No incluye grant/revoke, datos (insert/update/delete) ni bloques do. Las columnas con sus tipos también están en
 -- src/lib/supabase/database.types.ts.
 --
--- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero.
+-- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria.
 
 -- ====================================================================================================
--- TABLAS (35)
+-- TABLAS (38)
 -- ====================================================================================================
 
 -- tabla abono_pasivo
@@ -23,6 +23,8 @@ create table if not exists public.abono_pasivo (
 );
 -- gestion.sql
 alter table public.abono_pasivo enable row level security;
+-- cuentas.sql
+alter table public.abono_pasivo add column if not exists cuenta_id uuid references public.cuenta(id);
 
 -- tabla accion
 -- asistente.sql
@@ -59,6 +61,8 @@ create table if not exists public.ajuste_dinero (
 );
 -- gestion.sql
 alter table public.ajuste_dinero enable row level security;
+-- cuentas.sql
+alter table public.ajuste_dinero add column if not exists cuenta_id uuid references public.cuenta(id);
 
 -- tabla asistente_fallo
 -- asistente_fallos.sql
@@ -173,6 +177,8 @@ create table if not exists public.compra_mercaderia (
 );
 -- compras.sql
 alter table public.compra_mercaderia enable row level security;
+-- cuentas.sql
+alter table public.compra_mercaderia add column if not exists cuenta_id uuid references public.cuenta(id);
 
 -- tabla costo_producto
 -- productos.sql
@@ -191,6 +197,21 @@ alter table public.costo_producto drop constraint if exists costo_producto_tipo_
 -- actividad.sql
 alter table public.costo_producto add constraint costo_producto_tipo_check
   check (tipo in ('compra', 'envio', 'importacion', 'mano_obra', 'otro'));
+
+-- tabla cuenta
+-- cuentas.sql
+create table if not exists public.cuenta (
+  id uuid primary key default gen_random_uuid(),
+  negocio_id uuid not null references public.negocio(id) on delete cascade,
+  nombre text not null check (char_length(trim(nombre)) between 1 and 40),
+  tipo text not null check (tipo in ('efectivo', 'transferencia')),
+  principal boolean not null default false,
+  archivada boolean not null default false,
+  creado_en timestamptz not null default now(),
+  check (not (principal and archivada))
+);
+-- cuentas.sql
+alter table public.cuenta enable row level security;
 
 -- tabla destacado
 -- destacados.sql
@@ -236,6 +257,19 @@ create table if not exists public.existencia (
 -- productos.sql
 alter table public.existencia enable row level security;
 
+-- tabla galeria
+-- galeria.sql
+create table if not exists public.galeria (
+  id uuid primary key default gen_random_uuid(),
+  negocio_id uuid not null references public.negocio(id) on delete cascade,
+  ruta text not null,
+  creado_en timestamptz not null default now(),
+  unique (negocio_id, ruta),
+  check (ruta like negocio_id::text || '/%')
+);
+-- galeria.sql
+alter table public.galeria enable row level security;
+
 -- tabla gasto
 -- gastos.sql
 create table if not exists public.gasto (
@@ -269,6 +303,8 @@ alter table public.gasto add constraint gasto_metodo_check
 alter table public.gasto alter column fecha set default (now() at time zone 'America/El_Salvador')::date;
 -- gastos_fijos.sql
 alter table public.gasto add column if not exists gasto_fijo_id uuid references public.gasto_fijo(id) on delete set null;
+-- cuentas.sql
+alter table public.gasto add column if not exists cuenta_id uuid references public.cuenta(id);
 
 -- tabla gasto_fijo
 -- gastos_fijos.sql
@@ -290,6 +326,8 @@ create table if not exists public.gasto_fijo (
 );
 -- gastos_fijos.sql
 alter table public.gasto_fijo enable row level security;
+-- cuentas.sql
+alter table public.gasto_fijo add column if not exists cuenta_id uuid references public.cuenta(id);
 
 -- tabla importacion
 -- importar.sql
@@ -364,6 +402,22 @@ create table if not exists public.miembro (
 );
 -- schema.sql
 alter table public.miembro enable row level security;
+
+-- tabla movimiento_entre_cuentas
+-- cuentas.sql
+create table if not exists public.movimiento_entre_cuentas (
+  id uuid primary key default gen_random_uuid(),
+  negocio_id uuid not null references public.negocio(id) on delete cascade,
+  desde_cuenta uuid not null references public.cuenta(id),
+  hacia_cuenta uuid not null references public.cuenta(id),
+  monto numeric(12,2) not null check (monto > 0),
+  nota text,
+  creado_en timestamptz not null default now(),
+  usuario_id uuid references auth.users(id) on delete set null,
+  check (desde_cuenta <> hacia_cuenta)
+);
+-- cuentas.sql
+alter table public.movimiento_entre_cuentas enable row level security;
 
 -- tabla negocio
 -- schema.sql
@@ -493,6 +547,8 @@ alter table public.pago add constraint pago_metodo_check
   check (metodo in ('transferencia', 'efectivo', 'contra_entrega'));
 -- fecha_local.sql
 alter table public.pago  alter column fecha set default (now() at time zone 'America/El_Salvador')::date;
+-- cuentas.sql
+alter table public.pago add column if not exists cuenta_id uuid references public.cuenta(id);
 
 -- tabla pago_paquetera
 -- pago_paquetera.sql
@@ -507,6 +563,8 @@ create table if not exists public.pago_paquetera (
 );
 -- pago_paquetera.sql
 alter table public.pago_paquetera enable row level security;
+-- cuentas.sql
+alter table public.pago_paquetera add column if not exists cuenta_id uuid references public.cuenta(id);
 
 -- tabla pasivo
 -- gestion.sql
@@ -530,6 +588,8 @@ alter table public.pasivo add column if not exists cuota numeric(12,2) check (cu
 alter table public.pasivo add column if not exists cuotas integer check (cuotas is null or cuotas > 0);
 -- pasivo_cuota.sql
 alter table public.pasivo add column if not exists dia_pago integer check (dia_pago is null or dia_pago between 1 and 31);
+-- cuentas.sql
+alter table public.pasivo add column if not exists recibido_cuenta_id uuid references public.cuenta(id);
 
 -- tabla pedido
 -- pedidos.sql
@@ -738,12 +798,12 @@ alter table public.ubicacion enable row level security;
 
 
 -- ====================================================================================================
--- FUNCIONES (107)
+-- FUNCIONES (114)
 -- ====================================================================================================
 
--- función abonar_pasivo(uuid, numeric, text, text)
--- gestion.sql
-create or replace function public.abonar_pasivo(p_pasivo uuid, p_monto numeric, p_lugar text, p_nota text default null)
+-- función abonar_pasivo(uuid, numeric, text, text, uuid)
+-- cuentas.sql
+create or replace function public.abonar_pasivo(p_pasivo uuid, p_monto numeric, p_lugar text, p_nota text default null, p_cuenta uuid default null)
 returns uuid
 language plpgsql
 security definer
@@ -770,8 +830,8 @@ begin
     raise exception 'Es más de lo que falta pagar' using errcode = '22023';
   end if;
 
-  insert into public.abono_pasivo (pasivo_id, negocio_id, monto, lugar, nota, usuario_id)
-  values (p_pasivo, v_negocio, p_monto, p_lugar, nullif(trim(p_nota), ''), auth.uid())
+  insert into public.abono_pasivo (pasivo_id, negocio_id, monto, lugar, cuenta_id, nota, usuario_id)
+  values (p_pasivo, v_negocio, p_monto, p_lugar, p_cuenta, nullif(trim(p_nota), ''), auth.uid())
   returning id into v_id;
   return v_id;
 end;
@@ -1087,6 +1147,54 @@ begin
   end if;
 
   update public.producto set codigo_barras = v_codigo where id = p_producto;
+end;
+$$;
+
+-- función asignar_cuenta()
+-- cuentas.sql
+create or replace function public.asignar_cuenta()
+returns trigger
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_tipo text;
+  v_cuenta public.cuenta%rowtype;
+begin
+  if tg_table_name = 'pasivo' then
+    v_tipo := new.recibido_en;
+  elsif tg_table_name in ('gasto', 'pago') then
+    v_tipo := case when new.metodo = 'contra_entrega' then 'efectivo' else new.metodo end;
+  else
+    v_tipo := new.lugar;
+  end if;
+
+  if tg_table_name = 'pasivo' then
+    if v_tipo is null then
+      new.recibido_cuenta_id := null;
+      return new;
+    end if;
+    if new.recibido_cuenta_id is null then
+      new.recibido_cuenta_id := public.cuenta_principal(new.negocio_id, v_tipo);
+      return new;
+    end if;
+    select * into v_cuenta from public.cuenta where id = new.recibido_cuenta_id;
+  else
+    if v_tipo is null then
+      new.cuenta_id := null;
+      return new;
+    end if;
+    if new.cuenta_id is null then
+      new.cuenta_id := public.cuenta_principal(new.negocio_id, v_tipo);
+      return new;
+    end if;
+    select * into v_cuenta from public.cuenta where id = new.cuenta_id;
+  end if;
+
+  if v_cuenta.id is null or v_cuenta.negocio_id <> new.negocio_id or v_cuenta.archivada or v_cuenta.tipo <> v_tipo then
+    raise exception 'Cuenta no válida' using errcode = '22023';
+  end if;
+  return new;
 end;
 $$;
 
@@ -1694,6 +1802,53 @@ as $$
   where c.producto_id = p_producto
 $$;
 
+-- función crear_cuenta(uuid, text, text)
+-- cuentas.sql
+create or replace function public.crear_cuenta(p_negocio uuid, p_nombre text, p_tipo text)
+returns uuid
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_id uuid;
+begin
+  if not public.puede_gestionar(p_negocio) then
+    raise exception 'Sin permiso' using errcode = '42501';
+  end if;
+  if p_tipo not in ('efectivo', 'transferencia') or char_length(trim(coalesce(p_nombre, ''))) not between 1 and 40 then
+    raise exception 'Dato no válido' using errcode = '22023';
+  end if;
+  if exists (select 1 from public.cuenta where negocio_id = p_negocio and not archivada and lower(trim(nombre)) = lower(trim(p_nombre))) then
+    raise exception 'Ya hay una cuenta con ese nombre' using errcode = '23505';
+  end if;
+
+  insert into public.cuenta (negocio_id, nombre, tipo, principal)
+  values (
+    p_negocio,
+    trim(p_nombre),
+    p_tipo,
+    not exists (select 1 from public.cuenta where negocio_id = p_negocio and tipo = p_tipo and principal)
+  )
+  returning id into v_id;
+  return v_id;
+end;
+$$;
+
+-- función crear_cuentas_principales()
+-- cuentas.sql
+create or replace function public.crear_cuentas_principales()
+returns trigger
+language plpgsql security definer
+set search_path = ''
+as $$
+begin
+  insert into public.cuenta (negocio_id, nombre, tipo, principal)
+  values (new.id, 'Efectivo', 'efectivo', true), (new.id, 'Cuenta digital', 'transferencia', true)
+  on conflict do nothing;
+  return new;
+end;
+$$;
+
 -- función crear_negocio(text, text, text)
 -- seguridad.sql (antes en: schema.sql)
 create or replace function public.crear_negocio(
@@ -2076,6 +2231,16 @@ begin
 end;
 $$;
 
+-- función cuenta_principal(uuid, text)
+-- cuentas.sql
+create or replace function public.cuenta_principal(p_negocio uuid, p_tipo text)
+returns uuid
+language sql stable security definer
+set search_path = ''
+as $$
+  select id from public.cuenta where negocio_id = p_negocio and tipo = p_tipo and principal limit 1
+$$;
+
 -- función dejar_resena(uuid, integer, integer, text)
 -- ficha_producto.sql
 create or replace function public.dejar_resena(p_pedido uuid, p_codigo int, p_estrellas int, p_texto text)
@@ -2311,6 +2476,48 @@ as $$
             or (p.estado = 'pendiente' and (p.vence_en is null or p.vence_en > now()))
           )
       ), 0)::int
+$$;
+
+-- función editar_cuenta(uuid, text, boolean, boolean)
+-- cuentas.sql
+create or replace function public.editar_cuenta(p_cuenta uuid, p_nombre text, p_principal boolean default false, p_archivada boolean default false)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_cuenta public.cuenta%rowtype;
+begin
+  select * into v_cuenta from public.cuenta where id = p_cuenta for update;
+  if v_cuenta.id is null or not public.puede_gestionar(v_cuenta.negocio_id) then
+    raise exception 'Sin permiso' using errcode = '42501';
+  end if;
+  if char_length(trim(coalesce(p_nombre, ''))) not between 1 and 40 then
+    raise exception 'Dato no válido' using errcode = '22023';
+  end if;
+  if p_archivada and (v_cuenta.principal or p_principal) then
+    raise exception 'La cuenta principal no se puede archivar' using errcode = '22023';
+  end if;
+  if not p_archivada and exists (
+    select 1 from public.cuenta
+    where negocio_id = v_cuenta.negocio_id and id <> p_cuenta and not archivada and lower(trim(nombre)) = lower(trim(p_nombre))
+  ) then
+    raise exception 'Ya hay una cuenta con ese nombre' using errcode = '23505';
+  end if;
+
+  if p_principal and not v_cuenta.principal then
+    update public.cuenta set principal = false where negocio_id = v_cuenta.negocio_id and tipo = v_cuenta.tipo and principal;
+  end if;
+  update public.cuenta
+  set nombre = trim(p_nombre),
+      principal = v_cuenta.principal or p_principal,
+      archivada = p_archivada
+  where id = p_cuenta;
+  -- Los gastos fijos de una cuenta archivada siguen, en la principal de su tipo
+  if p_archivada then
+    update public.gasto_fijo set cuenta_id = null where cuenta_id = p_cuenta;
+  end if;
+end;
 $$;
 
 -- función editar_pasivo(uuid, text, numeric, date, text, numeric, integer, integer)
@@ -2961,8 +3168,8 @@ begin
 end;
 $$;
 
--- función guardar_gasto_fijo(uuid, uuid, text, text, numeric, integer, text, date)
--- gastos_fijos.sql
+-- función guardar_gasto_fijo(uuid, uuid, text, text, numeric, integer, text, date, uuid)
+-- cuentas.sql
 create or replace function public.guardar_gasto_fijo(
   p_negocio uuid,
   p_id uuid,
@@ -2971,7 +3178,8 @@ create or replace function public.guardar_gasto_fijo(
   p_monto numeric,
   p_dia int,
   p_metodo text default null,
-  p_hoy date default null
+  p_hoy date default null,
+  p_cuenta uuid default null
 )
 returns uuid
 language plpgsql security definer
@@ -2999,15 +3207,20 @@ begin
   if p_metodo is not null and p_metodo not in ('efectivo', 'transferencia', 'billetera') then
     raise exception 'Método no válido' using errcode = '22023';
   end if;
+  if p_cuenta is not null and not exists (
+    select 1 from public.cuenta where id = p_cuenta and negocio_id = p_negocio and not archivada and tipo = p_metodo
+  ) then
+    raise exception 'Cuenta no válida' using errcode = '22023';
+  end if;
 
   if p_id is null then
-    insert into public.gasto_fijo (negocio_id, nombre, categoria, monto, metodo, dia_del_mes, desde)
-    values (p_negocio, v_nombre, p_categoria, p_monto, p_metodo, p_dia, coalesce(p_hoy, current_date))
+    insert into public.gasto_fijo (negocio_id, nombre, categoria, monto, metodo, cuenta_id, dia_del_mes, desde)
+    values (p_negocio, v_nombre, p_categoria, p_monto, p_metodo, p_cuenta, p_dia, coalesce(p_hoy, current_date))
     returning id into v_id;
   else
-    -- Un cambio de monto o de día vale desde el próximo mes que se registre; lo ya registrado no se toca
+    -- Un cambio de monto, día o cuenta vale desde el próximo mes que se registre; lo ya registrado no se toca
     update public.gasto_fijo
-    set nombre = v_nombre, categoria = p_categoria, monto = p_monto, metodo = p_metodo, dia_del_mes = p_dia
+    set nombre = v_nombre, categoria = p_categoria, monto = p_monto, metodo = p_metodo, cuenta_id = p_cuenta, dia_del_mes = p_dia
     where id = p_id and negocio_id = p_negocio
     returning id into v_id;
     if v_id is null then
@@ -3207,6 +3420,37 @@ begin
 end;
 $$;
 
+-- función mover_entre_cuentas(uuid, uuid, numeric, text)
+-- cuentas.sql
+create or replace function public.mover_entre_cuentas(p_desde uuid, p_hacia uuid, p_monto numeric, p_nota text default null)
+returns uuid
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_desde public.cuenta%rowtype;
+  v_hacia public.cuenta%rowtype;
+  v_id uuid;
+begin
+  select * into v_desde from public.cuenta where id = p_desde;
+  select * into v_hacia from public.cuenta where id = p_hacia;
+  if v_desde.id is null or not public.puede_gestionar(v_desde.negocio_id) then
+    raise exception 'Sin permiso' using errcode = '42501';
+  end if;
+  if v_hacia.id is null or v_hacia.negocio_id <> v_desde.negocio_id or v_desde.archivada or v_hacia.archivada or p_desde = p_hacia then
+    raise exception 'Cuenta no válida' using errcode = '22023';
+  end if;
+  if p_monto is null or p_monto <= 0 then
+    raise exception 'Monto no válido' using errcode = '22023';
+  end if;
+
+  insert into public.movimiento_entre_cuentas (negocio_id, desde_cuenta, hacia_cuenta, monto, nota, usuario_id)
+  values (v_desde.negocio_id, p_desde, p_hacia, p_monto, nullif(trim(p_nota), ''), auth.uid())
+  returning id into v_id;
+  return v_id;
+end;
+$$;
+
 -- función nombres_de_pedido(uuid)
 -- avisos_tiempo.sql
 create or replace function public.nombres_de_pedido(p_pedido uuid)
@@ -3224,12 +3468,13 @@ as $$
     'un producto')
 $$;
 
--- función pagar_paquetera(uuid, numeric, text)
--- pago_paquetera.sql
+-- función pagar_paquetera(uuid, numeric, text, uuid)
+-- cuentas.sql
 create or replace function public.pagar_paquetera(
   p_pedido uuid,
   p_monto numeric,
-  p_lugar text
+  p_lugar text,
+  p_cuenta uuid default null
 )
 returns void
 language plpgsql security definer
@@ -3249,9 +3494,10 @@ begin
     raise exception 'Monto no válido' using errcode = '22023';
   end if;
 
-  insert into public.pago_paquetera (negocio_id, pedido_id, monto, lugar, usuario_id)
-  values (v_negocio, p_pedido, p_monto, p_lugar, auth.uid())
-  on conflict (pedido_id) do update set monto = excluded.monto, lugar = excluded.lugar;
+  -- Sin cuenta, el trigger la pone en la principal del tipo
+  insert into public.pago_paquetera (negocio_id, pedido_id, monto, lugar, cuenta_id, usuario_id)
+  values (v_negocio, p_pedido, p_monto, p_lugar, p_cuenta, auth.uid())
+  on conflict (pedido_id) do update set monto = excluded.monto, lugar = excluded.lugar, cuenta_id = excluded.cuenta_id;
 end;
 $$;
 
@@ -3513,6 +3759,40 @@ begin
 end;
 $$;
 
+-- función registrar_ajuste_cuenta(uuid, text, numeric, text)
+-- cuentas.sql
+create or replace function public.registrar_ajuste_cuenta(p_cuenta uuid, p_tipo text, p_monto numeric, p_nota text default null)
+returns uuid
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_cuenta public.cuenta%rowtype;
+  v_id uuid;
+begin
+  select * into v_cuenta from public.cuenta where id = p_cuenta;
+  if v_cuenta.id is null or not public.puede_gestionar(v_cuenta.negocio_id) then
+    raise exception 'Sin permiso' using errcode = '42501';
+  end if;
+  if p_tipo not in ('saldo_inicial', 'ajuste') or v_cuenta.archivada then
+    raise exception 'Dato no válido' using errcode = '22023';
+  end if;
+  if p_monto is null or (p_tipo = 'ajuste' and p_monto = 0) or (p_tipo = 'saldo_inicial' and p_monto < 0) then
+    raise exception 'Monto no válido' using errcode = '22023';
+  end if;
+  if p_tipo = 'saldo_inicial' and exists (
+    select 1 from public.ajuste_dinero where cuenta_id = p_cuenta and tipo = 'saldo_inicial'
+  ) then
+    raise exception 'Ya hay un saldo inicial; hacé un ajuste' using errcode = '22023';
+  end if;
+
+  insert into public.ajuste_dinero (negocio_id, lugar, cuenta_id, tipo, monto, nota, usuario_id)
+  values (v_cuenta.negocio_id, v_cuenta.tipo, p_cuenta, p_tipo, p_monto, nullif(trim(p_nota), ''), auth.uid())
+  returning id into v_id;
+  return v_id;
+end;
+$$;
+
 -- función registrar_ajuste_dinero(uuid, text, text, numeric, text)
 -- gestion.sql
 create or replace function public.registrar_ajuste_dinero(p_negocio uuid, p_lugar text, p_tipo text, p_monto numeric, p_nota text default null)
@@ -3546,13 +3826,14 @@ begin
 end;
 $$;
 
--- función registrar_compra_mercaderia(uuid, numeric, text, text)
--- compras.sql
+-- función registrar_compra_mercaderia(uuid, numeric, text, text, uuid)
+-- cuentas.sql
 create or replace function public.registrar_compra_mercaderia(
   p_negocio uuid,
   p_monto numeric,
   p_lugar text,
-  p_nota text default null
+  p_nota text default null,
+  p_cuenta uuid default null
 )
 returns uuid
 language plpgsql security definer
@@ -3571,15 +3852,15 @@ begin
     raise exception 'Monto no válido' using errcode = '22023';
   end if;
 
-  insert into public.compra_mercaderia (negocio_id, monto, lugar, nota, usuario_id)
-  values (p_negocio, p_monto, p_lugar, nullif(trim(p_nota), ''), auth.uid())
+  insert into public.compra_mercaderia (negocio_id, monto, lugar, cuenta_id, nota, usuario_id)
+  values (p_negocio, p_monto, p_lugar, p_cuenta, nullif(trim(p_nota), ''), auth.uid())
   returning id into v_id;
   return v_id;
 end;
 $$;
 
--- función registrar_gasto(uuid, text, numeric, date, text, uuid, text)
--- gasto_metodo.sql
+-- función registrar_gasto(uuid, text, numeric, date, text, uuid, text, uuid)
+-- cuentas.sql
 create or replace function public.registrar_gasto(
   p_negocio uuid,
   p_categoria text,
@@ -3587,7 +3868,8 @@ create or replace function public.registrar_gasto(
   p_fecha date default null,
   p_nota text default null,
   p_pedido uuid default null,
-  p_metodo text default null
+  p_metodo text default null,
+  p_cuenta uuid default null
 )
 returns uuid
 language plpgsql security definer
@@ -3605,8 +3887,11 @@ begin
   if p_monto is null or p_monto <= 0 then
     raise exception 'Monto no válido' using errcode = '22023';
   end if;
-  if p_metodo is not null and p_metodo not in ('efectivo', 'transferencia', 'billetera') then
+  if p_metodo is not null and p_metodo not in ('efectivo', 'transferencia') then
     raise exception 'Método no válido' using errcode = '22023';
+  end if;
+  if p_cuenta is not null and p_metodo is null then
+    raise exception 'Cuenta no válida' using errcode = '22023';
   end if;
   if p_pedido is not null and not exists (
     select 1 from public.pedido where id = p_pedido and negocio_id = p_negocio
@@ -3614,15 +3899,15 @@ begin
     raise exception 'Pedido no encontrado' using errcode = '22023';
   end if;
 
-  insert into public.gasto (negocio_id, categoria, monto, fecha, nota, pedido_id, metodo, creado_por)
-  values (p_negocio, p_categoria, p_monto, coalesce(p_fecha, current_date), nullif(trim(p_nota), ''), p_pedido, p_metodo, auth.uid())
+  insert into public.gasto (negocio_id, categoria, monto, fecha, nota, pedido_id, metodo, cuenta_id, creado_por)
+  values (p_negocio, p_categoria, p_monto, coalesce(p_fecha, current_date), nullif(trim(p_nota), ''), p_pedido, p_metodo, p_cuenta, auth.uid())
   returning id into v_id;
   return v_id;
 end;
 $$;
 
 -- función registrar_gastos_fijos_vencidos(uuid, date)
--- gastos_fijos.sql
+-- cuentas.sql (antes en: gastos_fijos.sql)
 create or replace function public.registrar_gastos_fijos_vencidos(p_negocio uuid, p_hoy date)
 returns int
 language plpgsql security definer
@@ -3634,6 +3919,7 @@ declare
   v_ultimo date;
   v_dia int;
   v_fecha date;
+  v_cuenta uuid;
   v_hechos int := 0;
   v_filas int;
 begin
@@ -3644,6 +3930,7 @@ begin
     order by creado_en
     for update
   loop
+    select c.id into v_cuenta from public.cuenta c where c.id = g.cuenta_id and not c.archivada and c.tipo = g.metodo;
     v_ultimo := g.ultimo_mes;
     v_mes := coalesce((g.ultimo_mes + interval '1 month')::date, date_trunc('month', g.desde)::date);
     while v_mes <= date_trunc('month', p_hoy)::date loop
@@ -3652,8 +3939,8 @@ begin
       -- Lo que todavía no llegó se registra otro día
       exit when v_fecha > p_hoy;
       if v_fecha >= g.desde then
-        insert into public.gasto (negocio_id, categoria, monto, fecha, nota, metodo, recurrente, gasto_fijo_id)
-        values (p_negocio, g.categoria, g.monto, v_fecha, g.nombre, g.metodo, true, g.id)
+        insert into public.gasto (negocio_id, categoria, monto, fecha, nota, metodo, cuenta_id, recurrente, gasto_fijo_id)
+        values (p_negocio, g.categoria, g.monto, v_fecha, g.nombre, g.metodo, v_cuenta, true, g.id)
         on conflict (gasto_fijo_id, fecha) where gasto_fijo_id is not null do nothing;
         get diagnostics v_filas = row_count;
         v_hechos := v_hechos + v_filas;
@@ -3744,8 +4031,8 @@ begin
 end;
 $$;
 
--- función registrar_pasivo(uuid, text, text, numeric, text, date, text, numeric, integer, integer)
--- pasivo_cuota.sql
+-- función registrar_pasivo(uuid, text, text, numeric, text, date, text, numeric, integer, integer, uuid)
+-- cuentas.sql
 create or replace function public.registrar_pasivo(
   p_negocio uuid,
   p_tipo text,
@@ -3756,7 +4043,8 @@ create or replace function public.registrar_pasivo(
   p_nota text default null,
   p_cuota numeric default null,
   p_cuotas integer default null,
-  p_dia_pago integer default null
+  p_dia_pago integer default null,
+  p_recibido_cuenta uuid default null
 )
 returns uuid
 language plpgsql security definer
@@ -3782,8 +4070,8 @@ begin
     raise exception 'Cuota no válida' using errcode = '22023';
   end if;
 
-  insert into public.pasivo (negocio_id, tipo, acreedor, monto, recibido_en, fecha_limite, nota, cuota, cuotas, dia_pago, usuario_id)
-  values (p_negocio, p_tipo, trim(p_acreedor), p_monto, p_recibido_en, p_fecha_limite, nullif(trim(p_nota), ''), p_cuota, p_cuotas, p_dia_pago, auth.uid())
+  insert into public.pasivo (negocio_id, tipo, acreedor, monto, recibido_en, recibido_cuenta_id, fecha_limite, nota, cuota, cuotas, dia_pago, usuario_id)
+  values (p_negocio, p_tipo, trim(p_acreedor), p_monto, p_recibido_en, p_recibido_cuenta, p_fecha_limite, nullif(trim(p_nota), ''), p_cuota, p_cuotas, p_dia_pago, auth.uid())
   returning id into v_id;
   return v_id;
 end;
@@ -4657,7 +4945,7 @@ $$;
 
 
 -- ====================================================================================================
--- POLÍTICAS (51)
+-- POLÍTICAS (56)
 -- ====================================================================================================
 
 -- política abono_pasivo · abono_pasivo_ver
@@ -4735,6 +5023,10 @@ create policy costo_gestionar on public.costo_producto
 create policy costo_ver on public.costo_producto
   for select to authenticated using (public.puede_gestionar(negocio_id));
 
+-- política cuenta · cuenta_ver
+-- cuentas.sql
+create policy cuenta_ver on public.cuenta for select to authenticated using (public.puede_gestionar(negocio_id));
+
 -- política envio · envio_ver
 -- envios.sql
 create policy envio_ver on public.envio
@@ -4744,6 +5036,21 @@ create policy envio_ver on public.envio
 -- productos.sql
 create policy existencia_ver on public.existencia
   for select to authenticated using (public.es_miembro(negocio_id));
+
+-- política galeria · galeria_agregar
+-- galeria.sql
+create policy galeria_agregar on public.galeria
+  for insert to authenticated with check (public.puede_gestionar(negocio_id));
+
+-- política galeria · galeria_borrar
+-- galeria.sql
+create policy galeria_borrar on public.galeria
+  for delete to authenticated using (public.puede_gestionar(negocio_id));
+
+-- política galeria · galeria_ver
+-- galeria.sql
+create policy galeria_ver on public.galeria
+  for select to authenticated using (public.puede_gestionar(negocio_id));
 
 -- política gasto · gasto_ver
 -- gastos.sql
@@ -4807,6 +5114,11 @@ create policy miembro_quitar on public.miembro
 -- schema.sql
 create policy miembro_ver on public.miembro
   for select to authenticated using (public.es_miembro(negocio_id));
+
+-- política movimiento_entre_cuentas · movimiento_entre_cuentas_ver
+-- cuentas.sql
+create policy movimiento_entre_cuentas_ver on public.movimiento_entre_cuentas
+  for select to authenticated using (public.puede_gestionar(negocio_id));
 
 -- política negocio · negocio_borrar
 -- schema.sql
@@ -4936,8 +5248,49 @@ create policy ubicacion_ver on public.ubicacion
 
 
 -- ====================================================================================================
--- TRIGGERS (2)
+-- TRIGGERS (10)
 -- ====================================================================================================
+
+-- trigger abono_pasivo · abono_pasivo_cuenta
+-- cuentas.sql
+create trigger abono_pasivo_cuenta before insert or update of lugar, cuenta_id on public.abono_pasivo
+  for each row execute function public.asignar_cuenta();
+
+-- trigger ajuste_dinero · ajuste_dinero_cuenta
+-- cuentas.sql
+create trigger ajuste_dinero_cuenta before insert or update of lugar, cuenta_id on public.ajuste_dinero
+  for each row execute function public.asignar_cuenta();
+
+-- trigger compra_mercaderia · compra_mercaderia_cuenta
+-- cuentas.sql
+create trigger compra_mercaderia_cuenta before insert or update of lugar, cuenta_id on public.compra_mercaderia
+  for each row execute function public.asignar_cuenta();
+
+-- trigger gasto · gasto_cuenta
+-- cuentas.sql
+create trigger gasto_cuenta before insert or update of metodo, cuenta_id on public.gasto
+  for each row execute function public.asignar_cuenta();
+
+-- trigger negocio · negocio_cuentas_principales
+-- cuentas.sql
+create trigger negocio_cuentas_principales
+  after insert on public.negocio
+  for each row execute function public.crear_cuentas_principales();
+
+-- trigger pago · pago_cuenta
+-- cuentas.sql
+create trigger pago_cuenta before insert or update of metodo, cuenta_id on public.pago
+  for each row execute function public.asignar_cuenta();
+
+-- trigger pago_paquetera · pago_paquetera_cuenta
+-- cuentas.sql
+create trigger pago_paquetera_cuenta before insert or update of lugar, cuenta_id on public.pago_paquetera
+  for each row execute function public.asignar_cuenta();
+
+-- trigger pasivo · pasivo_cuenta
+-- cuentas.sql
+create trigger pasivo_cuenta before insert or update of recibido_en, recibido_cuenta_id on public.pasivo
+  for each row execute function public.asignar_cuenta();
 
 -- trigger pedido · avisar_pedido_enviado
 -- avisos_eventos.sql
@@ -4955,7 +5308,7 @@ create trigger avisar_apartado_vitrina
 
 
 -- ====================================================================================================
--- ÍNDICES (42)
+-- ÍNDICES (47)
 -- ====================================================================================================
 
 -- índice abono_pasivo_idx (tabla abono_pasivo)
@@ -5012,6 +5365,18 @@ create index if not exists compra_mercaderia_idx on public.compra_mercaderia (ne
 -- productos.sql
 create index if not exists costo_producto_producto_idx on public.costo_producto (producto_id);
 
+-- índice cuenta_negocio (tabla cuenta)
+-- cuentas.sql
+create index if not exists cuenta_negocio on public.cuenta (negocio_id);
+
+-- índice cuenta_nombre_unico (tabla cuenta)
+-- cuentas.sql
+create unique index if not exists cuenta_nombre_unico on public.cuenta (negocio_id, lower(trim(nombre))) where not archivada;
+
+-- índice cuenta_principal_unica (tabla cuenta)
+-- cuentas.sql
+create unique index if not exists cuenta_principal_unica on public.cuenta (negocio_id, tipo) where principal;
+
 -- índice envio_negocio_idx (tabla envio)
 -- envios.sql
 create index if not exists envio_negocio_idx on public.envio (negocio_id);
@@ -5019,6 +5384,10 @@ create index if not exists envio_negocio_idx on public.envio (negocio_id);
 -- índice existencia_negocio_idx (tabla existencia)
 -- productos.sql
 create index if not exists existencia_negocio_idx on public.existencia (negocio_id);
+
+-- índice galeria_negocio_idx (tabla galeria)
+-- galeria.sql
+create index if not exists galeria_negocio_idx on public.galeria (negocio_id, creado_en desc);
 
 -- índice gasto_fijo_fecha_idx (tabla gasto)
 -- gastos_fijos.sql
@@ -5047,6 +5416,10 @@ create index if not exists invitacion_negocio_idx on public.invitacion (negocio_
 -- índice miembro_usuario_idx (tabla miembro)
 -- schema.sql
 create index if not exists miembro_usuario_idx on public.miembro (usuario_id);
+
+-- índice movimiento_entre_cuentas_negocio (tabla movimiento_entre_cuentas)
+-- cuentas.sql
+create index if not exists movimiento_entre_cuentas_negocio on public.movimiento_entre_cuentas (negocio_id);
 
 -- índice oferta_negocio_idx (tabla oferta)
 -- ofertas.sql

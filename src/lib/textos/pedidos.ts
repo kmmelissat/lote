@@ -10,7 +10,7 @@ export const pedidos = {
     porCobrarNota: (n: number) =>
       n === 0 ? "Nadie te debe nada" : n === 1 ? "El saldo de 1 pedido" : `El saldo de ${n} pedidos`,
     esperando: "Esperando pago",
-    esperandoNota: "Apartados vigentes, sin pagar",
+    esperandoNota: (n: number) => (n === 0 ? "Ningún apartado sin pagar" : "Apartados que todavía no pagan"),
     porVencer: (n: number) => (n === 1 ? "1 vence pronto" : `${n} vencen pronto`),
     porEnviar: "Por enviar",
     porEnviarNota: ({ pagados, preparando, contraEntrega }: { pagados: number; preparando: number; contraEntrega: number }) => {
@@ -26,21 +26,43 @@ export const pedidos = {
     atascados: (n: number, dias: number) => (n === 1 ? `1 lleva más de ${dias} días` : `${n} llevan más de ${dias} días`),
     atascadosNota: "¿Ya llegaron? Marcalos entregados",
   },
+  paraAtender: {
+    titulo: "Para atender",
+    vacio: "Todo al día: ningún apartado vence hoy y no hay nada esperando envío.",
+    vence: (tiempo: string) => `Apartado · vence en ${tiempo}`,
+    enviar: {
+      pagado: "Pagado, falta enviar",
+      preparando: "Preparando",
+      contraEntrega: "Contra entrega, falta enviar",
+    },
+    llego: "En camino · ¿ya llegó?",
+    hace: (dias: number) => (dias === 0 ? "pedido de hoy" : dias === 1 ? "pedido de ayer" : `pedido de hace ${dias} días`),
+    mas: (n: number) => (n === 1 ? "Y 1 pedido más" : `Y ${n} pedidos más`),
+  },
   mes: {
     titulo: "Este mes",
-    ventas: "Pedidos vendidos",
-    ventasNota: (ahora: number, antes: number, mes: string) => {
-      const diferencia = ahora - antes;
-      if (diferencia === 0) return `Igual que a esta altura de ${mes}`;
-      const cuantos = Math.abs(diferencia);
-      return `${cuantos} ${diferencia > 0 ? "más" : "menos"} que a esta altura de ${mes}`;
-    },
-    ticket: "Ticket promedio",
-    ticketNota: (total: string) => `Lo que deja cada pedido · ${total} en total`,
-    apartados: "Apartados que se pagan",
-    apartadosNota: (pagados: number, caidos: number) =>
-      `${pagados === 1 ? "1 pagó" : `${pagados} pagaron`} · ${caidos === 1 ? "1 se cayó" : `${caidos} se cayeron`}`,
-    sinApartados: "Todavía no se cerró ningún apartado",
+    verMes: "Cómo va el mes",
+    vendido: (n: number) => (n === 1 ? "en 1 pedido" : `en ${n} pedidos`),
+    sinVentas: "Todavía no vendiste este mes.",
+    comparado: (diferencia: number, mes: string) =>
+      diferencia === 0 ? `Igual que ${mes}` : `${diferencia > 0 ? "+" : "−"}${Math.abs(diferencia)} vs. ${mes}`,
+    canales: "De dónde vienen",
+    canal: (pedidos: number, monto: string) => `${pedidos} · ${monto}`,
+    ticket: (monto: string) => `Ticket promedio ${monto}`,
+    apartados: (pagados: number, cerrados: number) => `${pagados} de ${cerrados} apartados se pagaron`,
+  },
+  filtros: {
+    boton: "Filtros",
+    quitar: "Quitar filtros",
+    canal: "Canal",
+    todosCanales: "Todos los canales",
+    fecha: "Fecha",
+    todasFechas: "Cualquier fecha",
+    fechas: { hoy: "Hoy", semana: "Esta semana", mes: "Este mes", mes_pasado: "El mes pasado" },
+    cobro: "Cobro",
+    todosCobros: "Todos",
+    cobros: { debe: "Deben algo", contra_entrega: "Contra entrega" },
+    sinResultados: "Ningún pedido coincide con estos filtros.",
   },
   buscar: {
     etiqueta: "Buscar pedido",
@@ -168,12 +190,25 @@ export const pedidos = {
     paquetera: "Paquetera",
     guia: "Número de guía",
     para: "Con esto armamos el mensaje para tu cliente y sumamos el envío al total.",
-    opciones: {
-      paquetera: { titulo: "Paquetera o encomendista", ayuda: "Lo mandás con una empresa y anotás la guía." },
-      propio: { titulo: "Entrega propia", ayuda: "Vos lo llevás a la dirección." },
-      retiro: { titulo: "Retiro en persona", ayuda: "El cliente lo viene a buscar." },
+    ayudaModos: {
+      paquetera: "Lo mandás con una paquetera o encomendista y anotás la guía.",
+      propio: "Vos lo llevás a la dirección.",
+      retiro: "El cliente lo viene a buscar.",
     },
     guardar: "Guardar envío",
+    editar: "Editar",
+    cancelar: "Cancelar",
+    sinEnvio: "Todavía no anotaste cómo se entrega.",
+    recibe: "Recibe",
+    dondeVa: "Dirección",
+    referenciaCorta: "Referencia",
+    sinGuia: "Falta la guía",
+    costoResumen: {
+      gratis: "Envío sin costo",
+      cliente: (monto: string) => `${monto} · lo paga el cliente`,
+      vendedora: (monto: string) => `${monto} · lo pagás vos`,
+      mitad: (monto: string) => `${monto} · a medias`,
+    },
     sinCambios: "Todo guardado",
     cambiosSinGuardar: "Tenés cambios sin guardar",
     guardando: "Guardando…",
@@ -193,6 +228,7 @@ export const pedidos = {
     pagoPaquetera: {
       titulo: "Pago a la paquetera",
       ayuda: "Anotá lo que le pagaste para que baje tu efectivo o tu cuenta digital. No es un gasto: lo que absorbés ya cuenta en la ganancia.",
+      sinPago: "Anotalo para que baje tu efectivo o tu cuenta digital.",
       pagado: (monto: string, lugar: string) => `Le pagaste ${monto} desde ${lugar}.`,
       monto: "Lo que le pagaste ($)",
       lugar: "De dónde salió el dinero",

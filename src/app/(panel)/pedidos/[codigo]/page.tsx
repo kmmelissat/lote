@@ -7,6 +7,7 @@ import { listarPagos, obtenerPedido } from "@/features/orders/repositorio";
 import { cobraAlEntregar, siguientePaso } from "@/features/orders/siguientePaso";
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
 import { obtenerEnvio, obtenerPagoPaquetera, obtenerTarifas } from "@/features/shipping/repositorio";
+import { cuentasDelNegocio } from "@/features/gestion/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
@@ -42,12 +43,13 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
   if (!p) notFound();
 
   const ahora = new Date();
-  const [pagos, envio, tarifas, mensaje, pagoPaquetera] = await Promise.all([
+  const [pagos, envio, tarifas, mensaje, pagoPaquetera, cuentas] = await Promise.all([
     listarPagos(supabase, p.id),
     obtenerEnvio(supabase, p.id),
     obtenerTarifas(supabase, negocio.id),
     mensajeDeCobro(supabase, negocio.id, p, ahora),
     negocio.puedeGestionar ? obtenerPagoPaquetera(supabase, p.id) : null,
+    negocio.puedeGestionar ? cuentasDelNegocio(supabase, negocio.id) : [],
   ]);
 
   const cliente = p.cliente ?? t.sinCliente;
@@ -117,11 +119,12 @@ async function Detalle({ params }: Pick<PageProps<"/pedidos/[codigo]">, "params"
               envio={envio}
               tarifas={tarifas}
               puedeVender={negocio.puedeVender}
+              pagoPaquetera={
+                negocio.puedeGestionar && envio?.modo === "paquetera" && envio.costo > 0 && p.estado !== "cancelado" ? (
+                  <PagoPaquetera pedidoId={p.id} costo={envio.costo} pago={pagoPaquetera} cuentas={cuentas} />
+                ) : undefined
+              }
             />
-
-            {negocio.puedeGestionar && envio?.modo === "paquetera" && envio.costo > 0 && p.estado !== "cancelado" && (
-              <PagoPaquetera pedidoId={p.id} costo={envio.costo} pago={pagoPaquetera} />
-            )}
           </div>
         </div>
       </div>

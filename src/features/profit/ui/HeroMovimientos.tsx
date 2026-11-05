@@ -64,7 +64,7 @@ export function OtrosMovimientos({ entran, salen }: { entran: number; salen: num
         {salen > 0 && <span className="text-error">{o.salieron(formatearDolares(salen))}</span>}
       </p>
       <p className="text-texto-2">{o.ayuda}</p>
-      <Link href="/gestion/cuadre" className="inline-flex min-h-11 w-fit items-center font-bold text-teal underline underline-offset-4 md:min-h-10">
+      <Link href="/balance/detalle" className="inline-flex min-h-11 w-fit items-center font-bold text-teal underline underline-offset-4 md:min-h-10">
         {o.verBalance}
       </Link>
     </section>

@@ -20,7 +20,8 @@ import { CLAVES_PERIODO, esClavePeriodo, PERIODOS, type ClavePeriodo } from "@/f
 import { FiltroDinero } from "@/features/profit/ui/FiltroDinero";
 import { HeroMovimientos, OtrosMovimientos } from "@/features/profit/ui/HeroMovimientos";
 import { RegistrarGasto } from "@/features/profit/ui/Gastos";
-import { apartesDelPeriodo } from "@/features/gestion/apartes";
+import { cuentasDelNegocio } from "@/features/gestion/repositorio";
+import { partidasDelPeriodo } from "@/features/gestion/apartes";
 import { guardarFijo } from "@/features/gestion/actions/gastosFijos";
 import { aplicarGastosFijos, listarGastosFijos } from "@/features/gestion/gastosFijos";
 import { GraficoEntraSale } from "@/features/gestion/ui/GraficoEntraSale";
@@ -52,6 +53,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
   const clave: ClavePeriodo = esClavePeriodo(uno(params.periodo)) ? (uno(params.periodo) as ClavePeriodo) : "mes";
   const tipo: Tipo = TIPOS.includes(uno(params.tipo) as Tipo) ? (uno(params.tipo) as Tipo) : "todos";
   const metodo: Metodo = METODOS.includes(uno(params.metodo) as Metodo) ? (uno(params.metodo) as Metodo) : "todos";
+  const cuentaPedida = uno(params.cuenta);
   const q = uno(params.q).trim().slice(0, 60);
   const pagina = Math.max(1, Math.floor(Number(uno(params.pagina))) || 1);
 
@@ -70,11 +72,12 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
   const hoy = fechaLocalDe(new Date());
   // Antes de leer los gastos: los fijos que ya tocaron se registran para que cuenten
   await aplicarGastosFijos(supabase, negocio.id, hoy);
-  const [pagos, gastos, apartes, fijos] = await Promise.all([
+  const [pagos, gastos, { apartes, traslados }, fijos, cuentas] = await Promise.all([
     pagosDelPeriodo(supabase, negocio.id, periodo),
     gastosComoSalidas(supabase, negocio.id, periodo),
-    apartesDelPeriodo(supabase, negocio.id, periodo),
+    partidasDelPeriodo(supabase, negocio.id, periodo),
     listarGastosFijos(supabase, negocio.id),
+    cuentasDelNegocio(supabase, negocio.id),
   ]);
   // El próximo cobro cuenta desde mañana: el de hoy, si tocaba, ya se registró
   const manana = new Date();
@@ -82,22 +85,27 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
   const filasFijas = fijos.map((f) => ({ ...f, proximo: formatearFecha(new Date(`${proximoPago(f.dia, manana)}T12:00:00`)) }));
   const totalFijos = fijos.filter((f) => f.activo).reduce((suma, f) => suma + f.monto, 0);
 
+  // Una cuenta que no existe (o de otro negocio) en la dirección no filtra nada
+  const cuenta = cuentas.some((c) => c.id === cuentaPedida) ? cuentaPedida : "todas";
+  const nombresDeCuenta = Object.fromEntries(cuentas.map((c) => [c.id, c.nombre]));
   const filtro: FiltroMovimientos = {
+    cuenta: cuenta === "todas" ? undefined : cuenta,
     tipo: tipo === "todos" ? undefined : tipo,
     metodo: metodo === "todos" ? undefined : metodo,
     q: q || undefined,
   };
-  const visibles = filtrarMovimientos(unirMovimientos(pagos, gastos, apartes), filtro);
+  const visibles = filtrarMovimientos(unirMovimientos(pagos, gastos, apartes, traslados), filtro);
   // El pie suma todo lo que cumple el filtro, no solo la página que se ve
   const totales = resumirMovimientos(visibles);
   const pagina_ = visibles.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
   const hayMas = visibles.length > pagina * POR_PAGINA;
 
-  const enlace = (cambios: { periodo?: string; tipo?: string; metodo?: string; pagina?: number }) => {
+  const enlace = (cambios: { periodo?: string; tipo?: string; metodo?: string; cuenta?: string; pagina?: number }) => {
     const partes = new URLSearchParams({
       periodo: cambios.periodo ?? clave,
       tipo: cambios.tipo ?? tipo,
       metodo: cambios.metodo ?? metodo,
+      cuenta: cambios.cuenta ?? cuenta,
     });
     if (q) partes.set("q", q);
     if (cambios.pagina && cambios.pagina > 1) partes.set("pagina", String(cambios.pagina));
@@ -110,7 +118,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
 
   // «1 nov – 3 nov»: el periodo que cubre todo lo de la página
   const rango = periodo.desdeFecha === periodo.hastaFecha ? formatearDia(periodo.desdeFecha) : `${formatearDia(periodo.desdeFecha)} – ${formatearDia(periodo.hastaFecha)}`;
-  const hayFiltros = tipo !== "todos" || metodo !== "todos" || q !== "";
+  const hayFiltros = tipo !== "todos" || metodo !== "todos" || cuenta !== "todas" || q !== "";
 
   // La búsqueda y los filtros de qué ver y método; el periodo va aparte, en chips. «Quitar filtros» vuelve al periodo sin lo demás.
   const formulario = (clase: string) => (
@@ -118,6 +126,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
       <input type="hidden" name="periodo" value={clave} />
       <input type="hidden" name="tipo" value={tipo} />
       <input type="hidden" name="metodo" value={metodo} />
+      <input type="hidden" name="cuenta" value={cuenta} />
       <CampoBusqueda compacto name="q" defaultValue={q} key={q} className="min-w-48 flex-1 md:max-w-md" aria-label={t.buscar.etiqueta} placeholder={t.buscar.placeholder} />
       <FiltroDinero
         etiqueta={t.tipos.etiqueta}
@@ -131,6 +140,17 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
         className="w-[calc(50%-0.25rem)] sm:w-48"
         opciones={METODOS.map((v) => ({ valor: v, etiqueta: t.metodos[v], href: enlace({ metodo: v, pagina: 1 }) }))}
       />
+      {cuentas.filter((c) => !c.archivada).length > 1 && (
+        <FiltroDinero
+          etiqueta={t.cuentas.etiqueta}
+          valor={cuenta}
+          className="w-full sm:w-52"
+          opciones={[
+            { valor: "todas", etiqueta: t.cuentas.todas, href: enlace({ cuenta: "todas", pagina: 1 }) },
+            ...cuentas.filter((c) => !c.archivada).map((c) => ({ valor: c.id, etiqueta: c.nombre, href: enlace({ cuenta: c.id, pagina: 1 }) })),
+          ]}
+        />
+      )}
       {hayFiltros && (
         <ButtonLink href={conBusqueda(ruta, new URLSearchParams({ periodo: clave }))} variante="suave" icono="x">
           {t.quitarFiltros}
@@ -144,7 +164,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
       <PageHeader
         titulo={t.titulo}
         descripcion={t.descripcion}
-        accion={<RegistrarGasto hoy={hoy} guardarFijo={guardarFijo} />}
+        accion={<RegistrarGasto hoy={hoy} guardarFijo={guardarFijo} cuentas={cuentas} />}
       />
       <div className="flex flex-col gap-4">
         {/* Un solo bloque de filtros, arriba: el periodo, qué ver, el método y la búsqueda mandan sobre los totales, el gráfico y la lista */}
@@ -178,7 +198,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
         {!pagina_.length ? (
           <EmptyState monito="asoma" texto={q ? t.buscar.sinResultados(q) : hayFiltros ? t.vacioFiltro : t.vacio} />
         ) : (
-          <ListaMovimientos movimientos={pagina_} hoy={hoy} conFecha />
+          <ListaMovimientos movimientos={pagina_} hoy={hoy} conFecha nombresDeCuenta={nombresDeCuenta} />
         )}
 
         {(pagina > 1 || hayMas) && (
@@ -203,7 +223,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
         )}
 
         {/* Los gastos fijos van al final: se ven cuando ya hay alguno */}
-        <SeccionGastosFijos fijos={filasFijas} totalMensual={totalFijos} />
+        <SeccionGastosFijos fijos={filasFijas} totalMensual={totalFijos} cuentas={cuentas} />
       </div>
     </>
   );

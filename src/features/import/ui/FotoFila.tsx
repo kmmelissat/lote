@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useId, useState, type ChangeEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { subirFotos } from "@/features/products/subirFotos";
+import { subirFotos } from "@/lib/subirFotos";
 import { urlFoto } from "@/lib/fotos";
 import { textos } from "@/lib/textos";
 

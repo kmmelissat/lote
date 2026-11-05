@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useActionState, useState, useTransition } from "react";
-import { leerDolares, repartirCostoTotal } from "@/domain/index";
+import { leerDolares, repartirCostoTotal, type Cuenta } from "@/domain/index";
 import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -24,7 +24,7 @@ import { ZonaFotos } from "./ZonaFotos";
 const t = textos.productos.lote;
 const f = textos.productos.form;
 
-export function LoteForm({ negocioId }: { negocioId: string }) {
+export function LoteForm({ negocioId, cuentas }: { negocioId: string; cuentas: readonly Cuenta[] }) {
   const [estado, accion, pendiente] = useActionState<EstadoLote, FormData>(crearLote, {});
   const [rutas, setRutas] = useState<string[]>([]);
   // Lo que se escribe por pieza se guarda por ruta: si se quita una foto, no se corren las demás.
@@ -167,7 +167,7 @@ export function LoteForm({ negocioId }: { negocioId: string }) {
                 />
                 <CampoDinero etiqueta={t.costoTotal} name="costoTotal" value={costo} onChange={(ev) => setCosto(ev.target.value)} />
               </div>
-              {costoTotal !== null && <LugarDeCompra />}
+              {costoTotal !== null && <LugarDeCompra cuentas={cuentas} />}
               <div aria-live="polite" className="flex flex-col gap-1 rounded-2xl bg-superficie px-4 py-3">
                 <p className="text-sm text-texto-2">
                   {porPieza.length ? t.reparto(formatearDolares(porPieza[0]), rutas.length) : t.repartoAyuda}

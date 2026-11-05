@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { aDolares } from "@/domain/index";
 import { guardarProducto } from "@/features/products/actions/guardar";
-import { separarFotos } from "@/features/products/fotosVariantes";
+import { fotosDelGrupo } from "@/features/products/fotosVariantes";
 import {
   listarGrupo,
   listarProductos,
@@ -57,19 +57,18 @@ async function Formulario({ params }: Pick<PageProps<"/productos/[codigo]/editar
   const unicos = (valores: (string | null)[]) => [...new Set(valores.filter((x): x is string => !!x?.trim()))].sort();
   const sugerencias = { marcas: unicos(existentes.map((x) => x.marca)) };
   const dolares = (c: number | undefined) => (c === undefined ? "" : String(aDolares(c)));
-  // Las que tienen todas las variantes son las del producto (arriba); el resto, las propias de cada una
-  const { generales, propias } = separarFotos(miembros.map((m) => m.fotos));
-  const fotosProducto = conVariante ? generales : p.fotos;
+  // Arriba va la galería: todas las fotos de todas las variantes; cada variante conserva las que tiene
+  const fotosProducto = conVariante ? fotosDelGrupo(miembros).fotos : p.fotos;
   const variantes = conVariante
     ? {
         nombres: [...nombresDeVariante],
-        filas: miembros.map((m, i) => ({
+        filas: miembros.map((m) => ({
           etiqueta: m.variante ?? m.nombre,
           id: m.id,
           precio: dolares(m.precio),
           cantidad: String(m.cantidad),
           compra: dolares(m.desglose?.compra),
-          fotos: propias[i],
+          fotos: m.fotos,
           comprometidas: m.apartadas + m.vendidas,
         })),
       }

@@ -15,7 +15,7 @@ import { MensajeError } from "@/components/ui/MensajeError";
 import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { useAvisarListo, useToast } from "@/components/ui/Toast";
 import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
-import { subirLogo } from "@/features/products/subirFotos";
+import { subirLogo } from "@/lib/subirFotos";
 import { urlFoto } from "@/lib/fotos";
 import { slugDe } from "@/lib/slug";
 import { urlSitio } from "@/lib/sitio";

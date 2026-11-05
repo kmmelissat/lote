@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { CATEGORIAS_GASTO, fechaLocalDe, leerDolares, METODOS_DE_DINERO, type CategoriaGasto, type MetodoMovimiento } from "@/domain/index";
+import { CATEGORIAS_GASTO, elegirCuenta, fechaLocalDe, leerDolares, type CategoriaGasto } from "@/domain/index";
+import { cuentasDelNegocio, esCuentaDeSiempre } from "@/features/gestion/repositorio";
 import { registrarGasto } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -26,21 +27,20 @@ export async function agregarGasto(previo: EstadoGasto, datos: FormData): Promis
     return { ...previo, error: t.errorFecha, listo: undefined };
   }
 
-  // Vacío = sin método (se puede no saber); cualquier otra cosa que no sea un método de la lista es un error.
   const metodoDicho = String(datos.get("metodo") ?? "");
-  if (metodoDicho && !METODOS_DE_DINERO.includes(metodoDicho as MetodoMovimiento)) {
-    return { ...previo, error: t.errorMetodo, listo: undefined };
-  }
-
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { ...previo, error: t.errorPermiso, listo: undefined };
+  // Vacío = sin método (se puede no saber). Si no, una cuenta o el lugar de siempre (su cuenta principal).
+  const cuenta = metodoDicho ? elegirCuenta(await cuentasDelNegocio(supabase, negocio.id), metodoDicho) : null;
+  if (metodoDicho && !cuenta) return { ...previo, error: t.errorMetodo, listo: undefined };
 
   const id = await registrarGasto(supabase, negocio.id, {
     categoria: categoria as CategoriaGasto,
     monto,
     fecha,
     nota: String(datos.get("nota") ?? "").trim() || undefined,
-    metodo: (metodoDicho as MetodoMovimiento) || undefined,
+    metodo: cuenta?.tipo,
+    cuenta: cuenta && !esCuentaDeSiempre(cuenta) ? cuenta.id : undefined,
   });
   if (!id) return { ...previo, error: t.errorGeneral, listo: undefined };
 

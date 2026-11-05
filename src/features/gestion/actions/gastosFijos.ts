@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { CATEGORIAS_GASTO, fechaLocalDe, leerDolares, METODOS_DE_DINERO, type CategoriaGasto, type MetodoMovimiento } from "@/domain/index";
+import { CATEGORIAS_GASTO, elegirCuenta, fechaLocalDe, leerDolares, type CategoriaGasto } from "@/domain/index";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { cambiarGastoFijoActivo, eliminarGastoFijo, guardarGastoFijo } from "../gastosFijos";
+import { cuentasDelNegocio, esCuentaDeSiempre } from "../repositorio";
 import type { EstadoGestion } from "./gestion";
 
 const t = textos.gestion.fijos;
@@ -24,19 +25,28 @@ export async function guardarFijo(previo: EstadoGestion, datos: FormData): Promi
   const dia = Number(textoDia);
   if (!textoDia || !Number.isInteger(dia) || dia < 1 || dia > 31) return { ...previo, error: t.errorDia, listo: undefined };
 
-  // Vacío = sin método; cualquier otra cosa que no sea un método de la lista es un error
   const metodoDicho = String(datos.get("metodo") ?? "");
-  if (metodoDicho && !METODOS_DE_DINERO.includes(metodoDicho as MetodoMovimiento)) return { ...previo, error: t.errorMetodo, listo: undefined };
-
   const id = String(datos.get("id") ?? "") || undefined;
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { ...previo, error: t.errorPermiso, listo: undefined };
+  // Vacío = sin método. Lo elegido puede ser una cuenta o el lugar de siempre (antes de cuentas.sql): ese cae cada mes
+  // en la principal de su tipo.
+  const cuenta = metodoDicho ? elegirCuenta(await cuentasDelNegocio(supabase, negocio.id), metodoDicho) : null;
+  if (metodoDicho && !cuenta) return { ...previo, error: t.errorMetodo, listo: undefined };
 
   const hoy = fechaLocalDe(new Date());
   const ok = await guardarGastoFijo(
     supabase,
     negocio.id,
-    { id, nombre, monto, categoria: categoria as CategoriaGasto, dia, metodo: (metodoDicho as MetodoMovimiento) || null },
+    {
+      id,
+      nombre,
+      monto,
+      categoria: categoria as CategoriaGasto,
+      dia,
+      metodo: cuenta?.tipo ?? null,
+      cuenta: cuenta && !esCuentaDeSiempre(cuenta) ? cuenta.id : undefined,
+    },
     hoy,
   );
   if (!ok) return { ...previo, error: t.errorGeneral, listo: undefined };

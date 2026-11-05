@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Aviso } from "@/components/ui/Aviso";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { cuotasRestantes, fechaLocalDe, LUGARES_DE_DINERO, proximoPago, urgenciaDeDeuda } from "@/domain";
+import { cuotasRestantes, fechaLocalDe, proximoPago, urgenciaDeDeuda } from "@/domain";
 import { enlaceWhatsApp } from "@/features/catalog/enlaces";
 import { listarClientes } from "@/features/customers/repositorio";
-import { balanceDelNegocio } from "@/features/gestion/repositorio";
+import { balanceDelNegocio, esCuentaDeSiempre } from "@/features/gestion/repositorio";
 import { BalanceGeneral } from "@/features/gestion/ui/BalanceGeneral";
 import { SeccionPasivos } from "@/features/gestion/ui/Pasivos";
 import { SeccionesGestion } from "@/features/gestion/ui/SeccionesGestion";
@@ -38,7 +38,7 @@ async function Contenido() {
     balanceDelNegocio(supabase, negocio.id),
     listarClientes(supabase, negocio.id),
   ]);
-  const sinSaldo = LUGARES_DE_DINERO.filter((l) => datos.saldos[l] === null);
+  const cuentas = datos.cuentas.filter((c) => !c.archivada);
 
   const deudas: DeudaDeClienta[] = clientas
     .filter((c) => c.resumen.saldo > 0)
@@ -83,20 +83,17 @@ async function Contenido() {
         <BalanceGeneral
           balance={balance}
           activos={[
-            { clave: "efectivo", monto: datos.saldos.efectivo ?? 0 },
-            { clave: "transferencia", monto: datos.saldos.transferencia ?? 0 },
+            { clave: "dinero", monto: datos.dinero },
             { clave: "porCobrar", monto: deuda.total },
             { clave: "inventario", monto: valorInventario },
           ]}
           pasivos={porTipo}
-          saldos={datos.saldos}
+          cuentas={cuentas}
+          editables={!cuentas.some(esCuentaDeSiempre)}
         />
-        {sinSaldo.length > 0 && <Aviso>{t.cuadre.sinSaldo(sinSaldo.map((l) => t.lugares[l].toLowerCase()).join(" y "))}</Aviso>}
         {sinCostoEnStock > 0 && <Aviso>{t.cuadre.inventarioSinCosto(sinCostoEnStock)}</Aviso>}
 
-        <Aviso>{t.cuadre.compras}</Aviso>
-
-        <SeccionPasivos pasivos={pasivos} hoy={fechaLocalDe(ahora)} />
+        <SeccionPasivos pasivos={pasivos} hoy={fechaLocalDe(ahora)} cuentas={cuentas} />
 
         <TeDeben deudas={deudas} />
       </div>

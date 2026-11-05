@@ -14,7 +14,7 @@ const aFecha = (ms: number) => new Date(ms).toISOString().slice(0, 10);
  * `desde` es inclusive y `hasta` exclusive (AAAA-MM-DD, como en un periodo). Lo que cae fuera se ignora.
  */
 export function serieDiaria(
-  partidas: readonly { fecha: string; tipo: "entrada" | "salida" | "aparte"; monto: Centavos }[],
+  partidas: readonly { fecha: string; tipo: "entrada" | "salida" | "aparte" | "traslado"; monto: Centavos }[],
   desde: string,
   hasta: string,
 ): DiaDeDinero[] {
