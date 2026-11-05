@@ -70,15 +70,15 @@ export const ayuda = {
       donde: ["/balance"],
       pregunta: "¿Qué es el Balance y cuánto vale mi negocio?",
       respuesta:
-        "El Balance es lo que tenés y lo que debés: suma lo que tenés (efectivo, cuenta digital, lo que te deben y tu mercadería a lo que te costó) y le resta lo que debés. Lo que queda es lo que es tuyo hoy. Un préstamo sube lo que tenés y también lo que debés, así que no cambia lo que es tuyo. Lo que es tuyo sube cuando vendés con ganancia y baja cuando gastás. Lo ven quien es titular y quien administra.",
+        "El Balance es lo que tenés y lo que debés: suma lo que tenés (el dinero de tus cuentas, lo que te deben y tu mercadería a lo que te costó) y le resta lo que debés. Lo que queda es lo que es tuyo hoy. Las tarjetas de crédito cuentan como lo que debés. Un préstamo sube lo que tenés y también lo que debés, así que no cambia lo que es tuyo. Lo que es tuyo sube cuando vendés con ganancia y baja cuando gastás. Lo ven quien es titular y quien administra.",
     },
     {
       id: "saldo_inicial",
       enlace: { href: "/balance/detalle", etiqueta: "Poner mi saldo" },
       donde: ["/balance"],
-      pregunta: "¿Cómo pongo cuánto dinero tengo en efectivo y en mi cuenta?",
+      pregunta: "¿Cómo pongo cuánto dinero tengo y cómo armo mis cuentas?",
       respuesta:
-        "En Gestión, en Balance, tocá Poner saldo inicial en Efectivo y en Cuenta digital y escribí cuánto hay hoy. Se hace una sola vez: desde ahí el saldo sube con lo que cobrás y baja con lo que gastás y pagás. Si un día no calza con lo que hay de verdad, tocá Ajustar saldo, escribí lo que hay y por qué la diferencia: queda anotado como ajuste.",
+        "En Balance, en «Tus cuentas», tocá Poner saldo inicial en cada cuenta y escribí cuánto hay hoy. Con Agregar cuenta sumás las que uses (caja, banco, billetera). El saldo inicial se pone una sola vez: desde ahí sube con lo que cobrás y baja con lo que gastás y pagás. Si un día no calza con lo que hay de verdad, tocá Ajustar saldo, escribí lo que hay y por qué la diferencia: queda anotado como ajuste. Para pasar dinero de una cuenta a otra, por ejemplo de la caja al banco, usá Mover dinero: no cuenta como ingreso ni gasto.",
     },
     {
       id: "deuda",
@@ -86,7 +86,7 @@ export const ayuda = {
       donde: ["/balance"],
       pregunta: "¿Cómo anoto una deuda, un préstamo o un crédito?",
       respuesta:
-        "En Gestión, en Balance, tocá Anotar lo que debés. Elegí si es deuda, préstamo o crédito, a quién se lo debés y cuánto. Si te prestaron dinero y lo recibiste, elegí dónde entró (efectivo o cuenta digital) para que ese saldo suba. Cada vez que pagués, tocá Abonar y elegí de dónde sale el dinero. Pagar una deuda no es un gasto: no baja tu ganancia.",
+        "En Gestión, en Balance, tocá Anotar lo que debés. Elegí si es deuda, préstamo o crédito, a quién se lo debés y cuánto. Si te prestaron dinero y lo recibiste, elegí en qué cuenta entró para que ese saldo suba. Cada vez que pagués, tocá Abonar y elegí de dónde sale el dinero. Pagar una deuda no es un gasto: no baja tu ganancia.",
     },
     {
       id: "cuota_deuda",
