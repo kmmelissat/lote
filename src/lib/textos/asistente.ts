@@ -80,7 +80,8 @@ export const asistente = {
     "• \"vendí 2 llaveros en persona, efectivo\"",
     "• \"ya pagó Ana\" o \"Ana abonó $10\"",
     "• \"cobrale a Ana\"",
-    "• \"ya la envié, guía 123\"",
+    "• \"ya la envié, guía 123\" o \"ya se entregó el pedido de Ana\"",
+    "• \"subile el precio a las fundas a $8\"",
     "• \"se cayó el apartado de Ana\"",
     "• \"gasté $5 en bolsas\"",
     "• \"¿qué tengo apartado?\", \"¿quién me debe?\", \"¿qué falta enviar?\"",
@@ -133,6 +134,8 @@ export const asistente = {
     gasto: "Registrar un gasto",
     liberar: "Liberar el apartado",
     enviar: "Marcar como enviado",
+    entregar: "Marcar como entregado",
+    cambiar_precio: "Cambiar el precio",
     cobrar: "Armar el mensaje de cobro",
   } as Record<string, string>,
   productoOpcion: (codigo: number, nombre: string, disponibles: number) =>
@@ -170,6 +173,15 @@ export const asistente = {
   liberado: (cliente: string | null) => `Listo. Apartado de ${cliente ?? "ese pedido"} liberado.`,
   enviado: (cliente: string | null, guia: string | null) =>
     `Listo. Pedido de ${cliente ?? "ese cliente"} enviado${guia ? `, guía ${guia}` : ""}.`,
+  sinPagarEntrega: (cliente: string | null) =>
+    `El pedido de ${cliente ?? "ese cliente"} todavía no está pagado. Registrá el pago antes de entregarlo, o marcalo contra entrega en el panel.`,
+  entregado: (cliente: string | null, cobrado: string | null) =>
+    `Listo. Pedido de ${cliente ?? "ese cliente"} entregado${cobrado ? ` y cobrado: ${cobrado}` : ""}.`,
+  mismoPrecio: (producto: string, precio: string) => `${producto} ya está a ${precio}.`,
+  precioCambiado: (producto: string, antes: string, ahora: string, gana: { monto: string; pierde: boolean } | null) =>
+    `Listo. ${producto} pasó de ${antes} a ${ahora}.${
+      gana ? (gana.pierde ? ` Ojo: queda por debajo de lo que te costó (perdés ${gana.monto} por unidad).` : ` Te deja ${gana.monto} por unidad.`) : ""
+    }`,
   guiaGuardada: (guia: string | null) => `Listo. Guía${guia ? ` ${guia}` : ""} guardada.`,
   sinPagar: (cliente: string | null) =>
     `El pedido de ${cliente ?? "ese cliente"} todavía no está pagado. Registrá el pago antes de enviarlo, o marcalo contra entrega en el panel.`,
@@ -232,5 +244,7 @@ export const asistente = {
     deshaciendo: "Deshaciendo…",
     error: "No se pudo deshacer. Probá desde el chat.",
   },
+  descEntregado: (cliente: string | null) => `entrega del pedido de ${cliente ?? "un cliente"}`,
+  descPrecio: (producto: string, antes: string, ahora: string) => `precio de ${producto} (de ${antes} a ${ahora})`,
   descEnviado: (cliente: string | null) => `envío del pedido de ${cliente ?? "un cliente"}`,
 } as const;

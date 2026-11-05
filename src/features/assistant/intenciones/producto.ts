@@ -100,3 +100,25 @@ export async function reponer({ d, entrada, intencion, salida }: Ctx<"reponer">)
     };
   });
 }
+
+export async function cambiarPrecio({ d, entrada, intencion, salida }: Ctx<"cambiar_precio">): Promise<Respuesta> {
+  const elegido = await productoDe(d, salida, intencion.producto);
+  if ("respuesta" in elegido) return elegido.respuesta;
+  const p = elegido.producto;
+  if (p.precio === intencion.precio) return { texto: t.mismoPrecio(p.nombre, formatearDolares(p.precio)) };
+  return registrar(d, entrada, intencion, salida, async () => {
+    const r = await d.puerto.cambiarPrecio(p.id, intencion.precio);
+    if (!r.ok) return { respuesta: { texto: textoDeError(r.error, p.nombre) } };
+    const antes = formatearDolares(p.precio);
+    const ahora = formatearDolares(intencion.precio);
+    // Con costo conocido, se dice cuánto deja cada unidad (el cálculo es del código, no de la IA)
+    const margen = p.costoUnitario != null ? intencion.precio - p.costoUnitario : null;
+    const gana = margen === null ? null : { monto: formatearDolares(Math.abs(margen)), pierde: margen < 0 };
+    return {
+      respuesta: { texto: t.precioCambiado(p.nombre, antes, ahora, gana) },
+      // En dólares, como se guarda en la base
+      inverso: { tipo: "precio", producto_id: p.id, anterior: p.precio / 100, nuevo: intencion.precio / 100 },
+      descripcion: t.descPrecio(p.nombre, antes, ahora),
+    };
+  });
+}

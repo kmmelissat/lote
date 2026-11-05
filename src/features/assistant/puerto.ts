@@ -76,6 +76,8 @@ export interface Puerto {
     fotoRuta: string | null;
   }): Promise<R<{ grupo: string; productos: { id: string; codigo: number; etiqueta: string }[] }>>;
   reponer(productoId: string, llegan: number, nuevoCosto: Centavos | null): Promise<R<null>>;
+  /** Cambia el precio de venta de un producto. Solo dueña y administradora. */
+  cambiarPrecio(productoId: string, precio: Centavos): Promise<R<null>>;
   registrarPedido(p: {
     cliente: string;
     tipo: "apartado" | "venta";

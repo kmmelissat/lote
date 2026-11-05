@@ -214,6 +214,12 @@ export async function reponerProducto(
   return error.code === "42501" ? "sin_permiso" : "desconocido";
 }
 
+/** Cambia solo el precio de venta. RLS deja hacerlo a quien gestiona: sin permiso no toca ninguna fila. */
+export async function cambiarPrecioProducto(supabase: Cliente, productoId: string, precio: Centavos): Promise<boolean> {
+  const { data, error } = await supabase.from("producto").update({ precio: precio / 100 }).eq("id", productoId).select("id");
+  return !error && data.length > 0;
+}
+
 /** Pone la cantidad total en un número exacto (corregir un error de conteo). Necesita `editar_existencia.sql`. */
 export async function ajustarExistencia(
   supabase: Cliente,

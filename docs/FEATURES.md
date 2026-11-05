@@ -71,6 +71,7 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 
 ### Lotito, el asistente
 - ✅ Chat dentro del panel (y burbuja flotante en todas las pantallas): "apartá la chaqueta para Ana", "ya pagó", "gasté $5 en bolsas", "¿cuánto gané esta semana?", "¿quién me debe?".
+- ✅ **Marcar entregado y cambiar el precio por chat**: «ya se entregó el pedido de Ana» (pasa por los pasos que falten; si era contra entrega, cobra el saldo) y «subile el precio a las fundas a $8» (avisa cuánto deja por unidad, o si queda bajo el costo). Las dos se deshacen. (Necesita `asistente_acciones.sql`.)
 - ✅ **Todo se puede deshacer.** Lo delicado se confirma; los montos los calcula el código, nunca la IA.
 - ✅ Preguntas frecuentes con respuesta fija (la IA solo elige el tema) y memoria corta para mensajes como "¿y el mes pasado?".
 - ✅ Conoce el balance: responde «¿cuánto debo?» y «¿cuánto vale mi negocio?» con cada deuda y su cuota.

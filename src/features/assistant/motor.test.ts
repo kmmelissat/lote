@@ -51,6 +51,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
       valor: { grupo: "g1", productos: p.variantes.map((v, i) => ({ id: `v${i}`, codigo: 10 + i, etiqueta: v.etiqueta })) },
     })),
     reponer: vi.fn(async () => ({ ok: true as const, valor: null })),
+    cambiarPrecio: vi.fn(async () => ({ ok: true as const, valor: null })),
     registrarPedido: vi.fn(async () => ({ ok: true as const, valor: { id: "ped-nuevo", codigo: 7 } })),
     registrarPedidoVarios: vi.fn(async () => ({ ok: true as const, valor: { id: "ped-varios", codigo: 8 } })),
     registrarPago: vi.fn(async () => ({ ok: true as const, valor: { pagoId: "pago-1" } })),
@@ -255,6 +256,63 @@ describe("enviar y cobrar", () => {
     const { turno } = montar({ pedidos: [pedido(3, "Ana")] });
     const r = await turno({ mensajeId: "m1" }, { intencion: "cobrar", cliente: "Ana" });
     expect(r.copiar).toBe("Hola Ana! Total: $25.00");
+  });
+});
+
+describe("entregar", () => {
+  it("un pedido enviado pasa a entregado y se puede deshacer", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana", { estado: "enviado", saldo: 0 })] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "entregar", cliente: "Ana" });
+    expect(r.texto).toBe("Listo. Pedido de Ana entregado.");
+    expect(puerto.cambiarEstado).toHaveBeenCalledTimes(1);
+    expect(puerto.cambiarEstado).toHaveBeenCalledWith("ped-3", "entregado");
+    expect(r.botones?.some((b) => b.comando.tipo === "deshacer")).toBe(true);
+  });
+
+  it("un pedido pagado pasa por cada paso hasta entregado", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana", { estado: "pagado", saldo: 0 })] });
+    await turno({ mensajeId: "m1" }, { intencion: "entregar", cliente: "Ana" });
+    expect(puerto.cambiarEstado).toHaveBeenNthCalledWith(1, "ped-3", "preparando");
+    expect(puerto.cambiarEstado).toHaveBeenNthCalledWith(2, "ped-3", "enviado");
+    expect(puerto.cambiarEstado).toHaveBeenNthCalledWith(3, "ped-3", "entregado");
+  });
+
+  it("contra entrega avisa lo que se cobró", async () => {
+    const { turno } = montar({ pedidos: [pedido(3, "Ana", { contraEntrega: true })] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "entregar", cliente: "Ana" });
+    expect(r.texto).toBe("Listo. Pedido de Ana entregado y cobrado: $25.00.");
+  });
+
+  it("no entrega un pedido sin pagar", async () => {
+    const { puerto, turno } = montar({ pedidos: [pedido(3, "Ana")] });
+    const r = await turno({ mensajeId: "m1" }, { intencion: "entregar", cliente: "Ana" });
+    expect(r.texto).toContain("todavía no está pagado");
+    expect(puerto.cambiarEstado).not.toHaveBeenCalled();
+  });
+});
+
+describe("cambiar precio", () => {
+  it("cambia el precio y dice cuánto deja si hay costo", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "cambiar_precio", producto: "llaveros", precio: 8 });
+    expect(puerto.cambiarPrecio).toHaveBeenCalledWith("prod-3", 800);
+    expect(r.texto).toBe("Listo. Llaveros de gato pasó de $25.00 a $8.00. Ojo: queda por debajo de lo que te costó (perdés $2.00 por unidad).");
+    expect(r.botones?.some((b) => b.comando.tipo === "deshacer")).toBe(true);
+  });
+
+  it("sin precio nuevo lo pregunta", async () => {
+    const { puerto, turno } = montar();
+    const r = await turno({ mensajeId: "m1" }, { intencion: "cambiar_precio", producto: "llaveros" });
+    expect(r.estado).toMatchObject({ tipo: "completar", falta: "precio" });
+    expect(puerto.cambiarPrecio).not.toHaveBeenCalled();
+  });
+
+  it("si ya está a ese precio no hace nada", async () => {
+    const { puerto, turno } = montar({ productos: [producto(1, "Chaqueta negra M")] });
+    const actual = (await puerto.productos())[0].precio;
+    const r = await turno({ mensajeId: "m1" }, { intencion: "cambiar_precio", producto: "chaqueta", precio: actual / 100 });
+    expect(r.texto).toContain("ya está a");
+    expect(puerto.cambiarPrecio).not.toHaveBeenCalled();
   });
 });
 

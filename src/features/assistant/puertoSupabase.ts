@@ -14,7 +14,7 @@ import { fechaLocalDe, nombreConVariante, proximoPago, rangoPeriodo } from "@/do
 import { balanceDelNegocio } from "@/features/gestion/repositorio";
 import { contextoDeLaTienda } from "@/features/catalog/repositorio";
 import { registrarGasto, resumenDePeriodo } from "@/features/profit/repositorio";
-import { crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
+import { cambiarPrecioProducto, crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { cerrarAccion, deshacerAccion, iniciarAccion, ultimaAccionDeshacible } from "./accionesRepositorio";
@@ -110,6 +110,11 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
     async reponer(productoId, llegan, nuevoCosto) {
       const r = await reponerProducto(supabase, productoId, llegan, nuevoCosto);
       return r === "ok" ? ok(null) : falla(r);
+    },
+
+    async cambiarPrecio(productoId, precio) {
+      if (!negocio.puedeGestionar) return falla("sin_permiso");
+      return (await cambiarPrecioProducto(supabase, productoId, precio)) ? ok(null) : falla("desconocido");
     },
 
     registrarPedido: (p) =>

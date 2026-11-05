@@ -13,6 +13,8 @@ const INTENCIONES = [
   "abonar",
   "liberar",
   "enviar",
+  "entregar",
+  "cambiar_precio",
   "cobrar",
   "gasto",
   "consultar",
@@ -28,7 +30,7 @@ const VarianteDicha = z.object({ nombre: z.string(), precio: z.number().nullable
 
 /** Otra acción del mismo mensaje ("...y el cd para Luis"): con los mismos datos que la primera, repetidos en cada una. */
 const AccionExtra = z.object({
-  intencion: z.enum(["apartar", "vender", "reponer", "marcar_pagado", "abonar", "liberar", "enviar", "cobrar", "gasto"]),
+  intencion: z.enum(["apartar", "vender", "reponer", "marcar_pagado", "abonar", "liberar", "enviar", "entregar", "cobrar", "gasto"]),
   producto: z.string().nullable(),
   cliente: z.string().nullable(),
   pedido: z.number().int().nullable(),

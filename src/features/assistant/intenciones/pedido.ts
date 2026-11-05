@@ -109,6 +109,36 @@ export async function enviar({ d, entrada, intencion, salida }: Ctx<"enviar">): 
   });
 }
 
+export async function entregar({ d, entrada, intencion, salida }: Ctx<"entregar">): Promise<Respuesta> {
+  const elegido = await pedidoDe(d, salida, intencion.pedido, ["pendiente", "pagado", "preparando", "enviado"]);
+  if ("respuesta" in elegido) return elegido.respuesta;
+  const p = elegido.pedido;
+  // Se pasa por cada paso que falte, igual que el botón del pedido: lo no pagado no se entrega (salvo contra entrega).
+  const pasos: EstadoPedido[] | null =
+    p.estado === "pagado" || (p.estado === "pendiente" && p.contraEntrega)
+      ? ["preparando", "enviado", "entregado"]
+      : p.estado === "preparando"
+        ? ["enviado", "entregado"]
+        : p.estado === "enviado"
+          ? ["entregado"]
+          : null;
+  if (pasos === null) return { texto: t.sinPagarEntrega(p.cliente) };
+
+  return registrar(d, entrada, intencion, salida, async () => {
+    for (const paso of pasos) {
+      const r = await d.puerto.cambiarEstado(p.id, paso);
+      if (!r.ok) return { respuesta: { texto: textoDeError(r.error) } };
+    }
+    // Contra entrega: al entregar se cobra lo que faltaba
+    const cobrado = p.contraEntrega && p.saldo > 0 ? formatearDolares(p.saldo) : null;
+    return {
+      respuesta: { texto: t.entregado(p.cliente, cobrado) },
+      inverso: { tipo: "estado", pedido_id: p.id, de: p.estado, a: "entregado" },
+      descripcion: t.descEntregado(p.cliente),
+    };
+  });
+}
+
 const mismo = (a: string | null, b: string | null) => (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
 
 /**

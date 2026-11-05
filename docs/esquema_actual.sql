@@ -3,7 +3,7 @@
 -- No incluye grant/revoke, datos (insert/update/delete) ni bloques do. Las columnas con sus tipos también están en
 -- src/lib/supabase/database.types.ts.
 --
--- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, tarjetas.
+-- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones.
 
 -- ====================================================================================================
 -- TABLAS (40)
@@ -2364,7 +2364,7 @@ end;
 $$;
 
 -- función deshacer_accion(uuid)
--- seguridad.sql (antes en: asistente.sql, asistente_gasto.sql)
+-- asistente_acciones.sql (antes en: asistente.sql, asistente_gasto.sql, seguridad.sql)
 create or replace function public.deshacer_accion(p_accion uuid)
 returns text
 language plpgsql security definer
@@ -2379,6 +2379,7 @@ declare
   v_producto uuid;
   v_pagos int;
   v_plazo int;
+  v_cobrado numeric;
 begin
   select * into v_accion from public.accion where id = p_accion for update;
   if v_accion.id is null or v_accion.usuario_id is distinct from auth.uid()
@@ -2422,9 +2423,10 @@ begin
     where id = v_pedido.id;
 
   elsif v_tipo = 'estado' then
-    -- Solo los dos cambios que hace el asistente: cancelar un apartado, o marcar enviado.
+    -- Solo los cambios que hace el asistente: cancelar un apartado, marcar enviado o marcar entregado.
     if not ((v_inv->>'de' = 'pendiente' and v_inv->>'a' = 'cancelado')
-            or (v_inv->>'de' in ('pagado', 'preparando') and v_inv->>'a' = 'enviado')) then
+            or (v_inv->>'de' in ('pagado', 'preparando') and v_inv->>'a' = 'enviado')
+            or (v_inv->>'de' in ('pendiente', 'pagado', 'preparando', 'enviado') and v_inv->>'a' = 'entregado')) then
       raise exception 'no_deshacible' using errcode = '22023';
     end if;
     select * into v_pedido from public.pedido
@@ -2432,7 +2434,17 @@ begin
     if v_pedido.id is null or v_pedido.estado <> v_inv->>'a' then
       raise exception 'cambiado' using errcode = '22023';
     end if;
-    if v_inv->>'de' = 'pendiente' then
+    if v_inv->>'a' = 'entregado' then
+      -- Volver al estado de antes. Si era contra entrega, el cobro lo hizo el cambio de estado: se quita y vuelve el saldo.
+      if v_pedido.contra_entrega then
+        select coalesce(sum(monto), 0) into v_cobrado from public.pago
+        where pedido_id = v_pedido.id and metodo = 'contra_entrega';
+        delete from public.pago where pedido_id = v_pedido.id and metodo = 'contra_entrega';
+        update public.pedido set estado = v_inv->>'de', saldo = saldo + v_cobrado where id = v_pedido.id;
+      else
+        update public.pedido set estado = v_inv->>'de' where id = v_pedido.id;
+      end if;
+    elsif v_inv->>'de' = 'pendiente' then
       -- Volver a apartar: las unidades tienen que seguir libres, y el plazo empieza de nuevo.
       perform public.verificar_retencion_pedido(v_pedido.id);
       select plazo_apartado_horas into v_plazo from public.negocio where id = v_pedido.negocio_id;
@@ -2485,6 +2497,19 @@ begin
       insert into public.costo_producto (producto_id, negocio_id, tipo, monto, por_unidad)
       select v_producto, v_accion.negocio_id, c.tipo, c.monto, coalesce(c.por_unidad, true)
       from jsonb_to_recordset(v_inv->'costos') as c(tipo text, monto numeric, por_unidad boolean);
+    end if;
+
+  elsif v_tipo = 'precio' then
+    -- Solo si el precio sigue siendo el que puso el asistente: si alguien lo volvió a cambiar, no se toca.
+    if not public.puede_gestionar(v_accion.negocio_id) then
+      raise exception 'Sin permiso' using errcode = '42501';
+    end if;
+    update public.producto
+    set precio = (v_inv->>'anterior')::numeric
+    where id = (v_inv->>'producto_id')::uuid and negocio_id = v_accion.negocio_id
+      and precio = (v_inv->>'nuevo')::numeric;
+    if not found then
+      raise exception 'cambiado' using errcode = '22023';
     end if;
 
   elsif v_tipo = 'gasto' then

@@ -31,6 +31,8 @@ export type Intencion =
   | { tipo: "cobrar"; pedido: RefPedido }
   | { tipo: "abonar"; pedido: RefPedido; monto: Centavos; metodo: Metodo | null }
   | { tipo: "enviar"; pedido: RefPedido; paquetera: string | null; guia: string | null }
+  | { tipo: "entregar"; pedido: RefPedido }
+  | { tipo: "cambiar_precio"; producto: string; precio: Centavos }
   | { tipo: "gasto"; monto: Centavos; categoria: CategoriaGasto; nota: string | null; metodo: Metodo | null };
 
 export type VarianteNueva = { etiqueta: string; precio: Centavos; cantidad: number };
@@ -115,8 +117,12 @@ export function aIntencion(s: SalidaEntender): ResultadoIntencion {
       return ok({ tipo: "vender", producto, cantidad: s.cantidad ?? 1, cliente, metodo: s.metodo });
     case "marcar_pagado":
     case "liberar":
+    case "entregar":
     case "cobrar":
       return tienePedido ? ok({ tipo: s.intencion, pedido }) : falta("pedido");
+    case "cambiar_precio":
+      if (!producto) return falta("producto");
+      return precio !== null && precio > 0 ? ok({ tipo: "cambiar_precio", producto, precio }) : falta("precio");
     case "abonar": {
       if (!tienePedido) return falta("pedido");
       const monto = s.monto !== null && s.monto > 0 ? aCentavos(s.monto) : null;

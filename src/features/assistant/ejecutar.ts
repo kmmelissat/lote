@@ -4,9 +4,9 @@ import type { Intencion } from "./intencion";
 import type { Deps, Entrada, Extras, Respuesta } from "./tipos";
 import { deshacerUltima } from "./deshacer";
 import { respuestaDeAyuda } from "./faq";
-import { apartarOVender, enviar, liberar } from "./intenciones/pedido";
+import { apartarOVender, entregar, enviar, liberar } from "./intenciones/pedido";
 import { consultar, consultarEstado, consultarGanancia, consultarProducto } from "./intenciones/consulta";
-import { crearProducto, reponer } from "./intenciones/producto";
+import { cambiarPrecio, crearProducto, reponer } from "./intenciones/producto";
 import { registrarGasto } from "./intenciones/gasto";
 import { registrarPago, cobrar } from "./intenciones/cobro";
 import { conversar } from "./intenciones/conversar";
@@ -46,6 +46,10 @@ export async function ejecutar(
       return liberar({ ...c, intencion });
     case "enviar":
       return enviar({ ...c, intencion });
+    case "entregar":
+      return entregar({ ...c, intencion });
+    case "cambiar_precio":
+      return cambiarPrecio({ ...c, intencion });
     case "marcar_pagado":
     case "abonar":
       return registrarPago({ ...c, intencion });
