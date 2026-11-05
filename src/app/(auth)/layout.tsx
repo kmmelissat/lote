@@ -4,6 +4,7 @@ import { Globo } from "@/components/ui/Globo";
 import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { LotitoMas } from "@/components/ui/LotitoMas";
+import { Pie } from "@/components/ui/Pie";
 import { textos } from "@/lib/textos";
 
 // Entrar y crear negocio no tienen nada que indexar: la landing es la puerta pública.
@@ -19,6 +20,7 @@ const NOTAS = [
 // Entrar y crear negocio comparten el marco: en pantalla ancha, un panel de marca a la izquierda.
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
+    <>
     <div className="grid min-h-dvh md:grid-cols-[1fr_1fr] lg:grid-cols-[5fr_6fr]">
       <aside className="relative hidden flex-col justify-between gap-8 overflow-hidden border-r-2 border-teal-oscuro bg-crema bg-[radial-gradient(var(--color-teal-oscuro)_1px,transparent_1.5px)] bg-[length:22px_22px] p-10 md:flex">
         <Link href="/" aria-label={textos.nombre} className="relative z-10 self-start">
@@ -88,5 +90,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </div>
       </main>
     </div>
+    <Pie />
+    </>
   );
 }

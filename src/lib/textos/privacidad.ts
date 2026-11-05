@@ -7,7 +7,7 @@ export const privacidad = {
     {
       titulo: "Qué es Lote",
       texto:
-        "Lote es un proyecto de diseño (ciclo 3). Sirve para llevar el inventario, los apartados, los cobros y los envíos de un negocio que vende por redes sociales y WhatsApp.",
+        "Lote es un producto en beta, en construcción y en pruebas. Sirve para llevar el inventario, los apartados, los cobros y los envíos de un negocio que vende por redes sociales y WhatsApp.",
     },
     {
       titulo: "Qué guardamos de tus clientes",
@@ -33,6 +33,11 @@ export const privacidad = {
       titulo: "Exportar o borrar tus datos",
       texto:
         "Podés descargar tus productos, pedidos, clientes y gastos en Ajustes, en Exportar datos. Borrar datos desde la app todavía no se puede: está pendiente. Mientras tanto, tus datos solo los ven las personas de tu negocio.",
+    },
+    {
+      titulo: "Dudas, quejas o errores",
+      texto:
+        "Si tenés una duda sobre tus datos, encontraste un error o querés contarnos algo, escribí a kmmelissat@gmail.com.",
     },
   ],
 } as const;

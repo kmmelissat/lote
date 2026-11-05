@@ -14,6 +14,7 @@ import { asistente } from "./asistente";
 import { avisos } from "./avisos";
 import { vitrina } from "./vitrina";
 import { privacidad } from "./privacidad";
+import { pie } from "./pie";
 import { terminos } from "./terminos";
 import { equipo } from "./equipo";
 import { invitacion } from "./invitacion";
@@ -57,6 +58,7 @@ export const textos = {
   vitrina,
   privacidad,
   terminos,
+  pie,
   equipo,
   invitacion,
   ayuda,

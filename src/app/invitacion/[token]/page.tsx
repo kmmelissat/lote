@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { connection } from "next/server";
 import { ButtonLink } from "@/components/ui/Button";
 import { LotitoMas } from "@/components/ui/LotitoMas";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
+import { Pie } from "@/components/ui/Pie";
 import { esTokenInvitacion, verInvitacion } from "@/features/team/repositorio";
 import { AceptarInvitacion } from "@/features/team/ui/AceptarInvitacion";
 import { createPublicClient } from "@/lib/supabase/publico";
@@ -27,7 +27,8 @@ async function Invitacion({ params }: Pick<PageProps<"/invitacion/[token]">, "pa
   const info = esTokenInvitacion(token) ? await verInvitacion(createPublicClient(), token) : null;
 
   return (
-    <main className="min-h-dvh bg-crema px-4 py-10">
+    <div className="flex min-h-dvh flex-col bg-crema">
+    <main className="flex-1 px-4 py-10">
       <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-6">
         <Logo />
         <Migas />
@@ -50,11 +51,10 @@ async function Invitacion({ params }: Pick<PageProps<"/invitacion/[token]">, "pa
             </div>
           )}
         </div>
-        <Link href="/privacidad" className="inline-flex min-h-11 items-center self-start text-sm font-medium text-teal underline">
-          {textos.acceso.privacidadEnlace}
-        </Link>
       </div>
     </main>
+    <Pie />
+    </div>
   );
 }
 

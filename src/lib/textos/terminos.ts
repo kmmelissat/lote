@@ -7,7 +7,7 @@ export const terminos = {
     {
       titulo: "Qué es Lote",
       texto:
-        "Lote es un proyecto del curso Diseño de Productos y Servicios (ciclo 3), no un producto comercial. Sirve para llevar el inventario, los pedidos, los cobros, los envíos y las cuentas de un negocio que vende por redes sociales y WhatsApp, y para mostrar su tienda en línea.",
+        "Lote es un producto en beta, en construcción y en pruebas. Sirve para llevar el inventario, los pedidos, los cobros, los envíos y las cuentas de un negocio que vende por redes sociales y WhatsApp, y para mostrar su tienda en línea.",
     },
     {
       titulo: "Tu cuenta",
@@ -42,7 +42,12 @@ export const terminos = {
     {
       titulo: "Sin garantías",
       texto:
-        "Como es un proyecto de curso, Lote se ofrece tal como está: puede tener errores, cambiar o dejar de funcionar sin aviso. No nos hacemos responsables por pérdidas de ventas, dinero o datos por usarlo. Guardá tu propia copia con Exportar datos, en Ajustes.",
+        "Como Lote está en beta, se ofrece tal como está: puede tener errores, cambiar o dejar de funcionar sin aviso. No nos hacemos responsables por pérdidas de ventas, dinero o datos por usarlo. Guardá tu propia copia con Exportar datos, en Ajustes.",
+    },
+    {
+      titulo: "Quejas, errores e interés",
+      texto:
+        "Si algo falla, tenés una queja o te interesa Lote para tu negocio, escribinos a kmmelissat@gmail.com. Leemos todos los mensajes.",
     },
     {
       titulo: "Cambios a estos términos",

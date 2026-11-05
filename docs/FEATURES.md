@@ -127,7 +127,8 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 
 ## Landing, ayuda y marca
 - ✅ Landing en `/` con SEO completo, y un centro de ayuda en `/ayuda`.
-- ✅ Aviso de privacidad y términos de uso (`/terminos`), login con Google o correo, y páginas de error con el monito.
+- ✅ **Planes en la landing** (`PlanesPrecios`, papelitos pegados con sus topes y Lotito): Gratis, Emprendedor y Negocio, con lo que incluye cada uno. Con precios de lanzamiento y cambio mensual/anual (Emprendedor $5.99/mes o $59/año, Negocio $12.99/mes o $129/año). Todo es $0 en la beta; los precios **no están confirmados** (ver `docs/PRECIOS.md`). Los topes y el cobro aún no se aplican.
+- ✅ Aviso de privacidad y términos de uso (`/terminos`), pie de verdad en todas las rutas públicas (`components/ui/Pie.tsx`: marca, enlaces, legal y correo de contacto), login con Google o correo, y páginas de error con el monito.
 - ✅ Una marca propia (colores, formas, monitos y voz) en [BRANDING.md](BRANDING.md), aplicada también al panel.
 
 ## Seguridad y calidad

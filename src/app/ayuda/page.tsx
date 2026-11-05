@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { PaginaAyuda } from "@/features/ayuda/ui/PaginaAyuda";
 import { BotonLanding } from "@/features/landing/ui/comun";
-import { Pie } from "@/features/landing/ui/Pie";
+import { Pie } from "@/components/ui/Pie";
 import { JsonLd } from "@/lib/jsonld";
 import { createClient } from "@/lib/supabase/server";
 import { textos } from "@/lib/textos";

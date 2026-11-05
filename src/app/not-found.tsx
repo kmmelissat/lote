@@ -4,6 +4,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Gorila } from "@/components/ui/Gorila";
 import { Icon } from "@/components/ui/Icon";
 import { LotitoMas } from "@/components/ui/LotitoMas";
+import { Pie } from "@/components/ui/Pie";
 import { textos } from "@/lib/textos";
 
 const t = textos.errores;
@@ -13,7 +14,8 @@ const enlaceSecundario =
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-dvh flex-col items-center bg-crema px-4 py-8">
+    <div className="flex min-h-dvh flex-col bg-crema">
+    <main className="flex flex-1 flex-col items-center px-4 py-8">
       <Link href="/" className="inline-flex items-center gap-2 self-start font-bold text-teal-oscuro sm:self-center">
         <Gorila className="size-9" />
         {textos.nombre}
@@ -60,5 +62,7 @@ export default function NotFound() {
         </section>
       </div>
     </main>
+    <Pie />
+    </div>
   );
 }

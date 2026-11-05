@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
+import { Pie } from "@/components/ui/Pie";
 import { TARJETA } from "@/components/ui/tarjeta";
 import { textos } from "@/lib/textos";
 
@@ -15,8 +16,8 @@ export const metadata: Metadata = {
 
 export default function PrivacidadPage() {
   return (
-    <div className="min-h-dvh bg-crema">
-      <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-8">
+    <div className="flex min-h-dvh flex-col bg-crema">
+      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 px-4 py-8">
         <Logo />
         <Migas />
         <div>
@@ -35,6 +36,7 @@ export default function PrivacidadPage() {
           {t.volver}
         </Link>
       </main>
+      <Pie />
     </div>
   );
 }

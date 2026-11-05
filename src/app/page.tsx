@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Encabezado } from "@/features/landing/ui/Encabezado";
 import { LandingMas } from "@/features/landing/ui/mas/LandingMas";
-import { Pie } from "@/features/landing/ui/Pie";
+import { Pie } from "@/components/ui/Pie";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
 import { createClient } from "@/lib/supabase/server";
