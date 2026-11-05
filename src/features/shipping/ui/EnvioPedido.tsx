@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
+import { BotonIcono } from "@/components/ui/BotonIcono";
 import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { Card } from "@/components/ui/Card";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
@@ -51,9 +52,7 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
           {t.titulo}
         </TituloPaso>
         {envio && editable && !editando && (
-          <Button type="button" variante="suave" tamano="chico" icono="editar" onClick={() => setEditando(true)}>
-            {t.editar}
-          </Button>
+          <BotonIcono variante="suave" tamano="chico" icono="editar" etiqueta={t.editar} onClick={() => setEditando(true)} />
         )}
       </div>
 

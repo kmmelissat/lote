@@ -19,6 +19,21 @@ export type Cuenta = {
   archivada: boolean;
 };
 
+/**
+ * Una tarjeta de crédito. No es dinero: lo que se paga con ella se vuelve deuda, y pagarla baja una cuenta y esa deuda.
+ * Los días de corte y de pago son recordatorios (1–31); no hay cupo ni intereses.
+ */
+export type Tarjeta = {
+  id: string;
+  nombre: string;
+  diaCorte: number | null;
+  diaPago: number | null;
+  archivada: boolean;
+};
+
+/** Lo que se debe en una tarjeta: lo gastado con ella menos lo que ya se le pagó. Nunca es negativo. */
+export const deudaDeTarjeta = (cargado: Centavos, pagado: Centavos): Centavos => Math.max(0, cargado - pagado);
+
 export type Pasivo = {
   id: string;
   tipo: TipoPasivo;
@@ -78,6 +93,8 @@ export type PartesDelBalance = {
   inventario: Centavos;
   /** Lo que falta pagar, por tipo */
   pasivos: Record<TipoPasivo, Centavos>;
+  /** Lo que se debe en tarjetas de crédito; 0 si no hay */
+  tarjetas?: Centavos;
 };
 
 export type Balance = {
@@ -89,7 +106,7 @@ export type Balance = {
 
 export function balanceGeneral(p: PartesDelBalance): Balance {
   const activos = p.dinero + p.porCobrar + p.inventario;
-  const pasivos = p.pasivos.deuda + p.pasivos.prestamo + p.pasivos.credito;
+  const pasivos = p.pasivos.deuda + p.pasivos.prestamo + p.pasivos.credito + (p.tarjetas ?? 0);
   return { activos, pasivos, patrimonio: activos - pasivos };
 }
 

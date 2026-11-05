@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { aCentavos, type GastoSaliente, type PagoEntrante, type Periodo } from "@/domain";
+import { aCentavos, type GastoSaliente, type ItemCobrado, type PagoEntrante, type Periodo } from "@/domain";
 import type { Database } from "@/lib/supabase/database.types";
+import { ventasDelPeriodo } from "./repositorio";
 
 type Cliente = SupabaseClient<Database>;
 
@@ -20,7 +21,12 @@ type FilaPago = {
     codigo: number;
     total: number;
     cliente: { nombre: string } | null;
-    pedido_item: { producto: { nombre: string } | null }[];
+    descuento: number;
+    pedido_item: {
+      cantidad: number;
+      precio_final: number;
+      producto: { nombre: string; variante: string | null; fotos: string[] } | null;
+    }[];
   } | null;
 };
 
@@ -31,6 +37,39 @@ function productoDe(items: { producto: { nombre: string } | null }[]): string | 
   return nombres.length > 1 ? `${nombres[0]} +${nombres.length - 1}` : nombres[0];
 }
 
+const itemsDe = (items: NonNullable<FilaPago["pedido"]>["pedido_item"]): ItemCobrado[] =>
+  items.flatMap((i) =>
+    i.producto ? [{ nombre: i.producto.nombre, variante: i.producto.variante, cantidad: i.cantidad, foto: i.producto.fotos[0] ?? null }] : [],
+  );
+
+const DIAS_ATRAS = 90;
+
+/**
+ * Lo que deja cada pedido (precio menos costo por cantidad, menos el descuento; sin envío). El costo solo sale por
+ * `ventas_del_periodo`, que mira pedidos creados en el periodo: se amplía hacia atrás para los que se cobran más tarde.
+ * Sin permiso (vendedora) o sin costo en algún producto, no hay ganancia.
+ */
+async function gananciasPorPedido(supabase: Cliente, negocioId: string, periodo: Periodo): Promise<Map<string, number | null>> {
+  const ganancias = new Map<string, number | null>();
+  try {
+    const desde = new Date(periodo.desde.getTime() - DIAS_ATRAS * 86_400_000);
+    const lineas = await ventasDelPeriodo(supabase, negocioId, { ...periodo, desde });
+    for (const l of lineas) {
+      const antes = ganancias.get(l.pedidoId);
+      if (antes === null || l.costoUnitario === null) {
+        ganancias.set(l.pedidoId, null);
+        continue;
+      }
+      // El descuento viene repetido en cada línea del pedido: se resta una sola vez
+      const resta = antes === undefined ? l.descuento : 0;
+      ganancias.set(l.pedidoId, (antes ?? 0) + (l.precioFinal - l.costoUnitario) * l.cantidad - resta);
+    }
+  } catch {
+    // Sin permiso para ver costos: la lista sale sin ganancia
+  }
+  return ganancias;
+}
+
 /**
  * Los pagos y abonos con fecha dentro del periodo, con lo que le quedaba por pagar al pedido después de cada uno.
  * Para saber ese saldo hay que ver todos los pagos del pedido (también los de otros periodos), por eso la segunda consulta.
@@ -38,7 +77,7 @@ function productoDe(items: { producto: { nombre: string } | null }[]): string | 
 export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, periodo: Periodo): Promise<PagoEntrante[]> {
   const { data, error } = await supabase
     .from("pago")
-    .select("id, fecha, creado_en, monto, metodo, cuenta_id, pedido_id, pedido(codigo, total, cliente(nombre), pedido_item(producto(nombre)))")
+    .select("id, fecha, creado_en, monto, metodo, cuenta_id, pedido_id, pedido(codigo, total, descuento, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, variante, fotos)))")
     .eq("negocio_id", negocioId)
     .gte("fecha", periodo.desdeFecha)
     .lt("fecha", periodo.hastaFecha)
@@ -46,6 +85,7 @@ export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, peri
     .limit(TOPE);
   if (error) throw error;
   const filas = data as unknown as FilaPago[];
+  const ganancias = await gananciasPorPedido(supabase, negocioId, periodo);
 
   const pedidos = [...new Set(filas.map((f) => f.pedido_id))];
   const pagados = new Map<string, { creado: string; monto: number }[]>();
@@ -78,6 +118,8 @@ export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, peri
       cliente: f.pedido?.cliente?.nombre ?? null,
       producto: f.pedido ? productoDe(f.pedido.pedido_item) : null,
       saldoDespues: Math.max(0, aCentavos(f.pedido?.total ?? 0) - hastaAqui),
+      items: f.pedido ? itemsDe(f.pedido.pedido_item) : [],
+      ganancia: ganancias.get(f.pedido_id) ?? null,
     };
   });
 }
@@ -86,7 +128,8 @@ export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, peri
 export async function gastosComoSalidas(supabase: Cliente, negocioId: string, periodo: Periodo): Promise<GastoSaliente[]> {
   const { data, error } = await supabase
     .from("gasto")
-    .select("id, fecha, creado_en, monto, categoria, nota, metodo, cuenta_id")
+    // `*` para que tarjeta_id llegue si ya está la columna y no rompa si no
+    .select("*")
     .eq("negocio_id", negocioId)
     .gte("fecha", periodo.desdeFecha)
     .lt("fecha", periodo.hastaFecha)
@@ -101,6 +144,7 @@ export async function gastosComoSalidas(supabase: Cliente, negocioId: string, pe
     categoria: g.categoria,
     nota: g.nota,
     metodo: g.metodo,
-    cuenta: g.cuenta_id,
+    // Un gasto con tarjeta no tiene cuenta: en su lugar va el id de la tarjeta, que la lista nombra igual que a una cuenta
+    cuenta: g.cuenta_id ?? g.tarjeta_id ?? null,
   }));
 }

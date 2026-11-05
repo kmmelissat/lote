@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import {
   fechaLocalDe,
+  acumuladosDeMovimientos,
   filtrarMovimientos,
   type FiltroMovimientos,
   rangoPeriodo,
@@ -18,9 +19,9 @@ import {
 import { gastosComoSalidas, pagosDelPeriodo } from "@/features/profit/movimientos";
 import { CLAVES_PERIODO, esClavePeriodo, PERIODOS, type ClavePeriodo } from "@/features/profit/periodos";
 import { FiltroDinero } from "@/features/profit/ui/FiltroDinero";
-import { HeroMovimientos, OtrosMovimientos } from "@/features/profit/ui/HeroMovimientos";
+import { HeroMovimientos } from "@/features/profit/ui/HeroMovimientos";
 import { RegistrarGasto } from "@/features/profit/ui/Gastos";
-import { cuentasDelNegocio } from "@/features/gestion/repositorio";
+import { cuentasDelNegocio, tarjetasDelNegocio } from "@/features/gestion/repositorio";
 import { partidasDelPeriodo } from "@/features/gestion/apartes";
 import { guardarFijo } from "@/features/gestion/actions/gastosFijos";
 import { aplicarGastosFijos, listarGastosFijos } from "@/features/gestion/gastosFijos";
@@ -72,12 +73,13 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
   const hoy = fechaLocalDe(new Date());
   // Antes de leer los gastos: los fijos que ya tocaron se registran para que cuenten
   await aplicarGastosFijos(supabase, negocio.id, hoy);
-  const [pagos, gastos, { apartes, traslados }, fijos, cuentas] = await Promise.all([
+  const [pagos, gastos, { apartes, traslados }, fijos, cuentas, tarjetas] = await Promise.all([
     pagosDelPeriodo(supabase, negocio.id, periodo),
     gastosComoSalidas(supabase, negocio.id, periodo),
     partidasDelPeriodo(supabase, negocio.id, periodo),
     listarGastosFijos(supabase, negocio.id),
     cuentasDelNegocio(supabase, negocio.id),
+    tarjetasDelNegocio(supabase, negocio.id),
   ]);
   // El próximo cobro cuenta desde mañana: el de hoy, si tocaba, ya se registró
   const manana = new Date();
@@ -87,7 +89,8 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
 
   // Una cuenta que no existe (o de otro negocio) en la dirección no filtra nada
   const cuenta = cuentas.some((c) => c.id === cuentaPedida) ? cuentaPedida : "todas";
-  const nombresDeCuenta = Object.fromEntries(cuentas.map((c) => [c.id, c.nombre]));
+  // Los gastos pagados con tarjeta llevan el id de la tarjeta en lugar del de una cuenta
+  const nombresDeCuenta = Object.fromEntries([...cuentas, ...tarjetas].map((c) => [c.id, c.nombre]));
   const filtro: FiltroMovimientos = {
     cuenta: cuenta === "todas" ? undefined : cuenta,
     tipo: tipo === "todos" ? undefined : tipo,
@@ -97,6 +100,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
   const visibles = filtrarMovimientos(unirMovimientos(pagos, gastos, apartes, traslados), filtro);
   // El pie suma todo lo que cumple el filtro, no solo la página que se ve
   const totales = resumirMovimientos(visibles);
+  const acumulados = acumuladosDeMovimientos(visibles);
   const pagina_ = visibles.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
   const hayMas = visibles.length > pagina * POR_PAGINA;
 
@@ -164,7 +168,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
       <PageHeader
         titulo={t.titulo}
         descripcion={t.descripcion}
-        accion={<RegistrarGasto hoy={hoy} guardarFijo={guardarFijo} cuentas={cuentas} />}
+        accion={<RegistrarGasto hoy={hoy} guardarFijo={guardarFijo} cuentas={cuentas} tarjetas={tarjetas} />}
       />
       <div className="flex flex-col gap-4">
         {/* Un solo bloque de filtros, arriba: el periodo, qué ver, el método y la búsqueda mandan sobre los totales, el gráfico y la lista */}
@@ -191,14 +195,12 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
           />
         )}
 
-        <OtrosMovimientos entran={totales.otrosEntran} salen={totales.otrosSalen} />
-
         {visibles.length > 0 && <GraficoEntraSale titulo={textos.gestion.grafico.titulo} dias={serieDiaria(visibles, periodo.desdeFecha, hastaGrafico)} />}
 
         {!pagina_.length ? (
           <EmptyState monito="asoma" texto={q ? t.buscar.sinResultados(q) : hayFiltros ? t.vacioFiltro : t.vacio} />
         ) : (
-          <ListaMovimientos movimientos={pagina_} hoy={hoy} conFecha nombresDeCuenta={nombresDeCuenta} />
+          <ListaMovimientos movimientos={pagina_} hoy={hoy} conFecha nombresDeCuenta={nombresDeCuenta} acumulados={acumulados} />
         )}
 
         {(pagina > 1 || hayMas) && (

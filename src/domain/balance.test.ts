@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceGeneral, elegirCuenta, pasivosPorTipo, saldoDeCuenta, saldoDePasivo, type Cuenta, type Pasivo } from "./balance";
+import { balanceGeneral, deudaDeTarjeta, elegirCuenta, pasivosPorTipo, saldoDeCuenta, saldoDePasivo, type Cuenta, type Pasivo } from "./balance";
 
 const pasivo = (o: Partial<Pasivo> & Pick<Pasivo, "id" | "monto">): Pasivo => ({
   tipo: "deuda",
@@ -121,5 +121,18 @@ describe("pasivosPorTipo", () => {
       { pasivoId: "2", monto: 4000 },
     ];
     expect(pasivosPorTipo(pasivos, abonos)).toEqual({ deuda: 0, prestamo: 8000, credito: 0 });
+  });
+});
+
+describe("tarjetas de crédito", () => {
+  it("lo que se debe en una tarjeta es lo gastado menos lo pagado, sin pasar de cero", () => {
+    expect(deudaDeTarjeta(10000, 3000)).toBe(7000);
+    expect(deudaDeTarjeta(10000, 10000)).toBe(0);
+    expect(deudaDeTarjeta(1000, 1500)).toBe(0);
+  });
+
+  it("lo que se debe en tarjetas resta del patrimonio como cualquier pasivo", () => {
+    const b = balanceGeneral({ dinero: 10000, porCobrar: 0, inventario: 0, pasivos: { deuda: 0, prestamo: 0, credito: 0 }, tarjetas: 4000 });
+    expect(b).toEqual({ activos: 10000, pasivos: 4000, patrimonio: 6000 });
   });
 });

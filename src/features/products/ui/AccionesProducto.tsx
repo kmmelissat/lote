@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import type { Cuenta } from "@/domain/index";
+import type { Cuenta, Tarjeta } from "@/domain/index";
 import { MenuAcciones } from "@/components/ui/MenuAcciones";
 import { Ventana } from "@/components/ui/Ventana";
 import { textos } from "@/lib/textos";
@@ -17,6 +17,7 @@ export function AccionesProducto({
   variantes,
   puedeAgregarVariante,
   cuentas,
+  tarjetas = [],
 }: {
   codigo: number;
   precio: number;
@@ -24,6 +25,7 @@ export function AccionesProducto({
   variantes: { codigo: number; etiqueta: string }[];
   puedeAgregarVariante: boolean;
   cuentas: readonly Cuenta[];
+  tarjetas?: readonly Tarjeta[];
 }) {
   const reponer = useRef<HTMLDialogElement>(null);
   const agregar = useRef<HTMLDialogElement>(null);
@@ -42,7 +44,7 @@ export function AccionesProducto({
         ]}
       />
       <Ventana ref={reponer} titulo={t.reponer.titulo} ayuda={t.reponer.ayuda}>
-        <ReponerForm codigo={codigo} variantes={variantes} cuentas={cuentas} />
+        <ReponerForm codigo={codigo} variantes={variantes} cuentas={cuentas} tarjetas={tarjetas} />
       </Ventana>
       {puedeAgregarVariante && (
         <Ventana

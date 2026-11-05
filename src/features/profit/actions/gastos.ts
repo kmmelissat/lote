@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { CATEGORIAS_GASTO, elegirCuenta, fechaLocalDe, leerDolares, type CategoriaGasto } from "@/domain/index";
-import { cuentasDelNegocio, esCuentaDeSiempre } from "@/features/gestion/repositorio";
+import { elegirTarjeta } from "@/features/gestion/elegirCuenta";
+import { cuentasDelNegocio, esCuentaDeSiempre, tarjetasDelNegocio } from "@/features/gestion/repositorio";
 import { registrarGasto } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -31,8 +32,10 @@ export async function agregarGasto(previo: EstadoGasto, datos: FormData): Promis
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) return { ...previo, error: t.errorPermiso, listo: undefined };
   // Vacío = sin método (se puede no saber). Si no, una cuenta o el lugar de siempre (su cuenta principal).
-  const cuenta = metodoDicho ? elegirCuenta(await cuentasDelNegocio(supabase, negocio.id), metodoDicho) : null;
-  if (metodoDicho && !cuenta) return { ...previo, error: t.errorMetodo, listo: undefined };
+  // `tarjeta:<id>` = se pagó con una tarjeta: no baja ninguna cuenta, sube lo que debés en ella
+  const tarjeta = elegirTarjeta(metodoDicho.startsWith("tarjeta:") ? await tarjetasDelNegocio(supabase, negocio.id) : [], metodoDicho);
+  const cuenta = metodoDicho && !tarjeta ? elegirCuenta(await cuentasDelNegocio(supabase, negocio.id), metodoDicho) : null;
+  if (metodoDicho && !tarjeta && !cuenta) return { ...previo, error: t.errorMetodo, listo: undefined };
 
   const id = await registrarGasto(supabase, negocio.id, {
     categoria: categoria as CategoriaGasto,
@@ -41,6 +44,7 @@ export async function agregarGasto(previo: EstadoGasto, datos: FormData): Promis
     nota: String(datos.get("nota") ?? "").trim() || undefined,
     metodo: cuenta?.tipo,
     cuenta: cuenta && !esCuentaDeSiempre(cuenta) ? cuenta.id : undefined,
+    tarjeta: tarjeta?.id,
   });
   if (!id) return { ...previo, error: t.errorGeneral, listo: undefined };
 

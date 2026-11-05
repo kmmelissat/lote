@@ -1,4 +1,5 @@
 import {
+  ArrowLeftRight,
   ArrowUp,
   ArrowUpRight,
   Bell,
@@ -9,6 +10,7 @@ import {
   Check,
   CircleAlert,
   CircleCheck,
+  CreditCard,
   Mail,
   MessageCircle,
   ChevronDown,
@@ -88,6 +90,8 @@ const iconos = {
   enlace: ExternalLink,
   hoja: FileSpreadsheet,
   banco: Landmark,
+  tarjeta: CreditCard,
+  intercambio: ArrowLeftRight,
   billetera: Wallet,
   balanza: Scale,
   efectivo: Banknote,

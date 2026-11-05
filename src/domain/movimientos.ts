@@ -6,6 +6,9 @@ export type MetodoMovimiento = "efectivo" | "transferencia";
 
 export const METODOS_DE_DINERO: readonly MetodoMovimiento[] = ["efectivo", "transferencia"];
 
+/** Una línea del pedido que se cobró, para mostrarla en la lista. */
+export type ItemCobrado = { nombre: string; variante: string | null; cantidad: number; foto: string | null };
+
 /** Un pago o abono que entró. `saldoDespues` es lo que le quedó por pagar al pedido; 0 si el pago lo completó. */
 export type PagoEntrante = {
   id: string;
@@ -19,6 +22,10 @@ export type PagoEntrante = {
   saldoDespues: Centavos;
   /** La cuenta donde entró; falta en lo que se guardó antes de que hubiera cuentas */
   cuenta?: string | null;
+  /** Lo que lleva el pedido */
+  items?: ItemCobrado[];
+  /** Lo que deja el pedido (sin envío); null si algún producto no tiene costo guardado */
+  ganancia?: Centavos | null;
 };
 
 /** Un gasto que salió. El método puede faltar: los gastos viejos no lo guardaban. */
@@ -34,7 +41,7 @@ export type GastoSaliente = {
 };
 
 /** Lo que mueve el dinero pero no es ingreso ni gasto: préstamos, pagos de deudas, mercadería y ajustes de saldo. */
-export type ClaseAparte = "prestamo" | "pago_deuda" | "compra" | "ajuste" | "paquetera";
+export type ClaseAparte = "prestamo" | "pago_deuda" | "compra" | "ajuste" | "paquetera" | "pago_tarjeta" | "saldo_inicial" | "deuda";
 
 export type PartidaAparte = {
   id: string;
@@ -76,6 +83,8 @@ export type Movimiento =
       producto: string | null;
       saldoDespues: Centavos;
       cuenta: string | null;
+      items: ItemCobrado[];
+      ganancia: Centavos | null;
     }
   | {
       tipo: "salida";
@@ -129,9 +138,6 @@ export type ResumenMovimientos = {
   salidas: Centavos;
   neto: Centavos;
   cantidad: number;
-  /** Lo que entró y salió por partidas aparte (préstamos, mercadería, deudas, envíos, ajustes): cambia el balance, no la ganancia */
-  otrosEntran: Centavos;
-  otrosSalen: Centavos;
 };
 
 const METODOS: readonly string[] = ["efectivo", "transferencia"];
@@ -154,6 +160,8 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
     producto: p.producto,
     saldoDespues: p.saldoDespues,
     cuenta: p.cuenta ?? null,
+    items: p.items ?? [],
+    ganancia: p.ganancia ?? null,
   }));
   const salidas: Movimiento[] = gastos.map((g) => ({
     tipo: "salida",
@@ -220,18 +228,34 @@ export function filtrarMovimientos(movimientos: readonly Movimiento[], filtro: F
   });
 }
 
-/** Entradas, salidas y neto de todo lo que se está viendo (no solo de la página). Las partidas aparte no suman ahí: van en `otrosEntran` y `otrosSalen`, y cuentan en `cantidad`. */
+/** Si la partida se anotó pero no movió ninguna cuenta (una deuda fiada, mercadería con tarjeta): todavía no entró ni salió dinero. */
+export const sinMoverDinero = (m: { tipo: string; clase?: string; metodo?: string | null }) =>
+  m.tipo === "aparte" && m.metodo === null && (m.clase === "compra" || m.clase === "deuda");
+
+/** Entradas, salidas y neto de todo lo que se está viendo (no solo de la página): todo el dinero que se movió, también préstamos, mercadería, deudas, saldos y ajustes. Los traslados y lo que no movió ninguna cuenta no suman, pero cuentan en `cantidad`. */
 export function resumirMovimientos(movimientos: readonly Movimiento[]): ResumenMovimientos {
   let entradas = 0;
   let salidas = 0;
-  let otrosEntran = 0;
-  let otrosSalen = 0;
   for (const m of movimientos) {
-    if (m.tipo === "traslado") continue;
-    if (m.tipo === "entrada") entradas += m.monto;
-    else if (m.tipo === "salida") salidas += m.monto;
-    else if (m.sentido === "entra") otrosEntran += m.monto;
-    else otrosSalen += m.monto;
+    if (m.tipo === "traslado" || sinMoverDinero(m)) continue;
+    const entra = m.tipo === "aparte" ? m.sentido === "entra" : m.tipo === "entrada";
+    if (entra) entradas += m.monto;
+    else salidas += m.monto;
   }
-  return { entradas, salidas, neto: entradas - salidas, cantidad: movimientos.length, otrosEntran, otrosSalen };
+  return { entradas, salidas, neto: entradas - salidas, cantidad: movimientos.length };
+}
+
+/** Cuánto va sumado y restado hasta cada movimiento, del más viejo al más nuevo, contando solo lo que se está viendo. Los traslados y lo que no movió dinero repiten el acumulado anterior. La clave es `tipo-id`. */
+export function acumuladosDeMovimientos(movimientos: readonly Movimiento[]): Record<string, Centavos> {
+  const acumulados: Record<string, Centavos> = {};
+  let corrido = 0;
+  for (let i = movimientos.length - 1; i >= 0; i--) {
+    const m = movimientos[i];
+    if (m.tipo !== "traslado" && !sinMoverDinero(m)) {
+      const entra = m.tipo === "aparte" ? m.sentido === "entra" : m.tipo === "entrada";
+      corrido += entra ? m.monto : -m.monto;
+    }
+    acumulados[`${m.tipo}-${m.id}`] = corrido;
+  }
+  return acumulados;
 }

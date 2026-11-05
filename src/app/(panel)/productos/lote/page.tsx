@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { cuentasDelNegocio } from "@/features/gestion/repositorio";
+import { cuentasDelNegocio, tarjetasDelNegocio } from "@/features/gestion/repositorio";
 import { LoteForm } from "@/features/products/ui/LoteForm";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -22,5 +22,5 @@ export default function LotePage() {
 async function Formulario() {
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) notFound();
-  return <LoteForm negocioId={negocio.id} cuentas={await cuentasDelNegocio(supabase, negocio.id)} />;
+  return <LoteForm negocioId={negocio.id} cuentas={await cuentasDelNegocio(supabase, negocio.id)} tarjetas={await tarjetasDelNegocio(supabase, negocio.id)} />;
 }

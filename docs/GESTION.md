@@ -1,6 +1,6 @@
 # Gestión: el balance del negocio
 
-Nota de diseño de la charla del 2 nov 2026. **Gestión es la sección nueva** y desde el 4 nov se llama **Balance** (`/balance/resumen` y `/balance/detalle`; antes `/gestion` y `/gestion/cuadre`, que redirigen). **Dinero (`/dinero`) se eliminó (3 nov)**: sus rutas redirigen (`/dinero` y `/dinero/resumen` a `/gestion`, `/dinero/movimientos` a `/movimientos`, `/dinero/cuadre` a `/gestion/cuadre`).
+Nota de diseño de la charla del 2 nov 2026. **Gestión es la sección nueva** y desde el 4 nov se llama **Balance** (una sola pantalla, `/balance/detalle`, con la ganancia del periodo arriba; el 4 nov se quitó la pestaña Resumen y `/balance/resumen` redirige; antes `/gestion` y `/gestion/cuadre`, que redirigen). **Dinero (`/dinero`) se eliminó (3 nov)**: sus rutas redirigen (`/dinero` y `/dinero/resumen` a `/gestion`, `/dinero/movimientos` a `/movimientos`, `/dinero/cuadre` a `/gestion/cuadre`).
 
 ## Por qué
 
@@ -136,5 +136,14 @@ El dinero ya no vive en dos lugares fijos: cada negocio tiene las cuentas que qu
 
 Movimientos: cada fila dice de qué cuenta es, hay un filtro por cuenta (si hay más de una) y lo que se pasó de una cuenta a otra sale como fila «Caja → Banco», sin sumar en lo que entró ni en lo que salió.
 
-Pendiente: tarjetas de crédito (una tarjeta es lo que debés: gastar con ella sube la deuda, pagarla baja el banco y la deuda; con día de corte y de pago como recordatorio).
+## Tarjetas de crédito (4 nov)
+
+Una tarjeta **no es dinero: es lo que debés**. Versión simple: nombre, día de corte y día de pago (recordatorios), sin cupo ni intereses. Necesita `tarjetas.sql` (después de `cuentas.sql`).
+
+- **Datos**: tabla `tarjeta` y `pago_tarjeta` (lo que se le pagó y de qué cuenta salió). `gasto.tarjeta_id` y `compra_mercaderia.tarjeta_id` marcan lo gastado con ella; esos gastos no llevan método ni cuenta, y la compra no lleva `lugar` (queda vacío). La deuda no se guarda: es **gastado − pagado** (`deudaDeTarjeta`).
+- **Pagar con tarjeta**: en «Registrar gasto» y en «¿Con qué cuenta pagaste esta mercadería?» (producto nuevo, lote, reponer) las tarjetas salen como una opción más; el valor del formulario es `tarjeta:<id>` (`elegirCuenta.ts`: `opcionesDePago`, `elegirTarjeta`). No baja ninguna cuenta: sube la deuda. Un gasto que se repite cada mes no se puede pagar con tarjeta.
+- **Pagar la tarjeta**: Balance → Detalle → «Tus tarjetas de crédito» → Pagar. Baja la cuenta elegida y baja la deuda; no deja pagar más de lo que se debe. Una tarjeta con deuda no se quita.
+- **Balance**: lo que se debe en tarjetas es un pasivo más («Tarjetas de crédito», en «Lo que debés»). No entra en la lista de deudas.
+- **Movimientos**: el gasto con tarjeta aparece como gasto y con el nombre de la tarjeta; el pago a la tarjeta es una partida aparte («Pago de tarjeta»). La mercadería pagada con tarjeta no aparece en Movimientos (no movió ninguna cuenta): se ve en la deuda de la tarjeta.
+- **Pendiente**: gastos fijos con tarjeta, cupo y avisos de corte y de pago.
 

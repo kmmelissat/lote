@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { valoresParaCopiar } from "@/features/products/copiarProducto";
-import { cuentasDelNegocio } from "@/features/gestion/repositorio";
+import { cuentasDelNegocio, tarjetasDelNegocio } from "@/features/gestion/repositorio";
 import { listarProductos, obtenerProducto } from "@/features/products/repositorio";
 import { AccionesCargarVarios } from "@/features/products/ui/AccionesCargarVarios";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
@@ -51,7 +51,7 @@ async function Formulario({ searchParams }: Pick<PageProps<"/productos/nuevo">, 
             {textos.productos.copiar.aviso(original.nombre)}
           </p>
         )}
-        <NuevoProductoForm negocioId={negocio.id} inicial={original ? valoresParaCopiar(original) : undefined} sugerencias={sugerencias} actividad={negocio.actividad} cuentas={await cuentasDelNegocio(supabase, negocio.id)} />
+        <NuevoProductoForm negocioId={negocio.id} inicial={original ? valoresParaCopiar(original) : undefined} sugerencias={sugerencias} actividad={negocio.actividad} cuentas={await cuentasDelNegocio(supabase, negocio.id)} tarjetas={await tarjetasDelNegocio(supabase, negocio.id)} />
       </div>
     </>
   );

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { BotonIcono } from "@/components/ui/BotonIcono";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
 import { ChipsElegir, estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
@@ -85,9 +86,7 @@ export function BotonCuenta({ cuenta }: { cuenta?: CuentaConSaldo }) {
       titulo={cuenta ? t.editarTitulo(cuenta.nombre) : t.nuevaTitulo}
       boton={(abrir) =>
         cuenta ? (
-          <button type="button" onClick={abrir} className="-mx-2 inline-flex min-h-11 items-center rounded-full px-2 text-sm font-bold text-teal underline decoration-teal/40 underline-offset-4 hover:bg-teal-fondo">
-            {t.editar}
-          </button>
+          <BotonIcono variante="suave" tamano="chico" icono="editar" etiqueta={t.editar} onClick={abrir} />
         ) : (
           <Button type="button" variante="suave" tamano="chico" icono="mas" onClick={abrir}>
             {t.agregar}

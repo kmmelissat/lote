@@ -46,13 +46,13 @@ Estado de cada función: **✅** hecha · **🧪** hecha, pero falta probarla co
 
 ### Dinero: Gestión y Movimientos
 Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`/dinero`) y "Ganancia" (`/ganancia`) ya no existen: redirigen acá.
-- ✅ **Balance → Resumen** (`/balance/resumen`): la ganancia del periodo (vendiste − costo − gastos), con comparación y productos sin costo marcados como estimados; el gráfico de lo que entró y salió por día; y lo que es tuyo.
-- ✅ **Balance → Detalle** (`/balance/detalle`): lo que tenés (efectivo, cuenta digital, por cobrar, inventario a costo) − lo que debés = lo que es tuyo, con un «¿Cómo leo esto?» escrito con los números reales.
+- ✅ **Balance** (`/balance/detalle`, una sola pantalla; `/balance` y `/balance/resumen` redirigen): arriba la ganancia del periodo (vendiste − costo − descuentos − envío − gastos, con comparación y selector de periodo) y abajo lo que tenés (efectivo, cuenta digital, por cobrar, inventario a costo) − lo que debés = lo que es tuyo, con un «¿Cómo leo esto?» escrito con los números reales.
 - ✅ **Saldos que se actualizan solos**: saldo inicial + lo que entra − lo que sale, con ajuste a mano. Un préstamo recibido o el abono a una deuda no son ingreso ni gasto.
 - 🧪 **Varias cuentas** (Balance → Dinero): cada negocio arma sus cuentas (caja, bancos, billeteras), cada una de tipo efectivo o banco/billetera, con su saldo inicial, ajuste, nombre editable y una principal por tipo (ahí cae lo que se guarda sin elegir cuenta). **Mover dinero** entre cuentas no es ingreso ni gasto. La cuenta se elige al abonar una deuda, al anotar un préstamo recibido, al registrar un gasto y al pagarle a la paquetera. (Necesita `cuentas.sql`; detalle en [GESTION.md](GESTION.md#varias-cuentas-4-nov).)
+- 🧪 **Tarjetas de crédito** (Balance → Detalle): cada tarjeta con día de corte y de pago. Pagar un gasto o la mercadería con una tarjeta sube lo que debés en ella (no baja ninguna cuenta); pagarla baja la cuenta elegida y la deuda. Lo que se debe en tarjetas suma a «Lo que debés» del balance. Sin cupo ni intereses. (Necesita `tarjetas.sql`; detalle en [GESTION.md](GESTION.md#tarjetas-de-crédito-4-nov).)
 - ✅ **Deudas** (deuda, préstamo, crédito) con abonos y cuota opcional (monto, cuántas cuotas, día del mes), editable sin perder los abonos.
 - ✅ **«¿De dónde salió el dinero?»** al crear, reponer o cargar un lote: la compra de mercadería baja el saldo de ese lugar (opcional).
-- ✅ **Movimientos** (`/movimientos`): el libro de ingresos, gastos y costos, con filtros de periodo, tipo, método, cuenta y búsqueda (cada fila dice su cuenta; lo movido entre cuentas sale aparte, sin sumar) que mandan sobre los totales, el gráfico y la lista.
+- ✅ **Movimientos** (`/movimientos`): el libro de ingresos, gastos y costos (cada venta muestra sus productos con foto, variante y cantidad, si fue venta completa o abono, y su ganancia), con filtros de periodo, tipo, método, cuenta y búsqueda (cada fila dice su cuenta; lo movido entre cuentas sale aparte, sin sumar) que mandan sobre los totales, el gráfico y la lista.
 - ✅ Gastos (empaque, publicidad, transporte, local, comisiones, otros) por chat o formulario, ligados o no a un pedido, con el método con que se pagaron.
 - ✅ **Gastos fijos** (Movimientos → Registrar gasto → «Cada mes»): se anotan una vez y se registran solos cada mes (al abrir Inicio, Gestión o Movimientos, y en la tarea diaria), sin repetir meses.
 - ✅ Una venta cuenta cuando el pedido se paga completo.
@@ -183,7 +183,7 @@ Cada sección, sus rutas y dónde está su código (en `src/features/` salvo que
 | Productos | `/productos` (`/nuevo`, `/lote`, `/importar`, `/promociones`, `/promociones/nueva`, `/<código>`, `/<código>/editar`) | `products`, `import`, `offers` (ofertas con fechas), `promotions` (packs y llevá y pagá) |
 | Pedidos | `/pedidos` (`/nuevo`, `/<código>`) | `orders`, `payments` (cobros y comprobante con IA), `shipping` (envíos y paquetera) |
 | Clientes | `/clientes` (`/<id>`) | `customers` |
-| Balance | `/balance/resumen` (Resumen), `/balance/detalle` (Detalle) | `gestion` (balance, saldos, deudas, compras de mercadería, gastos fijos) |
+| Balance | `/balance/detalle` (la ganancia del periodo arriba, el detalle abajo) | `gestion` (balance, saldos, deudas, compras de mercadería, gastos fijos) |
 | Movimientos | `/movimientos` | `profit` (ganancia por periodo, gastos, movimientos, productos que no se mueven); la pantalla está en `src/app/(panel)/_pantallas/` |
 | Vender y caja | `/vender`, `/vender/caja` | `counter` |
 | Lotito | `/asistente` (y la burbuja en todo el panel) | `assistant` (`motor.ts` decide qué hacer; `intenciones/` cada acción), `ai` (OpenAI y los prompts) |

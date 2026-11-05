@@ -5,9 +5,10 @@ import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
-import { CATEGORIAS_GASTO, METODOS_DE_DINERO, type CategoriaGasto, type Cuenta, type MetodoMovimiento } from "@/domain/index";
+import { CATEGORIAS_GASTO, METODOS_DE_DINERO, type CategoriaGasto, type Cuenta, type MetodoMovimiento, type Tarjeta } from "@/domain/index";
 import { soloNumero } from "@/lib/entrada";
 import { textos } from "@/lib/textos";
+import { valorDeTarjeta } from "@/features/gestion/elegirCuenta";
 import { agregarGasto, type EstadoGasto } from "../actions/gastos";
 import { Button } from "@/components/ui/Button";
 
@@ -23,10 +24,10 @@ const ICONOS: Record<CategoriaGasto, NombreIcono> = {
   otros: "mas_opciones",
 };
 
-const ICONOS_METODO: Record<MetodoMovimiento, NombreIcono> = { efectivo: "efectivo", transferencia: "banco" };
+const ICONOS_METODO: Record<MetodoMovimiento | "tarjeta", NombreIcono> = { efectivo: "efectivo", transferencia: "banco", tarjeta: "tarjeta" };
 
 /** De dónde salió el dinero: cada cuenta activa o, sin cuentas, los dos lugares de siempre */
-const opcionesDeMetodo = (cuentas: readonly Cuenta[] | undefined): { valor: string; etiqueta: string; tipo: MetodoMovimiento | null }[] =>
+const opcionesDeMetodo = (cuentas: readonly Cuenta[] | undefined): { valor: string; etiqueta: string; tipo: MetodoMovimiento | "tarjeta" | null }[] =>
   cuentas?.some((c) => !c.archivada)
     ? cuentas.filter((c) => !c.archivada).map((c) => ({ valor: c.id, etiqueta: c.nombre, tipo: c.tipo }))
     : METODOS_DE_DINERO.map((m) => ({ valor: m, etiqueta: textos.dinero.metodos[m], tipo: m }));
@@ -39,11 +40,14 @@ export function RegistrarGasto({
   hoy,
   guardarFijo,
   cuentas,
+  tarjetas = [],
 }: {
   hoy: string;
   guardarFijo?: (previo: EstadoGasto, datos: FormData) => Promise<EstadoGasto>;
   /** Las cuentas para elegir de dónde salió; sin ellas, los dos lugares de siempre */
   cuentas?: readonly Cuenta[];
+  /** Las tarjetas con que también se puede pagar (un gasto que se repite cada mes no puede ir a una tarjeta) */
+  tarjetas?: readonly Tarjeta[];
 }) {
   // Con "Se repite cada mes" el mismo formulario crea un gasto fijo en vez de un gasto suelto. La acción la pone quien arma la
   // pantalla (los gastos fijos son de Gestión); sin ella el interruptor no aparece.
@@ -191,7 +195,11 @@ export function RegistrarGasto({
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-1 text-sm font-bold">{t.form.metodo}</legend>
             <div className="flex flex-wrap gap-2">
-              {[...opcionesDeMetodo(cuentas), { valor: "", etiqueta: t.form.sinMetodo, tipo: null }].map((m) => (
+              {[
+                ...opcionesDeMetodo(cuentas),
+                ...(repite ? [] : tarjetas.filter((x) => !x.archivada).map((x) => ({ valor: valorDeTarjeta(x), etiqueta: x.nombre, tipo: "tarjeta" as const }))),
+                { valor: "", etiqueta: t.form.sinMetodo, tipo: null },
+              ].map((m) => (
                 <label key={m.valor || "ninguno"} className="cursor-pointer">
                   <input
                     type="radio"

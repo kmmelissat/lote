@@ -99,7 +99,7 @@ export async function nuevoProducto(
         nombre: nombreConVariante(nombre, f.etiqueta),
         precio: f.precio,
         cantidad: f.cantidad,
-        // La foto general siempre va, y primero; después la propia de la variante
+        // Las que eligió la variante, en su orden (la primera es la que se ve); sin elegir, las generales
         fotos: fotosDeVariante(fotos, fotosValidas(JSON.stringify(f.fotos), negocio.id)),
         costos: [...(f.compra === null ? [] : [{ tipo: "compra" as const, monto: f.compra }]), ...costos],
         grupo,

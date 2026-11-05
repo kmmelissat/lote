@@ -1,4 +1,6 @@
+import type { ReactNode } from "react";
 import type { Balance, Cuenta, TipoPasivo } from "@/domain";
+import { BotonTarjeta, FilaDeTarjeta, type FilaTarjeta } from "./Tarjetas";
 import { Icon } from "@/components/ui/Icon";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -17,11 +19,8 @@ type CuentaConSaldo = Cuenta & { saldo: number | null };
 /** Una cuenta como fila de monedero: su círculo, nombre, lo que tiene en grande y, a un lado, poner o ajustar el saldo y editarla */
 function FilaCuenta({ cuenta: c, editable }: { cuenta: CuentaConSaldo; editable: boolean }) {
   return (
-    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[28px] bg-superficie p-2 pr-4">
-      <span
-        aria-hidden="true"
-        className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${c.tipo === "efectivo" ? "bg-limon" : "bg-celeste"}`}
-      >
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[28px] bg-fondo p-2 pr-4">
+      <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon">
         <Icon nombre={c.tipo === "efectivo" ? "efectivo" : "banco"} className="size-5 text-teal-oscuro" />
       </span>
       <span className="min-w-0 flex-1 basis-32">
@@ -49,9 +48,9 @@ function FilaCuenta({ cuenta: c, editable }: { cuenta: CuentaConSaldo; editable:
 }
 
 /** Las cuentas del negocio, a todo el ancho: es lo que se toca seguido (saldos, mover dinero) */
-function TusCuentas({ cuentas, editables }: { cuentas: readonly CuentaConSaldo[]; editables: boolean }) {
+function TusCuentas({ cuentas, editables, tarjetas }: { cuentas: readonly CuentaConSaldo[]; editables: boolean; tarjetas: readonly FilaTarjeta[] }) {
   return (
-    <section aria-labelledby="tus-cuentas" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-teal-fondo p-4 md:p-5">
+    <section aria-labelledby="tus-cuentas" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <div>
           <h3 id="tus-cuentas" className="font-logo text-lg font-bold">
@@ -59,69 +58,36 @@ function TusCuentas({ cuentas, editables }: { cuentas: readonly CuentaConSaldo[]
           </h3>
           <p className="text-sm text-texto-2">{tc.tarjetaAyuda}</p>
         </div>
-        {editables && (
-          <div className="flex flex-wrap gap-2">
-            <BotonCuenta />
-            <MoverDinero cuentas={cuentas} />
-          </div>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {editables && (
+            <>
+              <BotonCuenta />
+              <MoverDinero cuentas={cuentas} />
+            </>
+          )}
+          <BotonTarjeta />
+        </div>
       </div>
       <ul className="grid grid-cols-1 gap-2 lg:grid-cols-2">
         {cuentas.map((c) => (
           <FilaCuenta key={c.id} cuenta={c} editable={editables} />
         ))}
-      </ul>
-    </section>
-  );
-}
-
-/** Una barra con todo lo que tenés, partida en lo que es cada cosa: se ve de un vistazo en qué está el dinero */
-function BarraDeActivos({ activos, total }: { activos: ParteActivos[]; total: number }) {
-  const partes = activos.filter((a) => a.monto > 0);
-  return (
-    <section aria-labelledby="en-que-esta" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura md:p-5">
-      <div>
-        <h3 id="en-que-esta" className="font-logo text-lg font-bold">
-          {t.enQueEsta}
-        </h3>
-        <p className="text-sm text-texto-2">{t.activosAyuda}</p>
-      </div>
-      <div role="img" aria-label={activos.map((a) => `${t.partes[a.clave]} ${formatearDolares(a.monto)}`).join(", ")} className="flex h-11 overflow-hidden rounded-full border-2 border-teal-oscuro bg-fondo">
-        {total > 0 &&
-          partes.map((a, i) => (
-            <span
-              key={a.clave}
-              className={`flex min-w-3 items-center overflow-hidden whitespace-nowrap px-3 font-logo text-sm font-semibold ${COLOR[a.clave]} ${i > 0 ? "border-l-2 border-teal-oscuro" : ""}`}
-              style={{ width: `${(a.monto / total) * 100}%` }}
-            >
-              {a.monto / total > 0.2 ? t.partes[a.clave] : ""}
-            </span>
-          ))}
-      </div>
-      <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-bold">
-        {activos.map((a) => (
-          <li key={a.clave} className="flex items-center gap-1.5">
-            <span aria-hidden="true" className={`size-3 rounded-full border-2 border-teal-oscuro ${COLOR[a.clave]}`} />
-            {t.partes[a.clave]} <span className="tabular-nums">{formatearDolares(a.monto)}</span>
-          </li>
+        {tarjetas.map((x) => (
+          <FilaDeTarjeta key={x.id} tarjeta={x} cuentas={cuentas} />
         ))}
       </ul>
     </section>
   );
 }
 
-function Ficha({ etiqueta, monto, fondo, signo }: { etiqueta: string; monto: number; fondo: string; signo?: string }) {
+function TerminoEcuacion({ etiqueta, monto, fondo }: { etiqueta: string; monto: number; fondo: string }) {
   return (
-    <div className="flex flex-1 flex-col gap-0.5 rounded-[20px] bg-white p-4">
+    <div className="flex flex-col gap-1.5">
       <span className="flex items-center gap-2 text-sm font-bold">
         <span aria-hidden="true" className={`size-3 shrink-0 rounded-full border border-teal-oscuro ${fondo}`} />
-        {signo && <span aria-hidden="true">{signo}</span>}
         {etiqueta}
       </span>
-      <span className="font-logo text-2xl font-bold tabular-nums md:text-3xl">
-        {monto < 0 ? "−" : ""}
-        {formatearDolares(Math.abs(monto))}
-      </span>
+      <span className="font-logo text-3xl font-bold tabular-nums">{formatearDolares(monto)}</span>
     </div>
   );
 }
@@ -131,43 +97,70 @@ export function BalanceGeneral({
   balance,
   activos,
   pasivos,
+  tarjetas = 0,
   cuentas,
   editables,
+  ganancia,
+  tarjetasDeCredito = [],
 }: {
   balance: Balance;
   activos: ParteActivos[];
   pasivos: Record<TipoPasivo, number>;
+  /** Lo que se debe en tarjetas de crédito */
+  tarjetas?: number;
   /** Las cuentas activas con lo que tiene cada una; null si les falta el saldo inicial */
   cuentas: readonly CuentaConSaldo[];
   /** Con cuentas.sql corrido: se pueden agregar, editar y mover dinero entre ellas */
   editables: boolean;
+  /** La ganancia del periodo: va en una franja oscura debajo de la ecuación */
+  ganancia?: ReactNode;
+  /** Las tarjetas de crédito: salen en «Tus cuentas», como una cuenta más */
+  tarjetasDeCredito?: readonly FilaTarjeta[];
 }) {
   const p = textos.gestion.pasivos;
-  const filasPasivos = (Object.keys(pasivos) as TipoPasivo[]).filter((k) => pasivos[k] > 0);
+  const filasPasivos = [
+    ...(Object.keys(pasivos) as TipoPasivo[]).map((k) => ({
+      clave: k,
+      etiqueta: p.tipos[k],
+      ayuda: t.tiposAyuda[k],
+      monto: pasivos[k],
+    })),
+    {
+      clave: "tarjetas",
+      etiqueta: textos.gestion.tarjetas.enBalance,
+      ayuda: textos.gestion.tarjetas.enBalanceAyuda,
+      monto: tarjetas,
+    },
+  ].filter((f) => f.monto > 0);
 
   return (
     <section aria-labelledby="patrimonio" className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-teal-oscuro p-5 text-white md:p-6">
-        <div>
-          <h2 id="patrimonio" className="text-sm font-bold text-celeste">
-            {t.patrimonioTitulo}
-          </h2>
-          <p className={`font-logo text-5xl font-bold tabular-nums md:text-6xl ${balance.patrimonio < 0 ? "text-rosa" : "text-limon"}`}>
-            {balance.patrimonio < 0 ? "−" : ""}
-            {formatearDolares(Math.abs(balance.patrimonio))}
-          </p>
-          <p className="max-w-2xl text-sm text-white/80">{t.patrimonioAyuda}</p>
+      <div className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie">
+        <div
+          className="grid grid-cols-1 items-center gap-2 p-4 md:grid-cols-[1fr_auto_1fr_auto_1.25fr] md:gap-4 md:p-5"
+          role="group"
+          aria-label={`${t.ecuacion.tenes} menos ${t.ecuacion.debes} igual a ${t.ecuacion.tuyo}`}
+        >
+          <TerminoEcuacion etiqueta={t.ecuacion.tenes} monto={balance.activos} fondo="bg-limon" />
+          <span aria-hidden="true" className="hidden font-logo text-3xl text-texto-2 md:block">
+            −
+          </span>
+          <TerminoEcuacion etiqueta={t.ecuacion.debes} monto={balance.pasivos} fondo="bg-rosa" />
+          <span aria-hidden="true" className="hidden font-logo text-3xl text-texto-2 md:block">
+            =
+          </span>
+          <div className="flex flex-col gap-1 rounded-[18px] bg-teal-oscuro px-5 py-4 text-white">
+            <h2 id="patrimonio" className="text-sm font-bold text-celeste">
+              {t.patrimonioTitulo}
+            </h2>
+            <p className={`font-logo text-4xl font-bold tabular-nums md:text-5xl ${balance.patrimonio < 0 ? "text-rosa" : "text-limon"}`}>
+              {balance.patrimonio < 0 ? "−" : ""}
+              {formatearDolares(Math.abs(balance.patrimonio))}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-2 text-teal-oscuro sm:flex-row sm:items-stretch" role="group" aria-label={`${t.ecuacion.tenes} menos ${t.ecuacion.debes} igual a ${t.ecuacion.tuyo}`}>
-          <Ficha etiqueta={t.ecuacion.tenes} monto={balance.activos} fondo="bg-limon" />
-          <Ficha etiqueta={t.ecuacion.debes} monto={balance.pasivos} fondo="bg-rosa" signo="−" />
-          <Ficha etiqueta={t.ecuacion.tuyo} monto={balance.patrimonio} fondo="bg-white" signo="=" />
-        </div>
+        {ganancia && <div className="border-t-2 border-teal-oscuro bg-teal-oscuro px-4 py-4 text-white md:px-5">{ganancia}</div>}
       </div>
-
-      <BarraDeActivos activos={activos} total={balance.activos} />
-
-      <TusCuentas cuentas={cuentas} editables={editables} />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5">
@@ -201,15 +194,15 @@ export function BalanceGeneral({
           </div>
           {filasPasivos.length ? (
             <ul className="flex flex-col gap-3">
-              {filasPasivos.map((k) => (
-                <li key={k} className="flex items-start gap-3">
+              {filasPasivos.map((f) => (
+                <li key={f.clave} className="flex items-start gap-3">
                   <span aria-hidden="true" className="mt-0.5 size-7 shrink-0 rounded-full border-2 border-teal-oscuro bg-rosa" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-bold">{p.tipos[k]}</span>
-                      <span className="font-logo text-lg font-bold tabular-nums">{formatearDolares(pasivos[k])}</span>
+                      <span className="font-bold">{f.etiqueta}</span>
+                      <span className="font-logo text-lg font-bold tabular-nums">{formatearDolares(f.monto)}</span>
                     </div>
-                    <span className="text-sm text-texto-2">{t.tiposAyuda[k]}</span>
+                    <span className="text-sm text-texto-2">{f.ayuda}</span>
                   </div>
                 </li>
               ))}
@@ -224,6 +217,8 @@ export function BalanceGeneral({
         </div>
       </div>
 
+      <TusCuentas cuentas={cuentas} editables={editables} tarjetas={tarjetasDeCredito} />
+
       <details className="group rounded-[24px] border-2 border-teal-oscuro/30 bg-superficie">
         <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 py-2 font-bold md:px-5">
           {t.comoLeer.titulo}
@@ -232,7 +227,11 @@ export function BalanceGeneral({
         <div className="flex flex-col gap-4 px-4 pb-4 md:px-5 md:pb-5">
           <p className="max-w-2xl text-sm text-texto-2">{t.comoLeer.pregunta}</p>
           <ol className="flex flex-col gap-2">
-            {[t.comoLeer.pasos.suma(formatearDolares(balance.activos)), t.comoLeer.pasos.resta(formatearDolares(balance.pasivos)), t.comoLeer.pasos.queda(formatearDolares(balance.patrimonio))].map((x, i) => (
+            {[
+              t.comoLeer.pasos.suma(formatearDolares(balance.activos)),
+              t.comoLeer.pasos.resta(formatearDolares(balance.pasivos)),
+              t.comoLeer.pasos.queda(formatearDolares(balance.patrimonio)),
+            ].map((x, i) => (
               <li key={i} className="flex items-start gap-3">
                 <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-oscuro font-logo text-sm font-bold text-white">
                   {i + 1}

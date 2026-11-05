@@ -27,7 +27,7 @@ export function SeccionesTienda({ activa }: { activa: IdSeccion }) {
     <div
       role="tablist"
       aria-label={t.etiqueta}
-      className="grid grid-cols-2 gap-1.5 rounded-[20px] border-2 border-teal-oscuro bg-white p-1.5 lg:grid-cols-5"
+      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:grid lg:grid-cols-5 lg:gap-1.5 lg:overflow-visible lg:rounded-[20px] lg:border-2 lg:border-teal-oscuro lg:bg-white lg:p-1.5 lg:pb-1.5 [&::-webkit-scrollbar]:hidden"
     >
       {SECCIONES.map((s) => (
         <Link
@@ -38,10 +38,10 @@ export function SeccionesTienda({ activa }: { activa: IdSeccion }) {
           id={`tab-${s.id}`}
           aria-selected={activa === s.id}
           aria-controls={`panel-${s.id}`}
-          className="flex flex-col items-start rounded-2xl px-3 py-2.5 text-left transition-colors hover:bg-crema aria-selected:bg-teal-oscuro aria-selected:text-white aria-selected:hover:bg-teal-oscuro"
+          className="flex shrink-0 flex-col items-start whitespace-nowrap rounded-full border-2 border-teal-oscuro bg-white px-4 py-2 text-left text-sm transition-colors hover:bg-crema aria-selected:bg-teal-oscuro aria-selected:text-white aria-selected:hover:bg-teal-oscuro lg:rounded-2xl lg:border-0 lg:px-3 lg:py-2.5 lg:text-base"
         >
           <span className="font-bold">{s.etiqueta}</span>
-          <span className="text-xs opacity-70">{s.ayuda}</span>
+          <span className="hidden text-xs opacity-70 lg:block">{s.ayuda}</span>
         </Link>
       ))}
     </div>

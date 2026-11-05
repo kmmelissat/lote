@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
 import { agruparPorSemana, DIAS_MINIMOS_PARA_DIARIO, type DiaDeDinero } from "@/domain";
+import { coloresDinero } from "@/components/ui/coloresDinero";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 
@@ -26,7 +27,7 @@ function Detalle({ active, payload, porSemana }: TooltipContentProps & { porSema
 }
 
 /**
- * Lo que entró y salió cada día, en barras de a dos (teal entra, rosa sale), con Recharts como el gráfico de Inicio.
+ * Lo que entró y salió cada día, en barras de a dos (amarillo entra, rosa sale), con Recharts como el gráfico de Inicio.
  * Con pocos días con movimiento se agrupa por semana; con pocas barras cada una dice cuánto fue. La tabla escondida trae los mismos números.
  */
 export function GraficoEntraSale({ dias: diarios, titulo }: { dias: DiaDeDinero[]; titulo: string }) {
@@ -55,11 +56,11 @@ export function GraficoEntraSale({ dias: diarios, titulo }: { dias: DiaDeDinero[
         <span className="font-bold">{titulo}</span>
         <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
           <li className="flex items-center gap-1.5">
-            <span aria-hidden="true" className="size-3 rounded-sm bg-teal" />
+            <span aria-hidden="true" className={`size-3 rounded-sm ${coloresDinero.entra.barra}`} />
             {t.entro} <strong className="tabular-nums">{formatearDolares(entro)}</strong>
           </li>
           <li className="flex items-center gap-1.5">
-            <span aria-hidden="true" className="size-3 rounded-sm bg-rosa" />
+            <span aria-hidden="true" className={`size-3 rounded-sm ${coloresDinero.sale.barra}`} />
             {t.salio} <strong className="tabular-nums">{formatearDolares(salio)}</strong>
           </li>
         </ul>
@@ -80,8 +81,8 @@ export function GraficoEntraSale({ dias: diarios, titulo }: { dias: DiaDeDinero[
                   tickFormatter={(v: number) => `$${v.toLocaleString("en-US")}`}
                 />
                 <Tooltip cursor={{ fill: "var(--color-fondo)" }} content={(props) => <Detalle {...props} porSemana={porSemana} />} />
-                <Bar dataKey="entra" name={t.entro} fill="var(--color-teal)" radius={[4, 4, 0, 0]} maxBarSize={pocas ? 44 : 16}>
-                  {pocas && <LabelList dataKey="entra" position="top" formatter={rotulo} style={{ fontSize: 11, fontWeight: 700, fill: "var(--color-teal)" }} />}
+                <Bar dataKey="entra" name={t.entro} fill="var(--color-limon)" stroke="var(--color-teal-oscuro)" strokeWidth={1} radius={[4, 4, 0, 0]} maxBarSize={pocas ? 44 : 16}>
+                  {pocas && <LabelList dataKey="entra" position="top" formatter={rotulo} style={{ fontSize: 11, fontWeight: 700, fill: "var(--color-teal-oscuro)" }} />}
                 </Bar>
                 <Bar dataKey="sale" name={t.salio} fill="var(--color-rosa)" radius={[4, 4, 0, 0]} maxBarSize={pocas ? 44 : 16}>
                   {pocas && <LabelList dataKey="sale" position="top" formatter={rotulo} style={{ fontSize: 11, fontWeight: 700, fill: "var(--color-error)" }} />}

@@ -1,7 +1,7 @@
 import { MAXIMO_FOTOS } from "./limites";
 
-// Las fotos de un producto con variantes: las generales (las del producto, arriba en el formulario) van en
-// todas las variantes y siempre primero; después, las propias de cada una (por ejemplo la del sabor).
+// Las fotos de un producto con variantes: la primera de cada variante es la suya (la que se muestra en pedidos,
+// carrito y listas); las generales (las del producto, arriba en el formulario) vienen después.
 
 /**
  * Lo que se guarda en una variante: las que eligió de «Mi galería» (en el orden en que las eligió), sin repetir y hasta el

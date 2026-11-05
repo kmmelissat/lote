@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import type { Cuenta } from "@/domain";
+import type { Cuenta, Tarjeta } from "@/domain";
 import { textos } from "@/lib/textos";
 import { CAMPO_PAGO_COMPRA } from "@/features/gestion/campos";
+import { opcionesDePago } from "@/features/gestion/elegirCuenta";
 import { ChipsElegir } from "@/components/ui/VentanaConBoton";
 
 const t = textos.gestion.compra;
 
 /** "¿De dónde salió el dinero?": sirve para que la cuenta elegida de Gestión baje sola al comprar mercadería. */
-export function LugarDeCompra({ cuentas }: { cuentas: readonly Cuenta[] }) {
+export function LugarDeCompra({ cuentas, tarjetas = [] }: { cuentas: readonly Cuenta[]; tarjetas?: readonly Tarjeta[] }) {
   const [cuenta, setCuenta] = useState("");
   return (
     <fieldset className="flex flex-col gap-2">
@@ -18,9 +19,9 @@ export function LugarDeCompra({ cuentas }: { cuentas: readonly Cuenta[] }) {
         name={CAMPO_PAGO_COMPRA}
         valor={cuenta}
         onCambio={setCuenta}
-        opciones={[{ valor: "", etiqueta: t.noAnoto }, ...cuentas.filter((c) => !c.archivada).map((c) => ({ valor: c.id, etiqueta: c.nombre }))]}
+        opciones={[{ valor: "", etiqueta: t.noAnoto }, ...opcionesDePago(cuentas, tarjetas)]}
       />
-      <p className="text-sm text-texto-2">{t.ayuda}</p>
+      <p className="text-sm text-texto-2">{tarjetas.length > 0 ? t.ayudaConTarjeta : t.ayuda}</p>
     </fieldset>
   );
 }

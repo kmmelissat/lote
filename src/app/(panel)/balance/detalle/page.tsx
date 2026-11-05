@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { GananciaDelPeriodo } from "./GananciaDelPeriodo";
+import { Pestanas } from "@/components/nav/Pestanas";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Aviso } from "@/components/ui/Aviso";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -8,7 +10,8 @@ import { listarClientes } from "@/features/customers/repositorio";
 import { balanceDelNegocio, esCuentaDeSiempre } from "@/features/gestion/repositorio";
 import { BalanceGeneral } from "@/features/gestion/ui/BalanceGeneral";
 import { SeccionPasivos } from "@/features/gestion/ui/Pasivos";
-import { SeccionesGestion } from "@/features/gestion/ui/SeccionesGestion";
+import type { FilaTarjeta } from "@/features/gestion/ui/Tarjetas";
+import { CLAVES_PERIODO, esClavePeriodo, type ClavePeriodo } from "@/features/profit/periodos";
 import { TeDeben, type DeudaDeClienta } from "@/features/profit/ui/PiezasCuadre";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
@@ -18,11 +21,13 @@ const t = textos.gestion;
 
 export const metadata: Metadata = { title: t.cuadre.titulo };
 
-export default function Page() {
-  return <Contenido />;
+export default function Page({ searchParams }: PageProps<"/balance/detalle">) {
+  return <Contenido searchParams={searchParams} />;
 }
 
-async function Contenido() {
+async function Contenido({ searchParams }: Pick<PageProps<"/balance/detalle">, "searchParams">) {
+  const parametro = String((await searchParams).periodo ?? "");
+  const clave: ClavePeriodo = esClavePeriodo(parametro) ? parametro : "mes";
   const { supabase, negocio } = await negocioActual();
   if (!negocio.puedeGestionar) {
     return (
@@ -74,11 +79,20 @@ async function Contenido() {
     nota: p.nota,
   }));
 
+  const fecha = (dia: number | null) => (dia ? formatearFecha(new Date(`${proximoPago(dia, ahora)}T12:00:00`)) : null);
+  const tarjetas: FilaTarjeta[] = datos.tarjetas
+    .filter((x) => !x.archivada)
+    .map((x) => ({ id: x.id, nombre: x.nombre, diaCorte: x.diaCorte, diaPago: x.diaPago, deuda: x.deuda, corte: fecha(x.diaCorte), pago: x.deuda > 0 ? fecha(x.diaPago) : null }));
+
   return (
     <>
       <PageHeader titulo={t.titulo} descripcion={t.descripciones.cuadre} />
       <div className="flex flex-col gap-6">
-        <SeccionesGestion activa="cuadre" />
+        <Pestanas
+          etiqueta={textos.dinero.periodos}
+          activa={clave}
+          pestanas={CLAVES_PERIODO.map((k) => ({ valor: k, etiqueta: textos.dinero[k], href: `/balance/detalle?periodo=${k}` }))}
+        />
 
         <BalanceGeneral
           balance={balance}
@@ -88,8 +102,11 @@ async function Contenido() {
             { clave: "inventario", monto: valorInventario },
           ]}
           pasivos={porTipo}
+          tarjetas={datos.deudaTarjetas}
           cuentas={cuentas}
           editables={!cuentas.some(esCuentaDeSiempre)}
+          tarjetasDeCredito={tarjetas}
+          ganancia={<GananciaDelPeriodo supabase={supabase} negocioId={negocio.id} clave={clave} ahora={ahora} />}
         />
         {sinCostoEnStock > 0 && <Aviso>{t.cuadre.inventarioSinCosto(sinCostoEnStock)}</Aviso>}
 

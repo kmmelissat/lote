@@ -5,6 +5,7 @@ import { useActionState, useId, useRef, useState, type FormEvent } from "react";
 import {
   type Actividad,
   type Cuenta,
+  type Tarjeta,
   costoUnitario,
   leerDolares,
   MARGEN_POR_DEFECTO,
@@ -93,11 +94,14 @@ export function NuevoProductoForm({
   modo = { tipo: "crear" },
   actividad = "compro_vendo",
   cuentas = [],
+  tarjetas = [],
 }: {
   negocioId: string;
   /** Las cuentas del negocio, para elegir de cuál salió el dinero de la compra */
   /** (solo al crear; al editar no hay compra) */
   cuentas?: readonly Cuenta[];
+  /** Las tarjetas del negocio: también se puede pagar la compra con una */
+  tarjetas?: readonly Tarjeta[];
   /** Valores con los que arranca el formulario: repetir un producto, o el producto que se edita */
   inicial?: Record<string, string>;
   /** Marcas que ya usó, para completar mientras escribe */
@@ -449,7 +453,7 @@ export function NuevoProductoForm({
             {/* Fuera del bloque de costos, que viene cerrado: así se ve sin tener que abrirlo */}
             {!editando && (
               <div className="border-t border-borde pt-4">
-                <LugarDeCompra cuentas={cuentas} />
+                <LugarDeCompra cuentas={cuentas} tarjetas={tarjetas} />
               </div>
             )}
           </Card>

@@ -15,9 +15,7 @@ const SIN_MIGAS = new Set(["login", "crear-negocio", "auth", "landing-mas"]);
 type Casa = { href: Route; etiqueta: string; icono: "inicio" | "tienda" };
 type Miga = { href: Route; etiqueta: string };
 
-function etiquetaDe(tramo: string, padre?: string) {
-  // Dentro de Balance, «resumen» es la pestaña de la ganancia, no el resumen semanal de Ajustes
-  if (tramo === "resumen" && padre === "balance") return textos.gestion.resumen;
+function etiquetaDe(tramo: string) {
   const conocido = textos.migas[tramo];
   if (conocido) return conocido;
   if (ID.test(tramo)) return textos.nav.detalle;
@@ -49,7 +47,9 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
     // Sale de la dirección actual, así que la página existe: no hay nada que validar
     const href = `/${acumulado.join("/")}` as Route;
     if (href === casa.href) continue;
-    items.push({ href, etiqueta: etiquetaDe(parte, acumulado.at(-2)) });
+    // Balance es una sola pantalla: «Detalle» no agrega nada
+    if (parte === "detalle" && acumulado.at(-2) === "balance") continue;
+    items.push({ href, etiqueta: etiquetaDe(parte) });
   }
   return { casa, items };
 }

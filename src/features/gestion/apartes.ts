@@ -24,11 +24,16 @@ export async function partidasDelPeriodo(
   const dentro = (iso?: string): iso is string => !!iso && new Date(iso) >= periodo.desde && new Date(iso) < periodo.hasta;
   const acreedor = new Map(datos.pasivos.map((p) => [p.id, p.acreedor]));
   const nombreDe = new Map(datos.cuentas.map((c) => [c.id, c.nombre]));
+  const nombreDeTarjeta = new Map(datos.tarjetas.map((x) => [x.id, x.nombre]));
 
   const apartes: PartidaAparte[] = [
     ...datos.pasivos
       .filter((p) => p.recibidoEn && dentro(p.creadoEn))
       .map((p): PartidaAparte => ({ id: `p-${p.id}`, creadoEn: p.creadoEn, monto: p.monto, metodo: p.recibidoEn, sentido: "entra", clase: "prestamo", titulo: t.prestamo(p.acreedor), cuenta: p.recibidoCuenta })),
+    // Una deuda anotada sin dinero (te fiaron algo) no movió ninguna cuenta, pero se ve
+    ...datos.pasivos
+      .filter((p) => !p.recibidoEn && dentro(p.creadoEn))
+      .map((p): PartidaAparte => ({ id: `d-${p.id}`, creadoEn: p.creadoEn, monto: p.monto, metodo: null, sentido: "entra", clase: "deuda", titulo: t.deudaAnotada(p.acreedor), cuenta: null })),
     ...datos.ajustes
       .filter((a) => dentro(a.creadoEn))
       .map((a): PartidaAparte => ({
@@ -37,16 +42,23 @@ export async function partidasDelPeriodo(
         monto: Math.abs(a.monto),
         metodo: a.lugar,
         sentido: a.monto > 0 ? "entra" : "sale",
-        clase: "ajuste",
+        clase: a.tipo === "saldo_inicial" ? "saldo_inicial" : "ajuste",
         cuenta: a.cuenta,
-        titulo: t.ajuste(nombreDe.get(a.cuenta) ?? textos.gestion.lugares[a.lugar], a.nota ?? ""),
+        titulo:
+          a.tipo === "saldo_inicial"
+            ? t.saldoInicial(nombreDe.get(a.cuenta) ?? textos.gestion.lugares[a.lugar])
+            : t.ajuste(nombreDe.get(a.cuenta) ?? textos.gestion.lugares[a.lugar], a.nota ?? ""),
       })),
+    // La mercadería pagada con tarjeta no movió ninguna cuenta (sin método): lleva el id de la tarjeta donde va la cuenta
     ...datos.compras
       .filter((c) => dentro(c.creadoEn))
-      .map((c): PartidaAparte => ({ id: `c-${c.id}`, creadoEn: c.creadoEn, monto: c.monto, metodo: c.lugar, sentido: "sale", clase: "compra", titulo: t.compra(c.nota ?? ""), cuenta: c.cuenta })),
+      .map((c): PartidaAparte => ({ id: `c-${c.id}`, creadoEn: c.creadoEn, monto: c.monto, metodo: c.lugar, sentido: "sale", clase: "compra", titulo: t.compra(c.nota ?? ""), cuenta: c.cuenta ?? c.tarjeta })),
     ...datos.abonos
       .filter((a) => dentro(a.creadoEn))
       .map((a, i): PartidaAparte => ({ id: `a-${a.pasivoId}-${i}`, creadoEn: a.creadoEn!, monto: a.monto, metodo: a.lugar, sentido: "sale", clase: "pago_deuda", titulo: t.abono(acreedor.get(a.pasivoId) ?? "—"), cuenta: a.cuenta })),
+    ...datos.pagosTarjeta
+      .filter((x) => dentro(x.creadoEn))
+      .map((x): PartidaAparte => ({ id: `k-${x.id}`, creadoEn: x.creadoEn, monto: x.monto, metodo: x.lugar, sentido: "sale", clase: "pago_tarjeta", titulo: t.pagoTarjeta(nombreDeTarjeta.get(x.tarjeta) ?? "—"), cuenta: x.cuenta })),
     ...datos.paquetera
       .filter((x) => dentro(x.creadoEn))
       .map((x): PartidaAparte => ({ id: `e-${x.id}`, creadoEn: x.creadoEn, monto: x.monto, metodo: x.lugar, sentido: "sale", clase: "paquetera", titulo: t.paquetera(x.pedidoCodigo), cuenta: x.cuenta })),

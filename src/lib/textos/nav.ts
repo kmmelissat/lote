@@ -65,8 +65,6 @@ export const nav = {
     nuevoPedido: "Registrar una venta o apartado",
     nuevoPedidoDetalle: "Un pedido nuevo",
     clientes: "Quién te compra y quién te debe",
-    gestionResumen: "Resumen del balance",
-    gestionResumenDetalle: "Cuánto ganaste y cómo se movió tu dinero",
     cuadre: "Detalle del balance: lo que tenés y lo que debés",
     cuadreDetalle: "Cuentas, saldos, deudas y cuotas",
     movimientosGestion: "Movimientos",

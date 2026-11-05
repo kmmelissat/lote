@@ -1,4 +1,5 @@
 import type { Centavos } from "./dinero";
+import { sinMoverDinero } from "./movimientos";
 
 export type DiaDeDinero = { fecha: string; entra: Centavos; sale: Centavos };
 
@@ -10,11 +11,11 @@ const aFecha = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
 /**
  * Cuánto entró y cuánto salió cada día del periodo, con los días sin movimiento en cero para que el gráfico no salte.
- * Las partidas "aparte" (deudas, mercadería, ajustes) no son ingreso ni gasto y no se dibujan.
+ * Las partidas "aparte" (préstamos, mercadería, ajustes) cuentan según su sentido; los traslados y lo que no movió ninguna cuenta no se dibujan.
  * `desde` es inclusive y `hasta` exclusive (AAAA-MM-DD, como en un periodo). Lo que cae fuera se ignora.
  */
 export function serieDiaria(
-  partidas: readonly { fecha: string; tipo: "entrada" | "salida" | "aparte" | "traslado"; monto: Centavos }[],
+  partidas: readonly { fecha: string; tipo: "entrada" | "salida" | "aparte" | "traslado"; monto: Centavos; sentido?: "entra" | "sale"; clase?: string; metodo?: string | null }[],
   desde: string,
   hasta: string,
 ): DiaDeDinero[] {
@@ -25,8 +26,9 @@ export function serieDiaria(
   for (const p of partidas) {
     const dia = dias.get(p.fecha);
     if (!dia) continue;
-    if (p.tipo === "entrada") dia.entra += p.monto;
-    else if (p.tipo === "salida") dia.sale += p.monto;
+    if (sinMoverDinero(p)) continue;
+    if (p.tipo === "entrada" || (p.tipo === "aparte" && p.sentido === "entra")) dia.entra += p.monto;
+    else if (p.tipo === "salida" || p.tipo === "aparte") dia.sale += p.monto;
   }
   return [...dias.values()];
 }

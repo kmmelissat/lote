@@ -13,7 +13,7 @@ describe("buscarDestinos", () => {
   });
 
   it("no importan las tildes ni las mayúsculas", () => {
-    expect(hrefs("GESTIÓN")).toContain("/balance/resumen");
+    expect(hrefs("GESTIÓN")).toContain("/balance/detalle");
   });
 
   it("todas las palabras tienen que aparecer", () => {

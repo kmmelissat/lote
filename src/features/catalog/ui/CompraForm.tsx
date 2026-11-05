@@ -376,7 +376,7 @@ export function CompraForm({
                   disabled={pendiente || !metodoElegido || !acepta}
                   className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
                 >
-                  {pendiente ? t.confirmando : t.confirmar}
+                  {pendiente ? t.confirmando : metodosDisponibles.length === 0 ? t.escribir : t.confirmar}
                 </button>
               )}
             </div>

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** «Balance» a secas lleva a su primera pestaña. El menú apunta acá para que siga marcado en las dos. */
+/** «Balance» es una sola pantalla: el detalle. El menú apunta a /balance para que siga marcado. */
 export default function Page() {
-  redirect("/balance/resumen");
+  redirect("/balance/detalle");
 }

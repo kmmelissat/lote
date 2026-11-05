@@ -940,6 +940,7 @@ export type Database = {
           nota: string | null
           pedido_id: string | null
           recurrente: boolean
+          tarjeta_id: string | null
         }
         Insert: {
           cuenta_id?: string | null
@@ -955,6 +956,7 @@ export type Database = {
           nota?: string | null
           pedido_id?: string | null
           recurrente?: boolean
+          tarjeta_id?: string | null
         }
         Update: {
           cuenta_id?: string | null
@@ -970,6 +972,7 @@ export type Database = {
           nota?: string | null
           pedido_id?: string | null
           recurrente?: boolean
+          tarjeta_id?: string | null
         }
         Relationships: [
           {
@@ -1234,7 +1237,8 @@ export type Database = {
           cuenta_id: string | null
           creado_en: string
           id: string
-          lugar: string
+          lugar: string | null
+          tarjeta_id: string | null
           monto: number
           negocio_id: string
           nota: string | null
@@ -1244,7 +1248,8 @@ export type Database = {
           cuenta_id?: string | null
           creado_en?: string
           id?: string
-          lugar: string
+          lugar?: string | null
+          tarjeta_id?: string | null
           monto: number
           negocio_id: string
           nota?: string | null
@@ -1254,7 +1259,8 @@ export type Database = {
           cuenta_id?: string | null
           creado_en?: string
           id?: string
-          lugar?: string
+          lugar?: string | null
+          tarjeta_id?: string | null
           monto?: number
           negocio_id?: string
           nota?: string | null
@@ -1266,6 +1272,88 @@ export type Database = {
             columns: ["negocio_id"]
             isOneToOne: false
             referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      tarjeta: {
+        Row: {
+          archivada: boolean
+          creado_en: string
+          dia_corte: number | null
+          dia_pago: number | null
+          id: string
+          negocio_id: string
+          nombre: string
+        }
+        Insert: {
+          archivada?: boolean
+          creado_en?: string
+          dia_corte?: number | null
+          dia_pago?: number | null
+          id?: string
+          negocio_id: string
+          nombre: string
+        }
+        Update: {
+          archivada?: boolean
+          creado_en?: string
+          dia_corte?: number | null
+          dia_pago?: number | null
+          id?: string
+          negocio_id?: string
+          nombre?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarjeta_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocio"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      pago_tarjeta: {
+        Row: {
+          creado_en: string
+          cuenta_id: string | null
+          id: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          nota: string | null
+          tarjeta_id: string
+          usuario_id: string | null
+        }
+        Insert: {
+          creado_en?: string
+          cuenta_id?: string | null
+          id?: string
+          lugar: string
+          monto: number
+          negocio_id: string
+          nota?: string | null
+          tarjeta_id: string
+          usuario_id?: string | null
+        }
+        Update: {
+          creado_en?: string
+          cuenta_id?: string | null
+          id?: string
+          lugar?: string
+          monto?: number
+          negocio_id?: string
+          nota?: string | null
+          tarjeta_id?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pago_tarjeta_tarjeta_id_fkey"
+            columns: ["tarjeta_id"]
+            isOneToOne: false
+            referencedRelation: "tarjeta"
             referencedColumns: ["id"]
           }
         ]
@@ -2007,8 +2095,20 @@ export type Database = {
         Args: { p_cuenta?: string; p_lugar: string; p_monto: number; p_pedido: string }
         Returns: undefined
       }
+      crear_tarjeta: {
+        Args: { p_dia_corte?: number; p_dia_pago?: number; p_negocio: string; p_nombre: string }
+        Returns: string
+      }
+      editar_tarjeta: {
+        Args: { p_archivada?: boolean; p_dia_corte?: number; p_dia_pago?: number; p_nombre: string; p_tarjeta: string }
+        Returns: undefined
+      }
+      pagar_tarjeta: {
+        Args: { p_cuenta?: string; p_lugar: string; p_monto: number; p_nota?: string; p_tarjeta: string }
+        Returns: string
+      }
       registrar_compra_mercaderia: {
-        Args: { p_cuenta?: string; p_lugar: string; p_monto: number; p_negocio: string; p_nota?: string }
+        Args: { p_cuenta?: string; p_lugar?: string; p_monto: number; p_negocio: string; p_nota?: string; p_tarjeta?: string }
         Returns: string
       }
       editar_pasivo: {
@@ -2029,6 +2129,7 @@ export type Database = {
           p_negocio: string
           p_nota?: string
           p_pedido?: string
+          p_tarjeta?: string
         }
         Returns: string
       }

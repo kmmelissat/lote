@@ -5,6 +5,7 @@ import {
   type Balance,
   balanceGeneral,
   type Cuenta,
+  deudaDeTarjeta,
   pasivosPorTipo,
   type Centavos,
   type LugarDeDinero,
@@ -12,6 +13,7 @@ import {
   type MovimientoDeCuenta,
   type Pasivo,
   saldoDeCuenta,
+  type Tarjeta,
   type TipoPasivo,
 } from "@/domain";
 import { listarProductos } from "@/features/products/repositorio";
@@ -73,9 +75,23 @@ export type PasivoConSaldo = Pasivo & {
 /** Lo que la persona puede decir de la cuota de una deuda */
 export type CuotaDePasivo = { cuota?: Centavos; cuotas?: number; diaPago?: number };
 
-export type CompraMercaderia = { id: string; lugar: LugarDeDinero; cuenta: string; monto: Centavos; nota: string | null; creadoEn: string };
+/** Una compra de mercadería sale de una cuenta (`lugar` y `cuenta`) o se pagó con una tarjeta (`tarjeta`): nunca las dos */
+export type CompraMercaderia = {
+  id: string;
+  lugar: LugarDeDinero | null;
+  cuenta: string | null;
+  tarjeta: string | null;
+  monto: Centavos;
+  nota: string | null;
+  creadoEn: string;
+};
 
-export type AjusteRegistrado = { id: string; lugar: LugarDeDinero; cuenta: string; monto: Centavos; nota: string | null; creadoEn: string };
+/** Una tarjeta con lo que se gastó con ella, lo que se le pagó y lo que falta */
+export type TarjetaConDeuda = Tarjeta & { cargado: Centavos; pagado: Centavos; deuda: Centavos };
+
+export type PagoDeTarjeta = { id: string; tarjeta: string; lugar: LugarDeDinero; cuenta: string; monto: Centavos; nota: string | null; creadoEn: string };
+
+export type AjusteRegistrado = { id: string; tipo: "saldo_inicial" | "ajuste"; lugar: LugarDeDinero; cuenta: string; monto: Centavos; nota: string | null; creadoEn: string };
 
 export type PagoAPaquetera = { id: string; pedidoCodigo: number; lugar: LugarDeDinero; cuenta: string; monto: Centavos; creadoEn: string };
 
@@ -97,6 +113,12 @@ export type DatosDeGestion = {
   paquetera: PagoAPaquetera[];
   /** El dinero que se pasó de una cuenta a otra */
   entreCuentas: MovimientoEntreCuentas[];
+  /** Las tarjetas de crédito (también las archivadas, para nombrarlas en lo ya guardado) */
+  tarjetas: TarjetaConDeuda[];
+  /** Lo que se pagó a las tarjetas, y de qué cuenta salió */
+  pagosTarjeta: PagoDeTarjeta[];
+  /** Lo que se debe en todas las tarjetas */
+  deudaTarjetas: Centavos;
 };
 
 type FilaPasivo = Database["public"]["Tables"]["pasivo"]["Row"];
@@ -109,7 +131,7 @@ type FilaAjuste = Database["public"]["Tables"]["ajuste_dinero"]["Row"];
  */
 export async function datosDeGestion(supabase: Cliente, negocioId: string): Promise<DatosDeGestion> {
   const db = supabase;
-  const [cuentas, ajustes, pasivos, abonos, pagos, gastos, compras, paquetera, entre] = await Promise.all([
+  const [cuentas, ajustes, pasivos, abonos, pagos, gastos, compras, paquetera, entre, tarjetasDb, pagosTarjetaDb] = await Promise.all([
     cuentasDelNegocio(supabase, negocioId),
     db.from("ajuste_dinero").select("*").eq("negocio_id", negocioId).limit(TOPE),
     db.from("pasivo").select("*").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
@@ -119,6 +141,8 @@ export async function datosDeGestion(supabase: Cliente, negocioId: string): Prom
     db.from("compra_mercaderia").select("*").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
     db.from("pago_paquetera").select("*, pedido(codigo)").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
     db.from("movimiento_entre_cuentas").select("*").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
+    db.from("tarjeta").select("*").eq("negocio_id", negocioId).order("creado_en").limit(200),
+    db.from("pago_tarjeta").select("*").eq("negocio_id", negocioId).order("creado_en", { ascending: false }).limit(TOPE),
   ]);
   for (const r of [ajustes, pasivos, abonos, pagos, gastos, compras]) if (r.error) throw r.error;
 
@@ -165,12 +189,36 @@ export async function datosDeGestion(supabase: Cliente, negocioId: string): Prom
   });
   const todasCompras: CompraMercaderia[] = (compras.data ?? []).map((c) => ({
     id: c.id,
-    lugar: c.lugar as LugarDeDinero,
-    cuenta: cuentaDe(c.cuenta_id, c.lugar as LugarDeDinero),
+    lugar: c.tarjeta_id ? null : (c.lugar as LugarDeDinero),
+    cuenta: c.tarjeta_id || !c.lugar ? null : cuentaDe(c.cuenta_id, c.lugar as LugarDeDinero),
+    tarjeta: c.tarjeta_id ?? null,
     monto: aCentavos(c.monto),
     nota: c.nota,
     creadoEn: c.creado_en,
   }));
+
+  // Sin tarjetas.sql las tablas no existen y no hay tarjetas
+  const pagosDeTarjeta: PagoDeTarjeta[] = tarjetasDb.error || pagosTarjetaDb.error
+    ? []
+    : (pagosTarjetaDb.data ?? []).map((x) => ({
+        id: x.id,
+        tarjeta: x.tarjeta_id,
+        lugar: x.lugar as LugarDeDinero,
+        cuenta: cuentaDe(x.cuenta_id, x.lugar as LugarDeDinero),
+        monto: aCentavos(x.monto),
+        nota: x.nota,
+        creadoEn: x.creado_en,
+      }));
+  const conTarjeta = (gastos.data ?? []).filter((g) => g.tarjeta_id);
+  const tarjetas: TarjetaConDeuda[] = tarjetasDb.error
+    ? []
+    : (tarjetasDb.data ?? []).map((t) => {
+        const cargado =
+          conTarjeta.filter((g) => g.tarjeta_id === t.id).reduce((suma, g) => suma + aCentavos(g.monto), 0) +
+          todasCompras.filter((c) => c.tarjeta === t.id).reduce((suma, c) => suma + c.monto, 0);
+        const pagado = pagosDeTarjeta.filter((x) => x.tarjeta === t.id).reduce((suma, x) => suma + x.monto, 0);
+        return { id: t.id, nombre: t.nombre, diaCorte: t.dia_corte, diaPago: t.dia_pago, archivada: t.archivada, cargado, pagado, deuda: deudaDeTarjeta(cargado, pagado) };
+      });
 
   // Todo lo que entra (+) y sale (−) de cada cuenta
   const movimientos: MovimientoDeCuenta[] = [];
@@ -178,15 +226,16 @@ export async function datosDeGestion(supabase: Cliente, negocioId: string): Prom
     const lugar = lugarDe(p.metodo);
     if (lugar) movimientos.push({ cuenta: cuentaDe(p.cuenta_id, lugar), monto: aCentavos(p.monto), creadoEn: p.creado_en });
   }
-  // Los gastos sin método no se restan de ninguna cuenta.
+  // Los gastos sin método (y los pagados con tarjeta, que no tienen método) no se restan de ninguna cuenta.
   for (const g of gastos.data ?? []) {
     const lugar = lugarDe(g.metodo);
     if (lugar) movimientos.push({ cuenta: cuentaDe(g.cuenta_id, lugar), monto: -aCentavos(g.monto), creadoEn: g.creado_en });
   }
   for (const p of todosPasivos) if (p.recibidoCuenta) movimientos.push({ cuenta: p.recibidoCuenta, monto: p.monto, creadoEn: p.creadoEn });
   for (const a of todosAbonos) movimientos.push({ cuenta: a.cuenta, monto: -a.monto, creadoEn: a.creadoEn });
-  // Lo que se pagó por mercadería y a la paquetera sale de la cuenta de donde se pagó
-  for (const c of todasCompras) movimientos.push({ cuenta: c.cuenta, monto: -c.monto, creadoEn: c.creadoEn });
+  // Lo que se pagó por mercadería, a la paquetera y a las tarjetas sale de la cuenta de donde se pagó (la mercadería con tarjeta no sale de ninguna)
+  for (const c of todasCompras) if (c.cuenta) movimientos.push({ cuenta: c.cuenta, monto: -c.monto, creadoEn: c.creadoEn });
+  for (const x of pagosDeTarjeta) movimientos.push({ cuenta: x.cuenta, monto: -x.monto, creadoEn: x.creadoEn });
   for (const x of pagosPaquetera) movimientos.push({ cuenta: x.cuenta, monto: -x.monto, creadoEn: x.creadoEn });
   for (const m of movidos) {
     movimientos.push({ cuenta: m.desde, monto: -m.monto, creadoEn: m.creadoEn });
@@ -219,10 +268,11 @@ export async function datosDeGestion(supabase: Cliente, negocioId: string): Prom
     };
   });
 
+  // El saldo inicial también va: es dinero que entró a la cuenta
   const ajustesHechos: AjusteRegistrado[] = filasAjuste
-    .filter((a) => a.tipo === "ajuste")
     .map((a) => ({
       id: a.id,
+      tipo: (a.tipo === "saldo_inicial" ? "saldo_inicial" : "ajuste") as AjusteRegistrado["tipo"],
       lugar: a.lugar as LugarDeDinero,
       cuenta: cuentaDe(a.cuenta_id, a.lugar as LugarDeDinero),
       monto: aCentavos(a.monto),
@@ -240,6 +290,9 @@ export async function datosDeGestion(supabase: Cliente, negocioId: string): Prom
     ajustes: ajustesHechos,
     paquetera: pagosPaquetera,
     entreCuentas: movidos,
+    tarjetas,
+    pagosTarjeta: pagosDeTarjeta,
+    deudaTarjetas: tarjetas.reduce((suma, t) => suma + t.deuda, 0),
   };
 }
 
@@ -302,12 +355,13 @@ export async function quitarPasivo(supabase: Cliente, pasivoId: string): Promise
 export async function registrarCompraMercaderia(
   supabase: Cliente,
   negocioId: string,
-  c: { monto: Centavos; lugar: LugarDeDinero; cuenta?: string; nota?: string },
+  c: { monto: Centavos; nota?: string } & ({ lugar: LugarDeDinero; cuenta?: string; tarjeta?: undefined } | { tarjeta: string; lugar?: undefined; cuenta?: undefined }),
 ): Promise<boolean> {
   const { error } = await supabase.rpc("registrar_compra_mercaderia", {
     p_negocio: negocioId,
     p_monto: c.monto / 100,
-    p_lugar: c.lugar,
+    ...(c.lugar ? { p_lugar: c.lugar } : {}),
+    ...(c.tarjeta ? { p_tarjeta: c.tarjeta } : {}),
     ...(c.nota ? { p_nota: c.nota } : {}),
     ...(c.cuenta ? { p_cuenta: c.cuenta } : {}),
   });
@@ -363,6 +417,50 @@ export async function editarCuenta(
   return error ? { ok: false, repetida: error.code === "23505" } : { ok: true };
 }
 
+/** Las tarjetas activas del negocio (para elegir en un formulario). Sin tarjetas.sql no hay tabla y la lista queda vacía. */
+export async function tarjetasDelNegocio(supabase: Cliente, negocioId: string): Promise<Tarjeta[]> {
+  const { data, error } = await supabase.from("tarjeta").select("id, nombre, dia_corte, dia_pago, archivada").eq("negocio_id", negocioId).eq("archivada", false).order("creado_en").limit(50);
+  if (error || !data) return [];
+  return data.map((t) => ({ id: t.id, nombre: t.nombre, diaCorte: t.dia_corte, diaPago: t.dia_pago, archivada: t.archivada }));
+}
+
+export async function crearTarjeta(supabase: Cliente, negocioId: string, t: { nombre: string; diaCorte?: number; diaPago?: number }): Promise<ResultadoCuenta> {
+  const { data, error } = await supabase.rpc("crear_tarjeta", {
+    p_negocio: negocioId,
+    p_nombre: t.nombre,
+    ...(t.diaCorte ? { p_dia_corte: t.diaCorte } : {}),
+    ...(t.diaPago ? { p_dia_pago: t.diaPago } : {}),
+  });
+  return error ? { ok: false, repetida: error.code === "23505" } : { ok: true, id: data ?? undefined };
+}
+
+export async function editarTarjeta(
+  supabase: Cliente,
+  tarjetaId: string,
+  t: { nombre: string; diaCorte?: number; diaPago?: number; archivada: boolean },
+): Promise<ResultadoCuenta> {
+  const { error } = await supabase.rpc("editar_tarjeta", {
+    p_tarjeta: tarjetaId,
+    p_nombre: t.nombre,
+    p_archivada: t.archivada,
+    ...(t.diaCorte ? { p_dia_corte: t.diaCorte } : {}),
+    ...(t.diaPago ? { p_dia_pago: t.diaPago } : {}),
+  });
+  return error ? { ok: false, repetida: error.code === "23505" } : { ok: true };
+}
+
+/** Pagar la tarjeta desde una cuenta: baja la cuenta y baja la deuda */
+export async function pagarTarjeta(supabase: Cliente, tarjetaId: string, p: { monto: Centavos; lugar: LugarDeDinero; cuenta?: string; nota?: string }): Promise<boolean> {
+  const { error } = await supabase.rpc("pagar_tarjeta", {
+    p_tarjeta: tarjetaId,
+    p_monto: p.monto / 100,
+    p_lugar: p.lugar,
+    ...(p.cuenta ? { p_cuenta: p.cuenta } : {}),
+    ...(p.nota ? { p_nota: p.nota } : {}),
+  });
+  return !error;
+}
+
 export async function moverEntreCuentas(supabase: Cliente, m: { desde: string; hacia: string; monto: Centavos; nota?: string }): Promise<boolean> {
   const { error } = await supabase.rpc("mover_entre_cuentas", {
     p_desde: m.desde,
@@ -400,6 +498,7 @@ export async function balanceDelNegocio(supabase: Cliente, negocioId: string): P
     porCobrar: porCobrar.total,
     inventario,
     pasivos: porTipo,
+    tarjetas: datos.deudaTarjetas,
   });
   return { datos, balance, porTipo, porCobrar, inventario, sinCostoEnStock: enStock.filter((p) => p.costoUnitario === null).length, productos };
 }

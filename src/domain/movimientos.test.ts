@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filtrarMovimientos, resumirMovimientos, unirMovimientos, type GastoSaliente, type PagoEntrante } from "./movimientos";
+import { acumuladosDeMovimientos, filtrarMovimientos, resumirMovimientos, unirMovimientos, type GastoSaliente, type PagoEntrante } from "./movimientos";
 
 const pago = (o: Partial<PagoEntrante> = {}): PagoEntrante => ({
   id: "p1",
@@ -72,10 +72,10 @@ describe("filtrarMovimientos", () => {
 describe("resumirMovimientos", () => {
   it("suma entradas y salidas y saca el neto", () => {
     const r = resumirMovimientos(unirMovimientos([pago({ monto: 2500 }), pago({ id: "b", monto: 1000 })], [gasto({ monto: 700 })]));
-    expect(r).toEqual({ entradas: 3500, salidas: 700, neto: 2800, cantidad: 3, otrosEntran: 0, otrosSalen: 0 });
+    expect(r).toEqual({ entradas: 3500, salidas: 700, neto: 2800, cantidad: 3 });
   });
   it("con una lista vacía todo es cero", () => {
-    expect(resumirMovimientos([])).toEqual({ entradas: 0, salidas: 0, neto: 0, cantidad: 0, otrosEntran: 0, otrosSalen: 0 });
+    expect(resumirMovimientos([])).toEqual({ entradas: 0, salidas: 0, neto: 0, cantidad: 0 });
   });
 });
 
@@ -83,9 +83,9 @@ describe("partidas aparte", () => {
   const prestamo = { id: "p-1", creadoEn: "2026-10-20T17:00:00Z", monto: 9000, metodo: "efectivo", sentido: "entra", clase: "prestamo", titulo: "Préstamo de Tía Rosa" } as const;
   const lista = unirMovimientos([pago({ monto: 2500 })], [gasto({ monto: 700 })], [prestamo]);
 
-  it("salen en la misma lista pero no suman en entradas ni salidas", () => {
+  it("salen en la lista y suman según si el dinero entró o salió", () => {
     expect(lista).toHaveLength(3);
-    expect(resumirMovimientos(lista)).toEqual({ entradas: 2500, salidas: 700, neto: 1800, cantidad: 3, otrosEntran: 9000, otrosSalen: 0 });
+    expect(resumirMovimientos(lista)).toEqual({ entradas: 11500, salidas: 700, neto: 10800, cantidad: 3 });
   });
   it("el filtro por tipo usa si el dinero entró o salió, y la búsqueda mira el título", () => {
     expect(filtrarMovimientos(lista, { tipo: "entrada" })).toHaveLength(2);
@@ -99,7 +99,7 @@ describe("cuentas y traslados", () => {
 
   it("un traslado sale en la lista pero no suma en nada", () => {
     expect(lista).toHaveLength(3);
-    expect(resumirMovimientos(lista)).toEqual({ entradas: 2500, salidas: 700, neto: 1800, cantidad: 3, otrosEntran: 0, otrosSalen: 0 });
+    expect(resumirMovimientos(lista)).toEqual({ entradas: 2500, salidas: 700, neto: 1800, cantidad: 3 });
   });
   it("filtrar por cuenta deja sus movimientos y los traslados desde o hacia ella", () => {
     expect(filtrarMovimientos(lista, { cuenta: "banco" }).map((m) => m.tipo).sort()).toEqual(["entrada", "traslado"]);
@@ -112,5 +112,17 @@ describe("cuentas y traslados", () => {
   });
   it("la búsqueda mira el título del traslado", () => {
     expect(filtrarMovimientos(lista, { q: "caja" }).map((m) => m.tipo)).toEqual(["traslado"]);
+  });
+});
+
+describe("acumuladosDeMovimientos", () => {
+  it("va sumando las entradas y restando las salidas, del más viejo al más nuevo", () => {
+    const lista = unirMovimientos(
+      [pago({ id: "a", monto: 2500, creadoEn: "2026-10-20T10:00:00Z" })],
+      [gasto({ id: "b", monto: 500, creadoEn: "2026-10-20T16:00:00Z" })],
+    );
+    const acum = acumuladosDeMovimientos(lista);
+    expect(acum["entrada-a"]).toBe(2500);
+    expect(acum["salida-b"]).toBe(2000);
   });
 });

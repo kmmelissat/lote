@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { supabaseFalso } from "@/test/supabaseFalso";
-import { datosDeGestion, registrarPasivo } from "./repositorio";
+import { datosDeGestion, pagarTarjeta, registrarCompraMercaderia, registrarPasivo } from "./repositorio";
 
 const ok = (data: unknown) => ({ data, error: null });
 
@@ -37,6 +37,61 @@ const tablas = {
   compra_mercaderia: ok([{ id: "c1", lugar: "efectivo", monto: 6, nota: null, creado_en: "2026-10-06T00:00:00Z" }]),
 };
 
+describe("datosDeGestion con tarjetas", () => {
+  const conTarjeta = {
+    ...tablas,
+    tarjeta: ok([{ id: "t1", nombre: "Visa", dia_corte: 15, dia_pago: 5, archivada: false, creado_en: "2026-10-01T00:00:00Z" }]),
+    // Un gasto con tarjeta no tiene método ni cuenta; la compra con tarjeta tampoco tiene lugar
+    gasto: ok([...(tablas.gasto.data as object[]), { monto: 20, metodo: null, tarjeta_id: "t1", creado_en: "2026-10-08T00:00:00Z" }]),
+    compra_mercaderia: ok([
+      ...(tablas.compra_mercaderia.data as object[]),
+      { id: "c2", lugar: null, tarjeta_id: "t1", monto: 30, nota: null, creado_en: "2026-10-08T00:00:00Z" },
+    ]),
+    pago_tarjeta: ok([{ id: "k1", tarjeta_id: "t1", lugar: "efectivo", monto: 10, nota: null, creado_en: "2026-10-09T00:00:00Z" }]),
+  };
+
+  it("lo gastado con la tarjeta es deuda y no baja ninguna cuenta", async () => {
+    const d = await datosDeGestion(supabaseFalso({ tablas: conTarjeta }).cliente, "n1");
+    expect(d.tarjetas).toEqual([
+      { id: "t1", nombre: "Visa", diaCorte: 15, diaPago: 5, archivada: false, cargado: 5000, pagado: 1000, deuda: 4000 },
+    ]);
+    expect(d.deudaTarjetas).toBe(4000);
+  });
+
+  it("pagar la tarjeta baja la cuenta de donde sale", async () => {
+    const d = await datosDeGestion(supabaseFalso({ tablas: conTarjeta }).cliente, "n1");
+    // Los 145 de antes, menos los 10 que se pagaron a la tarjeta; los 50 de gasto y mercadería con tarjeta no tocan el efectivo
+    expect(d.saldos.efectivo).toBe(13500);
+    expect(d.pagosTarjeta).toEqual([{ id: "k1", tarjeta: "t1", lugar: "efectivo", cuenta: "efectivo", monto: 1000, nota: null, creadoEn: "2026-10-09T00:00:00Z" }]);
+  });
+
+  it("la compra pagada con tarjeta no tiene cuenta", async () => {
+    const d = await datosDeGestion(supabaseFalso({ tablas: conTarjeta }).cliente, "n1");
+    expect(d.compras.find((c) => c.id === "c2")).toMatchObject({ lugar: null, cuenta: null, tarjeta: "t1", monto: 3000 });
+  });
+
+  it("sin tarjetas.sql no hay tarjetas y el dinero sigue igual", async () => {
+    const d = await datosDeGestion(supabaseFalso({ tablas }).cliente, "n1");
+    expect(d.tarjetas).toEqual([]);
+    expect(d.deudaTarjetas).toBe(0);
+    expect(d.saldos.efectivo).toBe(14500);
+  });
+});
+
+describe("tarjetas: llamadas a la base", () => {
+  it("la compra con tarjeta manda la tarjeta y no el lugar", async () => {
+    const { cliente, llamadas } = supabaseFalso({ rpc: { registrar_compra_mercaderia: { data: "c", error: null } } });
+    expect(await registrarCompraMercaderia(cliente, "n1", { monto: 3000, tarjeta: "t1", nota: "zapatos" })).toBe(true);
+    expect(llamadas[0]).toEqual({ nombre: "registrar_compra_mercaderia", args: { p_negocio: "n1", p_monto: 30, p_tarjeta: "t1", p_nota: "zapatos" } });
+  });
+
+  it("pagar la tarjeta manda el monto, el lugar y la cuenta", async () => {
+    const { cliente, llamadas } = supabaseFalso({ rpc: { pagar_tarjeta: { data: "k", error: null } } });
+    expect(await pagarTarjeta(cliente, "t1", { monto: 1500, lugar: "transferencia", cuenta: "c1" })).toBe(true);
+    expect(llamadas[0]).toEqual({ nombre: "pagar_tarjeta", args: { p_tarjeta: "t1", p_monto: 15, p_lugar: "transferencia", p_cuenta: "c1" } });
+  });
+});
+
 describe("datosDeGestion", () => {
   it("lo que se le pagó a la paquetera sale del lugar de donde se pagó", async () => {
     const conPaquetera = { ...tablas, pago_paquetera: ok([{ id: "e1", lugar: "efectivo", monto: 3.5, creado_en: "2026-10-07T00:00:00Z", pedido: { codigo: 12 } }]) };
@@ -61,10 +116,13 @@ describe("datosDeGestion", () => {
     expect(p).toMatchObject({ monto: 5000, abonado: 2000, saldo: 3000, cuota: 1000, cuotas: 5, diaPago: 15, fechaLimite: "2026-12-01" });
   });
 
-  it("los ajustes a mano no incluyen el saldo inicial", async () => {
+  it("el saldo inicial también se lista, marcado como tal", async () => {
     const { cliente } = supabaseFalso({ tablas });
     const d = await datosDeGestion(cliente, "n1");
-    expect(d.ajustes).toEqual([{ id: "a2", lugar: "efectivo", cuenta: "efectivo", monto: -500, nota: "faltante", creadoEn: "2026-10-05T00:00:00Z" }]);
+    expect(d.ajustes).toEqual([
+      { id: "a1", tipo: "saldo_inicial", lugar: "efectivo", cuenta: "efectivo", monto: 10000, nota: null, creadoEn: "2026-10-01T00:00:00Z" },
+      { id: "a2", tipo: "ajuste", lugar: "efectivo", cuenta: "efectivo", monto: -500, nota: "faltante", creadoEn: "2026-10-05T00:00:00Z" },
+    ]);
     expect(d.compras[0].monto).toBe(600);
   });
 

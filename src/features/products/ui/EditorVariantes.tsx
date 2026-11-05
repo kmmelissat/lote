@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState, type ClipboardEvent, type KeyboardEvent } from "react";
 import { Aviso } from "@/components/ui/Aviso";
 import { Button } from "@/components/ui/Button";
+import { BotonIcono } from "@/components/ui/BotonIcono";
 import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { soloNumero } from "@/lib/entrada";
@@ -316,9 +317,7 @@ export function EditorVariantes({
                   </span>
                 ))}
               </div>
-              <Button type="button" variante="suave" tamano="chico" icono="editar" onClick={() => setEditando(o.id)}>
-                {t.editar}
-              </Button>
+              <BotonIcono variante="suave" tamano="chico" icono="editar" etiqueta={t.editar} onClick={() => setEditando(o.id)} />
             </li>
           );
         })}

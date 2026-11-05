@@ -11,7 +11,6 @@ const t = textos.dinero.cuadre;
 
 export type DeudaDeClienta = { id: string; nombre: string; saldo: number; desde: string; cobro: string | null };
 
-const AVATAR = ["bg-rosa", "bg-celeste", "bg-mango", "bg-teal-fondo"] as const;
 const inicial = (nombre: string) => (nombre.trim()[0] ?? "?").toUpperCase();
 
 /** Quién te debe, la más antigua primero, con el botón que abre WhatsApp con el mensaje armado. */
@@ -29,9 +28,9 @@ export function TeDeben({ deudas }: { deudas: DeudaDeClienta[] }) {
         <p className="px-4 py-4 text-texto-2 md:px-5">{t.cobrarVacio}</p>
       ) : (
         <ul>
-          {deudas.map((d, i) => (
+          {deudas.map((d) => (
             <li key={d.id} className="flex items-center gap-3 border-t border-borde px-4 py-3 first:border-t-0 md:px-5">
-              <span aria-hidden="true" className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro font-logo text-lg font-bold ${AVATAR[i % AVATAR.length]}`}>
+              <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon font-logo text-lg font-bold">
                 {inicial(d.nombre)}
               </span>
               <div className="min-w-0 flex-1">

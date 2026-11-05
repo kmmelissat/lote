@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
+import { BotonIcono } from "@/components/ui/BotonIcono";
 import { Card } from "@/components/ui/Card";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { ChipsElegir, estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
@@ -127,9 +128,7 @@ function ListaFijos({ fijos, cuentas }: { fijos: FilaFijo[]; cuentas: readonly C
                 id={`editar-fijo-${f.id}`}
                 titulo={t.editarTitulo(f.nombre)}
                 boton={(abrir) => (
-                  <Button type="button" variante="suave" tamano="chico" onClick={abrir}>
-                    {t.editar}
-                  </Button>
+                  <BotonIcono variante="suave" tamano="chico" icono="editar" etiqueta={t.editar} onClick={abrir} />
                 )}
               >
                 {(cerrar) => <FormFijo fijo={f} cuentas={cuentas} cerrar={cerrar} />}

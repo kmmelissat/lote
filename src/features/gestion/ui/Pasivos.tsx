@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
+import { BotonIcono } from "@/components/ui/BotonIcono";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { useAvisarListo } from "@/components/ui/Toast";
@@ -215,7 +216,7 @@ export function ListaPasivos({ pasivos, cuentas }: { pasivos: FilaPasivo[]; cuen
           <li key={p.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[20px] bg-fondo p-3">
             <span
               aria-hidden="true"
-              className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro font-logo text-lg font-bold ${p.saldo > 0 ? "bg-rosa" : "bg-teal-fondo"}`}
+              className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro font-logo text-lg font-bold bg-rosa`}
             >
               {p.acreedor.trim().charAt(0).toUpperCase()}
             </span>
@@ -261,9 +262,7 @@ export function ListaPasivos({ pasivos, cuentas }: { pasivos: FilaPasivo[]; cuen
                 id={`editar-${p.id}`}
                 titulo={t.editarTitulo(p.acreedor)}
                 boton={(abrir) => (
-                  <Button type="button" variante="suave" tamano="chico" onClick={abrir}>
-                    {t.editar}
-                  </Button>
+                  <BotonIcono variante="suave" tamano="chico" icono="editar" etiqueta={t.editar} onClick={abrir} />
                 )}
               >
                 {(cerrar) => <FormPasivo hoy="" cerrar={cerrar} pasivo={p} />}

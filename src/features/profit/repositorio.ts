@@ -37,6 +37,8 @@ export type NuevoGasto = {
   metodo?: MetodoMovimiento;
   /** La cuenta de donde salió; sin ella, la principal del método */
   cuenta?: string;
+  /** Si se pagó con una tarjeta: no lleva método ni cuenta */
+  tarjeta?: string;
 };
 
 /** Ventas del periodo con el costo que tenían al venderse. Solo dueña y administradora (lo exige la base). */
@@ -182,6 +184,7 @@ export async function registrarGasto(
     // Solo se manda si hay método: así registrar gastos sigue funcionando aunque gasto_metodo.sql no se haya corrido.
     ...(g.metodo ? { p_metodo: g.metodo } : {}),
     ...(g.metodo && g.cuenta ? { p_cuenta: g.cuenta } : {}),
+    ...(g.tarjeta ? { p_tarjeta: g.tarjeta } : {}),
   });
   return error ? null : data;
 }

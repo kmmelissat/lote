@@ -240,6 +240,7 @@ export const vitrina = {
     envioLinea: "Envío",
     total: "Total",
     confirmar: "Confirmar pedido",
+    escribir: "Escribir a la tienda",
     confirmando: "Enviando…",
     pagoDespues: "Todavía no pagás nada: primero confirmás el pedido.",
     errorEntrega: "Revisá cómo lo querés recibir: falta el departamento o la dirección.",
