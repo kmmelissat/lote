@@ -107,6 +107,7 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 - ✅ Página del producto: galería, variantes (sin preseleccionar), stock y precio de la elegida, precio anterior tachado, etiquetas (nuevo, últimas unidades), envío estimado, reseñas y "avisame cuando haya" si está agotado.
 - ✅ **Comprar ahora** en tres pasos cortos (datos, entrega, pago) o **apartar** sin pagar durante unas horas. No hace falta crear cuenta.
 - ✅ **Carrito** por tienda (hasta 10 productos distintos) que se compra como un solo pedido. No hay carrito entre tiendas: cada una es otro vendedor.
+- 🚧 **Cuenta de comprador**: como en cualquier marketplace. Con cuenta (Google o enlace al correo) los datos y los pedidos quedan listos y el carrito se sincroniza entre aparatos. Sin cuenta, al pedir se deja **correo y teléfono** (los dos obligatorios) y se crea una cuenta **no verificada** (`comprador`, por correo; `pedido.comprador_id`). Se verifica entrando con Google (o el enlace al correo) con ese mismo correo: `/auth/callback` reclama la cuenta no verificada (`verificado_en`) y junta pedidos y carritos. Sin verificar, los pedidos y el carrito solo se ven en el dispositivo donde se hicieron (cookie httpOnly `lote_comprador`, en la base solo su hash). Falta el código por OTP (necesita Meta). El carrito de cada tienda se guarda en el servidor (`carrito_item`, `SincronizarCarrito`), "Mis pedidos" (`/marketplace/pedidos`) suma los del servidor a los del navegador, y el formulario trae los datos de la cuenta (`datosDeMiCuenta`). Pendiente: qué ve en `/inicio` quien no tiene tienda. (Necesita `compradores.sql`, `carritos.sql`, `comprador_usuario.sql` y `comprador_correo.sql`, en ese orden; código en `compradorDispositivo.ts`.)
 - ✅ Confirmación en `/c/<tienda>/pedido/<id>` (la dirección vieja `/apartado/` redirige): la etapa real del pedido, el ticket de la compra, cómo pagar y un botón para escribirle a la tienda por WhatsApp.
 - ✅ Seguimiento del pedido y reseña del producto cuando llega entregado.
 - ✅ Aceptar que la tienda escriba por WhatsApp es obligatorio para confirmar.
@@ -119,6 +120,8 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 
 ## Administración de Lote (`/admin`)
 - ✅ Una sola cuenta de admin elige qué productos salen en "Destacados" del Marketplace.
+- ✅ **Encabezado del Marketplace** (`EncabezadoMarketplace`, barra flotante crema con borde y sombra dura, fija al bajar): logo y buscador (`?q=`) con el selector "Categorías" adentro (menú con los rubros a la izquierda y sus categorías a la derecha), y los accesos con solo ícono Mi cuenta, Pedidos, Ayuda y Favoritos, más el botón Carrito (con el total de unidades de todas las tiendas; lleva al carrito de la primera tienda que tenga algo). **Mi cuenta** (`BotonCuenta`): sin sesión abre una ventana para entrar con Google o con el correo y vuelve a la misma página del Marketplace (no a Inicio); con sesión lleva a `/marketplace/cuenta`: perfil editable (nombre, WhatsApp; el correo es el del acceso), dirección de entrega guardada (departamento, municipio, dirección, referencia) que llena sola el envío al comprar, sus 5 pedidos recientes con estado y cerrar sesión (vuelve al Marketplace). (Necesita `comprador_perfil.sql`.) Favoritos aparece apagado ("Pronto") hasta que exista.
+- ✅ **Mis pedidos** (`/marketplace/pedidos`, enlace en el encabezado): los pedidos que la persona hizo desde ese navegador, sin cuenta. Se anotan al ver la confirmación (`localStorage`, hasta 30), muestran en qué va cada uno (una consulta al servidor con los ids) y llevan al seguimiento `/p/<pedido>`. Se pueden quitar de la lista. No hay búsqueda por número y teléfono todavía.
 
 ## Avisos por WhatsApp
 - ✅ Seis avisos: apartado nuevo, apartado por vencer, apartado vencido, pedido enviado, recordatorio de abono y resumen semanal. Solo salen si el cliente aceptó y hay un teléfono.
@@ -194,7 +197,7 @@ Cada sección, sus rutas y dónde está su código (en `src/features/` salvo que
 | Ajustes | `/ajustes/tienda` (con secciones; `/ajustes/pagos`, `/envios` y `/vitrina` redirigen ahí), `/ajustes/equipo`, `/resenas`, `/exportar` | `store-settings`, `team`, `reviews`, `export` (`/api/exportar/<tipo>`) |
 | Vitrina | `/c/<tienda>`, `/c/<tienda>/<código>` (`/comprar`, `/apartar`), `/c/<tienda>/carrito` (`/comprar`), `/c/<tienda>/pedido/<id>` | `catalog`, `reviews` |
 | Seguimiento | `/p/<pedido>` | `tracking` |
-| Marketplace | `/marketplace`, `/marketplace/categoria/<nombre>` (`/calle` y `/mercadito` eran prototipos y redirigen) | `catalog` |
+| Marketplace | `/marketplace`, `/marketplace/pedidos`, `/marketplace/categoria/<nombre>` (`/calle` y `/mercadito` eran prototipos y redirigen) | `catalog` |
 | Admin | `/admin` | `admin` |
 | Entrar y empezar | `/login`, `/crear-negocio`, `/invitacion/<token>`, `/auth/callback` | `auth`, `team` |
 | Landing y ayuda | `/`, `/ayuda`, `/privacidad`, `/terminos` | `landing`, `ayuda` |

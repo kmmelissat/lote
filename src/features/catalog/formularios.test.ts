@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { apartarSchema, comprarCarritoSchema, comprarSchema, leerFormulario } from "./formularios";
 
-const persona = { nombre: "Ana Martínez", contacto: "+503 70000000", acepta: "on" };
+const persona = { nombre: "Ana Martínez", contacto: "+503 70000000", correo: "ana@correo.com", acepta: "on" };
 
 describe("apartar", () => {
   it("acepta datos buenos y convierte la cantidad", () => {
@@ -12,7 +12,7 @@ describe("apartar", () => {
   it("da un mensaje por campo", () => {
     const r = leerFormulario(apartarSchema, { nombre: " ", contacto: "7", cantidad: "0" });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(Object.keys(r.errores).sort()).toEqual(["acepta", "cantidad", "contacto", "nombre"]);
+    if (!r.ok) expect(Object.keys(r.errores).sort()).toEqual(["acepta", "cantidad", "contacto", "correo", "nombre"]);
   });
 
   it("rechaza cantidades que no son enteras o pasan del tope", () => {
@@ -27,6 +27,13 @@ describe("apartar", () => {
       ok: true,
       datos: { contacto: "+503 70000000" },
     });
+  });
+
+  it("pide un correo válido y lo guarda en minúsculas", () => {
+    expect(leerFormulario(apartarSchema, { ...persona, correo: " Ana@Correo.COM ", cantidad: "1" })).toMatchObject({ ok: true, datos: { correo: "ana@correo.com" } });
+    const r = leerFormulario(apartarSchema, { ...persona, correo: "ana", cantidad: "1" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(Object.keys(r.errores)).toEqual(["correo"]);
   });
 
   it("rechaza un contacto que no es un WhatsApp de El Salvador", () => {

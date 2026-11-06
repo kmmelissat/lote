@@ -18,10 +18,11 @@ const contacto = z
   .trim()
   .refine((c) => telefonoElSalvador(c) !== null, t.errorContacto)
   .transform((c) => telefonoElSalvador(c)!);
+const correo = z.string().trim().toLowerCase().max(120, t.errorCorreo).pipe(z.email(t.errorCorreo));
 const acepta = z.literal("on", { error: t.errorAcepta });
 const cantidad = z.coerce.number({ error: t.errorCantidad }).int(t.errorCantidad).min(1, t.errorCantidad).max(MAX_CANTIDAD, t.errorCantidad);
 
-const datosDeLaPersona = { nombre, contacto, acepta };
+const datosDeLaPersona = { nombre, contacto, correo, acepta };
 
 const entrega = {
   // Cualquier cosa que no sea "retiro" cuenta como envío, igual que antes

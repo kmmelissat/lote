@@ -209,6 +209,54 @@ export function ZonaDeCompra({
           </div>
         )}
 
+        {/* En pantalla grande los botones van en la caja, grandes y a la vista; en el móvil los lleva la barra fija de abajo */}
+        {pedidos && (
+          <div className="hidden flex-col gap-2 md:flex">
+            {aviso && (
+              <p role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-2.5 font-medium">
+                <span className="inline-flex items-center gap-2">
+                  <Icon nombre="check" className="size-5" strokeWidth={2.5} />
+                  {aviso === "agregado" ? textos.vitrina.carrito.agregado : aviso === "tope" ? textos.vitrina.carrito.tope : textos.vitrina.carrito.lleno}
+                </span>
+                {aviso !== "lleno" && (
+                  <Link href={`/c/${slug}/carrito`} className="font-bold underline">
+                    {textos.vitrina.carrito.verCarrito}
+                  </Link>
+                )}
+              </p>
+            )}
+            {listo ? (
+              <Link href={enlaceA(permiteComprar ? "comprar" : "apartar")} className={`${boton} h-12 w-full bg-accion text-base text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura`}>
+                {permiteComprar ? t.modoComprar : t.modoApartar}
+              </Link>
+            ) : (
+              <span aria-disabled="true" className={`${boton} h-12 w-full bg-accion text-base text-accion-texto opacity-50`}>
+                {permiteComprar ? t.modoComprar : t.modoApartar}
+              </span>
+            )}
+            {permiteComprar && (
+              <button
+                type="button"
+                disabled={!listo}
+                onClick={() => setResultado({ clave, valor: agregarAlCarrito(slug, seleccionada!.codigo, unidades, seleccionada!.disponibles) })}
+                className={`${boton} h-12 w-full gap-2 bg-white enabled:hover:bg-limon disabled:opacity-50`}
+              >
+                <Icon nombre="carrito" className="size-5" />
+                {textos.vitrina.carrito.agregar}
+              </button>
+            )}
+            {!listo && <p className="text-center text-xs text-texto-2">{pista}</p>}
+          </div>
+        )}
+
+        {/* Catálogo en pantalla grande: el botón va en la caja */}
+        {!pedidos && meInteresa && (
+          <a href={meInteresa} target="_blank" rel="noreferrer" className={`${boton} hidden h-12 w-full gap-2 bg-accion text-base text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura md:inline-flex`}>
+            <Icon nombre="chat" className="size-5" />
+            {t.meInteresa}
+          </a>
+        )}
+
         {/* Apartar ya no es un botón más: es la salida tranquila para quien todavía no se decide */}
         {permiteComprar && permiteApartar && (
           <p className="text-sm text-texto-2">
@@ -238,7 +286,7 @@ export function ZonaDeCompra({
       {/* Siempre a mano abajo: comprar es lo principal, y el carrito acompaña para seguir mirando. Apartar vive en la tarjeta. */}
       {/* Catálogo: la barra solo lleva "Me interesa", que abre el chat con el producto ya escrito */}
       {!pedidos && meInteresa && (
-        <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl">
+        <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl md:hidden">
           <div className="pointer-events-auto flex items-center gap-2 rounded-[28px] border-2 border-teal-oscuro bg-crema p-2 shadow-dura">
             <div className="ml-3 mr-auto hidden min-w-0 flex-col leading-tight sm:flex">
               <span className="truncate text-xs text-texto-2">{contacto.tienda}</span>
@@ -258,7 +306,7 @@ export function ZonaDeCompra({
       )}
 
       {pedidos && (
-        <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl">
+        <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl md:hidden">
           {aviso && (
             <p
               role="status"

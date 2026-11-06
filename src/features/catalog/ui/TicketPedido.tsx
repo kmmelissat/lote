@@ -21,14 +21,13 @@ export function textoDePago(a: Pick<ApartadoPublico, "contraEntrega" | "metodoPr
 export function TicketPedido({ a, conDireccion = false }: { a: ApartadoPublico; conDireccion?: boolean }) {
   const pago = textoDePago(a);
   return (
-    <section aria-labelledby="ticket-pedido" className="relative -rotate-[0.6deg] rounded-md border-2 border-teal-oscuro bg-[#fffdf5] p-4 shadow-dura-chica">
-      <span aria-hidden="true" className="absolute -top-2.5 left-1/3 h-4 w-14 rotate-3 rounded-sm border-2 border-teal-oscuro/30 bg-teal-fondo" />
-      <h2 id="ticket-pedido" className="mb-2 font-logo text-xl font-semibold">
+    <section aria-labelledby="ticket-pedido" className="rounded-2xl border border-teal-oscuro/20 bg-crema p-4">
+      <h2 id="ticket-pedido" className="mb-2 text-lg font-bold">
         {t.ticket.titulo}
       </h2>
       <ul className="flex flex-col">
         {a.items.map((i) => (
-          <li key={i.nombre} className="flex justify-between gap-3 border-b-2 border-dashed border-teal-oscuro/30 py-1.5 text-sm">
+          <li key={i.nombre} className="flex justify-between gap-3 border-b border-teal-oscuro/15 py-1.5 text-sm">
             <span className="min-w-0">
               {i.nombre} <span className="font-bold">×{i.cantidad}</span>
             </span>
@@ -36,7 +35,7 @@ export function TicketPedido({ a, conDireccion = false }: { a: ApartadoPublico; 
           </li>
         ))}
         {a.entrega === "envio" && (
-          <li className="flex justify-between gap-3 border-b-2 border-dashed border-teal-oscuro/30 py-1.5 text-sm text-texto-2">
+          <li className="flex justify-between gap-3 border-b border-teal-oscuro/15 py-1.5 text-sm text-texto-2">
             <span className="flex items-center gap-1.5">
               <Icon nombre="camion" className="size-4" />
               {t.envioCosto}
@@ -45,14 +44,14 @@ export function TicketPedido({ a, conDireccion = false }: { a: ApartadoPublico; 
           </li>
         )}
       </ul>
-      <p className="mt-2 flex items-baseline justify-between border-t-2 border-teal-oscuro pt-2">
+      <p className="mt-2 flex items-baseline justify-between border-t border-teal-oscuro/30 pt-2">
         <span className="font-bold">{t.total}</span>
-        <span className="font-logo text-3xl font-semibold tabular-nums">{formatearDolares(a.total)}</span>
+        <span className="text-2xl font-bold tabular-nums">{formatearDolares(a.total)}</span>
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        {pago && <span className="rotate-1 rounded-xl border-2 border-teal-oscuro bg-limon px-2.5 py-1 text-xs font-bold">{pago}</span>}
+        {pago && <span className="rounded-full bg-teal-fondo px-2.5 py-1 text-xs font-bold text-teal-oscuro">{pago}</span>}
         {a.entrega && (
-          <span className="-rotate-1 rounded-xl border-2 border-teal-oscuro bg-white px-2.5 py-1 text-xs font-bold">
+          <span className="rounded-full bg-teal-fondo px-2.5 py-1 text-xs font-bold text-teal-oscuro">
             {a.entrega === "envio" ? t.ticket.recibido.envio : t.ticket.recibido.retiro}
           </span>
         )}

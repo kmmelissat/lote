@@ -30,9 +30,9 @@ export function TarjetaProducto({ p, marca, eager = false }: { p: ProductoExplor
     <Link
       href={`/c/${p.tiendaSlug}/${p.codigo}`}
       style={{ "--tienda": marca.color } as CSSProperties}
-      className="group flex h-full flex-col gap-2 rounded-[22px] border-2 border-teal-oscuro bg-white p-1.5 pb-3 shadow-dura-chica transition-[transform,box-shadow] duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-1 hover:shadow-dura"
+      className="group flex h-full flex-col gap-2 overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-white pb-3 shadow-dura-chica transition-[transform,box-shadow] duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-1 hover:shadow-dura"
     >
-      <div className="relative aspect-square overflow-hidden rounded-[17px] bg-[color-mix(in_srgb,var(--tienda)_12%,white)]">
+      <div className="relative aspect-square overflow-hidden border-b-2 border-teal-oscuro bg-[color-mix(in_srgb,var(--tienda)_12%,white)]">
         {p.foto ? (
           <Image
             src={urlFoto(p.foto)}

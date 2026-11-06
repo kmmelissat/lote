@@ -32,13 +32,29 @@ export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: strin
     );
   }
   const foto = lista[actual];
+  const miniatura = (r: string, i: number) => (
+    <button
+      key={r}
+      type="button"
+      onClick={() => setTocada({ ruta: r, clave })}
+      onMouseEnter={() => setTocada({ ruta: r, clave })}
+      aria-label={de[r] ? `${textos.productos.fotos.foto(i + 1)} · ${de[r]}` : textos.productos.fotos.foto(i + 1)}
+      title={de[r]}
+      aria-current={i === actual ? "true" : undefined}
+      className={`relative block size-16 shrink-0 overflow-hidden rounded-xl border-2 transition-transform hover:-translate-y-0.5 ${
+        i === actual ? "border-teal-oscuro ring-2 ring-accion" : "border-borde"
+      }`}
+    >
+      <Image src={urlFoto(r)} alt="" fill sizes="64px" className="object-cover" />
+    </button>
+  );
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:flex-row-reverse md:items-start">
       <button
         type="button"
         onClick={() => ampliada.current?.showModal()}
         aria-label={textos.vitrina.compra.ampliar}
-        className="relative aspect-square cursor-zoom-in overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-teal-fondo"
+        className="relative aspect-square cursor-zoom-in md:min-w-0 md:flex-1 overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-teal-fondo"
       >
         <Image
           src={urlFoto(foto)}
@@ -69,23 +85,18 @@ export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: strin
         <img src={urlFoto(foto)} alt={nombre} className="max-h-[92dvh] w-full object-contain" />
       </dialog>
       {lista.length > 1 && (
-        <Tira etiqueta={textos.productos.fotos.etiqueta} activo={actual}>
-          {lista.map((r, i) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setTocada({ ruta: r, clave })}
-                aria-label={de[r] ? `${textos.productos.fotos.foto(i + 1)} · ${de[r]}` : textos.productos.fotos.foto(i + 1)}
-                title={de[r]}
-                aria-current={i === actual ? "true" : undefined}
-                className={`relative block size-16 overflow-hidden rounded-xl border-2 transition-transform hover:-translate-y-0.5 ${
-                  i === actual ? "border-teal-oscuro ring-2 ring-accion" : "border-borde"
-                }`}
-              >
-                <Image src={urlFoto(r)} alt="" fill sizes="64px" className="object-cover" />
-              </button>
-          ))}
-        </Tira>
+        <>
+          {/* Móvil: tira horizontal debajo de la foto */}
+          <div className="md:hidden">
+            <Tira etiqueta={textos.productos.fotos.etiqueta} activo={actual}>
+              {lista.map(miniatura)}
+            </Tira>
+          </div>
+          {/* Pantalla grande: columna a la izquierda, como en los marketplaces */}
+          <div role="group" aria-label={textos.productos.fotos.etiqueta} className="hidden max-h-[34rem] shrink-0 flex-col gap-2 overflow-y-auto p-0.5 md:flex">
+            {lista.map(miniatura)}
+          </div>
+        </>
       )}
     </div>
   );

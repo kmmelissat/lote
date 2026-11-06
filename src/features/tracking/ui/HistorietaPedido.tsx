@@ -7,15 +7,6 @@ import type { Seguimiento } from "../repositorio";
 
 const t = textos.seguimiento;
 
-const PUNTITOS = "[background-image:radial-gradient(circle,rgb(255_255_255/0.65)_2px,transparent_2.5px)] [background-size:10px_10px]";
-const ESTRELLA = "[clip-path:polygon(50%_0,61%_12%,78%_6%,80%_24%,96%_30%,88%_46%,100%_60%,84%_68%,88%_86%,70%_84%,60%_100%,48%_88%,32%_98%,28%_80%,10%_80%,16%_62%,0_50%,14%_38%,6%_20%,24%_18%,32%_2%)]";
-
-const CONFETI = [
-  { izq: "14%", c: "bg-rosa", retraso: "0s" },
-  { izq: "34%", c: "bg-limon", retraso: "0.5s" },
-  { izq: "58%", c: "bg-celeste", retraso: "1s" },
-  { izq: "80%", c: "bg-mango", retraso: "1.5s" },
-];
 
 /**
  * El pedido como historieta: una viñeta por parada con Lotito haciendo lo de ese paso (recibe, empaca, espera a la paquetera, va en camino, entrega). Las que ya pasaron llevan check, la actual
@@ -40,12 +31,12 @@ export function HistorietaPedido({ estado, modo, listo }: { estado: EstadoPedido
           <li
             key={paso}
             aria-current={enCurso ? "step" : undefined}
-            className={`relative flex items-end justify-center overflow-hidden rounded-lg ${suelta ? "col-span-2 aspect-[2/1] sm:col-span-1 sm:aspect-square" : "aspect-square"} border-[3px] border-teal-oscuro ${
-              destacada ? `z-10 scale-[1.04] -rotate-1 shadow-dura ${PUNTITOS} ${ultima ? "bg-rosa-palido" : "bg-accion/35"}` : hecho ? `${PUNTITOS} bg-teal-fondo` : "bg-perla/60"
+            className={`relative flex items-end justify-center overflow-hidden rounded-2xl ${suelta ? "col-span-2 aspect-[2/1] sm:col-span-1 sm:aspect-square" : "aspect-[4/3] sm:aspect-square"} border ${
+              destacada ? "border-teal bg-teal-fondo ring-2 ring-teal" : hecho ? "border-teal-oscuro/20 bg-teal-fondo" : "border-teal-oscuro/15 bg-perla/60"
             }`}
           >
             {/* Lotito haciendo lo de ese paso (`pnpm imagenes-pasos`); si falta, solo su silueta */}
-            <span className={`relative mb-1 h-[84%] w-[84%] ${destacada ? "animate-bote" : ""}`}>
+            <span className={`relative mb-1 h-[84%] w-[84%] `}>
               <Image
                 src={`/seguimiento/paso-${paso}.webp`}
                 alt=""
@@ -57,8 +48,8 @@ export function HistorietaPedido({ estado, modo, listo }: { estado: EstadoPedido
 
             {/* El pie de la viñeta, como en un cómic */}
             <span
-              className={`absolute left-0 top-0 rounded-br-lg border-b-[3px] border-r-[3px] border-teal-oscuro px-2 py-0.5 font-logo text-xs font-semibold sm:text-sm ${
-                hecho || destacada ? "bg-limon" : "bg-borde text-texto-2"
+              className={`absolute left-0 top-0 rounded-br-xl px-2 py-0.5 text-xs font-bold sm:text-sm ${
+                hecho || destacada ? "bg-teal text-white" : "bg-borde text-texto-2"
               }`}
             >
               {i + 1} · {t.cortos[paso]}
@@ -66,24 +57,15 @@ export function HistorietaPedido({ estado, modo, listo }: { estado: EstadoPedido
             </span>
 
             {!hecho && !destacada && (
-              <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center font-logo text-6xl font-semibold text-texto-2/40">
+              <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-5xl font-bold text-texto-2/30">
                 ?
               </span>
             )}
             {hecho && !ultima && (
-              <span aria-hidden="true" className="absolute bottom-1.5 right-1.5 flex size-6 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal text-white">
+              <span aria-hidden="true" className="absolute bottom-1.5 right-1.5 flex size-6 items-center justify-center rounded-full bg-teal text-white">
                 <Icon nombre="check" className="size-3.5" strokeWidth={3} />
               </span>
             )}
-            {destacada && (
-              <span aria-hidden="true" className={`absolute bottom-1 right-1 flex size-14 rotate-12 items-center justify-center bg-mango text-center font-logo text-xs font-semibold leading-none sm:size-16 sm:text-sm ${ESTRELLA}`}>
-                {ultima ? t.sello.listo : t.sello.ahora}
-              </span>
-            )}
-            {ultima &&
-              CONFETI.map((c) => (
-                <i key={c.izq} aria-hidden="true" style={{ left: c.izq, animationDelay: c.retraso }} className={`absolute top-4 h-3 w-2 animate-confeti rounded-[2px] border-[1.5px] border-teal-oscuro ${c.c}`} />
-              ))}
           </li>
         );
       })}

@@ -1,9 +1,11 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
 import { suscribirAEventos } from "@/lib/eventosVentana";
 import { textos } from "@/lib/textos";
+import { datosDeMiCuenta } from "../actions/cuenta";
+import type { DatosDeCuenta } from "../compradorDispositivo";
 
 const t = textos.vitrina.compra;
 
@@ -23,19 +25,37 @@ const leer = () => {
 };
 
 /** Los datos guardados de la compra anterior ("" si no hay). El servidor no los conoce: se llenan al abrir en el navegador. */
-export function useDatosGuardados(): { nombre: string; telefono: string; clave: string } {
+export function useDatosGuardados(): { nombre: string; telefono: string; correo: string; departamento: string; municipio: string; direccion: string; referencia: string; clave: string } {
   const crudo = useSyncExternalStore(suscribir, leer, () => "");
+  // Si entró con su cuenta, sus datos de la cuenta mandan sobre los del navegador
+  const [cuenta, setCuenta] = useState<DatosDeCuenta | null>(null);
+  useEffect(() => {
+    let vigente = true;
+    datosDeMiCuenta()
+      .then((d) => vigente && setCuenta(d))
+      .catch(() => {});
+    return () => {
+      vigente = false;
+    };
+  }, []);
+  let local = { nombre: "", telefono: "", correo: "" };
   try {
-    const d = crudo ? (JSON.parse(crudo) as { nombre?: string; telefono?: string }) : {};
-    return { nombre: d.nombre ?? "", telefono: d.telefono ?? "", clave: crudo };
+    const d = crudo ? (JSON.parse(crudo) as { nombre?: string; telefono?: string; correo?: string }) : {};
+    local = { nombre: d.nombre ?? "", telefono: d.telefono ?? "", correo: d.correo ?? "" };
   } catch {
-    return { nombre: "", telefono: "", clave: "" };
+    // Datos dañados: se piden de nuevo
   }
+  const nombre = cuenta?.nombre || local.nombre;
+  const telefono = cuenta?.telefono || local.telefono;
+  const correo = cuenta?.correo || local.correo;
+  // La dirección guardada solo viene de la cuenta: en el navegador sin sesión no se guarda
+  const entrega = { departamento: cuenta?.departamento ?? "", municipio: cuenta?.municipio ?? "", direccion: cuenta?.direccion ?? "", referencia: cuenta?.referencia ?? "" };
+  return { nombre, telefono, correo, ...entrega, clave: `${crudo}|${cuenta ? JSON.stringify(cuenta) : ""}` };
 }
 
-export function guardarDatos(nombre: string, telefono: string) {
+export function guardarDatos(nombre: string, telefono: string, correo = "") {
   try {
-    localStorage.setItem(CLAVE, JSON.stringify({ nombre, telefono }));
+    localStorage.setItem(CLAVE, JSON.stringify({ nombre, telefono, correo }));
   } catch {
     // Sin almacenamiento (modo privado, cuota llena) se piden de nuevo la próxima vez
   }
@@ -52,6 +72,17 @@ export function CampoWhatsApp({ defecto = "" }: { defecto?: string }) {
       ayuda={t.whatsappAyuda}
       variante="vitrina"
     />
+  );
+}
+
+/** El correo: ahí vive la cuenta de comprador. Con sesión viene el de la cuenta. */
+export function CampoCorreo({ defecto = "" }: { defecto?: string }) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="text-sm font-bold">{t.correo}</span>
+      <input name="correo" type="email" autoComplete="email" required maxLength={120} defaultValue={defecto} placeholder="ana@correo.com" className={campoCompra} />
+      <span className="text-xs text-texto-2">{t.correoAyuda}</span>
+    </label>
   );
 }
 

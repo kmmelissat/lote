@@ -27,6 +27,16 @@ function guardar(slug: string, lineas: LineaCarrito[]) {
   window.dispatchEvent(new Event(EVENTO));
 }
 
+/** Lo que hay ahora en el carrito de esta tienda (para mezclarlo con el del servidor). */
+export function leerCarrito(slug: string): LineaCarrito[] {
+  return lineasDe(crudo(slug));
+}
+
+/** Cambia el carrito completo de golpe (al traer el del servidor). */
+export function reemplazarCarrito(slug: string, lineas: LineaCarrito[]) {
+  guardar(slug, lineasDe(JSON.stringify(lineas)));
+}
+
 /** Suma unidades de un producto. `tope` es lo que hay disponible. Dice qué pasó para avisarle a la persona. */
 export function agregarAlCarrito(slug: string, codigo: number, cantidad: number, tope: number): "agregado" | "tope" | "lleno" {
   const lineas = lineasDe(crudo(slug));
@@ -61,4 +71,34 @@ export function useCarrito(slug: string): LineaCarrito[] {
     () => "",
   );
   return useMemo(() => lineasDe(texto), [texto]);
+}
+
+const PREFIJO = "lote_carrito_";
+const SUFIJO = "_v1";
+
+/** Cuántas unidades hay en los carritos de todas las tiendas, y la primera tienda que tiene algo (para llevar a su carrito). */
+function resumenDeCarritos(): string {
+  try {
+    let unidades = 0;
+    let slug = "";
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i) ?? "";
+      if (!k.startsWith(PREFIJO) || !k.endsWith(SUFIJO)) continue;
+      const n = lineasDe(localStorage.getItem(k) ?? "").reduce((s, l) => s + l.cantidad, 0);
+      if (n > 0 && !slug) slug = k.slice(PREFIJO.length, -SUFIJO.length);
+      unidades += n;
+    }
+    return `${unidades}|${slug}`;
+  } catch {
+    return "0|";
+  }
+}
+
+/** Para el encabezado del Marketplace: lo que hay en todos los carritos del navegador. */
+export function useCarritosTotal(): { unidades: number; slug: string | null } {
+  const texto = useSyncExternalStore(suscribir, resumenDeCarritos, () => "0|");
+  return useMemo(() => {
+    const [u, slug] = texto.split("|");
+    return { unidades: Number(u) || 0, slug: slug || null };
+  }, [texto]);
 }

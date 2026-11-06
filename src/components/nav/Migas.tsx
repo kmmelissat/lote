@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { RUBROS } from "@/features/catalog/rubros";
 import { textos } from "@/lib/textos";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
@@ -44,12 +45,15 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
   for (const parte of partes) {
     acumulado.push(parte);
     if (SALTAR.has(parte)) continue;
+    // /marketplace/categoria no es una página: la migas pasa directo al rubro, con su nombre
+    if (cabeza === "marketplace" && parte === "categoria") continue;
     // Sale de la dirección actual, así que la página existe: no hay nada que validar
     const href = `/${acumulado.join("/")}` as Route;
     if (href === casa.href) continue;
     // Balance es una sola pantalla: «Detalle» no agrega nada
     if (parte === "detalle" && acumulado.at(-2) === "balance") continue;
-    items.push({ href, etiqueta: etiquetaDe(parte) });
+    const rubro = cabeza === "marketplace" && acumulado.at(-2) === "categoria" ? RUBROS.find((r) => r.id === parte) : undefined;
+    items.push({ href, etiqueta: rubro?.nombre ?? etiquetaDe(parte) });
   }
   return { casa, items };
 }

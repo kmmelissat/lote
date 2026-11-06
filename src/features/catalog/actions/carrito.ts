@@ -1,6 +1,7 @@
 "use server";
 
-import { MAX_CANTIDAD, MAX_LINEAS } from "../carritoReglas";
+import { MAX_CANTIDAD, MAX_LINEAS, lineasDe } from "../carritoReglas";
+import { compradorActual, guardarCarritoDelComprador, leerCarritoGuardado } from "../compradorDispositivo";
 import { aProductoDelCarrito, type ProductoDelCarrito } from "../lineasCarrito";
 import { listarProductosPublicos } from "../repositorio";
 import { calcularPromocionesDeVitrina } from "@/features/promotions/repositorio";
@@ -23,4 +24,18 @@ export async function ahorroDelCarrito(slug: string, lineas: { codigo: number; c
     .slice(0, MAX_LINEAS);
   if (!validas.length) return [];
   return calcularPromocionesDeVitrina(createPublicClient(), slug, validas);
+}
+
+/** El carrito que el servidor guardó para este dispositivo. `reconocido` dice si el navegador ya tiene cuenta de comprador. */
+export async function traerCarritoGuardado(slug: string): Promise<{ reconocido: boolean; lineas: { codigo: number; cantidad: number }[] }> {
+  const comprador = await compradorActual();
+  if (!comprador) return { reconocido: false, lineas: [] };
+  return { reconocido: true, lineas: lineasDe(JSON.stringify(await leerCarritoGuardado(slug, comprador))) };
+}
+
+/** Guarda en el servidor el carrito de esta tienda. Sin cuenta de Google ni compra previa en este dispositivo no hace nada. */
+export async function guardarCarritoEnServidor(slug: string, lineas: { codigo: number; cantidad: number }[]): Promise<void> {
+  const comprador = await compradorActual();
+  if (!comprador) return;
+  await guardarCarritoDelComprador(slug, comprador, lineasDe(JSON.stringify(lineas)));
 }

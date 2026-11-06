@@ -12,7 +12,7 @@ import { textos } from "@/lib/textos";
 import { comprarCarrito, comprarProducto, type EstadoApartar } from "../actions/apartar";
 import type { OpcionesDeCompra } from "../repositorio";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
-import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados } from "./camposCompra";
+import { campoCompra, CampoCorreo, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados } from "./camposCompra";
 
 const t = textos.vitrina.compra;
 const ta = textos.vitrina.apartar;
@@ -105,6 +105,15 @@ export function CompraForm({
   const formulario = useRef<HTMLFormElement>(null);
   const v = estado.valores ?? {};
   const guardados = useDatosGuardados();
+  // La dirección de la cuenta llena el envío una sola vez, cuando llega; si la persona ya eligió algo, no se le pisa
+  const [entregaPrecargada, setEntregaPrecargada] = useState(false);
+  if (!entregaPrecargada && guardados.departamento && esDepartamento(guardados.departamento)) {
+    setEntregaPrecargada(true);
+    if (!departamento) {
+      setDepartamento(guardados.departamento);
+      setMunicipio(guardados.municipio);
+    }
+  }
 
   // Las formas de pago que sirven con la entrega elegida y con las que trabaja la tienda
   const metodosDisponibles = (["transferencia", "efectivo", "contra_entrega"] as const).filter(
@@ -145,7 +154,7 @@ export function CompraForm({
             // del botón al cambiar de paso no debe confirmar nada.
             if (paso < 2) return e.preventDefault();
             const f = new FormData(e.currentTarget);
-            guardarDatos(String(f.get("nombre") ?? ""), String(f.get("telefono") ?? ""));
+            guardarDatos(String(f.get("nombre") ?? ""), String(f.get("telefono") ?? ""), String(f.get("correo") ?? ""));
           }}
           className="relative flex flex-col gap-5"
         >
@@ -185,6 +194,7 @@ export function CompraForm({
                 <input name="nombre" autoComplete="name" required maxLength={80} defaultValue={v.nombre ?? guardados.nombre} placeholder="Ana Martínez" className={campoCompra} />
               </label>
               <CampoWhatsApp defecto={v.contacto || guardados.telefono} />
+              <CampoCorreo defecto={guardados.correo} />
             </div>
           </section>
 
@@ -261,7 +271,7 @@ export function CompraForm({
                 )}
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-bold">{t.direccion}</span>
-                  <input name="direccion" required maxLength={200} autoComplete="street-address" placeholder={t.direccionPlaceholder} className={campoCompra} />
+                  <input key={guardados.clave} name="direccion" required maxLength={200} defaultValue={guardados.direccion} autoComplete="street-address" placeholder={t.direccionPlaceholder} className={campoCompra} />
                 </label>
                 {/* El punto de referencia es opcional: no estorba hasta que se necesita */}
                 <details className="group">
@@ -271,7 +281,7 @@ export function CompraForm({
                   </summary>
                   <label className="mt-1 flex flex-col gap-1.5">
                     <span className="text-sm font-bold">{t.referencia}</span>
-                    <input name="referencia" maxLength={200} placeholder={t.referenciaPlaceholder} className={campoCompra} />
+                    <input key={guardados.clave} name="referencia" maxLength={200} defaultValue={guardados.referencia} placeholder={t.referenciaPlaceholder} className={campoCompra} />
                   </label>
                 </details>
               </div>

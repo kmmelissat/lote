@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
 import { LotitoMas, type PoseLotito } from "@/components/ui/LotitoMas";
 import { EscribirALaTienda } from "@/features/catalog/ui/EscribirALaTienda";
 import { HojaCuaderno } from "@/features/catalog/ui/HojaCuaderno";
@@ -27,12 +26,12 @@ export const metadata: Metadata = { title: t.titulo, robots: { index: false, fol
 
 /** El color del bocadillo y la pose de Lotito en cada etapa */
 const FONDO = {
-  pendiente: "bg-accion/25",
+  pendiente: "bg-teal-fondo",
   pagado: "bg-teal-fondo",
-  preparando: "bg-perla",
-  enviado: "bg-accion/25",
-  entregado: "bg-rosa-palido",
-  cancelado: "bg-rosa-palido",
+  preparando: "bg-teal-fondo",
+  enviado: "bg-teal-fondo",
+  entregado: "bg-teal-fondo",
+  cancelado: "bg-perla",
 } as const;
 const POSE: Record<string, PoseLotito> = {
   pendiente: "saluda",
@@ -42,8 +41,6 @@ const POSE: Record<string, PoseLotito> = {
   entregado: "thumbsup",
   cancelado: "saluda",
 };
-/** Cada producto es un sticker con su propio giro y color */
-const STICKERS = ["-rotate-1 bg-limon", "rotate-1 bg-celeste", "-rotate-2 bg-rosa-palido", "rotate-2 bg-perla"];
 
 export default function SeguimientoPage({ params }: PageProps<"/p/[pedido]">) {
   return <Seguimiento params={params} />;
@@ -73,10 +70,8 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
     <HojaCuaderno>
     <div className="flex flex-col gap-6">
       <header className="flex flex-col items-start gap-2">
-        <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-accion px-3 py-1 text-sm font-bold text-accion-texto shadow-dura-chica">{s.negocio}</span>
-        <h1 className="font-logo text-4xl font-semibold leading-none">
-          <span className="bg-[linear-gradient(transparent_78%,var(--color-rosa)_78%,var(--color-rosa)_100%)] pb-0.5">{t.tuPedido}</span>
-        </h1>
+        <span className="text-sm font-bold text-teal">{s.negocio}</span>
+        <h1 className="text-3xl font-bold leading-tight">{t.tuPedido}</h1>
         <p className="font-medium text-texto-2">
           {t.pedido(s.codigo)} · {formatearFecha(s.creadoEn)}
         </p>
@@ -86,11 +81,11 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
       <div className="flex min-w-0 flex-col gap-6">
       {/* Lotito cuenta cómo va, en un bocadillo del color de la etapa */}
-      <section aria-label={t.estado} className="flex items-end gap-3">
-        <LotitoMas nombre={POSE[s.estado]} className="w-24 shrink-0 animate-flotar sm:w-28" />
-        <div className={`relative mb-2 flex-1 rounded-[24px] rounded-bl-md border-2 border-teal-oscuro p-4 shadow-dura ${FONDO[s.estado]}`}>
-          <h2 className="font-logo text-2xl font-semibold leading-tight">{mensaje.titulo}</h2>
-          <p className="mt-1 font-medium">{mensaje.texto}</p>
+      <section aria-label={t.estado} className={`flex items-center gap-3 rounded-2xl p-4 sm:gap-4 ${FONDO[s.estado]}`}>
+        <LotitoMas nombre={POSE[s.estado]} className="w-16 shrink-0 sm:w-20" />
+        <div className="min-w-0 flex-1">
+          <h2 className="text-xl font-bold leading-tight">{mensaje.titulo}</h2>
+          <p className="mt-1">{mensaje.texto}</p>
         </div>
       </section>
 
@@ -108,17 +103,17 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
       {compra ? (
         <TicketPedido a={compra} />
       ) : (
-        <section aria-labelledby="tu-pedido" className="relative rounded-[28px] border-2 border-teal-oscuro bg-superficie p-5 shadow-dura-chica">
-          <h2 id="tu-pedido" className="mb-4 font-logo text-2xl font-semibold">
+        <section aria-labelledby="tu-pedido" className="rounded-2xl border border-teal-oscuro/20 bg-crema p-5">
+          <h2 id="tu-pedido" className="mb-4 text-lg font-bold">
             {t.productos}
           </h2>
           <ul className="flex flex-wrap gap-3">
-            {s.items.map((i, n) => (
+            {s.items.map((i) => (
               <li
                 key={i.nombre}
-                className={`inline-flex items-center gap-2 rounded-full border-2 border-teal-oscuro py-1.5 pl-1.5 pr-4 font-bold shadow-dura-chica ${STICKERS[n % STICKERS.length]}`}
+                className={`inline-flex items-center gap-2 rounded-full bg-teal-fondo py-1.5 pl-1.5 pr-4 text-sm font-bold`}
               >
-                <span className="flex size-8 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white font-logo text-sm">×{i.cantidad}</span>
+                <span className="flex size-7 items-center justify-center rounded-full bg-white text-xs">×{i.cantidad}</span>
                 {i.nombre}
               </li>
             ))}
@@ -138,9 +133,9 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
 
       {/* Ya lo recibió: es el momento de contar cómo le fue */}
       {entregado && s.items.some((i) => i.codigo !== undefined) && (
-        <section aria-labelledby="dejar-resena" className="flex flex-col gap-3 rounded-[28px] border-2 border-teal-oscuro bg-rosa-palido p-5 shadow-dura">
+        <section aria-labelledby="dejar-resena" className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro/20 bg-crema p-5">
           <div>
-            <h2 id="dejar-resena" className="font-logo text-2xl font-semibold">
+            <h2 id="dejar-resena" className="text-lg font-bold">
               {textos.resenas.cliente.titulo}
             </h2>
             <p className="text-sm text-texto-2">{textos.resenas.cliente.ayuda}</p>
@@ -152,15 +147,11 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
       </div>
       </div>
 
-      <section className="relative flex items-end justify-between gap-3 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-accion/25 p-5 shadow-dura">
-        <div className="flex min-w-0 flex-col items-start gap-3">
-          <p className="font-logo text-2xl font-semibold leading-tight">{t.masDelNegocio}</p>
-          <ButtonLink href={`/c/${s.slug}`} variante="mango" icono="tienda">
-            {t.verVitrina(s.negocio)}
-          </ButtonLink>
-        </div>
-        <LotitoMas nombre="asoma" className="-mb-5 w-24 shrink-0 animate-flotar" />
-        <Icon nombre="estrella" aria-hidden="true" className="absolute right-4 top-4 size-5 animate-flotar fill-white text-teal-oscuro" />
+      <section className="flex flex-col items-start gap-3 border-t border-teal-oscuro/15 pt-6">
+        <p className="text-lg font-bold leading-tight">{t.masDelNegocio}</p>
+        <ButtonLink href={`/c/${s.slug}`} variante="mango" icono="tienda">
+          {t.verVitrina(s.negocio)}
+        </ButtonLink>
       </section>
     </div>
     </HojaCuaderno>

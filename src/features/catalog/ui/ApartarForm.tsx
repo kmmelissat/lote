@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { textos } from "@/lib/textos";
 import { apartarProducto, type EstadoApartar } from "../actions/apartar";
-import { campoCompra, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados } from "./camposCompra";
+import { campoCompra, CampoCorreo, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados } from "./camposCompra";
 
 const t = textos.vitrina.apartar;
 const c = textos.vitrina.compra;
@@ -31,7 +31,7 @@ export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
       action={accion}
       onSubmit={(e) => {
         const f = new FormData(e.currentTarget);
-        guardarDatos(String(f.get("nombre") ?? ""), String(f.get("telefono") ?? ""));
+        guardarDatos(String(f.get("nombre") ?? ""), String(f.get("telefono") ?? ""), String(f.get("correo") ?? ""));
       }}
       className="relative flex flex-col gap-4"
     >
@@ -45,6 +45,7 @@ export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
           <input name="nombre" autoComplete="name" required maxLength={80} defaultValue={v.nombre ?? guardados.nombre} placeholder="Ana Martínez" className={campoCompra} />
         </label>
         <CampoWhatsApp defecto={v.contacto || guardados.telefono} />
+        <CampoCorreo defecto={guardados.correo} />
       </div>
       <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-teal-oscuro/20 bg-white p-3">
         <input type="checkbox" name="acepta" required checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-teal" />

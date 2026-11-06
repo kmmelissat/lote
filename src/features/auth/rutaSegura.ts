@@ -5,13 +5,15 @@
 export const COOKIE_DESTINO = "lote_destino";
 
 // Solo estos destinos. Una lista corta y explícita es más segura que intentar detectar direcciones malas.
-const PERMITIDOS = ["/invitacion/"];
+const PERMITIDOS = ["/invitacion/", "/c/", "/marketplace/"];
+
 
 /** La ruta si es un destino interno permitido; si no, null. */
 export function rutaSegura(ruta: string | null | undefined): string | null {
   if (!ruta || ruta.length > 200) return null;
   // Solo caracteres de una ruta normal: nada de barras invertidas, saltos de línea, dominios ni protocolos.
   if (!/^\/[A-Za-z0-9\-_/]*$/.test(ruta) || ruta.startsWith("//")) return null;
+  if (ruta === "/marketplace") return ruta;
   return PERMITIDOS.some((p) => ruta.startsWith(p) && ruta.length > p.length) ? ruta : null;
 }
 

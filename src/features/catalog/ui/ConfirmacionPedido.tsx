@@ -7,6 +7,8 @@ import { negocioPublico } from "../publico";
 import { obtenerApartadoPublico } from "../repositorio";
 import { EscribirALaTienda } from "./EscribirALaTienda";
 import { HojaCuaderno } from "./HojaCuaderno";
+import { GuardarCuenta } from "./GuardarCuenta";
+import { GuardarPedido } from "./GuardarPedido";
 import { LimpiarCarrito } from "./LimpiarCarrito";
 import { MarcaTienda } from "./MarcaTienda";
 import { TicketPedido } from "./TicketPedido";
@@ -83,28 +85,30 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
   return (
     <MarcaTienda color={tienda?.color ?? null}>
       {vieneDelCarrito && <LimpiarCarrito slug={slug} />}
-      <div className="mx-auto max-w-5xl pt-10">
+      <GuardarCuenta destino={`/c/${slug}`} />
+      <GuardarPedido id={id} slug={slug} tienda={a.negocio} codigo={a.codigo} total={a.total} resumen={a.items.map((i) => i.nombre).join(", ")} />
+      <div className="mx-auto max-w-5xl pt-4 sm:pt-10">
         <HojaCuaderno className="flex flex-col gap-6">
           {/* La cabecera es el título de la hoja, como en el seguimiento: la tienda, "Tu pedido #N" y los dos botones */}
           <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
             <div className="flex flex-col items-start gap-2">
-              <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-accion px-3 py-1 text-sm font-bold text-accion-texto shadow-dura-chica">{a.negocio}</span>
-              <h1 className="font-logo text-4xl font-semibold leading-none">
-                <span className="bg-[linear-gradient(transparent_78%,var(--color-rosa)_78%,var(--color-rosa)_100%)] pb-0.5">{t.tituloPedido}</span>{" "}
+              <span className="text-sm font-bold text-teal">{a.negocio}</span>
+              <h1 className="text-3xl font-bold leading-tight">
+                {t.tituloPedido}{" "}
                 <span className="text-teal">#{a.codigo}</span>
               </h1>
               {vigente && a.venceEn && !a.contraEntrega && (
-                <span role="status" className="inline-flex items-center gap-1.5 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold text-teal-oscuro">
+                <span role="status" className="inline-flex items-center gap-1.5 rounded-full bg-limon px-3 py-0.5 text-sm font-bold text-teal-oscuro">
                   <Icon nombre="reloj" className="size-4" />
                   {t.vence(tiempoRestante(a.venceEn, ahora))}
                 </span>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
               {a.estado !== "cancelado" && (
                 <Link
                   href={`/p/${id}`}
-                  className="inline-flex min-h-12 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-accion px-5 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-accion px-5 font-bold text-accion-texto hover:brightness-95"
                 >
                   <Icon nombre="camion" className="size-5" />
                   {t.verSeguimiento}
@@ -121,11 +125,11 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
           )}
 
           {/* Lotito cuenta cómo va, en un bocadillo del color de la tienda */}
-          <section aria-label={t.estadoPedido} className="flex items-end gap-3">
-            <LotitoMas nombre={POSE[a.estado] ?? "thumbsup"} className="w-24 shrink-0 motion-safe:animate-flotar sm:w-28 md:w-32" />
-            <div className="relative mb-2 flex-1 rounded-[24px] rounded-bl-md border-2 border-teal-oscuro bg-accion/25 p-4 shadow-dura">
-              <h2 className="font-logo text-2xl font-semibold leading-tight md:text-3xl">{bocadillo.titulo}</h2>
-              <p className="mt-1 font-medium">{bocadillo.texto}</p>
+          <section aria-label={t.estadoPedido} className="flex items-center gap-4 rounded-2xl bg-teal-fondo p-4">
+            <LotitoMas nombre={POSE[a.estado] ?? "thumbsup"} className="w-16 shrink-0 sm:w-20" />
+            <div className="min-w-0 flex-1">
+              <h2 className="text-xl font-bold leading-tight">{bocadillo.titulo}</h2>
+              <p className="mt-1">{bocadillo.texto}</p>
             </div>
           </section>
 
@@ -134,13 +138,13 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
             <TicketPedido a={a} conDireccion />
             {compra && pasos.length > 0 && (
               <section aria-labelledby="lo-que-sigue">
-                <h2 id="lo-que-sigue" className="mb-3 font-logo text-2xl font-semibold">
+                <h2 id="lo-que-sigue" className="mb-3 text-lg font-bold">
                   {t.pasosTitulo}
                 </h2>
                 <ol className="flex flex-col gap-3">
                   {pasos.map((p, n) => (
                     <li key={p.texto} className="flex items-start gap-3">
-                      <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full border-2 border-teal-oscuro bg-accion text-sm font-bold text-accion-texto">
+                      <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-accion text-sm font-bold text-accion-texto">
                         {n + 1}
                       </span>
                       <div className="min-w-0 flex-1 pt-0.5">
@@ -154,8 +158,8 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
             )}
             {/* Un apartado sin envío ni retiro: los datos para pagar, como antes */}
             {!compra && abierto && (
-              <section aria-labelledby="datos-pago" className="rounded-2xl border-2 border-teal-oscuro bg-white p-4">
-                <h2 id="datos-pago" className="font-logo text-2xl font-semibold">
+              <section aria-labelledby="datos-pago" className="rounded-2xl border border-teal-oscuro/20 bg-white p-4">
+                <h2 id="datos-pago" className="text-lg font-bold">
                   {t.datosPago}
                 </h2>
                 {metodosAMostrar.length ? lista : <p className="mt-2 text-texto-2">{t.sinDatos}</p>}
@@ -167,7 +171,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 pt-2">
             <Link
               href={`/c/${slug}`}
-              className="inline-flex h-12 items-center rounded-full border-2 border-teal-oscuro bg-white px-6 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+              className="inline-flex h-12 items-center rounded-full border border-teal-oscuro/30 bg-white px-6 font-bold hover:bg-teal-fondo"
             >
               ← {textos.vitrina.verTodos}
             </Link>

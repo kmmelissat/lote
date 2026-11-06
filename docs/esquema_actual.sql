@@ -3,10 +3,10 @@
 -- No incluye grant/revoke, datos (insert/update/delete) ni bloques do. Las columnas con sus tipos también están en
 -- src/lib/supabase/database.types.ts.
 --
--- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones.
+-- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, compradores, carritos, comprador_usuario, comprador_correo, comprador_perfil.
 
 -- ====================================================================================================
--- TABLAS (40)
+-- TABLAS (43)
 -- ====================================================================================================
 
 -- tabla abono_pasivo
@@ -116,6 +116,19 @@ create table if not exists public.aviso_stock (
 -- ficha_producto.sql
 alter table public.aviso_stock enable row level security;
 
+-- tabla carrito_item
+-- carritos.sql
+create table if not exists public.carrito_item (
+  comprador_id uuid not null references public.comprador(id) on delete cascade,
+  negocio_id uuid not null references public.negocio(id) on delete cascade,
+  codigo int not null check (codigo > 0),
+  cantidad int not null check (cantidad between 1 and 20),
+  actualizado_en timestamptz not null default now(),
+  primary key (comprador_id, negocio_id, codigo)
+);
+-- carritos.sql
+alter table public.carrito_item enable row level security;
+
 -- tabla categoria_lote
 -- catalogo_fijo.sql
 create table if not exists public.categoria_lote (
@@ -191,6 +204,50 @@ alter table public.compra_mercaderia add constraint compra_mercaderia_lugar_chec
 alter table public.compra_mercaderia drop constraint if exists compra_tarjeta_o_lugar;
 -- tarjetas.sql
 alter table public.compra_mercaderia add constraint compra_tarjeta_o_lugar check ((tarjeta_id is null) = (lugar is not null));
+
+-- tabla comprador
+-- compradores.sql
+create table if not exists public.comprador (
+  id uuid primary key default gen_random_uuid(),
+  telefono text not null unique check (telefono ~ '^[0-9]{8,15}$'),
+  nombre text check (nombre is null or char_length(nombre) between 1 and 80),
+  verificado_en timestamptz,   -- paso 3: se llena al confirmar el teléfono
+  creado_en timestamptz not null default now()
+);
+-- compradores.sql
+alter table public.comprador enable row level security;
+-- comprador_usuario.sql
+alter table public.comprador alter column telefono drop not null;
+-- comprador_usuario.sql
+alter table public.comprador
+  add column if not exists usuario_id uuid unique references auth.users(id) on delete set null;
+-- comprador_correo.sql
+alter table public.comprador add column if not exists correo text;
+-- comprador_correo.sql
+alter table public.comprador drop constraint if exists comprador_correo_check;
+-- comprador_correo.sql
+alter table public.comprador add constraint comprador_correo_check
+  check (correo is null or (correo = lower(correo) and char_length(correo) between 5 and 120));
+-- comprador_correo.sql
+alter table public.comprador drop constraint if exists comprador_telefono_key;
+-- comprador_perfil.sql
+alter table public.comprador
+  add column if not exists departamento text check (departamento is null or char_length(departamento) <= 40),
+  add column if not exists municipio text check (municipio is null or char_length(municipio) <= 60),
+  add column if not exists direccion text check (direccion is null or char_length(direccion) <= 200),
+  add column if not exists referencia text check (referencia is null or char_length(referencia) <= 200);
+
+-- tabla comprador_dispositivo
+-- carritos.sql
+create table if not exists public.comprador_dispositivo (
+  id uuid primary key default gen_random_uuid(),
+  comprador_id uuid not null references public.comprador(id) on delete cascade,
+  token_hash text not null unique check (char_length(token_hash) = 64),
+  creado_en timestamptz not null default now(),
+  visto_en timestamptz not null default now()
+);
+-- carritos.sql
+alter table public.comprador_dispositivo enable row level security;
 
 -- tabla costo_producto
 -- productos.sql
@@ -664,6 +721,9 @@ alter table public.pedido drop constraint if exists pedido_metodo_preferido_chec
 -- sin_billetera.sql
 alter table public.pedido add constraint pedido_metodo_preferido_check
   check (metodo_preferido is null or metodo_preferido in ('transferencia', 'efectivo', 'contra_entrega'));
+-- compradores.sql
+alter table public.pedido
+  add column if not exists comprador_id uuid references public.comprador(id) on delete set null;
 
 -- tabla pedido_item
 -- pedidos.sql
@@ -846,7 +906,7 @@ alter table public.ubicacion enable row level security;
 
 
 -- ====================================================================================================
--- FUNCIONES (117)
+-- FUNCIONES (122)
 -- ====================================================================================================
 
 -- función abonar_pasivo(uuid, numeric, text, text, uuid)
@@ -1586,6 +1646,26 @@ begin
     where id = v_oferta.producto_id and precio = v_oferta.precio_oferta;
   end if;
   update public.oferta set estado = p_estado where id = p_oferta;
+end;
+$$;
+
+-- función comprador_de_usuario(uuid)
+-- comprador_usuario.sql
+create or replace function public.comprador_de_usuario(p_usuario uuid)
+returns uuid
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_id uuid;
+begin
+  select id into v_id from public.comprador where usuario_id = p_usuario;
+  if v_id is null then
+    insert into public.comprador (usuario_id) values (p_usuario)
+    on conflict (usuario_id) do nothing;
+    select id into v_id from public.comprador where usuario_id = p_usuario;
+  end if;
+  return v_id;
 end;
 $$;
 
@@ -3187,6 +3267,33 @@ begin
 end;
 $$;
 
+-- función guardar_carrito(uuid, uuid, jsonb)
+-- carritos.sql
+create or replace function public.guardar_carrito(
+  p_comprador uuid,
+  p_negocio uuid,
+  p_items jsonb
+)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+begin
+  if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) > 10 then
+    raise exception 'datos_invalidos' using errcode = '22023';
+  end if;
+
+  delete from public.carrito_item where comprador_id = p_comprador and negocio_id = p_negocio;
+
+  insert into public.carrito_item (comprador_id, negocio_id, codigo, cantidad)
+  select p_comprador, p_negocio, (i->>'codigo')::int, least((i->>'cantidad')::int, 20)
+  from jsonb_array_elements(p_items) i
+  where (i->>'codigo')::int > 0 and (i->>'cantidad')::int >= 1
+  on conflict (comprador_id, negocio_id, codigo) do update
+    set cantidad = excluded.cantidad, actualizado_en = now();
+end;
+$$;
+
 -- función guardar_contacto_de_pedido(uuid, text, text, text, boolean)
 -- cliente_contactos.sql
 create or replace function public.guardar_contacto_de_pedido(
@@ -3946,6 +4053,37 @@ begin
 end;
 $$;
 
+-- función reclamar_comprador_por_correo(uuid, text)
+-- comprador_correo.sql
+create or replace function public.reclamar_comprador_por_correo(p_usuario uuid, p_correo text)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_correo text := lower(nullif(trim(p_correo), ''));
+  v_pendiente uuid;
+begin
+  if v_correo is null then
+    return;
+  end if;
+
+  select id into v_pendiente from public.comprador where correo = v_correo and usuario_id is null;
+  if v_pendiente is null then
+    return;
+  end if;
+
+  -- Si la cuenta ya tenía comprador, se juntan (pedidos, carritos, dispositivos); si no, la cuenta lo adopta
+  -- El correo se libera antes para que el índice único no choque al juntar
+  update public.comprador set correo = null where id = v_pendiente and exists (select 1 from public.comprador where usuario_id = p_usuario);
+  perform public.vincular_comprador(v_pendiente, p_usuario);
+
+  update public.comprador
+  set verificado_en = coalesce(verificado_en, now()), correo = coalesce(correo, v_correo)
+  where usuario_id = p_usuario;
+end;
+$$;
+
 -- función registrar_ajuste_cuenta(uuid, text, numeric, text)
 -- cuentas.sql
 create or replace function public.registrar_ajuste_cuenta(p_cuenta uuid, p_tipo text, p_monto numeric, p_nota text default null)
@@ -4049,6 +4187,51 @@ begin
   values (p_negocio, p_monto, p_lugar, p_cuenta, p_tarjeta, nullif(trim(p_nota), ''), auth.uid())
   returning id into v_id;
   return v_id;
+end;
+$$;
+
+-- función registrar_comprador_de_pedido(uuid, text, uuid)
+-- comprador_correo.sql
+create or replace function public.registrar_comprador_de_pedido(p_pedido uuid, p_correo text, p_usuario uuid)
+returns uuid
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_correo text := lower(nullif(trim(p_correo), ''));
+  v_tel text;
+  v_nombre text;
+  v_comprador uuid;
+begin
+  select nullif(regexp_replace(coalesce(c.contacto, ''), '[^0-9]', '', 'g'), ''), c.nombre
+    into v_tel, v_nombre
+  from public.pedido p
+  join public.cliente c on c.id = p.cliente_id
+  where p.id = p_pedido and p.origen = 'vitrina';
+  if not found then
+    return null;
+  end if;
+  if v_tel !~ '^[0-9]{8,15}$' then
+    v_tel := null;
+  end if;
+
+  if p_usuario is not null then
+    v_comprador := public.comprador_de_usuario(p_usuario);
+  elsif v_correo is not null and v_correo ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    insert into public.comprador (correo) values (v_correo)
+    on conflict (correo) where correo is not null do nothing;
+    select id into v_comprador from public.comprador where correo = v_correo;
+  else
+    return null;
+  end if;
+
+  update public.comprador
+  set telefono = coalesce(telefono, v_tel), nombre = coalesce(nombre, v_nombre),
+      correo = coalesce(correo, case when p_usuario is not null then v_correo end)
+  where id = v_comprador;
+
+  update public.pedido set comprador_id = v_comprador where id = p_pedido;
+  return v_comprador;
 end;
 $$;
 
@@ -4897,6 +5080,56 @@ begin
 end;
 $$;
 
+-- función vincular_comprador(uuid, uuid)
+-- comprador_usuario.sql
+create or replace function public.vincular_comprador(p_comprador uuid, p_usuario uuid)
+returns text
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_dispositivo public.comprador%rowtype;
+  v_cuenta uuid;
+  v_tel text;
+  v_nombre text;
+begin
+  select * into v_dispositivo from public.comprador where id = p_comprador for update;
+  if v_dispositivo.id is null then
+    return 'ok';
+  end if;
+  if v_dispositivo.usuario_id = p_usuario then
+    return 'ok';
+  end if;
+  if v_dispositivo.usuario_id is not null then
+    return 'ya_vinculado';
+  end if;
+
+  select id into v_cuenta from public.comprador where usuario_id = p_usuario for update;
+
+  if v_cuenta is null then
+    update public.comprador set usuario_id = p_usuario where id = v_dispositivo.id;
+    return 'ok';
+  end if;
+
+  update public.pedido set comprador_id = v_cuenta where comprador_id = v_dispositivo.id;
+  update public.comprador_dispositivo set comprador_id = v_cuenta where comprador_id = v_dispositivo.id;
+
+  insert into public.carrito_item (comprador_id, negocio_id, codigo, cantidad)
+  select v_cuenta, negocio_id, codigo, cantidad from public.carrito_item where comprador_id = v_dispositivo.id
+  on conflict (comprador_id, negocio_id, codigo) do update
+    set cantidad = greatest(public.carrito_item.cantidad, excluded.cantidad), actualizado_en = now();
+
+  -- El teléfono y el nombre se pasan a la cuenta si no los tenía (primero se libera el teléfono único)
+  v_tel := v_dispositivo.telefono;
+  v_nombre := v_dispositivo.nombre;
+  delete from public.comprador where id = v_dispositivo.id;
+  update public.comprador
+  set telefono = coalesce(telefono, v_tel), nombre = coalesce(nombre, v_nombre)
+  where id = v_cuenta;
+  return 'ok';
+end;
+$$;
+
 -- función vitrina_apartado(text, uuid)
 -- compra_vitrina.sql
 create function public.vitrina_apartado(p_slug text, p_pedido uuid)
@@ -5519,7 +5752,7 @@ create trigger avisar_apartado_vitrina
 
 
 -- ====================================================================================================
--- ÍNDICES (50)
+-- ÍNDICES (54)
 -- ====================================================================================================
 
 -- índice abono_pasivo_idx (tabla abono_pasivo)
@@ -5571,6 +5804,19 @@ create unique index if not exists cliente_identidad_idx
 -- índice compra_mercaderia_idx (tabla compra_mercaderia)
 -- compras.sql
 create index if not exists compra_mercaderia_idx on public.compra_mercaderia (negocio_id, creado_en desc);
+
+-- índice comprador_correo_idx (tabla comprador)
+-- comprador_correo.sql
+create unique index if not exists comprador_correo_idx on public.comprador (correo) where correo is not null;
+
+-- índice comprador_dispositivo_comprador_idx (tabla comprador_dispositivo)
+-- carritos.sql
+create index if not exists comprador_dispositivo_comprador_idx
+  on public.comprador_dispositivo (comprador_id);
+
+-- índice comprador_telefono_idx (tabla comprador)
+-- comprador_correo.sql
+create index if not exists comprador_telefono_idx on public.comprador (telefono) where telefono is not null;
 
 -- índice costo_producto_producto_idx (tabla costo_producto)
 -- productos.sql
@@ -5659,6 +5905,11 @@ create index if not exists pasivo_negocio_idx on public.pasivo (negocio_id, crea
 -- índice pedido_cliente_idx (tabla pedido)
 -- rendimiento.sql
 create index if not exists pedido_cliente_idx on public.pedido (cliente_id);
+
+-- índice pedido_comprador_idx (tabla pedido)
+-- compradores.sql
+create index if not exists pedido_comprador_idx on public.pedido (comprador_id)
+  where comprador_id is not null;
 
 -- índice pedido_item_pedido_idx (tabla pedido_item)
 -- pedidos.sql

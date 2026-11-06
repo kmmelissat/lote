@@ -114,21 +114,35 @@ async function Producto({
   const url = `${urlSitio}/c/${slug}/${codigoCanonico(p, todos)}`;
 
   return (
-    <MarcaTienda color={negocio.color}>
+    <MarcaTienda color={negocio.color} ancha>
       <JsonLdProducto producto={p} nombre={base} familia={f.familia} url={url} tienda={{ nombre: negocio.nombre, slug }} resenas={resenas} />
       <div className="flex flex-col gap-8">
         <VolverATienda slug={slug} nombre={negocio.nombre} logo={negocio.logo} />
 
         <ProveedorFotos>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <div className="flex flex-col gap-5 md:sticky md:top-4 md:self-start">
+          {/* Escritorio: galería | información | caja de compra fija a la derecha. Tableta: dos columnas. Móvil: una. */}
+          <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_20rem]">
+            <div className="flex flex-col gap-5 md:col-start-1 md:row-span-3 md:row-start-1 md:sticky md:top-4 md:self-start lg:row-span-2">
               <GaleriaVitrina fotos={f.galeria.fotos} de={f.galeria.de} nombre={base} sello={f.sello} />
             </div>
 
-            <div className="flex min-w-0 flex-col gap-5">
+            <div className="flex min-w-0 flex-col gap-3 md:col-start-2 md:row-start-1">
               <div className="flex flex-col gap-2">
                 {f.meta && <p className="text-sm text-texto-2">{f.meta}</p>}
-                <h1 className="font-logo text-4xl font-semibold leading-[1.08] md:text-[2.3rem]">{base}</h1>
+                <h1 className="font-logo text-2xl font-semibold leading-tight md:text-[1.9rem]">{base}</h1>
+                {resenas.total > 0 && (
+                  <a
+                    href="#resenas"
+                    aria-label={t.tarjeta.calificacion(resenas.promedio, resenas.total)}
+                    className="flex items-center gap-1.5 text-sm font-bold hover:underline"
+                  >
+                    <span aria-hidden="true" className="text-ambar">
+                      ★★★★★
+                    </span>
+                    {resenas.promedio.toFixed(1)}
+                    <span className="font-medium text-texto-2">({resenas.total})</span>
+                  </a>
+                )}
                 <Etiquetas
                   disponibles={f.disponibles}
                   umbral={negocio.umbralPocoStock}
@@ -137,6 +151,11 @@ async function Producto({
                 />
               </div>
 
+              {/* Las ofertas se ven antes de decidir, pegadas al precio */}
+              <PromocionesDelProducto anuncios={anuncios} compacto />
+            </div>
+
+            <div className="flex min-w-0 flex-col gap-4 md:col-start-2 md:row-start-2 lg:col-start-3 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-4 lg:self-start">
               <div className="rounded-[22px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura-chica md:p-5">
               <ZonaDeCompra
                 slug={slug}
@@ -149,14 +168,10 @@ async function Producto({
               />
               </div>
 
-              <LineaConfianza
-                estrellas={resenas.total > 0 ? { promedio: resenas.promedio, total: resenas.total } : null}
-                opciones={opcionesDeCompra}
-                tiempo={negocio.tiempoEntrega}
-              />
+              <LineaConfianza estrellas={null} opciones={opcionesDeCompra} tiempo={negocio.tiempoEntrega} />
+            </div>
 
-              <PromocionesDelProducto anuncios={anuncios} compacto />
-
+            <div className="flex min-w-0 flex-col gap-5 md:col-start-2 md:row-start-3 lg:row-start-2">
               <div className="flex flex-col">
                 {p.descripcion && (
                   <Plegable titulo={textos.vitrina.ficha.descripcion} abierto>

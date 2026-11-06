@@ -1,5 +1,6 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { reclamarCuentaPorCorreo } from "@/features/catalog/compradorDispositivo";
 import { COOKIE_DESTINO, destinoDeCookie } from "@/features/auth/rutaSegura";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,6 +26,10 @@ export async function GET(request: NextRequest) {
   if (!error) {
     // Si la persona venía a aceptar una invitación, vuelve ahí; si no, a Inicio.
     const destino = destinoDeCookie(request.cookies.get(COOKIE_DESTINO)?.value) ?? "/inicio";
+    // Si había un pedido sin cuenta con este correo, la cuenta lo reclama y queda verificada
+    const { data } = await supabase.auth.getClaims();
+    const usuario = data?.claims?.sub as string | undefined;
+    if (usuario) await reclamarCuentaPorCorreo(usuario, data?.claims?.email as string | undefined);
     const respuesta = NextResponse.redirect(`${origin}${destino}`);
     respuesta.cookies.delete(COOKIE_DESTINO);
     return respuesta;

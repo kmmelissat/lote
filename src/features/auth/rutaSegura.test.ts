@@ -8,6 +8,13 @@ describe("rutaSegura", () => {
     expect(rutaSegura(`/invitacion/${TOKEN}`)).toBe(`/invitacion/${TOKEN}`);
   });
 
+  it("acepta volver a una vitrina o al Marketplace", () => {
+    expect(rutaSegura("/c/mi-tienda")).toBe("/c/mi-tienda");
+    expect(rutaSegura("/marketplace/pedidos")).toBe("/marketplace/pedidos");
+    expect(rutaSegura("/marketplace")).toBe("/marketplace");
+    expect(rutaSegura("/marketplaceX")).toBeNull();
+  });
+
   it("rechaza lo que no es un destino permitido", () => {
     expect(rutaSegura("/inicio")).toBeNull();
     expect(rutaSegura("/ajustes/equipo")).toBeNull();
