@@ -5,8 +5,16 @@ import { textos } from "@/lib/textos";
 import { estiloDeMarca } from "../marca";
 
 /** Repinta lo que es teal con el color de la tienda, solo dentro de este contenedor. */
-export function MarcaTienda({ color, children }: { color: string | null; children: ReactNode }) {
-  return <div style={estiloDeMarca(color)}>{children}</div>;
+export function MarcaTienda({ color, children, ancha = false }: { color: string | null; children: ReactNode; ancha?: boolean }) {
+  // ancha: se sale del ancho del layout (max-w-5xl) hasta 80rem, para que la vitrina no deje tanto espacio a los lados
+  return (
+    <div
+      style={estiloDeMarca(color)}
+      className={ancha ? "relative left-1/2 w-[min(calc(100vw-2rem),80rem)] -translate-x-1/2" : undefined}
+    >
+      {children}
+    </div>
+  );
 }
 
 /** El logo de la tienda, o la inicial del nombre sobre el color de marca si no subió uno. */

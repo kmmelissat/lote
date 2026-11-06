@@ -13,7 +13,6 @@ import {
 } from "../explorar";
 import { categoriaPorTexto, esRubro, rubroDeCategoria } from "../rubros";
 import { ejemplosDeBusqueda, rubroDeProducto } from "../portada";
-import { AIRE, MESA } from "../mercadito";
 import { colorDeMarca } from "../marca";
 import { HeroMercadito } from "./HeroMercadito";
 import { SeccionCalle } from "./CalleTiendas";
@@ -248,8 +247,6 @@ export async function PaginaExplorar({
       />
 
       <HeroMercadito
-        productos={MESA}
-        aire={AIRE}
         tiendas={tiendas.length}
         totalProductos={rubro ? rubro.productos : totalProductos}
         ejemplos={ejemplos}
@@ -340,7 +337,7 @@ export async function PaginaExplorar({
               </div>
             )}
             {!filtrando && (
-              <h2 className="-mb-1 text-xl font-bold">{t.todosTitulo}</h2>
+              <h2 className="-mb-1 font-logo text-xl font-bold">{t.todosTitulo}</h2>
             )}
           </>
         )}
@@ -355,7 +352,7 @@ export async function PaginaExplorar({
           {vista === "productos" && (
             <aside
               aria-label={t.filtros}
-              className="sticky top-4 hidden rounded-[24px] border-2 border-teal-oscuro bg-crema p-4 lg:block"
+              className="sticky top-4 hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura-chica lg:block"
             >
               {panel}
             </aside>

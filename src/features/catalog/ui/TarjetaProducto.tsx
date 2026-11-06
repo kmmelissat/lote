@@ -18,13 +18,21 @@ export type MarcaDeTienda = { color: string; logo: string | null };
 /** La tarjeta de un producto del Marketplace: foto, precio y de qué tienda es (con su color). */
 export function TarjetaProducto({ p, marca, eager = false }: { p: ProductoExplorar; marca: MarcaDeTienda; eager?: boolean }) {
   const descuento = p.precioAnterior ? Math.round((1 - p.precioMinimo / p.precioAnterior) * 100) : 0;
+  const sticker =
+    descuento > 0
+      ? { texto: t.descuento(descuento), fondo: "bg-mango font-logo text-sm" }
+      : p.destacado
+        ? { texto: t.destacado, fondo: "bg-limon" }
+        : p.disponibles <= POCAS_UNIDADES
+          ? { texto: t.ultimas(p.disponibles), fondo: "bg-rosa" }
+          : null;
   return (
     <Link
       href={`/c/${p.tiendaSlug}/${p.codigo}`}
       style={{ "--tienda": marca.color } as CSSProperties}
-      className="group flex h-full flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-white p-2 pb-3 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura"
+      className="group flex h-full flex-col gap-2 rounded-[22px] border-2 border-teal-oscuro bg-white p-1.5 pb-3 shadow-dura-chica transition-[transform,box-shadow] duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-1 hover:shadow-dura"
     >
-      <div className="relative aspect-square overflow-hidden rounded-[18px] bg-[color-mix(in_srgb,var(--tienda)_12%,white)]">
+      <div className="relative aspect-square overflow-hidden rounded-[17px] bg-[color-mix(in_srgb,var(--tienda)_12%,white)]">
         {p.foto ? (
           <Image
             src={urlFoto(p.foto)}
@@ -44,29 +52,18 @@ export function TarjetaProducto({ p, marca, eager = false }: { p: ProductoExplor
             {p.categoria}
           </span>
         )}
-        {descuento > 0 ? (
-          <span className="absolute right-2 top-2 rotate-3 rounded-full border-2 border-teal-oscuro bg-mango px-2.5 py-0.5 text-xs font-extrabold">
-            {t.descuento(descuento)}
-          </span>
-        ) : (
-          p.destacado && (
-            <span className="absolute right-2 top-2 rotate-3 rounded-full border-2 border-teal-oscuro bg-limon px-2.5 py-0.5 text-xs font-extrabold">
-              {t.destacado}
-            </span>
-          )
-        )}
-        {/* Con mucho stock es ruido: solo se avisa cuando quedan pocas */}
-        {p.disponibles <= POCAS_UNIDADES && (
-          <span className="absolute bottom-2 left-2 -rotate-2 rounded-full border-2 border-teal-oscuro bg-rosa px-2.5 py-0.5 text-xs font-bold">
-            {t.ultimas(p.disponibles)}
+        {/* Un solo sticker por tarjeta: oferta, destacado o pocas unidades */}
+        {sticker && (
+          <span className={`absolute left-2 top-2 -rotate-[4deg] rounded-full border-2 border-teal-oscuro px-2.5 py-0.5 text-xs font-extrabold text-teal-oscuro motion-safe:group-hover:animate-meneo ${sticker.fondo}`}>
+            {sticker.texto}
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 px-2">
-        <p className="line-clamp-2 font-bold leading-tight">{p.nombre}</p>
+      <div className="flex flex-1 flex-col gap-1.5 px-2.5 pt-1">
+        <p className="line-clamp-2 min-h-[2.5em] text-sm font-bold leading-tight">{p.nombre}</p>
         <p className="flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
           {p.precioMinimo !== p.precioMaximo && <span className="text-xs font-bold text-texto-2">{t.desdeEtiqueta}</span>}
-          <span className="text-2xl font-extrabold leading-none tracking-tight">{formatearDolares(p.precioMinimo)}</span>
+          <span className="font-logo text-2xl font-bold leading-none">{formatearDolares(p.precioMinimo)}</span>
           {descuento > 0 && p.precioAnterior && (
             <span className="text-sm text-texto-2 line-through">
               <span className="sr-only">{t.antes} </span>

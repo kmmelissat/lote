@@ -15,10 +15,11 @@ const inicial = (nombre: string) => (nombre.trim()[0] ?? "?").toUpperCase();
 
 /** Quién te debe, la más antigua primero, con el botón que abre WhatsApp con el mensaje armado. */
 export function TeDeben({ deudas }: { deudas: DeudaDeClienta[] }) {
+  if (deudas.length === 0) return null;
   const total = deudas.reduce((s, d) => s + d.saldo, 0);
   return (
     <section aria-labelledby="te-deben" className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie">
-      <div className="flex items-baseline justify-between gap-3 border-b-2 border-teal-oscuro bg-limon px-4 py-3 md:px-5">
+      <div className="flex items-baseline justify-between gap-3 border-b-2 border-teal-oscuro px-4 py-3 md:px-5">
         <h2 id="te-deben" className="font-logo text-lg font-bold">
           {t.cobrarTitulo}
         </h2>
@@ -30,7 +31,7 @@ export function TeDeben({ deudas }: { deudas: DeudaDeClienta[] }) {
         <ul>
           {deudas.map((d) => (
             <li key={d.id} className="flex items-center gap-3 border-t border-borde px-4 py-3 first:border-t-0 md:px-5">
-              <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon font-logo text-lg font-bold">
+              <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-fondo font-logo text-lg font-bold">
                 {inicial(d.nombre)}
               </span>
               <div className="min-w-0 flex-1">

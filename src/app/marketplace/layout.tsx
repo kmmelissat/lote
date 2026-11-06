@@ -8,7 +8,7 @@ import { textos } from "@/lib/textos";
 export default function ExplorarLayout({ children }: LayoutProps<"/marketplace">) {
   return (
     <div className="flex min-h-dvh flex-col bg-crema">
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-5 md:px-6">
+      <div className="flex w-full flex-1 flex-col px-4 py-5 md:px-8 xl:px-12">
         <header className="mb-4 flex items-center justify-between gap-3">
           <Link href="/" aria-label={textos.nombre}>
             <Logo />

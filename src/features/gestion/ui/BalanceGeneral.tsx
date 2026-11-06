@@ -187,7 +187,7 @@ export function BalanceGeneral({
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-rosa-palido p-4 md:p-5">
+        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5">
           <div>
             <h3 className="font-logo text-lg font-bold">{t.pasivosTitulo}</h3>
             <p className="text-sm text-texto-2">{t.pasivosAyuda}</p>

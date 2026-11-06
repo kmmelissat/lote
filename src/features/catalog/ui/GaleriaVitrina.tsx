@@ -38,7 +38,7 @@ export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: strin
         type="button"
         onClick={() => ampliada.current?.showModal()}
         aria-label={textos.vitrina.compra.ampliar}
-        className="relative aspect-square cursor-zoom-in overflow-hidden rounded-[26px] bg-teal-fondo"
+        className="relative aspect-square cursor-zoom-in overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-teal-fondo"
       >
         <Image
           src={urlFoto(foto)}

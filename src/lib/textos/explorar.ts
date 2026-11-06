@@ -3,6 +3,7 @@ export const explorar = {
   tituloPagina: "Marketplace de emprendedores de El Salvador · Lote",
   mercadito: {
     frases: ["un regalo para mamá…", "algo dulce…", "una blusa de lino…", "un case para mi iPhone…", "una plantita para la sala…"],
+    beneficios: ["Comprale directo a emprendedores de acá", "Pagás por transferencia, efectivo o contra entrega", "Tiendas verificadas", "Hay de todo, andá mirando", "Apartá lo que te guste"],
     probaCon: (frase: string) => `Probá con ${frase}`,
     pregunta: "¿Qué andás buscando?",
     dale: "¡Dale, decime!",

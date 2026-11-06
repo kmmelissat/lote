@@ -49,15 +49,15 @@ const ESTILO: Record<RubroId, { Icono: LucideIcon; fondo: string }> = {
 // En escritorio se ven estas y el resto va en "Más"; en el celular se desliza la fila entera
 const VISIBLES = 6;
 
-const tarjeta = (activa: boolean, fondo: string) =>
+const tarjeta = (activa: boolean) =>
   `group flex h-12 shrink-0 snap-start items-center gap-2 rounded-2xl border-2 border-teal-oscuro py-1.5 pl-1.5 pr-3.5 transition-[transform,box-shadow] duration-150 md:h-14 md:gap-2.5 md:rounded-[18px] md:py-2 md:pl-2 md:pr-4 lg:w-full ${
-    activa ? "bg-teal-oscuro text-white shadow-dura-chica" : `${fondo} hover:-translate-y-0.5 hover:shadow-dura-chica`
+    activa ? "bg-teal-oscuro text-white shadow-dura-chica" : `bg-white hover:-translate-y-0.5 hover:shadow-dura-chica`
   }`;
 
-function Contenido({ Icono, nombre }: { Icono: LucideIcon; nombre: string }) {
+function Contenido({ Icono, nombre, fondo = "bg-white", activa = false }: { Icono: LucideIcon; nombre: string; fondo?: string; activa?: boolean }) {
   return (
     <>
-      <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro md:size-9">
+      <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${activa ? "bg-white" : fondo} text-teal-oscuro md:size-9`}>
         <Icono className="size-4 md:size-5" strokeWidth={2.2} />
       </span>
       <span className="whitespace-nowrap text-[13px] font-bold leading-tight md:text-sm lg:whitespace-normal">{nombre}</span>
@@ -76,21 +76,21 @@ export function TarjetasRubro({ rubros, activo, enlace }: { rubros: Rubro[]; act
     <nav aria-label={t.categorias}>
       <ul className="-mx-4 flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:none] md:mx-0 md:scroll-px-0 md:gap-3 md:px-0 lg:overflow-visible">
         <li className="shrink-0 lg:min-w-0 lg:flex-1">
-          <Link {...enlace("")} aria-current={!activo ? "page" : undefined} className={tarjeta(!activo, "bg-white")}>
-            <Contenido Icono={LayoutGrid} nombre={t.todo} />
+          <Link {...enlace("")} aria-current={!activo ? "page" : undefined} className={tarjeta(!activo)}>
+            <Contenido Icono={LayoutGrid} nombre={t.todo} activa={!activo} />
           </Link>
         </li>
         {orden.map((r, i) => (
           <li key={r.id} className={`shrink-0 lg:min-w-0 lg:flex-1 ${i >= VISIBLES ? "lg:hidden" : ""}`}>
-            <Link {...enlace(r.id)} aria-current={activo === r.id ? "page" : undefined} className={tarjeta(activo === r.id, ESTILO[r.id].fondo)}>
-              <Contenido Icono={ESTILO[r.id].Icono} nombre={r.nombre} />
+            <Link {...enlace(r.id)} aria-current={activo === r.id ? "page" : undefined} className={tarjeta(activo === r.id)}>
+              <Contenido Icono={ESTILO[r.id].Icono} nombre={r.nombre} fondo={ESTILO[r.id].fondo} activa={activo === r.id} />
             </Link>
           </li>
         ))}
         {resto.length > 0 && (
           <li className="relative hidden lg:block lg:min-w-0 lg:flex-1">
             <details className="group/mas h-full">
-              <summary className={`${tarjeta(false, "bg-white")} h-full cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
+              <summary className={`${tarjeta(false)} h-full cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
                 <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white">
                   <ChevronDown className="size-5 transition-transform group-open/mas:rotate-180" strokeWidth={2.2} />
                 </span>

@@ -1,19 +1,26 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { Globo } from "@/components/ui/Globo";
-import { Icon } from "@/components/ui/Icon";
+import { CintaFrases } from "@/components/ui/CintaFrases";
 import { LotitoMas } from "@/components/ui/LotitoMas";
-import { Toldo } from "@/components/ui/Toldo";
 import { CatalogoVitrina } from "@/features/catalog/ui/CatalogoVitrina";
-import { FranjaDatos, SelloVerificada } from "@/features/catalog/ui/FranjaDatos";
+import { SelloVerificada } from "@/features/catalog/ui/FranjaDatos";
 import { partesEnvio } from "@/features/catalog/ui/ResumenEnvio";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { RedesTienda } from "@/features/catalog/ui/RedesTienda";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
-import { enlaceFacebook, enlaceTiktok, mensajePedirVitrina } from "@/features/catalog/enlaces";
+import {
+  enlaceFacebook,
+  enlaceTiktok,
+  mensajePedirVitrina,
+} from "@/features/catalog/enlaces";
 import { negocioPublico, productosPublicos } from "@/features/catalog/publico";
-import { obtenerEstrellas, obtenerOpcionesDeCompra, obtenerPerfil, obtenerResenas } from "@/features/catalog/repositorio";
+import {
+  obtenerEstrellas,
+  obtenerOpcionesDeCompra,
+  obtenerPerfil,
+  obtenerResenas,
+} from "@/features/catalog/repositorio";
 import { agruparParaVitrina } from "@/features/catalog/agruparVitrina";
 import { PromocionesDelProducto } from "@/features/catalog/ui/PromocionesDelProducto";
 import { anunciosDePromociones } from "@/features/promotions/descripcion";
@@ -26,28 +33,42 @@ import { textos } from "@/lib/textos";
 
 const t = textos.vitrina;
 
-export async function generateMetadata({ params }: PageProps<"/c/[negocio]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/c/[negocio]">): Promise<Metadata> {
   await connection();
   const slug = (await params).negocio;
   const negocio = await negocioPublico(slug);
   if (!negocio) return { title: t.titulo, robots: { index: false } };
-  const piezas = (await productosPublicos(slug)).reduce((n, p) => n + p.disponibles, 0);
-  const descripcion = negocio.descripcion?.trim() || t.seo.descripcionTienda(negocio.nombre, piezas);
+  const piezas = (await productosPublicos(slug)).reduce(
+    (n, p) => n + p.disponibles,
+    0,
+  );
+  const descripcion =
+    negocio.descripcion?.trim() ||
+    t.seo.descripcionTienda(negocio.nombre, piezas);
   const titulo = t.seo.tituloTienda(negocio.nombre);
   return {
     title: { absolute: titulo },
     description: descripcion,
     alternates: { canonical: `/c/${slug}` },
     // La imagen la dibuja opengraph-image.tsx (logo, nombre y fotos de la tienda)
-    openGraph: { title: titulo, description: descripcion, url: `/c/${slug}`, type: "website" },
-    twitter: { card: "summary_large_image", title: titulo, description: descripcion },
+    openGraph: {
+      title: titulo,
+      description: descripcion,
+      url: `/c/${slug}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: titulo,
+      description: descripcion,
+    },
   };
 }
 
 export default function VitrinaPage({ params }: PageProps<"/c/[negocio]">) {
-  return (
-    <Vitrina params={params} />
-  );
+  return <Vitrina params={params} />;
 }
 
 async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
@@ -57,23 +78,28 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
   const negocio = await negocioPublico(slug);
   if (!negocio) notFound();
   // Las variantes de un mismo producto (talla, tono) se muestran en una sola tarjeta.
-  const [lista, opciones, estrellas, perfil, resenas, promociones] = await Promise.all([
-    productosPublicos(slug),
-    obtenerOpcionesDeCompra(supabase, slug),
-    obtenerEstrellas(supabase, slug),
-    obtenerPerfil(supabase, slug),
-    // Sin código son las reseñas de toda la tienda
-    obtenerResenas(supabase, slug),
-    promocionesDeVitrina(supabase, slug),
-  ]);
+  const [lista, opciones, estrellas, perfil, resenas, promociones] =
+    await Promise.all([
+      productosPublicos(slug),
+      obtenerOpcionesDeCompra(supabase, slug),
+      obtenerEstrellas(supabase, slug),
+      obtenerPerfil(supabase, slug),
+      // Sin código son las reseñas de toda la tienda
+      obtenerResenas(supabase, slug),
+      promocionesDeVitrina(supabase, slug),
+    ]);
   const productos = agruparParaVitrina(lista, estrellas);
   // Las promociones vigentes se anuncian arriba del catálogo y marcan las tarjetas de los productos que cubren
   const anuncios = anunciosDePromociones(promociones, lista);
-  const enPromocion = [...new Set(promociones.flatMap((pr) => pr.productos.map((x) => x.codigo)))];
-  const metodos = opciones.metodos.map((m) => textos.cobro.metodos[m].toLowerCase());
+  const enPromocion = [
+    ...new Set(promociones.flatMap((pr) => pr.productos.map((x) => x.codigo))),
+  ];
+  const metodos = opciones.metodos.map((m) =>
+    textos.cobro.metodos[m].toLowerCase(),
+  );
 
   return (
-    <MarcaTienda color={negocio.color}>
+    <MarcaTienda color={negocio.color} ancha>
       <JsonLd
         datos={{
           "@context": "https://schema.org",
@@ -84,7 +110,9 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           image: negocio.logo ? urlFoto(negocio.logo) : undefined,
           // Sus redes: así el buscador une la vitrina con Instagram, Facebook y TikTok
           sameAs: [
-            negocio.usuarioInstagram ? `https://www.instagram.com/${negocio.usuarioInstagram}` : null,
+            negocio.usuarioInstagram
+              ? `https://www.instagram.com/${negocio.usuarioInstagram}`
+              : null,
             enlaceFacebook(negocio.usuarioFacebook),
             enlaceTiktok(negocio.usuarioTiktok),
           ].filter((u): u is string => !!u),
@@ -92,50 +120,58 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           currenciesAccepted: "USD",
         }}
       />
-      {/* El puesto de la tienda: toldo en su color, el logo pegado un poco torcido y Lotito asomándose por el borde */}
-      <header className="relative mb-8 overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-superficie shadow-dura">
-        <Toldo color="var(--color-accion)" className="h-9 md:h-12" />
-        <div className="flex flex-col gap-4 px-5 pb-5 pt-4 md:px-8 md:pb-7">
-          <div className="-mt-1 flex items-end gap-4">
-            <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-[4.5rem] -rotate-3 border-4 border-superficie ring-2 ring-teal-oscuro md:size-24" />
-            <span className="mb-1 -rotate-2 rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold">
-              {t.productos(productos.length)}
-            </span>
+      {/* Encabezado de tienda: la cinta de frases, y debajo la tienda con su logo torcido, sus datos y cómo escribirle */}
+      <header className="mb-5 flex flex-col gap-4">
+        <CintaFrases frases={t.cinta} className="rounded-full border-2 border-teal-oscuro bg-teal-oscuro py-1.5 text-white" />
+        <div className="relative overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura-chica md:p-5">
+          <div className="relative flex flex-wrap items-center gap-x-5 gap-y-3">
+            <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-16 -rotate-3 border-2 border-teal-oscuro !rounded-[18px] transition-transform duration-200 hover:rotate-3 hover:scale-105 md:size-20" />
+            <div className="min-w-0 flex-1 basis-60">
+              <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xl font-bold leading-tight md:text-3xl">
+                {negocio.nombre}
+                {perfil?.verificada && <SelloVerificada />}
+              </h1>
+              <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-sm text-texto-2">
+                {resenas.total > 0 && (
+                  <li aria-label={t.perfil.calificacion(resenas.promedio, resenas.total)}>
+                    <span aria-hidden="true" className="text-ambar">
+                      ★
+                    </span>{" "}
+                    <b className="text-texto">{resenas.promedio.toFixed(1)}</b> ({resenas.total})
+                  </li>
+                )}
+                {perfil && perfil.vendidos > 0 && (
+                  <li>
+                    <b className="text-texto">{perfil.vendidos.toLocaleString("es")}</b> {t.perfil.vendidos(perfil.vendidos)}
+                  </li>
+                )}
+                <li>{t.productos(productos.length)}</li>
+              </ul>
+              <p className="mt-1 max-w-2xl font-bold text-teal">{negocio.descripcion?.trim() || t.fraseFallback}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <BotonesChat whatsapp={negocio.whatsapp} instagram={null} mensaje={mensajePedirVitrina(negocio.nombre)} />
+              <RedesTienda instagram={negocio.usuarioInstagram} facebook={negocio.usuarioFacebook} tiktok={negocio.usuarioTiktok} />
+            </div>
           </div>
-          <div className="min-w-0">
-            <h1 className="flex flex-wrap items-center gap-x-3 gap-y-2 text-3xl font-bold leading-tight md:text-4xl">
-              {negocio.nombre}
-              {perfil?.verificada && <SelloVerificada />}
-            </h1>
-            {negocio.descripcion && <p className="mt-2 max-w-2xl text-lg leading-relaxed text-texto-2">{negocio.descripcion}</p>}
-          </div>
-          <FranjaDatos
-            estrellas={resenas.total > 0 ? { promedio: resenas.promedio, total: resenas.total } : null}
-            perfil={perfil}
-            entrega={negocio.tiempoEntrega}
-          />
-          {/* Lo que da confianza antes de mirar: cómo se paga y cómo llega. Es información, no botones: sin relleno ni borde. */}
-          <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-texto-2">
+          <ul className="relative mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t-2 border-dashed border-teal-oscuro/40 pt-3 text-sm font-bold">
             {metodos.length > 0 && (
-              <li className="inline-flex items-center gap-2">
-                <Icon nombre="banco" className="size-4 text-teal" />
+              <li>
+                <span aria-hidden="true" className="text-teal">✓ </span>
                 {t.infoPagas(metodos.join(", "))}
               </li>
             )}
-            <li className="inline-flex items-center gap-2">
-              <Icon nombre="camion" className="size-4 text-teal" />
+            <li>
+              <span aria-hidden="true" className="text-teal">✓ </span>
               {opciones.direccionRetiro ? t.infoEnvioRetiro : t.infoEnvio}
             </li>
+            {negocio.tiempoEntrega?.trim() && (
+              <li>
+                <span aria-hidden="true" className="text-teal">✓ </span>
+                {negocio.tiempoEntrega.trim()}
+              </li>
+            )}
           </ul>
-          {/* Cómo escribirle: WhatsApp es lo principal y las redes quedan al lado, calladas */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <BotonesChat whatsapp={negocio.whatsapp} instagram={null} mensaje={mensajePedirVitrina(negocio.nombre)} />
-            <RedesTienda instagram={negocio.usuarioInstagram} facebook={negocio.usuarioFacebook} tiktok={negocio.usuarioTiktok} />
-          </div>
-        </div>
-        <div aria-hidden="true" className="pointer-events-none absolute bottom-0 right-8 hidden flex-col items-start lg:flex">
-          <Globo className="-rotate-2 animate-asomar">{t.saludoLotito}</Globo>
-          <LotitoMas nombre="asoma" className="mt-3 w-32 translate-y-3" />
         </div>
       </header>
 
@@ -147,16 +183,19 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
         </div>
       ) : (
         <>
-        <div className="mb-6">
-          <PromocionesDelProducto anuncios={anuncios} />
-        </div>
-        <CatalogoVitrina
-          slug={slug}
-          enPromocion={enPromocion}
-          productos={productos} umbral={negocio.umbralPocoStock}
-          envio={partesEnvio(opciones, negocio.tiempoEntrega).join(" · ") || null}
-          puedeComprar={negocio.permiteComprar}
-        />
+          <div className="mb-6">
+            <PromocionesDelProducto anuncios={anuncios} />
+          </div>
+          <CatalogoVitrina
+            slug={slug}
+            enPromocion={enPromocion}
+            productos={productos}
+            umbral={negocio.umbralPocoStock}
+            envio={
+              partesEnvio(opciones, negocio.tiempoEntrega).join(" · ") || null
+            }
+            puedeComprar={negocio.permiteComprar}
+          />
         </>
       )}
     </MarcaTienda>

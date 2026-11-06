@@ -102,6 +102,7 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 ## Para quien compra (la vitrina, `/c/<tienda>`)
 
 - ✅ Vitrina con logo, color y frase de la tienda; buscador, filtro por modelo, orden y botón de WhatsApp.
+- ✅ **Look de marketplace festivo**: cinta de frases animada, tarjeta compacta de la tienda, filtros laterales (categorías y rango de precio), tarjetas con un solo sello, sombra dura y confeti al agregar; la ficha pone la compra en una caja con borde. Lo mismo en el Marketplace (hero oscuro, filas de productos).
 - ✅ Datos de confianza de la tienda (verificada, desde cuándo vende en Lote, unidades vendidas) y estrellas promedio en las tarjetas.
 - ✅ Página del producto: galería, variantes (sin preseleccionar), stock y precio de la elegida, precio anterior tachado, etiquetas (nuevo, últimas unidades), envío estimado, reseñas y "avisame cuando haya" si está agotado.
 - ✅ **Comprar ahora** en tres pasos cortos (datos, entrega, pago) o **apartar** sin pagar durante unas horas. No hace falta crear cuenta.

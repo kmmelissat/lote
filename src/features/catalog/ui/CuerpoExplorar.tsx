@@ -145,7 +145,7 @@ export function CuerpoExplorar({
                   {/* Las tiendas como una calle de El Salvador: se toca una casita y se entra. Abajo, el detalle de cada una */}
                   <SeccionCalle tiendas={tiendas} />
                   <h2 className="mt-4 text-xl font-bold">{t.calle.todas}</h2>
-                  <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                     {tiendas.map((tienda, i) => (
                       <li key={tienda.slug}>
                         <TarjetaTienda tienda={tienda} eager={i < 3} />
@@ -155,7 +155,7 @@ export function CuerpoExplorar({
                 </>
               ) : (
                 <>
-                  <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 xl:grid-cols-4">
+                  <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 xl:grid-cols-6 2xl:grid-cols-7">
                     {visibles.map((p, i) => (
                       <li
                         key={`${p.tiendaSlug}-${p.codigo}`}

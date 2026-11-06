@@ -83,17 +83,17 @@ export function FranjaDatos({
   return (
     <dl
       aria-label={t.datos}
-      className="grid grid-cols-2 gap-0.5 overflow-hidden rounded-[18px] border-2 border-teal-oscuro bg-teal-oscuro md:[grid-template-columns:repeat(var(--n),minmax(0,1fr))]"
+      className="flex flex-col gap-0.5 overflow-hidden rounded-[18px] border-2 border-teal-oscuro bg-teal-oscuro md:grid md:[grid-template-columns:repeat(var(--n),minmax(0,1fr))]"
       style={{ "--n": datos.length } as React.CSSProperties}
     >
       {datos.map((d) => (
         <div
           key={d.id}
-          className="flex flex-col-reverse justify-end gap-0.5 bg-crema px-4 py-3 max-md:[&:last-child:nth-child(odd)]:col-span-2"
+          className="flex items-baseline justify-between gap-3 bg-crema px-4 py-2.5 max-md:flex-row-reverse max-md:justify-end md:flex-col-reverse md:justify-end md:gap-0.5 md:py-3"
         >
           <dt className="text-xs font-medium text-texto-2">{d.etiqueta}</dt>
           <dd
-            className="font-logo text-2xl leading-tight"
+            className="font-logo text-lg leading-tight md:text-2xl"
             aria-label={"lectura" in d ? d.lectura : undefined}
           >
             {d.valor}

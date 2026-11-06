@@ -137,6 +137,7 @@ async function Producto({
                 />
               </div>
 
+              <div className="rounded-[22px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura-chica md:p-5">
               <ZonaDeCompra
                 slug={slug}
                 nombresOpciones={p.opciones}
@@ -146,6 +147,7 @@ async function Producto({
                 permiteApartar={negocio.permiteApartar}
                 contacto={{ tienda: negocio.nombre, producto: base, whatsapp: negocio.whatsapp, instagram: negocio.usuarioInstagram, facebook: negocio.usuarioFacebook, tiktok: negocio.usuarioTiktok }}
               />
+              </div>
 
               <LineaConfianza
                 estrellas={resenas.total > 0 ? { promedio: resenas.promedio, total: resenas.total } : null}
