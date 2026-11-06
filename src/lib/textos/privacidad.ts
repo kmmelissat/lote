@@ -30,6 +30,11 @@ export const privacidad = {
         "El estado del pedido, los productos y, si va por paquetera, la empresa y la guía. Nunca el nombre, el teléfono ni la dirección de nadie, ni los precios.",
     },
     {
+      titulo: "Cómo medimos el uso de Lote",
+      texto:
+        "Usamos Mixpanel para saber qué pantallas y funciones se usan (por ejemplo, cuántos pedidos se crean) y mejorar Lote. Te identificamos con un número interno, no con tu correo, y no mandamos los datos de tus clientes ni el contenido de tus mensajes. Quien compra en una vitrina no queda identificado.",
+    },
+    {
       titulo: "Exportar o borrar tus datos",
       texto:
         "Podés descargar tus productos, pedidos, clientes y gastos en Ajustes, en Exportar datos. Borrar datos desde la app todavía no se puede: está pendiente. Mientras tanto, tus datos solo los ven las personas de tu negocio.",

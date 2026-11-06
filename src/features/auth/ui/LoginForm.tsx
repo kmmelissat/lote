@@ -98,7 +98,7 @@ export function LoginForm() {
             <span className="h-0.5 flex-1 rounded-full bg-teal-oscuro/15" />
           </div>
 
-          <form onSubmit={conCorreo} className="flex flex-col gap-4">
+          <form data-formulario="login_correo" onSubmit={conCorreo} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <Field
                 etiqueta={t.correo}

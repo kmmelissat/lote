@@ -137,6 +137,7 @@ export function CompraForm({
     <div className="flex flex-col gap-4">
       {(
         <form
+          data-formulario="compra_vitrina"
           ref={formulario}
           action={accion}
           onSubmit={(e) => {

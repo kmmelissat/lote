@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import type { EstadoPedido } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -27,6 +28,7 @@ export async function cambiarEstado(
     return { error: a.errorGeneral };
   }
 
+  await rastrearAccion("pedido_estado_cambiado", { estado });
   revalidatePath("/", "layout");
   return {};
 }
@@ -37,6 +39,7 @@ export async function marcarListo(pedidoId: string): Promise<{ error?: string }>
   const { supabase } = await negocioActual();
   const r = await marcarListoParaRecoger(supabase, pedidoId, true);
   if (!r.ok) return { error: r.error === "sin_permiso" ? a.errorPermiso : a.errorGeneral };
+  await rastrearAccion("pedido_listo_para_recoger");
   revalidatePath("/", "layout");
   return {};
 }
@@ -59,6 +62,7 @@ export async function pagarCompleto(pedidoId: string, metodo: string): Promise<{
     return { error: c.errorGeneral };
   }
 
+  await rastrearAccion("pago_registrado", { metodo, tipo: "completo" });
   revalidatePath("/", "layout");
   return {};
 }

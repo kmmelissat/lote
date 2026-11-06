@@ -6,6 +6,7 @@ import { esFacebook, facebookDe } from "@/features/catalog/enlaces";
 import { slugConSufijo, slugDe } from "@/lib/slug";
 import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
+import { rastrearServidor } from "@/lib/analiticaServidor";
 import { textos } from "@/lib/textos";
 import {
   contextoDeNegocio,
@@ -84,6 +85,7 @@ export async function crearNegocio(_anterior: EstadoCrear, formData: FormData): 
       if (facebook) await supabase.from("negocio").update({ usuario_facebook: facebook }).eq("id", negocioId);
       // Cómo se llama y cómo quiere que le hablen: es de la persona, no del negocio, y no lo ve nadie más
       await supabase.auth.updateUser({ data: { nombre_persona: persona || undefined, trato } });
+      await rastrearServidor("negocio_creado", auth.user.id, { con_vitrina: conVitrina, actividad });
       redirect("/inicio?bienvenida=1");
     }
     // Volvió atrás después de crear el suyo: no se crea otro, se lo lleva al que ya tiene.

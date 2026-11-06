@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { elegirCuenta, leerDolares, LUGARES_DE_DINERO, type LugarDeDinero } from "@/domain/index";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
@@ -70,6 +71,7 @@ export async function moverDinero(previo: EstadoGestion, datos: FormData): Promi
 
   const ok = await moverEntreCuentas(supabase, { desde: desde.id, hacia: hacia.id, monto, nota: texto(datos, "nota") || undefined });
   if (!ok) return error(previo, m.errorGeneral);
+  await rastrearAccion("dinero_movido", { monto });
   revalidatePath("/", "layout");
   return { listo: m.listo(formatearDolares(monto), desde.nombre, hacia.nombre), guardados: (previo.guardados ?? 0) + 1 };
 }

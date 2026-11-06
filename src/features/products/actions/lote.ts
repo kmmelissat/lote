@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { redirect } from "next/navigation";
 import { leerDolares, repartirCostoTotal } from "@/domain/index";
 import { CAMPO_PAGO_COMPRA } from "@/features/gestion/campos";
@@ -83,6 +84,7 @@ export async function crearLote(_anterior: EstadoLote, formData: FormData): Prom
   const pagado = resultados.reduce((s, r, i) => s + (r.status === "fulfilled" && !("error" in r.value) ? (partes[i] ?? 0) : 0), 0);
   await anotarCompra(supabase, negocio.id, String(formData.get(CAMPO_PAGO_COMPRA) ?? ""), pagado, t.titulo.toLowerCase());
 
+  await rastrearAccion("lote_creado", { productos: creados });
   revalidatePath("/", "layout");
   if (creados === rutas.length) redirect(`/productos?lote=${creados}`);
   return { error: t.errorParcial(creados, rutas.length) };

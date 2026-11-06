@@ -30,6 +30,7 @@ import type { Tarifas } from "@/features/shipping/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { useAhorroPromociones } from "@/lib/useAhorroPromociones";
 import { textos } from "@/lib/textos";
+import { rastrear } from "@/lib/analitica";
 import { registrarPedidoDesdeVender } from "../actions/pedido";
 import { llevaEnvio, PAGOS, planDeVenta, type Entrega, type PagoClave } from "../plan";
 import { buscarPorCodigoDeBarras, cobrarVenta } from "../actions/vender";
@@ -332,6 +333,7 @@ export function Mostrador({
       }
       // Quedó guardado: se avisa en una ventana y se sigue en Vender, lista para la siguiente
       setCobrando(false);
+      rastrear("pedido_creado", { total: totalAPagar, articulos: itemsVenta.length, origen: "con_plan" });
       setRecibo({
         codigo: r.codigo,
         total: totalAPagar,
@@ -352,6 +354,7 @@ export function Mostrador({
       setError(r.error);
       return;
     }
+    rastrear("pedido_creado", { total: totalAPagar, articulos: itemsVenta.length, origen: "cobro_rapido" });
     setRecibo({ codigo: r.codigo, total: totalAPagar, cambio, clase: "venta", pendienteDeEntrega: false, problemas: r.contactoFallo ? ["contacto"] : [] });
     limpiarVenta();
   }

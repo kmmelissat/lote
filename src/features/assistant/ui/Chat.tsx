@@ -10,6 +10,7 @@ import { textos } from "@/lib/textos";
 import { subirFotos } from "@/lib/subirFotos";
 import { urlFoto } from "@/lib/fotos";
 import type { Turno } from "@/features/ai/provider";
+import { rastrear } from "@/lib/analitica";
 import { enviarAlAsistente } from "../actions/enviar";
 import { AvatarLotito, Escribiendo, TextoLotito } from "./PiezasChat";
 
@@ -100,6 +101,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
     const historial = historialDe(mensajes);
     empezar(async () => {
       const respuesta = await enviarAlAsistente({ mensajeId, ...entrada, estado, historial });
+      rastrear("lotito_mensaje_enviado", { con_foto: Boolean(entrada.foto) });
       setEstado(respuesta.estado ?? null);
       setMensajes((ms) => [...ms, { id: `${mensajeId}-r`, en: Date.now(), de: "lote", respuesta, vigente: true }]);
     });

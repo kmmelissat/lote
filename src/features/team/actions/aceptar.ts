@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { redirect } from "next/navigation";
 import { aceptarInvitacion, esTokenInvitacion } from "../repositorio";
 import { createClient } from "@/lib/supabase/server";
@@ -18,6 +19,7 @@ export async function aceptarInvitacionAction(token: string): Promise<EstadoAcep
   const resultado = await aceptarInvitacion(supabase, token);
 
   if (resultado === "ok") {
+    await rastrearAccion("invitacion_aceptada");
     revalidatePath("/", "layout");
     redirect("/inicio");
   }

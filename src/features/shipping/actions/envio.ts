@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { elegirCuenta, leerDolares, repartirEnvio, telefonoElSalvador, type QuienPagaEnvio } from "@/domain";
 import { cuentasDelNegocio, esCuentaDeSiempre } from "@/features/gestion/repositorio";
 import { esDepartamento } from "@/lib/departamentos";
@@ -66,6 +67,7 @@ export async function guardarEnvioDelPedido(
   });
   if (!r.ok) return { error: textoDeErrorEnvio[r.error] ?? t.errorGeneral };
 
+  await rastrearAccion("envio_guardado", { modo, paga, costo });
   revalidatePath("/", "layout");
   return { listo: t.guardado };
 }
@@ -87,6 +89,7 @@ export async function pagarPaqueteraDelPedido(
   const pago = { monto, lugar: cuenta.tipo, cuenta: esCuentaDeSiempre(cuenta) ? undefined : cuenta.id };
   if (!(await registrarPagoPaquetera(supabase, pedidoId, pago))) return { error: t.errorGeneral };
 
+  await rastrearAccion("paquetera_pagada", { monto });
   revalidatePath("/", "layout");
   return { listo: t.guardado };
 }

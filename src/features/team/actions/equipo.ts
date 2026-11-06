@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import {
   cambiarRol,
   crearInvitacion,
@@ -30,6 +31,7 @@ export async function crearInvitacionAction(rol: string): Promise<Resultado> {
   if (!ctx) return { ok: false, error: t.soloDuena };
   const token = await crearInvitacion(ctx.supabase, ctx.negocio.id, rol);
   if (!token) return { ok: false, error: t.errorGeneral };
+  await rastrearAccion("invitacion_creada", { rol_invitado: rol });
   revalidatePath("/", "layout");
   return { ok: true, token };
 }
@@ -50,6 +52,7 @@ export async function cambiarRolAction(usuarioId: string, rol: string): Promise<
   if (!ctx) return { ok: false, error: t.soloDuena };
   if (usuarioId === ctx.negocio.usuarioId) return { ok: false, error: t.errorGeneral };
   if (!(await cambiarRol(ctx.supabase, ctx.negocio.id, usuarioId, rol))) return { ok: false, error: t.errorGeneral };
+  await rastrearAccion("rol_cambiado", { rol_nuevo: rol });
   revalidatePath("/", "layout");
   return { ok: true };
 }
@@ -60,6 +63,7 @@ export async function quitarMiembroAction(usuarioId: string): Promise<Resultado>
   if (!ctx) return { ok: false, error: t.soloDuena };
   if (usuarioId === ctx.negocio.usuarioId) return { ok: false, error: t.errorGeneral };
   if (!(await quitarMiembro(ctx.supabase, ctx.negocio.id, usuarioId))) return { ok: false, error: t.errorGeneral };
+  await rastrearAccion("miembro_quitado");
   revalidatePath("/", "layout");
   return { ok: true };
 }

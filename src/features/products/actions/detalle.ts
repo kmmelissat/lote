@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { costoPromedio, leerDolares } from "@/domain/index";
 import { obtenerProducto, reponerProducto } from "../repositorio";
 import { CAMPO_PAGO_COMPRA } from "@/features/gestion/campos";
@@ -44,6 +45,7 @@ export async function reponer(
   if (resultado !== "ok") return { errores: { general: t.errorGeneral } };
   // Si se dijo de dónde salió el dinero, el saldo de ese lugar baja
   if (costoNuevo !== null) await anotarCompra(supabase, negocio.id, String(formData.get(CAMPO_PAGO_COMPRA) ?? ""), costoNuevo * llegan, producto.nombre);
+  await rastrearAccion("stock_repuesto", { unidades: llegan });
   revalidatePath("/", "layout");
   return { listo: t.listo(llegan) };
 }

@@ -16,6 +16,7 @@ import { nombreConVariante } from "@/domain";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
 import { contextoDeLaTienda } from "@/features/catalog/repositorio";
 import { negocioActual } from "@/lib/negocio";
+import { rastrearServidor } from "@/lib/analiticaServidor";
 import { conBusqueda, ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 
@@ -112,7 +113,10 @@ export async function nuevoProducto(
     }
     await anotarCompra(supabase, negocio.id, valores[CAMPO_PAGO_COMPRA], pagado, nombre);
     revalidatePath("/", "layout");
-    if (creados.length === validadas.filas.length) redirect(destino(valores, creados[0], nombre));
+    if (creados.length === validadas.filas.length) {
+      await rastrearServidor("producto_creado", negocio.usuarioId, { variantes: creados.length });
+      redirect(destino(valores, creados[0], nombre));
+    }
     return { errores: { general: t.errorVariantesParcial(creados.length, validadas.filas.length) }, valores };
   }
 
@@ -124,6 +128,7 @@ export async function nuevoProducto(
   }
   await anotarCompra(supabase, negocio.id, valores[CAMPO_PAGO_COMPRA], plataDeCompra(costos, cantidad), nombre);
   revalidatePath("/", "layout");
+  await rastrearServidor("producto_creado", negocio.usuarioId, { variantes: 1 });
   redirect(destino(valores, resultado.codigo, nombre));
 }
 

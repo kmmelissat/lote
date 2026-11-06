@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { redirect } from "next/navigation";
 import { leerInfoExtra, tieneInfoExtra } from "../infoExtra";
 import { categoriaNoExiste, fotosValidas, leerCostos, leerNombreYPrecio, valoresDe } from "../leerFormulario";
@@ -103,6 +104,7 @@ export async function editarProducto(
   // Las fotos que se quitaron ya no se usan (las variantes del mismo producto pueden compartirlas: eso lo comprueba el helper)
   await borrarSiNadieLasUsa(supabase, producto.fotos.filter((f) => !fotos.includes(f)));
 
+  await rastrearAccion("producto_editado");
   revalidatePath("/", "layout");
   redirect(`/productos/${codigo}?guardado=${encodeURIComponent(nombre)}`);
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
@@ -38,6 +39,7 @@ export async function abrirLaCaja(
   const r = await abrirCaja(supabase, negocio.id, inicial);
   if (!r.ok) return { error: textoDeError(r.error) };
 
+  await rastrearAccion("caja_abierta", { inicial });
   revalidatePath("/", "layout");
   // Con la caja abierta, lo que sigue es vender.
   redirect("/vender");
@@ -60,6 +62,7 @@ export async function cerrarLaCaja(
   );
   if (!r.ok) return { error: textoDeError(r.error) };
 
+  await rastrearAccion("caja_cerrada");
   revalidatePath("/", "layout");
   return { hecho: true };
 }

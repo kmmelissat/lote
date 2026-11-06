@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { redirect } from "next/navigation";
 import { leerDolares } from "@/domain/index";
 import { crearProducto, guardarVariante, listarGrupo, obtenerProducto } from "../repositorio";
@@ -93,6 +94,7 @@ export async function agregarVariante(
     return { errores: { general: nueva.error === "sin_permiso" ? t.errorPermiso : t.errorGeneral } };
   }
 
+  await rastrearAccion("variante_agregada");
   revalidatePath("/", "layout");
   redirect(`/productos/${nueva.codigo}`);
 }

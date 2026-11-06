@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { hoyEnElSalvador, leerDolares, type AhorroPromocion, type LineaPromocion } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -80,6 +81,7 @@ export async function nuevaPromocion(entrada: EntradaPromocion): Promise<{ error
   });
   if (!r.ok) return { error: r.error === "invalida" && tipo === "pack" ? t.errorPackNoAbarata : textoDeError[r.error] };
 
+  await rastrearAccion("promocion_creada");
   revalidatePath("/", "layout");
   return {};
 }
@@ -90,6 +92,7 @@ export async function encenderPromocion(id: string, activa: boolean): Promise<{ 
   if (!negocio.puedeGestionar) return { error: t.errorPermiso };
   const r = await cambiarPromocion(supabase, negocio.id, id, activa === true);
   if (!r.ok) return { error: textoDeError[r.error] };
+  await rastrearAccion("promocion_cambiada", { activa });
   revalidatePath("/", "layout");
   return {};
 }
@@ -100,6 +103,7 @@ export async function borrarPromocion(id: string): Promise<{ error?: string }> {
   if (!negocio.puedeGestionar) return { error: t.errorPermiso };
   const r = await eliminarPromocion(supabase, negocio.id, id);
   if (!r.ok) return { error: textoDeError[r.error] };
+  await rastrearAccion("promocion_borrada");
   revalidatePath("/", "layout");
   return {};
 }

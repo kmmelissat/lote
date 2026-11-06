@@ -138,7 +138,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
   const saludo = personaLimpia || nombreLimpio;
 
   return (
-    <form action={accion} onKeyDown={alTeclear} className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col justify-center gap-4 px-3 py-6 md:py-10 lg:max-w-5xl">
+    <form data-formulario="crear_negocio" action={accion} onKeyDown={alTeclear} className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col justify-center gap-4 px-3 py-6 md:py-10 lg:max-w-5xl">
       <div className="flex items-center justify-between gap-3 px-1">
         <Link href="/" aria-label={textos.nombre}>
           <Logo />

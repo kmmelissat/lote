@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { CATEGORIAS_GASTO, elegirCuenta, fechaLocalDe, leerDolares, type CategoriaGasto } from "@/domain/index";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -51,6 +52,7 @@ export async function guardarFijo(previo: EstadoGestion, datos: FormData): Promi
   );
   if (!ok) return { ...previo, error: t.errorGeneral, listo: undefined };
 
+  await rastrearAccion("gasto_fijo_guardado", { editado: Boolean(id) });
   revalidatePath("/", "layout");
   return { listo: id ? t.listoEditado : t.listoCreado, guardados: (previo.guardados ?? 0) + 1 };
 }
@@ -58,6 +60,7 @@ export async function guardarFijo(previo: EstadoGestion, datos: FormData): Promi
 export async function pausarFijo(id: string, activo: boolean): Promise<{ error?: string }> {
   const { supabase } = await negocioActual();
   if (!(await cambiarGastoFijoActivo(supabase, id, activo, fechaLocalDe(new Date())))) return { error: t.errorGeneral };
+  await rastrearAccion("gasto_fijo_pausado", { activo });
   revalidatePath("/", "layout");
   return {};
 }
@@ -65,6 +68,7 @@ export async function pausarFijo(id: string, activo: boolean): Promise<{ error?:
 export async function borrarFijo(id: string): Promise<{ error?: string }> {
   const { supabase } = await negocioActual();
   if (!(await eliminarGastoFijo(supabase, id))) return { error: t.errorEliminar };
+  await rastrearAccion("gasto_fijo_borrado");
   revalidatePath("/", "layout");
   return {};
 }

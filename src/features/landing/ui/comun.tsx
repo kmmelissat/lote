@@ -33,6 +33,7 @@ export function BotonLanding<T extends string>({
   return (
     <Link
       href={href}
+      data-cta=""
       className={`inline-flex ${chico ? "h-10 px-5 text-sm" : "h-12 px-7 text-base"} items-center justify-center gap-2 rounded-full border-2 font-bold transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none ${color} ${marco} ${className}`}
     >
       {children}

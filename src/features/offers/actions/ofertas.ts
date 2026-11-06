@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { hoyEnElSalvador, leerDescuento, precioDeOferta, type Descuento } from "@/domain";
 import { listarGrupo, obtenerProducto } from "@/features/products/repositorio";
 import { negocioActual } from "@/lib/negocio";
@@ -43,6 +44,7 @@ export async function programarOferta(codigo: number, todas: boolean, entrada: E
   const r = await crearOferta(supabase, negocio.id, { productoIds: productos.map((p) => p.id), descuento, desde, hasta });
   if (!r.ok) return { error: textoDeError[r.error] };
 
+  await rastrearAccion("oferta_programada", { todas });
   revalidatePath("/", "layout");
   return {};
 }
@@ -53,6 +55,7 @@ export async function quitarOferta(lote: string): Promise<{ error?: string }> {
   const r = await cancelarOferta(supabase, negocio.id, lote);
   if (!r.ok) return { error: textoDeError[r.error] };
 
+  await rastrearAccion("oferta_quitada");
   revalidatePath("/", "layout");
   return {};
 }

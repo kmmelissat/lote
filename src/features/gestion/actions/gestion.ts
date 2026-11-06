@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { elegirCuenta, leerDolares, TIPOS_DE_PASIVO, type TipoPasivo } from "@/domain/index";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
@@ -63,6 +64,7 @@ export async function guardarSaldo(previo: EstadoGestion, datos: FormData): Prom
   const ok = await registrarAjusteDeCuenta(supabase, negocio.id, cuenta, { tipo: inicial ? "saldo_inicial" : "ajuste", monto, nota: nota || undefined });
   if (!ok) return { ...previo, error: s.errorGeneral, listo: undefined };
 
+  await rastrearAccion("saldo_guardado");
   revalidatePath("/", "layout");
   const aviso = inicial ? s.listoInicial : monto < 0 ? s.faltaban(formatearDolares(-monto)) : s.sobraban(formatearDolares(monto));
   return { listo: aviso, guardados: (previo.guardados ?? 0) + 1 };
@@ -101,6 +103,7 @@ export async function agregarPasivo(previo: EstadoGestion, datos: FormData): Pro
   });
   if (!ok) return { ...previo, error: p.errorGeneral, listo: undefined };
 
+  await rastrearAccion("deuda_agregada");
   revalidatePath("/", "layout");
   return { listo: p.listo, guardados: (previo.guardados ?? 0) + 1 };
 }
@@ -129,6 +132,7 @@ export async function cambiarPasivo(previo: EstadoGestion, datos: FormData): Pro
   const ok = await editarPasivo(supabase, pasivoId, { ...cuota.cuota, acreedor, monto, fechaLimite: fecha || undefined, nota: texto(datos, "nota") || undefined });
   if (!ok) return { ...previo, error: p.errorGeneral, listo: undefined };
 
+  await rastrearAccion("deuda_cambiada");
   revalidatePath("/", "layout");
   return { listo: p.cambiado, guardados: (previo.guardados ?? 0) + 1 };
 }
@@ -158,6 +162,7 @@ export async function agregarAbono(previo: EstadoGestion, datos: FormData): Prom
   });
   if (!ok) return { ...previo, error: p.errorGeneral, listo: undefined };
 
+  await rastrearAccion("abono_deuda_registrado");
   revalidatePath("/", "layout");
   return { listo: p.abonoListo, guardados: (previo.guardados ?? 0) + 1 };
 }
@@ -167,6 +172,7 @@ export async function borrarPasivo(pasivoId: string): Promise<{ error?: string }
   if (!negocio.puedeGestionar) return { error: p.errorPermiso };
   const ok = await quitarPasivo(supabase, pasivoId);
   if (!ok) return { error: p.errorGeneral };
+  await rastrearAccion("deuda_borrada");
   revalidatePath("/", "layout");
   return {};
 }

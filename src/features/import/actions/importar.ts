@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import {
   CAMPOS,
   MAXIMO_FILAS,
@@ -55,6 +56,7 @@ export async function importarCsv(
   const r = await importarProductos(supabase, negocio.id, archivo, mapeoLimpio, conCategoriaValida);
   if (!r.ok) return { ok: false, error: r.error === "sin_permiso" ? t.errorPermiso : t.errorGeneral };
 
+  await rastrearAccion("productos_importados", { creados: buenas.length, saltadas: filas.length - buenas.length });
   revalidatePath("/", "layout");
   return {
     ok: true,

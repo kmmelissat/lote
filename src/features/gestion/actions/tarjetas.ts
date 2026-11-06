@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { elegirCuenta, leerDolares } from "@/domain/index";
 import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
@@ -73,6 +74,7 @@ export async function pagarLaTarjeta(previo: EstadoGestion, datos: FormData): Pr
     nota: texto(datos, "nota") || undefined,
   });
   if (!ok) return error(previo, t.errorGeneral);
+  await rastrearAccion("tarjeta_pagada", { monto });
   revalidatePath("/", "layout");
   return { listo: t.pagada(formatearDolares(monto), cuenta.nombre, tarjeta.nombre), guardados: (previo.guardados ?? 0) + 1 };
 }

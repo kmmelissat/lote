@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { guardarMetodos, TIPOS_METODO } from "../repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -21,6 +22,7 @@ export async function guardarDatosDePago(_anterior: EstadoPagos, formData: FormD
   if (negocio.rol !== "duena") return { error: t.soloDuena };
   if (!(await guardarMetodos(supabase, negocio.id, metodos))) return { error: t.errorGeneral };
 
+  await rastrearAccion("datos_de_pago_guardados");
   revalidatePath("/", "layout");
   return { listo: true };
 }

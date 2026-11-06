@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { leerDolares } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -43,6 +44,7 @@ export async function pagar(
   const r = await registrarPago(supabase, pedidoId, monto, metodo);
   if (!r.ok) return { error: textoDeError(r.error) };
 
+  await rastrearAccion("pago_registrado", { metodo, monto, tipo: "abono" });
   revalidatePath("/", "layout");
   return { listo: c.listo };
 }
@@ -55,6 +57,7 @@ export async function alternarContraEntrega(
   const r = await marcarContraEntrega(supabase, pedidoId, valor);
   if (!r.ok) return { error: textoDeError(r.error) };
 
+  await rastrearAccion("contra_entrega_cambiada", { valor });
   revalidatePath("/", "layout");
   return {};
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { rastrearServidor } from "@/lib/analiticaServidor";
 import { contactoDe, huellaDelDispositivo } from "../dispositivo";
 import { apartarSchema, camposDe, comprarCarritoSchema, comprarSchema, leerFormulario } from "../formularios";
 import {
@@ -76,6 +77,7 @@ export async function apartarProducto(
   });
   if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
+  await rastrearServidor("pedido_vitrina_creado", null, { tipo: "apartado", slug });
   redirect(`/c/${slug}/pedido/${resultado.pedidoId}`);
 }
 
@@ -109,6 +111,7 @@ export async function comprarProducto(
   });
   if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
+  await rastrearServidor("pedido_vitrina_creado", null, { tipo: "compra", slug });
   redirect(`/c/${slug}/pedido/${resultado.pedidoId}`);
 }
 
@@ -136,6 +139,7 @@ export async function comprarCarrito(slug: string, _anterior: EstadoApartar, for
   });
   if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
+  await rastrearServidor("pedido_vitrina_creado", null, { tipo: "carrito", slug });
   // ?carrito=1: la pantalla de confirmación vacía el carrito del navegador
   redirect(`/c/${slug}/pedido/${resultado.pedidoId}?carrito=1`);
 }

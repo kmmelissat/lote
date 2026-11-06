@@ -39,6 +39,7 @@ Crear `.env.local` (no se sube a git):
 | `OPENAI_API_KEY` | La IA del asistente. Opcional `ASISTENTE_MODELO` (por defecto `gpt-4.1-mini`). Sin ella el chat solo responde "ayuda" y "deshacer" |
 | `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET` | La tarea que envía los avisos. La clave de servicio nunca va al navegador |
 | `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID` | La API de Meta. Opcionales: `WHATSAPP_API_VERSION`, `WHATSAPP_IDIOMA` |
+| `NEXT_PUBLIC_MIXPANEL_TOKEN` | Token del proyecto de Mixpanel (datos en US). Sin él la analítica no se activa. Usá un proyecto de desarrollo aparte para probar |
 | `WHATSAPP_CANAL=consola` | Imprime los avisos en la consola del servidor en vez de mandarlos (para la demo) |
 
 ### Base de datos

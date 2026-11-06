@@ -27,6 +27,7 @@ export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
 
   return (
     <form
+      data-formulario="apartar_vitrina"
       action={accion}
       onSubmit={(e) => {
         const f = new FormData(e.currentTarget);

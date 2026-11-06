@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { eliminarGrupo, eliminarProducto, listarGrupo, obtenerProducto } from "../repositorio";
 import { borrarSiNadieLasUsa } from "@/lib/fotosSueltas";
 import { negocioActual } from "@/lib/negocio";
@@ -28,6 +29,7 @@ export async function borrarProducto(codigo: number, todas = false): Promise<{ e
   if (r !== "ok") return { error: t.errorGeneral };
 
   await borrarSiNadieLasUsa(supabase, fotos);
+  await rastrearAccion("producto_borrado", { todas });
   revalidatePath("/", "layout");
   return {};
 }

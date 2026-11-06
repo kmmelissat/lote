@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { leerResenaManual } from "../formularios";
@@ -20,6 +21,7 @@ export async function cambiarEstadoResena(id: string, estado: "publicada" | "ocu
   const ctx = await soloQuienGestiona();
   if (!ctx) return { error: t.errorPermiso };
   if (!(await moderarResena(ctx.supabase, id, estado))) return { error: t.errorGeneral };
+  await rastrearAccion("resena_moderada", { estado });
   revalidatePath("/", "layout");
   return {};
 }
@@ -28,6 +30,7 @@ export async function borrarResena(id: string): Promise<{ error?: string }> {
   const ctx = await soloQuienGestiona();
   if (!ctx) return { error: t.errorPermiso };
   if (!(await eliminarResena(ctx.supabase, id))) return { error: t.errorGeneral };
+  await rastrearAccion("resena_borrada");
   revalidatePath("/", "layout");
   return {};
 }
@@ -40,6 +43,7 @@ export async function agregarResenaManual(_anterior: EstadoResenaForm, formData:
   const ctx = await soloQuienGestiona();
   if (!ctx) return { error: t.errorPermiso };
   if (!(await agregarResena(ctx.supabase, ctx.negocio.id, datos))) return { error: t.errorGeneral };
+  await rastrearAccion("resena_manual_agregada");
   revalidatePath("/", "layout");
   return { listo: true };
 }

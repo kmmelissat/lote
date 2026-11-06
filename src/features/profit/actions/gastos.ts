@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { CATEGORIAS_GASTO, elegirCuenta, fechaLocalDe, leerDolares, type CategoriaGasto } from "@/domain/index";
 import { elegirTarjeta } from "@/features/gestion/elegirCuenta";
 import { cuentasDelNegocio, esCuentaDeSiempre, tarjetasDelNegocio } from "@/features/gestion/repositorio";
@@ -48,6 +49,7 @@ export async function agregarGasto(previo: EstadoGasto, datos: FormData): Promis
   });
   if (!id) return { ...previo, error: t.errorGeneral, listo: undefined };
 
+  await rastrearAccion("gasto_registrado");
   revalidatePath("/", "layout");
   return { listo: t.listo, guardados: (previo.guardados ?? 0) + 1 };
 }

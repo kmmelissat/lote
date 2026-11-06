@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { categoriaPorTexto } from "@/features/catalog/rubros";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -37,6 +38,7 @@ export async function acomodarCategorias(): Promise<{ error: string } | { acomod
   for (const [categoria, ids] of porCategoria) {
     if (!(await asignarCategoria(supabase, ids, categoria))) return { error: t.errorGeneral };
   }
+  await rastrearAccion("categorias_acomodadas");
   revalidatePath("/", "layout");
   return { acomodados: acomodados.size, quedan: sinReconocer.size };
 }

@@ -222,6 +222,7 @@ export function NuevoProductoForm({
 
   return (
     <form
+      data-formulario="producto"
       id="form-producto"
       ref={formulario}
       action={accion}

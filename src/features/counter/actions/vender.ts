@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { limpiarCodigoDeBarras } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
@@ -92,6 +93,7 @@ export async function cobrarVenta(
   const hayContacto = Boolean(contactos.telefono || contactos.usuario || contactos.correo);
   const contactoFallo = hayContacto && !(await guardarContactoDeVenta(supabase, r.id, { ...contactos, aceptaWhatsapp: entrada.acepta === true }));
 
+  await rastrearAccion("venta_mostrador_cobrada", { metodo, articulos: items.length });
   revalidatePath("/", "layout");
   return { ok: true, codigo: r.codigo, ...(contactoFallo ? { contactoFallo } : {}) };
 }

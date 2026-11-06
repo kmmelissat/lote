@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rastrearAccion } from "@/lib/analiticaServidor";
 import { colorDeMarca } from "@/features/catalog/marca";
 import { guardarTienda as guardar } from "@/features/catalog/repositorio";
 import { esRutaFoto } from "@/lib/fotos";
@@ -56,6 +57,7 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
   // El logo de antes ya no se usa: se borra del bucket
   if (negocio.logo && negocio.logo !== (d.logo || null)) await borrarSiNadieLasUsa(supabase, [negocio.logo]);
 
+  await rastrearAccion("tienda_configurada");
   revalidatePath("/", "layout");
   return { listo: true };
 }
