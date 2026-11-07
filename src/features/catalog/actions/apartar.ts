@@ -80,7 +80,7 @@ export async function apartarProducto(
 
   await reconocerDispositivo(resultado.pedidoId, campos.correo ?? "");
   await rastrearServidor("pedido_vitrina_creado", null, { tipo: "apartado", slug });
-  redirect(`/c/${slug}/pedido/${resultado.pedidoId}`);
+  redirect(`/p/${resultado.pedidoId}`);
 }
 
 /** Comprar: lo mismo que apartar, más cómo se recibe (recoger o envío con dirección) y cómo se piensa pagar. */
@@ -115,7 +115,7 @@ export async function comprarProducto(
 
   await reconocerDispositivo(resultado.pedidoId, campos.correo ?? "");
   await rastrearServidor("pedido_vitrina_creado", null, { tipo: "compra", slug });
-  redirect(`/c/${slug}/pedido/${resultado.pedidoId}`);
+  redirect(`/p/${resultado.pedidoId}`);
 }
 
 /** Comprar el carrito: varios productos en un solo pedido, con los mismos datos de entrega y pago que una compra. */
@@ -145,7 +145,7 @@ export async function comprarCarrito(slug: string, _anterior: EstadoApartar, for
   await reconocerDispositivo(resultado.pedidoId, campos.correo ?? "");
   await rastrearServidor("pedido_vitrina_creado", null, { tipo: "carrito", slug });
   // ?carrito=1: la pantalla de confirmación vacía el carrito del navegador
-  redirect(`/c/${slug}/pedido/${resultado.pedidoId}?carrito=1`);
+  redirect(`/p/${resultado.pedidoId}?carrito=1`);
 }
 
 /** La dirección solo viaja si el pedido es con envío: recoger no deja dirección guardada. */

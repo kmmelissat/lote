@@ -3,7 +3,7 @@
 -- No incluye grant/revoke, datos (insert/update/delete) ni bloques do. Las columnas con sus tipos también están en
 -- src/lib/supabase/database.types.ts.
 --
--- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda.
+-- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda, busqueda_sin_tildes.
 
 -- ====================================================================================================
 -- TABLAS (43)
@@ -889,7 +889,7 @@ alter table public.ubicacion enable row level security;
 
 
 -- ====================================================================================================
--- FUNCIONES (124)
+-- FUNCIONES (126)
 -- ====================================================================================================
 
 -- función abonar_pasivo(uuid, numeric, text, text, uuid)
@@ -1630,6 +1630,25 @@ begin
   end if;
   update public.oferta set estado = p_estado where id = p_oferta;
 end;
+$$;
+
+-- función coincide_busqueda(text, text)
+-- busqueda_sin_tildes.sql
+create or replace function public.coincide_busqueda(p_texto text, p_busqueda text)
+returns boolean
+language sql immutable
+set search_path = ''
+as $$
+  select not exists (
+    select 1
+    from unnest(regexp_split_to_array(public.normalizar_busqueda(p_busqueda), '\s+')) w
+    where w <> ''
+      and position(
+        case when length(w) > 4 and w like '%es' then left(w, -2)
+             when length(w) > 2 and w like '%s' then left(w, -1)
+             else w end
+        in public.normalizar_busqueda(p_texto)) = 0
+  )
 $$;
 
 -- función comprador_de_usuario(uuid)
@@ -3079,7 +3098,7 @@ as $$
 $$;
 
 -- función explorar_productos(text, text[], integer, integer, text, numeric, numeric, boolean, boolean, text)
--- precio_anterior_explorar.sql
+-- busqueda_sin_tildes.sql (antes en: precio_anterior_explorar.sql)
 create or replace function public.explorar_productos(
   p_busqueda text default null,
   p_claves text[] default null,
@@ -3132,7 +3151,7 @@ as $$
     where n.visible_en_explorar and n.vitrina_activa
       and d.disp > 0
       and (p_busqueda is null
-           or position(lower(p_busqueda) in lower(p.nombre || ' ' || coalesce(p.categoria, '') || ' ' || coalesce(p.marca, '') || ' ' || n.nombre)) > 0)
+           or public.coincide_busqueda(p.nombre || ' ' || coalesce(p.categoria, '') || ' ' || coalesce(p.marca, '') || ' ' || n.nombre, p_busqueda))
       and (p_claves is null or (n.slug || '|' || p.categoria) = any(p_claves))
       and (p_departamento is null or n.zonas_entrega is null or jsonb_exists(n.zonas_entrega, p_departamento))
     group by n.id, n.slug, n.nombre, coalesce(p.grupo::text, p.id::text), e.tarifa
@@ -3180,7 +3199,7 @@ as $$
 $$;
 
 -- función explorar_tiendas(text, text[])
--- catalogo_fijo.sql
+-- busqueda_sin_tildes.sql (antes en: catalogo_fijo.sql)
 create or replace function public.explorar_tiendas(p_busqueda text default null, p_categorias text[] default null)
 returns table (
   slug text,
@@ -3204,7 +3223,7 @@ as $$
            array_agg(distinct p.categoria) filter (where p.categoria is not null and d.disp > 0) as categorias,
            bool_or(d.disp > 0 and (
              p_busqueda is null
-             or position(lower(p_busqueda) in lower(p.nombre || ' ' || coalesce(p.categoria, '') || ' ' || coalesce(p.marca, ''))) > 0
+             or public.coincide_busqueda(p.nombre || ' ' || coalesce(p.categoria, '') || ' ' || coalesce(p.marca, ''), p_busqueda)
            ) and (p_categorias is null or p.categoria = any(p_categorias))) as coincide_producto
     from public.producto p
     cross join lateral (select public.disponibles_de(p.id) as disp) d
@@ -3214,7 +3233,7 @@ as $$
     and t.piezas > 0
     and (
       p_busqueda is null
-      or position(lower(p_busqueda) in lower(n.nombre || ' ' || coalesce(n.descripcion, ''))) > 0
+      or public.coincide_busqueda(n.nombre || ' ' || coalesce(n.descripcion, ''), p_busqueda)
       or t.coincide_producto
     )
     and (p_categorias is null or t.coincide_producto)
@@ -3738,6 +3757,18 @@ as $$
      order by i.id
      limit 1),
     'un producto')
+$$;
+
+-- función normalizar_busqueda(text)
+-- busqueda_sin_tildes.sql
+create or replace function public.normalizar_busqueda(p_texto text)
+returns text
+language sql immutable
+set search_path = ''
+as $$
+  select lower(translate(coalesce(p_texto, ''),
+    'áàäâãéèëêíìïîóòöôõúùüûñÁÀÄÂÃÉÈËÊÍÌÏÎÓÒÖÔÕÚÙÜÛÑ',
+    'aaaaaeeeeiiiiooooouuuunAAAAAEEEEIIIIOOOOOUUUUN'))
 $$;
 
 -- función pagar_paquetera(uuid, numeric, text, uuid)

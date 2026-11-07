@@ -35,6 +35,9 @@ export type ProductoExplorar = {
   destacado?: boolean;
 };
 
+/** La página con todas las tiendas */
+export const RUTA_TIENDAS = "/marketplace/tiendas" as const;
+
 /** La página de un rubro tiene dirección propia, sin parámetros: es la que se indexa. */
 export const rutaRubro = (rubro: RubroId) => ruta(`/marketplace/categoria/${rubro}`);
 

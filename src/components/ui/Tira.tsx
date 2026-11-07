@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
 const t = textos.comun;
 
 // Por páginas: tantos elementos enteros como columnas tiene la grilla de productos en cada ancho (separación de 1rem)
-const COLUMNAS = "w-[calc((100%-1rem)/2)] md:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-3rem)/4)] xl:w-[calc((100%-5rem)/6)] 2xl:w-[calc((100%-6rem)/7)]";
+const COLUMNAS = "w-[150px] md:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-3rem)/4)] xl:w-[calc((100%-5rem)/6)] 2xl:w-[calc((100%-6rem)/7)]";
 
 /**
  * Una fila que se desliza de lado si lo que tiene no cabe (las miniaturas de una galería). Las flechas aparecen

@@ -19,6 +19,26 @@ export const seguimiento = {
     listo: "En tienda",
     recogido: "Recogido",
   },
+  /** El título del banner según la parada en que va el pedido */
+  titulos: {
+    recibido: "¡Ya anotamos tu pedido!",
+    empacado: "Lo estamos empacando con cariño",
+    recoge: "¡Ya está listo para salir!",
+    camino: "¡Tu pedido va para allá!",
+    entregado: "¡Listo, disfrutalo!",
+    listo: "¡Listo para que lo recojas!",
+    recogido: "¡Recogido! Que lo disfrutes",
+  },
+  /** Qué viene después de cada parada (la frase bajo la línea de tiempo) */
+  siguiente: {
+    empacado: "Siguiente: la tienda lo empaca.",
+    recoge: "Siguiente: la paquetera pasa por tu pedido a la tienda.",
+    camino: "Siguiente: sale en camino.",
+    entregado: "Siguiente: la entrega.",
+    listo: "Siguiente: tu pedido queda listo en la tienda.",
+    recogido: "Siguiente: pasás a recogerlo.",
+  },
+  completo: "Tu pedido ya llegó a su última parada.",
   mensajes: {
     pendiente: { titulo: "¡Recibimos tu pedido!", texto: (negocio: string) => `${negocio} lo está guardando para vos.` },
     pagado: { titulo: "¡Pago confirmado!", texto: "Gracias. Ahora toca prepararlo." },

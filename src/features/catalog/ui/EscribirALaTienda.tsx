@@ -6,7 +6,7 @@ const t = textos.vitrina.confirmacion;
 
 /** Los dos botones de la página del pedido: el principal (color de la tienda) y el secundario en contorno. En celular, de ancho completo. */
 export const BOTON_PRINCIPAL = "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-(--store-button) px-6 py-2 text-center font-bold text-(--store-on-button) transition-opacity hover:opacity-90 max-sm:w-full";
-export const BOTON_CONTORNO = "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-oscuro/30 bg-superficie px-6 py-2 text-center font-bold hover:bg-(--store-soft) max-sm:w-full";
+export const BOTON_CONTORNO = "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-borde bg-superficie px-6 py-2 text-center font-bold hover:bg-(--store-soft) max-sm:w-full";
 
 /** El botón para escribirle a la tienda por su WhatsApp, con el mensaje del pedido ya armado. Si la tienda no puso uno, no se muestra. */
 export function EscribirALaTienda({

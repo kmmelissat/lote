@@ -465,3 +465,58 @@ body:has(.barra-formulario, .barra-guardar) .burbuja-lotito {
     transform: scaleX(1);
   }
 }
+
+/* Seguimiento del pedido: la caja flota y el tramo recorrido de la línea se rellena al entrar. Sin movimiento si se pide menos. */
+@keyframes lote-flota {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes lote-relleno-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes lote-relleno-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+.lote-flota {
+  animation: lote-flota 3s ease-in-out infinite;
+}
+.lote-relleno {
+  transform-origin: top;
+  animation: lote-relleno-y var(--dur, 600ms) var(--ret, 0ms) ease-out both;
+}
+@media (min-width: 40rem) {
+  .lote-relleno {
+    transform-origin: left;
+    animation-name: lote-relleno-x;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lote-flota,
+  .lote-relleno {
+    animation: none;
+  }
+}
+
+/* Casilla de los filtros: borde oscuro de 2px, radio 6px y amarillo al marcarla */
+.casilla-lote {
+  appearance: none;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  border: 2px solid var(--color-teal-oscuro);
+  border-radius: 6px;
+  background: var(--color-superficie);
+}
+.casilla-lote:checked {
+  background: var(--color-limon) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23003844' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat;
+}
+.casilla-lote:focus-visible {
+  outline: 2px solid var(--color-teal-oscuro);
+  outline-offset: 2px;
+}

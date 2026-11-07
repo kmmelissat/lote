@@ -2,26 +2,33 @@ import Link from "next/link";
 import { permanentRedirect } from "next/navigation";
 import { connection } from "next/server";
 import {
-  explorarDestacados,
   explorarOfertas,
   explorarPromociones,
   explorarProductos,
   explorarRubros,
   explorarTiendas,
   ORDENES_EXPLORAR,
+  RUTA_TIENDAS,
   type OrdenExplorar,
 } from "../explorar";
 import { categoriaPorTexto, esRubro, rubroDeCategoria } from "../rubros";
-import { ejemplosDeBusqueda, rubroDeProducto } from "../portada";
 import { colorDeMarca } from "../marca";
 import { HeroMercadito } from "./HeroMercadito";
-import { SeccionCalle } from "./CalleTiendas";
 import { FilaProductos } from "./FilaProductos";
-import { PanelFiltros } from "./PanelFiltros";
+import { BandaTienda } from "./BandaTienda";
+import { BandaTiendas } from "./BandaTiendas";
+import { EstanteProductos } from "./EstanteProductos";
 import { SobreExplorar } from "./SobreExplorar";
-import { TarjetasRubro } from "./TarjetasRubro";
+import { BarraCategorias } from "./BarraCategorias";
+import { CirculosCategoria } from "./CirculosCategoria";
 import { CuerpoExplorar } from "./CuerpoExplorar";
-import { chip, enlace, enlaceExplorar, type Filtros, type Vista } from "./enlacesExplorar";
+import { PanelFiltros } from "./PanelFiltros";
+import {
+  enlace,
+  enlaceExplorar,
+  type Filtros,
+  type Vista,
+} from "./enlacesExplorar";
 import { JsonLd } from "@/lib/jsonld";
 import { urlSitio } from "@/lib/sitio";
 import { createPublicClient } from "@/lib/supabase/publico";
@@ -37,7 +44,6 @@ const POR_PAGINA = 30;
 // una fila con una o dos tarjetas se ve vacía
 const POR_FILA = 10;
 const MINIMO_FILA = 4;
-
 
 /** Dólares escritos por la persona → número, o undefined si está vacío o no es válido. */
 function dolares(texto: string): number | undefined {
@@ -61,7 +67,8 @@ export async function PaginaExplorar({
   const pedida = (categoriaRuta ?? texto("categoria")).slice(0, 80).trim();
   const categoria = esRubro(pedida) ? pedida : "";
   const subPedida = texto("sub").trim();
-  const sub = categoria && rubroDeCategoria(subPedida) === categoria ? subPedida : "";
+  const sub =
+    categoria && rubroDeCategoria(subPedida) === categoria ? subPedida : "";
   const orden = (ORDENES_EXPLORAR as readonly string[]).includes(texto("orden"))
     ? (texto("orden") as OrdenExplorar)
     : "recientes";
@@ -89,18 +96,26 @@ export async function PaginaExplorar({
   // Una dirección vieja con el nombre de una categoría ("Blusas") lleva a su rubro y a su categoría del catálogo
   if (pedida && !categoria) {
     const deEsa = categoriaPorTexto(pedida);
-    permanentRedirect(enlace({ ...f, categoria: deEsa?.rubro ?? "", sub: deEsa?.nombre ?? "" }));
+    permanentRedirect(
+      enlace({ ...f, categoria: deEsa?.rubro ?? "", sub: deEsa?.nombre ?? "" }),
+    );
   }
   const rubro = rubros.find((r) => r.id === categoria);
   const nombreRubro = rubro?.nombre ?? "";
   // Las categorías del catálogo que se piden: la elegida, o todas las del rubro
-  const categorias = categoria ? (sub ? [sub] : (rubro?.nombres ?? [])) : undefined;
+  const categorias = categoria
+    ? sub
+      ? [sub]
+      : (rubro?.nombres ?? [])
+    : undefined;
   const filtrando = Boolean(
     busqueda || categoria || sub || min || max || depto || gratis || oferta,
   );
   // La portada (sin buscar ni filtrar) abre con filas que atraen: destacados, ofertas o lo nuevo
   const portada = vista === "productos" && !filtrando && pagina === 1;
-  const [tiendas, { productos, total }, destacados, ofertas, promociones] =
+  // En categoría y búsqueda los filtros van en una columna a la izquierda (en el celular, en una hoja)
+  const conPanel = vista === "productos" && filtrando;
+  const [tiendas, { productos, total }, ofertas, promociones] =
     await Promise.all([
       // En productos las tiendas son una fila de acceso rápido; en tiendas, el contenido principal
       explorarTiendas(
@@ -123,7 +138,6 @@ export async function PaginaExplorar({
             departamento: depto || undefined,
           })
         : Promise.resolve({ productos: [], total: null }),
-      portada ? explorarDestacados(supabase, POR_FILA) : Promise.resolve([]),
       portada ? explorarOfertas(supabase, POR_FILA) : Promise.resolve([]),
       portada ? explorarPromociones(supabase, POR_FILA) : Promise.resolve([]),
     ]);
@@ -136,14 +150,10 @@ export async function PaginaExplorar({
     .slice(0, 4);
   const totalProductos = rubros.reduce((n, r) => n + r.productos, 0);
 
-  // Ejemplos del buscador, de productos reales (destacados y ofertas primero): cambian en cada visita
-  const ejemplos = ejemplosDeBusqueda(
-    [...destacados, ...ofertas, ...visibles],
-    rubroDeProducto,
-    3,
-  );
   // Cuántos filtros del panel hay puestos (el rubro tiene su propio resaltado)
   const activos = [min || max, depto, gratis, oferta].filter(Boolean).length;
+  // Sin ningún filtro: lo que usan la barra de categorías y sus enlaces
+  const limpio: Filtros = { ...f, busqueda: "", categoria: "", sub: "", orden: "recientes", min: "", max: "", depto: "", gratis: false, oferta: false, vista: "productos", pagina: 1 };
   const quitar =
     activos > 0 || categoria || sub
       ? enlace({
@@ -158,25 +168,6 @@ export async function PaginaExplorar({
           pagina: 1,
         })
       : null;
-  const panel = (
-    <PanelFiltros
-      filtros={{
-        busqueda,
-        categoria,
-        sub,
-        orden,
-        min,
-        max,
-        departamento: depto,
-        gratis,
-        oferta,
-      }}
-      rubros={rubros}
-      enlaceRubro={(id) => enlaceExplorar({ ...f, categoria: id, sub: "", pagina: 1 })}
-      enlaceCategoria={(nombre) => enlaceExplorar({ ...f, sub: nombre, pagina: 1 })}
-      limpiar={quitar}
-    />
-  );
   // El color y el logo de cada tienda, para que sus productos se distingan en la grilla
   const marcas = new Map(
     tiendas.map((x) => [
@@ -187,52 +178,15 @@ export async function PaginaExplorar({
   const marcaDe = (p: { tiendaSlug: string }) =>
     marcas.get(p.tiendaSlug) ?? { color: colorDeMarca(null).hex, logo: null };
 
-  // Las dos filas de la portada: lo que haya de destacados y ofertas; si falta alguna, lo nuevo
-  const filas = [
-    destacados.length >= MINIMO_FILA && {
-      id: "destacados",
-      titulo: t.destacadosTitulo,
-      ayuda: t.destacadosAyuda,
-      icono: "★",
-      productos: destacados,
-      promociones: [],
-    },
-    ofertas.length + promociones.length >= MINIMO_FILA && {
-      id: "ofertas",
-      titulo: t.ofertasTitulo,
-      ayuda: t.ofertasAyuda,
-      icono: "%",
-      productos: ofertas,
-      promociones,
-    },
-    {
-      id: "nuevos",
-      titulo: t.nuevosTitulo,
-      ayuda: t.nuevosAyuda,
-      icono: "✦",
-      productos: visibles.slice(0, POR_FILA),
-      promociones: [],
-    },
-  ]
-    .filter((x) => x !== false)
-    .slice(0, 2);
-  const fila = (i: number) =>
-    filas[i] && (
-      <FilaProductos
-        id={`fila-${filas[i].id}`}
-        titulo={filas[i].titulo}
-        ayuda={filas[i].ayuda}
-        icono={
-          <span className="text-lg font-extrabold leading-none">
-            {filas[i].icono}
-          </span>
-        }
-        productos={filas[i].productos}
-        promociones={filas[i].promociones}
-        marcaDe={marcaDe}
-        eager={i === 0}
-      />
-    );
+  // La tienda del momento: la que más productos tiene entre los que se ven (hacen falta tres para la banda)
+  const porTienda = Map.groupBy(visibles, (p) => p.tiendaSlug);
+  const [slugMomento, deMomento] = [...porTienda].sort((a, b) => b[1].length - a[1].length)[0] ?? [];
+  const tiendaMomento = tiendas.find((x) => x.slug === slugMomento);
+  const tiendaDelMomento =
+    tiendaMomento && deMomento && deMomento.length >= 3 ? { tienda: tiendaMomento, productos: deMomento.slice(0, 3) } : null;
+
+  // Los dos estantes de la portada: lo que está en oferta (si hay suficiente) y lo más nuevo
+  const hayOfertas = ofertas.length + promociones.length >= MINIMO_FILA;
 
   return (
     <div className="flex flex-col gap-6">
@@ -246,23 +200,22 @@ export async function PaginaExplorar({
         }}
       />
 
+      <BarraCategorias
+        rubros={rubros}
+        activo={categoria}
+        enOferta={oferta}
+        enTiendas={vista === "tiendas"}
+        enlaceRubro={(id) => enlaceExplorar({ ...limpio, categoria: id })}
+        enlaceOfertas={enlaceExplorar({ ...limpio, oferta: true })}
+        enlaceTiendas={{ href: RUTA_TIENDAS }}
+      />
+
       <HeroMercadito
+        compacto={filtrando}
         tiendas={tiendas.length}
-        totalProductos={rubro ? rubro.productos : totalProductos}
-        ejemplos={ejemplos}
-        busqueda={busqueda}
+        // Lo mismo que cuenta la grilla (todos los productos a la vista); con una categoría puesta, lo de esa categoría
+        totalProductos={vista === "productos" && !filtrando && total !== null ? total : rubro ? rubro.productos : totalProductos}
         titulo={nombreRubro ? t.encabezadoRubro(nombreRubro) : undefined}
-        ocultos={
-          <>
-            {vista !== "productos" && (
-              <input type="hidden" name="vista" value={vista} />
-            )}
-            {categoria && (
-              <input type="hidden" name="categoria" value={categoria} />
-            )}
-            {sub && <input type="hidden" name="sub" value={sub} />}
-          </>
-        }
         extra={
           // En tiendas no hay fila de categorías: ahí se sugieren las que tienen más productos
           vista === "tiendas" && sugeridas.length > 0 && !busqueda ? (
@@ -296,78 +249,46 @@ export async function PaginaExplorar({
         {vista === "productos" && (
           <>
             {rubros.length > 0 && !filtrando && (
-              <TarjetasRubro
+              <CirculosCategoria
                 rubros={rubros}
-                activo={categoria}
-                enlace={(id) =>
-                  enlaceExplorar({ ...f, categoria: id, sub: "", pagina: 1 })
-                }
+                enlace={(id) => enlaceExplorar({ ...f, categoria: id, sub: "", pagina: 1 })}
+                verTodas="#todos"
               />
             )}
-            {/* En el celular el panel de filtros está cerrado: las categorías del rubro van como chips que se deslizan */}
-            {rubro && rubro.categorias.length > 1 && (
-              <nav aria-label={t.panel.categoriasDe(rubro.nombre)} className="-mx-1 lg:hidden">
-                <ul className="flex snap-x gap-2 overflow-x-auto px-1 pb-1">
-                  <li className="shrink-0">
-                    <Link {...enlaceExplorar({ ...f, sub: "", pagina: 1 })} aria-current={sub ? undefined : "true"} className={chip(!sub)}>
-                      {t.panel.todoElRubro}
-                    </Link>
-                  </li>
-                  {rubro.categorias.map((c) => (
-                    <li key={c.categoria} className="shrink-0 snap-start">
-                      <Link {...enlaceExplorar({ ...f, sub: c.categoria, pagina: 1 })} aria-current={sub === c.categoria ? "true" : undefined} className={chip(sub === c.categoria)}>
-                        {c.categoria}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            )}
-            {/* Portada: las dos filas que atraen, la calle con las tiendas y después todo */}
+            {/* Portada: dos estantes, la tienda del momento y la invitación a ver todas las tiendas */}
             {portada && (
-              <div className="flex flex-col gap-8 py-2">
-                {fila(0)}
-                {fila(1)}
-                {tiendas.length > 0 && (
-                  <SeccionCalle
-                    tiendas={tiendas.slice(0, 20)}
-                    verTodas={enlaceExplorar({ ...f, vista: "tiendas" })}
-                  />
+              <div className="flex flex-col gap-10 py-2">
+                {hayOfertas && (
+                  <EstanteProductos id="ofertas" titulo={t.estantes.ofertas} verTodo={enlaceExplorar({ ...limpio, oferta: true })}>
+                    <FilaProductos titulo={t.estantes.ofertas} productos={ofertas} promociones={promociones} marcaDe={marcaDe} eager />
+                  </EstanteProductos>
                 )}
+                {visibles.length > 0 && (
+                  <EstanteProductos id="nuevos" titulo={t.estantes.nuevos} verTodo={{ href: "#todos" }}>
+                    <FilaProductos titulo={t.estantes.nuevos} productos={visibles.slice(0, POR_FILA)} marcaDe={marcaDe} eager={!hayOfertas} />
+                  </EstanteProductos>
+                )}
+                {tiendaDelMomento && <BandaTienda tienda={tiendaDelMomento.tienda} productos={tiendaDelMomento.productos} />}
+                {tiendas.length > 0 && <BandaTiendas tiendas={tiendas} destino={{ href: RUTA_TIENDAS }} />}
               </div>
-            )}
-            {!filtrando && (
-              <h2 className="-mb-1 font-logo text-xl font-bold">{t.todosTitulo}</h2>
             )}
           </>
         )}
 
-        <div
-          className={
-            vista === "productos"
-              ? "flex flex-col gap-4 lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:items-start lg:gap-6"
-              : "contents"
-          }
-        >
-          {vista === "productos" && (
-            <aside
-              aria-label={t.filtros}
-              className="sticky top-4 hidden rounded-[24px] border border-teal-oscuro bg-superficie p-4 shadow-dura-chica lg:block"
-            >
-              {panel}
-            </aside>
+        <div className={conPanel ? "grid items-start gap-4 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8" : undefined}>
+          {conPanel && (
+            <PanelFiltros
+              f={f}
+              rubros={rubros}
+              enlaceRubro={(id) => enlaceExplorar({ ...f, categoria: id, sub: "", pagina: 1 })}
+              enlaceSub={(nombre) => enlaceExplorar({ ...f, sub: nombre, pagina: 1 })}
+            />
           )}
           <CuerpoExplorar
             vista={vista}
             total={total}
             visibles={visibles}
-            min={min}
-            max={max}
-            depto={depto}
-            gratis={gratis}
-            oferta={oferta}
-            activos={activos}
-            panel={panel}
+            limpiar={quitar}
             orden={orden}
             f={f}
             vacio={vacio}

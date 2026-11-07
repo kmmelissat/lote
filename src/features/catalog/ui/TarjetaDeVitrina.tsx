@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -10,6 +11,7 @@ import { Ventana } from "@/components/ui/Ventana";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
+import { LogoTienda } from "./MarcaTienda";
 import type { TarjetaVitrina } from "../agruparVitrina";
 import { agregarAlCarrito } from "../carrito";
 import { lanzarConfeti } from "./confeti";
@@ -37,6 +39,8 @@ export function TarjetaDeVitrina({
   prioridad,
   promo = false,
   compacto = false,
+  tienda,
+  promocion,
 }: {
   slug: string;
   p: TarjetaVitrina;
@@ -51,16 +55,22 @@ export function TarjetaDeVitrina({
   promo?: boolean;
   /** El nombre ocupa solo lo que mide, sin reservar dos líneas (para filas sueltas fuera de la grilla) */
   compacto?: boolean;
+  /** Solo en el Marketplace: de qué tienda es. En la página de la tienda no se pasa y no se muestra */
+  tienda?: { nombre: string; logo: string | null };
+  /** Solo en el Marketplace, para un pack o "llevá y pagá": lleva a la tienda, con su badge, descripción y ahorro */
+  promocion?: { href: Route; badge: string; descripcion: string | null; ahorro: string | null; conPrecio: boolean };
 }) {
   const libre = p.disponibles > 0;
   const pocas = libre && p.disponibles <= umbral;
   const descuento = p.precioAnterior ? Math.round((1 - p.precioMinimo / p.precioAnterior) * 100) : 0;
   const fichas = fichasParaTarjeta(p.variantes, p.nombresOpciones);
   // Con una sola opción se agrega directo; con varias hay que elegir en la ficha
-  const sticker = !libre
+  const sticker = promocion
+    ? { texto: promocion.badge, fondo: "" }
+    : !libre
     ? { texto: p.apartado ? t.apartadoSticker : t.agotadoSticker, fondo: "bg-(--store-soft) text-(--store-on-soft)" }
     : descuento > 0
-      ? { texto: t.etiquetas.oferta(descuento), fondo: "bg-(--store-soft) text-(--store-on-soft)" }
+      ? { texto: tienda ? `−${descuento}%` : t.etiquetas.oferta(descuento), fondo: "bg-(--store-soft) text-(--store-on-soft)" }
       : promo
         ? { texto: textos.promociones.enPromocion, fondo: "bg-(--store-soft) text-(--store-on-soft)" }
         : pocas
@@ -69,20 +79,31 @@ export function TarjetaDeVitrina({
             ? { texto: t.etiquetas.nuevo, fondo: "bg-(--store-soft) text-(--store-on-soft)" }
             : null;
   const sePuedeAgregar = puedeComprar && libre;
+  // En el Marketplace (cuando viene `tienda`) la tarjeta se afina: alturas parejas, badges de Lote y zoom suave. La vitrina queda igual.
+  const mercado = !!tienda;
+  const esOferta = descuento > 0 || promo || !!promocion;
+  const fondoSticker = mercado ? (esOferta && libre ? "bg-mango text-texto" : "bg-limon text-texto") : sticker?.fondo;
 
   return (
     <div
-      className="group relative flex h-full flex-col gap-2 pb-3"
+      className={`group relative flex h-full flex-col pb-3 ${mercado ? "gap-2.5" : "gap-2"}`}
     >
-      <div className="relative aspect-square overflow-hidden rounded-[22px] bg-teal-fondo">
-        {p.fotos[0] ? (
+      <div className={`relative aspect-square overflow-hidden rounded-[22px] bg-teal-fondo ${promocion && p.fotos.length > 1 ? "grid grid-cols-2 gap-1" : ""}`}>
+        {promocion && p.fotos.length > 1 ? (
+          // Colage del pack: las fotos juntas, en el mismo radio que las demás imágenes
+          p.fotos.map((f, i) => (
+            <span key={f} className={`relative overflow-hidden ${p.fotos.length === 3 && i === 0 ? "col-span-2" : ""}`}>
+              <Image src={urlFoto(f)} alt="" fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />
+            </span>
+          ))
+        ) : p.fotos[0] ? (
           <Image
             src={urlFoto(p.fotos[0])}
             alt=""
             fill
             loading={prioridad ? "eager" : "lazy"}
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-            className={`object-cover transition-transform duration-300 ease-out group-hover:scale-105 ${libre ? "" : "opacity-70"}`}
+            className={`object-cover transition-transform ${mercado ? "duration-200 motion-reduce:transition-none motion-safe:group-hover:scale-[1.03]" : "duration-300 group-hover:scale-105"} ease-out ${libre ? "" : "opacity-70"}`}
           />
         ) : (
           <span aria-hidden="true" className="flex size-full items-center justify-center">
@@ -91,7 +112,7 @@ export function TarjetaDeVitrina({
         )}
         {/* Un solo sticker por tarjeta, el más importante: agotado, oferta, pocas unidades o nuevo */}
         {sticker && (
-          <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-bold ${sticker.fondo}`}>
+          <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-bold ${fondoSticker}`}>
             {sticker.texto}
           </span>
         )}
@@ -109,13 +130,15 @@ export function TarjetaDeVitrina({
 
       <div className="flex flex-1 flex-col items-start gap-1">
         <Link
-          href={`/c/${slug}/${p.codigo}`}
-          className={`line-clamp-2 w-full text-sm ${compacto ? "" : "h-[2.5em]"} font-bold leading-tight after:absolute after:inset-0 after:content-['']`}
+          href={promocion?.href ?? `/c/${slug}/${p.codigo}`}
+          className={`line-clamp-2 w-full text-sm ${compacto || mercado ? "" : "h-[2.5em]"} ${mercado ? "text-[13px] font-semibold md:text-[15px]" : "font-bold"} leading-tight after:absolute after:inset-0 after:content-['']`}
         >
           {p.nombre}
         </Link>
-        <p className="flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
-          <span className="font-logo text-2xl font-bold leading-none">
+        {promocion?.descripcion && <p className="w-full truncate text-[13px] text-texto-2">{promocion.descripcion}</p>}
+        {(!promocion || promocion.conPrecio) && (
+        <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-1 tabular-nums">
+          <span className={`font-logo font-bold leading-none ${mercado ? "text-base md:text-lg" : "text-2xl"}`}>
             {p.precioMinimo === p.precioMaximo ? formatearDolares(p.precioMinimo) : t.desde(formatearDolares(p.precioMinimo))}
           </span>
           {descuento > 0 && p.precioAnterior && (
@@ -124,7 +147,17 @@ export function TarjetaDeVitrina({
               {formatearDolares(p.precioAnterior)}
             </span>
           )}
+          {promocion?.ahorro && (
+            <span className="rounded-full bg-mango/25 px-2 py-0.5 text-xs font-bold text-texto">{promocion.ahorro}</span>
+          )}
+          {mercado && p.opciones > 1 && (
+            <span className="text-[13px] text-texto-2">
+              <span aria-hidden="true">· </span>
+              {t.nOpciones(p.opciones)}
+            </span>
+          )}
         </p>
+        )}
         {p.estrellas && (
           <p className="text-xs font-bold" aria-label={t.tarjeta.calificacion(p.estrellas.promedio, p.estrellas.total)}>
             <span aria-hidden="true" className="text-ambar">
@@ -151,7 +184,14 @@ export function TarjetaDeVitrina({
             )}
           </ul>
         ) : (
-          p.opciones > 1 && <p className="flex h-6 items-center text-sm text-texto-2">{t.nOpciones(p.opciones)}</p>
+          !mercado && p.opciones > 1 && <p className="flex h-6 items-center text-sm text-texto-2">{t.nOpciones(p.opciones)}</p>
+        )}
+        {tienda && (
+          // z-10: por encima del enlace que cubre toda la tarjeta
+          <Link href={`/c/${slug}`} className="relative z-10 mt-auto flex min-w-0 items-center gap-2 pt-2.5 max-md:min-h-11 max-md:pt-0 text-xs font-semibold text-texto hover:underline md:text-[13px]">
+            <LogoTienda logo={tienda.logo} nombre={tienda.nombre} className="size-5 !rounded-full !text-[10px] md:size-6 md:!text-xs" />
+            <span className="truncate">{tienda.nombre}</span>
+          </Link>
         )}
         {envio && libre && (
           <p className="mt-auto flex min-w-0 items-start gap-1.5 pt-1 text-xs text-texto-2">
@@ -204,7 +244,7 @@ function BotonAgregar({
         onClick={() => (opciones ? ventana.current?.showModal() : agregar(codigo, disponibles))}
         aria-label={t.tarjeta.agregar(nombre)}
         aria-haspopup={opciones ? "dialog" : undefined}
-        className={`absolute bottom-3 right-3 z-10 flex size-12 items-center justify-center rounded-full shadow-sm transition-[transform,background-color] duration-150 active:translate-y-0.5 ${
+        className={`absolute bottom-3 right-3 z-10 flex size-11 md:size-12 items-center justify-center rounded-full shadow-sm transition-[transform,background-color] duration-150 active:translate-y-0.5 ${
           hecho ? "bg-(--store-soft) text-(--store-on-soft)" : "bg-(--store-button) text-(--store-on-button)"
         }`}
       >

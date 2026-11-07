@@ -29,6 +29,9 @@ export function Pie() {
           <Link href="/marketplace" className={ENLACE}>
             {t.marketplace}
           </Link>
+          <Link href={"/marketplace/tiendas"} className={ENLACE}>
+            {t.todasTiendas}
+          </Link>
           <Link href={textos.ayuda.ruta} className={ENLACE}>
             {t.ayuda}
           </Link>

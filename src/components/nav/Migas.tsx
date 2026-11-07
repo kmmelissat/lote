@@ -31,6 +31,8 @@ function etiquetaDe(tramo: string) {
 
 function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
   if (!pathname || pathname === "/") return null;
+  // La portada del Marketplace no lleva miga: ya está en el encabezado
+  if (pathname === "/marketplace" || pathname === "/marketplace/tiendas") return null;
   const partes = pathname.split("/").filter(Boolean);
   if (!partes.length || SIN_MIGAS.has(partes[0])) return null;
 

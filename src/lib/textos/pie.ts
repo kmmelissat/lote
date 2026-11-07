@@ -6,6 +6,7 @@ export const pie = {
   colLegal: "Legal",
   colContacto: "Contacto",
   marketplace: "Marketplace",
+  todasTiendas: "Todas las tiendas",
   ayuda: "Ayuda",
   entrar: "Entrar",
   crearTienda: "Abrir mi tienda",

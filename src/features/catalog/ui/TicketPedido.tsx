@@ -21,13 +21,13 @@ export function textoDePago(a: Pick<ApartadoPublico, "contraEntrega" | "metodoPr
 export function TicketPedido({ a, conDireccion = false, sinEntrega = false }: { a: ApartadoPublico; conDireccion?: boolean; sinEntrega?: boolean }) {
   const pago = textoDePago(a);
   return (
-    <section aria-labelledby="ticket-pedido" className="rounded-[24px] border border-teal-oscuro/30 bg-superficie p-5">
+    <section aria-labelledby="ticket-pedido" className="rounded-[24px] border border-borde bg-superficie p-5">
       <h2 id="ticket-pedido" className="mb-2 text-lg font-bold">
         {t.ticket.titulo}
       </h2>
       <ul className="flex flex-col">
         {a.items.map((i) => (
-          <li key={i.nombre} className="flex justify-between gap-3 border-b border-teal-oscuro/15 py-2">
+          <li key={i.nombre} className="flex justify-between gap-3 border-b border-borde py-2 last:border-b-0">
             <span className="min-w-0">
               {i.nombre} <span className="font-bold">×{i.cantidad}</span>
             </span>
@@ -35,7 +35,7 @@ export function TicketPedido({ a, conDireccion = false, sinEntrega = false }: { 
           </li>
         ))}
         {a.entrega === "envio" && (
-          <li className="flex justify-between gap-3 border-b border-teal-oscuro/15 py-2 text-texto-2">
+          <li className="flex justify-between gap-3 border-b border-borde py-2 last:border-b-0 text-texto-2">
             <span className="flex items-center gap-1.5">
               <Icon nombre="camion" className="size-4" />
               {t.envioCosto}
@@ -44,7 +44,7 @@ export function TicketPedido({ a, conDireccion = false, sinEntrega = false }: { 
           </li>
         )}
       </ul>
-      <p className="mt-2 flex items-baseline justify-between border-t border-teal-oscuro/30 pt-2">
+      <p className="mt-2 flex items-baseline justify-between border-t-2 border-borde pt-2">
         <span className="font-bold">{t.total}</span>
         <span className="text-2xl font-bold tabular-nums">{formatearDolares(a.total)}</span>
       </p>
@@ -73,7 +73,7 @@ function Direccion({ a }: { a: ApartadoPublico }) {
 export function EntregaYPago({ a }: { a: ApartadoPublico }) {
   const pago = textoDePago(a);
   return (
-    <section aria-labelledby="entrega-y-pago" className="rounded-[24px] border border-teal-oscuro/30 bg-superficie p-5">
+    <section aria-labelledby="entrega-y-pago" className="rounded-[24px] border border-borde bg-superficie p-5">
       <h2 id="entrega-y-pago" className="mb-3 text-lg font-bold">
         {t.entregaYPago}
       </h2>
@@ -82,6 +82,7 @@ export function EntregaYPago({ a }: { a: ApartadoPublico }) {
         {a.entrega && <Chip>{a.entrega === "envio" ? t.ticket.recibido.envio : t.ticket.recibido.retiro}</Chip>}
       </div>
       <Direccion a={a} />
+      {a.contraEntrega && a.estado !== "cancelado" && a.saldo > 0 && <p className="mt-3 text-base text-texto">{t.pasoPagoContraEntrega(formatearDolares(a.saldo))}</p>}
     </section>
   );
 }

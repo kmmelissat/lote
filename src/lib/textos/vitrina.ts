@@ -322,7 +322,7 @@ export const vitrina = {
     pagarTitulo: "Cómo pagás",
     pagoEfectivo: "Pagás en efectivo cuando pasás a recogerlo.",
     pagoContraEntrega: "Pagás cuando te llega el pedido. No tenés que hacer nada más por ahora.",
-    pasoPagoContraEntrega: (monto: string) => `No tenés que hacer nada ahora: pagás los ${monto} cuando te llega el pedido.`,
+    pasoPagoContraEntrega: (monto: string) => `No tenés que hacer nada ahora: pagás ${monto} cuando te llegue el pedido.`,
     pasoPagoEfectivo: "Pagás en efectivo cuando pasás a recogerlo.",
     tituloPedido: "Tu pedido",
     estadoPedido: "Cómo va tu pedido",

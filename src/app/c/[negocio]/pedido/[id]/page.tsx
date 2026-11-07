@@ -1,10 +1,15 @@
-import type { Metadata } from "next";
-import { ConfirmacionPedido } from "@/features/catalog/ui/ConfirmacionPedido";
-import { textos } from "@/lib/textos";
+import { permanentRedirect } from "next/navigation";
 
-// El título de la pestaña no dice "apartado": la misma página sirve para una compra y para un apartado, en cualquier etapa
-export const metadata: Metadata = { title: textos.vitrina.confirmacion.tituloPagina, robots: { index: false, follow: false } };
-
-export default function PedidoPage({ params, searchParams }: PageProps<"/c/[negocio]/pedido/[id]">) {
-  return <ConfirmacionPedido params={params} searchParams={searchParams} />;
+/**
+ * La confirmación y el seguimiento son una sola página, /p/<id>. Esta dirección vive en los correos y mensajes que ya se mandaron,
+ * así que se redirige con lo que traiga (por ejemplo ?carrito=1, que vacía el carrito).
+ */
+export default async function PedidoPage({ params, searchParams }: PageProps<"/c/[negocio]/pedido/[id]">) {
+  const { id } = await params;
+  const consulta = new URLSearchParams();
+  for (const [clave, valor] of Object.entries(await searchParams)) {
+    if (typeof valor === "string") consulta.set(clave, valor);
+  }
+  const resto = consulta.toString();
+  permanentRedirect(`/p/${id}${resto ? `?${resto}` : ""}`);
 }
