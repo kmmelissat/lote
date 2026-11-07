@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { rastrearAccion } from "@/lib/analiticaServidor";
 import { colorDeMarca } from "@/features/catalog/marca";
-import { guardarTienda as guardar } from "@/features/catalog/repositorio";
+import { guardarTienda as guardar } from "../repositorio";
 import { esRutaFoto } from "@/lib/fotos";
 import { borrarSiNadieLasUsa } from "@/lib/fotosSueltas";
 import { negocioActual } from "@/lib/negocio";

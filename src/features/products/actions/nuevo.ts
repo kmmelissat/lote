@@ -14,7 +14,7 @@ import { nombresDeOpciones } from "../variantes";
 import { fotosDeVariante } from "../fotosVariantes";
 import { nombreConVariante } from "@/domain";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
-import { contextoDeLaTienda } from "@/features/catalog/repositorio";
+import { contextoDeLaTienda } from "@/features/store-settings/repositorio";
 import { negocioActual } from "@/lib/negocio";
 import { rastrearServidor } from "@/lib/analiticaServidor";
 import { conBusqueda, ruta } from "@/lib/ruta";

@@ -23,7 +23,7 @@ import { textos } from "@/lib/textos";
 import { guardarTienda, type EstadoTienda } from "../actions/tienda";
 import { type Actividad, ACTIVIDADES, digitosLocales, telefonoElSalvador } from "@/domain";
 import { COLORES_MARCA, colorDeMarca, estiloDeMarca, LIMITE_CONTEXTO, textoSobre } from "@/features/catalog/marca";
-import type { AjustesVitrina, IdentidadTienda } from "@/features/catalog/repositorio";
+import type { AjustesVitrina, IdentidadTienda } from "../repositorio";
 import { Textarea } from "@/components/ui/Textarea";
 import type { IdSeccion } from "./SeccionesTienda";
 import { coloresDeArchivo, coloresDeUrl } from "./coloresDeImagen";

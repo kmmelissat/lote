@@ -12,7 +12,7 @@ import {
 import { mensajeDeCobro } from "@/features/payments/mensajeCobroPedido";
 import { fechaLocalDe, nombreConVariante, proximoPago, rangoPeriodo } from "@/domain";
 import { balanceDelNegocio } from "@/features/gestion/repositorio";
-import { contextoDeLaTienda } from "@/features/catalog/repositorio";
+import { contextoDeLaTienda } from "@/features/store-settings/repositorio";
 import { registrarGasto, resumenDePeriodo } from "@/features/profit/repositorio";
 import { cambiarPrecioProducto, crearProducto, listarProductos, reponerProducto } from "@/features/products/repositorio";
 import type { NegocioActual } from "@/lib/negocio";

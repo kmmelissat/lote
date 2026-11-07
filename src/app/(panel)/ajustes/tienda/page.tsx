@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { obtenerAjustesVitrina, obtenerIdentidad } from "@/features/catalog/repositorio";
+import { obtenerAjustesVitrina, obtenerIdentidad } from "@/features/store-settings/repositorio";
 import { listarMetodos } from "@/features/payments/repositorio";
 import { PagosForm } from "@/features/payments/ui/PagosForm";
 import { obtenerTarifas } from "@/features/shipping/repositorio";
