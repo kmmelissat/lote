@@ -1,10 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import type { Route } from "next";
+import type { z } from "zod";
 import { rastrearServidor } from "@/lib/analiticaServidor";
 import { reconocerDispositivo } from "../compradorDispositivo";
 import { contactoDe, huellaDelDispositivo } from "../dispositivo";
-import { apartarSchema, camposDe, comprarCarritoSchema, comprarSchema, leerFormulario } from "../formularios";
+import { apartarSchema, camposDe, comprarCarritoSchema, comprarSchema, esRobot, leerFormulario } from "../formularios";
 import {
   apartarDesdeVitrina,
   comprarCarritoDesdeVitrina,
@@ -12,6 +14,7 @@ import {
   obtenerNegocioPublico,
   type ErrorApartar,
 } from "../repositorio";
+import { ruta } from "@/lib/ruta";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { createServiceClient } from "@/lib/supabase/servicio";
 import { textos } from "@/lib/textos";
@@ -38,9 +41,6 @@ const TEXTO_ERROR: Record<ErrorApartar, string> = {
   desconocido: t.errorGeneral,
 };
 
-// Un campo escondido que una persona no ve: si viene con algo, es un robot y no se crea nada
-const esRobot = (formData: FormData) => String(formData.get("sitio_web") ?? "").trim() !== "";
-
 /**
  * Si la tienda deja hacer eso desde la vitrina. La base solo conoce la llave general (comprar o apartar);
  * cuál de las dos está prendida se revisa acá.
@@ -53,99 +53,96 @@ async function permite(slug: string, que: "comprar" | "apartar"): Promise<boolea
 /** Los campos del formulario, con el WhatsApp ya armado (+503 y el número). */
 const camposDelFormulario = (formData: FormData): Record<string, string> => ({ ...camposDe(formData), contacto: contactoDe(formData) });
 
-export async function apartarProducto(
-  slug: string,
-  codigo: number,
-  _anterior: EstadoApartar,
+type Resultado = { ok: true; pedidoId: string } | { ok: false; error: ErrorApartar };
+
+/**
+ * Lo que comparten apartar, comprar y comprar el carrito: descartar robots, revisar los datos, ver que la tienda deje
+ * hacerlo, crear el pedido y llevar a la persona a su seguimiento. Cada acción pone solo su esquema y su llamada.
+ */
+async function procesarPedido<S extends z.ZodType>(
   formData: FormData,
+  { slug, que, esquema, tipo, destino = (id) => ruta(`/p/${id}`), crear }: {
+    slug: string;
+    que: "comprar" | "apartar";
+    esquema: S;
+    /** Para la analítica: "apartado", "compra" o "carrito" */
+    tipo: string;
+    destino?: (pedidoId: string) => Route;
+    crear: (datos: z.output<S>, huella: string) => Promise<Resultado>;
+  },
 ): Promise<EstadoApartar> {
   if (esRobot(formData)) return { error: t.errorGeneral };
   const campos = camposDelFormulario(formData);
   const valores = { nombre: campos.nombre?.trim(), contacto: campos.contacto };
 
-  const r = leerFormulario(apartarSchema, campos);
+  const r = leerFormulario(esquema, campos);
   if (!r.ok) return { error: r.error, errores: r.errores, valores };
-  if (!(await permite(slug, "apartar"))) return { error: t.errorApagado, valores };
+  if (!(await permite(slug, que))) return { error: t.errorApagado, valores };
 
-  const resultado = await apartarDesdeVitrina(createServiceClient(), {
-    slug,
-    codigo,
-    nombre: r.datos.nombre,
-    contacto: r.datos.contacto,
-    cantidad: r.datos.cantidad,
-    aceptaWhatsapp: true,
-    huella: await huellaDelDispositivo(),
-  });
+  const resultado = await crear(r.datos, await huellaDelDispositivo());
   if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
 
   await reconocerDispositivo(resultado.pedidoId, campos.correo ?? "");
-  await rastrearServidor("pedido_vitrina_creado", null, { tipo: "apartado", slug });
-  redirect(`/p/${resultado.pedidoId}`);
+  await rastrearServidor("pedido_vitrina_creado", null, { tipo, slug });
+  redirect(destino(resultado.pedidoId));
+}
+
+export async function apartarProducto(slug: string, codigo: number, _anterior: EstadoApartar, formData: FormData): Promise<EstadoApartar> {
+  return procesarPedido(formData, {
+    slug,
+    que: "apartar",
+    esquema: apartarSchema,
+    tipo: "apartado",
+    crear: (d, huella) =>
+      apartarDesdeVitrina(createServiceClient(), { slug, codigo, nombre: d.nombre, contacto: d.contacto, cantidad: d.cantidad, aceptaWhatsapp: true, huella }),
+  });
 }
 
 /** Comprar: lo mismo que apartar, más cómo se recibe (recoger o envío con dirección) y cómo se piensa pagar. */
-export async function comprarProducto(
-  slug: string,
-  codigo: number,
-  _anterior: EstadoApartar,
-  formData: FormData,
-): Promise<EstadoApartar> {
-  if (esRobot(formData)) return { error: t.errorGeneral };
-  const campos = camposDelFormulario(formData);
-  const valores = { nombre: campos.nombre?.trim(), contacto: campos.contacto };
-
-  const r = leerFormulario(comprarSchema, campos);
-  if (!r.ok) return { error: r.error, errores: r.errores, valores };
-  if (!(await permite(slug, "comprar"))) return { error: t.errorApagado, valores };
-  const d = r.datos;
-
-  const resultado = await comprarDesdeVitrina(createServiceClient(), {
+export async function comprarProducto(slug: string, codigo: number, _anterior: EstadoApartar, formData: FormData): Promise<EstadoApartar> {
+  return procesarPedido(formData, {
     slug,
-    codigo,
-    nombre: d.nombre,
-    contacto: d.contacto,
-    cantidad: d.cantidad,
-    aceptaWhatsapp: true,
-    huella: await huellaDelDispositivo(),
-    entrega: d.entrega,
-    ...datosDeEntrega(d),
-    metodo: d.metodo,
+    que: "comprar",
+    esquema: comprarSchema,
+    tipo: "compra",
+    crear: (d, huella) =>
+      comprarDesdeVitrina(createServiceClient(), {
+        slug,
+        codigo,
+        nombre: d.nombre,
+        contacto: d.contacto,
+        cantidad: d.cantidad,
+        aceptaWhatsapp: true,
+        huella,
+        entrega: d.entrega,
+        ...datosDeEntrega(d),
+        metodo: d.metodo,
+      }),
   });
-  if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
-
-  await reconocerDispositivo(resultado.pedidoId, campos.correo ?? "");
-  await rastrearServidor("pedido_vitrina_creado", null, { tipo: "compra", slug });
-  redirect(`/p/${resultado.pedidoId}`);
 }
 
 /** Comprar el carrito: varios productos en un solo pedido, con los mismos datos de entrega y pago que una compra. */
 export async function comprarCarrito(slug: string, _anterior: EstadoApartar, formData: FormData): Promise<EstadoApartar> {
-  if (esRobot(formData)) return { error: t.errorGeneral };
-  const campos = camposDelFormulario(formData);
-  const valores = { nombre: campos.nombre?.trim(), contacto: campos.contacto };
-
-  const r = leerFormulario(comprarCarritoSchema, campos);
-  if (!r.ok) return { error: r.error, errores: r.errores, valores };
-  if (!(await permite(slug, "comprar"))) return { error: t.errorApagado, valores };
-  const d = r.datos;
-
-  const resultado = await comprarCarritoDesdeVitrina(createServiceClient(), {
+  return procesarPedido(formData, {
     slug,
-    items: d.items,
-    nombre: d.nombre,
-    contacto: d.contacto,
-    aceptaWhatsapp: true,
-    huella: await huellaDelDispositivo(),
-    entrega: d.entrega,
-    ...datosDeEntrega(d),
-    metodo: d.metodo,
+    que: "comprar",
+    esquema: comprarCarritoSchema,
+    tipo: "carrito",
+    // ?carrito=1: la pantalla de confirmación vacía el carrito del navegador
+    destino: (id) => ruta(`/p/${id}?carrito=1`),
+    crear: (d, huella) =>
+      comprarCarritoDesdeVitrina(createServiceClient(), {
+        slug,
+        items: d.items,
+        nombre: d.nombre,
+        contacto: d.contacto,
+        aceptaWhatsapp: true,
+        huella,
+        entrega: d.entrega,
+        ...datosDeEntrega(d),
+        metodo: d.metodo,
+      }),
   });
-  if (!resultado.ok) return { error: TEXTO_ERROR[resultado.error], valores };
-
-  await reconocerDispositivo(resultado.pedidoId, campos.correo ?? "");
-  await rastrearServidor("pedido_vitrina_creado", null, { tipo: "carrito", slug });
-  // ?carrito=1: la pantalla de confirmación vacía el carrito del navegador
-  redirect(`/p/${resultado.pedidoId}?carrito=1`);
 }
 
 /** La dirección solo viaja si el pedido es con envío: recoger no deja dirección guardada. */

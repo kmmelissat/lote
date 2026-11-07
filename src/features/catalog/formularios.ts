@@ -82,6 +82,12 @@ export function leerFormulario<S extends z.ZodType>(schema: S, entradas: Record<
   return { ok: false, errores, error: Object.values(errores)[0] ?? t.errorDatos };
 }
 
+/** El campo escondido que una persona no ve: el formulario lo pinta (`Honeypot`) y las acciones lo revisan (`esRobot`). */
+export const CAMPO_SENUELO = "sitio_web";
+
+/** Si el señuelo vino con algo, lo mandó un robot y no se crea nada. */
+export const esRobot = (formData: FormData): boolean => String(formData.get(CAMPO_SENUELO) ?? "").trim() !== "";
+
 /** Los campos de texto de un FormData (los archivos no se usan en estos formularios). */
 export function camposDe(formData: FormData): Record<string, string> {
   const campos: Record<string, string> = {};

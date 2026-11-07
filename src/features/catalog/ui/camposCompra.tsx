@@ -6,6 +6,7 @@ import { suscribirAEventos } from "@/lib/eventosVentana";
 import { textos } from "@/lib/textos";
 import { datosDeMiCuenta } from "../actions/cuenta";
 import type { DatosDeCuenta } from "../compradorDispositivo";
+import { CAMPO_SENUELO } from "../formularios";
 
 const t = textos.vitrina.compra;
 
@@ -92,7 +93,7 @@ export function Honeypot() {
     <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
       <label>
         Sitio web
-        <input name="sitio_web" tabIndex={-1} autoComplete="off" />
+        <input name={CAMPO_SENUELO} tabIndex={-1} autoComplete="off" />
       </label>
     </div>
   );
