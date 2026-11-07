@@ -10,16 +10,15 @@ import { Icon } from "@/components/ui/Icon";
 import { urlFoto } from "@/lib/fotos";
 import { conBusqueda } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
-import { categoriasPopulares, sugerir, type Sugerencias } from "../actions/buscar";
-import type { SugerenciaCategoria } from "../busqueda";
+import { categoriasPopulares } from "../actions/buscar";
+import { trozosResaltados, type SugerenciaCategoria } from "../busqueda";
 import { RUTA_TIENDAS } from "../explorar";
+import { guardarRecientes, leerRecientes, MAX_RECIENTES } from "./busquedasRecientes";
 import { ESTILO } from "./CirculosCategoria";
+import { useSugerencias } from "./useSugerencias";
 
 const t = textos.explorar;
 const b = t.buscador;
-
-const CLAVE = "lote:busquedas-recientes";
-const MAX_RECIENTES = 5;
 
 const contenedor = "max-md:order-3 h-12 w-full md:h-11 md:w-auto md:min-w-0 md:flex-1";
 const claseCampo = "h-full min-w-0 flex-1 bg-transparent px-3 text-base outline-none placeholder:text-texto-2/70 [&::-webkit-search-cancel-button]:hidden";
@@ -30,51 +29,17 @@ const fila =
 
 const hrefBusqueda = (q: string): Route => conBusqueda("/marketplace", new URLSearchParams({ q }));
 
-function leerRecientes(): string[] {
-  try {
-    const v: unknown = JSON.parse(localStorage.getItem(CLAVE) ?? "[]");
-    return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string").slice(0, MAX_RECIENTES) : [];
-  } catch {
-    return [];
-  }
-}
-function guardarRecientes(lista: string[]) {
-  try {
-    localStorage.setItem(CLAVE, JSON.stringify(lista));
-  } catch {
-    // sin almacenamiento (modo privado): simplemente no se recuerdan
-  }
-}
-
-/** Una letra por letra, sin tildes ni mayúsculas: el mismo largo que el original, para marcar las coincidencias. */
-const plano = (s: string) =>
-  s
-    .split("")
-    .map((c) => c.normalize("NFD")[0].toLowerCase())
-    .join("");
-
 /** El nombre con lo que se escribió en negrita (sin importar tildes, mayúsculas ni plurales simples). */
-function resaltar(texto: string, q: string): ReactNode {
-  const base = plano(texto);
-  const marcas = new Array<boolean>(texto.length).fill(false);
-  for (const cruda of plano(q).split(/\s+/).filter(Boolean)) {
-    const palabra = cruda.length > 4 && cruda.endsWith("es") ? cruda.slice(0, -2) : cruda.length > 2 && cruda.endsWith("s") ? cruda.slice(0, -1) : cruda;
-    let desde = 0;
-    for (let i = base.indexOf(palabra, desde); palabra && i !== -1; i = base.indexOf(palabra, desde)) {
-      marcas.fill(true, i, i + palabra.length);
-      desde = i + palabra.length;
-    }
-  }
-  const partes: ReactNode[] = [];
-  for (let i = 0; i < texto.length; ) {
-    let j = i;
-    while (j < texto.length && marcas[j] === marcas[i]) j++;
-    const trozo = texto.slice(i, j);
-    partes.push(marcas[i] ? <strong key={i} className="font-extrabold">{trozo}</strong> : <span key={i}>{trozo}</span>);
-    i = j;
-  }
-  return partes;
-}
+const resaltar = (texto: string, q: string): ReactNode =>
+  trozosResaltados(texto, q).map((t, i) =>
+    t.marcado ? (
+      <strong key={i} className="font-extrabold">
+        {t.texto}
+      </strong>
+    ) : (
+      <span key={i}>{t.texto}</span>
+    ),
+  );
 
 type Opcion = { href: Route; reciente?: string };
 
@@ -108,38 +73,16 @@ function Buscador({ inicial }: { inicial: string }) {
   const id = useId();
   const listaId = `${id}-lista`;
   const raiz = useRef<HTMLDivElement>(null);
-  const cache = useRef(new Map<string, Sugerencias>());
   const [texto, setTexto] = useState(inicial);
   const [abierto, setAbierto] = useState(false);
   const [activo, setActivo] = useState(-1);
   const [recientes, setRecientes] = useState<string[]>([]);
   const [populares, setPopulares] = useState<SugerenciaCategoria[]>([]);
-  const [resultado, setResultado] = useState<{ q: string; data: Sugerencias } | null>(null);
 
   const q = texto.trim().replace(/\s+/g, " ");
   const buscando = q.length >= 2;
 
-  // Pide las sugerencias 200 ms después de la última tecla
-  useEffect(() => {
-    if (!buscando || !abierto) return;
-    let vivo = true;
-    const guardado = cache.current.get(q);
-    const espera = setTimeout(
-      () => {
-        const listo = (data: Sugerencias) => {
-          cache.current.set(q, data);
-          if (vivo) setResultado({ q, data });
-        };
-        if (guardado) listo(guardado);
-        else sugerir(q).then(listo);
-      },
-      guardado ? 0 : 200,
-    );
-    return () => {
-      vivo = false;
-      clearTimeout(espera);
-    };
-  }, [q, buscando, abierto]);
+  const resultado = useSugerencias(q, buscando && abierto);
 
   // Se cierra al tocar fuera
   useEffect(() => {
