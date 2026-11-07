@@ -17,7 +17,7 @@ import type { ZonasEntrega } from "@/lib/departamentos";
 const t = textos.vitrina.carrito;
 
 /** Comprar el carrito: los productos a la vista y los tres pasos de siempre. Se vuelve a revisar el stock antes de empezar. */
-export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opciones: OpcionesDeCompra; zonas: ZonasEntrega }) {
+export function CheckoutCarrito({ slug, opciones, zonas, envio }: { slug: string; opciones: OpcionesDeCompra; zonas: ZonasEntrega; envio: string | null }) {
   const { lineas, estado } = useCarritoConDatos(slug);
   const comprables = lineasComprables(lineas);
   const calcular = useCallback((l: { codigo: number; cantidad: number }[]) => ahorroDelCarrito(slug, l), [slug]);
@@ -29,7 +29,7 @@ export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opcio
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
         <p className="text-texto-2">{t.vacioTexto}</p>
-        <Link href={`/c/${slug}`} className="inline-flex min-h-11 items-center font-bold text-teal underline">
+        <Link href={`/c/${slug}`} className="inline-flex min-h-11 items-center font-bold text-(--store-accent) underline">
           {t.seguir}
         </Link>
       </div>
@@ -41,7 +41,7 @@ export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opcio
   return (
     <div className="flex flex-col gap-5">
       {lineas.some((l) => l.cambio) && (
-        <p role="status" className="rounded-2xl border border-teal-oscuro bg-accion/20 px-4 py-3 text-sm font-medium">
+        <p role="status" className="rounded-2xl bg-(--store-soft) px-4 py-3 text-sm font-medium text-(--store-on-soft)">
           {t.hayCambios}
         </p>
       )}
@@ -49,6 +49,7 @@ export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opcio
         resumen={
           <ResumenPedido
             total={total}
+            envio={envio}
             ahorros={ahorros}
             lineas={comprables.map((l) => ({
               clave: String(l.codigo),

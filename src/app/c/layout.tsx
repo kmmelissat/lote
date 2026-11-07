@@ -1,5 +1,7 @@
 import { Migas } from "@/components/nav/Migas";
 import { Pie } from "@/components/ui/Pie";
+import { PieReducido } from "@/components/ui/PieReducido";
+import { PieSegunRuta } from "@/components/ui/PieSegunRuta";
 
 // Páginas públicas: sin barra inferior ni menú, con la marca de Lote al pie (plan gratis).
 export default function PublicoLayout({ children }: LayoutProps<"/c">) {
@@ -9,7 +11,7 @@ export default function PublicoLayout({ children }: LayoutProps<"/c">) {
         <Migas />
         <main className="flex-1">{children}</main>
       </div>
-      <Pie />
+      <PieSegunRuta completo={<Pie />} reducido={<PieReducido />} />
     </div>
   );
 }

@@ -1,16 +1,13 @@
-import { ruta } from "@/lib/ruta";
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { nombreBase, type AhorroPromocion } from "@/domain";
 import { calcularPromocionesDeVitrina } from "@/features/promotions/repositorio";
 import { createPublicClient } from "@/lib/supabase/publico";
-import { textos } from "@/lib/textos";
 import { negocioPublico, productoPublico } from "./publico";
 import type { NegocioPublico, ProductoPublico } from "./repositorio";
+import { BarraTienda } from "./ui/BarraTienda";
 import { MarcaTienda } from "./ui/MarcaTienda";
 import { DosColumnas, EncabezadoCompra, ResumenPedido } from "./ui/MarcoCompra";
-
-const t = textos.vitrina.compra;
 
 /** Lo que necesitan las pantallas de comprar y de apartar: la tienda, el producto elegido y cuántas unidades. */
 export async function cargarCompra(
@@ -42,11 +39,14 @@ export function PantallaCompra({
   producto,
   unidades,
   ahorros = [],
+  envio,
   titulo,
   ayuda,
   children,
 }: {
   ahorros?: AhorroPromocion[];
+  /** El texto de envío de la tienda; sin él (apartar) el resumen no muestra la fila de envío */
+  envio?: string | null;
   slug: string;
   negocio: NegocioPublico;
   producto: ProductoPublico;
@@ -57,13 +57,16 @@ export function PantallaCompra({
 }) {
   return (
     <MarcaTienda color={negocio.color}>
-      <div className="mx-auto flex max-w-4xl flex-col gap-6">
-        <EncabezadoCompra volverHref={ruta(`/c/${slug}/${producto.codigo}`)} volverTexto={t.volverAlProducto} tienda={negocio.nombre} titulo={titulo} ayuda={ayuda} />
+      <BarraTienda slug={slug} conCarrito={false} />
+      {/* En el celular los botones quedan fijos abajo: este espacio deja ver el final */}
+      <div className="mt-8 flex flex-col gap-6 max-md:pb-24">
+        <EncabezadoCompra titulo={titulo} ayuda={ayuda} />
         <DosColumnas
           resumen={
             <ResumenPedido
               total={producto.precio * unidades - ahorros.reduce((suma, a) => suma + a.ahorro, 0)}
               ahorros={ahorros}
+              envio={envio}
               lineas={[
                 {
                   clave: String(producto.codigo),

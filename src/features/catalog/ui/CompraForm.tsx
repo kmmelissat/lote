@@ -22,6 +22,9 @@ type Entrega = "retiro" | "envio";
 
 const ICONOS: Record<Metodo, NombreIcono> = { transferencia: "banco", efectivo: "efectivo", contra_entrega: "camion" };
 
+const BOTON_VOLVER = "inline-flex h-12 items-center justify-center rounded-full border border-teal-oscuro/30 bg-white px-5 font-bold hover:bg-(--store-soft)";
+const BOTON_PRINCIPAL = "inline-flex h-12 flex-1 items-center justify-center rounded-full bg-(--store-button) px-8 font-bold text-(--store-on-button) transition-opacity hover:opacity-90";
+
 /** Con qué entrega se puede pagar cada cosa: efectivo es al recoger y contra entrega es al recibir. */
 const sirve = (m: Metodo, e: Entrega) => (m === "efectivo" ? e === "retiro" : m === "contra_entrega" ? e === "envio" : true);
 
@@ -48,8 +51,8 @@ function Opcion({
   return (
     <label className="cursor-pointer">
       <input type="radio" name={nombre} value={valor} checked={marcada} onChange={onElegir} className="peer sr-only" />
-      <span className="flex items-center gap-3 rounded-2xl border border-teal-oscuro/25 bg-white p-3 transition-colors peer-checked:border-teal-oscuro peer-checked:bg-accion/20 peer-checked:shadow-dura-chica peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro bg-crema">
+      <span className="flex items-center gap-3 rounded-2xl border border-teal-oscuro/25 bg-white p-3 transition-colors peer-checked:border-(--store-accent) peer-checked:bg-(--store-soft) peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--store-accent)">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro/30 bg-superficie">
           <Icon nombre={icono} className="size-5" />
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
@@ -173,8 +176,8 @@ export function CompraForm({
               <li key={nombre} aria-current={i === paso ? "step" : undefined} className="flex items-center gap-2">
                 <span
                   aria-hidden="true"
-                  className={`grid size-9 place-items-center rounded-full border border-teal-oscuro text-sm font-bold transition-colors ${
-                    i < paso ? "bg-teal text-white" : i === paso ? "bg-accion text-accion-texto shadow-dura-chica" : "bg-white text-texto-2"
+                  className={`grid size-9 place-items-center rounded-full border text-sm font-bold transition-colors ${
+                    i < paso ? "border-transparent bg-(--store-accent) text-white" : i === paso ? "border-transparent bg-(--store-button) text-(--store-on-button)" : "border-teal-oscuro/30 bg-white text-texto-2"
                   }`}
                 >
                   {i < paso ? <Icon nombre="check" className="size-4" /> : i + 1}
@@ -264,7 +267,7 @@ export function CompraForm({
                   </div>
                 )}
                 {cobertura === "no" && (
-                  <p role="status" className="flex items-start gap-2 rounded-xl bg-accion/20 px-3 py-2 text-sm font-medium">
+                  <p role="status" className="flex items-start gap-2 rounded-xl bg-(--store-soft) px-3 py-2 text-sm font-medium text-(--store-on-soft)">
                     <Icon nombre="alerta" className="mt-0.5 size-4 shrink-0" />
                     {t.fueraDeZona}
                   </p>
@@ -275,7 +278,7 @@ export function CompraForm({
                 </label>
                 {/* El punto de referencia es opcional: no estorba hasta que se necesita */}
                 <details className="group">
-                  <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-bold text-teal underline [&::-webkit-details-marker]:hidden">
+                  <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-bold text-(--store-accent) underline [&::-webkit-details-marker]:hidden">
                     <Icon nombre="mas" className="size-4 group-open:hidden" />
                     {t.agregarReferencia}
                   </summary>
@@ -310,11 +313,11 @@ export function CompraForm({
                 <Icon nombre="moneda" className="size-5" />
               </span>
               <span className="min-w-0 flex-1 font-bold">{t.tarjeta}</span>
-              <span className="shrink-0 rounded-full bg-accion/20 px-3 py-0.5 text-xs font-bold">{t.proximamente}</span>
+              <span className="shrink-0 rounded-full bg-(--store-soft) px-3 py-0.5 text-xs font-bold text-(--store-on-soft)">{t.proximamente}</span>
             </div>
           </fieldset>
 
-          <section aria-live="polite" className="flex flex-col gap-1 rounded-2xl border border-teal-oscuro/20 bg-white p-4">
+          <section aria-live="polite" className="flex flex-col gap-1 rounded-2xl border border-teal-oscuro/30 bg-white p-4">
             <h2 className="mb-1 font-bold">{t.resumenTitulo}</h2>
             <p className="flex justify-between text-sm">
               <span className="text-texto-2">{t.subtotal}</span>
@@ -330,63 +333,42 @@ export function CompraForm({
               <span className="text-texto-2">{t.envioLinea}</span>
               <span className="tabular-nums">{entrega === "retiro" ? t.envioGratis : departamento ? (tarifa === 0 ? t.envioGratis : formatearDolares(tarifa)) : "–"}</span>
             </p>
-            <p className="flex justify-between border-t border-teal-oscuro pt-2 text-lg font-bold">
+            <p className="flex justify-between border-t border-teal-oscuro/30 pt-2 text-lg font-bold">
               <span>{t.total}</span>
               <span className="tabular-nums">{formatearDolares(subtotal + tarifa)}</span>
             </p>
           </section>
 
-          <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-teal-oscuro/20 bg-white p-3">
-            <input type="checkbox" name="acepta" required checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-teal" />
+          <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-teal-oscuro/30 bg-white p-3">
+            <input type="checkbox" name="acepta" required checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-(--store-accent)" />
             <span>{ta.acepta}</span>
           </label>
           </div>
 
           <MensajeError>{estado.error}</MensajeError>
-          {/* Anclado abajo: el total, "Volver" y el botón principal siempre se ven, sea cual sea el paso */}
-          <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex flex-col gap-2 rounded-b-[22px] border-t border-teal-oscuro bg-crema px-5 py-3 md:-mx-6 md:-mb-6 md:px-6">
+          {/* Solo los botones. En celular quedan fijos abajo; en escritorio, al final del formulario */}
+          <div className="flex flex-col gap-2 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-30 max-md:border-t max-md:border-teal-oscuro/10 max-md:bg-superficie max-md:px-4 max-md:py-3 md:border-t md:border-teal-oscuro/30 md:pt-4">
             {paso === 2 && !acepta && (
               <p role="status" className="text-sm font-medium text-ambar-texto">
                 {ta.aceptaFalta}
               </p>
             )}
-            <p className="flex justify-between text-sm" aria-live="polite">
-              <span className="text-texto-2">{t.total}</span>
-              <span className="font-bold tabular-nums">{formatearDolares(subtotal + tarifa)}</span>
-            </p>
             <div className="flex items-center gap-2">
               {paso > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setPaso(paso - 1)}
-                  className="inline-flex h-12 items-center justify-center rounded-full border border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
-                >
+                <button type="button" onClick={() => setPaso(paso - 1)} className={BOTON_VOLVER}>
                   {t.volver}
                 </button>
               ) : (
-                <Link
-                  href={volverHref}
-                  className="inline-flex h-12 items-center justify-center rounded-full border border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
-                >
+                <Link href={volverHref} className={BOTON_VOLVER}>
                   {t.volver}
                 </Link>
               )}
               {paso < 2 ? (
-                <button
-                  key="siguiente"
-                  type="button"
-                  onClick={siguiente}
-                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
-                >
-                  {t.siguiente}
+                <button key="siguiente" type="button" onClick={siguiente} className={BOTON_PRINCIPAL}>
+                  {t.continuarA[paso]}
                 </button>
               ) : (
-                <button
-                  key="confirmar"
-                  type="submit"
-                  disabled={pendiente || !metodoElegido || !acepta}
-                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
-                >
+                <button key="confirmar" type="submit" disabled={pendiente || !metodoElegido || !acepta} className={`${BOTON_PRINCIPAL} disabled:opacity-60`}>
                   {pendiente ? t.confirmando : metodosDisponibles.length === 0 ? t.escribir : t.confirmar}
                 </button>
               )}

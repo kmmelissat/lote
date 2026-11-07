@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ruta } from "@/lib/ruta";
 import { connection } from "next/server";
 import { cargarCompra, PantallaCompra } from "@/features/catalog/pantallaCompra";
 import { ApartarForm } from "@/features/catalog/ui/ApartarForm";
@@ -30,7 +31,7 @@ async function Apartar({ params, searchParams }: Props) {
       titulo={t.hojaApartar}
       ayuda={t.apartarExplica(negocio.plazoHoras)}
     >
-      <ApartarForm slug={slug} codigo={producto.codigo} unidades={unidades} plazoHoras={negocio.plazoHoras} />
+      <ApartarForm slug={slug} codigo={producto.codigo} unidades={unidades} plazoHoras={negocio.plazoHoras} volverHref={ruta(`/c/${slug}/${producto.codigo}`)} />
     </PantallaCompra>
   );
 }

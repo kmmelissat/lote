@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { cargarCompra, PantallaCompra } from "@/features/catalog/pantallaCompra";
 import { obtenerOpcionesDeCompra } from "@/features/catalog/repositorio";
+import { partesEnvio } from "@/features/catalog/ui/ResumenEnvio";
 import { CompraForm } from "@/features/catalog/ui/CompraForm";
 import { createPublicClient } from "@/lib/supabase/publico";
 import { textos } from "@/lib/textos";
@@ -24,8 +25,10 @@ async function Comprar({ params, searchParams }: Props) {
   const { negocio, producto, unidades, ahorros } = await cargarCompra(slug, codigo, n, "comprar");
   const opciones = await obtenerOpcionesDeCompra(createPublicClient(), slug);
 
+  const envio = partesEnvio(opciones, negocio.tiempoEntrega).join(" · ");
+
   return (
-    <PantallaCompra slug={slug} negocio={negocio} producto={producto} unidades={unidades} ahorros={ahorros} titulo={t.hojaComprar} ayuda={t.comprarAyuda}>
+    <PantallaCompra slug={slug} negocio={negocio} producto={producto} unidades={unidades} ahorros={ahorros} envio={envio} titulo={t.hojaComprar} ayuda={t.comprarAyuda}>
       <CompraForm
         slug={slug}
         lineas={[{ codigo: producto.codigo, cantidad: unidades, precio: producto.precio }]}

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Fragment, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { RUBROS } from "@/features/catalog/rubros";
+import { esPantallaDeCompra } from "@/components/ui/PieSegunRuta";
 import { textos } from "@/lib/textos";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
@@ -38,6 +39,9 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
 
   // El carrito también: lleva la barra de la tienda
   if (partes[0] === "c" && partes.length === 3 && partes[2] === "carrito") return null;
+
+  // Las pantallas de compra llevan solo la barra con el logo: el regreso es el botón "Volver" del formulario
+  if (esPantallaDeCompra(pathname)) return null;
 
   const cabeza = partes[0];
   const casa: Casa = PANEL.has(cabeza)

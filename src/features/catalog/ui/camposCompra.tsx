@@ -10,7 +10,7 @@ import type { DatosDeCuenta } from "../compradorDispositivo";
 const t = textos.vitrina.compra;
 
 export const campoCompra =
-  "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base placeholder:text-texto-2/60 focus:border-teal";
+  "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base placeholder:text-texto-2/60 focus:border-(--store-accent)";
 
 // Lo que quien compra escribió la última vez, para no pedírselo de nuevo. Queda solo en su navegador.
 const CLAVE = "lote_cliente_v1";
@@ -81,7 +81,7 @@ export function CampoCorreo({ defecto = "" }: { defecto?: string }) {
     <label className="flex flex-col gap-1.5">
       <span className="text-sm font-bold">{t.correo}</span>
       <input name="correo" type="email" autoComplete="email" required maxLength={120} defaultValue={defecto} placeholder="ana@correo.com" className={campoCompra} />
-      <span className="text-xs text-texto-2">{t.correoAyuda}</span>
+      <span className="text-sm text-texto">{t.correoAyuda}</span>
     </label>
   );
 }
