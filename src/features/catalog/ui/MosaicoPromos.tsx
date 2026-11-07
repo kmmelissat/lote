@@ -2,6 +2,7 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Store } from "lucide-react";
+import { RotadorGrande, RotadorMini, type ItemRotador } from "./RotadorProductos";
 import { urlFoto } from "@/lib/fotos";
 import { ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
@@ -13,38 +14,31 @@ const m = t.mosaico;
 const foco = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-oscuro";
 const tarjeta = `group relative flex overflow-hidden rounded-3xl text-teal-oscuro transition-transform duration-200 hover:-translate-y-0.5 ${foco}`;
 
-/** Las tres fotos del collage: ligeramente rotadas y encimadas. */
-const COLLAGE = [
-  "left-0 top-10 z-10 -rotate-4",
-  "left-[84px] top-3 z-20 rotate-0",
-  "left-[168px] top-12 z-10 rotate-4",
-];
-
 /**
  * El mosaico de promos de la portada: "Ofertas del día" (grande, con un collage de productos en oferta) y, apiladas, "Nuevos en Lote"
  * y "Tienda del momento". Cada tarjeta es un solo enlace. Altura total de 300px en escritorio.
  */
 export function MosaicoPromos({
-  fotosOferta,
+  oferta,
   tiendasConOferta,
   verOfertas,
-  fotosNuevos,
+  nuevos,
   verNuevos,
   tienda,
 }: {
-  /** Fotos de productos que están en oferta (se usan hasta 3) */
-  fotosOferta: string[];
+  /** Productos en oferta que van rotando */
+  oferta: ItemRotador[];
   tiendasConOferta: number;
   verOfertas: Route;
-  /** Fotos de los productos más nuevos (se usan hasta 2) */
-  fotosNuevos: string[];
+  /** Los productos más nuevos, que van rotando */
+  nuevos: ItemRotador[];
   verNuevos: Route;
   tienda: TiendaExplorar | null;
 }) {
   return (
     <section aria-label={m.aria} className="grid gap-4 md:h-[300px] md:grid-cols-3 md:grid-rows-2">
       <Link href={verOfertas} className={`${tarjeta} min-h-[200px] flex-col justify-between bg-limon p-6 md:col-span-2 md:row-span-2 md:p-8`}>
-        <div className="relative z-30 flex max-w-[55%] flex-col gap-2 max-md:max-w-[62%]">
+        <div className="relative z-30 flex max-w-[50%] flex-col gap-2 max-md:max-w-[50%]">
           <h2 className="font-logo text-[28px] font-extrabold leading-[1.05] md:text-[40px]">{t.estantes.ofertas}</h2>
           <p className="text-sm font-medium md:text-base">{m.ofertasSub(tiendasConOferta)}</p>
         </div>
@@ -52,15 +46,7 @@ export function MosaicoPromos({
           {m.verOfertas}
           <ArrowRight aria-hidden="true" className="size-4" />
         </span>
-        {fotosOferta.length > 0 && (
-          <div aria-hidden="true" className="absolute bottom-0 right-6 top-0 w-[260px] max-md:right-0 max-md:w-[200px] max-md:scale-[0.8] max-md:origin-right md:right-10 md:w-[300px]">
-            {fotosOferta.slice(0, 3).map((f, i) => (
-              <span key={f} className={`absolute h-[190px] w-[132px] overflow-hidden rounded-2xl bg-white shadow-[0_8px_20px_-6px_rgba(0,56,68,0.35)] transition-transform duration-200 group-hover:scale-[1.03] ${COLLAGE[i]}`}>
-                <Image src={urlFoto(f)} alt="" fill sizes="132px" className="object-cover" />
-              </span>
-            ))}
-          </div>
-        )}
+        {oferta.length > 0 && <RotadorGrande items={oferta} />}
       </Link>
 
       <Link href={verNuevos} className={`${tarjeta} items-center justify-between gap-3 bg-rosa-palido px-6 py-4 max-md:min-h-[120px] md:h-[142px]`}>
@@ -70,13 +56,7 @@ export function MosaicoPromos({
             <ArrowRight aria-hidden="true" className="size-4" />
           </span>
         </div>
-        <div aria-hidden="true" className="flex shrink-0 -space-x-3">
-          {fotosNuevos.slice(0, 2).map((f, i) => (
-            <span key={f} className={`relative size-[84px] overflow-hidden rounded-2xl bg-white shadow-[0_6px_14px_-6px_rgba(0,56,68,0.35)] ${i === 0 ? "-rotate-3" : "rotate-3"}`}>
-              <Image src={urlFoto(f)} alt="" fill sizes="84px" className="object-cover" />
-            </span>
-          ))}
-        </div>
+        {nuevos.length > 0 && <RotadorMini items={nuevos} />}
       </Link>
 
       {tienda ? (

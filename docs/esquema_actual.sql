@@ -3,7 +3,7 @@
 -- No incluye grant/revoke, datos (insert/update/delete) ni bloques do. Las columnas con sus tipos también están en
 -- src/lib/supabase/database.types.ts.
 --
--- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda, busqueda_sin_tildes.
+-- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda, busqueda_sin_tildes, vitrina_negocio_unica, sitemap_publico.
 
 -- ====================================================================================================
 -- TABLAS (43)
@@ -889,7 +889,7 @@ alter table public.ubicacion enable row level security;
 
 
 -- ====================================================================================================
--- FUNCIONES (126)
+-- FUNCIONES (127)
 -- ====================================================================================================
 
 -- función abonar_pasivo(uuid, numeric, text, text, uuid)
@@ -3101,7 +3101,7 @@ $$;
 -- busqueda_sin_tildes.sql (antes en: precio_anterior_explorar.sql)
 create or replace function public.explorar_productos(
   p_busqueda text default null,
-  p_claves text[] default null,
+  p_categorias text[] default null,
   p_limite int default 48,
   p_desde int default 0,
   p_orden text default 'recientes',
@@ -3152,7 +3152,7 @@ as $$
       and d.disp > 0
       and (p_busqueda is null
            or public.coincide_busqueda(p.nombre || ' ' || coalesce(p.categoria, '') || ' ' || coalesce(p.marca, '') || ' ' || n.nombre, p_busqueda))
-      and (p_claves is null or (n.slug || '|' || p.categoria) = any(p_claves))
+      and (p_categorias is null or p.categoria = any(p_categorias))
       and (p_departamento is null or n.zonas_entrega is null or jsonb_exists(n.zonas_entrega, p_departamento))
     group by n.id, n.slug, n.nombre, coalesce(p.grupo::text, p.id::text), e.tarifa
   ) g
@@ -4773,6 +4773,22 @@ begin
 end;
 $$;
 
+-- función sitemap_productos()
+-- sitemap_publico.sql
+create or replace function public.sitemap_productos()
+returns table (tienda_slug text, codigo int, grupo uuid, creado_en timestamptz)
+language sql stable security definer
+set search_path = ''
+as $$
+  select n.slug, p.codigo, p.grupo, p.creado_en
+  from public.producto p
+  join public.negocio n on n.id = p.negocio_id
+  where n.vitrina_activa
+    and public.disponibles_de(p.id) > 0
+  order by n.slug, p.codigo
+  limit 20000
+$$;
+
 -- función telefono_sv(text)
 -- avisos_eventos.sql
 create or replace function public.telefono_sv(p text)
@@ -5277,7 +5293,7 @@ as $$
 $$;
 
 -- función vitrina_negocio(text)
--- facebook.sql
+-- vitrina_negocio_unica.sql
 create function public.vitrina_negocio(p_slug text)
 returns table (
   nombre text,
@@ -5287,7 +5303,12 @@ returns table (
   whatsapp text,
   usuario_instagram text,
   usuario_facebook text,
+  usuario_tiktok text,
+  banner text,
   apartar_desde_vitrina boolean,
+  permite_comprar boolean,
+  permite_apartar boolean,
+  zonas_entrega jsonb,
   plazo_apartado_horas int,
   tiempo_entrega text,
   politica_cambios text,
@@ -5297,7 +5318,12 @@ language sql stable security definer
 set search_path = ''
 as $$
   select n.nombre, n.logo, n.color, n.descripcion, n.whatsapp, n.usuario_instagram, n.usuario_facebook,
-         n.apartar_desde_vitrina, n.plazo_apartado_horas,
+         n.usuario_tiktok, n.banner,
+         n.apartar_desde_vitrina,
+         n.permite_comprar and n.apartar_desde_vitrina,
+         n.permite_apartar and n.apartar_desde_vitrina,
+         n.zonas_entrega,
+         n.plazo_apartado_horas,
          n.tiempo_entrega, n.politica_cambios, n.umbral_poco_stock
   from public.negocio n
   where n.slug = lower(p_slug) and n.vitrina_activa

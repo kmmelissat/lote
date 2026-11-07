@@ -2320,6 +2320,10 @@ export type Database = {
           zonas_entrega: Json | null
         }[]
       }
+      sitemap_productos: {
+        Args: Record<PropertyKey, never>
+        Returns: { tienda_slug: string; codigo: number; grupo: string | null; creado_en: string }[]
+      }
       vitrina_negocio: {
         Args: { p_slug: string }
         Returns: {
@@ -2331,6 +2335,11 @@ export type Database = {
           plazo_apartado_horas: number
           usuario_instagram: string
           usuario_facebook?: string | null
+          usuario_tiktok?: string | null
+          banner?: string | null
+          permite_comprar?: boolean
+          permite_apartar?: boolean
+          zonas_entrega?: Json | null
           whatsapp: string
           tiempo_entrega?: string | null
           politica_cambios?: string | null

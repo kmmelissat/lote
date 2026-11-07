@@ -11,11 +11,14 @@ import {
   ORDENES_EXPLORAR,
   RUTA_TIENDAS,
   type OrdenExplorar,
+  type ProductoExplorar,
 } from "../explorar";
 import { categoriaPorTexto, esRubro, rubroDeCategoria, type RubroId } from "../rubros";
 import { colorDeMarca } from "../marca";
 import { HeroMercadito } from "./HeroMercadito";
 import { MosaicoPromos } from "./MosaicoPromos";
+import type { ItemRotador } from "./RotadorProductos";
+import { formatearDolares } from "@/lib/formato";
 import { FilaProductos } from "./FilaProductos";
 import { BandaTiendas } from "./BandaTiendas";
 import { EstanteProductos } from "./EstanteProductos";
@@ -44,6 +47,17 @@ const POR_PAGINA = 30;
 // Cuántos productos lleva cada fila de arriba (Destacados, Ofertas), y cuántos necesita para mostrarse:
 // una fila con una o dos tarjetas se ve vacía
 const POR_FILA = 10;
+
+/** Lo que el hero muestra de un producto mientras rota */
+function itemRotador(p: ProductoExplorar): ItemRotador {
+  return {
+    foto: p.foto ?? "",
+    nombre: p.nombre,
+    precio: formatearDolares(p.precioMinimo),
+    anterior: p.precioAnterior ? formatearDolares(p.precioAnterior) : null,
+    descuento: p.precioAnterior ? Math.round((1 - p.precioMinimo / p.precioAnterior) * 100) : undefined,
+  };
+}
 const MINIMO_FILA = 4;
 
 /** Dólares escritos por la persona → número, o undefined si está vacío o no es válido. */
@@ -197,7 +211,7 @@ export async function PaginaExplorar({
   }
 
   // El mosaico de la portada: fotos de lo que está en oferta, lo más nuevo y la tienda del momento
-  const fotosOferta = [...ofertas.map((p) => p.foto), ...promociones.flatMap((x) => x.fotos.slice(0, 1))].filter((f): f is string => !!f);
+  const itemsOferta = ofertas.flatMap((p) => (p.foto ? [itemRotador(p)] : [])).slice(0, 5);
   const tiendasConOferta = new Set([...ofertas.map((p) => p.tiendaSlug), ...promociones.map((x) => x.tiendaSlug)].filter(Boolean)).size;
 
   // Los dos estantes de la portada: lo que está en oferta (si hay suficiente) y lo más nuevo
@@ -230,10 +244,10 @@ export async function PaginaExplorar({
         mosaico={
           portada ? (
             <MosaicoPromos
-              fotosOferta={fotosOferta}
+              oferta={itemsOferta}
               tiendasConOferta={tiendasConOferta}
               verOfertas={enlaceExplorar({ ...limpio, oferta: true }).href}
-              fotosNuevos={visibles.flatMap((p) => (p.foto ? [p.foto] : [])).slice(0, 2)}
+              nuevos={visibles.flatMap((p) => (p.foto ? [itemRotador(p)] : [])).slice(0, 5)}
               verNuevos={"#nuevos" as Route}
               tienda={tiendaMomento ?? tiendas[0] ?? null}
             />

@@ -1,16 +1,13 @@
 import type { MetadataRoute } from "next";
 import { explorarRubros, rutaRubro } from "@/features/catalog/explorar";
-import { listarProductosPublicos } from "@/features/catalog/repositorio";
-import { codigosParaIndexar } from "@/features/catalog/seo";
+import { listarProductosParaMapa } from "@/features/catalog/repositorio";
+import { paginasDelMapa } from "@/features/catalog/seo";
 
 import { urlSitio } from "@/lib/sitio";
 import { createPublicClient } from "@/lib/supabase/publico";
-import { createServiceClient } from "@/lib/supabase/servicio";
 
 // Se recalcula cada hora: las tiendas y los productos nuevos aparecen sin volver a desplegar.
 export const revalidate = 3600;
-
-const MAXIMO_TIENDAS = 200;
 
 const fijas: MetadataRoute.Sitemap = [
   { url: urlSitio, changeFrequency: "monthly", priority: 1 },
@@ -27,33 +24,12 @@ const fijas: MetadataRoute.Sitemap = [
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
-    // La lista de tiendas no es pública (RLS): solo este mapa la lee, con la clave de servicio, y solo toma el enlace.
-    const { data } = await createServiceClient()
-      .from("negocio")
-      .select("slug")
-      .limit(MAXIMO_TIENDAS);
     const publico = createPublicClient();
-    const paginas = await Promise.all(
-      (data ?? []).map(async ({ slug }): Promise<MetadataRoute.Sitemap> => {
-        const productos = await listarProductosPublicos(publico, slug);
-        if (!productos.some((p) => p.disponibles > 0)) return [];
-        // La fecha más nueva del grupo: así el buscador sabe cuándo volver
-        const fechaDe = (codigo: number) =>
-          productos.find((p) => p.codigo === codigo)?.creadoEn ?? undefined;
-        return [
-          {
-            url: `${urlSitio}/c/${slug}`,
-            changeFrequency: "daily",
-            priority: 0.7,
-          },
-          ...codigosParaIndexar(productos).map((codigo) => ({
-            url: `${urlSitio}/c/${slug}/${codigo}`,
-            lastModified: fechaDe(codigo),
-            changeFrequency: "daily" as const,
-            priority: 0.5,
-          })),
-        ];
-      }),
+    const productos = await listarProductosParaMapa(publico);
+    const paginas = paginasDelMapa(productos).map(({ tienda, codigo, fecha }): MetadataRoute.Sitemap[number] =>
+      codigo === null
+        ? { url: `${urlSitio}/c/${tienda}`, changeFrequency: "daily", priority: 0.7 }
+        : { url: `${urlSitio}/c/${tienda}/${codigo}`, lastModified: fecha ?? undefined, changeFrequency: "daily", priority: 0.5 },
     );
     const categorias = (await explorarRubros(publico).catch(() => [])).map(
       (r) => ({
@@ -62,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.6,
       }),
     );
-    return [...fijas, ...categorias, ...paginas.flat()];
+    return [...fijas, ...categorias, ...paginas];
   } catch {
     return fijas;
   }

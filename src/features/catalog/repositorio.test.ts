@@ -89,29 +89,30 @@ const negocio = {
 };
 
 describe("obtenerNegocioPublico", () => {
-  const rpcDe = (reglas: { data: unknown; error: unknown }, tiktok: { data: unknown; error: unknown }) =>
-    supabaseFalso({
-      rpc: {
-        vitrina_negocio: { data: [negocio], error: null },
-        vitrina_reglas: reglas,
-        vitrina_tiktok: tiktok,
-      },
-    }).cliente;
+  const clienteCon = (fila: object | null) =>
+    supabaseFalso({ rpc: { vitrina_negocio: { data: fila ? [fila] : [], error: null } } });
 
   it("sin fila no hay tienda", async () => {
-    const { cliente } = supabaseFalso({
-      rpc: {
-        vitrina_negocio: { data: [], error: null },
-        vitrina_reglas: { data: [], error: null },
-        vitrina_tiktok: { data: null, error: null },
-      },
-    });
-    expect(await obtenerNegocioPublico(cliente, "no-existe")).toBeNull();
+    expect(await obtenerNegocioPublico(clienteCon(null).cliente, "no-existe")).toBeNull();
   });
 
-  it("si faltan las reglas o tiktok, compra y aparta siguen la llave general", async () => {
-    const n = await obtenerNegocioPublico(rpcDe({ data: null, error: new Error("no existe") }, { data: null, error: new Error("no existe") }), "bambu");
-    expect(n).toMatchObject({ permiteComprar: true, permiteApartar: true, zonasEntrega: null, usuarioTiktok: null, umbralPocoStock: 3 });
+  it("trae las reglas, el TikTok y el banner en una sola llamada", async () => {
+    const { cliente, llamadas } = clienteCon({
+      ...negocio,
+      usuario_tiktok: "bambu",
+      banner: "b.jpg",
+      permite_comprar: true,
+      permite_apartar: false,
+      zonas_entrega: { "San Salvador": [] },
+    });
+    const n = await obtenerNegocioPublico(cliente, "bambu");
+    expect(n).toMatchObject({ permiteComprar: true, permiteApartar: false, usuarioTiktok: "bambu", banner: "b.jpg", zonasEntrega: { "San Salvador": [] } });
+    expect(llamadas).toHaveLength(1);
+  });
+
+  it("si la base todavía no devuelve esos campos, compra y aparta siguen la llave general", async () => {
+    const n = await obtenerNegocioPublico(clienteCon(negocio).cliente, "bambu");
+    expect(n).toMatchObject({ permiteComprar: true, permiteApartar: true, zonasEntrega: null, usuarioTiktok: null, banner: null, umbralPocoStock: 3 });
   });
 });
 

@@ -33,23 +33,15 @@ export type NegocioPublico = {
 };
 
 export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Promise<NegocioPublico | null> {
-  const [{ data, error }, reglas, tiktok, banner] = await Promise.all([
-    supabase.rpc("vitrina_negocio", { p_slug: slug }),
-    supabase.rpc("vitrina_reglas", { p_slug: slug }),
-    // Sin tiktok.sql la función no existe: la tienda no tiene TikTok
-    supabase.rpc("vitrina_tiktok", { p_slug: slug }),
-    // Igual con banner_tienda.sql
-    supabase.rpc("vitrina_banner", { p_slug: slug }),
-  ]);
+  // Una sola llamada trae todo. Los campos con `??` solo faltan si todavía no se corrió vitrina_negocio_unica.sql
+  const { data, error } = await supabase.rpc("vitrina_negocio", { p_slug: slug });
   if (error) throw error;
   const n = data[0];
   if (!n) return null;
-  // Sin modos_y_zonas.sql la función no existe: comprar y apartar siguen la llave general y se entrega en todo el país
-  const r = reglas.error ? undefined : reglas.data[0];
   return {
-    permiteComprar: r?.permite_comprar ?? n.apartar_desde_vitrina,
-    permiteApartar: r?.permite_apartar ?? n.apartar_desde_vitrina,
-    zonasEntrega: leerZonas(r?.zonas_entrega ?? null),
+    permiteComprar: n.permite_comprar ?? n.apartar_desde_vitrina,
+    permiteApartar: n.permite_apartar ?? n.apartar_desde_vitrina,
+    zonasEntrega: leerZonas(n.zonas_entrega ?? null),
     nombre: n.nombre,
     logo: n.logo,
     color: n.color,
@@ -57,8 +49,8 @@ export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Pr
     whatsapp: n.whatsapp,
     usuarioInstagram: n.usuario_instagram,
     usuarioFacebook: n.usuario_facebook ?? null,
-    usuarioTiktok: tiktok.error ? null : tiktok.data,
-    banner: banner.error ? null : banner.data,
+    usuarioTiktok: n.usuario_tiktok ?? null,
+    banner: n.banner ?? null,
     apartarDesdeVitrina: n.apartar_desde_vitrina,
     plazoHoras: n.plazo_apartado_horas,
     // Los campos nuevos pueden no venir si todavía no se corrió ficha_producto.sql
@@ -145,6 +137,13 @@ export async function obtenerProductoPublico(
   const { data, error } = await supabase.rpc("vitrina_productos", { p_slug: slug, p_codigo: codigo });
   if (error) throw error;
   return data[0] ? aProductoPublico(data[0]) : null;
+}
+
+/** Los productos a la vista de todas las tiendas, para el mapa del sitio: una sola llamada en vez de una por tienda. */
+export async function listarProductosParaMapa(supabase: Cliente): Promise<{ tiendaSlug: string; codigo: number; grupo: string | null; creadoEn: Date }[]> {
+  const { data, error } = await supabase.rpc("sitemap_productos");
+  if (error) throw error;
+  return data.map((f) => ({ tiendaSlug: f.tienda_slug, codigo: f.codigo, grupo: f.grupo, creadoEn: new Date(f.creado_en) }));
 }
 
 export type ApartadoPublico = {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { codigoCanonico, codigosParaIndexar, ofertaDe } from "./seo";
+import { codigoCanonico, codigosParaIndexar, ofertaDe, paginasDelMapa } from "./seo";
 
 const productos = [
   { codigo: 7, grupo: "g1" },
@@ -33,5 +33,18 @@ describe("ofertaDe", () => {
   it("variantes con precios distintos son un rango", () => {
     const o = ofertaDe([{ precio: 2000, disponibles: 0 }, { precio: 2500, disponibles: 0 }], "u", "Velvet");
     expect(o).toMatchObject({ "@type": "AggregateOffer", lowPrice: "20.00", highPrice: "25.00", offerCount: 2, availability: "https://schema.org/OutOfStock" });
+  });
+});
+
+describe("paginasDelMapa", () => {
+  const f = (tiendaSlug: string, codigo: number, grupo: string | null) => ({ tiendaSlug, codigo, grupo, creadoEn: new Date(`2026-01-0${codigo}`) });
+
+  it("una entrada por tienda y una por producto, sin repetir variantes", () => {
+    const r = paginasDelMapa([f("a", 3, "g"), f("a", 7, "g"), f("a", 5, null), f("b", 1, null)]);
+    expect(r.map((x) => `${x.tienda}/${x.codigo ?? ""}`)).toEqual(["a/", "a/3", "a/5", "b/", "b/1"]);
+  });
+
+  it("sin productos no hay páginas", () => {
+    expect(paginasDelMapa([])).toEqual([]);
   });
 });
