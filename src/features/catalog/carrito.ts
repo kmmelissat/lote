@@ -109,3 +109,25 @@ export function useCarritosTotal(): { unidades: number; slug: string | null } {
     return { unidades: Number(u) || 0, slug: slug || null };
   }, [texto]);
 }
+
+/** Los carritos de todas las tiendas que tienen algo, tal como están guardados (solo lectura). */
+function leerTodos(): string {
+  try {
+    const lista: { slug: string; lineas: LineaCarrito[] }[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i) ?? "";
+      if (!k.startsWith(PREFIJO) || !k.endsWith(SUFIJO)) continue;
+      const lineas = lineasDe(localStorage.getItem(k) ?? "");
+      if (lineas.length) lista.push({ slug: k.slice(PREFIJO.length, -SUFIJO.length), lineas });
+    }
+    return JSON.stringify(lista.sort((a, b) => a.slug.localeCompare(b.slug)));
+  } catch {
+    return "[]";
+  }
+}
+
+/** Para el panel del encabezado: las líneas guardadas de cada tienda. No pide nada al servidor. */
+export function useCarritosGuardados(): { slug: string; lineas: LineaCarrito[] }[] {
+  const texto = useSyncExternalStore(suscribir, leerTodos, () => "[]");
+  return useMemo(() => JSON.parse(texto) as { slug: string; lineas: LineaCarrito[] }[], [texto]);
+}

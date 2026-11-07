@@ -182,6 +182,21 @@ export async function leerCarritoGuardado(slug: string, comprador: string): Prom
   return (data ?? []) as { codigo: number; cantidad: number }[];
 }
 
+/** Lo que el servidor sabe del carrito de este comprador en TODAS las tiendas (para el panel del encabezado del Marketplace). */
+export async function leerCarritosGuardados(comprador: string): Promise<{ slug: string; lineas: { codigo: number; cantidad: number }[] }[]> {
+  const { data } = await baseSinTipos()
+    .from("carrito_item")
+    .select("codigo, cantidad, negocio:negocio_id(slug)")
+    .eq("comprador_id", comprador)
+    .order("actualizado_en");
+  const porTienda = new Map<string, { codigo: number; cantidad: number }[]>();
+  for (const f of (data ?? []) as unknown as { codigo: number; cantidad: number; negocio: { slug: string } | null }[]) {
+    if (!f.negocio?.slug) continue;
+    porTienda.set(f.negocio.slug, [...(porTienda.get(f.negocio.slug) ?? []), { codigo: f.codigo, cantidad: f.cantidad }]);
+  }
+  return [...porTienda].map(([slug, lineas]) => ({ slug, lineas }));
+}
+
 export async function guardarCarritoDelComprador(
   slug: string,
   comprador: string,
