@@ -3,10 +3,10 @@
 -- No incluye grant/revoke, datos (insert/update/delete) ni bloques do. Las columnas con sus tipos también están en
 -- src/lib/supabase/database.types.ts.
 --
--- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda, busqueda_sin_tildes, vitrina_negocio_unica, sitemap_publico.
+-- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda, busqueda_sin_tildes, sitemap_publico, vitrina_negocio_unica, tiendas_del_momento.
 
 -- ====================================================================================================
--- TABLAS (43)
+-- TABLAS (44)
 -- ====================================================================================================
 
 -- tabla abono_pasivo
@@ -875,6 +875,15 @@ create table if not exists public.tarjeta (
 -- tarjetas.sql
 alter table public.tarjeta enable row level security;
 
+-- tabla tienda_destacada
+-- tiendas_del_momento.sql
+create table if not exists public.tienda_destacada (
+  negocio_id uuid primary key references public.negocio(id) on delete cascade,
+  creado_en timestamptz not null default now()
+);
+-- tiendas_del_momento.sql
+alter table public.tienda_destacada enable row level security;
+
 -- tabla ubicacion
 -- schema.sql
 create table if not exists public.ubicacion (
@@ -889,7 +898,7 @@ alter table public.ubicacion enable row level security;
 
 
 -- ====================================================================================================
--- FUNCIONES (127)
+-- FUNCIONES (130)
 -- ====================================================================================================
 
 -- función abonar_pasivo(uuid, numeric, text, text, uuid)
@@ -1008,6 +1017,29 @@ begin
 end;
 $$;
 
+-- función admin_destacar_tienda(text, boolean)
+-- tiendas_del_momento.sql
+create or replace function public.admin_destacar_tienda(p_slug text, p_destacar boolean)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+begin
+  if not public.es_admin() then
+    raise exception 'Solo la admin de Lote' using errcode = '42501';
+  end if;
+  if p_destacar then
+    insert into public.tienda_destacada (negocio_id)
+    select n.id from public.negocio n where n.slug = lower(p_slug) and n.vitrina_activa
+    on conflict (negocio_id) do update set creado_en = now();
+  else
+    delete from public.tienda_destacada td
+    using public.negocio n
+    where n.id = td.negocio_id and n.slug = lower(p_slug);
+  end if;
+end;
+$$;
+
 -- función admin_destacar(uuid, boolean)
 -- destacados.sql
 create or replace function public.admin_destacar(p_producto uuid, p_destacar boolean)
@@ -1053,6 +1085,28 @@ begin
        or position(lower(p_busqueda) in lower(g.nombre || ' ' || g.tienda_nombre || ' ' || coalesce(g.categoria, ''))) > 0
     order by g.destacado desc, g.destacado_en desc nulls last, g.reciente desc
     limit 120;
+end;
+$$;
+
+-- función admin_tiendas()
+-- tiendas_del_momento.sql
+create or replace function public.admin_tiendas()
+returns table (slug text, nombre text, logo text, productos int, destacada boolean)
+language plpgsql stable security definer
+set search_path = ''
+as $$
+begin
+  if not public.es_admin() then
+    raise exception 'Solo la admin de Lote' using errcode = '42501';
+  end if;
+  return query
+  select n.slug, n.nombre, n.logo,
+         (select count(*)::int from public.producto p where p.negocio_id = n.id),
+         td.negocio_id is not null
+  from public.negocio n
+  left join public.tienda_destacada td on td.negocio_id = n.id
+  where n.vitrina_activa
+  order by (td.negocio_id is not null) desc, td.creado_en desc nulls last, n.nombre;
 end;
 $$;
 
@@ -4817,6 +4871,20 @@ as $$
     else m || ' min'
   end
   from (select floor(extract(epoch from (p_hasta - now())) / 60)::int as m) x
+$$;
+
+-- función tiendas_del_momento()
+-- tiendas_del_momento.sql
+create or replace function public.tiendas_del_momento()
+returns table (slug text)
+language sql stable security definer
+set search_path = ''
+as $$
+  select n.slug
+  from public.tienda_destacada td
+  join public.negocio n on n.id = td.negocio_id
+  where n.vitrina_activa
+  order by td.creado_en desc
 $$;
 
 -- función tomar_avisos(integer)

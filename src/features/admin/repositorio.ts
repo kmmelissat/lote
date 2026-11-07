@@ -45,3 +45,17 @@ export async function destacar(supabase: Cliente, productoId: string, si: boolea
   const { error } = await supabase.rpc("admin_destacar", { p_producto: productoId, p_destacar: si });
   return !error;
 }
+
+export type TiendaAdmin = { slug: string; nombre: string; logo: string | null; productos: number; destacada: boolean };
+
+/** Las tiendas con vitrina activa, las marcadas como "del momento" primero. null si todavía falta su SQL. */
+export async function tiendasAdmin(supabase: Cliente): Promise<TiendaAdmin[] | null> {
+  const { data, error } = await supabase.rpc("admin_tiendas");
+  if (error) return null;
+  return data.map((t) => ({ slug: t.slug, nombre: t.nombre, logo: t.logo, productos: t.productos, destacada: t.destacada }));
+}
+
+export async function destacarTienda(supabase: Cliente, slug: string, si: boolean): Promise<boolean> {
+  const { error } = await supabase.rpc("admin_destacar_tienda", { p_slug: slug, p_destacar: si });
+  return !error;
+}

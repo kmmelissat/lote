@@ -2471,6 +2471,24 @@ export type Database = {
         Args: { p_producto: string; p_destacar: boolean }
         Returns: undefined
       }
+      admin_tiendas: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          slug: string
+          nombre: string
+          logo: string | null
+          productos: number
+          destacada: boolean
+        }[]
+      }
+      admin_destacar_tienda: {
+        Args: { p_slug: string; p_destacar: boolean }
+        Returns: undefined
+      }
+      tiendas_del_momento: {
+        Args: Record<PropertyKey, never>
+        Returns: { slug: string }[]
+      }
       vitrina_productos: {
         Args: { p_codigo?: number; p_slug: string }
         Returns: {

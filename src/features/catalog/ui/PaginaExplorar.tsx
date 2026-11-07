@@ -8,6 +8,7 @@ import {
   explorarProductos,
   explorarRubros,
   explorarTiendas,
+  tiendasDelMomento,
   ORDENES_EXPLORAR,
   RUTA_TIENDAS,
   type OrdenExplorar,
@@ -132,7 +133,7 @@ export async function PaginaExplorar({
   const conPanel = vista === "productos" && filtrando;
   // Para la foto de cada círculo: lo más reciente que se ve en Explorar, de donde sale el producto con foto de cada rubro
   const conCirculos = vista === "productos" && !filtrando;
-  const [tiendas, { productos, total }, ofertas, promociones, { productos: recientes }] =
+  const [tiendas, { productos, total }, ofertas, promociones, { productos: recientes }, marcadas] =
     await Promise.all([
       // En productos las tiendas son una fila de acceso rápido; en tiendas, el contenido principal
       explorarTiendas(
@@ -160,6 +161,7 @@ export async function PaginaExplorar({
       conCirculos
         ? explorarProductos(supabase, { limite: 100, desde: 0, orden: "recientes" })
         : Promise.resolve({ productos: [], total: null }),
+      portada ? tiendasDelMomento(supabase) : Promise.resolve([] as string[]),
     ]);
   const hayMas = productos.length > POR_PAGINA;
   const visibles = productos.slice(0, POR_PAGINA);
@@ -198,10 +200,11 @@ export async function PaginaExplorar({
   const marcaDe = (p: { tiendaSlug: string }) =>
     marcas.get(p.tiendaSlug) ?? { color: colorDeMarca(null).hex, logo: null };
 
-  // La tienda del momento (para el mosaico): la que más productos tiene entre los que se ven
+  // La tienda del momento (para el mosaico): la que la admin marcó más reciente (y se ve en la lista). Sin ninguna marcada,
+  // la que más productos tiene entre los que se ven
   const porTienda = Map.groupBy(visibles, (p) => p.tiendaSlug);
-  const [slugMomento] = [...porTienda].sort((a, b) => b[1].length - a[1].length)[0] ?? [];
-  const tiendaMomento = tiendas.find((x) => x.slug === slugMomento);
+  const [slugMasProductos] = [...porTienda].sort((a, b) => b[1].length - a[1].length)[0] ?? [];
+  const tiendaMomento = marcadas.map((slug) => tiendas.find((x) => x.slug === slug)).find(Boolean) ?? tiendas.find((x) => x.slug === slugMasProductos);
 
   // La foto de cada círculo: el producto más reciente con imagen de ese rubro
   const fotosRubro: Partial<Record<RubroId, string>> = {};

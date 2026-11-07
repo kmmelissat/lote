@@ -64,6 +64,13 @@ export async function explorarTiendas(supabase: Cliente, busqueda?: string, cate
   }));
 }
 
+/** Los slugs de las tiendas que la admin marcó como "del momento", la más reciente primero. Vacío si no hay o si todavía falta su SQL. */
+export async function tiendasDelMomento(supabase: Cliente): Promise<string[]> {
+  const { data, error } = await supabase.rpc("tiendas_del_momento");
+  if (error) return [];
+  return data.map((t) => t.slug);
+}
+
 export async function explorarProductos(
   supabase: Cliente,
   opciones: {

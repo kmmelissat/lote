@@ -19,6 +19,7 @@ import { terminos } from "./terminos";
 import { equipo } from "./equipo";
 import { invitacion } from "./invitacion";
 import { ayuda } from "./ayuda";
+import { presentacion } from "./presentacion";
 import { resenas } from "./resenas";
 import { exportar } from "./exportar";
 import { seguimiento } from "./seguimiento";
@@ -62,6 +63,7 @@ export const textos = {
   equipo,
   invitacion,
   ayuda,
+  presentacion,
   resenas,
   exportar,
   seguimiento,

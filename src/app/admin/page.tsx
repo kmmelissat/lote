@@ -6,8 +6,8 @@ import { connection } from "next/server";
 import { Migas } from "@/components/nav/Migas";
 import { Logo } from "@/components/ui/Logo";
 import { estiloBoton } from "@/components/ui/Button";
-import { alternarDestacado } from "@/features/admin/actions/destacar";
-import { esAdmin, productosAdmin } from "@/features/admin/repositorio";
+import { alternarDestacado, alternarTiendaDelMomento } from "@/features/admin/actions/destacar";
+import { esAdmin, productosAdmin, tiendasAdmin } from "@/features/admin/repositorio";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { createClient } from "@/lib/supabase/server";
@@ -25,7 +25,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
 
   const q = (await searchParams).q;
   const busqueda = typeof q === "string" ? q.slice(0, 80) : "";
-  const productos = await productosAdmin(supabase, busqueda);
+  const [productos, tiendas] = await Promise.all([productosAdmin(supabase, busqueda), tiendasAdmin(supabase)]);
   const destacados = productos?.filter((p) => p.destacado).length ?? 0;
 
   return (
@@ -45,6 +45,44 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
           <h1 className="text-2xl font-bold">{t.titulo}</h1>
           <p className="text-texto-2">{t.descripcion}</p>
         </div>
+
+        <section aria-labelledby="tiendas-momento" className="flex flex-col gap-3">
+          <div>
+            <h2 id="tiendas-momento" className="text-lg font-bold">
+              {t.tiendasTitulo}
+            </h2>
+            <p className="text-sm text-texto-2">{t.tiendasDescripcion}</p>
+          </div>
+          {tiendas === null ? (
+            <p className="rounded-2xl border border-dashed border-teal-oscuro bg-white p-5 font-bold">{t.tiendasSinSql}</p>
+          ) : (
+            <>
+              <p className="text-sm font-bold">{t.tiendasMarcadas(tiendas.filter((x) => x.destacada).length)}</p>
+              <ul className="flex flex-col gap-2">
+                {tiendas.map((x) => (
+                  <li key={x.slug} className={`flex items-center gap-3 rounded-2xl border border-teal-oscuro p-2 pr-3 ${x.destacada ? "bg-limon" : "bg-white"}`}>
+                    <span className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-teal-fondo">
+                      {x.logo && <Image src={urlFoto(x.logo)} alt="" fill sizes="56px" className="object-cover" />}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <Link href={`/c/${x.slug}`} target="_blank" className="block truncate font-bold hover:underline">
+                        {x.nombre}
+                      </Link>
+                      <p className="truncate text-sm text-texto-2">{t.productosDe(x.productos)}</p>
+                    </div>
+                    <form action={alternarTiendaDelMomento}>
+                      <input type="hidden" name="tienda" value={x.slug} />
+                      <input type="hidden" name="destacar" value={x.destacada ? "0" : "1"} />
+                      <button type="submit" className={`${estiloBoton(x.destacada ? "secundario" : "primario")} h-10 px-4 text-sm`}>
+                        {x.destacada ? t.quitar : `★ ${t.marcar}`}
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
 
         <form action="/admin" role="search" className="flex gap-2">
           <input
