@@ -11,13 +11,13 @@ const TITULO = "text-sm font-extrabold uppercase tracking-wide text-limon";
 // El pie de todas las páginas públicas: la marca, a dónde ir, lo legal y el correo para quejas, errores o interés.
 export function Pie() {
   return (
-    <footer className="border-t-2 border-teal-oscuro bg-teal-oscuro text-crema">
+    <footer className="border-t border-teal-oscuro bg-teal-oscuro text-crema">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.4fr_1fr_1fr_1.4fr] md:px-8">
         <div className="flex flex-col items-start gap-4">
           <Logo />
           <p className="max-w-xs text-crema/80">{textos.eslogan}</p>
           <p className="flex items-center gap-2 text-sm text-crema/80">
-            <span className="-rotate-3 rounded-md border-2 border-crema bg-limon px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide text-teal-oscuro">
+            <span className="-rotate-3 rounded-md border border-crema bg-limon px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide text-teal-oscuro">
               {t.etiqueta}
             </span>
             {t.beta}
@@ -53,7 +53,7 @@ export function Pie() {
           <a
             href={`mailto:${t.correo}`}
             aria-label={`${t.escribirA} ${t.correo}`}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-crema bg-limon px-4 font-bold text-teal-oscuro shadow-[3px_3px_0_0_var(--color-crema)] transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-crema bg-limon px-4 font-bold text-teal-oscuro shadow-[3px_3px_0_0_var(--color-crema)] transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
           >
             <Icon nombre="correo" className="size-4" />
             {t.correo}

@@ -47,7 +47,7 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
     <div className="flex flex-col gap-8">
       <section className={`${TARJETA_BASE} relative overflow-hidden bg-limon p-5 shadow-dura md:p-7`}>
         <div className="relative z-10 flex max-w-xl flex-col items-start gap-4 pr-6 sm:pr-36">
-          <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-celeste px-3 py-1 text-sm font-bold shadow-dura-chica">
+          <span className="-rotate-2 rounded-full border border-teal-oscuro bg-celeste px-3 py-1 text-sm font-bold shadow-dura-chica">
             {t.heroEtiqueta}
           </span>
           <div>
@@ -77,7 +77,7 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
                   href={`#${id}`}
                   className={`${TARJETA_BASE} ${estilo.tono} flex min-h-20 items-center gap-4 p-4 shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura`}
                 >
-                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-superficie">
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-teal-oscuro bg-superficie">
                     <Icon nombre={estilo.icono} className="size-6" />
                   </span>
                   <span className="min-w-0 flex-1 font-bold leading-tight">{p.pregunta}</span>
@@ -94,7 +94,7 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
         return (
           <section key={grupo.id} aria-labelledby={`ayuda-${grupo.id}`} className="flex flex-col gap-3">
             <h2 id={`ayuda-${grupo.id}`} className="flex items-center gap-2 text-xl font-extrabold">
-              <span className={`flex size-9 items-center justify-center rounded-xl border-2 border-teal-oscuro ${estilo.tono}`}>
+              <span className={`flex size-9 items-center justify-center rounded-xl border border-teal-oscuro ${estilo.tono}`}>
                 <Icon nombre={estilo.icono} className="size-5" />
               </span>
               {grupo.titulo}

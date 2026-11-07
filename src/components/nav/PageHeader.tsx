@@ -29,7 +29,7 @@ export function PageHeader({
             href={volver.href}
             aria-label={volver.etiqueta}
             title={volver.etiqueta}
-            className="mt-0.5 flex size-10 max-md:size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            className="mt-0.5 flex size-10 max-md:size-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
           >
             <Icon nombre="flecha" className="size-5 rotate-90" />
           </Link>

@@ -62,3 +62,36 @@ export async function subirLogo(archivo: File, negocioId: string): Promise<strin
   if (error) throw error;
   return ruta;
 }
+
+/** Recorta al centro una franja 4:1 (1600×400): el banner de la tienda siempre queda igual de ancho. */
+async function recortarBanner(archivo: File, ancho = 1600, alto = 400): Promise<Blob> {
+  const imagen = await createImageBitmap(archivo);
+  const proporcion = ancho / alto;
+  let sw = imagen.width;
+  let sh = Math.round(sw / proporcion);
+  if (sh > imagen.height) {
+    sh = imagen.height;
+    sw = Math.round(sh * proporcion);
+  }
+  const sx = Math.round((imagen.width - sw) / 2);
+  const sy = Math.round((imagen.height - sh) / 2);
+  const lienzo = document.createElement("canvas");
+  lienzo.width = ancho;
+  lienzo.height = alto;
+  lienzo.getContext("2d")!.drawImage(imagen, sx, sy, sw, sh, 0, 0, ancho, alto);
+  imagen.close();
+  return new Promise((resolver, rechazar) =>
+    lienzo.toBlob((b) => (b ? resolver(b) : rechazar(new Error("No se pudo comprimir"))), "image/webp", 0.8),
+  );
+}
+
+/** Sube el banner de la tienda. Devuelve la ruta dentro del bucket. */
+export async function subirBanner(archivo: File, negocioId: string): Promise<string> {
+  const supabase = createClient();
+  const ruta = `${negocioId}/banner-${crypto.randomUUID()}.webp`;
+  const { error } = await supabase.storage
+    .from("productos")
+    .upload(ruta, await recortarBanner(archivo), { contentType: "image/webp" });
+  if (error) throw error;
+  return ruta;
+}

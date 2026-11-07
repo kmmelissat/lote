@@ -35,7 +35,7 @@ export function TarjetaPromocion({
     <Card className={`flex h-full flex-col gap-3 ${callada ? "bg-fondo" : ""}`}>
       <div className="flex items-start gap-3">
         <span
-          className={`grid min-h-14 min-w-14 shrink-0 -rotate-3 place-items-center rounded-2xl border-2 border-teal-oscuro px-2 text-lg font-bold tabular-nums leading-none shadow-dura-chica ${callada ? "bg-superficie" : TONOS_SELLO[tipo]}`}
+          className={`grid min-h-14 min-w-14 shrink-0 -rotate-3 place-items-center rounded-2xl border border-teal-oscuro px-2 text-lg font-bold tabular-nums leading-none shadow-dura-chica ${callada ? "bg-superficie" : TONOS_SELLO[tipo]}`}
         >
           {sello}
         </span>

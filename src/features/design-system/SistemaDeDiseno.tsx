@@ -25,7 +25,7 @@ import { DemoGuardar } from "./DemoGuardar";
 
 function Seccion({ id, titulo, texto, children }: { id: string; titulo: string; texto: string; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-t`} className="flex scroll-mt-4 flex-col gap-4 border-t-2 border-borde pt-8">
+    <section id={id} aria-labelledby={`${id}-t`} className="flex scroll-mt-4 flex-col gap-4 border-t border-borde pt-8">
       <div className="max-w-2xl">
         <h2 id={`${id}-t`} className="text-xl font-bold">
           {titulo}
@@ -78,7 +78,7 @@ function PestanasDemo({ opciones, etiqueta }: { opciones: { id: string; nombre: 
     <div
       role="tablist"
       aria-label={etiqueta}
-      className="grid grid-cols-2 gap-1.5 rounded-[20px] border-2 border-teal-oscuro bg-superficie p-1.5 lg:grid-flow-col lg:auto-cols-fr"
+      className="grid grid-cols-2 gap-1.5 rounded-[20px] border border-teal-oscuro bg-superficie p-1.5 lg:grid-flow-col lg:auto-cols-fr"
     >
       {opciones.map((o) => (
         <button
@@ -87,7 +87,7 @@ function PestanasDemo({ opciones, etiqueta }: { opciones: { id: string; nombre: 
           role="tab"
           aria-selected={activa === o.id}
           onClick={() => setActiva(o.id)}
-          className="flex min-h-11 flex-col items-start rounded-2xl border-2 border-transparent px-3 py-2.5 text-left transition-colors hover:bg-fondo aria-selected:border-teal-oscuro aria-selected:bg-teal-fondo aria-selected:hover:bg-teal-fondo"
+          className="flex min-h-11 flex-col items-start rounded-2xl border border-transparent px-3 py-2.5 text-left transition-colors hover:bg-fondo aria-selected:border-teal-oscuro aria-selected:bg-teal-fondo aria-selected:hover:bg-teal-fondo"
         >
           <span className="font-bold">{o.nombre}</span>
           {o.ayuda && <span className="text-xs text-texto-2">{o.ayuda}</span>}
@@ -251,7 +251,7 @@ export function SistemaDeDiseno() {
 
   return (
     <div className="flex flex-col gap-10">
-      <p className="max-w-2xl rounded-2xl border-2 border-teal-oscuro bg-superficie p-4 text-sm">
+      <p className="max-w-2xl rounded-2xl border border-teal-oscuro bg-superficie p-4 text-sm">
         <span className="font-bold">Alcance:</span> solo la app principal, el panel de quien vende. La landing, el Marketplace y las vitrinas de las
         tiendas no siguen estas reglas: conservan su estilo juguetón (celeste, limón, crema, rosa). Los componentes compartidos, como el chip de
         estado, traen una opción <code>publico</code> para esos lugares.
@@ -295,7 +295,7 @@ export function SistemaDeDiseno() {
             ["Neutro de base, marca de acento.", "Tarjetas blancas con teal; el monito va en los vacíos y el crema queda para el menú."],
             ["Lo que se parece, se ve igual.", "Una misma cosa tiene un solo componente, un solo tamaño y un solo color en toda la app."],
           ].map(([titulo, texto], i) => (
-            <li key={titulo} className="flex gap-3 rounded-2xl border-2 border-teal-oscuro bg-superficie p-4">
+            <li key={titulo} className="flex gap-3 rounded-2xl border border-teal-oscuro bg-superficie p-4">
               <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal-oscuro text-sm font-bold text-white">{i + 1}</span>
               <span className="flex flex-col">
                 <span className="font-bold">{titulo}</span>
@@ -304,17 +304,17 @@ export function SistemaDeDiseno() {
             </li>
           ))}
         </ol>
-        <div className="flex flex-col gap-3 rounded-2xl border-2 border-teal-oscuro bg-superficie p-4">
+        <div className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro bg-superficie p-4">
           <p className="font-bold">Marca y jerarquía van por separado</p>
           <p className="text-sm text-texto-2">
             Lo que da marca va parejo en todo: contorno de 2 px, esquinas redondas, Lotito, el rebote y el tono del texto. Lo que da jerarquía se reparte:
             relleno de color, sombra dura y tamaño.
           </p>
           <ul className="grid grid-cols-1 gap-2 text-sm md:grid-cols-3">
-            <li className="rounded-xl border-2 border-teal-oscuro bg-teal p-3 text-white shadow-dura-chica">
+            <li className="rounded-xl border border-teal-oscuro bg-teal p-3 text-white shadow-dura-chica">
               <span className="font-bold">Fuerte · una por pantalla.</span> Relleno de color y sombra. Lo que hay que ver primero.
             </li>
-            <li className="rounded-xl border-2 border-teal-oscuro bg-superficie p-3">
+            <li className="rounded-xl border border-teal-oscuro bg-superficie p-3">
               <span className="font-bold">Medio · pocas.</span> Tarjeta blanca con contorno, sin sombra.
             </li>
             <li className="rounded-xl border border-borde bg-fondo p-3">
@@ -326,7 +326,7 @@ export function SistemaDeDiseno() {
             un estado, o el mango de la acción. Prueba: entrecerrá los ojos; si todavía se ve qué va primero, funciona.
           </p>
         </div>
-        <p className="flex items-start gap-3 rounded-2xl border-2 border-teal-oscuro bg-crema p-4 text-sm">
+        <p className="flex items-start gap-3 rounded-2xl border border-teal-oscuro bg-crema p-4 text-sm">
           <Icon nombre="check" className="mt-0.5 size-5 shrink-0 text-teal" />
           <span>
             <span className="font-bold">Se queda como está:</span> el menú lateral y la barra inferior del celular. Son la parte que más gusta y
@@ -378,12 +378,12 @@ export function SistemaDeDiseno() {
             <p className="text-sm text-texto-2">Listas, tablas y agrupaciones. Lo que se lee, no se toca.</p>
           </div>
           <div className="flex flex-col gap-2">
-            <div className="flex h-28 items-center justify-center rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 text-center text-sm">Borde de 2 px</div>
+            <div className="flex h-28 items-center justify-center rounded-[24px] border border-teal-oscuro bg-superficie p-4 text-center text-sm">Borde de 2 px</div>
             <p className="font-bold">2 · Tarjeta</p>
             <p className="text-sm text-texto-2">El contenido principal de la pantalla. Sin sombra.</p>
           </div>
           <div className="flex flex-col gap-2">
-            <div className="flex h-28 items-center justify-center rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 text-center text-sm shadow-dura-chica">Borde y sombra dura</div>
+            <div className="flex h-28 items-center justify-center rounded-[24px] border border-teal-oscuro bg-superficie p-4 text-center text-sm shadow-dura-chica">Borde y sombra dura</div>
             <p className="font-bold">3 · Interactivo</p>
             <p className="text-sm text-texto-2">Solo lo que se toca: botones y tarjetas que son enlaces.</p>
           </div>
@@ -396,7 +396,7 @@ export function SistemaDeDiseno() {
             ["rounded-full", "Píldora", "Botones, chips"],
           ].map(([clase, nombre, uso]) => (
             <div key={nombre} className="flex flex-col gap-2">
-              <span className={`flex h-14 w-32 items-center justify-center border-2 border-teal-oscuro bg-teal-fondo ${clase}`} />
+              <span className={`flex h-14 w-32 items-center justify-center border border-teal-oscuro bg-teal-fondo ${clase}`} />
               <span className="text-sm font-bold">{nombre}</span>
               <span className="text-xs text-texto-2">{uso}</span>
             </div>
@@ -440,7 +440,7 @@ export function SistemaDeDiseno() {
           si="Una acción mango por pantalla; dentro de una tarjeta, botones <code>chico</code> (44 px en celular, 40 px en escritorio). Una tarjeta de color solo si avisa algo (atención, error). El crema no es de tarjetas: queda para el menú."
           no="Limón, rosa y celeste como fondo de tarjetas normales, o una tarjeta dentro de otra tarjeta."
         />
-        <p className="rounded-2xl border-2 border-teal-oscuro bg-superficie p-4 text-sm">
+        <p className="rounded-2xl border border-teal-oscuro bg-superficie p-4 text-sm">
           <span className="font-bold">Ya está en <code>Card</code>:</span> <code>nivel</code> (plano, tarjeta, interactivo) y <code>tono</code> (neutra, marca, aviso,
           error; <code>marca</code> es teal sólido para lo principal de la pantalla o una celebración, una sola por pantalla). <span className="font-bold">Falta:</span> hay unas 30 tarjetas armadas a mano con la constante <code>TARJETA</code>, 12 limón y 12 crema; pasan
           a <code>Card</code> pantalla por pantalla.
@@ -477,7 +477,7 @@ export function SistemaDeDiseno() {
           si="Pestañas cuando cada una muestra contenido distinto (Mi tienda). Si es elegir una opción que cambia el formulario, un grupo de opciones con radio."
           no="Pestañas como filtros de una lista o como pasos de un proceso: los filtros son chips y los pasos llevan número."
         />
-        <p className="rounded-2xl border-2 border-teal-oscuro bg-superficie p-4 text-sm">
+        <p className="rounded-2xl border border-teal-oscuro bg-superficie p-4 text-sm">
           <span className="font-bold">Hoy:</span> la misma caja está copiada en Mi tienda y en Nuevo producto (simple o variantes), cada una con su clase,
           y la página de guardar usa píldoras sueltas. En Nuevo producto el <code>role=&quot;tab&quot;</code> no abre ningún panel, así que es en realidad una
           elección: debe ser un radio. Plan: un componente <code>Pestanas</code> en <code>components/ui</code>, con enlaces o botones según el caso.
@@ -493,7 +493,7 @@ export function SistemaDeDiseno() {
           <Bloque titulo="Tu marca" texto="El nombre, el logo y el color con el que te ven tus clientes." tono="limon">
             <Field etiqueta="Nombre de la tienda" defaultValue="Velvet" readOnly />
           </Bloque>
-          <Bloque titulo="Cómo piden" texto="Pueden comprar solos, apartar unas horas, o solo mirar el catálogo y escribirte." tono="rosa" className="border-t-2 border-teal-oscuro/15 pt-5">
+          <Bloque titulo="Cómo piden" texto="Pueden comprar solos, apartar unas horas, o solo mirar el catálogo y escribirte." tono="rosa" className="border-t border-teal-oscuro/15 pt-5">
             <Field etiqueta="Horas para apartar" defaultValue="24" readOnly />
           </Bloque>
         </Card>
@@ -646,7 +646,7 @@ export function SistemaDeDiseno() {
                 <ul className="flex flex-wrap items-center gap-2">
                   {f.chips.map((c) => (
                     <li key={c.texto} className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1 rounded-full border-2 border-teal-oscuro px-3 py-1 text-sm font-bold ${c.clase}`}>
+                      <span className={`inline-flex items-center gap-1 rounded-full border border-teal-oscuro px-3 py-1 text-sm font-bold ${c.clase}`}>
                         <Icon nombre={c.icono} className="size-4" />
                         {c.texto}
                       </span>
@@ -784,7 +784,7 @@ export function SistemaDeDiseno() {
           ))}
         </div>
         <Regla si="Select de la app (con la marca) y radios para elegir una de pocas opciones." no="Un <select> del navegador, que se ve distinto en cada teléfono." />
-        <p className="rounded-2xl border-2 border-teal-oscuro bg-superficie p-4 text-sm">
+        <p className="rounded-2xl border border-teal-oscuro bg-superficie p-4 text-sm">
           <span className="font-bold">Hoy:</span> las elecciones están armadas a mano en cada formulario (Lote, Nuevo producto, Nuevo pedido, Gastos, Crear negocio) y marcan con
           colores distintos: limón, mango y teal oscuro. Pasan a <code>OpcionRadio</code> pantalla por pantalla; las de la compra en la vitrina no se tocan.{" "}
           <span className="font-bold">Interruptor:</span> el color está en el riel: limón suave apagado y mango prendido, con la perilla blanca que muestra un check. Es de lo poco del panel que juega con el color, y se queda así a propósito.
@@ -843,7 +843,7 @@ export function SistemaDeDiseno() {
           si="Un botón principal (mango, o rojo si es peligro) a la derecha y Cancelar secundario a su lado. Si se puede deshacer, un aviso con Deshacer."
           no="Pedir confirmación para cada guardado, o una ventana encima de otra."
         />
-        <p className="rounded-2xl border-2 border-teal-oscuro bg-superficie p-4 text-sm">
+        <p className="rounded-2xl border border-teal-oscuro bg-superficie p-4 text-sm">
           <span className="font-bold">Ya está igual en las dos:</span> <code>Confirmar</code> y <code>Ventana</code> llevan el borde de 2 px y el radio de 24 px de
           las tarjetas, sin sombra (no se toca), y el botón de confirmar es mango, o rojo si es peligro.
         </p>

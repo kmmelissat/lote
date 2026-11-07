@@ -62,13 +62,13 @@ export function MisPedidos() {
       </header>
 
       {pedidos.length === 0 ? (
-        <section className="flex flex-col items-center gap-3 rounded-[22px] border-2 border-teal-oscuro bg-white p-8 text-center shadow-dura-chica">
+        <section className="flex flex-col items-center gap-3 rounded-[22px] border border-teal-oscuro bg-white p-8 text-center shadow-dura-chica">
           <Monito nombre="caja" className="w-20 text-teal/50" />
           <h2 className="font-logo text-xl font-semibold">{t.vacioTitulo}</h2>
           <p className="max-w-md text-texto-2">{t.vacioTexto}</p>
           <Link
             href="/marketplace"
-            className="inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro bg-accion px-6 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+            className="inline-flex min-h-11 items-center rounded-full border border-teal-oscuro bg-accion px-6 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
           >
             {t.explorar}
           </Link>
@@ -78,7 +78,7 @@ export function MisPedidos() {
           {pedidos.map((p) => (
             <li
               key={p.id}
-              className="flex flex-col gap-3 rounded-[22px] border-2 border-teal-oscuro bg-white p-4 shadow-dura-chica sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-[22px] border border-teal-oscuro bg-white p-4 shadow-dura-chica sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex min-w-0 flex-col gap-1">
                 <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -111,7 +111,7 @@ export function MisPedidos() {
                 )}
                 <Link
                   href={`/p/${p.id}`}
-                  className="inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro bg-accion px-5 text-sm font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+                  className="inline-flex min-h-11 items-center rounded-full border border-teal-oscuro bg-accion px-5 text-sm font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
                 >
                   {t.verSeguimiento}
                 </Link>

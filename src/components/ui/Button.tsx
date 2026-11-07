@@ -21,10 +21,10 @@ const tamanos = {
 } as const;
 
 const base =
-  "inline-flex min-w-11 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none";
+  "inline-flex min-w-11 items-center justify-center gap-2 rounded-full border border-teal-oscuro font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none";
 
 const baseSuave =
-  "inline-flex min-w-11 items-center justify-center gap-2 rounded-full border-2 border-borde-control font-bold transition-colors duration-150 hover:border-teal-oscuro hover:bg-teal-fondo disabled:opacity-50";
+  "inline-flex min-w-11 items-center justify-center gap-2 rounded-full border border-borde-control font-bold transition-colors duration-150 hover:border-teal-oscuro hover:bg-teal-fondo disabled:opacity-50";
 
 /** Las clases de un botón de la marca, para lo que no es un <button> ni un enlace (por ejemplo, el que abre una ventana). */
 export const estiloBoton = (variante: VarianteBoton = "primario", tamano: keyof typeof tamanos = "normal") =>

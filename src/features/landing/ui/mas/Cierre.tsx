@@ -17,7 +17,7 @@ export function Cierre({ conSesion }: { conSesion: boolean }) {
         <Aparece className="relative z-10 flex flex-col items-start gap-7">
           <h2 id="cierre-mas" className="flex flex-col items-start gap-3 text-[40px] font-extrabold leading-[1.02] tracking-[-0.04em] md:text-[56px]">
             <span>{t.cierre.tituloInicio}</span>
-            <span className="origin-left -rotate-1 rounded-[16px] border-[3px] border-limon bg-limon px-3 py-1 text-[28px] text-teal-oscuro shadow-[5px_5px_0_0_var(--color-mango)] sm:text-[34px] md:text-[44px] lg:text-[48px]">
+            <span className="origin-left -rotate-1 rounded-[16px] border border-limon bg-limon px-3 py-1 text-[28px] text-teal-oscuro shadow-[5px_5px_0_0_var(--color-mango)] sm:text-[34px] md:text-[44px] lg:text-[48px]">
               {t.cierre.tituloMarca}
             </span>
           </h2>

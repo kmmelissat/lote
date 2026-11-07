@@ -19,11 +19,14 @@ export function Tira({
   etiqueta,
   activo,
   porPaginas = false,
+  flechasEnMovil = true,
 }: {
   children: ReactNode;
   etiqueta: string;
   activo?: number;
   porPaginas?: boolean;
+  /** En el celular se desliza con el dedo: las flechas pueden sobrar y tapar la primera miniatura */
+  flechasEnMovil?: boolean;
 }) {
   const lista = useRef<HTMLUListElement>(null);
   const [hay, setHay] = useState({ antes: false, despues: false });
@@ -59,7 +62,7 @@ export function Tira({
     el.scrollBy({ left: lado * paso, behavior: "smooth" });
   };
   const flecha =
-    "absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica hover:bg-teal-fondo";
+    `${flechasEnMovil ? "" : "max-md:hidden "}absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica hover:bg-teal-fondo`;
 
   return (
     <div className={`relative ${porPaginas ? "-mx-1" : ""}`}>

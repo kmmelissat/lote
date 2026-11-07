@@ -5,13 +5,13 @@ export type Plataforma = "escritorio" | "movil";
 // La forma del menú lateral: una tarjeta celeste muy redonda con el logo arriba, las secciones en cuadros de dos en dos y tu
 // perfil abajo. En la computadora flota a la izquierda y se puede recoger a solo íconos; en el celular es un cajón.
 const PIEL: Record<Plataforma, string> = {
-  escritorio: "rounded-[28px] border-2 border-teal-oscuro bg-celeste-palido shadow-dura-chica",
-  movil: "h-full w-[min(20rem,85vw)] rounded-r-[28px] border-2 border-l-0 border-teal-oscuro bg-celeste-palido",
+  escritorio: "rounded-[28px] border border-teal-oscuro bg-celeste-palido shadow-dura-chica",
+  movil: "h-full w-[min(20rem,85vw)] rounded-r-[28px] border border-l-0 border-teal-oscuro bg-celeste-palido",
 };
 
 /** El botón de tu perfil: un sticker blanco con contorno. */
 export const BOTON_PERFIL =
-  "flex min-h-12 w-full items-center gap-3 rounded-2xl border-2 border-teal-oscuro bg-superficie p-1.5 text-left group-data-[cerrado]:justify-center";
+  "flex min-h-12 w-full items-center gap-3 rounded-2xl border border-teal-oscuro bg-superficie p-1.5 text-left group-data-[cerrado]:justify-center";
 
 /**
  * El cascarón del menú lateral, igual para la computadora y para el cajón del celular: pone la forma y los colores, y adentro

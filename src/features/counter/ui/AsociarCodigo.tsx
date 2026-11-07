@@ -63,7 +63,7 @@ function AsociarCodigo({
             onChange={(e) => setBusca(e.target.value)}
             aria-label={b.elegir}
             placeholder={b.elegir}
-            className="h-12 rounded-[14px] border-2 border-teal-oscuro bg-superficie px-4 text-base"
+            className="h-12 rounded-[14px] border border-teal-oscuro bg-superficie px-4 text-base"
           />
           <ul className="flex flex-col gap-1.5">
             {opciones.map((p) => (
@@ -72,7 +72,7 @@ function AsociarCodigo({
                   type="button"
                   aria-pressed={elegido === p.id}
                   onClick={() => setElegido(p.id)}
-                  className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border-2 border-teal-oscuro px-3 text-left text-sm ${elegido === p.id ? "bg-mango font-bold" : "bg-superficie"}`}
+                  className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-teal-oscuro px-3 text-left text-sm ${elegido === p.id ? "bg-mango font-bold" : "bg-superficie"}`}
                 >
                   <span className="truncate">{nombreCompleto(p)}</span>
                   <span className="tabular-nums">#{p.codigo}</span>

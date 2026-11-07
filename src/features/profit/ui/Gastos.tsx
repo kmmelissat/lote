@@ -33,7 +33,7 @@ const opcionesDeMetodo = (cuentas: readonly Cuenta[] | undefined): { valor: stri
     : METODOS_DE_DINERO.map((m) => ({ valor: m, etiqueta: textos.dinero.metodos[m], tipo: m }));
 
 const campo =
-  "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal";
+  "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base focus:border-teal";
 
 /** "+ Registrar gasto": un botón que abre el formulario en una ventana, en vez de ocupar media página siempre. */
 export function RegistrarGasto({
@@ -71,7 +71,7 @@ export function RegistrarGasto({
       <button
         type="button"
         onClick={() => ventana.current?.showModal()}
-        className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-mango px-5 text-sm font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+        className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border border-teal-oscuro bg-mango px-5 text-sm font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
       >
         <Icon nombre="mas" className="size-4" strokeWidth={2.5} />
         {t.registrarGasto}
@@ -79,7 +79,7 @@ export function RegistrarGasto({
       <dialog
         ref={ventana}
         aria-labelledby="titulo-gasto"
-        className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
+        className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto rounded-[24px] border border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
         onClick={(e) => e.target === ventana.current && ventana.current?.close()}
         onClose={() => setRepite(false)}
       >
@@ -116,7 +116,7 @@ export function RegistrarGasto({
                 onChange={(e) => {
                   e.target.value = soloNumero(e.target.value, true);
                 }}
-                className="h-16 w-full rounded-[14px] border-2 border-borde-control bg-superficie pl-12 pr-4 font-logo text-3xl font-bold tabular-nums focus:border-teal"
+                className="h-16 w-full rounded-[14px] border border-borde-control bg-superficie pl-12 pr-4 font-logo text-3xl font-bold tabular-nums focus:border-teal"
               />
             </span>
           </label>
@@ -146,7 +146,7 @@ export function RegistrarGasto({
                     onChange={() => setCategoria(c)}
                     className="peer sr-only"
                   />
-                  <span className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
+                  <span className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
                     <Icon nombre={ICONOS[c]} className="size-4" />
                     {t.categorias[c]}
                   </span>
@@ -159,7 +159,7 @@ export function RegistrarGasto({
           <fieldset className="flex flex-col gap-3">
             <legend className="mb-1 text-sm font-bold">{fijos.cuando}</legend>
             {guardarFijo && (
-              <div role="radiogroup" aria-label={fijos.cuando} className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border-2 border-teal-oscuro bg-teal-oscuro">
+              <div role="radiogroup" aria-label={fijos.cuando} className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-teal-oscuro bg-teal-oscuro">
                 {([false, true] as const).map((cadaMes) => (
                   <label key={String(cadaMes)} className="cursor-pointer">
                     <input type="radio" name="repite" value={cadaMes ? "mensual" : "una_vez"} checked={repite === cadaMes} onChange={() => setRepite(cadaMes)} className="peer sr-only" />
@@ -208,7 +208,7 @@ export function RegistrarGasto({
                     defaultChecked={m.valor === ""}
                     className="peer sr-only"
                   />
-                  <span className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-teal-fondo peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
+                  <span className="inline-flex h-10 max-md:min-h-11 items-center gap-2 rounded-full border border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-teal-fondo peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
                     {m.tipo && <Icon nombre={ICONOS_METODO[m.tipo]} className="size-4" />}
                     {m.etiqueta}
                   </span>

@@ -316,7 +316,7 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
               )}
             </div>
             {malas > 0 && (
-              <div className="flex rounded-full border-2 border-teal-oscuro bg-white p-1 text-sm font-bold">
+              <div className="flex rounded-full border border-teal-oscuro bg-white p-1 text-sm font-bold">
                 <button
                   type="button"
                   onClick={() => setSoloErrores(false)}
@@ -339,7 +339,7 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
               {t.resumenVariantes(grupos)}
             </p>
           )}
-          <div className="max-h-[34rem] overflow-auto rounded-[18px] border-2 border-teal-oscuro">
+          <div className="max-h-[34rem] overflow-auto rounded-[18px] border border-teal-oscuro">
             <table className="w-full text-left text-sm">
               <thead className="sticky top-0 z-10 bg-crema text-texto-2">
                 <tr>

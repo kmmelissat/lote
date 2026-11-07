@@ -23,7 +23,7 @@ export function Pasos({ actual }: { actual: 1 | 2 | 3 }) {
         const estado = n === actual ? "bg-mango shadow-dura-chica" : n < actual ? "bg-teal-fondo" : "bg-superficie";
         return (
           <li key={p} className={`${TARJETA_BASE} flex items-center gap-2 px-3 py-1.5 text-sm font-bold ${estado}`}>
-            <span className="flex size-6 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-xs">
+            <span className="flex size-6 items-center justify-center rounded-full border border-teal-oscuro bg-white text-xs">
               {n}
             </span>
             {p}
@@ -71,7 +71,7 @@ export function ZonaCarga({
         onDrop={soltadas}
         className={`${TARJETA} relative flex flex-1 flex-col items-center justify-center gap-5 bg-crema py-10 text-center shadow-dura transition-colors duration-150 lg:min-h-96 ${encima ? "bg-limon" : ""}`}
       >
-        <span className="absolute -right-2 -top-3 hidden -rotate-6 rounded-full border-2 border-teal-oscuro bg-celeste px-3 py-1 text-xs font-bold shadow-dura-chica sm:block">
+        <span className="absolute -right-2 -top-3 hidden -rotate-6 rounded-full border border-teal-oscuro bg-celeste px-3 py-1 text-xs font-bold shadow-dura-chica sm:block">
           {t.hasta(MAXIMO_FILAS)}
         </span>
         <Monito nombre="caja" className={`text-teal transition-[width] duration-150 ${encima ? "w-28" : "w-24"}`} />
@@ -104,12 +104,12 @@ export function Ayuda() {
       </div>
       <ul className="flex flex-wrap gap-1.5">
         {REQUERIDOS.map((c) => (
-          <li key={c} className="rounded-full border-2 border-teal-oscuro bg-mango px-3 py-1 text-sm font-bold">
+          <li key={c} className="rounded-full border border-teal-oscuro bg-mango px-3 py-1 text-sm font-bold">
             {t.campos[c]}
           </li>
         ))}
         {opcionales.slice(0, 5).map((c) => (
-          <li key={c} className="rounded-full border-2 border-teal-oscuro bg-white px-3 py-1 text-sm font-bold">
+          <li key={c} className="rounded-full border border-teal-oscuro bg-white px-3 py-1 text-sm font-bold">
             {t.campos[c]}
           </li>
         ))}
@@ -118,7 +118,7 @@ export function Ayuda() {
       <div className={`${TARJETA_BASE} bg-limon p-4`}>
         <p className="font-extrabold">{g.titulo}</p>
         <p className="mt-1 text-sm text-texto-2">{g.texto}</p>
-        <div className="mt-3 overflow-hidden rounded-[14px] border-2 border-teal-oscuro bg-white">
+        <div className="mt-3 overflow-hidden rounded-[14px] border border-teal-oscuro bg-white">
           <table className="w-full text-left text-sm">
             <thead className="bg-crema">
               <tr>
@@ -157,7 +157,7 @@ export function Ayuda() {
       <a
         href="/plantilla-productos.csv"
         download
-        className="mt-auto inline-flex h-11 items-center justify-center gap-2 self-start rounded-full border-2 border-teal-oscuro bg-superficie px-5 text-sm font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+        className="mt-auto inline-flex h-11 items-center justify-center gap-2 self-start rounded-full border border-teal-oscuro bg-superficie px-5 text-sm font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
       >
         {t.plantilla}
       </a>

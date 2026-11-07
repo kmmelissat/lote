@@ -51,7 +51,7 @@ export function GraficoEntraSale({ dias: diarios, titulo }: { dias: DiaDeDinero[
   const rotulo = (v: unknown) => (typeof v === "number" && v > 0 ? dolares(v) : "");
 
   return (
-    <figure className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5" aria-label={titulo}>
+    <figure className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-superficie p-4 md:p-5" aria-label={titulo}>
       <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <span className="font-bold">{titulo}</span>
         <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">

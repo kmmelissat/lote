@@ -58,7 +58,7 @@ export function ProgresoPedido({
               }`}
             >
               <span
-                className={`relative z-10 flex size-10 items-center justify-center rounded-full border-2 border-teal-oscuro text-sm font-bold text-teal-oscuro ${
+                className={`relative z-10 flex size-10 items-center justify-center rounded-full border border-teal-oscuro text-sm font-bold text-teal-oscuro ${
                   hecho ? "bg-teal text-white" : enCurso ? "bg-limon" : "bg-superficie"
                 }`}
               >
@@ -73,7 +73,7 @@ export function ProgresoPedido({
         })}
       </ol>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-teal-oscuro bg-fondo p-3 md:px-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-teal-oscuro bg-fondo p-3 md:px-4">
         <div className="flex min-w-0 items-center gap-3">
           <LotitoMas nombre={entregado ? "thumbsup" : "saluda"} className="w-10 shrink-0" />
           <div className="min-w-0">

@@ -86,7 +86,7 @@ export function DemoGuardar() {
             role="tab"
             aria-selected={modo === m.id}
             onClick={() => elegir(m.id)}
-            className="min-h-11 rounded-full border-2 border-teal-oscuro bg-superficie px-4 text-sm font-bold aria-selected:bg-teal-oscuro aria-selected:text-white"
+            className="min-h-11 rounded-full border border-teal-oscuro bg-superficie px-4 text-sm font-bold aria-selected:bg-teal-oscuro aria-selected:text-white"
           >
             {m.nombre}
           </button>
@@ -95,7 +95,7 @@ export function DemoGuardar() {
       <p className="max-w-2xl text-sm text-texto-2">{actual.nota}</p>
 
       {/* La caja con scroll hace de pantalla: así se ve cómo se comporta lo que flota o se queda pegado */}
-      <div className="relative h-96 overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-superficie">
+      <div className="relative h-96 overflow-y-auto rounded-[24px] border border-teal-oscuro bg-superficie">
         {modo === "arriba" && (
           <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-borde bg-superficie px-5 py-3">
             <div className="min-w-0">
@@ -121,7 +121,7 @@ export function DemoGuardar() {
         </div>
 
         {modo === "hoy" && (
-          <div className="sticky bottom-3 mx-auto flex w-full max-w-sm flex-wrap items-center justify-center gap-3 rounded-[20px] border-2 border-teal-oscuro bg-crema px-4 py-3 shadow-dura">
+          <div className="sticky bottom-3 mx-auto flex w-full max-w-sm flex-wrap items-center justify-center gap-3 rounded-[20px] border border-teal-oscuro bg-crema px-4 py-3 shadow-dura">
             <Button type="button" variante="mango" onClick={guardar}>
               Guardar
             </Button>

@@ -86,7 +86,7 @@ export function CuerpoExplorar({
                           </span>
                         )}
                       </summary>
-                      <div className="fixed inset-x-3 bottom-3 z-40 max-h-[80dvh] overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-crema p-4 shadow-dura">
+                      <div className="fixed inset-x-3 bottom-3 z-40 max-h-[80dvh] overflow-y-auto rounded-[24px] border border-teal-oscuro bg-crema p-4 shadow-dura">
                         {panel}
                       </div>
                     </details>
@@ -97,7 +97,7 @@ export function CuerpoExplorar({
                         {t.ordenActual(t.ordenes[orden])}
                         <Icon nombre="flecha" className="size-4" />
                       </summary>
-                      <ul className="absolute right-0 z-20 mt-2 flex w-64 max-w-[calc(100vw-2rem)] flex-col rounded-[20px] border-2 border-teal-oscuro bg-white p-2 shadow-dura max-md:fixed max-md:inset-x-4 max-md:top-auto max-md:w-auto">
+                      <ul className="absolute right-0 z-20 mt-2 flex w-64 max-w-[calc(100vw-2rem)] flex-col rounded-[20px] border border-teal-oscuro bg-white p-2 shadow-dura max-md:fixed max-md:inset-x-4 max-md:top-auto max-md:w-auto">
                         {ORDENES_EXPLORAR.map((o) => (
                           <li key={o}>
                             <Link
@@ -126,7 +126,7 @@ export function CuerpoExplorar({
                 </Link>
               )}
               {vacio ? (
-                <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-teal-oscuro bg-white px-6 py-12 text-center">
+                <div className="flex flex-col items-center gap-3 rounded-[24px] border border-dashed border-teal-oscuro bg-white px-6 py-12 text-center">
                   <Monito nombre="caja" className="w-20 text-teal/50" />
                   <h2 className="text-lg font-bold">
                     {filtrando ? t.sinResultadosTitulo : t.sinTiendasTitulo}
@@ -173,7 +173,7 @@ export function CuerpoExplorar({
                       <li className="h-full">
                         <Link
                           href="/login"
-                          className="relative flex h-full min-h-64 flex-col justify-end gap-2 overflow-hidden rounded-[24px] border-2 border-dashed border-teal-oscuro bg-rosa-palido p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:border-solid hover:shadow-dura"
+                          className="relative flex h-full min-h-64 flex-col justify-end gap-2 overflow-hidden rounded-[24px] border border-dashed border-teal-oscuro bg-rosa-palido p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:border-solid hover:shadow-dura"
                         >
                           <LotitoMas nombre="saluda"
                             className="absolute right-4 top-4 w-20 md:w-24"
@@ -182,7 +182,7 @@ export function CuerpoExplorar({
                             {t.armaTitulo}
                           </p>
                           <p className="text-sm text-texto-2">{t.armaTexto}</p>
-                          <span className="mt-1 inline-flex h-10 items-center self-start rounded-full border-2 border-teal-oscuro bg-mango px-4 text-sm font-bold">
+                          <span className="mt-1 inline-flex h-10 items-center self-start rounded-full border border-teal-oscuro bg-mango px-4 text-sm font-bold">
                             {t.armaBoton}
                           </span>
                         </Link>

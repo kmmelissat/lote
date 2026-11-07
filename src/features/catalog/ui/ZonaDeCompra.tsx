@@ -2,6 +2,8 @@
 
 import { conBusqueda, ruta } from "@/lib/ruta";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/Toast";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { StatusChip } from "@/components/ui/StatusChip";
@@ -9,7 +11,7 @@ import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { agregarAlCarrito } from "../carrito";
 import { AvisameCuandoHaya } from "./AvisameCuandoHaya";
-import { tituloDe } from "../opciones";
+import { etiquetaDeOpcion, tituloDe } from "../opciones";
 import { enlaceFacebook, enlaceInstagram, enlaceTiktok, enlaceWhatsApp, mensajePedirProducto } from "../enlaces";
 import { useFotosElegidas } from "./FotosPorVariante";
 
@@ -39,6 +41,7 @@ export function ZonaDeCompra({
   plazoHoras,
   permiteComprar,
   permiteApartar,
+  umbralPocoStock,
   contacto,
 }: {
   slug: string;
@@ -48,14 +51,18 @@ export function ZonaDeCompra({
   plazoHoras: number;
   permiteComprar: boolean;
   permiteApartar: boolean;
+  /** Hasta cuántas unidades se avisa «Quedan N»; con más, solo «Disponible» */
+  umbralPocoStock: number;
   /** Para el modo catálogo: a quién se le escribe y qué producto se nombra en el mensaje */
   contacto: { tienda: string; producto: string; whatsapp: string | null; instagram: string | null; facebook?: string | null; tiktok?: string | null };
 }) {
+  const { avisar } = useToast();
+  const router = useRouter();
   const dims = variantes[0]?.partes.length ?? 0;
   const [elegido, setElegido] = useState<(string | null)[]>(() => Array(dims).fill(null));
   const [cantidad, setCantidad] = useState(1);
-  // Lo que pasó al agregar al carrito; el aviso se esconde solo cuando cambia lo elegido (otra variante u otra cantidad)
-  const [resultado, setResultado] = useState<{ clave: string; valor: "agregado" | "tope" | "lleno" } | null>(null);
+  // Si tocan "Comprar" sin haber elegido, se resalta lo que falta
+  const [tocado, setTocado] = useState(false);
 
   const seleccionada =
     dims === 0
@@ -115,19 +122,31 @@ export function ZonaDeCompra({
     formatearDolares(precio),
   );
   const meInteresa = enlaceWhatsApp(contacto.whatsapp, mensaje) ?? enlaceInstagram(contacto.instagram) ?? enlaceFacebook(contacto.facebook ?? null) ?? enlaceTiktok(contacto.tiktok ?? null);
-  const clave = `${seleccionada?.codigo ?? 0}-${unidades}`;
-  const aviso = resultado?.clave === clave ? resultado.valor : null;
+  // Tocar comprar sin haber elegido lleva a las opciones y marca las que faltan
+  function pedirElegir() {
+    setTocado(true);
+    document.getElementById("opciones-compra")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  // Lo que pasó al agregar se dice con un aviso (toast), con atajo al carrito
+  function agregar() {
+    const r = agregarAlCarrito(slug, seleccionada!.codigo, unidades, seleccionada!.disponibles);
+    const c = textos.vitrina.carrito;
+    avisar(r === "agregado" ? c.agregado : r === "tope" ? c.tope : c.lleno, {
+      tipo: r === "agregado" ? "exito" : "info",
+      accion: r === "lleno" ? undefined : { etiqueta: c.verCarrito, alTocar: () => router.push(ruta(`/c/${slug}/carrito`)) },
+    });
+  }
   const pista = faltan.length ? t.elegirPrimero(faltan.join(" y ")) : t.stockElegi;
   const enlaceA = (accion: "apartar" | "comprar") =>
     conBusqueda(ruta(`/c/${slug}/${seleccionada?.codigo ?? 0}/${accion}`), `n=${unidades}`);
-  const boton = "inline-flex h-11 items-center justify-center rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold transition-[transform,box-shadow] duration-150";
+  const boton = "inline-flex h-11 items-center justify-center rounded-full border border-teal-oscuro/30 px-5 text-sm font-bold transition-[transform,box-shadow] duration-150";
 
   return (
     <>
       <div id="comprar" className="flex scroll-mt-4 flex-col gap-5">
         {/* Lo primero que se mira: el precio grande, el de antes tachado, cuánto se ahorra y cuántos quedan */}
         <div className="flex flex-col items-start gap-2">
-          <p className="font-logo text-4xl font-bold tabular-nums leading-none tracking-tight text-teal md:text-[2.6rem]">
+          <p className="font-logo text-4xl font-bold tabular-nums leading-none tracking-tight text-(--store-accent) md:text-[2.6rem]">
             {!seleccionada && dims > 0 && Math.max(...precios) !== desde ? textos.vitrina.desde(formatearDolares(desde)) : formatearDolares(precio)}
           </p>
           {oferta && (
@@ -136,24 +155,26 @@ export function ZonaDeCompra({
                 <span className="sr-only">{textos.explorar.antes} </span>
                 {formatearDolares(oferta.antes)}
               </span>
-              <span className="rounded-full border-2 border-teal-oscuro bg-limon px-2.5 py-0.5 text-xs font-extrabold">
+              <span className="rounded-full border border-teal-oscuro/30 bg-(--store-soft) text-(--store-on-soft) px-2.5 py-0.5 text-xs font-extrabold">
                 {textos.promociones.ahorras(formatearDolares(oferta.antes - precio))}
               </span>
             </p>
           )}
           {seleccionada ? (
             hayStock ? (
-              <StatusChip publico estado="disponible" texto={textos.productos.quedan(seleccionada.disponibles)} />
+              seleccionada.disponibles <= umbralPocoStock ? (
+              <StatusChip publico estado="poco_stock" texto={textos.productos.quedan(seleccionada.disponibles)} />
+            ) : null
             ) : (
               <StatusChip publico estado="apartado" />
             )
           ) : (
-            <p className="text-sm text-texto-2">{t.stockElegi}</p>
+            null
           )}
         </div>
 
-        {filas.map((fila, d) => (
-          <div key={fila.titulo} className="flex flex-col gap-2">
+        {filas.length > 0 && <div id="opciones-compra" className="flex scroll-mt-24 flex-col gap-5">{filas.map((fila, d) => (
+          <div key={fila.titulo} className={`flex flex-col gap-2 ${tocado && elegido[d] === null ? "rounded-2xl p-2 ring-2 ring-error" : ""}`}>
             <h2 className="text-sm font-bold">{fila.titulo}</h2>
             <ul className="flex flex-wrap gap-2">
               {fila.valores.map((valor) => {
@@ -166,11 +187,11 @@ export function ZonaDeCompra({
                       aria-pressed={activo}
                       disabled={!disponible && !activo}
                       onClick={() => elegir(d, valor)}
-                      className={`inline-flex min-h-11 items-center rounded-full border-2 px-5 text-sm font-bold transition-colors ${
-                        activo ? "border-teal-oscuro bg-accion text-accion-texto" : "border-teal-oscuro bg-crema hover:bg-limon"
+                      className={`inline-flex min-h-11 items-center rounded-full border px-5 text-sm font-bold transition-colors ${
+                        activo ? "border-teal-oscuro bg-(--store-button) text-(--store-on-button)" : "border-teal-oscuro/30 bg-superficie hover:bg-teal-fondo"
                       } ${disponible || activo ? "" : "border-teal-oscuro/30 text-texto-2 line-through opacity-60"}`}
                     >
-                      {valor}
+                      {etiquetaDeOpcion(valor)}
                       {!disponible && !activo && <span className="sr-only"> ({textos.vitrina.noDisponibleCorto})</span>}
                     </button>
                   </li>
@@ -178,18 +199,18 @@ export function ZonaDeCompra({
               })}
             </ul>
           </div>
-        ))}
+        ))}</div>}
 
-        {hayStock && (
+        {hayStock && tope > 1 && (
           <div className="flex items-center gap-3">
             <span className="text-sm font-bold">{t.cantidad}</span>
-            <div className="flex h-11 items-center rounded-full border-2 border-teal-oscuro bg-white">
+            <div className="flex h-11 items-center rounded-full border border-teal-oscuro/30 bg-white">
               <button
                 type="button"
                 onClick={() => setCantidad(Math.max(1, unidades - 1))}
                 disabled={unidades <= 1}
                 aria-label={t.cantidadMenos}
-                className="flex h-full w-11 items-center justify-center rounded-l-full text-xl font-bold hover:bg-limon/50 disabled:opacity-30"
+                className="flex h-full w-11 items-center justify-center rounded-l-full text-xl font-bold hover:bg-accion/20 disabled:opacity-30"
               >
                 −
               </button>
@@ -201,7 +222,7 @@ export function ZonaDeCompra({
                 onClick={() => setCantidad(Math.min(tope, unidades + 1))}
                 disabled={unidades >= tope}
                 aria-label={t.cantidadMas}
-                className="flex h-full w-11 items-center justify-center rounded-r-full text-xl font-bold hover:bg-limon/50 disabled:opacity-30"
+                className="flex h-full w-11 items-center justify-center rounded-r-full text-xl font-bold hover:bg-accion/20 disabled:opacity-30"
               >
                 +
               </button>
@@ -212,46 +233,36 @@ export function ZonaDeCompra({
         {/* En pantalla grande los botones van en la caja, grandes y a la vista; en el móvil los lleva la barra fija de abajo */}
         {pedidos && (
           <div className="hidden flex-col gap-2 md:flex">
-            {aviso && (
-              <p role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-2.5 font-medium">
-                <span className="inline-flex items-center gap-2">
-                  <Icon nombre="check" className="size-5" strokeWidth={2.5} />
-                  {aviso === "agregado" ? textos.vitrina.carrito.agregado : aviso === "tope" ? textos.vitrina.carrito.tope : textos.vitrina.carrito.lleno}
-                </span>
-                {aviso !== "lleno" && (
-                  <Link href={`/c/${slug}/carrito`} className="font-bold underline">
-                    {textos.vitrina.carrito.verCarrito}
-                  </Link>
-                )}
-              </p>
-            )}
             {listo ? (
-              <Link href={enlaceA(permiteComprar ? "comprar" : "apartar")} className={`${boton} h-12 w-full bg-accion text-base text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura`}>
+              <Link href={enlaceA(permiteComprar ? "comprar" : "apartar")} className={`${boton} h-12 w-full bg-(--store-button) text-(--store-on-button) text-base`}>
                 {permiteComprar ? t.modoComprar : t.modoApartar}
               </Link>
             ) : (
-              <span aria-disabled="true" className={`${boton} h-12 w-full bg-accion text-base text-accion-texto opacity-50`}>
+              <button type="button" onClick={() => pedirElegir()} className={`${boton} h-12 w-full bg-(--store-button) text-(--store-on-button) text-base`}>
                 {permiteComprar ? t.modoComprar : t.modoApartar}
-              </span>
+              </button>
             )}
             {permiteComprar && (
               <button
                 type="button"
-                disabled={!listo}
-                onClick={() => setResultado({ clave, valor: agregarAlCarrito(slug, seleccionada!.codigo, unidades, seleccionada!.disponibles) })}
-                className={`${boton} h-12 w-full gap-2 bg-white enabled:hover:bg-limon disabled:opacity-50`}
+                onClick={() => (listo ? agregar() : pedirElegir())}
+                className={`${boton} h-12 w-full gap-2 bg-white hover:bg-teal-fondo`}
               >
                 <Icon nombre="carrito" className="size-5" />
                 {textos.vitrina.carrito.agregar}
               </button>
             )}
-            {!listo && <p className="text-center text-xs text-texto-2">{pista}</p>}
+            {!listo && (
+              <p role="status" className={`text-center text-xs ${tocado ? "font-bold text-error" : "text-texto-2"}`}>
+                {pista}
+              </p>
+            )}
           </div>
         )}
 
         {/* Catálogo en pantalla grande: el botón va en la caja */}
         {!pedidos && meInteresa && (
-          <a href={meInteresa} target="_blank" rel="noreferrer" className={`${boton} hidden h-12 w-full gap-2 bg-accion text-base text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura md:inline-flex`}>
+          <a href={meInteresa} target="_blank" rel="noreferrer" className={`${boton} hidden h-12 w-full gap-2 bg-(--store-button) text-(--store-on-button) text-base md:inline-flex`}>
             <Icon nombre="chat" className="size-5" />
             {t.meInteresa}
           </a>
@@ -262,7 +273,7 @@ export function ZonaDeCompra({
           <p className="text-sm text-texto-2">
             {t.dudas}{" "}
             {listo ? (
-              <Link href={enlaceA("apartar")} className="font-bold text-teal underline">
+              <Link href={enlaceA("apartar")} className="font-bold text-(--store-accent) underline">
                 {t.apartarEnlace(plazoHoras)}
               </Link>
             ) : (
@@ -274,7 +285,7 @@ export function ZonaDeCompra({
         {!pedidos && <p className="text-texto-2">{t.catalogoAviso}</p>}
         {seleccionada && !hayStock ? (
           <>
-            <p role="status" className="rounded-2xl bg-limon px-4 py-3 font-medium">
+            <p role="status" className="rounded-2xl bg-accion/20 px-4 py-3 font-medium">
               {textos.vitrina.noDisponible}
             </p>
             {/* Se perdía la venta: ahora se deja el WhatsApp y la tienda avisa cuando vuelva */}
@@ -287,7 +298,7 @@ export function ZonaDeCompra({
       {/* Catálogo: la barra solo lleva "Me interesa", que abre el chat con el producto ya escrito */}
       {!pedidos && meInteresa && (
         <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl md:hidden">
-          <div className="pointer-events-auto flex items-center gap-2 rounded-[28px] border-2 border-teal-oscuro bg-crema p-2 shadow-dura">
+          <div className="pointer-events-auto flex items-center gap-2 rounded-[28px] border border-teal-oscuro/30 bg-crema p-2">
             <div className="ml-3 mr-auto hidden min-w-0 flex-col leading-tight sm:flex">
               <span className="truncate text-xs text-texto-2">{contacto.tienda}</span>
               <span className="text-xl font-bold tabular-nums">{formatearDolares(precio)}</span>
@@ -296,7 +307,7 @@ export function ZonaDeCompra({
               href={meInteresa}
               target="_blank"
               rel="noreferrer"
-              className={`${boton} flex-1 gap-2 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none sm:px-8`}
+              className={`${boton} flex-1 gap-2 bg-(--store-button) text-(--store-on-button) sm:flex-none sm:px-8`}
             >
               <Icon nombre="chat" className="size-5" />
               {t.meInteresa}
@@ -307,53 +318,40 @@ export function ZonaDeCompra({
 
       {pedidos && (
         <div className="pointer-events-none fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-xl md:hidden">
-          {aviso && (
-            <p
-              role="status"
-              className="pointer-events-auto mb-2 flex flex-wrap items-center justify-between gap-2 rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-2.5 font-medium shadow-dura-chica"
-            >
-              <span className="inline-flex items-center gap-2">
-                <Icon nombre="check" className="size-5" strokeWidth={2.5} />
-                {aviso === "agregado" ? textos.vitrina.carrito.agregado : aviso === "tope" ? textos.vitrina.carrito.tope : textos.vitrina.carrito.lleno}
-              </span>
-              {aviso !== "lleno" && (
-                <Link href={`/c/${slug}/carrito`} className="font-bold underline">
-                  {textos.vitrina.carrito.verCarrito}
-                </Link>
-              )}
-            </p>
-          )}
-          <div className="pointer-events-auto flex flex-col gap-1 rounded-[28px] border-2 border-teal-oscuro bg-crema p-2 shadow-dura">
-            {!listo && <p className="px-3 pt-1 text-center text-xs text-texto-2">{pista}</p>}
+          <div className="pointer-events-auto flex flex-col gap-1 rounded-[28px] border border-teal-oscuro/30 bg-crema p-2">
+            {!listo && (
+              <p role="status" className={`px-3 pt-1 text-center text-xs ${tocado ? "font-bold text-error" : "text-texto-2"}`}>
+                {pista}
+              </p>
+            )}
             <div className="flex items-center gap-2">
               {/* El precio siempre a la vista; lo que queda solo donde hay lugar */}
               <div className="ml-3 mr-auto flex min-w-0 flex-col leading-tight">
-                <span className="hidden truncate text-xs text-texto-2 sm:block">{seleccionada ? textos.productos.quedan(seleccionada.disponibles) : t.stockElegi}</span>
+                <span className="hidden truncate text-xs text-texto-2 sm:block">{seleccionada && seleccionada.disponibles <= umbralPocoStock ? textos.productos.quedan(seleccionada.disponibles) : ""}</span>
                 {oferta && <span className="text-xs tabular-nums text-texto-2 line-through sm:hidden">{formatearDolares(oferta.antes * (seleccionada ? unidades : 1))}</span>}
-                <span className="text-xl font-bold tabular-nums">{formatearDolares(precio * (seleccionada ? unidades : 1))}</span>
+                <span className="text-xl font-bold tabular-nums">{!seleccionada && dims > 0 && Math.max(...precios) !== desde ? textos.vitrina.desde(formatearDolares(desde)) : formatearDolares(precio * (seleccionada ? unidades : 1))}</span>
               </div>
               {permiteComprar && (
               <button
                 type="button"
-                disabled={!listo}
-                onClick={() => setResultado({ clave, valor: agregarAlCarrito(slug, seleccionada!.codigo, unidades, seleccionada!.disponibles) })}
+                onClick={() => (listo ? agregar() : pedirElegir())}
                 aria-label={textos.vitrina.carrito.agregar}
                 title={textos.vitrina.carrito.agregar}
-                className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-sm font-bold transition-[transform,box-shadow] duration-150 enabled:hover:-translate-y-0.5 enabled:hover:bg-limon enabled:hover:shadow-dura-chica disabled:opacity-50 sm:w-auto sm:px-4"
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro/30 bg-white px-3 text-sm font-bold transition-[transform,box-shadow] duration-150 enabled:hover:bg-accion/20 disabled:opacity-50 sm:px-4"
               >
                 <Icon nombre="carrito" className="size-5" />
-                <span className="hidden sm:ml-2 sm:inline">{textos.vitrina.carrito.agregarCorto}</span>
+                <span className="ml-1.5">{textos.vitrina.carrito.agregarCorto}</span>
               </button>
               )}
               {/* Sin comprar, el botón principal es apartar */}
               {listo ? (
-                <Link href={enlaceA(permiteComprar ? "comprar" : "apartar")} className={`${boton} flex-1 bg-accion text-accion-texto shadow-dura-chica hover:-translate-y-0.5 hover:shadow-dura sm:flex-none sm:px-8`}>
+                <Link href={enlaceA(permiteComprar ? "comprar" : "apartar")} className={`${boton} flex-1 bg-(--store-button) text-(--store-on-button) sm:flex-none sm:px-8`}>
                   {permiteComprar ? t.modoComprar : t.modoApartar}
                 </Link>
               ) : (
-                <span aria-disabled="true" className={`${boton} flex-1 bg-accion text-accion-texto opacity-50 sm:flex-none sm:px-8`}>
+                <button type="button" onClick={() => pedirElegir()} className={`${boton} flex-1 bg-(--store-button) text-(--store-on-button) sm:flex-none sm:px-8`}>
                   {permiteComprar ? t.modoComprar : t.modoApartar}
-                </span>
+                </button>
               )}
             </div>
           </div>

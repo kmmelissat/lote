@@ -87,7 +87,7 @@ export function FiltrosPedidos({ elegidos, estado, q }: { elegidos: FiltrosElegi
         aria-label={t.boton}
         hidden={!abierto}
         aria-busy={cargando}
-        className="absolute right-0 top-full z-30 mt-2 flex w-[min(20rem,calc(100vw-2rem))] animate-entra flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura aria-busy:opacity-80"
+        className="absolute right-0 top-full z-30 mt-2 flex w-[min(20rem,calc(100vw-2rem))] animate-entra flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-superficie p-4 shadow-dura aria-busy:opacity-80"
       >
         {listas.map((l) => (
           <div key={l.clave} className="flex flex-col gap-1.5">

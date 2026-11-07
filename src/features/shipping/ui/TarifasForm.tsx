@@ -34,7 +34,7 @@ function Dolares({ id, name, value, onChange, placeholder, className }: { id: st
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(limpiarSiNumero(e.target.value, "decimal"))}
-        className="h-11 w-full rounded-[14px] border-2 border-borde-control bg-superficie pl-7 pr-3 text-right text-base font-bold tabular-nums focus:border-teal"
+        className="h-11 w-full rounded-[14px] border border-borde-control bg-superficie pl-7 pr-3 text-right text-base font-bold tabular-nums focus:border-teal"
       />
     </span>
   );
@@ -50,7 +50,7 @@ function Quien() {
       {opciones.map((o) => (
         <li
           key={o.clave}
-          className={`flex items-start gap-3 rounded-[20px] border-2 p-4 ${
+          className={`flex items-start gap-3 rounded-[20px] border p-4 ${
             o.disponible ? "border-teal-oscuro bg-superficie" : "border-dashed border-borde-control bg-superficie opacity-80"
           }`}
         >
@@ -119,7 +119,7 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
           <Quien />
         </Bloque>
 
-        <Bloque titulo={t.retiroTitulo} texto={t.retiroTexto} tono="rosa" className="border-t-2 border-teal-oscuro/15 pt-5">
+        <Bloque titulo={t.retiroTitulo} texto={t.retiroTexto} tono="rosa" className="border-t border-teal-oscuro/15 pt-5">
           {/* Sin dirección no hay retiro: el interruptor apagado manda la dirección vacía, pero lo escrito se queda por si lo prendés de nuevo */}
           <input type="hidden" name="retiro" value={recoger ? retiro : ""} />
           <Interruptor titulo={t.retiroInterruptor} ayuda={t.retiroInterruptorAyuda} activo={recoger} onCambio={setRecoger} />
@@ -143,12 +143,12 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
           </Aviso>
         </Bloque>
 
-        <Bloque titulo={t.zonas.titulo} texto={t.zonas.texto} tono="limon" className="border-t-2 border-teal-oscuro/15 pt-5">
+        <Bloque titulo={t.zonas.titulo} texto={t.zonas.texto} tono="limon" className="border-t border-teal-oscuro/15 pt-5">
           <ZonasEntregaInput todo={todo} onTodo={setTodo} marcadas={marcadas} onMarcadas={setMarcadas} />
         </Bloque>
 
-        <Bloque titulo={t.tarifasTitulo} texto={t.tarifasTexto} tono="mango" className="border-t-2 border-teal-oscuro/15 pt-5">
-          <div className="flex flex-col gap-3 rounded-2xl border-2 border-teal-oscuro bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+        <Bloque titulo={t.tarifasTitulo} texto={t.tarifasTexto} tono="mango" className="border-t border-teal-oscuro/15 pt-5">
+          <div className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 flex-col gap-0.5">
               <label htmlFor="tarifa-defecto" className="font-bold">
                 {t.defecto}
@@ -169,7 +169,7 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
                 return (
                   <div
                     key={d}
-                    className={`${visibles.includes(d) ? "flex" : "hidden"} items-center justify-between gap-3 rounded-xl border-2 px-3 py-2 ${
+                    className={`${visibles.includes(d) ? "flex" : "hidden"} items-center justify-between gap-3 rounded-xl border px-3 py-2 ${
                       propia ? "border-teal-oscuro bg-teal-fondo" : "border-borde bg-white"
                     }`}
                   >

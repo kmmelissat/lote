@@ -56,7 +56,8 @@ export function armarFichaPublica(p: ProductoPublico, todos: readonly ProductoPu
     vendidas: familia.reduce((n, o) => n + o.vendidas, 0),
     nuevo: creado > 0 && ahora.getTime() - creado < DIAS_NUEVO * 86_400_000,
     sello,
-    meta: [p.categoria, p.marca, p.condicion === "usado" ? textos.productos.form.usado : textos.productos.form.nuevo].filter(Boolean).join(" · "),
+    // Solo la categoría: "Nuevo" ya es una etiqueta aparte
+    meta: p.categoria ?? "",
     parecidos,
     masDe: otros.filter((o) => !parecidos.includes(o)).slice(0, 4),
   };

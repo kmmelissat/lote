@@ -60,7 +60,7 @@ export function OpcionesDePago({
 
   return (
     // Una sola tarjeta: arriba las formas de pagar como celdas pegadas, abajo lo que toca de la elegida
-    <section aria-label={p.titulo} className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie">
+    <section aria-label={p.titulo} className="overflow-hidden rounded-[24px] border border-teal-oscuro bg-superficie">
       <div role="radiogroup" aria-label={p.titulo} className="grid grid-cols-2 gap-px bg-teal-oscuro sm:grid-cols-[repeat(auto-fit,minmax(7rem,1fr))]">
         {disponibles.map((o) => {
           const activa = pago === o.clave;
@@ -89,13 +89,13 @@ export function OpcionesDePago({
                 type="button"
                 onClick={() => cambiarRecibido(m.valor)}
                 aria-pressed={recibido.trim() === m.valor}
-                className={`min-h-12 rounded-xl border-2 border-teal-oscuro px-2 text-sm font-bold tabular-nums ${recibido.trim() === m.valor ? "bg-limon" : "bg-superficie"}`}
+                className={`min-h-12 rounded-xl border border-teal-oscuro px-2 text-sm font-bold tabular-nums ${recibido.trim() === m.valor ? "bg-limon" : "bg-superficie"}`}
               >
                 {m.etiqueta}
               </button>
             ))}
           </div>
-          <label className="flex items-center gap-3 rounded-[14px] border-2 border-borde-control px-4 focus-within:border-teal">
+          <label className="flex items-center gap-3 rounded-[14px] border border-borde-control px-4 focus-within:border-teal">
             <span className="shrink-0 text-sm font-bold text-texto-2">{t.recibido}</span>
             <input aria-label={t.recibido} inputMode="decimal" autoComplete="off" value={recibido} onChange={(e) => cambiarRecibido(soloNumero(e.target.value, true))} placeholder="$0.00" className="h-12 min-w-0 flex-1 bg-transparent text-right text-xl font-bold tabular-nums outline-none" />
           </label>
@@ -109,12 +109,12 @@ export function OpcionesDePago({
         </div>
       )}
 
-      {pago === "transferencia" && <p className="border-t-2 border-teal-oscuro p-4 text-sm text-texto-2">{p.transferenciaNota}</p>}
+      {pago === "transferencia" && <p className="border-t border-teal-oscuro p-4 text-sm text-texto-2">{p.transferenciaNota}</p>}
 
       {pago === "despues" && (
         <div className="flex flex-col gap-3 p-4">
           <p className="text-sm text-texto-2">{p.despuesAyuda}</p>
-          <label className="flex items-center gap-3 rounded-[14px] border-2 border-borde-control px-4 focus-within:border-teal">
+          <label className="flex items-center gap-3 rounded-[14px] border border-borde-control px-4 focus-within:border-teal">
             <span className="shrink-0 text-sm font-bold text-texto-2">
               {t.anticipo.titulo} <span className="font-normal">· {t.anticipo.opcional}</span>
             </span>
@@ -130,7 +130,7 @@ export function OpcionesDePago({
                     type="button"
                     aria-pressed={metodoAnticipo === m}
                     onClick={() => cambiarMetodoAnticipo(m)}
-                    className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-teal-oscuro px-2 text-sm ${metodoAnticipo === m ? "bg-limon font-bold" : "bg-superficie"}`}
+                    className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border border-teal-oscuro px-2 text-sm ${metodoAnticipo === m ? "bg-limon font-bold" : "bg-superficie"}`}
                   >
                     <Icon nombre={ICONO_METODO[m]} className="size-4" />
                     {t.metodos[m]}
@@ -143,7 +143,7 @@ export function OpcionesDePago({
       )}
 
       {pago === "contra_entrega" && (
-        <p className="border-t-2 border-teal-oscuro p-4 text-sm text-texto-2">
+        <p className="border-t border-teal-oscuro p-4 text-sm text-texto-2">
           <span className="font-bold text-texto">{p.contraEntregaAyuda}</span> {p.contraEntregaNota}
         </p>
       )}

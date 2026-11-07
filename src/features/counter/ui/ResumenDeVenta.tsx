@@ -62,7 +62,7 @@ export function ResumenDeVenta({
           </div>
         )}
         {conTotal && (
-          <div className="flex justify-between border-t-2 border-dashed border-teal-oscuro/30 pt-2 text-xl font-bold">
+          <div className="flex justify-between border-t border-dashed border-teal-oscuro/30 pt-2 text-xl font-bold">
             <dt>{t.total}</dt>
             <dd className="tabular-nums">{formatearDolares(total)}</dd>
           </div>

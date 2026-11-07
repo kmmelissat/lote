@@ -38,7 +38,7 @@ export function CodigoDeBarrasForm({
   }
 
   return (
-    <section className="rounded-[24px] border-2 border-teal-oscuro bg-crema p-5 shadow-dura">
+    <section className="rounded-[24px] border border-teal-oscuro bg-crema p-5 shadow-dura">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -47,7 +47,7 @@ export function CodigoDeBarrasForm({
         className="flex flex-col gap-4"
       >
         <div className="flex items-start gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-limon text-teal-oscuro">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-teal-oscuro bg-limon text-teal-oscuro">
             <Icon nombre="buscar" className="size-6" />
           </span>
           <div>

@@ -28,7 +28,7 @@ export function CalleTiendas({ tiendas }: { tiendas: TiendaExplorar[] }) {
                 className="rounded-full p-[3px] transition-transform duration-150 group-hover:-translate-y-0.5"
                 style={{ background: `conic-gradient(${color}, var(--color-rosa), var(--color-mango), ${color})` }}
               >
-                <span className="block rounded-full border-2 border-white bg-white">
+                <span className="block rounded-full border border-white bg-white">
                   <LogoTienda logo={tienda.logo} nombre={tienda.nombre} className="size-16 !rounded-full !text-xl md:size-[4.25rem]" />
                 </span>
               </span>

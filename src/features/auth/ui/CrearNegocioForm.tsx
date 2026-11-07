@@ -143,7 +143,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
         <Link href="/" aria-label={textos.nombre}>
           <Logo />
         </Link>
-        <span className="rotate-2 rounded-full border-2 border-teal-oscuro bg-white px-3 py-0.5 text-sm font-bold shadow-dura-chica" aria-live="polite">
+        <span className="rotate-2 rounded-full border border-teal-oscuro bg-white px-3 py-0.5 text-sm font-bold shadow-dura-chica" aria-live="polite">
           {r.paso(paso, TOTAL, r.hojas[paso - 1])}
         </span>
       </div>
@@ -165,15 +165,15 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
         <Sticker className="-left-9 top-[46%] hidden -rotate-12 bg-rosa md:flex" icono="estrella" />
         <Sticker className="-bottom-5 -right-5 hidden rotate-6 bg-celeste md:flex" icono="moneda" />
 
-        <div style={RENGLONES} className="relative rounded-[28px] border-2 border-teal-oscuro bg-[#fffdf5] py-7 pl-14 pr-5 shadow-dura md:py-9 md:pl-[4.5rem] md:pr-9">
+        <div style={RENGLONES} className="relative rounded-[28px] border border-teal-oscuro bg-[#fffdf5] py-7 pl-14 pr-5 shadow-dura md:py-9 md:pl-[4.5rem] md:pr-9">
           {/* El margen rojo y los agujeros del espiral */}
-          <span aria-hidden="true" className="absolute inset-y-0 left-11 border-l-2 border-rosa md:left-14" />
+          <span aria-hidden="true" className="absolute inset-y-0 left-11 border-l border-rosa md:left-14" />
           <span aria-hidden="true" className="absolute inset-y-6 left-2 flex flex-col justify-around md:left-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <i key={i} className="block size-4 rounded-full border-2 border-teal-oscuro bg-crema md:size-5" />
+              <i key={i} className="block size-4 rounded-full border border-teal-oscuro bg-crema md:size-5" />
             ))}
           </span>
-          <span aria-hidden="true" className="absolute -top-3 left-20 h-5 w-20 -rotate-3 rounded-sm border-2 border-teal-oscuro/30 bg-celeste/70" />
+          <span aria-hidden="true" className="absolute -top-3 left-20 h-5 w-20 -rotate-3 rounded-sm border border-teal-oscuro/30 bg-celeste/70" />
 
           {/* Los números de página: el actual se levanta y se tuerce, y se puede volver a una hoja ya hecha */}
           <ol aria-label={t.titulo} className="absolute right-4 top-4 flex items-center gap-1.5 md:right-6 md:top-5">
@@ -185,7 +185,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
                     type="button"
                     disabled={n >= paso}
                     onClick={() => ir(n)}
-                    className={`flex size-7 items-center justify-center rounded-full border-2 border-teal-oscuro font-logo text-sm font-bold transition-transform md:size-8 ${
+                    className={`flex size-7 items-center justify-center rounded-full border border-teal-oscuro font-logo text-sm font-bold transition-transform md:size-8 ${
                       n === paso ? "-rotate-6 scale-110 bg-mango shadow-dura-chica" : n < paso ? "bg-teal text-white hover:scale-110" : "bg-white"
                     }`}
                   >
@@ -253,7 +253,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
           {/* Lotito comenta al margen, como una nota adhesiva (en escritorio vive acá, a la izquierda) */}
           <div className="mt-auto hidden items-end gap-2 pt-8 lg:flex" aria-hidden="true">
             <LotitoMas nombre={POSES[paso]} className="w-24 shrink-0 motion-safe:animate-asomar" key={paso} />
-            <p className="max-w-[12rem] -rotate-1 rounded-2xl border-2 border-teal-oscuro bg-white px-3 py-2 text-sm font-medium shadow-dura-chica">{r.notas[paso - 1]}</p>
+            <p className="max-w-[12rem] -rotate-1 rounded-2xl border border-teal-oscuro bg-white px-3 py-2 text-sm font-medium shadow-dura-chica">{r.notas[paso - 1]}</p>
           </div>
           </div>
 
@@ -261,8 +261,8 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
 
           {/* ===== Hoja 1: nombre, tu nombre y cómo te hablo ===== */}
           <div className={`mt-6 flex flex-col gap-6 ${paso === 1 ? "" : "hidden"}`}>
-            <div className="relative flex rotate-[0.6deg] flex-col gap-4 rounded-2xl border-2 border-teal-oscuro bg-limon/60 p-4 shadow-dura-chica md:p-5">
-              <span aria-hidden="true" className="absolute -top-3 right-8 h-5 w-16 rotate-3 rounded-sm border-2 border-teal-oscuro/30 bg-rosa/60" />
+            <div className="relative flex rotate-[0.6deg] flex-col gap-4 rounded-2xl border border-teal-oscuro bg-limon/60 p-4 shadow-dura-chica md:p-5">
+              <span aria-hidden="true" className="absolute -top-3 right-8 h-5 w-16 rotate-3 rounded-sm border border-teal-oscuro/30 bg-rosa/60" />
               <Field etiqueta={t.nombre} name="nombre" autoComplete="organization" autoFocus value={nombre} onChange={(e) => setNombre(e.target.value)} error={errorNombre} />
               <div className="flex flex-col gap-1">
                 <Field
@@ -347,8 +347,8 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
 
             {/* Cada casilla marcada pide su dato: nada de campos que no hacen falta */}
             {(usa("instagram") || usa("whatsapp") || usa("facebook") || usa("presencial")) && (
-              <div className="relative flex rotate-[0.5deg] flex-col gap-4 rounded-2xl border-2 border-teal-oscuro bg-limon/60 p-4 shadow-dura-chica md:p-5">
-                <span aria-hidden="true" className="absolute -top-3 right-8 h-5 w-16 rotate-3 rounded-sm border-2 border-teal-oscuro/30 bg-rosa/60" />
+              <div className="relative flex rotate-[0.5deg] flex-col gap-4 rounded-2xl border border-teal-oscuro bg-limon/60 p-4 shadow-dura-chica md:p-5">
+                <span aria-hidden="true" className="absolute -top-3 right-8 h-5 w-16 rotate-3 rounded-sm border border-teal-oscuro/30 bg-rosa/60" />
                 {usa("instagram") && (
                   <Field etiqueta={r.vende.canales.instagram.dato} name="instagram" autoComplete="off" autoCapitalize="none" placeholder={r.vende.canales.instagram.placeholder} value={instagram} onChange={(e) => setInstagram(e.target.value)} />
                 )}
@@ -377,7 +377,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
               </div>
               {conVitrina && (
                 <div aria-live="polite" className="flex flex-col gap-1">
-                  <p className="flex min-w-0 items-center gap-1 rounded-full border-2 border-teal-oscuro/20 bg-white px-3 py-1.5 text-sm">
+                  <p className="flex min-w-0 items-center gap-1 rounded-full border border-teal-oscuro/20 bg-white px-3 py-1.5 text-sm">
                     <span className="sr-only">{t.enlace}: </span>
                     <span className="shrink-0 text-texto-2">{dominio}/c/</span>
                     <span className="truncate font-bold text-teal">{enlace}</span>
@@ -414,7 +414,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
               {/* El sello de "aprobado", estampado torcido sobre la hoja */}
               <span
                 aria-hidden="true"
-                className="absolute -top-2 right-0 flex size-28 -rotate-12 items-center justify-center rounded-full border-4 border-double border-teal text-center font-logo text-base font-bold leading-tight text-teal opacity-90 motion-safe:animate-asomar md:size-32 md:text-lg"
+                className="absolute -top-2 right-0 flex size-28 -rotate-12 items-center justify-center rounded-full border border-double border-teal text-center font-logo text-base font-bold leading-tight text-teal opacity-90 motion-safe:animate-asomar md:size-32 md:text-lg"
               >
                 {r.listo.sello}
               </span>
@@ -427,11 +427,11 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
 
           {/* Lotito comenta al margen, como una nota adhesiva */}
           <div className="mt-6 flex items-end justify-end gap-2 lg:hidden" aria-hidden="true">
-            <p className="max-w-[15rem] rotate-2 rounded-2xl border-2 border-teal-oscuro bg-white px-3 py-2 text-sm font-medium shadow-dura-chica">{r.notas[paso - 1]}</p>
+            <p className="max-w-[15rem] rotate-2 rounded-2xl border border-teal-oscuro bg-white px-3 py-2 text-sm font-medium shadow-dura-chica">{r.notas[paso - 1]}</p>
             <LotitoMas nombre={POSES[paso]} className="w-20 shrink-0 motion-safe:animate-asomar md:w-24" key={paso} />
           </div>
 
-          <div className="mt-5 flex items-center justify-between gap-3 max-md:sticky max-md:bottom-3 max-md:z-20 max-md:rounded-2xl max-md:border-2 max-md:border-teal-oscuro max-md:bg-white/95 max-md:px-3 max-md:py-2 max-md:shadow-dura-chica">
+          <div className="mt-5 flex items-center justify-between gap-3 max-md:sticky max-md:bottom-3 max-md:z-20 max-md:rounded-2xl max-md:border max-md:border-teal-oscuro max-md:bg-white/95 max-md:px-3 max-md:py-2 max-md:shadow-dura-chica">
             {paso > 1 ? (
               <button type="button" onClick={() => ir(paso - 1)} className="inline-flex min-h-11 items-center text-sm font-bold text-teal underline">
                 ← {r.atras}

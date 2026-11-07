@@ -108,7 +108,7 @@ function ResumenEnvio({ pedidoId, cliente, envio }: { pedidoId: string; cliente:
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3 rounded-2xl bg-fondo p-3">
-        <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full border-2 border-teal-oscuro bg-celeste">
+        <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full border border-teal-oscuro bg-celeste">
           <Icon nombre={ICONO_MODO[envio.modo]} className="size-5" />
         </span>
         <div className="min-w-0">

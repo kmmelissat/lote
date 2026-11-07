@@ -47,8 +47,8 @@
   /* El color de la acción principal: mango, salvo en las páginas de una tienda que eligió su color (ver marca.ts) */
   --color-accion: #ff9a2e;
   --color-accion-texto: #003844;
-  --shadow-dura: 4px 4px 0 0 var(--color-teal-oscuro);
-  --shadow-dura-chica: 3px 3px 0 0 var(--color-teal-oscuro);
+  --shadow-dura: 2px 2px 0 0 var(--color-teal-oscuro);
+  --shadow-dura-chica: 1px 1px 0 0 var(--color-teal-oscuro);
   --animate-flotar: flotar 4s ease-in-out infinite;
   --animate-asomar: asomar 700ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-balancea: balancea 3.2s ease-in-out infinite;

@@ -59,9 +59,9 @@ function Avisos({ p, ahora }: { p: Pedido; ahora: Date }) {
 function Foto({ p }: { p: Pedido }) {
   const foto = p.items.find((i) => i.foto)?.foto;
   return foto ? (
-    <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-xl border-2 border-teal-oscuro/20 object-cover" />
+    <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-xl border border-teal-oscuro/20 object-cover" />
   ) : (
-    <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro/20 bg-fondo text-texto-2">
+    <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro/20 bg-fondo text-texto-2">
       <Icon nombre="caja" className="size-5" />
     </span>
   );

@@ -26,9 +26,9 @@ export function FilaProductos({
   eager?: boolean;
 }) {
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-3 shadow-dura-chica md:p-4">
+    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-superficie p-3 shadow-dura-chica md:p-4">
       <div className="flex items-center gap-3">
-        <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon">
+        <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-limon">
           {icono}
         </span>
         <div>

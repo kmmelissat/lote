@@ -10,7 +10,7 @@ import { textos } from "@/lib/textos";
 const t = textos.errores;
 
 const enlaceSecundario =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro bg-white px-5 font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
+  "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-teal-oscuro bg-white px-5 font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
 
 export default function NotFound() {
   return (
@@ -27,8 +27,8 @@ export default function NotFound() {
           <LotitoMas nombre="asoma" className="absolute bottom-0 w-40 motion-safe:animate-asomar" />
         </div>
 
-        <section className="relative motion-safe:animate-entra rounded-[28px] border-2 border-teal-oscuro bg-white px-6 pb-8 pt-10 text-center shadow-dura">
-          <span className="absolute -top-4 left-1/2 -translate-x-1/2 -rotate-3 rounded-full border-2 border-teal-oscuro bg-limon px-4 py-1 text-sm font-bold text-teal-oscuro shadow-dura-chica">
+        <section className="relative motion-safe:animate-entra rounded-[28px] border border-teal-oscuro bg-white px-6 pb-8 pt-10 text-center shadow-dura">
+          <span className="absolute -top-4 left-1/2 -translate-x-1/2 -rotate-3 rounded-full border border-teal-oscuro bg-limon px-4 py-1 text-sm font-bold text-teal-oscuro shadow-dura-chica">
             {t.noEncontradaEtiqueta}
           </span>
 

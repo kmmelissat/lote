@@ -14,12 +14,14 @@ const ESPERA_MS = 250;
 export function useAhorroPromociones<L>(
   calcular: ((lineas: L[]) => Promise<AhorroPromocion[]>) | undefined,
   lineas: L[],
+  /** Lo que el servidor ya calculó para unas líneas: se ve de entrada, sin esperar */
+  inicial?: { lineas: L[]; ahorros: AhorroPromocion[] },
 ): { ahorros: AhorroPromocion[]; calculando: boolean } {
   const clave = JSON.stringify(lineas);
-  const [respuesta, setRespuesta] = useState<{ clave: string; ahorros: AhorroPromocion[] }>({ clave: "[]", ahorros: [] });
+  const [respuesta, setRespuesta] = useState<{ clave: string; ahorros: AhorroPromocion[] }>(inicial ? { clave: JSON.stringify(inicial.lineas), ahorros: inicial.ahorros } : { clave: "[]", ahorros: [] });
 
   useEffect(() => {
-    if (!calcular || clave === "[]") return;
+    if (!calcular || clave === "[]" || clave === respuesta.clave) return;
     let vigente = true;
     const espera = setTimeout(() => {
       calcular(JSON.parse(clave) as L[])
@@ -30,7 +32,7 @@ export function useAhorroPromociones<L>(
       vigente = false;
       clearTimeout(espera);
     };
-  }, [calcular, clave]);
+  }, [calcular, clave, respuesta.clave]);
 
   if (!calcular || clave === "[]") return { ahorros: [], calculando: false };
   // Mientras llega la respuesta de estas líneas, lo que se ve es lo último que se supo

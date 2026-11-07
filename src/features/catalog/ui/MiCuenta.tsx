@@ -12,7 +12,7 @@ const t = textos.explorar.cuenta;
 type PedidoDeCuenta = { id: string; slug: string; tienda: string; codigo: number; total: number; resumen: string; fecha: number; estado: EstadoPedido };
 
 const boton =
-  "inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro px-6 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura";
+  "inline-flex min-h-11 items-center rounded-full border border-teal-oscuro px-6 font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura";
 
 /** La cuenta de quien compra: quién es, sus datos y su dirección para editar, y sus pedidos recientes. */
 export function MiCuenta({ datos, pedidos }: { datos: DatosDeCuenta; pedidos: PedidoDeCuenta[] }) {
@@ -20,7 +20,7 @@ export function MiCuenta({ datos, pedidos }: { datos: DatosDeCuenta; pedidos: Pe
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6 pt-4">
       <header className="flex items-center gap-4">
-        <span aria-hidden="true" className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango font-logo text-3xl font-semibold text-teal-oscuro">
+        <span aria-hidden="true" className="flex size-16 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-mango font-logo text-3xl font-semibold text-teal-oscuro">
           {inicial}
         </span>
         <div className="flex min-w-0 flex-col gap-0.5">
@@ -35,7 +35,7 @@ export function MiCuenta({ datos, pedidos }: { datos: DatosDeCuenta; pedidos: Pe
 
       <PerfilForm datos={datos} />
 
-      <section className="flex flex-col gap-4 rounded-[22px] border-2 border-teal-oscuro bg-white p-5 shadow-dura-chica">
+      <section className="flex flex-col gap-4 rounded-[22px] border border-teal-oscuro bg-white p-5 shadow-dura-chica">
         <h2 className="font-logo text-xl font-semibold">{t.pedidosTitulo}</h2>
         {pedidos.length === 0 ? (
           <div className="flex flex-col items-start gap-3">
@@ -60,7 +60,7 @@ export function MiCuenta({ datos, pedidos }: { datos: DatosDeCuenta; pedidos: Pe
                       {formatearFecha(new Date(p.fecha))} · <span className="font-bold text-texto">{formatearDolares(p.total)}</span>
                     </p>
                   </div>
-                  <Link href={`/p/${p.id}`} className="inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro bg-white px-4 text-sm font-bold text-teal-oscuro">
+                  <Link href={`/p/${p.id}`} className="inline-flex min-h-11 items-center rounded-full border border-teal-oscuro bg-white px-4 text-sm font-bold text-teal-oscuro">
                     {textos.explorar.misPedidos.verSeguimiento}
                   </Link>
                 </li>

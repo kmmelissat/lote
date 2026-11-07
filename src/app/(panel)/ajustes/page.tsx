@@ -27,7 +27,7 @@ const GRUPOS: { titulo: string; opciones: Opcion[] }[] = [
 ];
 
 const TARJETA_OPCION =
-  "group flex min-h-20 items-center gap-4 rounded-[20px] border-2 border-teal-oscuro bg-superficie p-4 transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura-chica";
+  "group flex min-h-20 items-center gap-4 rounded-[20px] border border-teal-oscuro bg-superficie p-4 transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura-chica";
 
 export default async function Page() {
   const { negocio } = await negocioActual();
@@ -40,9 +40,9 @@ export default async function Page() {
         {esDuena && (
           <Link
             href="/ajustes/tienda"
-            className="group flex min-h-24 items-center gap-4 rounded-[20px] border-2 border-teal-oscuro bg-mango p-5 shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura"
+            className="group flex min-h-24 items-center gap-4 rounded-[20px] border border-teal-oscuro bg-mango p-5 shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura"
           >
-            <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-superficie text-teal-oscuro">
+            <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-teal-oscuro bg-superficie text-teal-oscuro">
               <Icon nombre="tienda" className="size-7" />
             </span>
             <span className="flex min-w-0 flex-1 flex-col">
@@ -65,7 +65,7 @@ export default async function Page() {
                   // Si una tarjeta queda sola en su fila, ocupa las dos columnas en vez de dejar un hueco
                   <li key={o.href} className="md:last:odd:col-span-2">
                     <Link href={o.href} className={TARJETA_OPCION}>
-                      <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-oscuro text-teal-oscuro ${o.tono}`}>
+                      <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl border border-teal-oscuro text-teal-oscuro ${o.tono}`}>
                         <Icon nombre={o.icono} className="size-6" />
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col">

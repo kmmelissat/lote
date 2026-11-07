@@ -36,12 +36,12 @@ export function ListaMenu({
 }) {
   const letra = grande ? "text-base" : "text-sm";
   const icono = grande ? "size-6" : "size-5";
-  const forma = `flex ${grande ? "min-h-24" : "min-h-20"} w-full flex-col justify-between gap-2 rounded-2xl border-2 border-teal-oscuro p-2.5 ${letra} font-bold text-teal-oscuro transition-[transform,background-color]`;
+  const forma = `flex ${grande ? "min-h-24" : "min-h-20"} w-full flex-col justify-between gap-2 rounded-2xl border border-teal-oscuro p-2.5 ${letra} font-bold text-teal-oscuro transition-[transform,background-color]`;
 
   /** El ícono dentro de su cuadrito de color, con lo que va a la derecha (el contador, o la flechita de los que abren afuera). */
   const cabecera = (nombre: NombreIcono, fondo: string, activa: boolean, derecha: React.ReactNode) => (
     <span className="flex items-start justify-between gap-1">
-      <span className={`flex size-9 items-center justify-center rounded-xl border-2 border-teal-oscuro ${activa ? "bg-superficie" : fondo}`}>
+      <span className={`flex size-9 items-center justify-center rounded-xl border border-teal-oscuro ${activa ? "bg-superficie" : fondo}`}>
         <Icon nombre={nombre} className={icono} />
       </span>
       {derecha}

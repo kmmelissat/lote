@@ -25,7 +25,7 @@ export function ResumenCompacto({ titulo, datos }: { titulo: string; datos: Dato
   return (
     <section
       aria-label={titulo}
-      className={`grid grid-cols-2 gap-px overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-borde ${datos.length === 4 ? "md:grid-cols-4" : ""}`}
+      className={`grid grid-cols-2 gap-px overflow-hidden rounded-[24px] border border-teal-oscuro bg-borde ${datos.length === 4 ? "md:grid-cols-4" : ""}`}
     >
       {datos.map((d, i) => {
         // Con un número impar, la última celda ocupa todo el ancho
@@ -40,7 +40,7 @@ export function ResumenCompacto({ titulo, datos }: { titulo: string; datos: Dato
             </span>
             <span className="font-logo text-xl font-bold tabular-nums">{d.valor}</span>
             {d.aviso && (
-              <span className="rounded-full border-2 border-teal-oscuro bg-ambar px-2 py-0.5 text-[11px] font-bold text-teal-oscuro">{d.aviso}</span>
+              <span className="rounded-full border border-teal-oscuro bg-ambar px-2 py-0.5 text-[11px] font-bold text-teal-oscuro">{d.aviso}</span>
             )}
             {d.nota && <span className="hidden text-xs text-texto-2 md:block">{d.nota}</span>}
           </>

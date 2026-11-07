@@ -6,7 +6,7 @@ import type { ResumenInventario as Resumen } from "../filtro";
 
 const t = textos.productos.inventario;
 
-const chip = "inline-flex min-h-11 items-center gap-1.5 rounded-full border-2 border-teal-oscuro px-3 text-sm font-bold transition-transform hover:-translate-y-0.5 md:min-h-9";
+const chip = "inline-flex min-h-11 items-center gap-1.5 rounded-full border border-teal-oscuro px-3 text-sm font-bold transition-transform hover:-translate-y-0.5 md:min-h-9";
 
 const conSigno = (n: number) => (n < 0 ? `−${formatearDolares(-n)}` : formatearDolares(n));
 
@@ -73,8 +73,8 @@ export function ResumenInventario({
             <span className="font-bold">{t.teQuedan}</span>
             {margen !== null && <span className="text-sm">· {t.margen(margen)}</span>}
           </p>
-          <div aria-hidden="true" className="flex h-4 overflow-hidden rounded-full border-2 border-teal-oscuro bg-teal">
-            <span className="h-full border-r-2 border-teal-oscuro bg-superficie" style={{ width: `${parteCosto}%` }} />
+          <div aria-hidden="true" className="flex h-4 overflow-hidden rounded-full border border-teal-oscuro bg-teal">
+            <span className="h-full border-r border-teal-oscuro bg-superficie" style={{ width: `${parteCosto}%` }} />
           </div>
           <dl className="grid grid-cols-3 gap-2 text-sm">
             <div>

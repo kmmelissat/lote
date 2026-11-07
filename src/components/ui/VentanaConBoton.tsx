@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { textos } from "@/lib/textos";
 import { Icon } from "./Icon";
 
-export const estiloCampo = "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal";
+export const estiloCampo = "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base focus:border-teal";
 
 /**
  * Un botón que abre su contenido en una ventana. `boton` recibe cómo abrirla y `children` cómo cerrarla
@@ -40,7 +40,7 @@ export function VentanaConBoton({
       <dialog
         ref={ventana}
         aria-labelledby={id}
-        className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto rounded-[24px] border-2 border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
+        className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto rounded-[24px] border border-teal-oscuro bg-superficie p-0 shadow-dura backdrop:bg-teal-oscuro/40"
         // Escape o el clic afuera también la cierran: el estado se entera
         onClose={cerrar}
         onClick={(e) => e.target === ventana.current && cerrar()}
@@ -78,7 +78,7 @@ export function ChipsElegir({
       {opciones.map((o) => (
         <label key={o.valor || "ninguno"} className="cursor-pointer">
           <input type="radio" name={name} value={o.valor} checked={valor === o.valor} onChange={() => onCambio(o.valor)} className="peer sr-only" />
-          <span className="inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-teal-fondo peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal max-md:min-h-11">
+          <span className="inline-flex h-10 items-center rounded-full border border-teal-oscuro/30 px-4 text-sm font-bold transition-colors peer-checked:border-teal-oscuro peer-checked:bg-teal-fondo peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal max-md:min-h-11">
             {o.etiqueta}
           </span>
         </label>

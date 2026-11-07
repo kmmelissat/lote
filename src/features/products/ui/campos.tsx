@@ -7,7 +7,7 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 
 export const estiloCampo =
-  "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base placeholder:text-texto-2/60 focus:border-teal";
+  "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base placeholder:text-texto-2/60 focus:border-teal";
 
 /** El chip que marca lo que llenó Lotito, para que se note qué revisar. */
 export function ChipLotito() {
@@ -147,7 +147,7 @@ export function Cantidad({
   return (
     <div className="flex flex-col gap-1.5">
       <Etiqueta htmlFor={id}>{t.cantidad}</Etiqueta>
-      <div className="flex h-12 items-center rounded-[14px] border-2 border-borde-control bg-superficie">
+      <div className="flex h-12 items-center rounded-[14px] border border-borde-control bg-superficie">
         <button
           type="button"
           onClick={() => cambiar(-1)}
@@ -185,7 +185,7 @@ export function Cantidad({
 export function Seccion({ titulo, ayuda, children }: { titulo: string; ayuda?: string; children: ReactNode }) {
   const id = useId();
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-4 rounded-[20px] border-2 border-teal-oscuro/15 bg-white p-4">
+    <section aria-labelledby={id} className="flex flex-col gap-4 rounded-[20px] border border-teal-oscuro/15 bg-white p-4">
       <div className="flex flex-col">
         <h2 id={id} className="font-bold">
           {titulo}

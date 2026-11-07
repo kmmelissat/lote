@@ -41,8 +41,8 @@ export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: strin
       aria-label={de[r] ? `${textos.productos.fotos.foto(i + 1)} · ${de[r]}` : textos.productos.fotos.foto(i + 1)}
       title={de[r]}
       aria-current={i === actual ? "true" : undefined}
-      className={`relative block size-16 shrink-0 overflow-hidden rounded-xl border-2 transition-transform hover:-translate-y-0.5 ${
-        i === actual ? "border-teal-oscuro ring-2 ring-accion" : "border-borde"
+      className={`relative block size-16 shrink-0 overflow-hidden rounded-xl border transition-transform ${
+        i === actual ? "border-teal-oscuro ring-2 ring-accion" : "border-transparent"
       }`}
     >
       <Image src={urlFoto(r)} alt="" fill sizes="64px" className="object-cover" />
@@ -54,7 +54,7 @@ export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: strin
         type="button"
         onClick={() => ampliada.current?.showModal()}
         aria-label={textos.vitrina.compra.ampliar}
-        className="relative aspect-square cursor-zoom-in md:min-w-0 md:flex-1 overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-teal-fondo"
+        className="relative aspect-square lg:aspect-[4/5] cursor-zoom-in md:min-w-0 md:flex-1 overflow-hidden rounded-[22px] border border-teal-oscuro/30 bg-teal-fondo"
       >
         <Image
           src={urlFoto(foto)}
@@ -65,12 +65,12 @@ export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: strin
           className="object-cover"
         />
         {sello && (
-          <span className="absolute right-3 top-3 rotate-3 rounded-full border-2 border-teal-oscuro bg-accion px-3 py-1 text-sm font-extrabold text-accion-texto shadow-dura-chica">
+          <span className="absolute right-3 top-3 rounded-full border border-teal-oscuro/30 bg-accion px-3 py-1 text-sm font-extrabold text-accion-texto">
             {sello}
           </span>
         )}
         {de[foto] && (
-          <span className="absolute bottom-3 left-3 rounded-full border-2 border-teal-oscuro bg-crema px-3 py-1 text-sm font-bold text-teal-oscuro">
+          <span className="absolute bottom-3 left-3 rounded-full border border-teal-oscuro/30 bg-crema px-3 py-1 text-sm font-bold text-teal-oscuro">
             {de[foto]}
           </span>
         )}
@@ -79,7 +79,7 @@ export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: strin
         ref={ampliada}
         aria-label={nombre}
         onClick={() => ampliada.current?.close()}
-        className="m-auto max-h-[92dvh] max-w-[min(92vw,56rem)] cursor-zoom-out overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-white p-0 backdrop:bg-teal-oscuro/60"
+        className="m-auto max-h-[92dvh] max-w-[min(92vw,56rem)] cursor-zoom-out overflow-hidden rounded-[24px] border border-teal-oscuro/30 bg-white p-0 backdrop:bg-teal-oscuro/60"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={urlFoto(foto)} alt={nombre} className="max-h-[92dvh] w-full object-contain" />
@@ -88,7 +88,7 @@ export function GaleriaVitrina({ fotos, nombre, de = {}, sello }: { fotos: strin
         <>
           {/* Móvil: tira horizontal debajo de la foto */}
           <div className="md:hidden">
-            <Tira etiqueta={textos.productos.fotos.etiqueta} activo={actual}>
+            <Tira etiqueta={textos.productos.fotos.etiqueta} activo={actual} flechasEnMovil={false}>
               {lista.map(miniatura)}
             </Tira>
           </div>

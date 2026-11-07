@@ -21,7 +21,7 @@ function Fotos({ fotos }: { fotos: (string | null)[] }) {
   return (
     <div className="flex -space-x-3">
       {fotos.slice(0, 4).map((f, i) => (
-        <div key={i} className="relative size-14 overflow-hidden rounded-xl border-2 border-teal-oscuro bg-teal-fondo">
+        <div key={i} className="relative size-14 overflow-hidden rounded-xl border border-teal-oscuro bg-teal-fondo">
           {f ? <Image src={urlFoto(f)} alt="" fill sizes="56px" className="object-cover" /> : <Monito nombre="caja" className="absolute inset-2 text-teal/40" />}
         </div>
       ))}
@@ -86,11 +86,11 @@ export function VistaPreviaPromocion({
         <p className="text-sm text-texto-2">{t.previaVacio}</p>
       ) : (
         <>
-          <div className="flex flex-col gap-3 rounded-2xl border-2 border-teal-oscuro bg-crema p-4">
+          <div className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro bg-crema p-4">
             <Fotos fotos={fotos} />
             <p className="line-clamp-2 font-bold leading-tight">{nombre}</p>
             {anuncio && (
-              <p className="flex items-start gap-2 rounded-xl border-2 border-teal-oscuro bg-limon px-3 py-2">
+              <p className="flex items-start gap-2 rounded-xl border border-teal-oscuro bg-limon px-3 py-2">
                 <Icon nombre="etiqueta" className="mt-0.5 size-4 shrink-0" />
                 <span className="flex min-w-0 flex-col leading-tight">
                   <span className="text-sm font-bold">{anuncio.titulo}</span>
@@ -106,7 +106,7 @@ export function VistaPreviaPromocion({
                   {pack.ahorro > 0 && <span className="text-texto-2 line-through tabular-nums">{formatearDolares(pack.normal)}</span>}
                 </p>
                 {pack.ahorro > 0 && pack.porcentaje !== null ? (
-                  <p className="self-start rounded-full border-2 border-teal-oscuro bg-mango px-3 py-0.5 text-sm font-bold">{t.previaAhorra(formatearDolares(pack.ahorro), pack.porcentaje)}</p>
+                  <p className="self-start rounded-full border border-teal-oscuro bg-mango px-3 py-0.5 text-sm font-bold">{t.previaAhorra(formatearDolares(pack.ahorro), pack.porcentaje)}</p>
                 ) : null}
               </div>
             ) : tipo === "pack" && pack ? (
@@ -117,7 +117,7 @@ export function VistaPreviaPromocion({
 
             {tipo === "llevas_pagas" && llevas && (
               <div className="flex flex-col gap-1">
-                <p className="self-start rounded-full border-2 border-teal-oscuro bg-mango px-3 py-0.5 text-sm font-bold">{t.previaRebaja(llevas.porcentaje)}</p>
+                <p className="self-start rounded-full border border-teal-oscuro bg-mango px-3 py-0.5 text-sm font-bold">{t.previaRebaja(llevas.porcentaje)}</p>
                 {precioEjemplo !== null && llevas.paga !== null && (
                   <p className="text-sm">{t.previaEjemplo(lleva, paga, formatearDolares(precioEjemplo), formatearDolares(llevas.paga))}</p>
                 )}
@@ -158,7 +158,7 @@ export function VistaPreviaPromocion({
       </p>
 
       {avisos.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-2xl border-2 border-teal-oscuro bg-limon p-3 text-sm">
+        <div className="flex flex-col gap-2 rounded-2xl border border-teal-oscuro bg-limon p-3 text-sm">
           <h3 className="font-bold">{t.avisos}</h3>
           <ul className="flex list-disc flex-col gap-1 pl-5">
             {avisos.map((a) => (

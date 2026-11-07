@@ -20,19 +20,19 @@ export function TarjetaProducto({ p, marca, eager = false }: { p: ProductoExplor
   const descuento = p.precioAnterior ? Math.round((1 - p.precioMinimo / p.precioAnterior) * 100) : 0;
   const sticker =
     descuento > 0
-      ? { texto: t.descuento(descuento), fondo: "bg-mango font-logo text-sm" }
+      ? { texto: t.descuento(descuento), fondo: "bg-(--store-soft) text-(--store-on-soft) font-logo text-sm" }
       : p.destacado
-        ? { texto: t.destacado, fondo: "bg-limon" }
+        ? { texto: t.destacado, fondo: "bg-(--store-soft) text-(--store-on-soft)" }
         : p.disponibles <= POCAS_UNIDADES
-          ? { texto: t.ultimas(p.disponibles), fondo: "bg-rosa" }
+          ? { texto: t.ultimas(p.disponibles), fondo: "bg-(--store-soft) text-(--store-on-soft)" }
           : null;
   return (
     <Link
       href={`/c/${p.tiendaSlug}/${p.codigo}`}
       style={{ "--tienda": marca.color } as CSSProperties}
-      className="group flex h-full flex-col gap-2 overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-white pb-3 shadow-dura-chica transition-[transform,box-shadow] duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-1 hover:shadow-dura"
+      className="group flex h-full flex-col gap-2 overflow-hidden rounded-[22px] border border-teal-oscuro bg-white pb-3 shadow-dura-chica transition-[transform,box-shadow] duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-1 hover:shadow-dura"
     >
-      <div className="relative aspect-square overflow-hidden border-b-2 border-teal-oscuro bg-[color-mix(in_srgb,var(--tienda)_12%,white)]">
+      <div className="relative aspect-square overflow-hidden border-b border-teal-oscuro bg-[color-mix(in_srgb,var(--tienda)_12%,white)]">
         {p.foto ? (
           <Image
             src={urlFoto(p.foto)}
@@ -48,13 +48,13 @@ export function TarjetaProducto({ p, marca, eager = false }: { p: ProductoExplor
           </span>
         )}
         {p.categoria && (
-          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-full border-2 border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
+          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-full border border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
             {p.categoria}
           </span>
         )}
         {/* Un solo sticker por tarjeta: oferta, destacado o pocas unidades */}
         {sticker && (
-          <span className={`absolute left-2 top-2 -rotate-[4deg] rounded-full border-2 border-teal-oscuro px-2.5 py-0.5 text-xs font-extrabold text-teal-oscuro motion-safe:group-hover:animate-meneo ${sticker.fondo}`}>
+          <span className={`absolute left-2 top-2 -rotate-[4deg] rounded-full border border-teal-oscuro px-2.5 py-0.5 text-xs font-extrabold motion-safe:group-hover:animate-meneo ${sticker.fondo}`}>
             {sticker.texto}
           </span>
         )}

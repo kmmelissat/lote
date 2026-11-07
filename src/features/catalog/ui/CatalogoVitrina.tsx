@@ -10,9 +10,6 @@ import { TarjetaDeVitrina } from "./TarjetaDeVitrina";
 
 const t = textos.vitrina;
 
-// Las tarjetas están rectas y alineadas; al pasar el mouse se inclinan un grado, como fotos pegadas a mano
-const GIROS = ["hover:-rotate-1", "hover:rotate-1"];
-
 // A partir de cuántos productos conviene poder buscar y ordenar
 const MIN_PARA_BUSCAR = 8;
 const MIN_PARA_ORDENAR = 4;
@@ -102,221 +99,129 @@ export function CatalogoVitrina({
         );
 
   const chip = (activo: boolean) =>
-    `inline-flex h-10 max-md:min-h-11 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors ${
-      activo ? "bg-teal-fondo text-teal" : "bg-crema hover:bg-limon"
+    `inline-flex h-10 max-md:min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-sm font-bold transition-colors ${
+      activo ? "border-teal-oscuro bg-teal-oscuro text-white" : "border-teal-oscuro/25 bg-superficie hover:bg-teal-fondo"
     }`;
-
-  const cuenta = (c: string) =>
-    productos.filter((p) => p.categoria?.trim() === c).length;
-  const fila = (activo: boolean) =>
-    `flex w-full items-center justify-between gap-2 rounded-full px-3 py-2 text-left text-sm font-bold ${activo ? "bg-limon text-teal-oscuro" : "hover:bg-teal-fondo"}`;
-  const lateral = categorias.length > 1 || productos.length >= MIN_PARA_ORDENAR;
+  const cuenta = (c: string) => productos.filter((p) => p.categoria?.trim() === c).length;
+  const hayFiltros = categorias.length > 1 || modelos.length > 1 || conOrden;
 
   return (
-    <div
-      className={
-        lateral
-          ? "grid gap-5 md:grid-cols-[13rem_minmax(0,1fr)] md:items-start"
-          : ""
-      }
-    >
-      {lateral && (
-        <nav
-          aria-label={t.categorias}
-          className="hidden flex-col gap-1 rounded-[22px] border-2 border-teal-oscuro bg-superficie p-3 shadow-dura-chica md:sticky md:top-4 md:flex"
-        >
-          {categorias.length > 1 && (
-            <>
-              <h2 className="px-3 pb-1 pt-1 font-logo text-base font-bold">
-                {t.categorias}
-              </h2>
-              <button
-                type="button"
-                aria-pressed={categoria === null}
-                onClick={() => setCategoria(null)}
-                className={fila(categoria === null)}
-              >
-                {t.todo}{" "}
-                <span className="text-texto-2">{productos.length}</span>
-              </button>
-              {categorias.map((c) => (
+    <div className="flex min-w-0 flex-col gap-4">
+      {(conBuscador || hayFiltros) && (
+        <div className="flex flex-col gap-2 md:flex-row md:items-center">
+          {conBuscador && (
+            <div className="relative flex-1">
+              <label htmlFor="buscar-vitrina" className="sr-only">
+                {t.buscar}
+              </label>
+              <Icon nombre="buscar" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-texto-2" />
+              <input
+                id="buscar-vitrina"
+                type="search"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder={t.buscarPlaceholder}
+                autoComplete="off"
+                className="h-12 w-full rounded-full border border-teal-oscuro/25 bg-superficie pl-12 pr-12 text-base placeholder:text-texto-2/70 focus:border-teal"
+              />
+              {busqueda && (
                 <button
-                  key={c}
                   type="button"
-                  aria-pressed={categoria === c}
-                  onClick={() => setCategoria(c)}
-                  className={fila(categoria === c)}
+                  onClick={() => setBusqueda("")}
+                  aria-label={t.limpiarBusqueda}
+                  className="absolute right-2 top-1/2 flex size-9 max-md:size-11 -translate-y-1/2 items-center justify-center rounded-full hover:bg-teal-fondo"
                 >
-                  <span className="min-w-0 truncate">{c}</span>{" "}
-                  <span className="text-texto-2">{cuenta(c)}</span>
+                  <Icon nombre="x" className="size-5" />
                 </button>
-              ))}
-            </>
-          )}
-          <h2 className="px-3 pb-1 pt-3 font-logo text-base font-bold">
-            {t.precio}
-          </h2>
-          <button
-            type="button"
-            aria-pressed={rango === null}
-            onClick={() => setRango(null)}
-            className={fila(rango === null)}
-          >
-            {t.todo}
-          </button>
-          {RANGOS.map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              aria-pressed={rango === r.id}
-              onClick={() => setRango(r.id)}
-              className={fila(rango === r.id)}
-            >
-              {t.rangos[r.id]}
-            </button>
-          ))}
-        </nav>
-      )}
-      <div className="flex min-w-0 flex-col gap-5">
-        {(conBuscador || conOrden) && (
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              {conBuscador && (
-                <div className="relative flex-1">
-                  <label htmlFor="buscar-vitrina" className="sr-only">
-                    {t.buscar}
-                  </label>
-                  <Icon
-                    nombre="buscar"
-                    className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-texto-2"
-                  />
-                  <input
-                    id="buscar-vitrina"
-                    type="search"
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    placeholder={t.buscarPlaceholder}
-                    autoComplete="off"
-                    className="h-12 w-full rounded-full border-2 border-teal-oscuro bg-white pl-12 pr-12 text-base placeholder:text-texto-2/70 focus:border-teal"
-                  />
-                  {busqueda && (
-                    <button
-                      type="button"
-                      onClick={() => setBusqueda("")}
-                      aria-label={t.limpiarBusqueda}
-                      className="absolute right-2 top-1/2 flex size-9 max-md:size-11 -translate-y-1/2 items-center justify-center rounded-full hover:bg-limon/50"
-                    >
-                      <Icon nombre="x" className="size-5" />
-                    </button>
-                  )}
-                </div>
-              )}
-              {conOrden && (
-                <div className="sm:ml-auto sm:w-64">
-                  <ListaDesplegable
-                    name="orden"
-                    variante="campo"
-                    valor={orden}
-                    alCambiar={(v) => setOrden(v as Orden)}
-                    opciones={(Object.keys(t.ordenes) as Orden[]).map((o) => ({
-                      valor: o,
-                      etiqueta: t.ordenes[o],
-                    }))}
-                    placeholder={t.ordenar}
-                  />
-                </div>
               )}
             </div>
-            <p role="status" className="text-sm text-texto-2 empty:hidden">
-              {busqueda || categoria || modelo || rango
-                ? t.nResultados(visibles.length)
-                : ""}
-            </p>
-          </div>
-        )}
-        {modelos.length > 1 && (
-          <ul
-            aria-label={t.modelo}
-            className="flex flex-wrap items-center gap-2"
-          >
-            <li className="text-sm font-bold">{t.modelo}</li>
-            <li>
-              <button
-                type="button"
-                aria-pressed={modelo === null}
-                onClick={() => setModelo(null)}
-                className={chip(modelo === null)}
-              >
-                {t.todo}
-              </button>
-            </li>
-            {modelos.map((m) => (
-              <li key={m}>
-                <button
-                  type="button"
-                  aria-pressed={modelo === m}
-                  onClick={() => setModelo(m)}
-                  className={chip(modelo === m)}
-                >
-                  {m}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {categorias.length > 1 && (
-          <ul
-            aria-label={t.categorias}
-            className="flex flex-wrap gap-2 md:hidden"
-          >
-            <li>
-              <button
-                type="button"
-                aria-pressed={categoria === null}
-                onClick={() => setCategoria(null)}
-                className={chip(categoria === null)}
-              >
-                {t.todo}
-              </button>
-            </li>
-            {categorias.map((c) => (
-              <li key={c}>
-                <button
-                  type="button"
-                  aria-pressed={categoria === c}
-                  onClick={() => setCategoria(c)}
-                  className={chip(categoria === c)}
-                >
-                  {c}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {ordenados.length === 0 ? (
-          <p className="py-8 text-center text-texto-2">{t.sinResultados}</p>
-        ) : (
-          <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {ordenados.map((p, i) => (
-              <li key={p.codigo} className="h-full min-w-0">
-                <TarjetaDeVitrina
-                  slug={slug}
-                  p={p}
-                  umbral={umbral}
-                  envio={envio}
-                  puedeComprar={puedeComprar}
-                  giro={GIROS[i % GIROS.length]}
-                  prioridad={i < 4}
-                  promo={[p.codigo, ...p.variantes.map((v) => v.codigo)].some(
-                    (c) => enPromocion.includes(c),
-                  )}
+          )}
+          <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
+            {modelos.length > 1 && (
+              <div className="w-full sm:w-56">
+                <ListaDesplegable
+                  variante="pildora"
+                  className="!h-12 !border !border-teal-oscuro/25"
+                  valor={modelo ?? ""}
+                  alCambiar={(v) => setModelo(v || null)}
+                  placeholder={t.modelo}
+                  opciones={[
+                    { valor: "", etiqueta: t.todo, etiquetaBoton: `${t.modelo}: ${t.todo}` },
+                    ...modelos.map((m) => ({ valor: m, etiqueta: m, etiquetaBoton: `${t.modelo}: ${m}` })),
+                  ]}
                 />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+              </div>
+            )}
+            {conOrden && (
+              <div className="w-full sm:w-52">
+                <ListaDesplegable
+                  variante="pildora"
+                  className="!h-12 !border !border-teal-oscuro/25"
+                  valor={rango ?? ""}
+                  alCambiar={(v) => setRango(v || null)}
+                  placeholder={t.precio}
+                  opciones={[
+                    { valor: "", etiqueta: t.todo, etiquetaBoton: `${t.precio}: ${t.todo}` },
+                    ...RANGOS.map((r) => ({ valor: r.id, etiqueta: t.rangos[r.id], etiquetaBoton: `${t.precio}: ${t.rangos[r.id]}` })),
+                  ]}
+                />
+              </div>
+            )}
+            {conOrden && (
+              <div className="col-span-2 w-full sm:col-span-1 sm:w-60">
+                <ListaDesplegable
+                  name="orden"
+                  variante="pildora"
+                  className="!h-12 !border !border-teal-oscuro/25"
+                  valor={orden}
+                  alCambiar={(v) => setOrden(v as Orden)}
+                  opciones={(Object.keys(t.ordenes) as Orden[]).map((o) => ({ valor: o, etiqueta: t.ordenes[o], etiquetaBoton: `${t.ordenar}: ${t.ordenes[o]}` }))}
+                  placeholder={t.ordenar}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {categorias.length > 1 && (
+        <ul aria-label={t.categorias} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          <li>
+            <button type="button" aria-pressed={categoria === null} onClick={() => setCategoria(null)} className={chip(categoria === null)}>
+              {t.todo} · {productos.length}
+            </button>
+          </li>
+          {categorias.map((c) => (
+            <li key={c}>
+              <button type="button" aria-pressed={categoria === c} onClick={() => setCategoria(c)} className={chip(categoria === c)}>
+                {c} · {cuenta(c)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p role="status" className="text-sm text-texto-2 empty:hidden">
+        {busqueda || categoria || modelo || rango ? t.nResultados(visibles.length) : ""}
+      </p>
+
+      {ordenados.length === 0 ? (
+        <p className="py-8 text-center text-texto-2">{t.sinResultados}</p>
+      ) : (
+        <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 lg:grid-cols-4">
+          {ordenados.map((p, i) => (
+            <li key={p.codigo} className="h-full min-w-0">
+              <TarjetaDeVitrina
+                slug={slug}
+                p={p}
+                umbral={umbral}
+                envio={envio}
+                puedeComprar={puedeComprar}
+                prioridad={i < 4}
+                promo={[p.codigo, ...p.variantes.map((v) => v.codigo)].some((c) => enPromocion.includes(c))}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

@@ -36,7 +36,7 @@ function Topes({ topes }: { topes: readonly Tope[] }) {
         <li
           key={x.t}
           aria-label={x.sr}
-          className="flex flex-col items-center justify-center rounded-2xl border-2 border-teal-oscuro bg-white px-1 py-2 text-center shadow-dura-chica"
+          className="flex flex-col items-center justify-center rounded-2xl border border-teal-oscuro bg-white px-1 py-2 text-center shadow-dura-chica"
         >
           <span aria-hidden={x.sr ? "true" : undefined} className="text-3xl font-extrabold leading-none text-teal-oscuro">
             {x.n}
@@ -55,7 +55,7 @@ function Lista({ lista, tono }: { lista: readonly Linea[]; tono: string }) {
     <ul className="flex flex-col gap-2.5">
       {lista.map((l) => (
         <li key={l.texto} className="flex items-center gap-3 text-[16px] font-medium text-teal-oscuro">
-          <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg border-2 border-teal-oscuro ${tono}`}>
+          <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg border border-teal-oscuro ${tono}`}>
             <Icon nombre={l.icono as NombreIcono} className="size-4" />
           </span>
           {l.texto}
@@ -69,17 +69,17 @@ function Lista({ lista, tono }: { lista: readonly Linea[]; tono: string }) {
 function Precio({ plan, periodo }: { plan: PlanDePago | null; periodo: Periodo }) {
   if (!plan) {
     return (
-      <p className="rounded-2xl border-2 border-dashed border-teal-oscuro bg-white/70 p-4 text-5xl font-extrabold leading-none tracking-tighter text-teal-oscuro">
+      <p className="rounded-2xl border border-dashed border-teal-oscuro bg-white/70 p-4 text-5xl font-extrabold leading-none tracking-tighter text-teal-oscuro">
         $0 <span className="text-sm font-bold tracking-normal text-teal-oscuro/80">{p.paraSiempre}</span>
       </p>
     );
   }
   const anual = periodo === "anual";
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border-2 border-dashed border-teal-oscuro bg-white/70 p-4">
+    <div className="flex flex-col gap-1 rounded-2xl border border-dashed border-teal-oscuro bg-white/70 p-4">
       <div className="flex items-center gap-3">
         <p className="text-5xl font-extrabold leading-none tracking-tighter text-teal-oscuro">$0</p>
-        <span className="-rotate-3 rounded-md border-2 border-teal-oscuro bg-limon px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide text-teal-oscuro">
+        <span className="-rotate-3 rounded-md border border-teal-oscuro bg-limon px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide text-teal-oscuro">
           {p.betaEtiqueta}
         </span>
       </div>
@@ -115,13 +115,13 @@ function Plan({
   return (
     <ApareceCaja
       as="article"
-      className={`relative mt-6 flex flex-col rounded-[28px] border-[3px] border-teal-oscuro bg-crema ${e.giro} ${
+      className={`relative mt-6 flex flex-col rounded-[28px] border border-teal-oscuro bg-crema ${e.giro} ${
         destacado ? "shadow-[10px_10px_0_0_var(--color-teal-oscuro)] md:-translate-y-4" : "shadow-dura"
       }`}
     >
-      <span aria-hidden="true" className={`absolute -top-3 h-6 w-20 rounded-sm border-2 border-teal-oscuro/30 bg-celeste/70 ${e.cinta}`} />
+      <span aria-hidden="true" className={`absolute -top-3 h-6 w-20 rounded-sm border border-teal-oscuro/30 bg-celeste/70 ${e.cinta}`} />
       {destacado && (
-        <span className="absolute -right-3 -top-6 z-10 rotate-6 rounded-full border-[3px] border-teal-oscuro bg-limon px-4 py-1 text-sm font-extrabold text-teal-oscuro shadow-dura-chica">
+        <span className="absolute -right-3 -top-6 z-10 rotate-6 rounded-full border border-teal-oscuro bg-limon px-4 py-1 text-sm font-extrabold text-teal-oscuro shadow-dura-chica">
           {p.recomendado}
         </span>
       )}
@@ -154,7 +154,7 @@ export function PlanesPrecios({ conSesion }: { conSesion: boolean }) {
   return (
     <>
       <div role="group" aria-label={p.etiquetaPeriodo} className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-full border-[3px] border-teal-oscuro bg-white p-1 shadow-dura-chica">
+        <div className="inline-flex rounded-full border border-teal-oscuro bg-white p-1 shadow-dura-chica">
           {OPCIONES.map((o) => (
             <button
               key={o.valor}
@@ -169,7 +169,7 @@ export function PlanesPrecios({ conSesion }: { conSesion: boolean }) {
             </button>
           ))}
         </div>
-        <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-mango px-3 py-1 text-sm font-extrabold text-teal-oscuro">
+        <span className="-rotate-2 rounded-full border border-teal-oscuro bg-mango px-3 py-1 text-sm font-extrabold text-teal-oscuro">
           {p.ahorroAnual}
         </span>
       </div>

@@ -563,6 +563,7 @@ export type Database = {
           usuario_instagram: string | null
           usuario_facebook?: string | null
           usuario_tiktok?: string | null
+          banner?: string | null
           visible_en_explorar: boolean
           actividad: string
           tiene_local: boolean
@@ -595,6 +596,7 @@ export type Database = {
           usuario_instagram?: string | null
           usuario_facebook?: string | null
           usuario_tiktok?: string | null
+          banner?: string | null
           visible_en_explorar?: boolean
           actividad?: string
           tiene_local?: boolean
@@ -627,6 +629,7 @@ export type Database = {
           usuario_instagram?: string | null
           usuario_facebook?: string | null
           usuario_tiktok?: string | null
+          banner?: string | null
           visible_en_explorar?: boolean
           actividad?: string
           tiene_local?: boolean
@@ -2308,6 +2311,7 @@ export type Database = {
         }[]
       }
       vitrina_tiktok: { Args: { p_slug: string }; Returns: string | null }
+      vitrina_banner: { Args: { p_slug: string }; Returns: string | null }
       vitrina_reglas: {
         Args: { p_slug: string }
         Returns: {

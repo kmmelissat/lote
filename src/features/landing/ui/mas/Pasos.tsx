@@ -16,11 +16,11 @@ function MockPaso({ n }: { n: 0 | 1 | 2 }) {
   if (n === 0) {
     const s = p[0];
     return (
-      <div className="relative flex flex-col gap-3 rounded-[20px] border-[3px] border-teal-oscuro bg-white p-4 pt-6">
+      <div className="relative flex flex-col gap-3 rounded-[20px] border border-teal-oscuro bg-white p-4 pt-6">
         <Sticker src="/landing/chat.webp" className="-top-5 left-3 w-12 -rotate-12" />
         <p className="max-w-[92%] self-end rounded-2xl rounded-br-md bg-teal px-3 py-2 text-sm font-bold text-white">{s.chat}</p>
         <Icon nombre="flecha" className="size-5 self-center text-teal-oscuro" />
-        <div className="flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro bg-crema p-3">
+        <div className="flex items-center gap-3 rounded-2xl border border-teal-oscuro bg-crema p-3">
           <Mini src="/landing/chaqueta.webp" />
           <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
             <span className="block w-full truncate font-extrabold">{s.ficha.nombre}</span>
@@ -36,32 +36,32 @@ function MockPaso({ n }: { n: 0 | 1 | 2 }) {
   if (n === 1) {
     const s = p[1];
     return (
-      <div className="flex flex-col gap-3 rounded-[20px] border-[3px] border-teal-oscuro bg-white p-4">
-        <p className="truncate rounded-full border-2 border-teal-oscuro bg-celeste-palido px-4 py-2 text-sm font-bold">{s.enlace}</p>
-        <div className="flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro bg-crema p-3">
+      <div className="flex flex-col gap-3 rounded-[20px] border border-teal-oscuro bg-white p-4">
+        <p className="truncate rounded-full border border-teal-oscuro bg-celeste-palido px-4 py-2 text-sm font-bold">{s.enlace}</p>
+        <div className="flex items-center gap-3 rounded-2xl border border-teal-oscuro bg-crema p-3">
           <Mini src="/landing/disco.webp" />
           <span className="min-w-0 flex-1">
             <span className="block truncate font-extrabold">CD Michael Jackson</span>
             <span className="text-sm text-texto-2">$33.50</span>
           </span>
-          <span className="rounded-full border-2 border-teal-oscuro bg-mango px-3 py-1 text-sm font-extrabold">{s.boton}</span>
+          <span className="rounded-full border border-teal-oscuro bg-mango px-3 py-1 text-sm font-extrabold">{s.boton}</span>
         </div>
       </div>
     );
   }
   const s = p[2];
   return (
-    <div className="relative flex flex-col gap-4 rounded-[20px] border-[3px] border-teal-oscuro bg-white p-4 pt-6">
+    <div className="relative flex flex-col gap-4 rounded-[20px] border border-teal-oscuro bg-white p-4 pt-6">
       <Sticker src="/landing/ganancia.webp" className="-top-5 right-3 w-12 rotate-12" />
       <div className="flex items-center justify-between">
         <span className="font-extrabold">{s.pedido}</span>
-        <span className="rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-extrabold">{s.ganancia}</span>
+        <span className="rounded-full border border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-extrabold">{s.ganancia}</span>
       </div>
       <ol className="flex items-center">
         {s.pasos.map((nombre, i) => (
           <li key={nombre} className="flex flex-1 flex-col items-center gap-1 text-center text-sm last:flex-none">
             <div className="flex w-full items-center">
-              <span className={`flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${i < 2 ? "bg-teal text-white" : "bg-white"}`}>
+              <span className={`flex size-7 shrink-0 items-center justify-center rounded-full border border-teal-oscuro ${i < 2 ? "bg-teal text-white" : "bg-white"}`}>
                 {i < 2 && <Icon nombre="check" className="size-4" />}
               </span>
               {i < s.pasos.length - 1 && <span className="h-0.5 flex-1 bg-teal-oscuro" />}
@@ -70,7 +70,7 @@ function MockPaso({ n }: { n: 0 | 1 | 2 }) {
           </li>
         ))}
       </ol>
-      <div className="flex items-center justify-between gap-2 rounded-2xl border-2 border-teal-oscuro bg-limon px-3 py-2 text-sm font-extrabold">
+      <div className="flex items-center justify-between gap-2 rounded-2xl border border-teal-oscuro bg-limon px-3 py-2 text-sm font-extrabold">
         <span>{t.funciones.balance.total[0]}</span>
         <span className="tabular-nums">{t.funciones.balance.total[1]}</span>
       </div>
@@ -102,8 +102,8 @@ export function Pasos() {
             />
           </svg>
           {c.pasos.map((p, n) => (
-            <ApareceItem key={p.titulo} className={`relative flex flex-col gap-4 rounded-[28px] border-[3px] border-teal-oscuro p-5 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] ${FONDO_PASO[n]} ${GIRO_PASO[n]}`}>
-              <span className={`flex size-12 items-center justify-center rounded-full border-[3px] border-teal-oscuro text-xl font-extrabold text-teal-oscuro shadow-dura-chica ${["bg-mango", "bg-rosa", "bg-limon"][n]}`}>
+            <ApareceItem key={p.titulo} className={`relative flex flex-col gap-4 rounded-[28px] border border-teal-oscuro p-5 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] ${FONDO_PASO[n]} ${GIRO_PASO[n]}`}>
+              <span className={`flex size-12 items-center justify-center rounded-full border border-teal-oscuro text-xl font-extrabold text-teal-oscuro shadow-dura-chica ${["bg-mango", "bg-rosa", "bg-limon"][n]}`}>
                 {n + 1}
               </span>
               <h3 className="text-[24px] font-extrabold leading-tight text-teal-oscuro">{p.titulo}</h3>

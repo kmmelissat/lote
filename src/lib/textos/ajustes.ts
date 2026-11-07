@@ -33,6 +33,13 @@ export const ajustes = {
     errorFrase: "La frase puede tener hasta 120 letras.",
     errorColor: "Elegí un color.",
     errorLogo: "No pudimos subir el logo. Probá con otra imagen.",
+    banner: "Banner",
+    bannerAyuda: "La imagen ancha de arriba de tu tienda. La recortamos en franja al subirla. Sin banner, ponemos una franja de tu color.",
+    subirBanner: "Subir banner",
+    cambiarBanner: "Cambiar banner",
+    quitarBanner: "Quitar banner",
+    subiendoBanner: "Subiendo…",
+    errorBanner: "No pudimos subir el banner. Probá con otra imagen.",
     errorGeneral: "No pudimos guardar. Probá de nuevo.",
     slug: {
       etiqueta: "Dirección de tu tienda en línea",

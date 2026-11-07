@@ -43,7 +43,7 @@ export function ResumenLateral({
   descartar?: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-[24px] border-2 border-teal-oscuro bg-crema p-5">
+    <div className="flex flex-col gap-4 rounded-[24px] border border-teal-oscuro bg-crema p-5">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-bold">
           {t.carrito} <span className="text-sm font-normal text-texto-2">· {t.paso.productos(unidades)}</span>
@@ -64,7 +64,7 @@ export function ResumenLateral({
           </div>
 
           {/* La cuenta y su total, una sola tarjeta que se lee de arriba hacia abajo: subtotal, descuento y, al final, el total */}
-          <section aria-label={t.paso.totalACobrar} className="overflow-hidden rounded-[20px] border-2 border-teal-oscuro">
+          <section aria-label={t.paso.totalACobrar} className="overflow-hidden rounded-[20px] border border-teal-oscuro">
             <div className="bg-superficie p-4">{resumen}</div>
             <div className="bg-teal-oscuro px-5 py-3 text-white">
               <p className="text-sm font-bold text-celeste">{t.paso.totalACobrar}</p>

@@ -25,7 +25,7 @@ export function TarjetaTienda({ tienda, eager = false }: { tienda: TiendaExplora
     <Link
       href={`/c/${tienda.slug}`}
       style={{ "--tienda": colorDeMarca(tienda.color).hex } as CSSProperties}
-      className="group flex h-full flex-col rounded-[24px] border-2 border-teal-oscuro bg-white p-2 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura"
+      className="group flex h-full flex-col rounded-[24px] border border-teal-oscuro bg-white p-2 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura"
     >
       <div className="grid aspect-[16/10] grid-cols-3 grid-rows-2 gap-1.5 overflow-hidden rounded-[18px] bg-[color-mix(in_srgb,var(--tienda)_14%,white)]">
         {fotos.length ? (
@@ -64,7 +64,7 @@ export function TarjetaTienda({ tienda, eager = false }: { tienda: TiendaExplora
         <div className="mt-auto flex items-end justify-between gap-3 pt-1">
           <ul className="flex min-w-0 flex-wrap gap-1.5">
             {tienda.categorias.slice(0, 3).map((c) => (
-              <li key={c} className="rounded-full border-2 border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
+              <li key={c} className="rounded-full border border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
                 {c}
               </li>
             ))}

@@ -41,7 +41,7 @@ export function CheckoutCarrito({ slug, opciones, zonas }: { slug: string; opcio
   return (
     <div className="flex flex-col gap-5">
       {lineas.some((l) => l.cambio) && (
-        <p role="status" className="rounded-2xl border-2 border-teal-oscuro bg-limon px-4 py-3 text-sm font-medium">
+        <p role="status" className="rounded-2xl border border-teal-oscuro bg-accion/20 px-4 py-3 text-sm font-medium">
           {t.hayCambios}
         </p>
       )}

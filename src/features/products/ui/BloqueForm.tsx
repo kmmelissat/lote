@@ -49,7 +49,7 @@ export function BloqueForm({
       <span
         aria-hidden="true"
         className={`flex size-9 shrink-0 items-center justify-center rounded-full font-logo text-lg font-bold ${
-          opcional ? "border-2 border-dashed border-borde-control bg-superficie text-texto-2" : listo ? "bg-teal text-white" : "bg-teal-oscuro text-white"
+          opcional ? "border border-dashed border-borde-control bg-superficie text-texto-2" : listo ? "bg-teal text-white" : "bg-teal-oscuro text-white"
         }`}
       >
         {numero}

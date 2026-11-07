@@ -216,7 +216,7 @@ export function ListaPasivos({ pasivos, cuentas }: { pasivos: FilaPasivo[]; cuen
           <li key={p.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[20px] bg-fondo p-3">
             <span
               aria-hidden="true"
-              className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro font-logo text-lg font-bold bg-fondo`}
+              className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro font-logo text-lg font-bold bg-fondo`}
             >
               {p.acreedor.trim().charAt(0).toUpperCase()}
             </span>
@@ -287,8 +287,8 @@ export function ListaPasivos({ pasivos, cuentas }: { pasivos: FilaPasivo[]; cuen
 export function SeccionPasivos({ pasivos, hoy, cuentas }: { pasivos: FilaPasivo[]; hoy: string; cuentas: readonly Cuenta[] }) {
   const falta = pasivos.reduce((suma, p) => suma + p.saldo, 0);
   return (
-    <section aria-labelledby="deudas" className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b-2 border-teal-oscuro px-4 py-3 md:px-5">
+    <section aria-labelledby="deudas" className="overflow-hidden rounded-[24px] border border-teal-oscuro bg-superficie">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-teal-oscuro px-4 py-3 md:px-5">
         <h2 id="deudas" className="font-logo text-lg font-bold">
           {t.titulo}
         </h2>

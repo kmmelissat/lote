@@ -13,8 +13,8 @@ const t = textos.pedidos.form;
 const tm = textos.mostrador.cliente;
 
 const CANALES: CanalDeVenta[] = ["presencial", "instagram", "whatsapp"];
-const campo = "h-12 w-full rounded-[14px] border-2 bg-superficie px-4 text-base focus:border-teal";
-const prefijo = "flex h-12 items-center rounded-l-[14px] border-2 border-r-0 border-borde-control bg-fondo px-3 font-bold text-texto-2";
+const campo = "h-12 w-full rounded-[14px] border bg-superficie px-4 text-base focus:border-teal";
+const prefijo = "flex h-12 items-center rounded-l-[14px] border border-r-0 border-borde-control bg-fondo px-3 font-bold text-texto-2";
 
 /** Lo que se escribió en cada modo de contacto, ya limpio. Se guarda como "+503 7000 1234", "@usuario" o el correo. */
 export type ContactosEscritos = Record<TipoContacto, string>;
@@ -107,7 +107,7 @@ export function ClienteDeVenta({
           className={`${campo} border-borde-control`}
         />
         {enfocado && sugerencias.length > 0 && (
-          <ul id="sugerencias-clientes" role="listbox" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-2xl border-2 border-teal-oscuro bg-superficie shadow-dura-chica">
+          <ul id="sugerencias-clientes" role="listbox" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-2xl border border-teal-oscuro bg-superficie shadow-dura-chica">
             {sugerencias.map((c) => (
               <li key={c.nombre} role="option" aria-selected="false">
                 <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => elegir(c)} className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-2 text-left text-sm hover:bg-teal-fondo">
@@ -141,7 +141,7 @@ export function ClienteDeVenta({
               inputMode="numeric"
               autoComplete="off"
               placeholder={tm.contacto.placeholder.telefono}
-              className={`h-12 min-w-0 flex-1 rounded-r-[14px] border-2 bg-superficie px-3 text-base tabular-nums focus:border-teal ${borde(telefonoMal)}`}
+              className={`h-12 min-w-0 flex-1 rounded-r-[14px] border bg-superficie px-3 text-base tabular-nums focus:border-teal ${borde(telefonoMal)}`}
             />
           </span>
         </label>
@@ -157,7 +157,7 @@ export function ClienteDeVenta({
               autoCorrect="off"
               spellCheck={false}
               placeholder={tm.contacto.placeholder.usuario}
-              className={`h-12 min-w-0 flex-1 rounded-r-[14px] border-2 bg-superficie px-3 text-base focus:border-teal ${borde(usuarioMal)}`}
+              className={`h-12 min-w-0 flex-1 rounded-r-[14px] border bg-superficie px-3 text-base focus:border-teal ${borde(usuarioMal)}`}
             />
           </span>
         </label>
@@ -202,7 +202,7 @@ export function ClienteDeVenta({
             type="button"
             aria-pressed={canal === c}
             onClick={() => cambiarCanal(c)}
-            className={`min-h-11 rounded-full border-2 px-3 text-sm ${canal === c ? "border-teal-oscuro bg-limon font-bold" : "border-borde-control bg-superficie text-texto-2"}`}
+            className={`min-h-11 rounded-full border px-3 text-sm ${canal === c ? "border-teal-oscuro bg-limon font-bold" : "border-borde-control bg-superficie text-texto-2"}`}
           >
             {textos.pedidos.canales[c]}
           </button>

@@ -43,7 +43,7 @@ export function FotoFila({ negocioId, nombre, ruta, alCambiar }: Props) {
       <label
         htmlFor={id}
         title={fallo ? t.error : undefined}
-        className={`relative flex size-11 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-teal-oscuro bg-white text-teal-oscuro transition-colors hover:bg-limon focus-within:ring-2 focus-within:ring-teal ${fallo ? "border-error text-error" : ""} ${ruta ? "border-solid" : ""}`}
+        className={`relative flex size-11 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-teal-oscuro bg-white text-teal-oscuro transition-colors hover:bg-limon focus-within:ring-2 focus-within:ring-teal ${fallo ? "border-error text-error" : ""} ${ruta ? "border-solid" : ""}`}
       >
         {ruta ? (
           <Image src={urlFoto(ruta)} alt={t.alt(nombre)} width={44} height={44} className="size-full object-cover" />

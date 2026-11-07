@@ -10,7 +10,7 @@ import { COOKIE_DESTINO } from "../rutaSegura";
 const t = textos.acceso;
 
 const botonBase =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60";
+  "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-teal-oscuro font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60";
 const botonClaro = `${botonBase} bg-white`;
 
 /**
@@ -49,7 +49,7 @@ export function PanelAcceso({ destino, errorInicial = "" }: { destino: string | 
   if (estado === "enviado") {
     return (
       <div className="flex flex-col gap-4">
-        <div role="status" className="flex flex-col gap-2 rounded-[18px] border-2 border-teal-oscuro bg-limon p-4">
+        <div role="status" className="flex flex-col gap-2 rounded-[18px] border border-teal-oscuro bg-limon p-4">
           <h2 className="text-lg font-bold">{t.revisaTitulo}</h2>
           <p>{t.enviadoA(correo.trim())}</p>
           <p className="text-sm text-teal-oscuro/80">{t.mismoNavegador}</p>

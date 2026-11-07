@@ -29,14 +29,14 @@ export function ModalDeRecibo({ recibo, alCerrar }: { recibo: Recibo | null; alC
       aria-label={recibo ? r.titulo[recibo.clase] : r.titulo.venta}
       onClose={alCerrar}
       onClick={(e) => e.target === ventana.current && alCerrar()}
-      className="m-auto w-[min(26rem,calc(100vw-1.5rem))] rounded-[24px] border-2 border-teal-oscuro bg-crema p-0 shadow-dura backdrop:bg-teal-oscuro/40"
+      className="m-auto w-[min(26rem,calc(100vw-1.5rem))] rounded-[24px] border border-teal-oscuro bg-crema p-0 shadow-dura backdrop:bg-teal-oscuro/40"
     >
       {recibo && (
         <div className="flex flex-col items-center gap-3 p-6 text-center" role="status">
           <LotitoMas nombre="thumbsup" className="w-24" />
           <h2 className="text-xl font-bold">{r.titulo[recibo.clase]}</h2>
           <p className="text-texto-2">{r.monito[recibo.clase]}</p>
-          <dl className="w-full rounded-2xl border-2 border-dashed border-teal-oscuro/40 bg-superficie p-4">
+          <dl className="w-full rounded-2xl border border-dashed border-teal-oscuro/40 bg-superficie p-4">
             <div className="flex justify-between">
               <dt className="text-texto-2">{r.pedido(recibo.codigo)}</dt>
             </div>

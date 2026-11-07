@@ -68,7 +68,7 @@ export async function GananciaDelPeriodo({ supabase, negocioId, clave, ahora }: 
           <div
             role="img"
             aria-label={`${p.vendiste} ${formatearDolares(r.vendido)}: ${partes.map((x) => `${x.etiqueta} ${formatearDolares(x.monto)}`).join(", ")}`}
-            className="flex h-4 overflow-hidden rounded-full border-2 border-white/70 bg-white/10"
+            className="flex h-4 overflow-hidden rounded-full border border-white/70 bg-white/10"
           >
             {partes.map((x) => (
               <span key={x.etiqueta} className={`block h-full ${x.fondo}`} style={{ width: `${pctDe(x.monto)}%` }} />

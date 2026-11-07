@@ -20,9 +20,9 @@ export function ProductosDelPedido({ pedido: p }: { pedido: Pedido }) {
         {p.items.map((i) => (
           <li key={i.codigo} className="flex items-center gap-3 border-t border-borde py-3 first:border-t-0 first:pt-0">
             {i.foto ? (
-              <Image src={urlFoto(i.foto)} alt={i.nombre} width={56} height={56} className="size-14 shrink-0 rounded-xl border-2 border-teal-oscuro object-cover" />
+              <Image src={urlFoto(i.foto)} alt={i.nombre} width={56} height={56} className="size-14 shrink-0 rounded-xl border border-teal-oscuro object-cover" />
             ) : (
-              <span aria-hidden="true" className="size-14 shrink-0 rounded-xl border-2 border-teal-oscuro bg-perla" />
+              <span aria-hidden="true" className="size-14 shrink-0 rounded-xl border border-teal-oscuro bg-perla" />
             )}
             <div className="min-w-0 flex-1">
               <Link href={`/productos/${i.codigo}`} className="block truncate font-medium underline">

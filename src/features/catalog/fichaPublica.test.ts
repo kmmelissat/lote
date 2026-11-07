@@ -35,7 +35,7 @@ describe("armarFichaPublica", () => {
     expect(f.hermanas).toEqual([]);
     expect(f.variantes).toEqual([{ codigo: 1, partes: [], disponibles: 3, precio: 2000, precioAnterior: null, fotos: [] }]);
     expect(f).toMatchObject({ disponibles: 3, vendidas: 2, nuevo: false, sello: undefined });
-    expect(f.meta).toBe(`Blusas y camisetas · ${textos.productos.form.nuevo}`);
+    expect(f.meta).toBe("Blusas y camisetas");
   });
 
   it("con variantes junta a las hermanas en orden y suma las de todas", () => {

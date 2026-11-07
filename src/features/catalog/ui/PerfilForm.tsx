@@ -10,7 +10,7 @@ import { campoCompra, CampoWhatsApp } from "./camposCompra";
 
 const t = textos.explorar.cuenta;
 
-const seccion = "flex flex-col gap-4 rounded-[22px] border-2 border-teal-oscuro bg-white p-5 shadow-dura-chica";
+const seccion = "flex flex-col gap-4 rounded-[22px] border border-teal-oscuro bg-white p-5 shadow-dura-chica";
 
 /** Los datos y la dirección de entrega de la cuenta, para editarlos. */
 export function PerfilForm({ datos }: { datos: DatosDeCuenta }) {
@@ -84,7 +84,7 @@ export function PerfilForm({ datos }: { datos: DatosDeCuenta }) {
         <button
           type="submit"
           disabled={pendiente}
-          className="inline-flex min-h-11 items-center rounded-full border-2 border-teal-oscuro bg-accion px-6 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura disabled:opacity-60"
+          className="inline-flex min-h-11 items-center rounded-full border border-teal-oscuro bg-accion px-6 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura disabled:opacity-60"
         >
           {pendiente ? t.guardando : t.guardar}
         </button>

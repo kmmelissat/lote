@@ -9,7 +9,7 @@ export function ChipCaja({ cajaDesde }: { cajaDesde: string | null }) {
   return (
     <Link
       href="/vender/caja"
-      className={`flex min-h-11 items-center gap-2 self-start rounded-full border-2 border-teal-oscuro px-4 text-sm font-medium ${cajaDesde ? "bg-teal-fondo" : "bg-limon"}`}
+      className={`flex min-h-11 items-center gap-2 self-start rounded-full border border-teal-oscuro px-4 text-sm font-medium ${cajaDesde ? "bg-teal-fondo" : "bg-limon"}`}
     >
       <Icon nombre={cajaDesde ? "efectivo" : "alerta"} className="size-4" />
       {cajaDesde

@@ -10,7 +10,7 @@ export function FichaDelProducto({ detalles, estado, usado }: { detalles: { nomb
   return (
     <Plegable titulo={t.titulo}>
       {usado && estado && (
-        <p className="flex items-start gap-2 rounded-2xl bg-limon px-4 py-3 text-sm font-medium">
+        <p className="flex items-start gap-2 rounded-2xl bg-accion/20 px-4 py-3 text-sm font-medium">
           <Icon nombre="info" className="mt-0.5 size-4 shrink-0" />
           <span>
             <span className="font-bold">{t.estado}:</span> {estado}

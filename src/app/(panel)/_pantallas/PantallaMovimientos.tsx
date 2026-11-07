@@ -172,7 +172,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
       />
       <div className="flex flex-col gap-4">
         {/* Un solo bloque de filtros, arriba: el periodo, qué ver, el método y la búsqueda mandan sobre los totales, el gráfico y la lista */}
-        <section aria-label={t.filtros} className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4">
+        <section aria-label={t.filtros} className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-superficie p-4">
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
             <Pestanas
               etiqueta={t.periodos}

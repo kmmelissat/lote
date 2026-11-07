@@ -15,7 +15,7 @@ import { MensajeError } from "@/components/ui/MensajeError";
 import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { useAvisarListo, useToast } from "@/components/ui/Toast";
 import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
-import { subirLogo } from "@/lib/subirFotos";
+import { subirBanner, subirLogo } from "@/lib/subirFotos";
 import { urlFoto } from "@/lib/fotos";
 import { slugDe } from "@/lib/slug";
 import { urlSitio } from "@/lib/sitio";
@@ -61,7 +61,7 @@ function Muestra({ hex, nombre, elegido, onElegir }: { hex: string; nombre: stri
     >
       <span
         style={{ backgroundColor: hex, color: textoSobre(hex) }}
-        className={`flex size-11 items-center justify-center rounded-full border-2 border-teal-oscuro ${elegido ? "ring-2 ring-texto ring-offset-2" : ""}`}
+        className={`flex size-11 items-center justify-center rounded-full border border-teal-oscuro ${elegido ? "ring-2 ring-texto ring-offset-2" : ""}`}
       >
         {elegido && <Icon nombre="check" className="size-4" />}
       </span>
@@ -89,6 +89,9 @@ export function TiendaForm({
   const [frase, setFrase] = useState(identidad.descripcion ?? "");
   const [color, setColor] = useState(colorDeMarca(identidad.color).hex);
   const [logo, setLogo] = useState(identidad.logo ?? "");
+  const [banner, setBanner] = useState(identidad.banner ?? "");
+  const [subiendoBanner, setSubiendoBanner] = useState(false);
+  const [errorBanner, setErrorBanner] = useState<string>();
   const [whatsapp, setWhatsapp] = useState(() =>
     telefonoElSalvador(identidad.whatsapp ?? "") ? digitosLocales(identidad.whatsapp ?? "") : "",
   );
@@ -158,6 +161,19 @@ export function TiendaForm({
     }
   }
 
+  async function elegirBanner(archivo: File | undefined) {
+    if (!archivo) return;
+    setSubiendoBanner(true);
+    setErrorBanner(undefined);
+    try {
+      setBanner(await subirBanner(archivo, negocioId));
+    } catch {
+      setErrorBanner(t.errorBanner);
+    } finally {
+      setSubiendoBanner(false);
+    }
+  }
+
   async function sacarDelLogo() {
     if (!logo) return;
     try {
@@ -173,6 +189,7 @@ export function TiendaForm({
     <form ref={formulario} action={accion} onInput={revisarCambios} onChange={revisarCambios} className="flex min-w-0 flex-col gap-4">
       <input type="hidden" name="logo" value={logo} />
       <input type="hidden" name="color" value={color} />
+      <input type="hidden" name="banner" value={banner} />
 
       <div className="flex min-w-0 flex-col">
           <Seccion id="tienda" className={activa === "tienda" ? "" : "hidden"}>
@@ -181,7 +198,7 @@ export function TiendaForm({
                 <div className="flex w-24 shrink-0 flex-col gap-1.5">
                   <p className="text-sm font-medium">{t.logo}</p>
                   <div className="relative size-20">
-                    <Logo ruta={logo} nombre={nombre} color={color} className="size-20 rounded-2xl border-2 border-teal-oscuro" />
+                    <Logo ruta={logo} nombre={nombre} color={color} className="size-20 rounded-2xl border border-teal-oscuro" />
                     <input
                       ref={entrada}
                       type="file"
@@ -194,7 +211,7 @@ export function TiendaForm({
                     <label
                       htmlFor="archivo-logo"
                       title={subiendo ? t.subiendoLogo : logo ? t.cambiarLogo : t.subirLogo}
-                      className="absolute -bottom-1 -right-1 flex size-10 cursor-pointer items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro shadow-dura-chica"
+                      className="absolute -bottom-1 -right-1 flex size-10 cursor-pointer items-center justify-center rounded-full border border-teal-oscuro bg-white text-teal-oscuro shadow-dura-chica"
                     >
                       <Icon nombre="camara" className="size-4" />
                       <span className="sr-only">{subiendo ? t.subiendoLogo : logo ? t.cambiarLogo : t.subirLogo}</span>
@@ -222,6 +239,39 @@ export function TiendaForm({
                   </div>
                 </div>
               </div>
+              <div className="flex flex-col gap-1.5">
+                <p className="text-sm font-medium">{t.banner}</p>
+                <div className="relative aspect-[4/1] w-full overflow-hidden rounded-2xl border border-teal-oscuro" style={{ backgroundColor: color }}>
+                  {banner && <Image src={urlFoto(banner)} alt="" fill sizes="(min-width: 768px) 640px, 100vw" className="object-cover" />}
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    id="archivo-banner"
+                    onChange={(e) => {
+                      void elegirBanner(e.target.files?.[0]);
+                      e.target.value = "";
+                    }}
+                    disabled={subiendoBanner}
+                  />
+                  <label
+                    htmlFor="archivo-banner"
+                    className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-teal-oscuro bg-white px-4 text-sm font-bold text-teal-oscuro"
+                  >
+                    <Icon nombre="camara" className="size-4" />
+                    {subiendoBanner ? t.subiendoBanner : banner ? t.cambiarBanner : t.subirBanner}
+                  </label>
+                  {banner && (
+                    <button type="button" onClick={() => setBanner("")} className="text-sm font-medium text-texto-2 underline hover:text-teal-oscuro">
+                      {t.quitarBanner}
+                    </button>
+                  )}
+                </div>
+                <p className="text-sm text-texto-2">{t.bannerAyuda}</p>
+                <MensajeError>{errorBanner}</MensajeError>
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field etiqueta={t.instagram} name="instagram" autoComplete="off" placeholder={t.instagramPlaceholder} value={instagram} onChange={(e) => setInstagram(e.target.value)} />
                 <Field etiqueta={t.facebook} name="facebook" autoComplete="off" placeholder={t.facebookPlaceholder} value={facebook} onChange={(e) => setFacebook(e.target.value)} />
@@ -230,14 +280,14 @@ export function TiendaForm({
               </div>
             </Bloque>
 
-            <Bloque titulo={v.opcional.titulo} texto={v.opcional.texto} tono="mango" className="border-t-2 border-teal-oscuro/15 pt-5">
+            <Bloque titulo={v.opcional.titulo} texto={v.opcional.texto} tono="mango" className="border-t border-teal-oscuro/15 pt-5">
               <Interruptor name="vitrina" titulo={v.opcional.interruptor} ayuda={v.opcional.ayuda} activo={vitrina} onCambio={setVitrina} />
               {!vitrina && <Aviso>{v.opcional.apagada}</Aviso>}
               <div className={`flex flex-col gap-1.5 ${vitrina ? "" : "hidden"}`}>
                 <label htmlFor="direccion-vitrina" className="text-sm font-medium">
                   {v.miEnlace}
                 </label>
-                <div className="flex h-12 min-w-0 items-center overflow-hidden rounded-[14px] border-2 border-borde-control bg-superficie focus-within:border-teal">
+                <div className="flex h-12 min-w-0 items-center overflow-hidden rounded-[14px] border border-borde-control bg-superficie focus-within:border-teal">
                   <span className="shrink-0 bg-fondo px-3 py-3.5 text-sm text-texto-2">{urlSitio.replace(/^https?:\/\//, "")}/c/</span>
                   <input
                     id="direccion-vitrina"
@@ -277,7 +327,7 @@ export function TiendaForm({
               </div>
             </Bloque>
 
-            <Bloque titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto} tono="rosa" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
+            <Bloque titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto} tono="rosa" className={`border-t border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <Interruptor name="comprar" titulo={v.comprar} ayuda={v.comprarAyuda} activo={comprar} onCambio={setComprar} />
               <Interruptor name="apartar" titulo={v.apartar} ayuda={v.apartarAyuda} activo={apartar} onCambio={setApartar} />
               <Aviso>{!comprar && !apartar ? v.modoCatalogo : comprar && apartar ? v.modoAmbos : comprar ? v.modoComprar : v.modoApartar}</Aviso>
@@ -290,7 +340,7 @@ export function TiendaForm({
               </Replegable>
             </Bloque>
 
-            <Bloque titulo={v.look.titulo} texto={v.look.texto} tono="celeste" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
+            <Bloque titulo={v.look.titulo} texto={v.look.texto} tono="celeste" className={`border-t border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <div className="grid items-start gap-6 lg:grid-cols-2">
                 <div className="flex min-w-0 flex-col gap-4">
                   <Field etiqueta={t.frase} name="frase" maxLength={120} placeholder={t.fraseAyuda} value={frase} onChange={(e) => setFrase(e.target.value)} />
@@ -302,8 +352,8 @@ export function TiendaForm({
                       ))}
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <label className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border-2 border-teal-oscuro bg-white px-3 text-sm font-bold ${propio ? "ring-2 ring-texto ring-offset-2" : ""}`}>
-                        <span className="relative size-7 overflow-hidden rounded-full border-2 border-teal-oscuro" style={{ backgroundColor: color }}>
+                      <label className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border border-teal-oscuro bg-white px-3 text-sm font-bold ${propio ? "ring-2 ring-texto ring-offset-2" : ""}`}>
+                        <span className="relative size-7 overflow-hidden rounded-full border border-teal-oscuro" style={{ backgroundColor: color }}>
                           <input type="color" value={color} onChange={(e) => setColor(e.target.value.toLowerCase())} aria-label={t.colorPropio} className="absolute inset-0 size-full cursor-pointer opacity-0" />
                         </span>
                         {t.colorPropio}
@@ -327,15 +377,15 @@ export function TiendaForm({
                 </div>
                 <div style={estiloDeMarca(color)} className="lg:sticky lg:top-4">
                   <p className="mb-2 text-sm font-medium">{t.vistaPrevia}</p>
-                  <div className="overflow-hidden rounded-3xl border-2 border-teal-oscuro bg-superficie">
+                  <div className="overflow-hidden rounded-3xl border border-teal-oscuro bg-superficie">
                     <div aria-hidden="true" className="h-7 bg-accion" />
                     <div className="flex flex-col gap-3 px-4 pb-4">
-                      <Logo ruta={logo} nombre={nombre} color={color} className="-mt-5 size-14 rounded-2xl border-4 border-superficie ring-2 ring-teal-oscuro" />
+                      <Logo ruta={logo} nombre={nombre} color={color} className="-mt-5 size-14 rounded-2xl border border-superficie ring-2 ring-teal-oscuro" />
                       <div className="min-w-0">
                         <p className="text-xl font-bold leading-tight">{nombre.trim() || identidad.nombre}</p>
                         {frase.trim() ? <p className="mt-1 text-sm leading-relaxed text-texto-2">{frase}</p> : null}
                       </div>
-                      <span className="inline-flex h-10 w-fit max-w-full items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-5 text-sm font-bold text-accion-texto">
+                      <span className="inline-flex h-10 w-fit max-w-full items-center justify-center rounded-full border border-teal-oscuro bg-accion px-5 text-sm font-bold text-accion-texto">
                         {textos.vitrina.pedirWhatsApp}
                       </span>
                     </div>
@@ -344,7 +394,7 @@ export function TiendaForm({
               </div>
             </Bloque>
 
-            <Bloque titulo={v.confianza.titulo} texto={v.confianza.texto} tono="rosa" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
+            <Bloque titulo={v.confianza.titulo} texto={v.confianza.texto} tono="rosa" className={`border-t border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field etiqueta={v.confianza.tiempo} name="tiempo_entrega" maxLength={80} placeholder={v.confianza.tiempoPlaceholder} defaultValue={ajustes.tiempoEntrega ?? ""} />
                 <div className="flex flex-col gap-1.5">
@@ -356,7 +406,7 @@ export function TiendaForm({
               </div>
             </Bloque>
 
-            <Bloque titulo={v.grupos.explorar.titulo} texto={v.grupos.explorar.texto} tono="limon" className={`border-t-2 border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
+            <Bloque titulo={v.grupos.explorar.titulo} texto={v.grupos.explorar.texto} tono="limon" className={`border-t border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
               <Interruptor name="explorar" titulo={v.explorar} ayuda={v.explorarAyuda} activo={explorar} onCambio={setExplorar} />
               <Link href="/marketplace" target="_blank" className="inline-flex min-h-11 items-center gap-2 self-start font-bold text-teal underline">
                 {v.verExplorar}
@@ -387,12 +437,12 @@ export function TiendaForm({
               </fieldset>
             </Bloque>
 
-            <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste" className="border-t-2 border-teal-oscuro/15 pt-5">
+            <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste" className="border-t border-teal-oscuro/15 pt-5">
               <Interruptor name="local" titulo={v.local.interruptor} ayuda={v.local.ayuda} activo={local} onCambio={setLocal} />
               {local && <Aviso>{v.local.prendido}</Aviso>}
             </Bloque>
 
-            <Bloque titulo={v.grupos.stock.titulo} texto={v.grupos.stock.texto} tono="mango" className="border-t-2 border-teal-oscuro/15 pt-5">
+            <Bloque titulo={v.grupos.stock.titulo} texto={v.grupos.stock.texto} tono="mango" className="border-t border-teal-oscuro/15 pt-5">
               <div className="flex max-w-sm flex-col gap-1">
                 <Field etiqueta={v.umbral} name="umbral" type="number" min={0} max={50} inputMode="numeric" defaultValue={ajustes.umbralPocoStock} />
                 <p className="text-sm text-texto-2">{v.umbralAyuda}</p>
@@ -433,7 +483,7 @@ export function TiendaForm({
                           setContexto(`${base ? `${base}\n` : ""}${idea.inicio}`.slice(0, LIMITE_CONTEXTO));
                           document.getElementById(idContexto)?.focus();
                         }}
-                        className="inline-flex min-h-11 items-center gap-1.5 rounded-full border-2 border-borde-control bg-superficie px-4 text-sm font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo md:min-h-10"
+                        className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-borde-control bg-superficie px-4 text-sm font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo md:min-h-10"
                       >
                         <Icon nombre="mas" className="size-4" />
                         {idea.titulo}

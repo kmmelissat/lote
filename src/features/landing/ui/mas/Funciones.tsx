@@ -35,7 +35,7 @@ function Recorte({ de }: { de: ClaveBloque }) {
     return (
       <dl className="mt-auto grid grid-cols-3 gap-2">
         {f.estado.contadores.map(([n, etiqueta]) => (
-          <div key={etiqueta} className="flex flex-col items-center rounded-2xl border-2 border-teal-oscuro bg-celeste-palido py-2">
+          <div key={etiqueta} className="flex flex-col items-center rounded-2xl border border-teal-oscuro bg-celeste-palido py-2">
             <dd className="text-2xl font-extrabold leading-none tabular-nums">{n}</dd>
             <dt className="mt-1 text-[11px] font-bold text-texto-2">{etiqueta}</dt>
           </div>
@@ -56,7 +56,7 @@ function Recorte({ de }: { de: ClaveBloque }) {
     return (
       <ul className="mt-auto flex flex-wrap gap-2">
         {f.modos.opciones.map((o, i) => (
-          <li key={o} className={`rounded-full border-2 border-teal-oscuro px-4 py-1.5 text-sm font-extrabold shadow-dura-chica ${["bg-mango", "bg-white", "bg-celeste"][i]}`}>
+          <li key={o} className={`rounded-full border border-teal-oscuro px-4 py-1.5 text-sm font-extrabold shadow-dura-chica ${["bg-mango", "bg-white", "bg-celeste"][i]}`}>
             {o}
           </li>
         ))}
@@ -65,14 +65,14 @@ function Recorte({ de }: { de: ClaveBloque }) {
   }
   if (de === "balance") {
     return (
-      <dl className="mt-auto flex flex-col gap-1.5 rounded-2xl border-2 border-teal-oscuro bg-white p-3 text-sm font-bold">
+      <dl className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-teal-oscuro bg-white p-3 text-sm font-bold">
         {f.balance.filas.map(([nombre, valor]) => (
           <div key={nombre} className="flex justify-between gap-2">
             <dt>{nombre}</dt>
             <dd className="tabular-nums">{valor}</dd>
           </div>
         ))}
-        <div className="mt-1 flex justify-between gap-2 border-t-2 border-teal-oscuro pt-2 text-base font-extrabold">
+        <div className="mt-1 flex justify-between gap-2 border-t border-teal-oscuro pt-2 text-base font-extrabold">
           <dt>{f.balance.total[0]}</dt>
           <dd className="tabular-nums">{f.balance.total[1]}</dd>
         </div>
@@ -81,16 +81,16 @@ function Recorte({ de }: { de: ClaveBloque }) {
   }
   if (de === "mostrador") {
     return (
-      <div className="mt-auto flex flex-col gap-1 rounded-2xl border-2 border-teal-oscuro bg-white p-3 text-sm font-bold">
+      <div className="mt-auto flex flex-col gap-1 rounded-2xl border border-teal-oscuro bg-white p-3 text-sm font-bold">
         {f.mostrador.lineas.map(([nombre, valor]) => (
           <div key={nombre} className="flex justify-between gap-2">
             <span>{nombre}</span>
             <span className="tabular-nums">{valor}</span>
           </div>
         ))}
-        <div className="mt-1 flex items-center justify-between gap-2 border-t-2 border-teal-oscuro pt-2 font-extrabold">
+        <div className="mt-1 flex items-center justify-between gap-2 border-t border-teal-oscuro pt-2 font-extrabold">
           <span>{f.mostrador.total}</span>
-          <span className="rounded-full border-2 border-teal-oscuro bg-mango px-3 py-0.5">{f.mostrador.cobrar}</span>
+          <span className="rounded-full border border-teal-oscuro bg-mango px-3 py-0.5">{f.mostrador.cobrar}</span>
         </div>
       </div>
     );
@@ -152,7 +152,7 @@ function GrupoFunciones({ titulo, intro, bloques, desde = 0 }: { titulo: string;
           return (
             <ApareceItem
               key={b.clave}
-              className={`flex min-h-44 flex-col gap-3 rounded-[28px] border-[3px] border-teal-oscuro p-6 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:-translate-y-1 ${b.color} ${b.span} ${(n + desde) % 2 ? "md:hover:rotate-1" : "md:hover:-rotate-1"}`}
+              className={`flex min-h-44 flex-col gap-3 rounded-[28px] border border-teal-oscuro p-6 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:-translate-y-1 ${b.color} ${b.span} ${(n + desde) % 2 ? "md:hover:rotate-1" : "md:hover:-rotate-1"}`}
             >
               <h4 className="text-[26px] font-extrabold leading-[1.05] tracking-tight text-teal-oscuro">{x.titulo}</h4>
               <p className="text-[16px] font-medium leading-relaxed text-teal-oscuro/90">{x.texto}</p>

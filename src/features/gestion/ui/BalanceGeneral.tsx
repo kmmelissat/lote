@@ -20,7 +20,7 @@ type CuentaConSaldo = Cuenta & { saldo: number | null };
 function FilaCuenta({ cuenta: c, editable }: { cuenta: CuentaConSaldo; editable: boolean }) {
   return (
     <li className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[28px] bg-fondo p-2 pr-4">
-      <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-limon">
+      <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-limon">
         <Icon nombre={c.tipo === "efectivo" ? "efectivo" : "banco"} className="size-5 text-teal-oscuro" />
       </span>
       <span className="min-w-0 flex-1 basis-32">
@@ -32,7 +32,7 @@ function FilaCuenta({ cuenta: c, editable }: { cuenta: CuentaConSaldo; editable:
         )}
       </span>
       {c.saldo === null ? (
-        <span className="rounded-full border-2 border-teal-oscuro bg-limon px-3 py-1 text-sm font-bold">{textos.gestion.saldo.sinSaldoFila}</span>
+        <span className="rounded-full border border-teal-oscuro bg-limon px-3 py-1 text-sm font-bold">{textos.gestion.saldo.sinSaldoFila}</span>
       ) : (
         <span className={`font-logo text-2xl font-bold tabular-nums ${c.saldo < 0 ? "text-error" : ""}`}>
           {c.saldo < 0 ? "−" : ""}
@@ -50,7 +50,7 @@ function FilaCuenta({ cuenta: c, editable }: { cuenta: CuentaConSaldo; editable:
 /** Las cuentas del negocio, a todo el ancho: es lo que se toca seguido (saldos, mover dinero) */
 function TusCuentas({ cuentas, editables, tarjetas }: { cuentas: readonly CuentaConSaldo[]; editables: boolean; tarjetas: readonly FilaTarjeta[] }) {
   return (
-    <section aria-labelledby="tus-cuentas" className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5">
+    <section aria-labelledby="tus-cuentas" className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-superficie p-4 md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <div>
           <h3 id="tus-cuentas" className="font-logo text-lg font-bold">
@@ -135,7 +135,7 @@ export function BalanceGeneral({
 
   return (
     <section aria-labelledby="patrimonio" className="flex flex-col gap-4">
-      <div className="overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie">
+      <div className="overflow-hidden rounded-[24px] border border-teal-oscuro bg-superficie">
         <div
           className="grid grid-cols-1 items-center gap-2 p-4 md:grid-cols-[1fr_auto_1fr_auto_1.25fr] md:gap-4 md:p-5"
           role="group"
@@ -159,18 +159,18 @@ export function BalanceGeneral({
             </p>
           </div>
         </div>
-        {ganancia && <div className="border-t-2 border-teal-oscuro bg-teal-oscuro px-4 py-4 text-white md:px-5">{ganancia}</div>}
+        {ganancia && <div className="border-t border-teal-oscuro bg-teal-oscuro px-4 py-4 text-white md:px-5">{ganancia}</div>}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5">
+        <div className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-superficie p-4 md:p-5">
           <div>
             <h3 className="font-logo text-lg font-bold">{t.activosTitulo}</h3>
           </div>
           <ul className="flex flex-col gap-3">
             {activos.map((a) => (
               <li key={a.clave} className="flex items-start gap-3">
-                <span aria-hidden="true" className={`mt-0.5 size-7 shrink-0 rounded-full border-2 border-teal-oscuro ${COLOR[a.clave]}`} />
+                <span aria-hidden="true" className={`mt-0.5 size-7 shrink-0 rounded-full border border-teal-oscuro ${COLOR[a.clave]}`} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="font-bold">{t.partes[a.clave]}</span>
@@ -181,13 +181,13 @@ export function BalanceGeneral({
               </li>
             ))}
           </ul>
-          <p className="mt-auto flex items-center justify-between gap-2 border-t-2 border-dotted border-teal-oscuro/40 pt-2 font-bold">
+          <p className="mt-auto flex items-center justify-between gap-2 border-t border-dotted border-teal-oscuro/40 pt-2 font-bold">
             {t.total}
             <span className="font-logo text-lg tabular-nums">{formatearDolares(balance.activos)}</span>
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 md:p-5">
+        <div className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-superficie p-4 md:p-5">
           <div>
             <h3 className="font-logo text-lg font-bold">{t.pasivosTitulo}</h3>
             <p className="text-sm text-texto-2">{t.pasivosAyuda}</p>
@@ -196,7 +196,7 @@ export function BalanceGeneral({
             <ul className="flex flex-col gap-3">
               {filasPasivos.map((f) => (
                 <li key={f.clave} className="flex items-start gap-3">
-                  <span aria-hidden="true" className="mt-0.5 size-7 shrink-0 rounded-full border-2 border-teal-oscuro bg-rosa" />
+                  <span aria-hidden="true" className="mt-0.5 size-7 shrink-0 rounded-full border border-teal-oscuro bg-rosa" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="font-bold">{f.etiqueta}</span>
@@ -210,7 +210,7 @@ export function BalanceGeneral({
           ) : (
             <p className="text-sm text-texto-2">{t.sinPasivos}</p>
           )}
-          <p className="mt-auto flex items-center justify-between gap-2 border-t-2 border-dotted border-teal-oscuro/40 pt-2 font-bold">
+          <p className="mt-auto flex items-center justify-between gap-2 border-t border-dotted border-teal-oscuro/40 pt-2 font-bold">
             {t.total}
             <span className="font-logo text-lg tabular-nums">{formatearDolares(balance.pasivos)}</span>
           </p>
@@ -219,7 +219,7 @@ export function BalanceGeneral({
 
       <TusCuentas cuentas={cuentas} editables={editables} tarjetas={tarjetasDeCredito} />
 
-      <details className="group rounded-[24px] border-2 border-teal-oscuro/30 bg-superficie">
+      <details className="group rounded-[24px] border border-teal-oscuro/30 bg-superficie">
         <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 py-2 font-bold md:px-5">
           {t.comoLeer.titulo}
           <Icon nombre="flecha" className="size-5 shrink-0 text-texto-2 transition-transform group-open:rotate-180" />

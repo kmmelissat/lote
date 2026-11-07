@@ -71,7 +71,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
   const lista = (
     <ul className="mt-2 flex flex-col gap-2">
       {metodosAMostrar.map((m) => (
-        <li key={m.tipo} className="flex items-start gap-3 rounded-2xl border-2 border-teal-oscuro/30 bg-white p-3">
+        <li key={m.tipo} className="flex items-start gap-3 rounded-2xl border border-teal-oscuro/30 bg-white p-3">
           <Icon nombre="banco" className="mt-0.5 size-5 shrink-0 text-teal" />
           <div className="min-w-0">
             <p className="font-bold">{textos.cobro.metodos[m.tipo]}</p>
@@ -98,7 +98,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
                 <span className="text-teal">#{a.codigo}</span>
               </h1>
               {vigente && a.venceEn && !a.contraEntrega && (
-                <span role="status" className="inline-flex items-center gap-1.5 rounded-full bg-limon px-3 py-0.5 text-sm font-bold text-teal-oscuro">
+                <span role="status" className="inline-flex items-center gap-1.5 rounded-full bg-accion/20 px-3 py-0.5 text-sm font-bold text-teal-oscuro">
                   <Icon nombre="reloj" className="size-4" />
                   {t.vence(tiempoRestante(a.venceEn, ahora))}
                 </span>
@@ -119,7 +119,7 @@ export async function ConfirmacionPedido({ params, searchParams }: Pick<PageProp
           </header>
 
           {vencido && (
-            <p role="status" className="rounded-2xl border-2 border-error bg-error-fondo px-4 py-3 font-medium text-error">
+            <p role="status" className="rounded-2xl border border-error bg-error-fondo px-4 py-3 font-medium text-error">
               {a.estado === "cancelado" ? t.cancelado : compra ? t.vencidoCompra : t.vencido}
             </p>
           )}

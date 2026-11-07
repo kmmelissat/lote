@@ -35,7 +35,7 @@ export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
       }}
       className="relative flex flex-col gap-4"
     >
-      <p className="rounded-2xl bg-limon px-4 py-2 text-sm font-medium">{c.apartarExplica(plazoHoras)}</p>
+      <p className="rounded-2xl bg-accion/20 px-4 py-2 text-sm font-medium">{c.apartarExplica(plazoHoras)}</p>
       <Honeypot />
       <input type="hidden" name="cantidad" value={unidades} />
       {/* La key vuelve a pintar los campos cuando llegan los datos guardados de la compra anterior */}
@@ -55,7 +55,7 @@ export function ApartarForm({ slug, codigo, unidades, plazoHoras }: Props) {
       <button
         type="submit"
         disabled={pendiente || !acepta}
-        className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+        className="inline-flex h-12 items-center justify-center rounded-full border border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
       >
         {pendiente ? t.apartando : c.apartarListo}
       </button>

@@ -45,7 +45,7 @@ export function BotonCuenta({ className }: { className: string }) {
           <Icon nombre="usuario" className="size-6" />
         </button>
         {abierto && (
-          <div role="menu" className="absolute right-0 top-full z-50 mt-2 flex w-56 flex-col gap-0.5 rounded-2xl border-2 border-teal-oscuro bg-crema p-2 shadow-dura-chica">
+          <div role="menu" className="absolute right-0 top-full z-50 mt-2 flex w-56 flex-col gap-0.5 rounded-2xl border border-teal-oscuro bg-crema p-2 shadow-dura-chica">
             <Link role="menuitem" href="/marketplace/cuenta" onClick={cerrar} className={itemMenu}>
               <Icon nombre="usuario" className="size-5" />
               {e.cuenta}
@@ -72,7 +72,7 @@ export function BotonCuenta({ className }: { className: string }) {
         <Icon nombre="usuario" className="size-6" />
       </button>
       <Ventana ref={ventana} titulo={e.entrarTitulo} ayuda={e.entrarAyuda}>
-        <div className="relative flex items-center gap-3 rounded-[18px] border-2 border-teal-oscuro bg-limon p-4 pr-24">
+        <div className="relative flex items-center gap-3 rounded-[18px] border border-teal-oscuro bg-limon p-4 pr-24">
           <ul className="flex flex-col gap-1.5 text-sm font-bold text-teal-oscuro">
             {e.entrarBeneficios.map((b) => (
               <li key={b} className="flex items-start gap-2">

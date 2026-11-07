@@ -21,7 +21,7 @@ export function CopiarGuia({ guia, paquetera }: { guia: string; paquetera: strin
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-[24px] border-2 border-teal-oscuro bg-celeste-palido p-4 shadow-dura-chica">
+    <div className="flex items-center justify-between gap-3 rounded-[24px] border border-teal-oscuro bg-celeste-palido p-4 shadow-dura-chica">
       <div className="min-w-0">
         <p className="text-sm font-medium text-texto-2">{paquetera ? t.guiaDe(paquetera) : t.guia}</p>
         <p className="break-all font-logo text-2xl font-semibold tracking-wide">{guia}</p>

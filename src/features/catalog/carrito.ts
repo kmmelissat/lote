@@ -1,6 +1,6 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { suscribirAEventos } from "@/lib/eventosVentana";
-import { lineasDe, MAX_CANTIDAD, MAX_LINEAS, type LineaCarrito } from "./carritoReglas";
+import { cookieCarrito, lineasDe, MAX_CANTIDAD, MAX_LINEAS, type LineaCarrito } from "./carritoReglas";
 
 // El carrito vive en el navegador de quien compra (uno por tienda): solo guarda qué producto y cuántas unidades.
 // Los precios y el stock se piden al servidor cada vez que se mira, así nunca quedan viejos.
@@ -18,12 +18,19 @@ function crudo(slug: string): string {
   }
 }
 
+/** Copia el carrito a una cookie (solo qué y cuántas, como en el navegador) para que el servidor pinte el carrito ya armado. */
+export function copiarACookie(slug: string, texto = crudo(slug)) {
+  const valor = encodeURIComponent(JSON.stringify(lineasDe(texto)));
+  document.cookie = `${cookieCarrito(slug)}=${valor}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+}
+
 function guardar(slug: string, lineas: LineaCarrito[]) {
   try {
     localStorage.setItem(clave(slug), JSON.stringify(lineas));
   } catch {
     // Sin almacenamiento (modo privado, cuota llena) el carrito no se guarda; el aviso de abajo igual repinta
   }
+  copiarACookie(slug, JSON.stringify(lineas));
   window.dispatchEvent(new Event(EVENTO));
 }
 
@@ -63,12 +70,12 @@ export function vaciarCarrito(slug: string) {
 
 const suscribir = suscribirAEventos(EVENTO);
 
-/** El carrito de esta tienda. En el servidor y en el primer pintado está vacío; el navegador lo llena al hidratar. */
-export function useCarrito(slug: string): LineaCarrito[] {
+/** El carrito de esta tienda. En el servidor y en el primer pintado es `inicial` (lo que el servidor leyó de la cookie, o vacío); el navegador lo corrige al hidratar. */
+export function useCarrito(slug: string, inicial = ""): LineaCarrito[] {
   const texto = useSyncExternalStore(
     suscribir,
     () => crudo(slug),
-    () => "",
+    () => inicial,
   );
   return useMemo(() => lineasDe(texto), [texto]);
 }

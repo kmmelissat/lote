@@ -19,7 +19,7 @@ export function GaleriaProducto({ fotos, nombre, de = {} }: { fotos: string[]; n
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${nombre}, ${t.fotos.foto(i + 1).toLowerCase()}${de[ruta] ? ` · ${de[ruta]}` : ""} (se abre en una pestaña nueva)`}
-            className="group relative block aspect-square overflow-hidden rounded-2xl border-2 border-teal-oscuro bg-teal-fondo"
+            className="group relative block aspect-square overflow-hidden rounded-2xl border border-teal-oscuro bg-teal-fondo"
           >
             <Image
               src={urlFoto(ruta)}

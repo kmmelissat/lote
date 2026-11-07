@@ -9,7 +9,7 @@ import { HORAS_APARTADO_FRIO, type ResumenInicio } from "../resumen";
 
 const t = textos.inicio;
 
-const fila = "flex min-h-12 items-center gap-3 rounded-xl border-2 border-teal-oscuro bg-superficie px-3 py-2 font-medium transition-colors hover:bg-teal-fondo";
+const fila = "flex min-h-12 items-center gap-3 rounded-xl border border-teal-oscuro bg-superficie px-3 py-2 font-medium transition-colors hover:bg-teal-fondo";
 
 /** Una fila de acción: ícono, qué es y a dónde lleva. */
 function Fila({ href, icono, children }: { href: Route; icono: NombreIcono; children: React.ReactNode }) {
@@ -45,7 +45,7 @@ export function TarjetaAtencion({ r, ahora, pasos, sinAlDia = false }: { r: Resu
     // Una nota adhesiva pegada con cinta: torcida a propósito, con Lotito asomando por arriba.
     <section
       aria-labelledby="atencion"
-      className="relative mb-2 mt-10 flex rotate-[-0.8deg] flex-col md:rotate-[-0.3deg] gap-3 rounded-[10px_10px_24px_10px] border-2 border-teal-oscuro bg-limon p-4 pt-6 shadow-dura before:absolute before:-top-3.5 before:left-1/2 before:h-6 before:w-24 before:-translate-x-1/2 before:rotate-2 before:rounded-sm before:border-2 before:border-teal-oscuro before:bg-rosa/85 before:content-[''] md:p-5 md:pt-7"
+      className="relative mb-2 mt-10 flex rotate-[-0.8deg] flex-col md:rotate-[-0.3deg] gap-3 rounded-[10px_10px_24px_10px] border border-teal-oscuro bg-limon p-4 pt-6 shadow-dura before:absolute before:-top-3.5 before:left-1/2 before:h-6 before:w-24 before:-translate-x-1/2 before:rotate-2 before:rounded-sm before:border before:border-teal-oscuro before:bg-rosa/85 before:content-[''] md:p-5 md:pt-7"
     >
       <LotitoMas nombre="asoma" className="pointer-events-none absolute -top-[3.9rem] right-4 w-28 md:right-8" />
       <h2 id="atencion" className="font-logo text-xl font-semibold">

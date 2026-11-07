@@ -11,7 +11,7 @@ export function CampoBusqueda({ className = "", compacto = false, ...props }: Co
       <Icon nombre="buscar" className={`pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-texto-2 ${compacto ? "size-4" : "size-5"}`} />
       <input
         type="search"
-        className={`w-full rounded-full border-2 bg-superficie placeholder:text-texto-2/70 focus:border-teal ${
+        className={`w-full rounded-full border bg-superficie placeholder:text-texto-2/70 focus:border-teal ${
           compacto ? "h-10 border-borde-control pl-10 pr-4 text-sm max-md:min-h-11" : "h-12 border-teal-oscuro pl-12 pr-4 text-base"
         }`}
         {...props}

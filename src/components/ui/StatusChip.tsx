@@ -24,8 +24,8 @@ export const colorDeEstado = (estado: Estado) => estilos[estado].clase.split(" "
 
 // El sistema de diseño es del panel. La landing, el Marketplace y las vitrinas conservan los colores juguetones de siempre.
 const clasePublica: Partial<Record<Estado, string>> = {
-  disponible: "bg-celeste text-teal-oscuro",
-  poco_stock: "bg-mango text-teal-oscuro",
+  disponible: "bg-(--store-soft,var(--color-accion)) text-(--store-on-soft,var(--color-accion-texto))",
+  poco_stock: "bg-(--store-soft,var(--color-accion)) text-(--store-on-soft,var(--color-accion-texto))",
 };
 
 /** `discreto` quita el borde: para listas donde cada fila lleva un chip y no deben competir. */
@@ -34,7 +34,7 @@ export function StatusChip({ estado, texto, publico = false, discreto = false }:
   const clase = (publico && clasePublica[estado]) || e.clase;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border-2 ${discreto ? "border-transparent" : "border-teal-oscuro"} px-3 py-1 text-sm font-bold ${clase}`}
+      className={`inline-flex items-center gap-1 rounded-full border ${discreto ? "border-transparent" : "border-teal-oscuro"} px-3 py-1 text-sm font-bold ${clase}`}
     >
       <Icon nombre={e.icono} className="size-4" />
       {texto ?? e.texto}

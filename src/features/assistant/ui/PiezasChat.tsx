@@ -6,8 +6,8 @@ import { bloquesDe, type Trozo } from "../formatoRespuesta";
 export function AvatarLotito({ className = "size-8", enLinea = false }: { className?: string; enLinea?: boolean }) {
   return (
     <span aria-hidden="true" className={`relative flex shrink-0 ${className}`}>
-      <Image src="/landing/lotito-avatar.webp" alt="" width={96} height={96} className="size-full rounded-full border-2 border-teal-oscuro bg-limon object-cover" />
-      {enLinea && <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white bg-teal" />}
+      <Image src="/landing/lotito-avatar.webp" alt="" width={96} height={96} className="size-full rounded-full border border-teal-oscuro bg-limon object-cover" />
+      {enLinea && <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border border-white bg-teal" />}
     </span>
   );
 }
@@ -50,7 +50,7 @@ export function TextoLotito({ texto }: { texto: string }) {
 /** Tres puntitos que saltan, dentro de una burbuja: Lotito está escribiendo. */
 export function Escribiendo({ etiqueta }: { etiqueta: string }) {
   return (
-    <span role="status" className="flex items-center gap-1 rounded-2xl rounded-bl-md border-2 border-teal-oscuro bg-white px-4 py-3.5">
+    <span role="status" className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-teal-oscuro bg-white px-4 py-3.5">
       <span className="sr-only">{etiqueta}</span>
       {[0, 150, 300].map((demora) => (
         <span key={demora} aria-hidden="true" className="size-2 rounded-full bg-teal-oscuro/60 motion-safe:animate-bounce" style={{ animationDelay: `${demora}ms` }} />

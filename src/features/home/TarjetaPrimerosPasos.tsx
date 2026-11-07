@@ -121,7 +121,7 @@ export function TarjetaPrimerosPasos({
   // Una franja: el siguiente paso y su botón. La lista completa se abre aparte, para no ocupar la pantalla.
   const Envoltura = integrada ? "section" : Card;
   return (
-    <Envoltura role="region" aria-labelledby="primeros-pasos" className={integrada ? "flex flex-col gap-2 rounded-2xl border-2 border-teal-oscuro bg-superficie p-3" : "flex flex-col gap-2 p-3 md:px-5 md:py-3"}>
+    <Envoltura role="region" aria-labelledby="primeros-pasos" className={integrada ? "flex flex-col gap-2 rounded-2xl border border-teal-oscuro bg-superficie p-3" : "flex flex-col gap-2 p-3 md:px-5 md:py-3"}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="flex min-w-0 flex-1 basis-60 flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -139,7 +139,7 @@ export function TarjetaPrimerosPasos({
               {pasos.map((p) => (
                 <span
                   key={p.clave}
-                  className={`size-3 rounded-full border-2 border-teal-oscuro ${p.hecho ? "bg-rosa" : "bg-white"} ${
+                  className={`size-3 rounded-full border border-teal-oscuro ${p.hecho ? "bg-rosa" : "bg-white"} ${
                     nuevos.has(p.clave) ? "ring-2 ring-rosa ring-offset-2 ring-offset-superficie motion-safe:animate-entra" : ""
                   }`}
                 />
@@ -172,7 +172,7 @@ export function TarjetaPrimerosPasos({
                 <div className="flex flex-wrap items-center gap-3">
                   <span
                     aria-hidden="true"
-                    className={`flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${p.hecho ? "bg-teal text-white" : "bg-white"}`}
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-full border border-teal-oscuro ${p.hecho ? "bg-teal text-white" : "bg-white"}`}
                   >
                     {p.hecho && <Icon nombre="check" className="size-3.5" />}
                   </span>

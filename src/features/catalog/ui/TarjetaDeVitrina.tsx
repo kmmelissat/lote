@@ -6,18 +6,19 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Monito } from "@/components/ui/Monito";
+import { Ventana } from "@/components/ui/Ventana";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { TarjetaVitrina } from "../agruparVitrina";
 import { agregarAlCarrito } from "../carrito";
 import { lanzarConfeti } from "./confeti";
-import { fichasParaTarjeta } from "../opciones";
+import { etiquetaDeOpcion, fichasParaTarjeta, type OpcionVariante } from "../opciones";
 
 const t = textos.vitrina;
 
 // Cuántas tallas o colores caben en la tarjeta antes del "+N"
-const MAX_FICHAS = 4;
+const MAX_FICHAS = 2;
 // Cuánto se queda el "Agregado" en el botón
 const MS_AGREGADO = 1600;
 
@@ -33,9 +34,9 @@ export function TarjetaDeVitrina({
   umbral,
   envio,
   puedeComprar,
-  giro,
   prioridad,
   promo = false,
+  compacto = false,
 }: {
   slug: string;
   p: TarjetaVitrina;
@@ -45,10 +46,11 @@ export function TarjetaDeVitrina({
   envio: string | null;
   /** La tienda deja comprar (no solo apartar): sin eso no hay carrito */
   puedeComprar: boolean;
-  giro: string;
   prioridad: boolean;
   /** Lo cubre una promoción vigente (pack, "llevá y pagá") */
   promo?: boolean;
+  /** El nombre ocupa solo lo que mide, sin reservar dos líneas (para filas sueltas fuera de la grilla) */
+  compacto?: boolean;
 }) {
   const libre = p.disponibles > 0;
   const pocas = libre && p.disponibles <= umbral;
@@ -56,23 +58,23 @@ export function TarjetaDeVitrina({
   const fichas = fichasParaTarjeta(p.variantes, p.nombresOpciones);
   // Con una sola opción se agrega directo; con varias hay que elegir en la ficha
   const sticker = !libre
-    ? { texto: p.apartado ? t.apartadoSticker : t.agotadoSticker, fondo: "bg-limon" }
+    ? { texto: p.apartado ? t.apartadoSticker : t.agotadoSticker, fondo: "bg-(--store-soft) text-(--store-on-soft)" }
     : descuento > 0
-      ? { texto: t.etiquetas.oferta(descuento), fondo: "bg-mango font-logo text-sm" }
+      ? { texto: t.etiquetas.oferta(descuento), fondo: "bg-(--store-soft) text-(--store-on-soft)" }
       : promo
-        ? { texto: textos.promociones.enPromocion, fondo: "bg-mango" }
+        ? { texto: textos.promociones.enPromocion, fondo: "bg-(--store-soft) text-(--store-on-soft)" }
         : pocas
-          ? { texto: textos.productos.quedan(p.disponibles), fondo: "bg-limon" }
+          ? { texto: textos.productos.quedan(p.disponibles), fondo: "bg-(--store-soft) text-(--store-on-soft)" }
           : p.nuevo
-            ? { texto: t.etiquetas.nuevo, fondo: "bg-rosa" }
+            ? { texto: t.etiquetas.nuevo, fondo: "bg-(--store-soft) text-(--store-on-soft)" }
             : null;
-  const sePuedeAgregar = puedeComprar && libre && p.opciones === 1;
+  const sePuedeAgregar = puedeComprar && libre;
 
   return (
     <div
-      className={`group relative flex h-full flex-col gap-2 rounded-[22px] border-2 border-teal-oscuro bg-superficie p-1.5 pb-3 shadow-dura-chica transition-[transform,box-shadow] duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-1 hover:shadow-dura ${giro}`}
+      className="group relative flex h-full flex-col gap-2 pb-3"
     >
-      <div className="relative aspect-square overflow-hidden rounded-[17px] bg-teal-fondo">
+      <div className="relative aspect-square overflow-hidden rounded-[22px] bg-teal-fondo">
         {p.fotos[0] ? (
           <Image
             src={urlFoto(p.fotos[0])}
@@ -80,7 +82,7 @@ export function TarjetaDeVitrina({
             fill
             loading={prioridad ? "eager" : "lazy"}
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-            className={`object-cover ${libre ? "" : "opacity-70"}`}
+            className={`object-cover transition-transform duration-300 ease-out group-hover:scale-105 ${libre ? "" : "opacity-70"}`}
           />
         ) : (
           <span aria-hidden="true" className="flex size-full items-center justify-center">
@@ -89,17 +91,26 @@ export function TarjetaDeVitrina({
         )}
         {/* Un solo sticker por tarjeta, el más importante: agotado, oferta, pocas unidades o nuevo */}
         {sticker && (
-          <span className={`absolute left-2 top-2 -rotate-[4deg] rounded-full border-2 border-teal-oscuro px-2.5 py-0.5 text-xs font-extrabold text-teal-oscuro motion-safe:group-hover:animate-meneo ${sticker.fondo}`}>
+          <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-bold ${sticker.fondo}`}>
             {sticker.texto}
           </span>
         )}
-        {sePuedeAgregar && <BotonAgregar slug={slug} codigo={p.codigo} nombre={p.nombre} disponibles={p.disponibles} />}
+        {sePuedeAgregar && (
+          <BotonAgregar
+            slug={slug}
+            codigo={p.codigo}
+            nombre={p.nombre}
+            disponibles={p.disponibles}
+            // Con varias opciones el "+" abre una ventana para elegir cuál
+            opciones={p.opciones > 1 ? p.variantes : null}
+          />
+        )}
       </div>
 
-      <div className="flex flex-1 flex-col items-start gap-1.5 px-2.5 pt-1">
+      <div className="flex flex-1 flex-col items-start gap-1">
         <Link
           href={`/c/${slug}/${p.codigo}`}
-          className="line-clamp-2 min-h-[2.5em] text-sm font-bold leading-tight after:absolute after:inset-0 after:content-['']"
+          className={`line-clamp-2 w-full text-sm ${compacto ? "" : "h-[2.5em]"} font-bold leading-tight after:absolute after:inset-0 after:content-['']`}
         >
           {p.nombre}
         </Link>
@@ -123,24 +134,24 @@ export function TarjetaDeVitrina({
           </p>
         )}
         {fichas ? (
-          <ul className="flex flex-wrap items-center gap-1" aria-label={fichas.titulo}>
+          <ul className="flex h-6 w-full flex-wrap content-start items-center gap-1 overflow-hidden" aria-label={fichas.titulo}>
             {fichas.valores.slice(0, MAX_FICHAS).map((f) => (
               <li
                 key={f.valor}
                 title={f.disponible ? undefined : t.tarjeta.agotadaOpcion}
-                className={`rounded-full border-2 px-2 text-xs font-bold ${
-                  f.disponible ? "border-teal-oscuro" : "border-teal-oscuro/30 text-texto-2 line-through"
+                className={`whitespace-nowrap rounded-full border px-2 text-xs font-bold ${
+                  f.disponible ? "border-teal-oscuro/40" : "border-teal-oscuro/15 text-texto-2 line-through"
                 }`}
               >
                 {f.valor}
               </li>
             ))}
             {fichas.valores.length > MAX_FICHAS && (
-              <li className="text-xs font-bold text-texto-2">{t.tarjeta.masOpciones(fichas.valores.length - MAX_FICHAS)}</li>
+              <li className="shrink-0 text-xs font-bold text-texto-2">{t.tarjeta.masOpciones(fichas.valores.length - MAX_FICHAS)}</li>
             )}
           </ul>
         ) : (
-          p.opciones > 1 && <p className="text-sm text-texto-2">{t.nOpciones(p.opciones)}</p>
+          p.opciones > 1 && <p className="flex h-6 items-center text-sm text-texto-2">{t.nOpciones(p.opciones)}</p>
         )}
         {envio && libre && (
           <p className="mt-auto flex min-w-0 items-start gap-1.5 pt-1 text-xs text-texto-2">
@@ -153,18 +164,32 @@ export function TarjetaDeVitrina({
   );
 }
 
-/** El "+" sobre la foto: suma una unidad al carrito sin salir de la vitrina y se confirma un momento con un visto. */
-function BotonAgregar({ slug, codigo, nombre, disponibles }: { slug: string; codigo: number; nombre: string; disponibles: number }) {
+/** El "+" sobre la foto: suma una unidad al carrito sin salir de la vitrina y se confirma un momento con un visto. Con varias opciones abre una ventana para elegir cuál. */
+function BotonAgregar({
+  slug,
+  codigo,
+  nombre,
+  disponibles,
+  opciones,
+}: {
+  slug: string;
+  codigo: number;
+  nombre: string;
+  disponibles: number;
+  opciones: OpcionVariante[] | null;
+}) {
   const router = useRouter();
   const [hecho, setHecho] = useState(false);
   const temporizador = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const ventana = useRef<HTMLDialogElement>(null);
+  const boton = useRef<HTMLButtonElement>(null);
   useEffect(() => () => clearTimeout(temporizador.current), []);
 
-  function agregar(e: React.MouseEvent<HTMLButtonElement>) {
-    const r = agregarAlCarrito(slug, codigo, 1, disponibles);
+  function agregar(cod: number, tope: number) {
+    const r = agregarAlCarrito(slug, cod, 1, tope);
     // Con el carrito lleno no se suma: se lleva a la persona a verlo, donde se le explica
     if (r === "lleno") return router.push(`/c/${slug}/carrito`);
-    lanzarConfeti(e.currentTarget);
+    if (boton.current) lanzarConfeti(boton.current);
     setHecho(true);
     clearTimeout(temporizador.current);
     temporizador.current = setTimeout(() => setHecho(false), MS_AGREGADO);
@@ -174,15 +199,41 @@ function BotonAgregar({ slug, codigo, nombre, disponibles }: { slug: string; cod
     <>
       {/* z-10: por encima del enlace que cubre toda la tarjeta */}
       <button
+        ref={boton}
         type="button"
-        onClick={agregar}
+        onClick={() => (opciones ? ventana.current?.showModal() : agregar(codigo, disponibles))}
         aria-label={t.tarjeta.agregar(nombre)}
-        className={`absolute bottom-2 right-2 z-10 flex size-11 items-center justify-center rounded-full border-2 border-teal-oscuro transition-[transform,background-color] duration-150 active:translate-y-0.5 ${
-          hecho ? "bg-limon text-teal-oscuro" : "bg-accion text-accion-texto"
+        aria-haspopup={opciones ? "dialog" : undefined}
+        className={`absolute bottom-3 right-3 z-10 flex size-12 items-center justify-center rounded-full shadow-sm transition-[transform,background-color] duration-150 active:translate-y-0.5 ${
+          hecho ? "bg-(--store-soft) text-(--store-on-soft)" : "bg-(--store-button) text-(--store-on-button)"
         }`}
       >
         <Icon nombre={hecho ? "check" : "mas"} className="size-5" />
       </button>
+      {opciones && (
+        <Ventana ref={ventana} titulo={nombre} ayuda={t.tarjeta.elegirOpcion}>
+          <ul className="flex flex-col gap-2">
+            {opciones.map((o) => (
+              <li key={o.codigo}>
+                <button
+                  type="button"
+                  disabled={o.disponibles <= 0}
+                  onClick={() => {
+                    ventana.current?.close();
+                    agregar(o.codigo, o.disponibles);
+                  }}
+                  className="flex min-h-12 w-full items-center justify-between gap-3 rounded-2xl border border-teal-oscuro/25 px-4 text-left text-sm font-bold hover:bg-teal-fondo disabled:text-texto-2 disabled:line-through disabled:hover:bg-transparent"
+                >
+                  <span className="min-w-0">{o.variante.split(" · ").map(etiquetaDeOpcion).join(" · ")}</span>
+                  <span className="shrink-0 text-xs font-medium text-texto-2 no-underline">
+                    {o.disponibles <= 0 ? t.tarjeta.agotadaOpcion : ""}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Ventana>
+      )}
       <span role="status" className="sr-only">
         {hecho ? t.tarjeta.agregado : ""}
       </span>

@@ -37,7 +37,7 @@ const campo = `${estiloCampo} h-11 px-3`;
 /** La tabla: variante, precio, cantidad, costo y la acción de la fila. En el celular las columnas se angostan, no se apilan. */
 const COLUMNAS = "grid grid-cols-[minmax(0,1fr)_4.75rem_3.5rem_4.75rem_2.25rem] items-center gap-2 md:grid-cols-[minmax(0,1fr)_6rem_5rem_6rem_2.5rem] md:gap-3";
 const campoNumero =
-  "h-10 w-full rounded-[12px] border-2 border-borde-control bg-superficie px-2 text-right text-sm tabular-nums placeholder:text-texto-2/60 focus:border-teal disabled:border-transparent disabled:bg-transparent";
+  "h-10 w-full rounded-[12px] border border-borde-control bg-superficie px-2 text-right text-sm tabular-nums placeholder:text-texto-2/60 focus:border-teal disabled:border-transparent disabled:bg-transparent";
 
 /** Valores como fichas: se agregan con Enter o coma, y al pegar una lista (por línea o separada por comas) se parte sola. */
 function Fichas({ etiqueta, valores, onCambio }: { etiqueta: string; valores: string[]; onCambio: (v: string[]) => void }) {
@@ -74,9 +74,9 @@ function Fichas({ etiqueta, valores, onCambio }: { etiqueta: string; valores: st
   };
 
   return (
-    <div className="flex min-h-12 flex-wrap items-center gap-2 rounded-[14px] border-2 border-borde-control bg-superficie px-3 py-2 focus-within:border-teal">
+    <div className="flex min-h-12 flex-wrap items-center gap-2 rounded-[14px] border border-borde-control bg-superficie px-3 py-2 focus-within:border-teal">
       {valores.map((v) => (
-        <span key={v} className="inline-flex items-center gap-1 rounded-full border-2 border-teal-oscuro bg-teal-fondo px-3 py-0.5 text-sm font-bold">
+        <span key={v} className="inline-flex items-center gap-1 rounded-full border border-teal-oscuro bg-teal-fondo px-3 py-0.5 text-sm font-bold">
           {v}
           <button
             type="button"
@@ -189,7 +189,7 @@ export function EditorVariantes({
         }}
         aria-label={g.verFotos(nombre)}
         title={g.verFotos(nombre)}
-        className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 transition-colors hover:border-teal-oscuro ${
+        className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border transition-colors hover:border-teal-oscuro ${
           foto ? "border-teal-oscuro" : "border-dashed border-borde-control bg-superficie"
         }`}
       >
@@ -276,7 +276,7 @@ export function EditorVariantes({
         {e.opciones.map((o) => {
           if (o.id === editando) {
             return (
-              <li key={o.id} className="flex flex-col gap-3 rounded-2xl border-2 border-teal-oscuro p-4">
+              <li key={o.id} className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro p-4">
                 <label className="flex flex-col gap-1">
                   <span className="text-sm font-bold">{t.opcionNombre}</span>
                   <input

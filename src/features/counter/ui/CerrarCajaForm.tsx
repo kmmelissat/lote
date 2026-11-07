@@ -84,7 +84,7 @@ export function CerrarCajaForm({
               <dd className="font-medium tabular-nums">{valor}</dd>
             </div>
           ))}
-          <div className="mt-2 flex justify-between gap-3 border-t-2 border-dashed border-teal-oscuro/30 pt-3 text-lg font-bold">
+          <div className="mt-2 flex justify-between gap-3 border-t border-dashed border-teal-oscuro/30 pt-3 text-lg font-bold">
             <dt>{t.resumen.esperado}</dt>
             <dd className="tabular-nums">{formatearDolares(esperado)}</dd>
           </div>

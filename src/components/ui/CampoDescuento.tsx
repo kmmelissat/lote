@@ -30,7 +30,7 @@ export function CampoDescuento({
       {/* Todo en una línea: dólares o porcentaje, el valor y quitar */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-texto-2">{t.titulo}</span>
-        <div role="group" aria-label={t.titulo} className="flex shrink-0 rounded-full border-2 border-teal-oscuro bg-superficie p-0.5">
+        <div role="group" aria-label={t.titulo} className="flex shrink-0 rounded-full border border-teal-oscuro bg-superficie p-0.5">
           {(["monto", "porcentaje"] as const).map((opcion) => (
             <button
               key={opcion}
@@ -52,7 +52,7 @@ export function CampoDescuento({
           aria-label={t.valor}
           aria-invalid={invalido || undefined}
           placeholder={tipo === "monto" ? "0.00" : "10"}
-          className={`h-11 w-0 min-w-0 flex-1 rounded-[14px] border-2 bg-superficie px-3 text-right text-base font-bold tabular-nums focus:border-teal ${invalido ? "border-error" : "border-borde-control"}`}
+          className={`h-11 w-0 min-w-0 flex-1 rounded-[14px] border bg-superficie px-3 text-right text-base font-bold tabular-nums focus:border-teal ${invalido ? "border-error" : "border-borde-control"}`}
         />
         {quitar && (
           <button type="button" onClick={quitar} aria-label={t.quitar} title={t.quitar} className="grid size-11 shrink-0 place-items-center rounded-full text-texto-2 hover:bg-teal-fondo">

@@ -24,6 +24,16 @@ export function modeloDe(variante: string | null, nombresOpciones: string[] = []
     : null;
 }
 
+/** Cómo se escribe una opción en pantalla: los modelos de celular siempre igual ("Iphone 17 pro max" → "iPhone 17 Pro Max"). */
+export function etiquetaDeOpcion(valor: string): string {
+  return esModelo(valor)
+    ? valor
+        .replace(/^iphone/i, "iPhone")
+        .replace(/^ipad/i, "iPad")
+        .replace(/\b(pro|max|plus|mini|ultra|air)\b/gi, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
+    : valor;
+}
+
 export type OpcionVariante = { codigo: number; variante: string; disponibles: number };
 
 export type FilaOpciones = {

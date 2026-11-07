@@ -37,7 +37,7 @@ export async function LoDeHoy() {
       <ul className="grid grid-cols-3 gap-2">
         {contadores.map((c) => (
           <li key={c.etiqueta}>
-            <Link href={c.href} className="block overflow-hidden rounded-2xl border-2 border-teal-oscuro bg-superficie text-center transition-colors hover:bg-teal-fondo/50">
+            <Link href={c.href} className="block overflow-hidden rounded-2xl border border-teal-oscuro bg-superficie text-center transition-colors hover:bg-teal-fondo/50">
               <span aria-hidden="true" className={`block h-1.5 ${c.banda}`} />
               <span className="block pt-1 font-logo text-2xl font-bold leading-tight">{c.valor}</span>
               <span className="block px-1 pb-1.5 text-xs font-medium text-texto-2">{c.etiqueta}</span>
@@ -53,7 +53,7 @@ export async function LoDeHoy() {
             {acciones.map((a, i) => (
               <li
                 key={a.id}
-                className={`flex flex-col gap-1 rounded-2xl border-2 border-dashed border-teal-oscuro bg-superficie px-3 py-2 ${i % 2 ? "-rotate-[0.4deg]" : "rotate-[0.4deg]"}`}
+                className={`flex flex-col gap-1 rounded-2xl border border-dashed border-teal-oscuro bg-superficie px-3 py-2 ${i % 2 ? "-rotate-[0.4deg]" : "rotate-[0.4deg]"}`}
               >
                 <p className="first-letter:uppercase">{a.descripcion}</p>
                 <div className="flex items-center justify-between gap-2 text-xs text-texto-2">
@@ -65,7 +65,7 @@ export async function LoDeHoy() {
           </ul>
         </section>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-teal-oscuro bg-crema p-4 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-teal-oscuro bg-crema p-4 text-center">
           <LotitoMas nombre="calculadora" className="w-24" />
           <p className="text-sm text-texto-2">{t.vacio}</p>
         </div>

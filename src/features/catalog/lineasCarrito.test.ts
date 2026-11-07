@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { combinarCarrito, lineasComprables, totalDe, type ProductoDelCarrito } from "./lineasCarrito";
+import { combinarCarrito, etiquetaVariante, lineasComprables, totalDe, type ProductoDelCarrito } from "./lineasCarrito";
 import { lineasDe } from "./carritoReglas";
 
 const prod = (codigo: number, extra: Partial<ProductoDelCarrito> = {}): ProductoDelCarrito => ({
   codigo,
   nombre: "Case",
   variante: "",
+  opciones: [],
   foto: null,
   precio: 2000,
   disponibles: 5,
@@ -53,5 +54,16 @@ describe("lineasDe (lo guardado en el navegador)", () => {
   it("no pasa de 10 líneas", () => {
     const muchas = JSON.stringify(Array.from({ length: 15 }, (_, i) => ({ codigo: i + 1, cantidad: 1 })));
     expect(lineasDe(muchas)).toHaveLength(10);
+  });
+});
+
+describe("etiquetaVariante", () => {
+  it("pone el nombre de cada opción antes de su valor", () => {
+    expect(etiquetaVariante("Limón", ["Topping"])).toBe("Topping: Limón");
+    expect(etiquetaVariante("Rosa · M", ["Color", "Talla"])).toBe("Color: Rosa · Talla: M");
+  });
+
+  it("sin nombres de opción deja solo los valores", () => {
+    expect(etiquetaVariante("Rosa · M", [])).toBe("Rosa · M");
   });
 });

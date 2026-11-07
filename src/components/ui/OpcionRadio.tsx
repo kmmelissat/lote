@@ -10,7 +10,7 @@ type Props = {
 } & Omit<ComponentProps<"input">, "type" | "className" | "children" | "title">;
 
 const comun =
-  "group cursor-pointer border-2 border-borde-control bg-superficie transition-[transform,box-shadow,background-color,border-color] duration-150 ease-out hover:bg-fondo has-[:checked]:-translate-y-0.5 has-[:checked]:border-teal-oscuro has-[:checked]:bg-teal-fondo has-[:checked]:shadow-dura-chica has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50";
+  "group cursor-pointer border border-borde-control bg-superficie transition-[transform,box-shadow,background-color,border-color] duration-150 ease-out hover:bg-fondo has-[:checked]:-translate-y-0.5 has-[:checked]:border-teal-oscuro has-[:checked]:bg-teal-fondo has-[:checked]:shadow-dura-chica has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50";
 
 /**
  * Una opción de "elegí una". Es un radio de verdad (teclado y lectores de pantalla lo entienden); se dibuja con el marco de la
@@ -20,7 +20,7 @@ export function OpcionRadio({ titulo, ayuda, icono, forma = "pildora", ...input 
   const marca = (
     <span
       aria-hidden="true"
-      className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-has-[:checked]:scale-110 group-has-[:checked]:bg-teal"
+      className="flex size-6 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-white transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-has-[:checked]:scale-110 group-has-[:checked]:bg-teal"
     >
       <Icon nombre="check" className="size-3.5 scale-50 text-white opacity-0 transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-has-[:checked]:scale-100 group-has-[:checked]:opacity-100" />
     </span>
@@ -31,7 +31,7 @@ export function OpcionRadio({ titulo, ayuda, icono, forma = "pildora", ...input 
       <label className={`${comun} flex items-start gap-3 rounded-[24px] p-4`}>
         <input type="radio" className="sr-only" {...input} />
         {icono && (
-          <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white">
+          <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-white">
             <Icon nombre={icono} className="size-5" />
           </span>
         )}

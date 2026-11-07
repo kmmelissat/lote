@@ -2,6 +2,9 @@
 
 export type LineaCarrito = { codigo: number; cantidad: number };
 
+/** La cookie que copia el carrito del navegador para que el servidor lo vea al pintar la página */
+export const cookieCarrito = (slug: string) => `lote_carrito_${slug}`;
+
 export const MAX_LINEAS = 10;
 export const MAX_CANTIDAD = 20;
 

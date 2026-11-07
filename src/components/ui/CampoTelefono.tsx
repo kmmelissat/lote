@@ -4,9 +4,9 @@ import { useId, useState } from "react";
 import { digitosLocales, telefonoElSalvador } from "@/domain";
 
 const inputPanel =
-  "h-12 min-w-0 flex-1 rounded-r-[14px] border-2 border-borde-control bg-superficie px-4 text-base tabular-nums focus:border-teal";
+  "h-12 min-w-0 flex-1 rounded-r-[14px] border border-borde-control bg-superficie px-4 text-base tabular-nums focus:border-teal";
 const inputVitrina =
-  "h-12 min-w-0 flex-1 rounded-r-[14px] border-2 border-borde-control bg-superficie px-4 text-base tabular-nums placeholder:text-texto-2/60 focus:border-teal";
+  "h-12 min-w-0 flex-1 rounded-r-[14px] border border-borde-control bg-superficie px-4 text-base tabular-nums placeholder:text-texto-2/60 focus:border-teal";
 
 /** WhatsApp de El Salvador: el +503 va fijo y el campo solo acepta los 8 números. */
 export function CampoTelefono({
@@ -46,7 +46,7 @@ export function CampoTelefono({
         {etiqueta}
       </label>
       <span className="flex">
-        <span className="flex h-12 items-center rounded-l-[14px] border-2 border-r-0 border-borde-control bg-fondo px-3 font-bold text-texto-2">
+        <span className="flex h-12 items-center rounded-l-[14px] border border-r-0 border-borde-control bg-fondo px-3 font-bold text-texto-2">
           +503
         </span>
         <input

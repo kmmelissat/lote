@@ -26,7 +26,7 @@ export function Principios() {
           {p.items.map((i, n) => (
             <ApareceItem
               key={i.titulo}
-              className={`relative flex flex-col gap-4 rounded-[28px] border-[3px] border-teal-oscuro p-6 pb-16 shadow-[8px_8px_0_0_var(--color-teal-oscuro)] ${PRINCIPIO[n].fondo} ${PRINCIPIO[n].giro}`}
+              className={`relative flex flex-col gap-4 rounded-[28px] border border-teal-oscuro p-6 pb-16 shadow-[8px_8px_0_0_var(--color-teal-oscuro)] ${PRINCIPIO[n].fondo} ${PRINCIPIO[n].giro}`}
             >
               <span className="text-[56px] font-extrabold leading-none tracking-tighter text-teal-oscuro/25">{String(n + 1).padStart(2, "0")}</span>
               <h3 className="-mt-2 text-[26px] font-extrabold leading-tight text-teal-oscuro">{i.titulo}</h3>

@@ -7,7 +7,7 @@ import type { Rubro } from "../rubros";
 const t = textos.explorar;
 
 const campo =
-  "h-10 w-full rounded-[12px] border-2 border-borde-control bg-white px-3 text-sm focus:border-teal";
+  "h-10 w-full rounded-[12px] border border-borde-control bg-white px-3 text-sm focus:border-teal";
 const fila =
   "flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium";
 const casilla = "size-5 shrink-0 accent-teal";
@@ -82,7 +82,7 @@ export function PanelFiltros({
                 </Link>
                 {/* Las categorías del rubro elegido, un nivel adentro */}
                 {f.categoria === r.id && r.categorias.length > 1 && (
-                  <ul aria-label={t.panel.categoriasDe(r.nombre)} className="mb-1 ml-3 flex flex-col border-l-2 border-teal-oscuro/20">
+                  <ul aria-label={t.panel.categoriasDe(r.nombre)} className="mb-1 ml-3 flex flex-col border-l border-teal-oscuro/20">
                     <li>
                       <Link {...enlaceCategoria("")} aria-current={f.sub ? undefined : "true"} className={rubro(!f.sub)}>
                         {t.panel.todoElRubro}
@@ -205,7 +205,7 @@ export function PanelFiltros({
           )}
           <button
             type="submit"
-            className="inline-flex h-11 items-center rounded-full border-2 border-teal-oscuro bg-mango px-6 text-sm font-bold"
+            className="inline-flex h-11 items-center rounded-full border border-teal-oscuro bg-mango px-6 text-sm font-bold"
           >
             {t.aplicar}
           </button>

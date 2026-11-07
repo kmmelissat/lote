@@ -14,7 +14,7 @@ export function AvisameCuandoHaya({ slug, codigo }: { slug: string; codigo: numb
 
   if (estado.listo) {
     return (
-      <p role="status" className="rounded-2xl bg-limon px-4 py-3 font-medium">
+      <p role="status" className="rounded-2xl bg-accion/20 px-4 py-3 font-medium">
         {t.listo}
       </p>
     );
@@ -35,7 +35,7 @@ export function AvisameCuandoHaya({ slug, codigo }: { slug: string; codigo: numb
       <button
         type="submit"
         disabled={pendiente}
-        className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura disabled:opacity-60"
+        className="inline-flex h-12 items-center justify-center rounded-full border border-teal-oscuro/30 bg-accion px-8 font-bold text-accion-texto transition-[transform,box-shadow] duration-150 disabled:opacity-60"
       >
         {pendiente ? t.enviando : t.boton}
       </button>

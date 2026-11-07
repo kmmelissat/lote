@@ -14,7 +14,7 @@ export function Buscar() {
       <div aria-hidden="true" className={`pointer-events-none absolute inset-0 opacity-[0.08] ${PUNTOS}`} />
       <div className={`${contenedor} relative grid grid-cols-1 items-center gap-12 md:grid-cols-[1.2fr_0.8fr]`}>
         <Aparece className="flex flex-col items-start gap-6">
-          <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-celeste px-4 py-1.5 text-sm font-bold text-teal-oscuro shadow-dura-chica">
+          <span className="-rotate-2 rounded-full border border-teal-oscuro bg-celeste px-4 py-1.5 text-sm font-bold text-teal-oscuro shadow-dura-chica">
             {b.etiqueta}
           </span>
           <h2 id="buscar-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">
@@ -24,9 +24,9 @@ export function Buscar() {
           <form
             action="/marketplace"
             role="search"
-            className="flex w-full max-w-xl flex-col gap-3 rounded-[28px] border-[3px] border-teal-oscuro bg-white p-3 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] md:p-4"
+            className="flex w-full max-w-xl flex-col gap-3 rounded-[28px] border border-teal-oscuro bg-white p-3 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] md:p-4"
           >
-            <label className="flex h-14 items-center gap-3 rounded-full border-2 border-teal-oscuro bg-crema px-4">
+            <label className="flex h-14 items-center gap-3 rounded-full border border-teal-oscuro bg-crema px-4">
               <Icon nombre="buscar" className="size-5 shrink-0 text-teal-oscuro/70" />
               <span className="sr-only">{b.productos}</span>
               <input
@@ -39,7 +39,7 @@ export function Buscar() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="submit"
-                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro bg-limon px-5 text-base font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:flex-none"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-teal-oscuro bg-limon px-5 text-base font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:flex-none"
               >
                 <Icon nombre="buscar" className="size-4" />
                 {b.productos}
@@ -48,7 +48,7 @@ export function Buscar() {
                 type="submit"
                 name="vista"
                 value="tiendas"
-                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro bg-celeste px-5 text-base font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:flex-none"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-teal-oscuro bg-celeste px-5 text-base font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:flex-none"
               >
                 <Icon nombre="tienda" className="size-4" />
                 {b.tiendas}
@@ -61,7 +61,7 @@ export function Buscar() {
         </Aparece>
         <Aparece delay={0.12} className="relative hidden md:block" aria-hidden="true">
           <div className="relative mx-auto flex w-72 flex-col gap-4">
-            <div className="-rotate-3 rounded-[28px] border-[3px] border-teal-oscuro bg-white p-4 shadow-[8px_8px_0_0_var(--color-teal-oscuro)]">
+            <div className="-rotate-3 rounded-[28px] border border-teal-oscuro bg-white p-4 shadow-[8px_8px_0_0_var(--color-teal-oscuro)]">
               <div className="flex items-center gap-3">
                 <Mini src="/landing/chaqueta.webp" />
                 <span className="min-w-0">
@@ -70,7 +70,7 @@ export function Buscar() {
                 </span>
               </div>
             </div>
-            <div className="ml-8 rotate-2 rounded-[28px] border-[3px] border-teal-oscuro bg-white p-4 shadow-[8px_8px_0_0_var(--color-teal-oscuro)]">
+            <div className="ml-8 rotate-2 rounded-[28px] border border-teal-oscuro bg-white p-4 shadow-[8px_8px_0_0_var(--color-teal-oscuro)]">
               <div className="flex items-center gap-3">
                 <Mini src="/landing/disco.webp" />
                 <span className="min-w-0">
@@ -79,7 +79,7 @@ export function Buscar() {
                 </span>
               </div>
             </div>
-            <div className="-ml-2 -rotate-2 rounded-[28px] border-[3px] border-teal-oscuro bg-limon p-4 shadow-[8px_8px_0_0_var(--color-teal-oscuro)]">
+            <div className="-ml-2 -rotate-2 rounded-[28px] border border-teal-oscuro bg-limon p-4 shadow-[8px_8px_0_0_var(--color-teal-oscuro)]">
               <div className="flex items-center gap-3">
                 <Mini src="/landing/llaveros.webp" />
                 <span className="min-w-0">

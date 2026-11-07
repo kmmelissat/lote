@@ -84,7 +84,7 @@ export function EntregaDeVenta({
   return (
     <div className="flex flex-col gap-3">
       {/* Las mismas celdas pegadas que las formas de pago: un ícono y el nombre, nada más */}
-      <div role="radiogroup" aria-label={t.titulo} className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border-2 border-teal-oscuro bg-teal-oscuro sm:grid-cols-4">
+      <div role="radiogroup" aria-label={t.titulo} className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-teal-oscuro bg-teal-oscuro sm:grid-cols-4">
         {ENTREGAS.map((e) => {
           const activa = entrega === e;
           return (
@@ -105,7 +105,7 @@ export function EntregaDeVenta({
       <p className="-mt-1 text-sm text-texto-2">{t[`${entrega}Ayuda`]}</p>
 
       {llevaEnvio(entrega) && (
-        <div className="flex flex-col gap-4 border-t-2 border-dashed border-borde pt-4">
+        <div className="flex flex-col gap-4 border-t border-dashed border-borde pt-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field etiqueta={te.nombre} value={datos.nombre} placeholder={nombreSugerido} onChange={(e) => cambiarDatos({ nombre: e.target.value })} autoComplete="off" />
             <CampoTelefono etiqueta={te.telefono} name="entrega-telefono" value={datos.telefono || telefonoSugerido} onChange={(v) => cambiarDatos({ telefono: v })} ayuda={te.errorTelefono} />
@@ -152,7 +152,7 @@ export function EntregaDeVenta({
                   type="button"
                   aria-pressed={datos.paga === q}
                   onClick={() => cambiarDatos({ paga: q })}
-                  className={`min-h-11 rounded-full border-2 border-teal-oscuro px-3 text-sm ${datos.paga === q ? "bg-limon font-bold" : "bg-superficie"}`}
+                  className={`min-h-11 rounded-full border border-teal-oscuro px-3 text-sm ${datos.paga === q ? "bg-limon font-bold" : "bg-superficie"}`}
                 >
                   {te.pagas[q]}
                 </button>

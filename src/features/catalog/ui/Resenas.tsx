@@ -42,7 +42,7 @@ export function Resenas({ resumen }: { resumen: ResumenResenas }) {
           {resumen.resenas.map((r, i) => (
             <li
               key={`${r.nombre}-${r.creadoEn.getTime()}-${i}`}
-              className={`flex flex-col gap-2 rounded-[22px] border-2 border-teal-oscuro p-5 ${i % 2 === 0 ? "bg-white" : "bg-crema"}`}
+              className={`flex flex-col gap-2 rounded-[22px] border border-teal-oscuro/30 p-5 ${i % 2 === 0 ? "bg-white" : "bg-crema"}`}
             >
               <Estrellas valor={r.estrellas} className="size-4" />
               <span className="sr-only">{t.estrellasDe(r.estrellas)}</span>

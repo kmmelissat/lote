@@ -107,7 +107,7 @@ export function EscanerCamara({
   }, []);
 
   return (
-    <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-teal-oscuro p-3 text-white">
+    <div className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-teal-oscuro p-3 text-white">
       <div className="flex items-start justify-between gap-3 px-1">
         <div>
           <p className="font-bold">{t.camaraTitulo}</p>

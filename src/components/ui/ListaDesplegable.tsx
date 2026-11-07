@@ -5,12 +5,12 @@ import { Icon } from "./Icon";
 
 const ESTILOS = {
   panel: "h-12 w-full rounded-xl border border-borde-control bg-superficie px-3 text-base",
-  campo: "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base focus:border-teal",
-  compacto: "h-10 max-md:min-h-11 w-full rounded-[12px] border-2 border-borde-control bg-superficie px-3 text-sm focus:border-teal",
-  pildora: "h-10 max-md:min-h-11 w-full rounded-full border-2 border-borde-control bg-superficie pl-4 pr-2 text-sm font-bold text-teal-oscuro focus:border-teal",
+  campo: "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base focus:border-teal",
+  compacto: "h-10 max-md:min-h-11 w-full rounded-[12px] border border-borde-control bg-superficie px-3 text-sm focus:border-teal",
+  pildora: "h-10 max-md:min-h-11 w-full rounded-full border border-borde-control bg-superficie pl-4 pr-2 text-sm font-bold text-teal-oscuro focus:border-teal",
 } as const;
 
-export type OpcionLista = { valor: string; etiqueta: string; /** Se muestra a la derecha, por ejemplo el costo de envío */ detalle?: string };
+export type OpcionLista = { valor: string; etiqueta: string; /** Se muestra a la derecha, por ejemplo el costo de envío */ detalle?: string; /** Lo que se lee en el botón cerrado cuando esta opción está elegida (por defecto, su etiqueta) */ etiquetaBoton?: string };
 
 /**
  * La lista desplegable de toda la app: una propia, no el selector del sistema (que en el celular se ve distinto en cada teléfono).
@@ -180,11 +180,11 @@ export function ListaDesplegable({
         onKeyDown={teclado}
         className={`${ESTILOS[variante]} flex items-center justify-between gap-3 text-left disabled:opacity-50 ${error ? "border-error" : ""} ${className}`}
       >
-        <span className={`truncate ${elegida ? "" : "text-texto-2/70"}`}>{elegida ? elegida.etiqueta : placeholder}</span>
+        <span className={`truncate ${elegida ? "" : "text-texto-2/70"}`}>{elegida ? (elegida.etiquetaBoton ?? elegida.etiqueta) : placeholder}</span>
         {elegida?.detalle && <span className="shrink-0 text-sm font-bold text-texto-2">{elegida.detalle}</span>}
         <span
           aria-hidden="true"
-          className={`flex shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-teal-fondo text-teal-oscuro transition-transform duration-150 ${variante === "compacto" || variante === "pildora" ? "size-6" : variante === "campo" ? "size-8" : "size-7"} ${abierta ? "rotate-180" : ""}`}
+          className={`flex shrink-0 items-center justify-center rounded-full ${variante === "pildora" ? "border border-teal-oscuro/30" : "border border-teal-oscuro"} bg-teal-fondo text-teal-oscuro transition-transform duration-150 ${variante === "compacto" || variante === "pildora" ? "size-6" : variante === "campo" ? "size-8" : "size-7"} ${abierta ? "rotate-180" : ""}`}
         >
           <Icon nombre="flecha" className="size-4" strokeWidth={2.5} />
         </span>
@@ -201,7 +201,7 @@ export function ListaDesplegable({
           id={`${id}-lista`}
           role="listbox"
           aria-label={placeholder}
-          className={`absolute inset-x-0 z-20 max-h-[min(16rem,45dvh)] animate-entra overflow-y-auto rounded-2xl border-2 border-teal-oscuro bg-white p-1.5 shadow-dura md:max-h-64 ${
+          className={`absolute inset-x-0 z-20 max-h-[min(16rem,45dvh)] animate-entra overflow-y-auto rounded-2xl bg-white p-1.5 md:max-h-64 ${variante === "pildora" ? "border border-teal-oscuro/20 shadow-lg" : "border border-teal-oscuro shadow-dura"} ${
             arriba ? "bottom-full mb-2" : "top-full mt-2"
           }`}
         >

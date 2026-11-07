@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { CintaFrases } from "@/components/ui/CintaFrases";
+import { Icon } from "@/components/ui/Icon";
 import { LotitoMas } from "@/components/ui/LotitoMas";
 import { CatalogoVitrina } from "@/features/catalog/ui/CatalogoVitrina";
 import { SelloVerificada } from "@/features/catalog/ui/FranjaDatos";
 import { partesEnvio } from "@/features/catalog/ui/ResumenEnvio";
+import { BarraTienda } from "@/features/catalog/ui/BarraTienda";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
 import { RedesTienda } from "@/features/catalog/ui/RedesTienda";
 import { LogoTienda, MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
@@ -94,12 +96,9 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
   const enPromocion = [
     ...new Set(promociones.flatMap((pr) => pr.productos.map((x) => x.codigo))),
   ];
-  const metodos = opciones.metodos.map((m) =>
-    textos.cobro.metodos[m].toLowerCase(),
-  );
 
   return (
-    <MarcaTienda color={negocio.color} ancha>
+    <MarcaTienda color={negocio.color}>
       <JsonLd
         datos={{
           "@context": "https://schema.org",
@@ -120,63 +119,68 @@ async function Vitrina({ params }: Pick<PageProps<"/c/[negocio]">, "params">) {
           currenciesAccepted: "USD",
         }}
       />
-      {/* Encabezado de tienda: la cinta de frases, y debajo la tienda con su logo torcido, sus datos y cómo escribirle */}
-      <header className="mb-5 flex flex-col gap-4">
-        <CintaFrases frases={t.cinta} className="rounded-full border-2 border-teal-oscuro bg-teal-oscuro py-1.5 text-white" />
-        <div className="relative overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura-chica md:p-5">
-          <div className="relative flex flex-wrap items-center gap-x-5 gap-y-3">
-            <LogoTienda logo={negocio.logo} nombre={negocio.nombre} className="size-16 -rotate-3 border-2 border-teal-oscuro !rounded-[18px] transition-transform duration-200 hover:rotate-3 hover:scale-105 md:size-20" />
-            <div className="min-w-0 flex-1 basis-60">
-              <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xl font-bold leading-tight md:text-3xl">
-                {negocio.nombre}
-                {perfil?.verificada && <SelloVerificada />}
-              </h1>
-              <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-sm text-texto-2">
-                {resenas.total > 0 && (
-                  <li aria-label={t.perfil.calificacion(resenas.promedio, resenas.total)}>
-                    <span aria-hidden="true" className="text-ambar">
-                      ★
-                    </span>{" "}
-                    <b className="text-texto">{resenas.promedio.toFixed(1)}</b> ({resenas.total})
-                  </li>
-                )}
-                {perfil && perfil.vendidos > 0 && (
-                  <li>
-                    <b className="text-texto">{perfil.vendidos.toLocaleString("es")}</b> {t.perfil.vendidos(perfil.vendidos)}
-                  </li>
-                )}
-                <li>{t.productos(productos.length)}</li>
-              </ul>
-              <p className="mt-1 max-w-2xl font-bold text-teal">{negocio.descripcion?.trim() || t.fraseFallback}</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <BotonesChat whatsapp={negocio.whatsapp} instagram={null} mensaje={mensajePedirVitrina(negocio.nombre)} />
-              <RedesTienda instagram={negocio.usuarioInstagram} facebook={negocio.usuarioFacebook} tiktok={negocio.usuarioTiktok} />
-            </div>
-          </div>
-          <ul className="relative mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t-2 border-dashed border-teal-oscuro/40 pt-3 text-sm font-bold">
-            {metodos.length > 0 && (
-              <li>
-                <span aria-hidden="true" className="text-teal">✓ </span>
-                {t.infoPagas(metodos.join(", "))}
-              </li>
-            )}
-            <li>
-              <span aria-hidden="true" className="text-teal">✓ </span>
-              {opciones.direccionRetiro ? t.infoEnvioRetiro : t.infoEnvio}
-            </li>
-            {negocio.tiempoEntrega?.trim() && (
-              <li>
-                <span aria-hidden="true" className="text-teal">✓ </span>
-                {negocio.tiempoEntrega.trim()}
-              </li>
-            )}
-          </ul>
+      {/* Encabezado de tienda: banner (o franja del color de la tienda), logo encimado, nombre, sello, datos y cómo escribirle */}
+      <BarraTienda slug={slug} conCarrito={negocio.permiteComprar} />
+      <header className="mb-6">
+        <div className="relative ml-[calc(50%-50vw)] h-32 w-screen overflow-hidden bg-teal-fondo sm:h-40 md:h-48">
+          {negocio.banner && (
+            <Image src={urlFoto(negocio.banner)} alt="" fill priority sizes="100vw" className="object-cover" />
+          )}
         </div>
+        <div className="flex flex-wrap items-end gap-x-5 gap-y-4">
+          <LogoTienda
+            logo={negocio.logo}
+            nombre={negocio.nombre}
+            className="-mt-12 size-24 border border-fondo !rounded-full md:-mt-14 md:size-28"
+          />
+          <div className="min-w-0 flex-1 basis-60 pt-2">
+            <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-3xl font-bold leading-tight">
+              {negocio.nombre}
+              {perfil?.verificada && <SelloVerificada />}
+            </h1>
+            <p className="mt-0.5 max-w-2xl font-bold text-(--store-accent)">{negocio.descripcion?.trim() || t.fraseFallback}</p>
+            <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-sm text-texto-2">
+              {resenas.total > 0 && (
+                <li aria-label={t.perfil.calificacion(resenas.promedio, resenas.total)}>
+                  <span aria-hidden="true" className="text-ambar">
+                    ★
+                  </span>{" "}
+                  <b className="text-texto">{resenas.promedio.toFixed(1)}</b> ({resenas.total})
+                </li>
+              )}
+              {perfil && perfil.vendidos > 0 && (
+                <li>
+                  <b className="text-texto">{perfil.vendidos.toLocaleString("es")}</b> {t.perfil.vendidos(perfil.vendidos)}
+                </li>
+              )}
+              <li>
+                <b className="text-texto">{productos.length}</b> {productos.length === 1 ? "producto" : "productos"}
+              </li>
+            </ul>
+          </div>
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            <BotonesChat whatsapp={negocio.whatsapp} instagram={null} mensaje={mensajePedirVitrina(negocio.nombre)} />
+            <RedesTienda instagram={negocio.usuarioInstagram} facebook={negocio.usuarioFacebook} tiktok={negocio.usuarioTiktok} />
+          </div>
+        </div>
+        <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-y border-teal-oscuro/10 py-3 text-sm font-medium">
+          {t.confianza.map((c) => (
+            <li key={c.icono} className="flex items-center gap-2">
+              <Icon nombre={c.icono} className="size-4 text-(--store-accent)" />
+              {c.texto}
+            </li>
+          ))}
+          {negocio.tiempoEntrega?.trim() && (
+            <li className="flex items-center gap-2">
+              <Icon nombre="reloj" className="size-4 text-(--store-accent)" />
+              {negocio.tiempoEntrega.trim()}
+            </li>
+          )}
+        </ul>
       </header>
 
       {!productos.length ? (
-        <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-teal-oscuro bg-superficie px-6 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-[24px] border border-dashed border-teal-oscuro/40 bg-superficie px-6 py-12 text-center">
           <LotitoMas nombre="asoma" className="w-24" />
           <h2 className="text-lg font-bold">{t.vacioTitulo}</h2>
           <p className="max-w-sm text-texto-2">{t.vacioTexto}</p>

@@ -35,7 +35,7 @@ export function HojaInferior({ abierta, cerrar, titulo, children }: { abierta: b
       aria-label={titulo}
       onClose={cerrar}
       onClick={(e) => e.target === ventana.current && cerrar()}
-      className="mx-auto mb-0 mt-auto max-h-[94dvh] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-t-[28px] border-2 border-b-0 border-teal-oscuro bg-superficie p-0 backdrop:bg-teal-oscuro/40"
+      className="mx-auto mb-0 mt-auto max-h-[94dvh] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-t-[28px] border border-b-0 border-teal-oscuro bg-superficie p-0 backdrop:bg-teal-oscuro/40"
     >
       <div className="flex flex-col gap-4 p-4 pb-0">
         <div aria-hidden="true" className="mx-auto h-1.5 w-12 shrink-0 rounded-full bg-borde-control" />

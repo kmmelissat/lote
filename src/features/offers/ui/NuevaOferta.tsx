@@ -76,7 +76,7 @@ export function NuevaOferta({ productos, ofertas, alTerminar }: { productos: Opc
               <button
                 type="button"
                 onClick={() => setClave(g.clave)}
-                className="flex min-h-14 w-full items-center gap-3 rounded-2xl border-2 border-borde bg-superficie p-2 text-left transition-colors hover:border-teal-oscuro hover:bg-crema"
+                className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-borde bg-superficie p-2 text-left transition-colors hover:border-teal-oscuro hover:bg-crema"
               >
                 <Miniatura foto={g.foto} />
                 <span className="flex min-w-0 flex-1 flex-col">
@@ -98,7 +98,7 @@ export function NuevaOferta({ productos, ofertas, alTerminar }: { productos: Opc
 
 function Miniatura({ foto }: { foto: string | null }) {
   return (
-    <span className="relative size-12 shrink-0 overflow-hidden rounded-xl border-2 border-teal-oscuro bg-teal-fondo">
+    <span className="relative size-12 shrink-0 overflow-hidden rounded-xl border border-teal-oscuro bg-teal-fondo">
       {foto ? (
         <Image src={urlFoto(foto)} alt="" fill sizes="48px" className="object-cover" />
       ) : (

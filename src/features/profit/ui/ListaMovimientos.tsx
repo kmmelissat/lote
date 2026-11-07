@@ -54,7 +54,7 @@ function Icono({ m }: { m: Movimiento }) {
   return (
     <span
       aria-hidden="true"
-      className={`flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${coloresDinero[sentidoDe(m)].fondo}`}
+      className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro ${coloresDinero[sentidoDe(m)].fondo}`}
     >
       <Icon nombre={iconoDe(m)} className="size-5" />
     </span>
@@ -103,7 +103,7 @@ function EtiquetasDeVenta({ m }: { m: Entrada }) {
   const venta = m.clase === "venta";
   return (
     <span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-bold">
-      <span className={`rounded-full border-2 border-teal-oscuro px-2 py-0.5 ${venta ? coloresDinero.entra.fondo : "bg-perla"}`}>
+      <span className={`rounded-full border border-teal-oscuro px-2 py-0.5 ${venta ? coloresDinero.entra.fondo : "bg-perla"}`}>
         {venta ? t.concepto.ventaCompleta : t.concepto.abonoChip}
       </span>
       {!venta && <span className="text-texto-2">{t.concepto.queda(formatearDolares(m.saldoDespues))}</span>}
@@ -200,7 +200,7 @@ export function ListaMovimientos({
       <Card className="hidden overflow-hidden p-0 md:p-0 @2xl:block">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b-2 border-teal-oscuro text-sm font-extrabold text-texto-2">
+            <tr className="border-b border-teal-oscuro text-sm font-extrabold text-texto-2">
               <th scope="col" className="px-4 py-3">
                 {t.columnas.concepto}
               </th>

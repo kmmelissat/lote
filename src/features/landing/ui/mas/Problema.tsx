@@ -31,9 +31,9 @@ export function Problema() {
           {p.items.map((i, n) => (
             <ApareceItem
               key={i.titulo}
-              className={`relative flex flex-col gap-4 rounded-[28px] border-[3px] border-teal-oscuro bg-white p-6 shadow-[8px_8px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:rotate-0 md:hover:-translate-y-1 ${TARJETAS[n]}`}
+              className={`relative flex flex-col gap-4 rounded-[28px] border border-teal-oscuro bg-white p-6 shadow-[8px_8px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:rotate-0 md:hover:-translate-y-1 ${TARJETAS[n]}`}
             >
-              <span className="absolute -top-6 right-5 rotate-6 rounded-2xl border-[3px] border-teal-oscuro bg-mango px-4 py-1 text-[34px] font-extrabold leading-tight text-teal-oscuro shadow-dura-chica">
+              <span className="absolute -top-6 right-5 rotate-6 rounded-2xl border border-teal-oscuro bg-mango px-4 py-1 text-[34px] font-extrabold leading-tight text-teal-oscuro shadow-dura-chica">
                 {i.dato}
               </span>
               <h3 className="mt-6 text-[24px] font-extrabold leading-tight text-teal-oscuro">{i.titulo}</h3>

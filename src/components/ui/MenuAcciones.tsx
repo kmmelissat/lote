@@ -58,7 +58,7 @@ export function MenuAcciones({ etiqueta, acciones }: { etiqueta: string; accione
         aria-expanded={abierto}
         aria-controls={id}
         onClick={() => setAbierto((a) => !a)}
-        className="flex size-12 items-center justify-center rounded-full border-2 border-borde-control bg-superficie text-teal-oscuro transition-colors hover:border-teal-oscuro hover:bg-teal-fondo aria-expanded:border-teal-oscuro aria-expanded:bg-teal-fondo"
+        className="flex size-12 items-center justify-center rounded-full border border-borde-control bg-superficie text-teal-oscuro transition-colors hover:border-teal-oscuro hover:bg-teal-fondo aria-expanded:border-teal-oscuro aria-expanded:bg-teal-fondo"
       >
         <Icon nombre="mas_opciones" className="size-5" />
       </button>
@@ -74,7 +74,7 @@ export function MenuAcciones({ etiqueta, acciones }: { etiqueta: string; accione
             role="menu"
             aria-label={etiqueta}
             onKeyDown={mover}
-            className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-50 flex max-h-[min(20rem,calc(100dvh-8rem))] w-auto flex-col gap-0.5 overflow-y-auto rounded-2xl border-2 border-teal-oscuro bg-superficie p-1.5 shadow-dura md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-full md:z-30 md:mt-2 md:max-h-none md:w-60"
+            className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-50 flex max-h-[min(20rem,calc(100dvh-8rem))] w-auto flex-col gap-0.5 overflow-y-auto rounded-2xl border border-teal-oscuro bg-superficie p-1.5 shadow-dura md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-full md:z-30 md:mt-2 md:max-h-none md:w-60"
           >
             {acciones.map((a) =>
               "href" in a ? (

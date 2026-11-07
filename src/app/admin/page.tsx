@@ -53,7 +53,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
             defaultValue={busqueda}
             aria-label={t.buscar}
             placeholder={t.buscar}
-            className="h-12 min-w-0 flex-1 rounded-full border-2 border-teal-oscuro bg-white px-5"
+            className="h-12 min-w-0 flex-1 rounded-full border border-teal-oscuro bg-white px-5"
           />
           <button type="submit" className={estiloBoton("mango")}>
             {t.buscarBoton}
@@ -61,7 +61,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
         </form>
 
         {productos === null ? (
-          <p className="rounded-2xl border-2 border-dashed border-teal-oscuro bg-white p-5 font-bold">{t.sinSql}</p>
+          <p className="rounded-2xl border border-dashed border-teal-oscuro bg-white p-5 font-bold">{t.sinSql}</p>
         ) : productos.length === 0 ? (
           <p className="text-texto-2">{t.vacio}</p>
         ) : (
@@ -71,7 +71,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
               {productos.map((p) => (
                 <li
                   key={p.productoId}
-                  className={`flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro p-2 pr-3 ${p.destacado ? "bg-limon" : "bg-white"}`}
+                  className={`flex items-center gap-3 rounded-2xl border border-teal-oscuro p-2 pr-3 ${p.destacado ? "bg-limon" : "bg-white"}`}
                 >
                   <span className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-teal-fondo">
                     {p.foto && <Image src={urlFoto(p.foto)} alt="" fill sizes="56px" className="object-cover" />}

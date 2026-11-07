@@ -18,7 +18,7 @@ function mesYAnio(fecha: Date): string {
 /** El sello de la tienda verificada, junto a su nombre. */
 export function SelloVerificada() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-teal-oscuro bg-celeste py-0.5 pl-1.5 pr-3 font-sans text-xs font-extrabold">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-fondo py-1 pl-2 pr-3 font-sans text-xs font-bold text-teal-oscuro">
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -29,7 +29,6 @@ export function SelloVerificada() {
         aria-hidden="true"
         className="size-4"
       >
-        <circle cx="12" cy="12" r="10" fill="white" strokeWidth="2" />
         <path d="m8 12.5 3 3 5-6" />
       </svg>
       {t.verificada}
@@ -83,7 +82,7 @@ export function FranjaDatos({
   return (
     <dl
       aria-label={t.datos}
-      className="flex flex-col gap-0.5 overflow-hidden rounded-[18px] border-2 border-teal-oscuro bg-teal-oscuro md:grid md:[grid-template-columns:repeat(var(--n),minmax(0,1fr))]"
+      className="flex flex-col gap-0.5 overflow-hidden rounded-[18px] border border-teal-oscuro bg-teal-oscuro md:grid md:[grid-template-columns:repeat(var(--n),minmax(0,1fr))]"
       style={{ "--n": datos.length } as React.CSSProperties}
     >
       {datos.map((d) => (

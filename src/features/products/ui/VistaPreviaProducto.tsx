@@ -43,7 +43,7 @@ export function VistaPreviaProducto({
   children?: ReactNode;
 }) {
   const ficha = (
-    <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-white p-2 pb-3">
+    <div className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-white p-2 pb-3">
       <div className="relative aspect-square overflow-hidden rounded-[18px] bg-teal-fondo">
         {foto ? (
           <Image src={urlFoto(foto)} alt="" fill sizes="320px" className="object-cover" />
@@ -54,12 +54,12 @@ export function VistaPreviaProducto({
           </div>
         )}
         {categoria.trim() && (
-          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-full border-2 border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
+          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-full border border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
             {categoria.trim()}
           </span>
         )}
         {unidades <= POCAS_UNIDADES && (
-          <span className="absolute bottom-2 left-2 -rotate-2 rounded-full border-2 border-teal-oscuro bg-rosa px-2.5 py-0.5 text-xs font-bold">
+          <span className="absolute bottom-2 left-2 -rotate-2 rounded-full border border-teal-oscuro bg-rosa px-2.5 py-0.5 text-xs font-bold">
             {e.ultimas(unidades)}
           </span>
         )}

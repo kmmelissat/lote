@@ -40,9 +40,9 @@ export function Interruptor({
       />
       <span
         aria-hidden="true"
-        className="relative h-8 w-14 shrink-0 rounded-full border-2 border-teal-oscuro bg-limon/50 shadow-dura-chica transition-colors duration-150 peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal peer-checked:[&>span]:translate-x-6 peer-checked:[&>span>svg]:opacity-100"
+        className="relative h-8 w-14 shrink-0 rounded-full border border-teal-oscuro bg-limon/50 shadow-dura-chica transition-colors duration-150 peer-checked:bg-mango peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal peer-checked:[&>span]:translate-x-6 peer-checked:[&>span>svg]:opacity-100"
       >
-        <span className="absolute left-0.5 top-0.5 flex size-6 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+        <span className="absolute left-0.5 top-0.5 flex size-6 items-center justify-center rounded-full border border-teal-oscuro bg-white text-teal-oscuro transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
           <Icon nombre="check" className="size-3.5 opacity-0 transition-opacity duration-150" />
         </span>
       </span>

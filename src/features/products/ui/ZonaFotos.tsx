@@ -73,7 +73,7 @@ export function ZonaFotos({
 
   const lleno = rutas.length >= maximo;
   const boton =
-    "inline-flex h-11 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-50";
+    "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-teal-oscuro px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-50";
 
   return (
     <div className="flex flex-col gap-3">
@@ -87,7 +87,7 @@ export function ZonaFotos({
         }}
         onDragLeave={() => setEncima(false)}
         onDrop={soltadas}
-        className={`flex flex-col items-center gap-3 border-2 border-dashed border-teal-oscuro text-center transition-colors duration-150 ${
+        className={`flex flex-col items-center gap-3 border border-dashed border-teal-oscuro text-center transition-colors duration-150 ${
           compacto ? "rounded-2xl p-3 sm:flex-row sm:text-left" : "rounded-[24px] p-5"
         } ${encima ? "bg-limon" : "bg-crema"} ${rutas.length && !compacto ? "sm:flex-row sm:text-left" : ""}`}
       >
@@ -134,10 +134,10 @@ export function ZonaFotos({
                 alt={t.foto(i + 1)}
                 width={112}
                 height={112}
-                className="size-24 rounded-2xl border-2 border-teal-oscuro object-cover"
+                className="size-24 rounded-2xl border border-teal-oscuro object-cover"
               />
               {i === 0 && (
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border-2 border-teal-oscuro bg-white px-2 text-xs font-bold">
+                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border border-teal-oscuro bg-white px-2 text-xs font-bold">
                   {l.principal}
                 </span>
               )}
@@ -145,7 +145,7 @@ export function ZonaFotos({
                 type="button"
                 aria-label={t.quitar(i + 1)}
                 onClick={() => onCambio(rutas.filter((r) => r !== ruta))}
-                className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro hover:bg-rosa"
+                className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-full border border-teal-oscuro bg-white text-teal-oscuro hover:bg-rosa"
               >
                 <Icon nombre="x" className="size-4" strokeWidth={2.5} />
               </button>

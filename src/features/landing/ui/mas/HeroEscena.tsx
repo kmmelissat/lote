@@ -37,7 +37,7 @@ const ESTRELLAS = [
 ];
 
 const TARJETA =
-  "absolute z-[4] rounded-[1.4em] border-2 border-teal-oscuro bg-white p-[0.8em_1em] text-[length:var(--fs)] leading-[1.25] text-teal-oscuro shadow-[4px_4px_0_0_var(--color-teal-oscuro)]";
+  "absolute z-[4] rounded-[1.4em] border border-teal-oscuro bg-white p-[0.8em_1em] text-[length:var(--fs)] leading-[1.25] text-teal-oscuro shadow-[4px_4px_0_0_var(--color-teal-oscuro)]";
 
 function Foto({ clave, className }: { clave: string; className: string }) {
   return <Image src={`/landing/${clave}.webp`} alt="" width={220} height={220} sizes="160px" className={className} />;
@@ -69,7 +69,7 @@ export function HeroEscena() {
       {CONFETI.map((p, i) => (
         <span
           key={i}
-          className={`confeti absolute rounded-full border-2 border-teal-oscuro ${p.c} ${p.g ? "size-[2.2cqw] min-[880px]:size-[1.1cqw]" : "size-[1.6cqw] min-[880px]:size-[0.9cqw]"}`}
+          className={`confeti absolute rounded-full border border-teal-oscuro ${p.c} ${p.g ? "size-[2.2cqw] min-[880px]:size-[1.1cqw]" : "size-[1.6cqw] min-[880px]:size-[0.9cqw]"}`}
           style={css({ left: `${p.x}%`, top: `${p.y}%`, "--retraso": `${(i % 3) * 1.2}s` })}
         />
       ))}
@@ -115,7 +115,7 @@ export function HeroEscena() {
               </div>
               <div className="toldo-celular" />
               <div className="flex items-center gap-[0.7em] px-[1em] pt-[1.1em]">
-                <span className="grid size-[3em] shrink-0 place-items-center rounded-[0.8em] border-2 border-teal-oscuro bg-mango text-[1.3em] font-extrabold">M</span>
+                <span className="grid size-[3em] shrink-0 place-items-center rounded-[0.8em] border border-teal-oscuro bg-mango text-[1.3em] font-extrabold">M</span>
                 <div className="min-w-0">
                   <b className="block text-[1.25em] leading-tight">{m.tienda}</b>
                   <span className="block text-[0.85em] text-texto-2">{m.envio}</span>
@@ -125,7 +125,7 @@ export function HeroEscena() {
               <p className="mx-[1em] mt-[0.7em] rounded-[0.8em] bg-[#eef2f3] px-[0.8em] py-[0.55em] text-[0.9em] text-borde-control">{m.buscar}</p>
               <div className="grid grid-cols-2 gap-[0.7em] px-[1em] pt-[0.8em]">
                 {m.productos.map((p) => (
-                  <div key={p.clave} className="rounded-[1em] border-2 border-teal-oscuro p-[0.35em]">
+                  <div key={p.clave} className="rounded-[1em] border border-teal-oscuro p-[0.35em]">
                     <Foto clave={p.clave} className="aspect-square w-full rounded-[0.7em] object-cover" />
                     <b className="mt-[0.35em] block truncate px-[0.2em] text-[0.82em]">{p.nombre}</b>
                     <span className="block px-[0.2em] pb-[0.15em] text-[0.95em] font-extrabold text-teal">{p.precio}</span>
@@ -145,7 +145,7 @@ export function HeroEscena() {
 
       {/* Una idea por tarjeta */}
       <div className={`${TARJETA} left-[1%] top-[7%] flex w-[60%] -rotate-[2.5deg] items-center gap-[0.7em] rounded-full p-[0.55em_1.1em_0.55em_0.6em] min-[880px]:left-[1%] min-[880px]:top-[4%] min-[880px]:w-[25%]`}>
-        <span className="inline-grid size-[2.4em] shrink-0 place-items-center rounded-full border-2 border-teal-oscuro bg-teal font-extrabold text-white">L</span>
+        <span className="inline-grid size-[2.4em] shrink-0 place-items-center rounded-full border border-teal-oscuro bg-teal font-extrabold text-white">L</span>
         <div>
           <b className="block font-extrabold">{m.venta.titulo}</b>
           <small className="block text-[0.86em] opacity-70">{m.venta.texto}</small>
@@ -154,7 +154,7 @@ export function HeroEscena() {
 
       <div className={`${TARJETA} left-0 top-[36%] w-[27%] -rotate-[4deg] p-[0.35em] min-[880px]:left-[0%] min-[880px]:top-[50%] min-[880px]:w-[14%]`}>
         <Foto clave={primero.clave} className="block aspect-square w-full rounded-[0.9em] object-cover" />
-        <span className="absolute bottom-[0.7em] left-[0.7em] rounded-[0.6em] border-2 border-teal-oscuro bg-crema px-[0.6em] font-extrabold">{primero.precio}</span>
+        <span className="absolute bottom-[0.7em] left-[0.7em] rounded-[0.6em] border border-teal-oscuro bg-crema px-[0.6em] font-extrabold">{primero.precio}</span>
       </div>
 
       <p className={`${TARJETA} left-[10%] top-[33%] hidden -rotate-[1.5deg] rounded-[1em] !border-0 bg-limon p-[0.5em_0.9em] font-semibold !shadow-none min-[880px]:block`}>
@@ -170,7 +170,7 @@ export function HeroEscena() {
       </div>
 
       <div className={`${TARJETA} right-[1%] top-[27%] w-[42%] rotate-2 min-[880px]:right-[1%] min-[880px]:top-[6%] min-[880px]:w-[24%]`}>
-        <span className="mb-[0.5em] grid size-[2.6em] place-items-center rounded-[0.8em] border-2 border-teal-oscuro bg-limon">
+        <span className="mb-[0.5em] grid size-[2.6em] place-items-center rounded-[0.8em] border border-teal-oscuro bg-limon">
           <svg viewBox="0 0 24 24" className="size-[1.3em]" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
             <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />

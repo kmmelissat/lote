@@ -137,9 +137,9 @@ function Burbuja({ negocioId }: { negocioId: string }) {
         aria-label={t.titulo}
         tabIndex={-1}
         hidden={!abierto}
-        className="fixed inset-x-4 bottom-4 top-16 z-40 flex animate-entra flex-col overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-crema shadow-[6px_6px_0_0_var(--color-teal-oscuro)] outline-none motion-reduce:animate-none md:inset-x-auto md:bottom-6 md:right-6 md:top-auto md:h-[38rem] md:max-h-[calc(100dvh-3rem)] md:w-[27rem]"
+        className="fixed inset-x-4 bottom-4 top-16 z-40 flex animate-entra flex-col overflow-hidden rounded-[28px] border border-teal-oscuro bg-crema shadow-[6px_6px_0_0_var(--color-teal-oscuro)] outline-none motion-reduce:animate-none md:inset-x-auto md:bottom-6 md:right-6 md:top-auto md:h-[38rem] md:max-h-[calc(100dvh-3rem)] md:w-[27rem]"
       >
-        <header className="flex items-center gap-3 border-b-2 border-teal-oscuro bg-white px-4 py-3">
+        <header className="flex items-center gap-3 border-b border-teal-oscuro bg-white px-4 py-3">
           <AvatarLotito className="size-11" enLinea />
           <div className="min-w-0 flex-1">
             <p className="font-logo text-xl leading-none">{t.titulo}</p>
@@ -204,9 +204,9 @@ function Burbuja({ negocioId }: { negocioId: string }) {
             height={384}
             priority
             draggable={false}
-            className="pointer-events-none size-14 rounded-full border-2 border-teal-oscuro bg-limon object-cover shadow-dura-chica md:size-16"
+            className="pointer-events-none size-14 rounded-full border border-teal-oscuro bg-limon object-cover shadow-dura-chica md:size-16"
           />
-          <span className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full border-2 border-white bg-teal" />
+          <span className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full border border-white bg-teal" />
         </span>
       </button>
     </div>

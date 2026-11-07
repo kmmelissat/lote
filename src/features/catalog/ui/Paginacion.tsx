@@ -7,7 +7,7 @@ import { paginasVisibles, rango } from "../paginacion";
 const t = textos.explorar;
 
 const redondo =
-  "inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full border-2 border-teal-oscuro px-3 text-sm font-bold transition-[transform,box-shadow] duration-150";
+  "inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full border border-teal-oscuro px-3 text-sm font-bold transition-[transform,box-shadow] duration-150";
 const activo = `${redondo} bg-white hover:-translate-y-0.5 hover:shadow-dura-chica`;
 const apagado = `${redondo} border-teal-oscuro/25 text-teal-oscuro/40`;
 

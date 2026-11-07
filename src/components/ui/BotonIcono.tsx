@@ -15,8 +15,8 @@ const tamanos = { normal: "size-12", chico: "size-11 md:size-10" } as const;
 
 const clase = (variante: keyof typeof variantes, tamano: keyof typeof tamanos) =>
   variante === "suave"
-    ? `inline-flex ${tamanos[tamano]} shrink-0 items-center justify-center rounded-full border-2 border-borde-control transition-colors duration-150 hover:border-teal-oscuro hover:bg-teal-fondo disabled:opacity-50 ${variantes.suave}`
-    : `inline-flex ${tamanos[tamano]} shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none ${variantes[variante]}`;
+    ? `inline-flex ${tamanos[tamano]} shrink-0 items-center justify-center rounded-full border border-borde-control transition-colors duration-150 hover:border-teal-oscuro hover:bg-teal-fondo disabled:opacity-50 ${variantes.suave}`
+    : `inline-flex ${tamanos[tamano]} shrink-0 items-center justify-center rounded-full border border-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none ${variantes[variante]}`;
 
 /** `chico` mide lo mismo que un `Button` chico (el de una tarjeta o una fila). */
 type Props = { icono: NombreIcono; etiqueta: string; variante?: keyof typeof variantes; tamano?: keyof typeof tamanos };

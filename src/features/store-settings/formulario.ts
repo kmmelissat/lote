@@ -57,6 +57,7 @@ const esquema = z.object({
     .transform((s) => s.toLowerCase())
     .refine((c) => esHex(c), t.errorColor),
   logo: texto,
+  banner: texto,
 });
 
 export type DatosTienda = z.output<typeof esquema> & {

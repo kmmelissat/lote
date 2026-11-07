@@ -29,7 +29,7 @@ export function ModalAcciones({ cerrar }: { cerrar: () => void }) {
         aria-modal="true"
         aria-label={t.rapida.titulo}
         onMouseDown={(e) => e.stopPropagation()}
-        className="flex max-h-[min(85dvh,100dvh-1.5rem)] w-full max-w-md animate-entra flex-col overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-crema shadow-dura"
+        className="flex max-h-[min(85dvh,100dvh-1.5rem)] w-full max-w-md animate-entra flex-col overflow-hidden rounded-[24px] border border-teal-oscuro bg-crema shadow-dura"
       >
         <div className="flex shrink-0 items-center justify-between gap-3 bg-celeste-palido px-5 py-4">
           <h2 className="text-lg font-bold">{t.rapida.titulo}</h2>
@@ -37,16 +37,16 @@ export function ModalAcciones({ cerrar }: { cerrar: () => void }) {
             <Icon nombre="x" className="size-5" />
           </button>
         </div>
-        <div className="shrink-0 border-b-2 border-dashed border-teal-oscuro" />
+        <div className="shrink-0 border-b border-dashed border-teal-oscuro" />
         <ul ref={lista} className="grid min-h-0 grid-cols-2 gap-3 overflow-y-auto p-5">
           {accionesDe().map((a) => (
             <li key={a.href}>
               <Link
                 href={a.href}
                 onClick={cerrar}
-                className="flex h-full min-h-28 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-teal-oscuro bg-superficie p-3 text-center font-medium shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                className="flex h-full min-h-28 flex-col items-center justify-center gap-2 rounded-2xl border border-teal-oscuro bg-superficie p-3 text-center font-medium shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
               >
-                <span className={`flex size-11 items-center justify-center rounded-xl border-2 border-teal-oscuro text-teal-oscuro ${a.tono}`}>
+                <span className={`flex size-11 items-center justify-center rounded-xl border border-teal-oscuro text-teal-oscuro ${a.tono}`}>
                   <Icon nombre={a.icono} className="size-5" />
                 </span>
                 {a.etiqueta}
@@ -68,7 +68,7 @@ export function AccionRapida({ abierta, alternar }: { abierta: boolean; alternar
       aria-expanded={abierta}
       aria-haspopup="dialog"
       title={`${t.rapida.titulo} (${t.rapida.atajo})`}
-      className="flex h-11 w-full items-center justify-center gap-2 rounded-sm border-2 border-teal-oscuro bg-celeste text-base font-bold text-teal-oscuro shadow-dura-chica"
+      className="flex h-11 w-full items-center justify-center gap-2 rounded-sm border border-teal-oscuro bg-celeste text-base font-bold text-teal-oscuro shadow-dura-chica"
     >
       <Icon nombre="mas" className="size-6" strokeWidth={2.25} />
       <span className="group-data-[cerrado]:hidden">{t.rapida.titulo}</span>

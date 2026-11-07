@@ -22,7 +22,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
     <>
     <div className="grid min-h-dvh md:grid-cols-[1fr_1fr] lg:grid-cols-[5fr_6fr]">
-      <aside className="relative hidden flex-col justify-between gap-8 overflow-hidden border-r-2 border-teal-oscuro bg-crema bg-[radial-gradient(var(--color-teal-oscuro)_1px,transparent_1.5px)] bg-[length:22px_22px] p-10 md:flex">
+      <aside className="relative hidden flex-col justify-between gap-8 overflow-hidden border-r border-teal-oscuro bg-crema bg-[radial-gradient(var(--color-teal-oscuro)_1px,transparent_1.5px)] bg-[length:22px_22px] p-10 md:flex">
         <Link href="/" aria-label={textos.nombre} className="relative z-10 self-start">
           <Logo />
         </Link>
@@ -53,10 +53,10 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
               return (
                 <li
                   key={b}
-                  className={`relative flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro px-4 py-3 font-medium shadow-dura-chica ${n.giro} ${n.fondo}`}
+                  className={`relative flex items-center gap-3 rounded-2xl border border-teal-oscuro px-4 py-3 font-medium shadow-dura-chica ${n.giro} ${n.fondo}`}
                 >
-                  <span aria-hidden="true" className={`absolute -top-2.5 h-4 w-14 rounded-sm border-2 border-teal-oscuro/30 bg-celeste/70 ${n.cinta}`} />
-                  <span className={`flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro text-teal-oscuro ${n.tono}`}>
+                  <span aria-hidden="true" className={`absolute -top-2.5 h-4 w-14 rounded-sm border border-teal-oscuro/30 bg-celeste/70 ${n.cinta}`} />
+                  <span className={`flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro text-teal-oscuro ${n.tono}`}>
                     <Icon nombre={n.icono} className="size-5" />
                   </span>
                   {b}

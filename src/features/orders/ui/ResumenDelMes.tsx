@@ -54,7 +54,7 @@ export function ResumenDelMes({ mes, className = "" }: { mes: Resumen; className
                   </span>
                   <span className="tabular-nums text-white/85">{t.canal(c.pedidos, formatearDolares(c.vendido))}</span>
                 </span>
-                <span aria-hidden="true" className="h-3 overflow-hidden rounded-full border-2 border-teal-oscuro bg-teal-oscuro/40">
+                <span aria-hidden="true" className="h-3 overflow-hidden rounded-full border border-teal-oscuro bg-teal-oscuro/40">
                   <span className={`block h-full ${COLOR_CANAL[c.canal]}`} style={{ width: `${(c.pedidos / mes.ventas) * 100}%` }} />
                 </span>
               </li>

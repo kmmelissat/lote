@@ -281,7 +281,7 @@ export async function PaginaExplorar({
                       vista: "productos",
                       pagina: 1,
                     })}
-                    className="inline-flex h-9 items-center rounded-full border-2 border-teal-oscuro bg-crema px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
+                    className="inline-flex h-9 items-center rounded-full border border-teal-oscuro bg-crema px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
                   >
                     {c.nombre}
                   </Link>
@@ -352,7 +352,7 @@ export async function PaginaExplorar({
           {vista === "productos" && (
             <aside
               aria-label={t.filtros}
-              className="sticky top-4 hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura-chica lg:block"
+              className="sticky top-4 hidden rounded-[24px] border border-teal-oscuro bg-superficie p-4 shadow-dura-chica lg:block"
             >
               {panel}
             </aside>

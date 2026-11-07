@@ -59,11 +59,11 @@ export function HeroMercadito({
   }, [frases.length]);
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-teal-oscuro text-white shadow-dura">
+    <section className="relative overflow-hidden rounded-[28px] border border-teal-oscuro bg-teal-oscuro text-white shadow-dura">
       {/* Formas que flotan, pocas y lejos del texto */}
-      <span aria-hidden="true" className="pointer-events-none absolute left-[6%] top-[18%] hidden size-16 rounded-full border-2 border-teal-oscuro bg-rosa motion-safe:animate-flotar md:block" />
-      <span aria-hidden="true" className="pointer-events-none absolute right-[8%] top-[20%] hidden size-11 rounded-full border-2 border-teal-oscuro bg-limon [animation-delay:-2s] motion-safe:animate-flotar md:block" />
-      <span aria-hidden="true" className="pointer-events-none absolute bottom-[26%] right-[20%] hidden size-7 rounded-full border-2 border-teal-oscuro bg-celeste [animation-delay:-4s] motion-safe:animate-flotar md:block" />
+      <span aria-hidden="true" className="pointer-events-none absolute left-[6%] top-[18%] hidden size-16 rounded-full border border-teal-oscuro bg-rosa motion-safe:animate-flotar md:block" />
+      <span aria-hidden="true" className="pointer-events-none absolute right-[8%] top-[20%] hidden size-11 rounded-full border border-teal-oscuro bg-limon [animation-delay:-2s] motion-safe:animate-flotar md:block" />
+      <span aria-hidden="true" className="pointer-events-none absolute bottom-[26%] right-[20%] hidden size-7 rounded-full border border-teal-oscuro bg-celeste [animation-delay:-4s] motion-safe:animate-flotar md:block" />
       <div className="relative flex flex-col items-center gap-2 px-4 py-7 text-center md:px-8 md:py-9">
         <h1 className="text-2xl font-bold leading-tight tracking-tight md:text-[32px]">
           {titulo ?? t.encabezadoInicio}{" "}
@@ -76,7 +76,7 @@ export function HeroMercadito({
         <form
           action="/marketplace"
           role="search"
-          className="mt-3 flex h-14 w-full max-w-3xl items-center gap-2 overflow-hidden rounded-full border-2 border-teal-oscuro bg-white py-1 pl-4 pr-1 text-left text-teal-oscuro shadow-dura focus-within:ring-4 focus-within:ring-accion/60"
+          className="mt-3 flex h-14 w-full max-w-3xl items-center gap-2 overflow-hidden rounded-full border border-teal-oscuro bg-white py-1 pl-4 pr-1 text-left text-teal-oscuro shadow-dura focus-within:ring-4 focus-within:ring-accion/60"
         >
           {ocultos}
           <Icon nombre="buscar" className="size-5 shrink-0 text-texto-2" />
@@ -88,14 +88,14 @@ export function HeroMercadito({
             placeholder={t.mercadito.probaCon(frases[i])}
             className="h-full min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-texto-2/70 md:text-lg"
           />
-          <button type="submit" className="inline-flex h-11 shrink-0 items-center rounded-full border-2 border-teal-oscuro bg-accion px-6 text-sm font-extrabold text-accion-texto transition-transform duration-150 hover:-translate-y-0.5">
+          <button type="submit" className="inline-flex h-11 shrink-0 items-center rounded-full border border-teal-oscuro bg-accion px-6 text-sm font-extrabold text-accion-texto transition-transform duration-150 hover:-translate-y-0.5">
             {t.buscarBoton}
           </button>
         </form>
         {extra}
       </div>
       {/* Frases y confianza, en una cinta que corre despacio */}
-      <CintaFrases frases={t.mercadito.beneficios} className="relative border-t-2 border-teal-oscuro bg-black/20 py-2" />
+      <CintaFrases frases={t.mercadito.beneficios} className="relative border-t border-teal-oscuro bg-black/20 py-2" />
     </section>
   );
 }

@@ -14,7 +14,7 @@ export function EmptyState({
   monito?: PoseLotito;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-borde-control bg-superficie px-6 py-10 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-[24px] border border-dashed border-borde-control bg-superficie px-6 py-10 text-center">
       <LotitoMas nombre={monito} className="w-24" />
       {titulo && <h2 className="text-lg font-bold">{titulo}</h2>}
       <p className="max-w-sm text-texto-2">{texto}</p>

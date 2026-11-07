@@ -48,8 +48,8 @@ function Opcion({
   return (
     <label className="cursor-pointer">
       <input type="radio" name={nombre} value={valor} checked={marcada} onChange={onElegir} className="peer sr-only" />
-      <span className="flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro/25 bg-white p-3 transition-colors peer-checked:border-teal-oscuro peer-checked:bg-limon/40 peer-checked:shadow-dura-chica peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro bg-crema">
+      <span className="flex items-center gap-3 rounded-2xl border border-teal-oscuro/25 bg-white p-3 transition-colors peer-checked:border-teal-oscuro peer-checked:bg-accion/20 peer-checked:shadow-dura-chica peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro bg-crema">
           <Icon nombre={icono} className="size-5" />
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
@@ -173,7 +173,7 @@ export function CompraForm({
               <li key={nombre} aria-current={i === paso ? "step" : undefined} className="flex items-center gap-2">
                 <span
                   aria-hidden="true"
-                  className={`grid size-9 place-items-center rounded-full border-2 border-teal-oscuro text-sm font-bold transition-colors ${
+                  className={`grid size-9 place-items-center rounded-full border border-teal-oscuro text-sm font-bold transition-colors ${
                     i < paso ? "bg-teal text-white" : i === paso ? "bg-accion text-accion-texto shadow-dura-chica" : "bg-white text-texto-2"
                   }`}
                 >
@@ -264,7 +264,7 @@ export function CompraForm({
                   </div>
                 )}
                 {cobertura === "no" && (
-                  <p role="status" className="flex items-start gap-2 rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+                  <p role="status" className="flex items-start gap-2 rounded-xl bg-accion/20 px-3 py-2 text-sm font-medium">
                     <Icon nombre="alerta" className="mt-0.5 size-4 shrink-0" />
                     {t.fueraDeZona}
                   </p>
@@ -305,12 +305,12 @@ export function CompraForm({
               />
             ))}
             {/* La tarjeta todavía no existe: se muestra para que se sepa que viene, pero no se puede elegir */}
-            <div aria-disabled="true" className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-teal-oscuro/30 bg-white/50 p-3 opacity-70">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-teal-oscuro/30">
+            <div aria-disabled="true" className="flex items-center gap-3 rounded-2xl border border-dashed border-teal-oscuro/30 bg-white/50 p-3 opacity-70">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro/30">
                 <Icon nombre="moneda" className="size-5" />
               </span>
               <span className="min-w-0 flex-1 font-bold">{t.tarjeta}</span>
-              <span className="shrink-0 rounded-full bg-limon px-3 py-0.5 text-xs font-bold">{t.proximamente}</span>
+              <span className="shrink-0 rounded-full bg-accion/20 px-3 py-0.5 text-xs font-bold">{t.proximamente}</span>
             </div>
           </fieldset>
 
@@ -330,7 +330,7 @@ export function CompraForm({
               <span className="text-texto-2">{t.envioLinea}</span>
               <span className="tabular-nums">{entrega === "retiro" ? t.envioGratis : departamento ? (tarifa === 0 ? t.envioGratis : formatearDolares(tarifa)) : "–"}</span>
             </p>
-            <p className="flex justify-between border-t-2 border-teal-oscuro pt-2 text-lg font-bold">
+            <p className="flex justify-between border-t border-teal-oscuro pt-2 text-lg font-bold">
               <span>{t.total}</span>
               <span className="tabular-nums">{formatearDolares(subtotal + tarifa)}</span>
             </p>
@@ -344,7 +344,7 @@ export function CompraForm({
 
           <MensajeError>{estado.error}</MensajeError>
           {/* Anclado abajo: el total, "Volver" y el botón principal siempre se ven, sea cual sea el paso */}
-          <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex flex-col gap-2 rounded-b-[22px] border-t-2 border-teal-oscuro bg-crema px-5 py-3 md:-mx-6 md:-mb-6 md:px-6">
+          <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex flex-col gap-2 rounded-b-[22px] border-t border-teal-oscuro bg-crema px-5 py-3 md:-mx-6 md:-mb-6 md:px-6">
             {paso === 2 && !acepta && (
               <p role="status" className="text-sm font-medium text-ambar-texto">
                 {ta.aceptaFalta}
@@ -359,14 +359,14 @@ export function CompraForm({
                 <button
                   type="button"
                   onClick={() => setPaso(paso - 1)}
-                  className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
                 >
                   {t.volver}
                 </button>
               ) : (
                 <Link
                   href={volverHref}
-                  className="inline-flex h-12 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-teal-oscuro bg-white px-5 font-bold hover:-translate-y-0.5 hover:shadow-dura-chica"
                 >
                   {t.volver}
                 </Link>
@@ -376,7 +376,7 @@ export function CompraForm({
                   key="siguiente"
                   type="button"
                   onClick={siguiente}
-                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
                 >
                   {t.siguiente}
                 </button>
@@ -385,7 +385,7 @@ export function CompraForm({
                   key="confirmar"
                   type="submit"
                   disabled={pendiente || !metodoElegido || !acepta}
-                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+                  className="inline-flex h-12 flex-1 items-center justify-center rounded-full border border-teal-oscuro bg-accion px-8 font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60"
                 >
                   {pendiente ? t.confirmando : metodosDisponibles.length === 0 ? t.escribir : t.confirmar}
                 </button>

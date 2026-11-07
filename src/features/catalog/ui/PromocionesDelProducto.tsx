@@ -19,11 +19,11 @@ export function PromocionesDelProducto({ anuncios, compacto = false }: { anuncio
       )}
       <ul className={`grid gap-2 ${!compacto && anuncios.length > 1 ? "md:grid-cols-2" : ""}`}>
         {anuncios.map((a) => (
-          <li key={a.clave} className="flex items-center gap-3 rounded-2xl border-2 border-teal-oscuro bg-superficie p-2.5">
+          <li key={a.clave} className="flex items-center gap-3 rounded-2xl border border-teal-oscuro/30 bg-superficie p-2.5">
             {a.fotos.length > 0 && (
               <div className="flex shrink-0 -space-x-3" aria-hidden="true">
                 {a.fotos.map((f) => (
-                  <span key={f} className={`relative overflow-hidden size-11 rounded-2xl border-2 border-teal-oscuro bg-superficie`}>
+                  <span key={f} className={`relative overflow-hidden size-11 rounded-2xl border border-teal-oscuro/30 bg-superficie`}>
                     <Image src={urlFoto(f)} alt="" fill sizes="64px" className="object-cover" />
                   </span>
                 ))}
@@ -39,7 +39,7 @@ export function PromocionesDelProducto({ anuncios, compacto = false }: { anuncio
                     <span className="sr-only">{textos.explorar.antes} </span>
                     {a.precios.antes}
                   </span>
-                  <span className="rounded-full border-2 border-teal-oscuro bg-mango px-2 text-[11px] font-extrabold">
+                  <span className="rounded-full border border-teal-oscuro/30 bg-accion text-accion-texto px-2 text-[11px] font-extrabold">
                     {t.ahorras(a.precios.ahorro)}
                   </span>
                 </p>

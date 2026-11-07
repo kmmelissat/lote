@@ -120,7 +120,7 @@ export function OfertaProducto({
       {ofertas.length > 0 ? (
         <ul className="flex flex-col gap-3">
           {ofertas.map((o) => (
-            <li key={o.lote} className="flex flex-col gap-2 rounded-2xl border-2 border-teal-oscuro bg-limon p-4">
+            <li key={o.lote} className="flex flex-col gap-2 rounded-2xl border border-teal-oscuro bg-limon p-4">
               <p className="font-bold">
                 {o.estado === "activa" ? t.activa : t.programada} · {t.rebaja(textoDeRebaja(o.descuento))}
               </p>
@@ -152,7 +152,7 @@ export function OfertaProducto({
                     setModo(m);
                     setValor("");
                   }}
-                  className={`min-h-11 flex-1 rounded-full border-2 border-teal-oscuro px-3 text-sm font-medium ${modo === m ? "bg-limon font-bold" : "bg-superficie"}`}
+                  className={`min-h-11 flex-1 rounded-full border border-teal-oscuro px-3 text-sm font-medium ${modo === m ? "bg-limon font-bold" : "bg-superficie"}`}
                 >
                   {t.modos[m]}
                 </button>
@@ -166,7 +166,7 @@ export function OfertaProducto({
                 onChange={(e) => setValor(soloNumero(e.target.value, true))}
                 aria-invalid={leido === "invalido" || sinRebaja || undefined}
                 placeholder={modo === "porcentaje" ? "20 %" : "$0.00"}
-                className="h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base tabular-nums focus:border-teal"
+                className="h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base tabular-nums focus:border-teal"
               />
             </label>
             <p className="text-sm text-texto-2">{modo === "precio" && precioUnico !== null ? t.ayudaCampo.precio(formatearDolares(precioUnico)) : modo === "porcentaje" ? t.ayudaCampo.porcentaje : t.ayudaCampo.monto}</p>

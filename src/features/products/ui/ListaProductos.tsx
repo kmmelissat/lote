@@ -305,7 +305,7 @@ export function ListaProductos({
                 setFalta(nueva);
                 guardarEnUrl({ falta: nueva });
               }}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-borde-control bg-superficie px-4 text-sm font-bold text-teal-oscuro transition-colors hover:bg-fondo aria-pressed:border-teal-oscuro aria-pressed:bg-teal-fondo md:min-h-10"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-borde-control bg-superficie px-4 text-sm font-bold text-teal-oscuro transition-colors hover:bg-fondo aria-pressed:border-teal-oscuro aria-pressed:bg-teal-fondo md:min-h-10"
             >
               {f === "costo" ? t.buscar.sinCosto : t.buscar.sinFoto}
             </button>
@@ -364,10 +364,10 @@ export function ListaProductos({
                         alt=""
                         width={56}
                         height={56}
-                        className="size-14 rounded-xl border-2 border-teal-oscuro/20 object-cover max-md:row-span-2 max-md:self-start"
+                        className="size-14 rounded-xl border border-teal-oscuro/20 object-cover max-md:row-span-2 max-md:self-start"
                       />
                     ) : (
-                      <span aria-hidden="true" className="flex size-14 items-center justify-center rounded-xl border-2 border-teal-oscuro/20 bg-fondo text-texto-2 max-md:row-span-2 max-md:self-start">
+                      <span aria-hidden="true" className="flex size-14 items-center justify-center rounded-xl border border-teal-oscuro/20 bg-fondo text-texto-2 max-md:row-span-2 max-md:self-start">
                         <Icon nombre="caja" className="size-6" />
                       </span>
                     )}

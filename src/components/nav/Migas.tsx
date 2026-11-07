@@ -33,6 +33,12 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
   const partes = pathname.split("/").filter(Boolean);
   if (!partes.length || SIN_MIGAS.has(partes[0])) return null;
 
+  // La portada de una tienda lleva su propia barra con el logo de Lote
+  if (partes[0] === "c" && (partes.length === 2 || (partes.length === 3 && /^\d+$/.test(partes[2])))) return null;
+
+  // El carrito también: lleva la barra de la tienda
+  if (partes[0] === "c" && partes.length === 3 && partes[2] === "carrito") return null;
+
   const cabeza = partes[0];
   const casa: Casa = PANEL.has(cabeza)
     ? { href: "/inicio", etiqueta: textos.nav.inicio, icono: "inicio" }
@@ -45,6 +51,8 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
   for (const parte of partes) {
     acumulado.push(parte);
     if (SALTAR.has(parte)) continue;
+    // El código de un producto es un dato interno: la miga no lo muestra
+    if (cabeza === "c" && /^\d+$/.test(parte)) continue;
     // /marketplace/categoria no es una página: la migas pasa directo al rubro, con su nombre
     if (cabeza === "marketplace" && parte === "categoria") continue;
     // Sale de la dirección actual, así que la página existe: no hay nada que validar

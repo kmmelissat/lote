@@ -25,12 +25,18 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
 
   if (d.logo && !esRutaFoto(d.logo, negocio.id)) return { error: t.errorLogo };
 
+  if (d.banner && !esRutaFoto(d.banner, negocio.id)) return { error: t.errorBanner };
+
+  // El banner de antes (si ya existe la columna), para borrarlo del bucket si cambió
+  const { data: previo } = await supabase.from("negocio").select("banner").eq("id", negocio.id).maybeSingle();
+
   const ok = await guardar(supabase, negocio.id, {
     // Si no cambió, no se toca
     slug: d.slug === negocio.slug ? undefined : d.slug,
     nombre: d.nombre,
     descripcion: d.frase || null,
     logo: d.logo || null,
+    banner: d.banner || null,
     color: colorDeMarca(d.color).hex,
     whatsapp: d.whatsapp || null,
     usuarioInstagram: d.instagram || null,
@@ -56,6 +62,8 @@ export async function guardarTienda(_anterior: EstadoTienda, formData: FormData)
 
   // El logo de antes ya no se usa: se borra del bucket
   if (negocio.logo && negocio.logo !== (d.logo || null)) await borrarSiNadieLasUsa(supabase, [negocio.logo]);
+
+  if (previo?.banner && previo.banner !== (d.banner || null)) await borrarSiNadieLasUsa(supabase, [previo.banner]);
 
   await rastrearAccion("tienda_configurada");
   revalidatePath("/", "layout");

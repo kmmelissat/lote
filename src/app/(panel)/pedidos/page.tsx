@@ -104,7 +104,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
           <ParaAtender urgentes={pedidosUrgentes(abiertos, ahora)} ahora={ahora} />
           {/* En el celular el mes va plegado: es contexto, y la lista de pedidos no tiene que quedar tan abajo */}
           <details className="group md:hidden">
-            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between rounded-[24px] border-2 border-teal-oscuro bg-superficie px-4 font-bold [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between rounded-[24px] border border-teal-oscuro bg-superficie px-4 font-bold [&::-webkit-details-marker]:hidden">
               {t.mes.verMes}
               <Icon nombre="flecha" className="size-5 transition-transform group-open:rotate-180" />
             </summary>

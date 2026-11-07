@@ -11,7 +11,7 @@ import type { ProductoMostrador } from "../repositorio";
 
 const t = textos.mostrador;
 
-const sticker = "rounded-full border-2 border-teal-oscuro px-2 py-0.5 text-xs font-bold";
+const sticker = "rounded-full border border-teal-oscuro px-2 py-0.5 text-xs font-bold";
 
 export function ProductosDelMostrador({
   todos,
@@ -148,7 +148,7 @@ function Tarjeta({
         type="button"
         onClick={tocar}
         aria-label={etiqueta}
-        className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px] border-2 border-teal-oscuro bg-superficie text-left transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+        className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px] border border-teal-oscuro bg-superficie text-left transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
       >
         <div className="relative aspect-square w-full bg-teal-fondo">
           {foto ? (
@@ -173,7 +173,7 @@ function Tarjeta({
             </span>
           )}
           {cantidad > 0 && (
-            <span className="absolute right-2 top-2 grid size-8 place-items-center rounded-full border-2 border-teal-oscuro bg-mango text-sm font-bold">
+            <span className="absolute right-2 top-2 grid size-8 place-items-center rounded-full border border-teal-oscuro bg-mango text-sm font-bold">
               {cantidad}
             </span>
           )}

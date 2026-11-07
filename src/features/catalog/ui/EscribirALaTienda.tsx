@@ -13,7 +13,7 @@ export function EscribirALaTienda({ whatsapp, negocio, codigo }: { whatsapp: str
       href={enlace}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro bg-accion px-5 py-2 text-center font-bold text-accion-texto shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura"
+      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-oscuro/30 bg-accion px-5 py-2 text-center font-bold text-accion-texto transition-[transform,box-shadow] duration-150"
     >
       <Icon nombre="chat" className="size-5 shrink-0" />
       {t.escribir(negocio)}

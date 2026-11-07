@@ -50,14 +50,14 @@ const ESTILO: Record<RubroId, { Icono: LucideIcon; fondo: string }> = {
 const VISIBLES = 6;
 
 const tarjeta = (activa: boolean) =>
-  `group flex h-12 shrink-0 snap-start items-center gap-2 rounded-2xl border-2 border-teal-oscuro py-1.5 pl-1.5 pr-3.5 transition-[transform,box-shadow] duration-150 md:h-14 md:gap-2.5 md:rounded-[18px] md:py-2 md:pl-2 md:pr-4 lg:w-full ${
+  `group flex h-12 shrink-0 snap-start items-center gap-2 rounded-2xl border border-teal-oscuro py-1.5 pl-1.5 pr-3.5 transition-[transform,box-shadow] duration-150 md:h-14 md:gap-2.5 md:rounded-[18px] md:py-2 md:pl-2 md:pr-4 lg:w-full ${
     activa ? "bg-teal-oscuro text-white shadow-dura-chica" : `bg-white hover:-translate-y-0.5 hover:shadow-dura-chica`
   }`;
 
 function Contenido({ Icono, nombre, fondo = "bg-white", activa = false }: { Icono: LucideIcon; nombre: string; fondo?: string; activa?: boolean }) {
   return (
     <>
-      <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro ${activa ? "bg-white" : fondo} text-teal-oscuro md:size-9`}>
+      <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full border border-teal-oscuro ${activa ? "bg-white" : fondo} text-teal-oscuro md:size-9`}>
         <Icono className="size-4 md:size-5" strokeWidth={2.2} />
       </span>
       <span className="whitespace-nowrap text-[13px] font-bold leading-tight md:text-sm lg:whitespace-normal">{nombre}</span>
@@ -91,12 +91,12 @@ export function TarjetasRubro({ rubros, activo, enlace }: { rubros: Rubro[]; act
           <li className="relative hidden lg:block lg:min-w-0 lg:flex-1">
             <details className="group/mas h-full">
               <summary className={`${tarjeta(false)} h-full cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
-                <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white">
+                <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-white">
                   <ChevronDown className="size-5 transition-transform group-open/mas:rotate-180" strokeWidth={2.2} />
                 </span>
                 <span className="text-sm font-bold leading-tight">{t.masCategorias}</span>
               </summary>
-              <ul className="absolute right-0 z-20 mt-2 flex w-60 flex-col gap-0.5 rounded-[20px] border-2 border-teal-oscuro bg-white p-2 shadow-dura">
+              <ul className="absolute right-0 z-20 mt-2 flex w-60 flex-col gap-0.5 rounded-[20px] border border-teal-oscuro bg-white p-2 shadow-dura">
                 {resto.map((r) => {
                   const { Icono } = ESTILO[r.id];
                   return (

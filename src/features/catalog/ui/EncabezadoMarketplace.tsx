@@ -44,7 +44,7 @@ function Encabezado() {
 
   return (
     <header className="sticky top-2 z-40 px-2 pt-2 md:px-6 xl:px-10">
-      <div className="relative flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[22px] border-2 border-teal-oscuro bg-crema px-3 py-2.5 shadow-dura-chica md:flex-nowrap md:gap-x-4 md:px-4">
+      <div className="relative flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[22px] border border-teal-oscuro bg-crema px-3 py-2.5 shadow-dura-chica md:flex-nowrap md:gap-x-4 md:px-4">
         <Link href="/" aria-label={textos.nombre} className="shrink-0 pl-1">
           <Logo />
         </Link>
@@ -53,14 +53,14 @@ function Encabezado() {
           <form
             action="/marketplace"
             role="search"
-            className="flex h-11 items-center overflow-hidden rounded-full border-2 border-teal-oscuro bg-white focus-within:ring-2 focus-within:ring-accion"
+            className="flex h-11 items-center overflow-hidden rounded-full border border-teal-oscuro bg-white focus-within:ring-2 focus-within:ring-accion"
           >
             <button
               type="button"
               aria-expanded={abierto}
               aria-controls="menu-categorias"
               onClick={() => setAbierto((a) => !a)}
-              className="inline-flex h-full shrink-0 items-center gap-1.5 border-r-2 border-teal-oscuro px-3 text-sm font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo/50 aria-expanded:bg-teal-fondo/60 md:px-4"
+              className="inline-flex h-full shrink-0 items-center gap-1.5 border-r border-teal-oscuro px-3 text-sm font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo/50 aria-expanded:bg-teal-fondo/60 md:px-4"
             >
               <Icon nombre="menu" className="size-4 md:hidden" />
               <span className="hidden md:inline">{e.categorias}</span>
@@ -70,7 +70,7 @@ function Encabezado() {
             <Suspense fallback={<input type="search" name="q" aria-label={t.buscar} placeholder={t.buscar} className={claseCampo} />}>
               <CampoBusqueda />
             </Suspense>
-            <button type="submit" aria-label={t.buscarBoton} className="mr-1 inline-flex h-8 w-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-accion text-accion-texto transition-transform hover:-translate-y-0.5">
+            <button type="submit" aria-label={t.buscarBoton} className="mr-1 inline-flex h-8 w-10 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-accion text-accion-texto transition-transform hover:-translate-y-0.5">
               <Icon nombre="buscar" className="size-5" />
             </button>
           </form>
@@ -79,7 +79,7 @@ function Encabezado() {
             <div
               id="menu-categorias"
               onClick={(ev) => (ev.target as HTMLElement).closest("a") && cerrar()}
-              className="absolute inset-x-0 top-full z-50 mt-3 flex max-h-[70dvh] overflow-hidden rounded-[22px] border-2 border-teal-oscuro bg-white shadow-dura md:inset-x-auto md:left-0 md:w-[44rem]"
+              className="absolute inset-x-0 top-full z-50 mt-3 flex max-h-[70dvh] overflow-hidden rounded-[22px] border border-teal-oscuro bg-white shadow-dura md:inset-x-auto md:left-0 md:w-[44rem]"
             >
               {/* Los rubros a la izquierda; al pasar por uno, a la derecha aparecen sus categorías */}
               <ul className="flex w-full shrink-0 flex-col overflow-y-auto bg-teal-fondo/40 p-2 md:w-60">
@@ -133,12 +133,12 @@ function Encabezado() {
           <Link
             href={carrito.slug ? ruta(`/c/${carrito.slug}/carrito`) : "/marketplace"}
             aria-label={carrito.unidades ? e.carritoCon(carrito.unidades) : e.carrito}
-            className="relative ml-1 inline-flex h-11 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-accion px-3 text-sm font-bold text-accion-texto transition-transform hover:-translate-y-0.5 md:px-4"
+            className="relative ml-1 inline-flex h-11 items-center gap-2 rounded-full border border-teal-oscuro bg-accion px-3 text-sm font-bold text-accion-texto transition-transform hover:-translate-y-0.5 md:px-4"
           >
             <Icon nombre="carrito" className="size-5" />
             <span className="hidden lg:inline">{e.carrito}</span>
             {carrito.unidades > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 flex min-w-5 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white px-1 text-[11px] font-extrabold tabular-nums text-teal-oscuro">
+              <span className="absolute -right-1.5 -top-1.5 flex min-w-5 items-center justify-center rounded-full border border-teal-oscuro bg-white px-1 text-[11px] font-extrabold tabular-nums text-teal-oscuro">
                 {carrito.unidades}
               </span>
             )}

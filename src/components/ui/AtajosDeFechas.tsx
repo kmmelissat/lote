@@ -7,7 +7,7 @@ import { textos } from "@/lib/textos";
 const t = textos.promociones;
 
 const pildora =
-  "min-h-11 rounded-full border-2 border-teal-oscuro bg-superficie px-4 text-sm font-bold hover:bg-limon focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal";
+  "min-h-11 rounded-full border border-teal-oscuro bg-superficie px-4 text-sm font-bold hover:bg-limon focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal";
 
 /**
  * Atajos para elegir las fechas de un tirón: solo hoy, esta semana (hasta el sábado), este mes. Con `sinFecha`,

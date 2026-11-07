@@ -20,7 +20,7 @@ const ALTO_PX = 400;
 const FILAS = 6;
 
 const flecha =
-  "grid size-11 place-items-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro hover:bg-limon disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-superficie";
+  "grid size-11 place-items-center rounded-full border border-teal-oscuro bg-superficie text-teal-oscuro hover:bg-limon disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-superficie";
 
 /**
  * El selector de fecha de la app: un calendario propio en vez del del navegador (que en cada teléfono se ve distinto).
@@ -185,7 +185,7 @@ export function SelectorFecha({
             abrir();
           }
         }}
-        className={`flex h-12 w-full items-center justify-between gap-3 rounded-[14px] border-2 bg-superficie px-4 text-left text-base focus:border-teal disabled:opacity-50 ${error ? "border-error" : "border-borde-control"}`}
+        className={`flex h-12 w-full items-center justify-between gap-3 rounded-[14px] border bg-superficie px-4 text-left text-base focus:border-teal disabled:opacity-50 ${error ? "border-error" : "border-borde-control"}`}
       >
         <span className={`truncate ${elegida ? "" : "text-texto-2/70"}`}>{elegida ? verFecha(elegida) : placeholder}</span>
         <Icon nombre="calendario" className="size-5 shrink-0 text-teal-oscuro" />
@@ -203,7 +203,7 @@ export function SelectorFecha({
           role="dialog"
           aria-label={t.calendario(nombreMes)}
           onKeyDown={teclado}
-          className={`absolute z-20 w-[19.5rem] max-w-[calc(100vw-2rem)] animate-entra rounded-2xl border-2 border-teal-oscuro bg-white p-3 shadow-dura ${
+          className={`absolute z-20 w-[19.5rem] max-w-[calc(100vw-2rem)] animate-entra rounded-2xl border border-teal-oscuro bg-white p-3 shadow-dura ${
             arriba ? "bottom-full mb-2" : "top-full mt-2"
           } ${aLaDerecha ? "right-0" : "left-0"}`}
         >
@@ -245,7 +245,7 @@ export function SelectorFecha({
                         className={`mx-auto grid size-10 place-items-center rounded-full text-sm tabular-nums focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal disabled:cursor-not-allowed disabled:text-texto-2/40 ${
                           dia === elegida
                             ? "bg-teal-oscuro font-bold text-white"
-                            : `${dia === hoy ? "border-2 border-teal-oscuro font-bold" : ""} enabled:hover:bg-limon`
+                            : `${dia === hoy ? "border border-teal-oscuro font-bold" : ""} enabled:hover:bg-limon`
                         }`}
                       >
                         {leerIso(dia)!.dia}

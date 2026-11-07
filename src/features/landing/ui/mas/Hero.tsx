@@ -13,12 +13,12 @@ export function Hero({ conSesion }: { conSesion: boolean }) {
       <div className="relative flex min-h-svh flex-col justify-center">
         <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center gap-7 px-5 pb-12 pt-36 min-[880px]:gap-2 min-[880px]:px-10 min-[880px]:pb-16 min-[880px]:pt-32">
           <Aparece alCargar className="relative flex max-w-[760px] flex-col items-center gap-3 text-center min-[880px]:gap-3.5">
-            <span className="-rotate-2 rounded-full border-2 border-teal-oscuro bg-celeste px-4 py-1.5 text-sm font-bold text-teal-oscuro shadow-dura-chica">
+            <span className="-rotate-2 rounded-full border border-teal-oscuro bg-celeste px-4 py-1.5 text-sm font-bold text-teal-oscuro shadow-dura-chica">
               {t.hero.etiqueta}
             </span>
             <h1 className="flex flex-col items-center gap-2 text-[38px] font-extrabold leading-[1.04] tracking-[-0.04em] text-teal-oscuro min-[880px]:text-[56px]">
               <span>{t.hero.tituloInicio}</span>
-              <span className="-rotate-1 whitespace-nowrap rounded-[16px] border-[3px] border-teal-oscuro bg-rosa px-3 py-0.5 text-[31px] text-crema shadow-[5px_5px_0_0_var(--color-teal-oscuro)] min-[880px]:text-[46px]">
+              <span className="-rotate-1 whitespace-nowrap rounded-[16px] border border-teal-oscuro bg-rosa px-3 py-0.5 text-[31px] text-crema shadow-[5px_5px_0_0_var(--color-teal-oscuro)] min-[880px]:text-[46px]">
                 {t.hero.tituloMarca}
               </span>
             </h1>

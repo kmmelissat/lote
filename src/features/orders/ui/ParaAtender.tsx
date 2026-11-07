@@ -43,7 +43,7 @@ export function ParaAtender({ urgentes, ahora }: { urgentes: Urgente[]; ahora: D
           {visibles.map((u) => (
             <li key={u.pedido.id}>
               <Link href={`/pedidos/${u.pedido.codigo}`} className="flex min-h-14 items-center gap-3 rounded-2xl px-2 py-2 transition-colors hover:bg-teal-fondo/50">
-                <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-full border-2 border-teal-oscuro ${FONDO[u.motivo]}`}>
+                <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-full border border-teal-oscuro ${FONDO[u.motivo]}`}>
                   <Icon nombre={ICONO[u.motivo]} className="size-5" />
                 </span>
                 <span className="min-w-0 flex-1">

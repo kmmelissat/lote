@@ -33,7 +33,7 @@ export function Insignia({ n, urgente, enCamino = 0 }: { n: number; urgente: boo
   if (n === 0 && enCamino > 0) {
     return (
       <span className="relative flex shrink-0 group-data-[cerrado]:absolute group-data-[cerrado]:right-2 group-data-[cerrado]:top-1.5">
-        <span className="size-3 rounded-full border-2 border-teal-oscuro bg-celeste" />
+        <span className="size-3 rounded-full border border-teal-oscuro bg-celeste" />
         <span className="sr-only">{textos.nav.enCamino(enCamino)}</span>
       </span>
     );
@@ -45,7 +45,7 @@ export function Insignia({ n, urgente, enCamino = 0 }: { n: number; urgente: boo
         <span className="sr-only">{textos.nav.porAtender(n)}: </span>
         {n}
       </span>
-      {urgente && <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-crema bg-rosa" />}
+      {urgente && <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border border-crema bg-rosa" />}
     </span>
   );
 }
@@ -83,7 +83,7 @@ export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]
   return (
     <Link href={pasos.siguiente.href} className="mt-auto flex flex-col gap-2 pt-1 text-teal-oscuro group-data-[cerrado]:hidden">
       <span className="flex items-center justify-between gap-2">
-        <span className="-rotate-1 rounded-sm border-2 border-teal-oscuro bg-celeste px-1.5 py-0.5 text-teal-oscuro font-logo text-[10px] tracking-widest uppercase shadow-dura-chica max-md:text-xs">
+        <span className="-rotate-1 rounded-sm border border-teal-oscuro bg-celeste px-1.5 py-0.5 text-teal-oscuro font-logo text-[10px] tracking-widest uppercase shadow-dura-chica max-md:text-xs">
           {t.pasos.siguiente}
         </span>
         <span className="font-logo text-sm tabular-nums max-md:text-base">{t.pasos.avance(pasos.hechos, pasos.total)}</span>
@@ -99,7 +99,7 @@ export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]
         {Array.from({ length: pasos.total }, (_, i) => (
           <span
             key={i}
-            className={`size-2.5 rounded-full border-2 border-teal-oscuro ${i < pasos.hechos ? "bg-rosa" : "bg-superficie"}`}
+            className={`size-2.5 rounded-full border border-teal-oscuro ${i < pasos.hechos ? "bg-rosa" : "bg-superficie"}`}
           />
         ))}
       </span>
@@ -135,7 +135,7 @@ export function TarjetaPerfil({
         aria-label={t.menuPerfil}
         className={
           botonClass ??
-          "flex min-h-12 w-full items-center gap-3 rounded-xl border-2 border-teal-oscuro/15 bg-superficie p-1.5 text-left hover:border-teal-oscuro group-data-[cerrado]:justify-center group-data-[cerrado]:border-transparent"
+          "flex min-h-12 w-full items-center gap-3 rounded-xl border border-teal-oscuro/15 bg-superficie p-1.5 text-left hover:border-teal-oscuro group-data-[cerrado]:justify-center group-data-[cerrado]:border-transparent"
         }
       >
         {perfil.logo ? (
@@ -155,7 +155,7 @@ export function TarjetaPerfil({
         />
       </button>
       {abierto && (
-        <div role="menu" className={`absolute z-30 w-60 rounded-2xl border-2 border-teal-oscuro bg-superficie p-2 text-texto shadow-dura ${menuClass}`}>
+        <div role="menu" className={`absolute z-30 w-60 rounded-2xl border border-teal-oscuro bg-superficie p-2 text-texto shadow-dura ${menuClass}`}>
           <Link
             href={textos.ayuda.ruta}
             role="menuitem"

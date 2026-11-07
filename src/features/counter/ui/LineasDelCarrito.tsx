@@ -8,7 +8,7 @@ const t = textos.mostrador;
 
 export type LineaDetallada = { productoId: string; cantidad: number; producto: ProductoMostrador };
 
-const boton = "grid size-10 shrink-0 place-items-center rounded-full border-2 border-teal-oscuro bg-superficie text-lg font-bold";
+const boton = "grid size-10 shrink-0 place-items-center rounded-full border border-teal-oscuro bg-superficie text-lg font-bold";
 
 /**
  * Lo que lleva la venta, una fila por producto: el nombre a la izquierda, la cantidad con − y + en el medio y lo que suma

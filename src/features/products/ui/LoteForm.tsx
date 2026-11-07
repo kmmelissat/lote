@@ -120,13 +120,13 @@ export function LoteForm({ negocioId, cuentas, tarjetas = [] }: { negocioId: str
                         alt={textos.productos.fotos.foto(i + 1)}
                         width={80}
                         height={80}
-                        className="size-16 rounded-xl border-2 border-teal-oscuro object-cover sm:size-20"
+                        className="size-16 rounded-xl border border-teal-oscuro object-cover sm:size-20"
                       />
                       <button
                         type="button"
                         aria-label={t.quitarPieza(i + 1)}
                         onClick={() => setRutas((rs) => rs.filter((r) => r !== ruta))}
-                        className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full border-2 border-teal-oscuro bg-white text-teal-oscuro hover:bg-rosa"
+                        className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full border border-teal-oscuro bg-white text-teal-oscuro hover:bg-rosa"
                       >
                         <Icon nombre="x" className="size-3.5" strokeWidth={2.5} />
                       </button>

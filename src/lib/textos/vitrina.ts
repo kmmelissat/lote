@@ -23,7 +23,7 @@ export const vitrina = {
     nuevo: "Nuevo",
     ultimas: "Últimas unidades",
     ultima: "Última unidad",
-    vendidas: (n: number) => (n === 1 ? "1 vendida" : `${n} vendidas`),
+    vendidas: (n: number) => (n === 1 ? "1 venta" : `${n} ventas`),
     oferta: (porcentaje: number) => `${porcentaje} % menos`,
   },
   envioResumen: {
@@ -46,7 +46,7 @@ export const vitrina = {
   },
   comoComprar: {
     titulo: "Así de fácil",
-    subtitulo: "Tres cosas que conviene saber antes de pedir.",
+    subtitulo: "Antes de pedir.",
     pagar: {
       titulo: "Pagás como te quede cómodo",
       con: (metodos: string) => `Podés pagar con ${metodos}. Primero confirmás el pedido y después pagás.`,
@@ -59,7 +59,7 @@ export const vitrina = {
       textoConRetiro: "Envío a domicilio o retiro en la tienda. Lo coordinás por WhatsApp.",
       zonas: (donde: string) => `Entrega en ${donde}.`,
     },
-    cambios: { titulo: "Cambios y devoluciones" },
+    cambios: { titulo: "Revisá antes de pedir" },
     apartar: {
       titulo: "¿Todavía lo estás pensando?",
       texto: (horas: number) => `Apartalo y te lo guardamos ${horas} ${horas === 1 ? "hora" : "horas"} sin pagar. Pensalo con calma.`,
@@ -88,8 +88,10 @@ export const vitrina = {
     subtotal: "Productos",
     total: "Total",
     envioAparte: "El envío se calcula en el siguiente paso.",
-    cuantos: (n: number) => (n === 1 ? "1 producto" : `${n} productos`),
-    productosN: (n: number) => (n === 1 ? "Productos (1 unidad)" : `Productos (${n} unidades)`),
+    conteo: (productos: number, unidades: number) =>
+      `${productos === 1 ? "1 producto" : `${productos} productos`} · ${unidades === 1 ? "1 unidad" : `${unidades} unidades`}`,
+    volverATienda: (nombre: string) => `Volver a ${nombre}`,
+    subtotalLinea: "Subtotal",
     envio: "Envío",
     envioPaso: "En el siguiente paso",
     totalAhora: "Total hasta ahora",
@@ -151,8 +153,13 @@ export const vitrina = {
   opcionApartada: (etiqueta: string) => `${etiqueta} (apartado)`,
   desde: (precio: string) => `Desde ${precio}`,
   nOpciones: (n: number) => `${n} opciones`,
+  confianza: [
+    { icono: "candado", texto: "Compra protegida por Lote" },
+    { icono: "billetera", texto: "Pagás con transferencia o contra entrega" },
+    { icono: "camion", texto: "Envíos a domicilio" },
+  ] as const,
   perfil: {
-    verificada: "Tienda verificada",
+    verificada: "Tienda verificada en Lote",
     datos: "Datos de la tienda",
     resenas: (n: number) => (n === 1 ? "1 reseña" : `${n} reseñas`),
     calificacion: (promedio: number, total: number) => `${promedio.toFixed(1)} de 5 estrellas, ${total === 1 ? "1 reseña" : `${total} reseñas`}`,
@@ -161,6 +168,7 @@ export const vitrina = {
     desde: "vendiendo en Lote",
   },
   tarjeta: {
+    elegirOpcion: "Elegí cuál querés agregar al carrito.",
     agregar: (nombre: string) => `Agregar ${nombre} al carrito`,
     agregado: "Agregado",
     calificacion: (promedio: number, total: number) => `${promedio.toFixed(1)} de 5 estrellas, ${total} ${total === 1 ? "reseña" : "reseñas"}`,
@@ -254,6 +262,7 @@ export const vitrina = {
   },
   noDisponible: "Este producto ya no está disponible.",
   verMas: "Ver más",
+  verMenos: "Ver menos",
   noDisponibleCorto: "no disponible con tu elección",
   apartadoAviso: "Este producto está apartado. Si no lo pagan a tiempo, vuelve a estar disponible.",
   apartarApagado: "Este negocio no recibe apartados desde la tienda por ahora. Escribile para pedirlo.",

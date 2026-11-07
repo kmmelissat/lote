@@ -25,7 +25,7 @@ export function AcomodarCategorias({ sinCategoria }: { sinCategoria: number }) {
   }
 
   return (
-    <section className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border-2 border-teal-oscuro bg-limon px-4 py-3 md:px-5">
+    <section className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-teal-oscuro bg-limon px-4 py-3 md:px-5">
       <div className="max-w-xl">
         <h2 className="font-bold">{t.titulo(sinCategoria)}</h2>
         <p className="text-sm text-texto-2">{t.texto}</p>

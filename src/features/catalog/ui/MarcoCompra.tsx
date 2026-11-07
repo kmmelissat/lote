@@ -34,7 +34,7 @@ export function EncabezadoCompra({
       </Link>
       <header className="relative flex flex-col items-start gap-2 pr-24 sm:pr-40">
         <LotitoMas nombre="celular" className="pointer-events-none absolute -top-2 right-0 w-20 sm:w-28" />
-        <span className="rounded-full border-2 border-teal-oscuro bg-limon px-3 py-0.5 text-sm font-bold">{tienda}</span>
+        <span className="rounded-full border border-teal-oscuro bg-accion/20 px-3 py-0.5 text-sm font-bold">{tienda}</span>
         <h1 className="text-4xl font-bold leading-tight">{titulo}</h1>
         <p className="max-w-xl text-texto-2">{ayuda}</p>
       </header>
@@ -47,12 +47,12 @@ export type LineaResumen = { clave: string; nombre: string; detalle: string; fot
 /** Lo que se compra, como un ticket: foto, nombre, cantidad y el total. */
 export function ResumenPedido({ lineas, total, ahorros = [] }: { lineas: LineaResumen[]; total: number; ahorros?: AhorroPromocion[] }) {
   return (
-    <section aria-label={t.resumenTitulo} className="rounded-[24px] border-2 border-teal-oscuro bg-teal-fondo p-5 shadow-dura-chica">
+    <section aria-label={t.resumenTitulo} className="rounded-[24px] border border-teal-oscuro bg-teal-fondo p-5 shadow-dura-chica">
       <h2 className="mb-3 font-bold">{t.tuPedido}</h2>
       <ul className="flex flex-col gap-3">
         {lineas.map((l) => (
           <li key={l.clave} className="flex items-center gap-3">
-            <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-teal-oscuro/20 bg-white">
+            <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-teal-oscuro/20 bg-white">
               {l.foto ? <Image src={urlFoto(l.foto)} alt="" fill sizes="56px" className="object-cover" /> : <Monito nombre="caja" className="w-7 text-teal/40" />}
             </span>
             <div className="min-w-0 flex-1 leading-tight">
@@ -63,8 +63,8 @@ export function ResumenPedido({ lineas, total, ahorros = [] }: { lineas: LineaRe
           </li>
         ))}
       </ul>
-      <LineasPromocion ahorros={ahorros} className="mt-3 border-t-2 border-dashed border-teal-oscuro/40 pt-3" />
-      <p className="mt-3 flex items-baseline justify-between border-t-2 border-dashed border-teal-oscuro/40 pt-3">
+      <LineasPromocion ahorros={ahorros} className="mt-3 border-t border-dashed border-teal-oscuro/40 pt-3" />
+      <p className="mt-3 flex items-baseline justify-between border-t border-dashed border-teal-oscuro/40 pt-3">
         <span className="font-bold">{t.total}</span>
         <span className="text-2xl font-bold tabular-nums">{formatearDolares(total)}</span>
       </p>
@@ -81,7 +81,7 @@ export function DosColumnas({ resumen, children }: { resumen: ReactNode; childre
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:gap-8">
       <aside className="lg:sticky lg:top-6 lg:order-last">{resumen}</aside>
-      <div className="relative rounded-[24px] border-2 border-teal-oscuro bg-white p-5 shadow-dura md:p-6">{children}</div>
+      <div className="relative rounded-[24px] border border-teal-oscuro bg-white p-5 shadow-dura md:p-6">{children}</div>
     </div>
   );
 }

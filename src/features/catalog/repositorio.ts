@@ -15,6 +15,8 @@ export type NegocioPublico = {
   usuarioInstagram: string | null;
   usuarioFacebook: string | null;
   usuarioTiktok: string | null;
+  /** Imagen ancha de arriba de la vitrina (ruta en el bucket); null usa una franja del color de la tienda */
+  banner: string | null;
   /** Llave general: con ella apagada no se puede pedir nada (modo catálogo) */
   apartarDesdeVitrina: boolean;
   permiteComprar: boolean;
@@ -31,11 +33,13 @@ export type NegocioPublico = {
 };
 
 export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Promise<NegocioPublico | null> {
-  const [{ data, error }, reglas, tiktok] = await Promise.all([
+  const [{ data, error }, reglas, tiktok, banner] = await Promise.all([
     supabase.rpc("vitrina_negocio", { p_slug: slug }),
     supabase.rpc("vitrina_reglas", { p_slug: slug }),
     // Sin tiktok.sql la función no existe: la tienda no tiene TikTok
     supabase.rpc("vitrina_tiktok", { p_slug: slug }),
+    // Igual con banner_tienda.sql
+    supabase.rpc("vitrina_banner", { p_slug: slug }),
   ]);
   if (error) throw error;
   const n = data[0];
@@ -54,6 +58,7 @@ export async function obtenerNegocioPublico(supabase: Cliente, slug: string): Pr
     usuarioInstagram: n.usuario_instagram,
     usuarioFacebook: n.usuario_facebook ?? null,
     usuarioTiktok: tiktok.error ? null : tiktok.data,
+    banner: banner.error ? null : banner.data,
     apartarDesdeVitrina: n.apartar_desde_vitrina,
     plazoHoras: n.plazo_apartado_horas,
     // Los campos nuevos pueden no venir si todavía no se corrió ficha_producto.sql
@@ -406,6 +411,7 @@ export type IdentidadTienda = {
   usuarioInstagram: string | null;
   usuarioFacebook: string | null;
   usuarioTiktok: string | null;
+  banner: string | null;
   /** Lo que Lotito debe saber de la tienda cuando lee una foto */
   contextoIa: string | null;
 };
@@ -422,7 +428,9 @@ export async function obtenerIdentidad(supabase: Cliente, negocioId: string): Pr
   const { data: fb } = await supabase.from("negocio").select("usuario_facebook").eq("id", negocioId).maybeSingle();
   // Igual con tiktok.sql
   const { data: tk } = await supabase.from("negocio").select("usuario_tiktok").eq("id", negocioId).maybeSingle();
-  return { ...resto, usuarioInstagram: usuario_instagram, usuarioFacebook: fb?.usuario_facebook ?? null, usuarioTiktok: tk?.usuario_tiktok ?? null, contextoIa: contexto_ia };
+  // Y banner_tienda.sql
+  const { data: bn } = await supabase.from("negocio").select("banner").eq("id", negocioId).maybeSingle();
+  return { ...resto, usuarioInstagram: usuario_instagram, usuarioFacebook: fb?.usuario_facebook ?? null, usuarioTiktok: tk?.usuario_tiktok ?? null, banner: bn?.banner ?? null, contextoIa: contexto_ia };
 }
 
 /** Solo el contexto para la IA; lo pide quien va a leer una foto. Vacío si no hay o no se pudo leer. */
@@ -463,6 +471,8 @@ export async function guardarTienda(
     await supabase.from("negocio").update({ usuario_facebook: a.usuarioFacebook }).eq("id", negocioId);
     // Y tiktok.sql
     await supabase.from("negocio").update({ usuario_tiktok: a.usuarioTiktok }).eq("id", negocioId);
+    // Y banner_tienda.sql
+    await supabase.from("negocio").update({ banner: a.banner }).eq("id", negocioId);
     // Y gestion.sql (qué hace el negocio)
     if (a.actividad) await supabase.from("negocio").update({ actividad: a.actividad }).eq("id", negocioId);
     return "ok";

@@ -10,7 +10,7 @@ import type { DatosDeCuenta } from "../compradorDispositivo";
 const t = textos.vitrina.compra;
 
 export const campoCompra =
-  "h-12 w-full rounded-[14px] border-2 border-borde-control bg-superficie px-4 text-base placeholder:text-texto-2/60 focus:border-teal";
+  "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base placeholder:text-texto-2/60 focus:border-teal";
 
 // Lo que quien compra escribió la última vez, para no pedírselo de nuevo. Queda solo en su navegador.
 const CLAVE = "lote_cliente_v1";

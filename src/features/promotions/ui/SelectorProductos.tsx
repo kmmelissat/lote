@@ -18,7 +18,7 @@ export type Elegidos = Record<string, number>;
 
 function Foto({ foto, tamano = "size-12" }: { foto: string | null; tamano?: string }) {
   return (
-    <div className={`relative ${tamano} shrink-0 overflow-hidden rounded-xl border-2 border-teal-oscuro bg-teal-fondo`}>
+    <div className={`relative ${tamano} shrink-0 overflow-hidden rounded-xl border border-teal-oscuro bg-teal-fondo`}>
       {foto ? (
         <Image src={urlFoto(foto)} alt="" fill sizes="56px" className="object-cover" />
       ) : (
@@ -42,7 +42,7 @@ function Notas({ p }: { p: OpcionProductoPromocion }) {
   );
 }
 
-const boton = "inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-full border-2 border-teal-oscuro px-3 text-sm font-bold sm:px-4";
+const boton = "inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-full border border-teal-oscuro px-3 text-sm font-bold sm:px-4";
 
 /** El control de cantidad de un producto del pack: − 1 +. */
 export function Cantidad({ p, n, cambiar }: { p: OpcionProductoPromocion; n: number; cambiar: (id: string, diferencia: number) => void }) {
@@ -53,7 +53,7 @@ export function Cantidad({ p, n, cambiar }: { p: OpcionProductoPromocion; n: num
         type="button"
         aria-label={n === 1 ? t.quitar(nombre) : t.menosDe(nombre)}
         onClick={() => cambiar(p.id, -1)}
-        className="grid size-11 place-items-center rounded-full border-2 border-teal-oscuro bg-superficie text-lg font-bold"
+        className="grid size-11 place-items-center rounded-full border border-teal-oscuro bg-superficie text-lg font-bold"
       >
         <span aria-hidden="true">−</span>
       </button>
@@ -65,7 +65,7 @@ export function Cantidad({ p, n, cambiar }: { p: OpcionProductoPromocion; n: num
         aria-label={t.masDe(nombre)}
         disabled={n >= MAXIMO_POR_PACK}
         onClick={() => cambiar(p.id, 1)}
-        className="grid size-11 place-items-center rounded-full border-2 border-teal-oscuro bg-mango text-lg font-bold disabled:opacity-40"
+        className="grid size-11 place-items-center rounded-full border border-teal-oscuro bg-mango text-lg font-bold disabled:opacity-40"
       >
         <span aria-hidden="true">+</span>
       </button>
@@ -121,7 +121,7 @@ export function SelectorProductos({
       {visibles.length === 0 ? (
         <p className="py-6 text-center text-texto-2">{t.sinResultados}</p>
       ) : (
-        <ul className="max-h-[26rem] overflow-y-auto overscroll-contain rounded-2xl border-2 border-borde bg-superficie">
+        <ul className="max-h-[26rem] overflow-y-auto overscroll-contain rounded-2xl border border-borde bg-superficie">
           {visibles.map((g) => {
             const unico = g.miembros.length === 1 ? g.miembros[0] : null;
             const abierto = buscando || abiertos.has(g.clave);
@@ -168,7 +168,7 @@ export function SelectorProductos({
                       aria-expanded={abierto}
                       aria-label={abierto ? t.ocultarVariantes(g.nombre) : t.verVariantes(g.nombre)}
                       onClick={() => alternar(g.clave)}
-                      className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-teal-oscuro bg-teal-fondo"
+                      className="grid size-11 shrink-0 place-items-center rounded-full border border-teal-oscuro bg-teal-fondo"
                     >
                       <Icon nombre="flecha" className={`size-5 transition-transform ${abierto ? "rotate-180" : ""}`} strokeWidth={2.5} />
                     </button>
@@ -204,7 +204,7 @@ export function SelectorProductos({
 /** "En tu pack": lo que ya se eligió, arriba del buscador, con su cantidad. */
 export function EnTuPack({ productos, elegidos, cambiar }: { productos: OpcionProductoPromocion[]; elegidos: Elegidos; cambiar: (id: string, diferencia: number) => void }) {
   return (
-    <section aria-labelledby="en-tu-pack" className="flex flex-col gap-2 rounded-2xl border-2 border-teal-oscuro bg-crema p-3">
+    <section aria-labelledby="en-tu-pack" className="flex flex-col gap-2 rounded-2xl border border-teal-oscuro bg-crema p-3">
       <h3 id="en-tu-pack" className="text-sm font-bold">
         {t.enTuPack}
       </h3>
@@ -242,7 +242,7 @@ export function ProductoElegido({
 }) {
   const incluidos = grupo.miembros.filter((m) => elegidos[m.id] > 0);
   return (
-    <section aria-labelledby="producto-elegido" className="flex flex-col gap-3 rounded-2xl border-2 border-teal-oscuro bg-crema p-3">
+    <section aria-labelledby="producto-elegido" className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro bg-crema p-3">
       <div className="flex items-center gap-3">
         <Foto foto={grupo.foto} />
         <div className="min-w-0 flex-1">
@@ -260,7 +260,7 @@ export function ProductoElegido({
           <p className="text-sm text-texto-2">{t.incluye}</p>
           <ul className="flex flex-wrap gap-2">
             {incluidos.map((m) => (
-              <li key={m.id} className="inline-flex items-center gap-1 rounded-full border-2 border-teal-oscuro bg-superficie py-1 pl-3 pr-1 text-sm font-medium">
+              <li key={m.id} className="inline-flex items-center gap-1 rounded-full border border-teal-oscuro bg-superficie py-1 pl-3 pr-1 text-sm font-medium">
                 {m.variante ?? nombreDeOpcion(m)}
                 {incluidos.length > 1 && (
                   <button

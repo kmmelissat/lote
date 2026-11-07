@@ -24,7 +24,7 @@ export function ResumenPedido({ pedido: p, cliente }: { pedido: Pedido; cliente:
               aria-valuemax={100}
               aria-valuenow={avance}
               aria-label={t.detalle.pagadoDe(formatearDolares(pagado), formatearDolares(p.total))}
-              className="h-3 overflow-hidden rounded-full border-2 border-teal-oscuro bg-teal-oscuro/40"
+              className="h-3 overflow-hidden rounded-full border border-teal-oscuro bg-teal-oscuro/40"
             >
               <div className="h-full bg-limon" style={{ width: `${avance}%` }} />
             </div>

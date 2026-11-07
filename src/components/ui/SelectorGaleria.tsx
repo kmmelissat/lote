@@ -170,7 +170,7 @@ export function SelectorGaleria({
         type="button"
         disabled={Boolean(onElegir) && maximo <= 0}
         onClick={() => void abrir()}
-        className={`inline-flex h-11 items-center justify-center gap-2 rounded-full border-2 border-teal-oscuro bg-white px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-50 ${className}`}
+        className={`inline-flex h-11 items-center justify-center gap-2 rounded-full border border-teal-oscuro bg-white px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-50 ${className}`}
       >
         <Icon nombre="camara" className="size-4" />
         {etiqueta}
@@ -178,7 +178,7 @@ export function SelectorGaleria({
       )}
       <Ventana ref={ventana} amplia titulo={t.ventana.titulo} ayuda={reemplazar ? t.ventana.ayudaVariante : onElegir ? t.ventana.ayudaElegir(maximo) : t.ventana.ayudaAdministrar}>
         {error && (
-          <div role="alert" className="flex items-start gap-2 rounded-xl border-2 border-error bg-error-fondo px-3 py-2 text-sm font-medium text-error">
+          <div role="alert" className="flex items-start gap-2 rounded-xl border border-error bg-error-fondo px-3 py-2 text-sm font-medium text-error">
             <Icon nombre="alerta" className="mt-0.5 size-4 shrink-0" />
             <span className="min-w-0">{error}</span>
           </div>
@@ -194,7 +194,7 @@ export function SelectorGaleria({
             setEncima(false);
             void subir([...e.dataTransfer.files]);
           }}
-          className={`flex min-h-48 flex-col gap-3 rounded-2xl border-2 border-dashed p-3 transition-colors ${
+          className={`flex min-h-48 flex-col gap-3 rounded-2xl border border-dashed p-3 transition-colors ${
             encima ? "border-teal-oscuro bg-limon" : "border-borde bg-fondo"
           }`}
         >
@@ -211,7 +211,7 @@ export function SelectorGaleria({
                   type="button"
                   disabled={subiendo}
                   onClick={() => entrada.current?.click()}
-                  className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-teal-oscuro bg-superficie p-2 text-center text-xs font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-60"
+                  className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-teal-oscuro bg-superficie p-2 text-center text-xs font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-60"
                 >
                   <Icon nombre="subir" className="size-6" />
                   {subiendo ? t.subiendo : fotos.length ? t.subir : t.arrastrar}
@@ -230,7 +230,7 @@ export function SelectorGaleria({
                       aria-pressed={onElegir ? marcada : undefined}
                       aria-label={t.foto(i + 1)}
                       onClick={() => alternar(f.ruta)}
-                      className={`relative block aspect-square w-full overflow-hidden rounded-xl border-2 bg-superficie transition-[border-color,opacity] ${
+                      className={`relative block aspect-square w-full overflow-hidden rounded-xl border bg-superficie transition-[border-color,opacity] ${
                         marcada ? "border-teal-oscuro" : "border-transparent"
                       } ${onElegir && !puesta ? "hover:border-teal-oscuro" : ""} ${puesta ? "opacity-50" : ""}`}
                     >

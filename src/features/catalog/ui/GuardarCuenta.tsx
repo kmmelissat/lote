@@ -12,12 +12,12 @@ const t = textos.vitrina.confirmacion.guardarCuenta;
 export async function GuardarCuenta({ destino }: { destino: string }) {
   if (await haySesion()) return null;
   return (
-    <div className="mx-auto mt-4 flex max-w-5xl flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-current/20 px-4 py-3">
+    <div className="mx-auto mt-4 flex max-w-5xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-current/20 px-4 py-3">
       <div>
         <p className="font-semibold">{t.titulo}</p>
         <p className="text-sm opacity-80">{t.ayuda}</p>
       </div>
-      <Link href={conBusqueda("/login", new URLSearchParams({ next: destino }))} className="rounded-full border-2 border-current px-4 py-2 text-sm font-semibold">
+      <Link href={conBusqueda("/login", new URLSearchParams({ next: destino }))} className="rounded-full border border-current px-4 py-2 text-sm font-semibold">
         {t.boton}
       </Link>
     </div>

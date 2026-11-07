@@ -45,7 +45,7 @@ export function TarjetaDato<T extends string>({
       <div className="flex flex-wrap items-center justify-between gap-1 md:gap-2">
         <p className="font-logo text-2xl font-bold md:text-3xl">{valor}</p>
         {chip && (
-          <span className="rounded-full border-2 border-teal-oscuro bg-ambar px-2 py-0.5 text-[11px] font-bold text-teal-oscuro md:px-3 md:py-1 md:text-sm">
+          <span className="rounded-full border border-teal-oscuro bg-ambar px-2 py-0.5 text-[11px] font-bold text-teal-oscuro md:px-3 md:py-1 md:text-sm">
             {chip.texto}
           </span>
         )}

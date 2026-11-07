@@ -21,7 +21,7 @@ export default function LoginPage() {
       </Suspense>
       <Link
         href="/marketplace"
-        className="inline-flex h-11 items-center justify-center rounded-full border-2 border-dashed border-teal-oscuro/40 px-5 text-sm font-bold text-teal-oscuro hover:border-teal-oscuro hover:bg-limon/40"
+        className="inline-flex h-11 items-center justify-center rounded-full border border-dashed border-teal-oscuro/40 px-5 text-sm font-bold text-teal-oscuro hover:border-teal-oscuro hover:bg-limon/40"
       >
         {textos.acceso.explorar}
       </Link>

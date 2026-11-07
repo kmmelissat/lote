@@ -3,7 +3,7 @@
 -- No incluye grant/revoke, datos (insert/update/delete) ni bloques do. Las columnas con sus tipos también están en
 -- src/lib/supabase/database.types.ts.
 --
--- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, compradores, carritos, comprador_usuario, comprador_correo, comprador_perfil.
+-- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda.
 
 -- ====================================================================================================
 -- TABLAS (43)
@@ -216,26 +216,6 @@ create table if not exists public.comprador (
 );
 -- compradores.sql
 alter table public.comprador enable row level security;
--- comprador_usuario.sql
-alter table public.comprador alter column telefono drop not null;
--- comprador_usuario.sql
-alter table public.comprador
-  add column if not exists usuario_id uuid unique references auth.users(id) on delete set null;
--- comprador_correo.sql
-alter table public.comprador add column if not exists correo text;
--- comprador_correo.sql
-alter table public.comprador drop constraint if exists comprador_correo_check;
--- comprador_correo.sql
-alter table public.comprador add constraint comprador_correo_check
-  check (correo is null or (correo = lower(correo) and char_length(correo) between 5 and 120));
--- comprador_correo.sql
-alter table public.comprador drop constraint if exists comprador_telefono_key;
--- comprador_perfil.sql
-alter table public.comprador
-  add column if not exists departamento text check (departamento is null or char_length(departamento) <= 40),
-  add column if not exists municipio text check (municipio is null or char_length(municipio) <= 60),
-  add column if not exists direccion text check (direccion is null or char_length(direccion) <= 200),
-  add column if not exists referencia text check (referencia is null or char_length(referencia) <= 200);
 
 -- tabla comprador_dispositivo
 -- carritos.sql
@@ -574,6 +554,9 @@ alter table public.negocio add constraint negocio_actividad_check check (activid
 alter table public.negocio drop constraint if exists negocio_contexto_ia_check;
 -- contexto_largo.sql
 alter table public.negocio add constraint negocio_contexto_ia_check check (contexto_ia is null or char_length(contexto_ia) <= 1000);
+-- banner_tienda.sql
+alter table public.negocio
+  add column if not exists banner text check (banner is null or char_length(banner) <= 300);
 
 -- tabla oferta
 -- ofertas.sql
@@ -906,7 +889,7 @@ alter table public.ubicacion enable row level security;
 
 
 -- ====================================================================================================
--- FUNCIONES (122)
+-- FUNCIONES (124)
 -- ====================================================================================================
 
 -- función abonar_pasivo(uuid, numeric, text, text, uuid)
@@ -2899,6 +2882,41 @@ begin
   returning id into v_id;
 
   return v_id;
+end;
+$$;
+
+-- función enlazar_comprador_a_pedido()
+-- compradores.sql
+create or replace function public.enlazar_comprador_a_pedido()
+returns trigger
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_tel text;
+  v_nombre text;
+  v_comprador uuid;
+begin
+  if new.origen <> 'vitrina' or new.cliente_id is null or new.comprador_id is not null then
+    return new;
+  end if;
+
+  select regexp_replace(coalesce(c.contacto, ''), '[^0-9]', '', 'g'), c.nombre
+    into v_tel, v_nombre
+  from public.cliente c where c.id = new.cliente_id;
+
+  -- El contacto puede ser un usuario de Instagram: sin teléfono válido no hay comprador
+  if v_tel !~ '^[0-9]{8,15}$' then
+    return new;
+  end if;
+
+  insert into public.comprador (telefono, nombre)
+  values (v_tel, v_nombre)
+  on conflict (telefono) do update set nombre = coalesce(public.comprador.nombre, excluded.nombre)
+  returning id into v_comprador;
+
+  new.comprador_id := v_comprador;
+  return new;
 end;
 $$;
 
@@ -5173,6 +5191,16 @@ as $$
   where pe.id = p_pedido and n.slug = lower(p_slug) and pe.origen = 'vitrina'
 $$;
 
+-- función vitrina_banner(text)
+-- banner_tienda.sql
+create or replace function public.vitrina_banner(p_slug text)
+returns text
+language sql stable security definer
+set search_path = ''
+as $$
+  select n.banner from public.negocio n where n.slug = lower(p_slug) and n.vitrina_activa
+$$;
+
 -- función vitrina_entrega(text)
 -- vitrina_opcional.sql (antes en: compra_vitrina.sql)
 create or replace function public.vitrina_entrega(p_slug text)
@@ -5687,7 +5715,7 @@ create policy ubicacion_ver on public.ubicacion
 
 
 -- ====================================================================================================
--- TRIGGERS (11)
+-- TRIGGERS (12)
 -- ====================================================================================================
 
 -- trigger abono_pasivo · abono_pasivo_cuenta
@@ -5743,6 +5771,12 @@ create trigger avisar_pedido_enviado
   for each row
   when (new.estado = 'enviado' and old.estado is distinct from 'enviado')
   execute function public.avisar_pedido_enviado();
+
+-- trigger pedido · pedido_enlazar_comprador
+-- compradores.sql
+create trigger pedido_enlazar_comprador
+  before insert on public.pedido
+  for each row execute function public.enlazar_comprador_a_pedido();
 
 -- trigger pedido_item · avisar_apartado_vitrina
 -- avisos_eventos.sql

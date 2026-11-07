@@ -106,9 +106,9 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
         aria-label={t.titulo}
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={alTeclear}
-        className="flex max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-[24px] border-2 border-teal-oscuro bg-superficie shadow-dura"
+        className="flex max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-[24px] border border-teal-oscuro bg-superficie shadow-dura"
       >
-        <div className="flex items-center gap-3 border-b-2 border-teal-oscuro/15 px-4">
+        <div className="flex items-center gap-3 border-b border-teal-oscuro/15 px-4">
           <Icon nombre="buscar" className="size-5 shrink-0 text-texto-2" />
           <input
             ref={entrada}
@@ -151,14 +151,14 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
             <li className="flex flex-wrap items-center gap-2 px-3 pb-2 pt-3" role="presentation">
               <span className="text-xs font-bold uppercase tracking-wide text-texto-2">{t.ejemplos}</span>
               {t.ejemplosLista.map((e) => (
-                <button key={e} type="button" onClick={() => { setConsulta(e); setActiva(0); entrada.current?.focus(); }} className="min-h-8 rounded-full border-2 border-borde px-3 text-sm font-medium hover:border-teal-oscuro">
+                <button key={e} type="button" onClick={() => { setConsulta(e); setActiva(0); entrada.current?.focus(); }} className="min-h-8 rounded-full border border-borde px-3 text-sm font-medium hover:border-teal-oscuro">
                   {e}
                 </button>
               ))}
             </li>
           )}
         </ul>
-        <p className="hidden border-t-2 border-teal-oscuro/15 px-4 py-2 text-xs text-texto-2 sm:block">{t.ayuda}</p>
+        <p className="hidden border-t border-teal-oscuro/15 px-4 py-2 text-xs text-texto-2 sm:block">{t.ayuda}</p>
       </div>
     </div>
   );

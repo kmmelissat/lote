@@ -9,10 +9,10 @@ import { AbrirVitrina, Insignia } from "./PiezasMenu";
 const t = textos.nav;
 
 const FILA =
-  "flex min-h-11 w-full items-center gap-3 rounded-xl border-2 px-2.5 text-sm font-bold text-teal-oscuro transition-colors group-data-[cerrado]:justify-center group-data-[cerrado]:px-0";
+  "flex min-h-11 w-full items-center gap-3 rounded-xl border px-2.5 text-sm font-bold text-teal-oscuro transition-colors group-data-[cerrado]:justify-center group-data-[cerrado]:px-0";
 
 const TITULO =
-  "w-fit -rotate-1 rounded-sm border-2 border-teal-oscuro bg-superficie px-1.5 py-0.5 font-logo text-[11px] uppercase tracking-widest text-teal-oscuro group-data-[cerrado]:hidden";
+  "w-fit -rotate-1 rounded-sm border border-teal-oscuro bg-superficie px-1.5 py-0.5 font-logo text-[11px] uppercase tracking-widest text-teal-oscuro group-data-[cerrado]:hidden";
 
 /**
  * El menú lateral de escritorio: una lista agrupada (Vender, Finanzas, Tu negocio) donde cada ícono va en un cuadrito del color
@@ -42,7 +42,7 @@ export function ListaMenuVertical({
   const fila = (nombre: NombreIcono, etiqueta: string, activa: boolean, fondo: string, derecha?: React.ReactNode) => (
     <>
       <span
-        className={`flex size-8 shrink-0 items-center justify-center rounded-lg border-2 border-teal-oscuro ${activa ? `${fondo} group-not-data-[cerrado]:bg-superficie` : `${fondo} group-data-[cerrado]:bg-superficie`}`}
+        className={`flex size-8 shrink-0 items-center justify-center rounded-lg border border-teal-oscuro ${activa ? `${fondo} group-not-data-[cerrado]:bg-superficie` : `${fondo} group-data-[cerrado]:bg-superficie`}`}
       >
         <Icon nombre={nombre} className="size-5" />
       </span>
@@ -76,7 +76,7 @@ export function ListaMenuVertical({
           <section
             key={g.titulo}
             aria-label={g.titulo}
-            className="flex flex-col gap-1.5 group-data-[cerrado]:border-t-2 group-data-[cerrado]:border-dashed group-data-[cerrado]:border-teal-oscuro/30 group-data-[cerrado]:pt-3 group-data-[cerrado]:first:border-t-0 group-data-[cerrado]:first:pt-0"
+            className="flex flex-col gap-1.5 group-data-[cerrado]:border-t group-data-[cerrado]:border-dashed group-data-[cerrado]:border-teal-oscuro/30 group-data-[cerrado]:pt-3 group-data-[cerrado]:first:border-t-0 group-data-[cerrado]:first:pt-0"
           >
             <h2 className={TITULO}>{g.titulo}</h2>
             <ul className="flex flex-col gap-1">

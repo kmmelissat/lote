@@ -25,11 +25,11 @@ export function Preguntas() {
           {p.items.map((i, n) => (
             <ApareceCaja key={i.p}>
               <details
-                className={`group rounded-[24px] border-[3px] border-teal-oscuro bg-white px-5 py-1 shadow-[4px_4px_0_0_var(--color-teal-oscuro)] open:bg-limon ${n % 2 ? "rotate-1" : "-rotate-1"}`}
+                className={`group rounded-[24px] border border-teal-oscuro bg-white px-5 py-1 shadow-[4px_4px_0_0_var(--color-teal-oscuro)] open:bg-limon ${n % 2 ? "rotate-1" : "-rotate-1"}`}
               >
                 <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 text-[18px] font-extrabold text-teal-oscuro [&::-webkit-details-marker]:hidden">
                   {i.p}
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full border-[3px] border-teal-oscuro bg-mango transition-transform duration-200 group-open:rotate-45">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-mango transition-transform duration-200 group-open:rotate-45">
                     <Icon nombre="mas" className="size-4" strokeWidth={2.5} />
                   </span>
                 </summary>

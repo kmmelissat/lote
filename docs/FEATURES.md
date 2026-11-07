@@ -81,7 +81,7 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 - ❌ Chatear con Lotito desde el celular por WhatsApp (falta el webhook de entrada).
 
 ### Tienda, equipo y datos
-- ✅ **Mi tienda**: nombre, frase, logo, color de marca, dirección de la vitrina (`/c/<tu-tienda>`), contacto (WhatsApp, Instagram, Facebook, TikTok), «¿Qué hacés?» (revendo, produzco o ambos), tiempo de entrega y política de cambios, y contexto para Lotito.
+- ✅ **Mi tienda**: nombre, frase, logo, **banner** (imagen ancha 4:1 que se recorta al subir; sin ella la vitrina muestra una franja del color de marca; necesita `banner_tienda.sql`), color de marca, dirección de la vitrina (`/c/<tu-tienda>`), contacto (WhatsApp, Instagram, Facebook, TikTok), «¿Qué hacés?» (revendo, produzco o ambos), tiempo de entrega y política de cambios, y contexto para Lotito.
 - ✅ **Crear negocio** (`/crear-negocio`): un cuaderno de cinco hojas (nombre y trato, de qué es el negocio, qué hacés, cómo vendés y la tienda en línea, revisar). Solo el nombre es obligatorio.
 - ✅ La vitrina es opcional: se prende y se apaga. También se decide si se puede comprar, apartar o solo escribir, y si aparecer en el Marketplace.
 - ✅ **Equipo y roles**: la dueña invita por enlace de un solo uso (vence en 7 días) y asigna rol; una persona se puede quitar al instante.
@@ -101,7 +101,7 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 
 ## Para quien compra (la vitrina, `/c/<tienda>`)
 
-- ✅ Vitrina con logo, color y frase de la tienda; buscador, filtro por modelo, orden y botón de WhatsApp.
+- ✅ Vitrina con banner (o franja del color de la tienda), logo encimado, color y frase de la tienda; buscador, filtro por modelo, orden y botón de WhatsApp.
 - ✅ **Look de marketplace festivo**: cinta de frases animada, tarjeta compacta de la tienda, filtros laterales (categorías y rango de precio), tarjetas con un solo sello, sombra dura y confeti al agregar; la ficha pone la compra en una caja con borde. Lo mismo en el Marketplace (hero oscuro, filas de productos).
 - ✅ Datos de confianza de la tienda (verificada, desde cuándo vende en Lote, unidades vendidas) y estrellas promedio en las tarjetas.
 - ✅ Página del producto: galería, variantes (sin preseleccionar), stock y precio de la elegida, precio anterior tachado, etiquetas (nuevo, últimas unidades), envío estimado, reseñas y "avisame cuando haya" si está agotado.

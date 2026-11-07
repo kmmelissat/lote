@@ -18,7 +18,7 @@ function Punto({ datos }: { datos: DatosMenu }) {
     <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-oscuro px-1 text-[10px] font-bold text-white">
       <span className="sr-only">{t.porAtender(datos.porAtender)}: </span>
       {datos.porAtender}
-      {datos.urgente && <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-crema bg-rosa" />}
+      {datos.urgente && <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border border-crema bg-rosa" />}
     </span>
   );
 }
@@ -41,7 +41,7 @@ export function EncabezadoMovil({
   abrirMas: () => void;
 }) {
   return (
-    <header className="flex items-center justify-between gap-3 border-b-2 border-teal-oscuro bg-crema px-4 py-2 md:hidden">
+    <header className="flex items-center justify-between gap-3 border-b border-teal-oscuro bg-crema px-4 py-2 md:hidden">
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -49,7 +49,7 @@ export function EncabezadoMovil({
           aria-label={t.menuAbrir}
           aria-expanded={masAbierto}
           aria-haspopup="dialog"
-          className="relative flex size-11 items-center justify-center rounded-full border-2 border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica"
+          className="relative flex size-11 items-center justify-center rounded-full border border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica"
         >
           <Icon nombre="menu" className="size-6" />
           <Punto datos={datos} />
@@ -63,7 +63,7 @@ export function EncabezadoMovil({
         onClick={abrirRapida}
         aria-label={t.rapida.titulo}
         aria-expanded={rapida}
-        className="-rotate-2 flex size-11 items-center justify-center rounded-sm border-2 border-teal-oscuro bg-celeste text-teal-oscuro shadow-dura-chica"
+        className="-rotate-2 flex size-11 items-center justify-center rounded-sm border border-teal-oscuro bg-celeste text-teal-oscuro shadow-dura-chica"
       >
         <Icon nombre="mas" className="size-6" strokeWidth={2.25} />
       </button>

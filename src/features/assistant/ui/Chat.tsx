@@ -35,7 +35,7 @@ function historialDe(ms: Mensaje[]): Turno[] {
 
 const pildoraFuerte = "!bg-teal-oscuro !text-white hover:!bg-teal";
 const pildora =
-  "min-h-11 rounded-full border-2 border-teal-oscuro bg-superficie px-4 text-sm font-medium text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-50";
+  "min-h-11 rounded-full border border-teal-oscuro bg-superficie px-4 text-sm font-medium text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-50";
 
 function sugerenciasPara(ruta: string | null) {
   const clave = Object.keys(t.sugerencias).find((k) => k !== "inicio" && ruta && (ruta === k || ruta.startsWith(`${k}/`)));
@@ -163,11 +163,11 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
 
   return (
     <div
-      className={`flex h-full min-h-0 flex-col ${compacto ? "" : "overflow-hidden rounded-[28px] border-2 border-teal-oscuro bg-crema shadow-dura"}`}
+      className={`flex h-full min-h-0 flex-col ${compacto ? "" : "overflow-hidden rounded-[28px] border border-teal-oscuro bg-crema shadow-dura"}`}
     >
       {!compacto && (
         <header
-          className={`flex shrink-0 items-center gap-3 border-b-2 border-teal-oscuro bg-celeste-palido px-4 py-3 md:px-6 md:py-4 ${vacio ? "md:hidden" : ""}`}
+          className={`flex shrink-0 items-center gap-3 border-b border-teal-oscuro bg-celeste-palido px-4 py-3 md:px-6 md:py-4 ${vacio ? "md:hidden" : ""}`}
         >
           <AvatarLotito className="size-11 md:size-12" enLinea />
           <div className="min-w-0 flex-1">
@@ -198,7 +198,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
             <li className="flex items-start gap-2">
               <AvatarLotito />
               <div className="flex min-w-0 flex-col gap-3">
-                <div className="max-w-[92%] rounded-2xl rounded-bl-md border-2 border-teal-oscuro bg-white px-4 py-2.5 shadow-dura-chica">
+                <div className="max-w-[92%] rounded-2xl rounded-bl-md border border-teal-oscuro bg-white px-4 py-2.5 shadow-dura-chica">
                   <p>{t.vacioFlotante}</p>
                 </div>
                 <Sugerencias sugerencias={sugerencias} pendiente={pendiente} subiendo={subiendo} alElegir={usarSugerencia} />
@@ -231,11 +231,11 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
                     alt={t.fotoAdjunta}
                     width={160}
                     height={160}
-                    className="size-40 rotate-1 rounded-2xl border-2 border-teal-oscuro object-cover shadow-dura-chica"
+                    className="size-40 rotate-1 rounded-2xl border border-teal-oscuro object-cover shadow-dura-chica"
                   />
                 )}
                 {m.texto && (
-                  <p className="whitespace-pre-line rounded-2xl rounded-br-md border-2 border-teal-oscuro bg-limon px-4 py-2.5 text-teal-oscuro">{m.texto}</p>
+                  <p className="whitespace-pre-line rounded-2xl rounded-br-md border border-teal-oscuro bg-limon px-4 py-2.5 text-teal-oscuro">{m.texto}</p>
                 )}
               </li>
             ) : (
@@ -243,7 +243,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
                 <AvatarLotito />
                 <div className="flex min-w-0 flex-col items-start gap-2">
                   <span className="sr-only">{t.asistente}:</span>
-                  <div className="rounded-2xl rounded-bl-md border-2 border-teal-oscuro bg-white px-4 py-2.5 shadow-dura-chica">
+                  <div className="rounded-2xl rounded-bl-md border border-teal-oscuro bg-white px-4 py-2.5 shadow-dura-chica">
                     <TextoLotito texto={m.respuesta.texto} />
                   </div>
                   {m.respuesta.enlaces?.length ? (
@@ -296,7 +296,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
                 alt={t.fotoAdjunta}
                 width={56}
                 height={56}
-                className="size-14 -rotate-2 rounded-xl border-2 border-teal-oscuro object-cover"
+                className="size-14 -rotate-2 rounded-xl border border-teal-oscuro object-cover"
               />
               <button type="button" onClick={() => setFoto(null)} className="min-h-11 rounded-full px-3 text-sm text-teal underline">
                 {t.quitarFoto}
@@ -313,7 +313,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
       <div className={compacto ? "" : "px-3 pb-3 md:flex md:justify-center md:px-10 md:pb-6"}>
         <form
           onSubmit={enviar}
-          className={`flex items-center gap-1 rounded-full border-2 border-teal-oscuro bg-white p-1 shadow-dura-chica focus-within:ring-4 focus-within:ring-rosa/50 md:p-1.5 ${compacto ? "" : "md:w-full md:max-w-2xl"}`}
+          className={`flex items-center gap-1 rounded-full border border-teal-oscuro bg-white p-1 shadow-dura-chica focus-within:ring-4 focus-within:ring-rosa/50 md:p-1.5 ${compacto ? "" : "md:w-full md:max-w-2xl"}`}
         >
           <label className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-teal-oscuro hover:bg-teal-fondo has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-teal md:size-12">
             <span className="sr-only">{t.adjuntar}</span>
@@ -337,7 +337,7 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
             type="submit"
             aria-label={t.enviar}
             disabled={pendiente || subiendo || (!texto.trim() && !foto)}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-mango text-teal-oscuro transition-transform duration-150 enabled:hover:-translate-y-0.5 disabled:border-transparent disabled:bg-teal-fondo disabled:text-texto-2 md:size-12"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-mango text-teal-oscuro transition-transform duration-150 enabled:hover:-translate-y-0.5 disabled:border-transparent disabled:bg-teal-fondo disabled:text-texto-2 md:size-12"
           >
             <Icon nombre="enviar" className="size-5" strokeWidth={2.5} />
           </button>
@@ -368,7 +368,7 @@ function Sugerencias({
             type="button"
             disabled={pendiente || subiendo}
             onClick={() => alElegir(sg)}
-            className={`min-h-11 rounded-full border-2 border-teal-oscuro px-4 text-left text-sm font-bold text-teal-oscuro transition-transform duration-150 hover:-translate-y-0.5 disabled:opacity-50 ${tonoSugerencia(sg.modo)} ${centradas ? "md:h-14 md:w-full md:rounded-2xl md:px-5 md:text-base" : ""}`}
+            className={`min-h-11 rounded-full border border-teal-oscuro px-4 text-left text-sm font-bold text-teal-oscuro transition-transform duration-150 hover:-translate-y-0.5 disabled:opacity-50 ${tonoSugerencia(sg.modo)} ${centradas ? "md:h-14 md:w-full md:rounded-2xl md:px-5 md:text-base" : ""}`}
           >
             {sg.modo === "foto" && <Icon nombre="camara" className="mr-1.5 inline size-4 align-[-3px]" />}
             {sg.texto}

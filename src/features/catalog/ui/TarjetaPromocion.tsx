@@ -18,7 +18,7 @@ export function TarjetaPromocion({ p, marca }: { p: PromocionExplorar; marca: Ma
     <Link
       href={`/c/${p.tiendaSlug}`}
       style={{ "--tienda": marca.color } as CSSProperties}
-      className="group flex h-full flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-white p-2 pb-3 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura"
+      className="group flex h-full flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-white p-2 pb-3 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-dura"
     >
       <div className="relative grid aspect-square grid-cols-2 gap-1 overflow-hidden rounded-[18px] bg-[color-mix(in_srgb,var(--tienda)_12%,white)]">
         {p.fotos.length === 0 ? (
@@ -32,7 +32,7 @@ export function TarjetaPromocion({ p, marca }: { p: PromocionExplorar; marca: Ma
             </span>
           ))
         )}
-        <span className="absolute right-2 top-2 rotate-3 rounded-full border-2 border-teal-oscuro bg-mango px-2.5 py-0.5 text-xs font-extrabold">
+        <span className="absolute right-2 top-2 rotate-3 rounded-full border border-teal-oscuro bg-accion text-accion-texto px-2.5 py-0.5 text-xs font-extrabold">
           {sticker}
         </span>
       </div>
@@ -46,7 +46,7 @@ export function TarjetaPromocion({ p, marca }: { p: PromocionExplorar; marca: Ma
               <span className="sr-only">{t.antes} </span>
               {formatearDolares(p.precios.antes)}
             </span>
-            <span className="rounded-full border-2 border-teal-oscuro bg-limon px-2 py-0.5 text-xs font-extrabold">
+            <span className="rounded-full border border-teal-oscuro bg-accion/20 px-2 py-0.5 text-xs font-extrabold">
               {t.promo.ahorras(formatearDolares(p.precios.antes - p.precios.ahora))}
             </span>
           </p>

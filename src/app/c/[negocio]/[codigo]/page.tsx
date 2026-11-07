@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { BarraTienda } from "@/features/catalog/ui/BarraTienda";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { GaleriaVitrina } from "@/features/catalog/ui/GaleriaVitrina";
 import { BotonesChat } from "@/features/catalog/ui/BotonesChat";
@@ -8,7 +9,9 @@ import { ComoComprar } from "@/features/catalog/ui/ComoComprar";
 import { Etiquetas } from "@/features/catalog/ui/Etiquetas";
 import { FichaDelProducto } from "@/features/catalog/ui/FichaDelProducto";
 import { PromocionesDelProducto } from "@/features/catalog/ui/PromocionesDelProducto";
-import { LineaConfianza } from "@/features/catalog/ui/LineaConfianza";
+import { partesEnvio } from "@/features/catalog/ui/ResumenEnvio";
+import { Icon } from "@/components/ui/Icon";
+import { TextoRecortado } from "@/features/catalog/ui/TextoRecortado";
 import { Plegable } from "@/features/catalog/ui/Plegable";
 import { Resenas } from "@/features/catalog/ui/Resenas";
 import { mensajePedirProducto } from "@/features/catalog/enlaces";
@@ -114,16 +117,18 @@ async function Producto({
   const url = `${urlSitio}/c/${slug}/${codigoCanonico(p, todos)}`;
 
   return (
-    <MarcaTienda color={negocio.color} ancha>
+    <MarcaTienda color={negocio.color}>
       <JsonLdProducto producto={p} nombre={base} familia={f.familia} url={url} tienda={{ nombre: negocio.nombre, slug }} resenas={resenas} />
-      <div className="flex flex-col gap-8">
+      <BarraTienda slug={slug} conCarrito={negocio.permiteComprar} />
+      {/* En el celular la barra fija de compra queda sobre el final: este espacio deja ver el pie */}
+      <div className="mt-6 flex flex-col gap-8 max-md:pb-24">
         <VolverATienda slug={slug} nombre={negocio.nombre} logo={negocio.logo} />
 
         <ProveedorFotos>
           {/* Escritorio: galería | información | caja de compra fija a la derecha. Tableta: dos columnas. Móvil: una. */}
-          <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_20rem]">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_20rem] lg:grid-rows-[auto_1fr]">
             <div className="flex flex-col gap-5 md:col-start-1 md:row-span-3 md:row-start-1 md:sticky md:top-4 md:self-start lg:row-span-2">
-              <GaleriaVitrina fotos={f.galeria.fotos} de={f.galeria.de} nombre={base} sello={f.sello} />
+              <GaleriaVitrina fotos={f.galeria.fotos} de={f.galeria.de} nombre={base} />
             </div>
 
             <div className="flex min-w-0 flex-col gap-3 md:col-start-2 md:row-start-1">
@@ -155,8 +160,8 @@ async function Producto({
               <PromocionesDelProducto anuncios={anuncios} compacto />
             </div>
 
-            <div className="flex min-w-0 flex-col gap-4 md:col-start-2 md:row-start-2 lg:col-start-3 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-4 lg:self-start">
-              <div className="rounded-[22px] border-2 border-teal-oscuro bg-superficie p-4 shadow-dura-chica md:p-5">
+            <div className="flex min-w-0 flex-col gap-4 md:col-start-2 md:row-start-2 md:sticky md:top-4 md:self-start lg:col-start-3 lg:row-span-2 lg:row-start-1">
+              <div className="rounded-[22px] border border-teal-oscuro/30 bg-superficie p-4 md:p-5">
               <ZonaDeCompra
                 slug={slug}
                 nombresOpciones={p.opciones}
@@ -164,29 +169,21 @@ async function Producto({
                 plazoHoras={negocio.plazoHoras}
                 permiteComprar={negocio.permiteComprar}
                 permiteApartar={negocio.permiteApartar}
+                umbralPocoStock={negocio.umbralPocoStock}
                 contacto={{ tienda: negocio.nombre, producto: base, whatsapp: negocio.whatsapp, instagram: negocio.usuarioInstagram, facebook: negocio.usuarioFacebook, tiktok: negocio.usuarioTiktok }}
               />
-              </div>
-
-              <LineaConfianza estrellas={null} opciones={opcionesDeCompra} tiempo={negocio.tiempoEntrega} />
-            </div>
-
-            <div className="flex min-w-0 flex-col gap-5 md:col-start-2 md:row-start-3 lg:row-start-2">
-              <div className="flex flex-col">
-                {p.descripcion && (
-                  <Plegable titulo={textos.vitrina.ficha.descripcion} abierto>
-                    <p className="whitespace-pre-line leading-relaxed">{p.descripcion}</p>
-                  </Plegable>
-                )}
-                <FichaDelProducto
-                  detalles={p.detalles}
-                  estado={p.estadoDetalle}
-                  usado={p.condicion === "usado"}
-                />
-              </div>
-
+              {(() => {
+                const envio = partesEnvio(opcionesDeCompra, negocio.tiempoEntrega).join(" · ");
+                return envio ? (
+                  <p className="mt-4 flex items-start gap-2 border-t border-borde pt-3 text-sm text-texto-2">
+                    <Icon nombre="camion" className="mt-0.5 size-4 shrink-0 text-(--store-accent)" />
+                    <span>{envio}</span>
+                  </p>
+                ) : null;
+              })()}
+              <div className="mt-4">
               <BotonesChat
-                discreto={negocio.nombre}
+                ancho
                 whatsapp={negocio.whatsapp}
                 instagram={negocio.usuarioInstagram}
                 facebook={negocio.usuarioFacebook}
@@ -198,6 +195,26 @@ async function Producto({
                   formatearDolares(p.precio),
                 )}
               />
+              </div>
+              </div>
+
+            </div>
+
+            <div className="flex min-w-0 flex-col gap-5 md:col-start-2 md:row-start-3 lg:row-start-2">
+              <div className="flex flex-col">
+                {p.descripcion && (
+                  <Plegable titulo={textos.vitrina.ficha.descripcion} abierto>
+                    <TextoRecortado texto={p.descripcion} />
+                  </Plegable>
+                )}
+                <FichaDelProducto
+                  detalles={p.detalles}
+                  estado={p.estadoDetalle}
+                  usado={p.condicion === "usado"}
+                />
+              </div>
+
+
             </div>
           </div>
         </ProveedorFotos>
@@ -214,16 +231,15 @@ async function Producto({
 
         <Resenas resumen={resenas} />
 
-        <ProductosRelacionados
-          titulo={textos.vitrina.compra.parecidos}
-          slug={slug}
-          productos={f.parecidos}
-        />
+        {/* Una sola sección: los parecidos primero y, si faltan, otros de la tienda */}
         <ProductosRelacionados
           titulo={textos.vitrina.compra.masDe(negocio.nombre)}
           slug={slug}
-          productos={f.masDe}
-          verTienda
+          productos={[...f.parecidos, ...f.masDe].slice(0, 4)}
+          umbral={negocio.umbralPocoStock}
+          envio={partesEnvio(opcionesDeCompra, negocio.tiempoEntrega).join(" · ") || null}
+          puedeComprar={negocio.permiteComprar}
+          enPromocion={[...new Set(promociones.flatMap((pr) => pr.productos.map((x) => x.codigo)))]}
         />
       </div>
     </MarcaTienda>

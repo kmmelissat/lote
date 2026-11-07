@@ -8,7 +8,7 @@ import type { Rubro } from "../rubros";
 const t = textos.explorar.sobre;
 
 const boton =
-  "inline-flex h-10 items-center gap-2 rounded-full border-2 border-teal-oscuro bg-crema px-4 text-sm font-bold transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
+  "inline-flex h-10 items-center gap-2 rounded-full border border-teal-oscuro bg-crema px-4 text-sm font-bold transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
 
 /**
  * El pie de Explorar: qué es, los rubros como enlaces limpios y compartir.
@@ -23,7 +23,7 @@ export function SobreExplorar({ rubro, rubros }: { rubro?: Rubro; rubros: Rubro[
   ];
 
   return (
-    <section aria-labelledby="sobre-explorar" className="mt-6 grid grid-cols-1 gap-4 border-t-2 border-dashed border-teal-oscuro/20 pt-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <section aria-labelledby="sobre-explorar" className="mt-6 grid grid-cols-1 gap-4 border-t border-dashed border-teal-oscuro/20 pt-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div className="flex flex-col gap-3">
         <h2 id="sobre-explorar" className="text-2xl font-bold leading-tight">
           {t.titulo}
@@ -54,7 +54,7 @@ export function SobreExplorar({ rubro, rubros }: { rubro?: Rubro; rubros: Rubro[
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3 rounded-[24px] border-2 border-teal-oscuro bg-white p-5">
+        <div className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-white p-5">
           <h3 className="font-bold">{t.compartirTitulo}</h3>
           <p className="text-sm text-texto-2">{t.compartirTexto}</p>
           <ul className="flex flex-wrap gap-2">

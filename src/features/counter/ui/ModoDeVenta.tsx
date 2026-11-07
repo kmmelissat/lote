@@ -11,7 +11,7 @@ export type ModoDeVentaClave = "persona" | "chat";
  */
 export function ModoDeVenta({ modo, cambiar }: { modo: ModoDeVentaClave; cambiar: (m: ModoDeVentaClave) => void }) {
   return (
-    <div role="radiogroup" aria-label={t.titulo} className="grid grid-cols-2 gap-1 rounded-full border-2 border-teal-oscuro bg-superficie p-1">
+    <div role="radiogroup" aria-label={t.titulo} className="grid grid-cols-2 gap-1 rounded-full border border-teal-oscuro bg-superficie p-1">
       {(["persona", "chat"] as const).map((m) => (
         <button
           key={m}

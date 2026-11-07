@@ -547,7 +547,7 @@ export function Mostrador({
                 }
               }}
               placeholder={t.buscar}
-              className="h-12 w-full rounded-full border-2 border-teal-oscuro bg-superficie pl-12 pr-4 text-base"
+              className="h-12 w-full rounded-full border border-teal-oscuro bg-superficie pl-12 pr-4 text-base"
             />
           </label>
           {hayCamara && (

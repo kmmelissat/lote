@@ -56,6 +56,6 @@ export function enlaceExplorar(f: Filtros, alInicio = false): { href: Route; rel
 }
 
 export const chip = (activo: boolean) =>
-  `inline-flex h-10 items-center rounded-full border-2 border-teal-oscuro px-4 text-sm font-bold transition-colors ${
+  `inline-flex h-10 items-center rounded-full border border-teal-oscuro px-4 text-sm font-bold transition-colors ${
     activo ? "bg-mango" : "bg-crema hover:bg-limon"
   }`;

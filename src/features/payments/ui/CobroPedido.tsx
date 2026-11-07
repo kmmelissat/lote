@@ -87,7 +87,7 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
 
       {/* Contra entrega: el cobro llega al entregar, así que el mensaje de cobro no aplica */}
       {alEntregar && (
-        <div className="flex flex-col gap-1 rounded-2xl border-2 border-teal-oscuro bg-celeste-palido p-3 md:px-4">
+        <div className="flex flex-col gap-1 rounded-2xl border border-teal-oscuro bg-celeste-palido p-3 md:px-4">
           <p className="font-bold">{t.contraEntregaCobro(formatearDolares(saldo))}</p>
           <p className="text-sm text-texto-2">{t.contraEntregaCobroAyuda}</p>
         </div>

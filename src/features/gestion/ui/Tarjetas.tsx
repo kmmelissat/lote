@@ -134,7 +134,7 @@ export function FilaDeTarjeta({ tarjeta: x, cuentas }: { tarjeta: FilaTarjeta; c
   const fechas = [x.corte ? t.corte(x.corte) : null, x.pago ? t.pago(x.pago) : null].filter(Boolean).join(" · ");
   return (
     <li className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[28px] bg-fondo p-2 pr-4">
-      <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-oscuro bg-rosa">
+      <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-rosa">
         <Icon nombre="tarjeta" className="size-5 text-teal-oscuro" />
       </span>
       <span className="min-w-0 flex-1 basis-32">
