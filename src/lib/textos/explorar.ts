@@ -19,6 +19,7 @@ export const explorar = {
       cargando: "Revisando tu carrito…",
       errorTienda: "No pudimos cargar esta tienda",
       reintentar: "Reintentar",
+      errorGuardar: "No pudimos guardar el cambio.",
       irAPagar: "Ir a pagar",
       verCarritoTienda: "Ver carrito de la tienda",
       subtotal: "Subtotal",

@@ -2,19 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { guardarCarritoEnServidor, traerCarritoGuardado } from "../actions/carrito";
-import { leerCarrito, reemplazarCarrito, useCarrito } from "../carrito";
-import type { LineaCarrito } from "../carritoReglas";
-
-/** Une dos carritos: lo de ambos, y si un producto está en los dos, la cantidad mayor. */
-function unir(local: LineaCarrito[], servidor: LineaCarrito[]): LineaCarrito[] {
-  const mapa = new Map<number, number>();
-  for (const l of [...servidor, ...local]) mapa.set(l.codigo, Math.max(mapa.get(l.codigo) ?? 0, l.cantidad));
-  return [...mapa].map(([codigo, cantidad]) => ({ codigo, cantidad }));
-}
+import { guardarBase, leerBase, leerCarrito, reemplazarCarrito, useCarrito } from "../carrito";
+import { unirTresVias } from "../carritoReglas";
+import { marcarReconocido } from "../guardadoCarrito";
 
 /**
  * Mantiene el carrito del navegador y el del servidor iguales. Al abrir la tienda trae el del servidor y lo une con
- * el local; después guarda cada cambio. Sin cuenta de comprador en este dispositivo no guarda nada. No se ve nada.
+ * el local (lo que se cambió en este aparato gana; lo que cambió otro aparato, también un borrado, llega); después guarda cada cambio. Sin cuenta de comprador en este dispositivo no guarda nada. No se ve nada.
  */
 export function SincronizarCarrito({ slug }: { slug: string }) {
   const lineas = useCarrito(slug);
@@ -28,7 +22,15 @@ export function SincronizarCarrito({ slug }: { slug: string }) {
       .then((r) => {
         if (!vigente) return;
         reconocido.current = r.reconocido;
-        if (r.reconocido) reemplazarCarrito(slug, unir(leerCarrito(slug), r.lineas));
+        marcarReconocido(r.reconocido);
+        if (r.reconocido) {
+          const unido = unirTresVias(leerBase(slug), leerCarrito(slug), r.lineas);
+          reemplazarCarrito(slug, unido);
+          // Si ya coincide con el servidor, queda anotado como base; si no, se le sube lo que le falta
+          if (JSON.stringify(unido) === JSON.stringify(r.lineas)) guardarBase(slug, unido);
+          else guardarCarritoEnServidor(slug, unido).then(() => guardarBase(slug, unido)).catch(() => {});
+          ultimo.current = JSON.stringify(unido);
+        }
         listo.current = true;
       })
       .catch(() => {});
@@ -43,7 +45,9 @@ export function SincronizarCarrito({ slug }: { slug: string }) {
     if (texto === ultimo.current) return;
     const espera = setTimeout(() => {
       ultimo.current = texto;
-      guardarCarritoEnServidor(slug, lineas).catch(() => {});
+      guardarCarritoEnServidor(slug, lineas)
+        .then(() => guardarBase(slug, lineas))
+        .catch(() => {});
     }, 600);
     return () => clearTimeout(espera);
   }, [lineas, slug]);

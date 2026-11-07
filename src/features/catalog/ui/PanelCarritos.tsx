@@ -12,6 +12,7 @@ import { conBusqueda, ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 import { storeThemeVars } from "@/lib/temaTienda";
 import { cambiarCantidad, quitarDelCarrito, useCarritosTotal } from "../carrito";
+import { programarGuardado, reintentarGuardado, useErrorDeGuardado } from "../guardadoCarrito";
 import { useTodosLosCarritos, type CarritoDeTienda } from "../carritosDatos";
 import { MAX_CANTIDAD } from "../carritoReglas";
 import { etiquetaVariante, totalDe, type LineaConDatos } from "../lineasCarrito";
@@ -120,6 +121,7 @@ function Contenido({ idTitulo, unidades, cerrar, carritos, reintentar }: { idTit
 function GrupoTienda({ carrito, reintentar, cerrar }: { carrito: CarritoDeTienda; reintentar: () => void; cerrar: () => void }) {
   const { slug, tienda, lineas, ahorro, estado } = carrito;
   const nombre = tienda?.nombre ?? slug;
+  const falloGuardar = useErrorDeGuardado(slug);
   return (
     <section aria-label={nombre} style={storeThemeVars(tienda?.color)} className="overflow-hidden rounded-2xl border border-teal-oscuro/30">
       <div className="flex items-center gap-3 border-b border-(--store-accent)/30 bg-(--store-soft) px-3 py-2">
@@ -144,6 +146,14 @@ function GrupoTienda({ carrito, reintentar, cerrar }: { carrito: CarritoDeTienda
       )}
       {estado === "listo" && (
         <>
+          {falloGuardar && (
+            <p role="status" className="flex flex-wrap items-center gap-x-2 px-3 pt-2 text-xs text-texto-2">
+              {p.errorGuardar}
+              <button type="button" onClick={() => reintentarGuardado(slug)} className={`min-h-11 font-bold underline underline-offset-2 ${foco}`}>
+                {p.reintentar}
+              </button>
+            </p>
+          )}
           <ul className="flex flex-col divide-y divide-teal-oscuro/10 px-3">
             {lineas.map((l) => (
               <Linea key={l.codigo} slug={slug} linea={l} cerrar={cerrar} />
@@ -185,7 +195,10 @@ function Linea({ slug, linea: l, cerrar }: { slug: string; linea: LineaConDatos;
             </Link>
             {l.variante && <p className="truncate text-xs text-texto-2">{etiquetaVariante(l.variante, l.opciones)}</p>}
           </div>
-          <button type="button" onClick={() => quitarDelCarrito(slug, l.codigo)} aria-label={p.quitar(l.nombre)} className={`-mr-2 -mt-2 flex size-11 shrink-0 items-center justify-center rounded-full text-texto-2 hover:bg-teal-fondo ${foco}`}>
+          <button type="button" onClick={() => {
+              quitarDelCarrito(slug, l.codigo);
+              programarGuardado(slug);
+            }} aria-label={p.quitar(l.nombre)} className={`-mr-2 -mt-2 flex size-11 shrink-0 items-center justify-center rounded-full text-texto-2 hover:bg-teal-fondo ${foco}`}>
             <Icon nombre="x" className="size-4" />
           </button>
         </div>
@@ -195,13 +208,19 @@ function Linea({ slug, linea: l, cerrar }: { slug: string; linea: LineaConDatos;
           <>
             <div className="flex items-center justify-between gap-2">
               <div className="flex h-11 w-fit items-center rounded-full border border-teal-oscuro/30">
-                <button type="button" onClick={() => cambiarCantidad(slug, l.codigo, l.cantidad - 1)} disabled={l.cantidad <= 1} aria-label={p.quitarUna(l.nombre)} className={`flex h-full w-11 items-center justify-center rounded-l-full hover:bg-teal-fondo disabled:opacity-30 ${foco}`}>
+                <button type="button" onClick={() => {
+                  cambiarCantidad(slug, l.codigo, l.cantidad - 1);
+                  programarGuardado(slug);
+                }} disabled={l.cantidad <= 1} aria-label={p.quitarUna(l.nombre)} className={`flex h-full w-11 items-center justify-center rounded-l-full hover:bg-teal-fondo disabled:opacity-30 ${foco}`}>
                   <Icon nombre="menos" className="size-4" />
                 </button>
                 <span aria-live="polite" className="w-6 text-center text-sm font-bold tabular-nums">
                   {l.cantidad}
                 </span>
-                <button type="button" onClick={() => cambiarCantidad(slug, l.codigo, l.cantidad + 1)} disabled={enTope} aria-label={p.sumarUna(l.nombre)} className={`flex h-full w-11 items-center justify-center rounded-r-full hover:bg-teal-fondo disabled:opacity-30 ${foco}`}>
+                <button type="button" onClick={() => {
+                  cambiarCantidad(slug, l.codigo, l.cantidad + 1);
+                  programarGuardado(slug);
+                }} disabled={enTope} aria-label={p.sumarUna(l.nombre)} className={`flex h-full w-11 items-center justify-center rounded-r-full hover:bg-teal-fondo disabled:opacity-30 ${foco}`}>
                   <Icon nombre="mas" className="size-4" />
                 </button>
               </div>

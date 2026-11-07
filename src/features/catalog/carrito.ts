@@ -34,6 +34,28 @@ function guardar(slug: string, lineas: LineaCarrito[]) {
   window.dispatchEvent(new Event(EVENTO));
 }
 
+// Lo último en que este aparato y el servidor estuvieron de acuerdo, para saber qué cambió cada uno desde entonces (ver `unirTresVias`).
+// Va en otra clave, aparte del carrito, y no cuenta para el contador (no termina en _v1).
+const claveBase = (slug: string) => `lote_carrito_${slug}_base`;
+
+/** El carrito como quedó la última vez que este aparato y el servidor coincidieron; null si nunca se sincronizó aquí. */
+export function leerBase(slug: string): LineaCarrito[] | null {
+  try {
+    const texto = localStorage.getItem(claveBase(slug));
+    return texto === null ? null : lineasDe(texto);
+  } catch {
+    return null;
+  }
+}
+
+export function guardarBase(slug: string, lineas: LineaCarrito[]) {
+  try {
+    localStorage.setItem(claveBase(slug), JSON.stringify(lineas));
+  } catch {
+    // Sin almacenamiento no hay base: la próxima vez se junta todo, como antes
+  }
+}
+
 /** Lo que hay ahora en el carrito de esta tienda (para mezclarlo con el del servidor). */
 export function leerCarrito(slug: string): LineaCarrito[] {
   return lineasDe(crudo(slug));

@@ -41,45 +41,48 @@ export async function guardarCarritoEnServidor(slug: string, lineas: { codigo: n
   await guardarCarritoDelComprador(slug, comprador, lineasDe(JSON.stringify(lineas)));
 }
 
-/** Todo lo que el panel del encabezado necesita de una tienda, ya traído del servidor. `datos` es null si esa tienda no cargó. */
+/** Lo que el panel necesita de una tienda: lo que el servidor guardó y los datos de ahora de todos los productos que importan. `datos` es null si esa tienda no cargó. */
 export type CarritoCargado = {
   slug: string;
-  lineas: { codigo: number; cantidad: number }[];
-  datos: { productos: ProductoDelCarrito[]; ahorros: AhorroPromocion[]; tienda: { nombre: string; logo: string | null; color: string | null } } | null;
+  /** Lo guardado en el servidor para este comprador (vacío si no está reconocido) */
+  servidor: { codigo: number; cantidad: number }[];
+  datos: { productos: ProductoDelCarrito[]; tienda: { nombre: string; logo: string | null; color: string | null } } | null;
 };
 
+type Lineas = { codigo: number; cantidad: number }[];
+
 /**
- * Los carritos de todas las tiendas, de una vez: une lo que hay en este navegador (`locales`) con lo que el servidor guardó para
- * el comprador, y trae de cada tienda sus productos de ahora, las promociones y su marca. Una tienda que falla no tumba a las demás.
+ * Los carritos de varias tiendas de una vez. Por cada una devuelve lo que el servidor guardó (para que el navegador lo una con lo suyo)
+ * y los datos de ahora de los productos de ambos lados, más la marca de la tienda. Una tienda que falla no tumba a las demás.
+ * `reconocido` dice si el comprador tiene cuenta o compra previa en este aparato: si no, el navegador no guarda nada en el servidor.
+ * Con `conGuardado` en falso no se lee lo guardado (solo se piden los datos de los productos).
  */
-export async function cargarCarritos(locales: { slug: string; lineas: { codigo: number; cantidad: number }[] }[]): Promise<CarritoCargado[]> {
-  const union = new Map<string, Map<number, number>>();
-  const sumar = (slug: unknown, lineas: unknown) => {
-    if (typeof slug !== "string" || !slug || slug.length > 60) return;
-    const mapa = union.get(slug) ?? new Map<number, number>();
-    for (const l of lineasDe(JSON.stringify(lineas ?? []))) mapa.set(l.codigo, Math.max(mapa.get(l.codigo) ?? 0, l.cantidad));
-    union.set(slug, mapa);
-  };
+export async function cargarCarritos(locales: { slug: string; lineas: Lineas }[], conGuardado = true): Promise<{ reconocido: boolean; carritos: CarritoCargado[] }> {
   const comprador = await compradorActual().catch(() => null);
-  if (comprador) for (const g of await leerCarritosGuardados(comprador).catch(() => [])) sumar(g.slug, g.lineas);
-  for (const l of (Array.isArray(locales) ? locales : []).slice(0, 30)) sumar(l?.slug, l?.lineas);
+  const guardados = new Map<string, Lineas>();
+  if (comprador && conGuardado) for (const g of await leerCarritosGuardados(comprador).catch(() => [])) guardados.set(g.slug, lineasDe(JSON.stringify(g.lineas)));
+
+  const locales2 = new Map<string, Lineas>();
+  for (const l of (Array.isArray(locales) ? locales : []).slice(0, 30)) {
+    if (typeof l?.slug === "string" && l.slug && l.slug.length <= 60) locales2.set(l.slug, lineasDe(JSON.stringify(l.lineas ?? [])));
+  }
+  const slugs = [...new Set([...locales2.keys(), ...guardados.keys()])].slice(0, 30);
 
   const supabase = createPublicClient();
-  const cargados = await Promise.all(
-    [...union].slice(0, 30).map(async ([slug, mapa]): Promise<CarritoCargado | null> => {
-      const lineas = lineasDe(JSON.stringify([...mapa].map(([codigo, cantidad]) => ({ codigo, cantidad }))));
-      if (!lineas.length) return null;
+  const carritos = await Promise.all(
+    slugs.map(async (slug): Promise<CarritoCargado> => {
+      const servidor = guardados.get(slug) ?? [];
+      const codigos = new Set([...(locales2.get(slug) ?? []), ...servidor].map((l) => l.codigo));
+      if (!codigos.size) return { slug, servidor, datos: { productos: [], tienda: { nombre: slug, logo: null, color: null } } };
       try {
         const [negocio, todos] = await Promise.all([obtenerNegocioPublico(supabase, slug), listarProductosPublicos(supabase, slug)]);
-        if (!negocio) return { slug, lineas, datos: null };
-        const pedidos = new Set(lineas.map((l) => l.codigo));
-        const productos = todos.filter((p) => pedidos.has(p.codigo)).map(aProductoDelCarrito);
-        const ahorros = await calcularPromocionesDeVitrina(supabase, slug, lineas).catch(() => []);
-        return { slug, lineas, datos: { productos, ahorros, tienda: { nombre: negocio.nombre, logo: negocio.logo, color: negocio.color } } };
+        if (!negocio) return { slug, servidor, datos: null };
+        const productos = todos.filter((p) => codigos.has(p.codigo)).map(aProductoDelCarrito);
+        return { slug, servidor, datos: { productos, tienda: { nombre: negocio.nombre, logo: negocio.logo, color: negocio.color } } };
       } catch {
-        return { slug, lineas, datos: null };
+        return { slug, servidor, datos: null };
       }
     }),
   );
-  return cargados.filter((c): c is CarritoCargado => c !== null);
+  return { reconocido: comprador !== null, carritos };
 }

@@ -26,3 +26,25 @@ export function lineasDe(texto: string): LineaCarrito[] {
     return [];
   }
 }
+
+/**
+ * Une el carrito de este aparato (`local`) con el que el servidor guardó (`servidor`), sabiendo cómo estaban de acuerdo la última vez (`base`).
+ * Por producto: si este aparato lo cambió desde la base (agregó, bajó o quitó), gana lo de este aparato; si no, gana el servidor
+ * (que puede traer un cambio, o un borrado, hecho en otro aparato). Sin base (nunca se sincronizó aquí) no se sabe qué se borró:
+ * se junta todo y, si un producto está en los dos, queda la cantidad mayor.
+ */
+export function unirTresVias(base: LineaCarrito[] | null, local: LineaCarrito[], servidor: LineaCarrito[]): LineaCarrito[] {
+  const cantidades = (ls: LineaCarrito[]) => new Map(ls.map((l) => [l.codigo, l.cantidad]));
+  const L = cantidades(local);
+  const S = cantidades(servidor);
+  const B = base ? cantidades(base) : null;
+  const codigos = [...new Set([...local, ...servidor, ...(base ?? [])].map((l) => l.codigo))];
+  const resultado = codigos.map((codigo) => {
+    const l = L.get(codigo) ?? 0;
+    const s = S.get(codigo) ?? 0;
+    if (!B) return { codigo, cantidad: Math.max(l, s) };
+    const b = B.get(codigo) ?? 0;
+    return { codigo, cantidad: l !== b ? l : s };
+  });
+  return lineasDe(JSON.stringify(resultado.filter((l) => l.cantidad > 0)));
+}
