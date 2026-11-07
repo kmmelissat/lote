@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import Link from "next/link";
-import { ButtonLink } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { LotitoMas, type PoseLotito } from "@/components/ui/LotitoMas";
-import { EscribirALaTienda } from "@/features/catalog/ui/EscribirALaTienda";
-import { HojaCuaderno } from "@/features/catalog/ui/HojaCuaderno";
+import { BarraTienda } from "@/features/catalog/ui/BarraTienda";
+import { BOTON_CONTORNO, EscribirALaTienda } from "@/features/catalog/ui/EscribirALaTienda";
 import { MarcaTienda } from "@/features/catalog/ui/MarcaTienda";
 import { TicketPedido } from "@/features/catalog/ui/TicketPedido";
 import { obtenerApartadoPublico, obtenerNegocioPublico } from "@/features/catalog/repositorio";
@@ -26,11 +26,11 @@ export const metadata: Metadata = { title: t.titulo, robots: { index: false, fol
 
 /** El color del bocadillo y la pose de Lotito en cada etapa */
 const FONDO = {
-  pendiente: "bg-teal-fondo",
-  pagado: "bg-teal-fondo",
-  preparando: "bg-teal-fondo",
-  enviado: "bg-teal-fondo",
-  entregado: "bg-teal-fondo",
+  pendiente: "bg-(--store-soft) text-(--store-on-soft)",
+  pagado: "bg-(--store-soft) text-(--store-on-soft)",
+  preparando: "bg-(--store-soft) text-(--store-on-soft)",
+  enviado: "bg-(--store-soft) text-(--store-on-soft)",
+  entregado: "bg-(--store-soft) text-(--store-on-soft)",
   cancelado: "bg-perla",
 } as const;
 const POSE: Record<string, PoseLotito> = {
@@ -67,10 +67,10 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
 
   return (
     <MarcaTienda color={tienda?.color ?? null}>
-    <HojaCuaderno>
-    <div className="flex flex-col gap-6">
+    <BarraTienda slug={s.slug} conCarrito />
+    <div className="mt-8 flex flex-col gap-6">
       <header className="flex flex-col items-start gap-2">
-        <span className="text-sm font-bold text-teal">{s.negocio}</span>
+        <span className="text-sm font-bold text-(--store-accent)">{s.negocio}</span>
         <h1 className="text-3xl font-bold leading-tight">{t.tuPedido}</h1>
         <p className="font-medium text-texto-2">
           {t.pedido(s.codigo)} · {formatearFecha(s.creadoEn)}
@@ -103,7 +103,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
       {compra ? (
         <TicketPedido a={compra} />
       ) : (
-        <section aria-labelledby="tu-pedido" className="rounded-2xl border border-teal-oscuro/20 bg-crema p-5">
+        <section aria-labelledby="tu-pedido" className="rounded-[24px] border border-teal-oscuro/30 bg-superficie p-5">
           <h2 id="tu-pedido" className="mb-4 text-lg font-bold">
             {t.productos}
           </h2>
@@ -111,7 +111,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
             {s.items.map((i) => (
               <li
                 key={i.nombre}
-                className={`inline-flex items-center gap-2 rounded-full bg-teal-fondo py-1.5 pl-1.5 pr-4 text-sm font-bold`}
+                className={`inline-flex items-center gap-2 rounded-full bg-(--store-soft) text-(--store-on-soft) py-1.5 pl-1.5 pr-4 text-sm font-bold`}
               >
                 <span className="flex size-7 items-center justify-center rounded-full bg-white text-xs">×{i.cantidad}</span>
                 {i.nombre}
@@ -125,7 +125,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
       <div className="flex flex-col items-stretch gap-3">
         <EscribirALaTienda whatsapp={tienda?.whatsapp ?? null} negocio={s.negocio} codigo={s.codigo} />
         {compra && (
-          <Link href={`/c/${s.slug}/pedido/${pedido}`} className="inline-flex min-h-11 items-center justify-center text-sm font-bold text-teal underline">
+          <Link href={`/c/${s.slug}/pedido/${pedido}`} className="inline-flex min-h-11 items-center justify-center text-sm font-bold text-(--store-accent) underline">
             {textos.vitrina.confirmacion.verDetalle} →
           </Link>
         )}
@@ -133,7 +133,7 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
 
       {/* Ya lo recibió: es el momento de contar cómo le fue */}
       {entregado && s.items.some((i) => i.codigo !== undefined) && (
-        <section aria-labelledby="dejar-resena" className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro/20 bg-crema p-5">
+        <section aria-labelledby="dejar-resena" className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro/30 bg-superficie p-5">
           <div>
             <h2 id="dejar-resena" className="text-lg font-bold">
               {textos.resenas.cliente.titulo}
@@ -149,12 +149,12 @@ async function Seguimiento({ params }: Pick<PageProps<"/p/[pedido]">, "params">)
 
       <section className="flex flex-col items-start gap-3 border-t border-teal-oscuro/15 pt-6">
         <p className="text-lg font-bold leading-tight">{t.masDelNegocio}</p>
-        <ButtonLink href={`/c/${s.slug}`} variante="mango" icono="tienda">
+        <Link href={`/c/${s.slug}`} className={BOTON_CONTORNO}>
+          <Icon nombre="tienda" className="size-5" />
           {t.verVitrina(s.negocio)}
-        </ButtonLink>
+        </Link>
       </section>
     </div>
-    </HojaCuaderno>
     </MarcaTienda>
   );
 }

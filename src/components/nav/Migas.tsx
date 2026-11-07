@@ -40,6 +40,9 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
   // El carrito también: lleva la barra de la tienda
   if (partes[0] === "c" && partes.length === 3 && partes[2] === "carrito") return null;
 
+  // La confirmación del pedido también lleva la barra de la tienda
+  if (partes[0] === "c" && partes[2] === "pedido") return null;
+
   // Las pantallas de compra llevan solo la barra con el logo: el regreso es el botón "Volver" del formulario
   if (esPantallaDeCompra(pathname)) return null;
 

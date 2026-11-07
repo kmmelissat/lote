@@ -18,16 +18,16 @@ export function textoDePago(a: Pick<ApartadoPublico, "contraEntrega" | "metodoPr
  * La compra como un ticket pegado con cinta: lo que pidió, el envío, el total y cómo paga. No lleva la dirección: eso va en el detalle
  * del pedido, no en el seguimiento.
  */
-export function TicketPedido({ a, conDireccion = false }: { a: ApartadoPublico; conDireccion?: boolean }) {
+export function TicketPedido({ a, conDireccion = false, sinEntrega = false }: { a: ApartadoPublico; conDireccion?: boolean; sinEntrega?: boolean }) {
   const pago = textoDePago(a);
   return (
-    <section aria-labelledby="ticket-pedido" className="rounded-2xl border border-teal-oscuro/20 bg-crema p-4">
+    <section aria-labelledby="ticket-pedido" className="rounded-[24px] border border-teal-oscuro/30 bg-superficie p-5">
       <h2 id="ticket-pedido" className="mb-2 text-lg font-bold">
         {t.ticket.titulo}
       </h2>
       <ul className="flex flex-col">
         {a.items.map((i) => (
-          <li key={i.nombre} className="flex justify-between gap-3 border-b border-teal-oscuro/15 py-1.5 text-sm">
+          <li key={i.nombre} className="flex justify-between gap-3 border-b border-teal-oscuro/15 py-2">
             <span className="min-w-0">
               {i.nombre} <span className="font-bold">×{i.cantidad}</span>
             </span>
@@ -35,7 +35,7 @@ export function TicketPedido({ a, conDireccion = false }: { a: ApartadoPublico; 
           </li>
         ))}
         {a.entrega === "envio" && (
-          <li className="flex justify-between gap-3 border-b border-teal-oscuro/15 py-1.5 text-sm text-texto-2">
+          <li className="flex justify-between gap-3 border-b border-teal-oscuro/15 py-2 text-texto-2">
             <span className="flex items-center gap-1.5">
               <Icon nombre="camion" className="size-4" />
               {t.envioCosto}
@@ -48,16 +48,40 @@ export function TicketPedido({ a, conDireccion = false }: { a: ApartadoPublico; 
         <span className="font-bold">{t.total}</span>
         <span className="text-2xl font-bold tabular-nums">{formatearDolares(a.total)}</span>
       </p>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        {pago && <span className="rounded-full bg-teal-fondo px-2.5 py-1 text-xs font-bold text-teal-oscuro">{pago}</span>}
-        {a.entrega && (
-          <span className="rounded-full bg-teal-fondo px-2.5 py-1 text-xs font-bold text-teal-oscuro">
-            {a.entrega === "envio" ? t.ticket.recibido.envio : t.ticket.recibido.retiro}
-          </span>
-        )}
+      {!sinEntrega && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {pago && <Chip>{pago}</Chip>}
+          {a.entrega && <Chip>{a.entrega === "envio" ? t.ticket.recibido.envio : t.ticket.recibido.retiro}</Chip>}
+        </div>
+      )}
+      {!sinEntrega && conDireccion && <Direccion a={a} />}
+    </section>
+  );
+}
+
+function Chip({ children }: { children: string }) {
+  return <span className="rounded-full bg-(--store-soft) px-3 py-1 text-sm font-bold text-(--store-on-soft)">{children}</span>;
+}
+
+function Direccion({ a }: { a: ApartadoPublico }) {
+  if (a.entrega === "envio" && a.envioDireccion) return <p className="mt-3 text-base text-texto">{t.envioA(a.envioDireccion)}</p>;
+  if (a.entrega === "retiro" && a.direccionRetiro) return <p className="mt-3 text-base text-texto">{t.retiroEn(a.direccionRetiro)}</p>;
+  return null;
+}
+
+/** "Entrega y pago": cómo se paga, cómo se recibe y dónde. Va junto a "Lo que sigue". */
+export function EntregaYPago({ a }: { a: ApartadoPublico }) {
+  const pago = textoDePago(a);
+  return (
+    <section aria-labelledby="entrega-y-pago" className="rounded-[24px] border border-teal-oscuro/30 bg-superficie p-5">
+      <h2 id="entrega-y-pago" className="mb-3 text-lg font-bold">
+        {t.entregaYPago}
+      </h2>
+      <div className="flex flex-wrap items-center gap-2">
+        {pago && <Chip>{pago}</Chip>}
+        {a.entrega && <Chip>{a.entrega === "envio" ? t.ticket.recibido.envio : t.ticket.recibido.retiro}</Chip>}
       </div>
-      {conDireccion && a.entrega === "envio" && a.envioDireccion && <p className="mt-2 text-sm text-texto-2">{t.envioA(a.envioDireccion)}</p>}
-      {conDireccion && a.entrega === "retiro" && a.direccionRetiro && <p className="mt-2 text-sm text-texto-2">{t.retiroEn(a.direccionRetiro)}</p>}
+      <Direccion a={a} />
     </section>
   );
 }

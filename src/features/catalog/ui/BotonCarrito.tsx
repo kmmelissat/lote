@@ -30,7 +30,7 @@ function Boton({ slug, enLinea }: { slug: string; enLinea: boolean }) {
   // En la portada el carrito va dentro de la barra de arriba, no flotando
   if (!enLinea && (pathname === `/c/${slug}` || new RegExp(`^/c/${slug}/\\d+$`).test(pathname ?? ""))) return null;
   // En la confirmación de un pedido el carrito ya se usó y está vacío
-  if (pathname?.startsWith(`/c/${slug}/apartado`)) return null;
+  if (!enLinea && (pathname?.startsWith(`/c/${slug}/apartado`) || pathname?.startsWith(`/c/${slug}/pedido`))) return null;
   return (
     <Link
       href={`/c/${slug}/carrito`}

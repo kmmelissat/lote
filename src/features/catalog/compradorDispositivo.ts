@@ -124,6 +124,22 @@ export async function guardarPerfilDeCuenta(perfil: PerfilDeCuenta): Promise<boo
   return !error;
 }
 
+/** El correo con el que se hizo un pedido, solo para quien es su dueño (su cuenta o este dispositivo). Si no, null. */
+export async function correoDelPedido(pedidoId: string): Promise<string | null> {
+  try {
+    const comprador = await compradorActual();
+    if (!comprador) return null;
+    const base = baseSinTipos();
+    const { data: pedido } = await base.from("pedido").select("comprador_id").eq("id", pedidoId).maybeSingle();
+    if (pedido?.comprador_id !== comprador) return null;
+    const { data } = await base.from("comprador").select("correo").eq("id", comprador).maybeSingle();
+    return texto(data?.correo) || null;
+  } catch {
+    // Sin comprador_correo.sql no hay correo que mostrar
+    return null;
+  }
+}
+
 /** Si hay una sesión (para mostrar "Verificá tu cuenta" solo a quien aún no entró). */
 export const haySesion = async () => (await usuarioActual()) !== null;
 
