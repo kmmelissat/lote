@@ -116,6 +116,12 @@ export const explorar = {
     ofertas: "Ofertas",
     todasLasTiendas: "Todas las tiendas",
   },
+  mosaico: {
+    aria: "Promociones de Lote",
+    ofertasSub: (tiendas: number) => (tiendas > 0 ? `2x1, packs y descuentos de ${tiendas} ${tiendas === 1 ? "tienda" : "tiendas"}` : "2x1, packs y descuentos de las tiendas"),
+    verOfertas: "Ver ofertas",
+    productosEnTienda: (n: number) => (n === 1 ? "1 producto" : `${n} productos`),
+  },
   circulos: {
     titulo: "Comprá por categoría",
     verTodas: "Ver todas",

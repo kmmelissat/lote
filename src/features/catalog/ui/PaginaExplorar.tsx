@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { permanentRedirect } from "next/navigation";
 import { connection } from "next/server";
@@ -11,11 +12,11 @@ import {
   RUTA_TIENDAS,
   type OrdenExplorar,
 } from "../explorar";
-import { categoriaPorTexto, esRubro, rubroDeCategoria } from "../rubros";
+import { categoriaPorTexto, esRubro, rubroDeCategoria, type RubroId } from "../rubros";
 import { colorDeMarca } from "../marca";
 import { HeroMercadito } from "./HeroMercadito";
+import { MosaicoPromos } from "./MosaicoPromos";
 import { FilaProductos } from "./FilaProductos";
-import { BandaTienda } from "./BandaTienda";
 import { BandaTiendas } from "./BandaTiendas";
 import { EstanteProductos } from "./EstanteProductos";
 import { SobreExplorar } from "./SobreExplorar";
@@ -115,7 +116,9 @@ export async function PaginaExplorar({
   const portada = vista === "productos" && !filtrando && pagina === 1;
   // En categoría y búsqueda los filtros van en una columna a la izquierda (en el celular, en una hoja)
   const conPanel = vista === "productos" && filtrando;
-  const [tiendas, { productos, total }, ofertas, promociones] =
+  // Para la foto de cada círculo: lo más reciente que se ve en Explorar, de donde sale el producto con foto de cada rubro
+  const conCirculos = vista === "productos" && !filtrando;
+  const [tiendas, { productos, total }, ofertas, promociones, { productos: recientes }] =
     await Promise.all([
       // En productos las tiendas son una fila de acceso rápido; en tiendas, el contenido principal
       explorarTiendas(
@@ -140,6 +143,9 @@ export async function PaginaExplorar({
         : Promise.resolve({ productos: [], total: null }),
       portada ? explorarOfertas(supabase, POR_FILA) : Promise.resolve([]),
       portada ? explorarPromociones(supabase, POR_FILA) : Promise.resolve([]),
+      conCirculos
+        ? explorarProductos(supabase, { limite: 100, desde: 0, orden: "recientes" })
+        : Promise.resolve({ productos: [], total: null }),
     ]);
   const hayMas = productos.length > POR_PAGINA;
   const visibles = productos.slice(0, POR_PAGINA);
@@ -178,12 +184,21 @@ export async function PaginaExplorar({
   const marcaDe = (p: { tiendaSlug: string }) =>
     marcas.get(p.tiendaSlug) ?? { color: colorDeMarca(null).hex, logo: null };
 
-  // La tienda del momento: la que más productos tiene entre los que se ven (hacen falta tres para la banda)
+  // La tienda del momento (para el mosaico): la que más productos tiene entre los que se ven
   const porTienda = Map.groupBy(visibles, (p) => p.tiendaSlug);
-  const [slugMomento, deMomento] = [...porTienda].sort((a, b) => b[1].length - a[1].length)[0] ?? [];
+  const [slugMomento] = [...porTienda].sort((a, b) => b[1].length - a[1].length)[0] ?? [];
   const tiendaMomento = tiendas.find((x) => x.slug === slugMomento);
-  const tiendaDelMomento =
-    tiendaMomento && deMomento && deMomento.length >= 3 ? { tienda: tiendaMomento, productos: deMomento.slice(0, 3) } : null;
+
+  // La foto de cada círculo: el producto más reciente con imagen de ese rubro
+  const fotosRubro: Partial<Record<RubroId, string>> = {};
+  for (const p of recientes) {
+    const id = rubroDeCategoria(p.categoria);
+    if (id && p.foto && !fotosRubro[id]) fotosRubro[id] = p.foto;
+  }
+
+  // El mosaico de la portada: fotos de lo que está en oferta, lo más nuevo y la tienda del momento
+  const fotosOferta = [...ofertas.map((p) => p.foto), ...promociones.flatMap((x) => x.fotos.slice(0, 1))].filter((f): f is string => !!f);
+  const tiendasConOferta = new Set([...ofertas.map((p) => p.tiendaSlug), ...promociones.map((x) => x.tiendaSlug)].filter(Boolean)).size;
 
   // Los dos estantes de la portada: lo que está en oferta (si hay suficiente) y lo más nuevo
   const hayOfertas = ofertas.length + promociones.length >= MINIMO_FILA;
@@ -201,21 +216,29 @@ export async function PaginaExplorar({
       />
 
       <BarraCategorias
-        rubros={rubros}
-        activo={categoria}
         enOferta={oferta}
         enTiendas={vista === "tiendas"}
-        enlaceRubro={(id) => enlaceExplorar({ ...limpio, categoria: id })}
         enlaceOfertas={enlaceExplorar({ ...limpio, oferta: true })}
         enlaceTiendas={{ href: RUTA_TIENDAS }}
       />
 
       <HeroMercadito
-        compacto={filtrando}
         tiendas={tiendas.length}
         // Lo mismo que cuenta la grilla (todos los productos a la vista); con una categoría puesta, lo de esa categoría
         totalProductos={vista === "productos" && !filtrando && total !== null ? total : rubro ? rubro.productos : totalProductos}
         titulo={nombreRubro ? t.encabezadoRubro(nombreRubro) : undefined}
+        mosaico={
+          portada ? (
+            <MosaicoPromos
+              fotosOferta={fotosOferta}
+              tiendasConOferta={tiendasConOferta}
+              verOfertas={enlaceExplorar({ ...limpio, oferta: true }).href}
+              fotosNuevos={visibles.flatMap((p) => (p.foto ? [p.foto] : [])).slice(0, 2)}
+              verNuevos={"#nuevos" as Route}
+              tienda={tiendaMomento ?? tiendas[0] ?? null}
+            />
+          ) : undefined
+        }
         extra={
           // En tiendas no hay fila de categorías: ahí se sugieren las que tienen más productos
           vista === "tiendas" && sugeridas.length > 0 && !busqueda ? (
@@ -253,6 +276,7 @@ export async function PaginaExplorar({
                 rubros={rubros}
                 enlace={(id) => enlaceExplorar({ ...f, categoria: id, sub: "", pagina: 1 })}
                 verTodas="#todos"
+                fotos={fotosRubro}
               />
             )}
             {/* Portada: dos estantes, la tienda del momento y la invitación a ver todas las tiendas */}
@@ -268,7 +292,6 @@ export async function PaginaExplorar({
                     <FilaProductos titulo={t.estantes.nuevos} productos={visibles.slice(0, POR_FILA)} marcaDe={marcaDe} eager={!hayOfertas} />
                   </EstanteProductos>
                 )}
-                {tiendaDelMomento && <BandaTienda tienda={tiendaDelMomento.tienda} productos={tiendaDelMomento.productos} />}
                 {tiendas.length > 0 && <BandaTiendas tiendas={tiendas} destino={{ href: RUTA_TIENDAS }} />}
               </div>
             )}
