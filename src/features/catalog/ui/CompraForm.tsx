@@ -12,6 +12,9 @@ import { textos } from "@/lib/textos";
 import { comprarCarrito, comprarProducto, type EstadoApartar } from "../actions/apartar";
 import type { OpcionesDeCompra } from "../repositorio";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
+import { IndicadorPasos } from "./IndicadorPasos";
+import { OpcionRadio } from "./OpcionRadio";
+import { ResumenCompra } from "./ResumenCompra";
 import { campoCompra, CampoCorreo, CampoWhatsApp, guardarDatos, Honeypot, useDatosGuardados } from "./camposCompra";
 
 const t = textos.vitrina.compra;
@@ -28,42 +31,6 @@ const BOTON_PRINCIPAL = "inline-flex h-12 flex-1 items-center justify-center rou
 /** Con qué entrega se puede pagar cada cosa: efectivo es al recoger y contra entrega es al recibir. */
 const sirve = (m: Metodo, e: Entrega) => (m === "efectivo" ? e === "retiro" : m === "contra_entrega" ? e === "envio" : true);
 
-
-function Opcion({
-  nombre,
-  valor,
-  marcada,
-  onElegir,
-  icono,
-  titulo,
-  ayuda,
-  derecha,
-}: {
-  nombre: string;
-  valor: string;
-  marcada: boolean;
-  onElegir: () => void;
-  icono: NombreIcono;
-  titulo: string;
-  ayuda?: string;
-  derecha?: string;
-}) {
-  return (
-    <label className="cursor-pointer">
-      <input type="radio" name={nombre} value={valor} checked={marcada} onChange={onElegir} className="peer sr-only" />
-      <span className="flex items-center gap-3 rounded-2xl border border-teal-oscuro/25 bg-white p-3 transition-colors peer-checked:border-(--store-accent) peer-checked:bg-(--store-soft) peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--store-accent)">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro/30 bg-superficie">
-          <Icon nombre={icono} className="size-5" />
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="font-bold">{titulo}</span>
-          {ayuda && <span className="text-sm text-texto-2">{ayuda}</span>}
-        </span>
-        {derecha && <span className="shrink-0 text-sm font-bold">{derecha}</span>}
-      </span>
-    </label>
-  );
-}
 
 /** Comprar como en cualquier tienda en línea: tus datos, cómo lo recibís, cómo pagás y el total. O solo apartar. */
 export function CompraForm({
@@ -171,22 +138,7 @@ export function CompraForm({
           <p className="sr-only" aria-live="polite">
             {t.paso(paso + 1, t.pasos.length)} · {t.pasos[paso]}
           </p>
-          <ol aria-label={t.pasosAria} className="flex items-center gap-2">
-            {t.pasos.map((nombre, i) => (
-              <li key={nombre} aria-current={i === paso ? "step" : undefined} className="flex items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className={`grid size-9 place-items-center rounded-full border text-sm font-bold transition-colors ${
-                    i < paso ? "border-transparent bg-(--store-accent) text-white" : i === paso ? "border-transparent bg-(--store-button) text-(--store-on-button)" : "border-teal-oscuro/30 bg-white text-texto-2"
-                  }`}
-                >
-                  {i < paso ? <Icon nombre="check" className="size-4" /> : i + 1}
-                </span>
-                <span className={`text-sm font-bold ${i === paso ? "" : "hidden text-texto-2 sm:inline"}`}>{nombre}</span>
-                {i < t.pasos.length - 1 && <span aria-hidden="true" className="h-0.5 w-3 rounded-full bg-teal-oscuro/30 sm:w-8" />}
-              </li>
-            ))}
-          </ol>
+          <IndicadorPasos paso={paso} />
 
           <section hidden={paso !== 0} data-paso="0" className="flex animate-desliza flex-col gap-3">
             <h2 className="font-bold">{t.tusDatos}</h2>
@@ -205,7 +157,7 @@ export function CompraForm({
           <fieldset hidden={paso !== 1} data-paso="1" className="relative z-20 flex animate-desliza flex-col gap-2">
             <legend className="mb-1 font-bold">{t.recibirTitulo}</legend>
             {puedeRecoger && (
-              <Opcion
+              <OpcionRadio
                 nombre="entrega"
                 valor="retiro"
                 marcada={entrega === "retiro"}
@@ -216,7 +168,7 @@ export function CompraForm({
                 derecha={t.envioGratis}
               />
             )}
-            <Opcion
+            <OpcionRadio
               nombre="entrega"
               valor="envio"
               marcada={entrega === "envio"}
@@ -296,7 +248,7 @@ export function CompraForm({
             <legend className="mb-1 font-bold">{t.pagarTitulo}</legend>
             {metodosDisponibles.length === 0 && <p className="text-sm text-texto-2">{t.sinMetodos}</p>}
             {metodosDisponibles.map((m) => (
-              <Opcion
+              <OpcionRadio
                 key={m}
                 nombre="metodo"
                 valor={m}
@@ -317,27 +269,12 @@ export function CompraForm({
             </div>
           </fieldset>
 
-          <section aria-live="polite" className="flex flex-col gap-1 rounded-2xl border border-teal-oscuro/30 bg-white p-4">
-            <h2 className="mb-1 font-bold">{t.resumenTitulo}</h2>
-            <p className="flex justify-between text-sm">
-              <span className="text-texto-2">{t.subtotal}</span>
-              <span className="tabular-nums">{formatearDolares(subtotal + promociones)}</span>
-            </p>
-            {promociones > 0 && (
-              <p className="flex justify-between text-sm">
-                <span className="text-texto-2">{textos.promociones.ahorroLinea}</span>
-                <span className="tabular-nums">−{formatearDolares(promociones)}</span>
-              </p>
-            )}
-            <p className="flex justify-between text-sm">
-              <span className="text-texto-2">{t.envioLinea}</span>
-              <span className="tabular-nums">{entrega === "retiro" ? t.envioGratis : departamento ? (tarifa === 0 ? t.envioGratis : formatearDolares(tarifa)) : "–"}</span>
-            </p>
-            <p className="flex justify-between border-t border-teal-oscuro/30 pt-2 text-lg font-bold">
-              <span>{t.total}</span>
-              <span className="tabular-nums">{formatearDolares(subtotal + tarifa)}</span>
-            </p>
-          </section>
+          <ResumenCompra
+            subtotal={subtotal + promociones}
+            promociones={promociones}
+            envio={entrega === "retiro" ? 0 : departamento ? tarifa : null}
+            total={subtotal + tarifa}
+          />
 
           <label className="flex min-h-11 items-start gap-3 rounded-2xl border border-teal-oscuro/30 bg-white p-3">
             <input type="checkbox" name="acepta" required checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-(--store-accent)" />
