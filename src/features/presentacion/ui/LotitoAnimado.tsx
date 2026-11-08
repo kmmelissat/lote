@@ -5,7 +5,9 @@ import { LotitoMas, type PoseLotito } from "@/components/ui/LotitoMas";
 import { EASE } from "../animacion";
 
 /** Cada Lotito reacciona distinto según la lámina. Con reduced-motion solo aparece (opacidad). */
-export type Personalidad = "portada" | "problema" | "demo" | "cierre";
+export type Personalidad = "portada" | "problema" | "demo" | "cierre" | "aprobar" | "calcular" | "asomar";
+
+const AYUDANTES: readonly Personalidad[] = ["aprobar", "calcular", "asomar"];
 
 const RESORTE = { type: "spring", stiffness: 180, damping: 14 } as const;
 
@@ -15,7 +17,7 @@ export function LotitoAnimado({ nombre, personalidad, className = "" }: { nombre
 
   if (reducido) {
     return (
-      <motion.div className={className} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.2 }}>
+      <motion.div className={className} style={{ y: AYUDANTES.includes(personalidad) ? "40%" : undefined }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.2 }}>
         {dibujo}
       </motion.div>
     );
@@ -68,6 +70,48 @@ export function LotitoAnimado({ nombre, personalidad, className = "" }: { nombre
             style={{ transformOrigin: "30% 100%" }}
             animate={{ rotate: [0, 10, -5, 10, -5, 10, 0] }}
             transition={{ delay: 1.4, duration: 1.8, ease: EASE }}
+          >
+            {dibujo}
+          </motion.div>
+        </motion.div>
+      );
+
+    // Asiente con la cabeza, como diciendo "eso sí se confirmó".
+    case "aprobar":
+      return (
+        <motion.div className={className} initial={{ y: "100%", opacity: 0 }} animate={{ y: "38%", opacity: 1 }} transition={{ ...RESORTE, delay: 1.5 }}>
+          <motion.div
+            style={{ transformOrigin: "50% 100%" }}
+            animate={{ y: ["0%", "-8%", "0%", "-8%", "0%"], rotate: [0, -4, 0, -4, 0] }}
+            transition={{ delay: 2.4, duration: 1.2, ease: "easeInOut" }}
+          >
+            {dibujo}
+          </motion.div>
+        </motion.div>
+      );
+
+    // Hace cuentas: sacude la calculadora de lado a lado.
+    case "calcular":
+      return (
+        <motion.div className={className} initial={{ y: "100%", opacity: 0 }} animate={{ y: "40%", opacity: 1 }} transition={{ ...RESORTE, delay: 1.7 }}>
+          <motion.div
+            style={{ transformOrigin: "50% 100%" }}
+            animate={{ rotate: [0, -5, 5, -5, 5, 0], x: [0, -4, 4, -4, 4, 0] }}
+            transition={{ delay: 2.6, duration: 0.9, ease: "easeInOut" }}
+          >
+            {dibujo}
+          </motion.div>
+        </motion.div>
+      );
+
+    // Se asoma despacio, mira de un lado y se queda ahí.
+    case "asomar":
+      return (
+        <motion.div className={className} initial={{ y: "100%", opacity: 0 }} animate={{ y: "42%", opacity: 1 }} transition={{ duration: 0.7, ease: EASE, delay: 1.6 }}>
+          <motion.div
+            style={{ transformOrigin: "50% 100%" }}
+            animate={{ rotate: [0, 8, 8, -6, -6, 0] }}
+            transition={{ delay: 2.4, duration: 2.2, ease: "easeInOut" }}
           >
             {dibujo}
           </motion.div>
