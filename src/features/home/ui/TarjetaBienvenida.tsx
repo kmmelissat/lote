@@ -56,7 +56,7 @@ export function TarjetaBienvenida({ nombre, slug, conVitrina }: { nombre: string
         </div>
         {conVitrina && (
           <div className="flex max-w-xl flex-col gap-2">
-            <span className="-rotate-2 self-start rounded-md border border-teal-oscuro bg-limon px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-teal-oscuro">
+            <span className="self-start rounded-full bg-chip-amarillo px-3 py-1 text-xs font-medium text-chip-texto-amarillo ring-1 ring-inset ring-teal-oscuro/10">
               {t.enlace}
             </span>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

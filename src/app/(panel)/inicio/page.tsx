@@ -53,12 +53,12 @@ async function Contenido({ bienvenida, modoPedido, desdePedido, hastaPedido }: {
     // El costo solo lo ve quien gestiona: para el resto no se pide la ganancia. La de la semana descuenta los gastos
     // fijos que ya tocaron, así que se registran antes de calcularla (lo demás no los espera).
     negocio.puedeGestionar
-      ? aplicarGastosFijos(supabase, negocio.id, fechaLocalDe(ahora)).then(() =>
-          Promise.all([
-            resumenPorPeriodos(supabase, negocio.id, previo ? [previo, periodo] : [periodo]),
-            resumenPorPeriodos(supabase, negocio.id, tramos.map((x) => x.periodo)),
-          ]),
-        )
+      ? aplicarGastosFijos(supabase, negocio.id, fechaLocalDe(ahora)).then(async () => {
+          // Una sola consulta para las cifras (anterior y actual) y las barras: los periodos se traslapan.
+          const fijos = previo ? [previo, periodo] : [periodo];
+          const todos = await resumenPorPeriodos(supabase, negocio.id, [...fijos, ...tramos.map((x) => x.periodo)]);
+          return [todos.slice(0, fijos.length), todos.slice(fijos.length)] as const;
+        })
       : null,
     negocio.puedeGestionar ? contarPendientes(supabase, negocio.id) : 0,
   ]);

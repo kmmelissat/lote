@@ -4,6 +4,20 @@
 @source inline("bg-celeste bg-celeste-palido text-celeste fill-celeste");
 
 @theme static {
+  /* Punch: chips de estado (fondo 200, texto 800), ver /design-system */
+  --color-chip-celeste: #c0eaf9;
+  --color-chip-amarillo: #fae5a9;
+  --color-chip-rosa: #f7c7d7;
+  --color-chip-lila: #d6cdf6;
+  --color-chip-verde: #b9e8c8;
+  --color-chip-rojo: #f9c5c0;
+  --color-chip-texto-amarillo: #826a19;
+  --color-chip-texto-rosa: #9f3261;
+  --color-chip-texto-lila: #512a92;
+  --color-chip-texto-verde: #206a3e;
+  --color-chip-texto-rojo: #9f271c;
+  --color-chip-texto-celeste: #013c47;
+  --color-chip-texto-neutro: #287480;
   /* Punch: neutros y fichas del menú lateral nuevo (ver /design-system) */
   --color-linea: #e1e8e8;
   --color-gris-50: #f7f9f9;

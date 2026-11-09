@@ -1,8 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { Panel } from "./Panel";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { Pedido } from "@/features/orders/repositorio";
+import { urlFoto } from "@/lib/fotos";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
@@ -41,6 +43,7 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
         <ul className="flex flex-col">
           {pedidos.map((p) => {
             const cliente = p.cliente ?? textos.pedidos.sinCliente;
+            const foto = p.items.find((i) => i.foto)?.foto;
             const producto = p.items[0]?.nombre ?? textos.pedidos.pedido(p.codigo);
             return (
               <li key={p.id} className="border-t border-linea first:border-t-0">
@@ -48,12 +51,16 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
                   href={ruta(`/pedidos/${p.codigo}`)}
                   className="flex min-h-16 items-center gap-3 rounded-[14px] px-2 py-2.5 transition-colors hover:bg-gris-50"
                 >
-                  <span
-                    aria-hidden="true"
-                    className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-teal-oscuro ${colorDe(cliente)}`}
-                  >
-                    {cliente.trim().charAt(0).toUpperCase() || "?"}
-                  </span>
+                  {foto ? (
+                    <Image src={urlFoto(foto)} alt="" width={40} height={40} className="size-10 shrink-0 rounded-xl border border-linea object-cover" />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className={`flex size-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-teal-oscuro ${colorDe(cliente)}`}
+                    >
+                      {cliente.trim().charAt(0).toUpperCase() || "?"}
+                    </span>
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{cliente}</p>
                     <p className="truncate text-sm text-texto-2">

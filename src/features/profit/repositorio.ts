@@ -148,11 +148,10 @@ export async function resumenPorSemana(
 
 /** Lo mismo para periodos seguidos cualquiera (semanas, meses o un rango elegido), del más viejo al más nuevo. */
 export async function resumenPorPeriodos(supabase: Cliente, negocioId: string, periodos: Periodo[]): Promise<SemanaResumen[]> {
-  const rango: Periodo = {
-    ...periodos[0],
-    hasta: periodos[periodos.length - 1].hasta,
-    hastaFecha: periodos[periodos.length - 1].hastaFecha,
-  };
+  // Los periodos pueden traslaparse y venir en cualquier orden: la consulta cubre del primer inicio al último fin.
+  const masTemprano = periodos.reduce((a, b) => (b.desde < a.desde ? b : a));
+  const masTarde = periodos.reduce((a, b) => (b.hasta > a.hasta ? b : a));
+  const rango: Periodo = { ...masTemprano, hasta: masTarde.hasta, hastaFecha: masTarde.hastaFecha };
 
   const [ventas, fechas, gastos] = await Promise.all([
     ventasDelPeriodo(supabase, negocioId, rango),
