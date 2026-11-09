@@ -27,16 +27,32 @@ function nombreDelFiltro(e: FiltroEstado) {
 
 type ResumenStock = { disponibles: number; apartadas: number; poco: boolean };
 
-// Stock: un punto con el color de su significado (teal si queda bastante, ámbar si queda poco —el umbral es el del negocio— y rojo si no queda nada) y el texto. Sin pastilla: una por fila hace ruido.
+// Stock: chip con el estado del producto (los mismos que las pestañas; amarillo si queda poco —el umbral es el del negocio—) y debajo cuánto queda.
 function Stock({ disponibles, apartadas, poco }: ResumenStock) {
-  const agotado = disponibles === 0;
+  const estado = disponibles > 0 ? "disponible" : apartadas > 0 ? "apartado" : "vendido";
+  const seAcaba = poco && disponibles > 0;
+  const tono =
+    estado === "vendido"
+      ? "bg-gris-100 text-chip-texto-neutro"
+      : estado === "apartado"
+        ? "bg-chip-amarillo text-chip-texto-amarillo"
+        : poco
+          ? "bg-chip-amarillo text-chip-texto-amarillo"
+          : "bg-chip-celeste text-chip-texto-celeste";
   return (
-    <span className="flex flex-col items-start gap-0.5">
-      <span className={`inline-flex items-center gap-2 text-sm font-medium ${agotado ? "text-error" : ""}`}>
-        <span aria-hidden="true" className={`size-2.5 shrink-0 rounded-full ${agotado ? "bg-error" : poco ? "bg-ambar" : "bg-teal"}`} />
-        {agotado ? t.lista.agotado : t.quedan(disponibles)}
+    <span className="flex flex-col items-start gap-1">
+      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${tono}`}>
+        {seAcaba && (
+          <span aria-hidden="true" className="relative flex size-2">
+            <span className="absolute inline-flex size-full rounded-full bg-ambar opacity-75 motion-safe:animate-ping" />
+            <span className="relative inline-flex size-2 rounded-full bg-ambar" />
+          </span>
+        )}
+        {seAcaba ? t.buscar.poco : textos.estadosProducto[estado]}
       </span>
-      {apartadas > 0 && <span className="text-xs text-texto-2">{t.lista.apartadas(apartadas)}</span>}
+      {(disponibles > 0 || apartadas > 0) && (
+        <span className="text-xs text-texto-2">{[disponibles > 0 && t.quedan(disponibles), apartadas > 0 && t.lista.apartadas(apartadas)].filter(Boolean).join(" · ")}</span>
+      )}
     </span>
   );
 }
@@ -64,9 +80,9 @@ function AgregarCosto({ codigo }: { codigo: number }) {
   return (
     <Link
       href={`/productos/${codigo}/editar`}
-      className="relative z-10 inline-flex min-h-8 items-center gap-1 text-sm font-bold text-teal hover:underline max-md:min-h-10"
+      className="relative z-10 inline-flex min-h-8 items-center gap-1 rounded-full bg-chip-amarillo px-2.5 text-xs font-medium text-chip-texto-amarillo hover:brightness-95 max-md:min-h-10"
     >
-      <Icon nombre="mas" className="size-4" />
+      <Icon nombre="mas" className="size-3.5" />
       {t.lista.agregarCosto}
     </Link>
   );
@@ -80,7 +96,7 @@ function Ganancia({ p }: { p: Producto }) {
   const margen = p.precio > 0 ? Math.round((ganancia / p.precio) * 100) : 0;
   return (
     <span className="flex items-baseline gap-1.5">
-      <span className={`font-bold ${ganancia < 0 ? "text-error" : "text-teal"}`}>
+      <span className={`font-semibold ${ganancia < 0 ? "text-error" : "text-teal"}`}>
         {ganancia < 0 ? "−" : "+"}
         {formatearDolares(Math.abs(ganancia))}
       </span>
@@ -98,7 +114,7 @@ function GananciaGrupo({ g }: { g: GrupoProducto }) {
   const max = Math.max(...ganancias);
   const signo = (n: number) => (n < 0 ? "−" : "+");
   return (
-    <span className={`whitespace-nowrap font-bold ${min < 0 ? "text-error" : "text-teal"}`}>
+    <span className={`whitespace-nowrap font-semibold ${min < 0 ? "text-error" : "text-teal"}`}>
       {signo(min)}
       {formatearDolares(Math.abs(min))}
       {max !== min && ` – ${signo(max)}${formatearDolares(Math.abs(max))}`}
@@ -150,10 +166,16 @@ export function ListaProductos({
       ),
     [productos, umbral, categoria, falta],
   );
-  const grupos = useMemo(
-    () => ordenarGrupos(agruparProductos(filtrarProductos(productos, { texto, estado, umbral, categoria, falta })), orden),
-    [productos, texto, estado, umbral, categoria, falta, orden],
-  );
+  const grupos = useMemo(() => {
+    const ordenados = ordenarGrupos(agruparProductos(filtrarProductos(productos, { texto, estado, umbral, categoria, falta })), orden);
+    // Con el orden por defecto, lo que se está acabando va primero (lo agotado no: ya no hay qué reponer a tiempo). Es estable: el resto conserva su orden.
+    if (orden !== "recientes") return ordenados;
+    const seAcaba = (g: GrupoProducto) => {
+      const st = stockDelGrupo(g, umbral);
+      return st.disponibles > 0 && st.poco;
+    };
+    return [...ordenados.filter(seAcaba), ...ordenados.filter((g) => !seAcaba(g))];
+  }, [productos, texto, estado, umbral, categoria, falta, orden]);
   const inventario = useMemo(() => resumenDeInventario(productos), [productos]);
   // Cuántos productos se están acabando o se agotaron, sin importar los otros filtros: es un dato del inventario, no de la búsqueda
   const pocoStockCuenta = useMemo(
@@ -205,6 +227,11 @@ export function ListaProductos({
         agotados={agotadosCuenta}
         verAcabando={() => elegirEstado("poco")}
         verAgotados={() => elegirEstado("vendido")}
+        verSinCosto={() => {
+          setFalta("costo");
+          setVerFiltros(true);
+          guardarEnUrl({ falta: "costo" });
+        }}
       />
 
       <div className="flex flex-wrap items-center gap-2">
@@ -413,7 +440,7 @@ export function ListaProductos({
                   </div>
 
                   {g.conVariantes && abierto && (
-                    <ul id={idLista} className="border-t border-linea bg-gris-50">
+                    <ul id={idLista} className="ml-8 border-l-2 border-ficha-lila border-t border-t-linea bg-gris-50 md:ml-10">
                       {g.miembros.map((m) => (
                         <li key={m.id} className="border-t border-linea first:border-t-0">
                           <div className={`${fila} py-2 hover:bg-gris-50`}>
