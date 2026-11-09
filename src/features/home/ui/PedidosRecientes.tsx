@@ -1,56 +1,76 @@
 import Link from "next/link";
-import { ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { colorDeEstado, StatusChip } from "@/components/ui/StatusChip";
+import { Icon } from "@/components/ui/Icon";
+import { Panel } from "./Panel";
+import { StatusChip } from "@/components/ui/StatusChip";
 import type { Pedido } from "@/features/orders/repositorio";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
+import { ruta } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
 
 const t = textos.inicio;
 
+const COLORES = ["bg-ficha-celeste", "bg-ficha-rosa", "bg-ficha-amarillo", "bg-ficha-lila", "bg-ficha-verde"];
+
+/** Un color estable por cliente, para que el mismo nombre siempre se vea igual. */
+function colorDe(nombre: string): string {
+  let h = 0;
+  for (const c of nombre) h = (h * 31 + c.charCodeAt(0)) % COLORES.length;
+  return COLORES[h];
+}
+
 export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
   return (
-    <Card className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <Panel className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="font-bold">{t.recientesTitulo}</h2>
+          <h2 className="text-lg font-semibold">{t.recientesTitulo}</h2>
           <p className="text-sm text-texto-2">{t.recientesTexto}</p>
         </div>
-        <ButtonLink tamano="chico" icono="pedidos" href="/pedidos" variante="suave">
+        <Link
+          href="/pedidos"
+          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-linea px-3 text-sm font-semibold text-teal-oscuro transition-colors hover:bg-gris-50"
+        >
           {t.verPedidos}
-        </ButtonLink>
+          <Icon nombre="adelante" className="size-4" />
+        </Link>
       </div>
 
       {pedidos.length === 0 ? (
-        <p className="text-texto-2">{t.sinPedidos}</p>
+        <p className="rounded-2xl bg-gris-50 px-4 py-6 text-center text-texto-2">{t.sinPedidos}</p>
       ) : (
         <ul className="flex flex-col">
-          {pedidos.map((p) => (
-            <li key={p.id} className="relative border-t border-borde first:border-t-0">
-              <span aria-hidden="true" className={`absolute inset-y-2 left-0 w-1.5 rounded-full border border-teal-oscuro/20 ${colorDeEstado(p.estado)}`} />
-              <Link
-                href={`/pedidos/${p.codigo}`}
-                className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-xl py-2 pl-4 pr-2 hover:bg-teal-fondo md:grid-cols-[2fr_1.5fr_auto_auto]"
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-medium">
-                    {p.items[0]?.nombre ?? textos.pedidos.pedido(p.codigo)}
-                    {p.items.length > 1 && <span className="font-normal text-texto-2"> {t.masProductos(p.items.length - 1)}</span>}
-                  </p>
-                  <p className="text-sm text-texto-2">
-                    {textos.pedidos.pedido(p.codigo)} · {formatearFecha(p.creadoEn)}
-                  </p>
-                </div>
-                <p className="hidden truncate md:block">{p.cliente ?? textos.pedidos.sinCliente}</p>
-                <p className="text-right font-bold">{formatearDolares(p.total)}</p>
-                <div className="col-span-2 md:col-span-1 md:justify-self-end">
-                  <StatusChip estado={p.estado} discreto />
-                </div>
-              </Link>
-            </li>
-          ))}
+          {pedidos.map((p) => {
+            const cliente = p.cliente ?? textos.pedidos.sinCliente;
+            const producto = p.items[0]?.nombre ?? textos.pedidos.pedido(p.codigo);
+            return (
+              <li key={p.id} className="border-t border-linea first:border-t-0">
+                <Link
+                  href={ruta(`/pedidos/${p.codigo}`)}
+                  className="flex min-h-16 items-center gap-3 rounded-[14px] px-2 py-2.5 transition-colors hover:bg-gris-50"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-teal-oscuro ${colorDe(cliente)}`}
+                  >
+                    {cliente.trim().charAt(0).toUpperCase() || "?"}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{cliente}</p>
+                    <p className="truncate text-sm text-texto-2">
+                      {producto}
+                      {p.items.length > 1 && ` ${t.masProductos(p.items.length - 1)}`} · {formatearFecha(p.creadoEn)}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <p className="font-bold tabular-nums">{formatearDolares(p.total)}</p>
+                    <StatusChip estado={p.estado} discreto />
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
-    </Card>
+    </Panel>
   );
 }

@@ -1,5 +1,7 @@
 # Lote: la marca
 
+> **Ojo:** la app pasó a llamarse Punch y su sistema de diseño nuevo (clean, bordes finos, pops de color) está en [PUNCH.md](PUNCH.md). Este documento describe la marca vieja y vale para la landing y las vitrinas hasta que se rehagan.
+
 Nota para no olvidarla. Cada pantalla, también las del panel, tiene que sentirse **de la misma marca que la landing**: juguetona, cálida y un poco desordenada a propósito. Nada de "panel genérico" gris y blanco.
 
 > **Panel: marca y jerarquía van por separado.** El contorno de 2 px, las esquinas redondas, Lotito y el movimiento van parejos en todo (eso es la marca). La jerarquía la dan el relleno de color, la sombra dura y el tamaño: una cosa fuerte por pantalla, pocas medias, el resto callado. El color solo se usa si significa algo. Detalle en `/design-system`.

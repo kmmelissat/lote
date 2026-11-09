@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fechaLocalDe, rangoPeriodo } from "./periodo";
+import { fechaLocalDe, periodoAnterior, rangoPeriodo, rangoPersonalizado } from "./periodo";
 
 describe("rangoPeriodo", () => {
   it("la semana empieza el lunes a medianoche de El Salvador", () => {
@@ -48,5 +48,23 @@ describe("rangoPeriodo: el día", () => {
 describe("fechaLocalDe", () => {
   it("a las 8 de la noche en El Salvador sigue siendo el mismo día aunque en UTC ya sea el siguiente", () => {
     expect(fechaLocalDe(new Date("2026-10-28T02:00:00Z"))).toBe("2026-10-27");
+  });
+});
+
+describe("rango a mano", () => {
+  it("incluye los dos días y rechaza fechas malas o al revés", () => {
+    const p = rangoPersonalizado("2026-11-03", "2026-11-09");
+    expect(p?.desdeFecha).toBe("2026-11-03");
+    expect(p?.hastaFecha).toBe("2026-11-10");
+    expect(rangoPersonalizado("2026-11-09", "2026-11-03")).toBeNull();
+    expect(rangoPersonalizado("x", "2026-11-03")).toBeNull();
+  });
+  it("el periodo anterior es del mismo largo, justo antes", () => {
+    const a = periodoAnterior(rangoPersonalizado("2026-11-03", "2026-11-09")!);
+    expect([a.desdeFecha, a.hastaFecha]).toEqual(["2026-10-27", "2026-11-03"]);
+  });
+  it("en mes y semana sigue el calendario", () => {
+    const a = periodoAnterior(rangoPeriodo("mes", new Date("2026-03-15T16:00:00Z")));
+    expect([a.desdeFecha, a.hastaFecha]).toEqual(["2026-02-01", "2026-03-01"]);
   });
 });

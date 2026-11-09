@@ -5,14 +5,12 @@ import { textos } from "@/lib/textos";
 
 const t = textos.nav;
 
-/** Lo que el servidor le cuenta al menú: el contador de Pedidos, el avance de los primeros pasos y quién está. */
+/** Lo que el servidor le cuenta al menú: el contador de Pedidos y quién está. */
 export type DatosMenu = {
   porAtender: number;
   urgente: boolean;
   /** Pedidos enviados sin marcar como entregados: en el menú son un puntito, sin número */
   enCamino: number;
-  /** Cuántos primeros pasos hay hechos y cuántos son; null si ya terminó todo o no le toca configurar */
-  pasos: { hechos: number; total: number; siguiente: { titulo: string; href: Route } } | null;
   slug: string;
   /** Si tiene un local: entonces el menú de acción rápida ofrece el Mostrador */
   tieneLocal: boolean;
@@ -59,6 +57,21 @@ export const FONDO_SECCION: Record<string, string> = {
   "/ajustes/tienda": "bg-pervinca",
   "/marketplace": "bg-lima",
   "/vitrina": "bg-orquidea",
+};
+
+/** El menú de escritorio nuevo: el color del ícono de cada sección cuando está activa (los demás van en gris). */
+export const FICHA_SECCION: Record<string, string> = {
+  "/inicio": "text-[#1b9fd1]",
+  "/vender": "text-[#d19200]",
+  "/productos": "text-[#d6457f]",
+  "/pedidos": "text-[#d19200]",
+  "/clientes": "text-[#7c5cd6]",
+  "/movimientos": "text-[#1f9d55]",
+  "/balance": "text-[#1b9fd1]",
+  "/asistente": "text-[#7c5cd6]",
+  "/ajustes/tienda": "text-[#0f8a8a]",
+  "/marketplace": "text-[#1b9fd1]",
+  "/vitrina": "text-[#d6457f]",
 };
 
 /**

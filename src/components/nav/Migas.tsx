@@ -76,7 +76,12 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
 }
 
 function Pastilla({ children, actual, href, panel }: { children: ReactNode; actual: boolean; href?: Route; panel?: boolean }) {
-  const clase = actual
+  // En el panel las migas son texto gris sin pastilla (Punch); la actual va en oscuro
+  const clase = panel
+    ? actual
+      ? "inline-flex max-w-full items-center gap-1 truncate text-[13px] font-semibold text-teal-oscuro"
+      : "inline-flex max-w-full items-center gap-1 truncate text-[13px] font-medium text-texto-2 hover:text-teal-oscuro"
+    : actual
     ? `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-extrabold text-teal-oscuro ${panel ? "bg-teal-fondo" : "bg-limon"}`
     : `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-bold text-texto-2 ${panel ? "hover:bg-teal-fondo hover:text-teal-oscuro" : "hover:bg-crema hover:text-teal-oscuro"}`;
   if (actual || !href) {
@@ -100,13 +105,15 @@ export function Migas({ className = "mb-3" }: { className?: string }) {
   const { casa, items } = ruta;
   const casaActual = items.length === 0;
   const panel = casa.href === "/inicio";
+  // En el panel solo hay migas cuando hay niveles (Productos / Ropa / Chaqueta): en una pantalla raíz el título ya dice dónde estás
+  if (panel && items.length < 2) return null;
 
   return (
     <nav aria-label={textos.nav.migas} className={className}>
-      <ol className="flex flex-wrap items-center gap-0.5">
+      <ol className={`flex flex-wrap items-center ${panel ? "gap-1.5" : "gap-0.5"}`}>
         <li>
           <Pastilla actual={casaActual} href={casa.href} panel={panel}>
-            <Icon nombre={casa.icono} className="size-3.5 shrink-0" />
+            {!panel && <Icon nombre={casa.icono} className="size-3.5 shrink-0" />}
             {casa.etiqueta}
           </Pastilla>
         </li>
@@ -114,7 +121,7 @@ export function Migas({ className = "mb-3" }: { className?: string }) {
           const actual = i === items.length - 1;
           return (
             <Fragment key={miga.href}>
-              <li aria-hidden="true" className="px-0.5 text-xs text-teal-oscuro/30">
+              <li aria-hidden="true" className="px-0.5 text-xs text-teal-oscuro/30 aria-hidden:select-none">
                 /
               </li>
               <li className="min-w-0">

@@ -51,3 +51,27 @@ export function rangoPeriodo(tipo: TipoPeriodo, ahora: Date, desplazar = 0): Per
 export function fechaLocalDe(ahora: Date): string {
   return new Date(ahora.getTime() - DESFASE_HORAS * HORA_MS).toISOString().slice(0, 10);
 }
+
+const FECHA = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Un rango elegido a mano: de `desde` a `hasta`, los dos días incluidos (YYYY-MM-DD). null si las fechas no valen o están al revés. */
+export function rangoPersonalizado(desde: string, hasta: string): Periodo | null {
+  if (!FECHA.test(desde) || !FECHA.test(hasta)) return null;
+  const ini = Date.parse(`${desde}T00:00:00Z`);
+  const fin = Date.parse(`${hasta}T00:00:00Z`);
+  if (Number.isNaN(ini) || Number.isNaN(fin) || fin < ini) return null;
+  // Tipo "dia": no es semana ni mes, son días sueltos
+  return periodoDe("dia", ini, fin + DIA_MS);
+}
+
+/** El periodo de igual largo justo antes (para comparar). En semana y mes respeta el calendario. */
+export function periodoAnterior(p: Periodo): Periodo {
+  if (p.tipo === "semana" || p.tipo === "mes") return rangoPeriodo(p.tipo, p.desde, -1);
+  const ini = Date.parse(`${p.desdeFecha}T00:00:00Z`);
+  const fin = Date.parse(`${p.hastaFecha}T00:00:00Z`);
+  return periodoDe(p.tipo, ini - (fin - ini), ini);
+}
+
+function periodoDe(tipo: TipoPeriodo, desde: number, hasta: number): Periodo {
+  return { tipo, desde: instante(desde), hasta: instante(hasta), desdeFecha: fechaLocal(desde), hastaFecha: fechaLocal(hasta) };
+}

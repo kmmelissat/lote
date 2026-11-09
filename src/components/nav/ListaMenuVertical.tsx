@@ -3,16 +3,16 @@ import type { Route } from "next";
 import Link from "next/link";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
-import { activaEn, FONDO_SECCION, gruposMenu, PINTA_HOVER_SECCION, type Pestana } from "./menu";
+import { activaEn, FICHA_SECCION, gruposMenu, type Pestana } from "./menu";
 import { AbrirVitrina, Insignia } from "./PiezasMenu";
 
 const t = textos.nav;
 
 const FILA =
-  "flex min-h-11 w-full items-center gap-3 rounded-xl border px-2.5 text-sm font-bold text-teal-oscuro transition-colors group-data-[cerrado]:justify-center group-data-[cerrado]:px-0";
+  "flex min-h-11 w-full items-center gap-3 rounded-[14px] border px-2 text-sm font-medium text-teal-oscuro transition-colors group-data-[cerrado]:mx-auto group-data-[cerrado]:size-12 group-data-[cerrado]:min-h-0 group-data-[cerrado]:justify-center group-data-[cerrado]:px-0";
 
 const TITULO =
-  "w-fit -rotate-1 rounded-sm border border-teal-oscuro bg-superficie px-1.5 py-0.5 font-logo text-[11px] uppercase tracking-widest text-teal-oscuro group-data-[cerrado]:hidden";
+  "px-2 text-xs font-bold uppercase tracking-wide text-teal group-data-[cerrado]:hidden";
 
 /**
  * El menú lateral de escritorio: una lista agrupada (Vender, Finanzas, Tu negocio) donde cada ícono va en un cuadrito del color
@@ -42,7 +42,7 @@ export function ListaMenuVertical({
   const fila = (nombre: NombreIcono, etiqueta: string, activa: boolean, fondo: string, derecha?: React.ReactNode) => (
     <>
       <span
-        className={`flex size-8 shrink-0 items-center justify-center rounded-lg border border-teal-oscuro ${activa ? `${fondo} group-not-data-[cerrado]:bg-superficie` : `${fondo} group-data-[cerrado]:bg-superficie`}`}
+        className={`flex size-8 shrink-0 items-center justify-center transition-colors group-data-[cerrado]:size-10 ${activa ? fondo : "text-texto-2 group-hover/fila:text-teal-oscuro"}`}
       >
         <Icon nombre={nombre} className="size-5" />
       </span>
@@ -58,9 +58,9 @@ export function ListaMenuVertical({
         target="_blank"
         rel="noreferrer"
         title={etiqueta}
-        className={`${FILA} border-transparent ${PINTA_HOVER_SECCION[clave] ?? ""}`}
+        className={`group/fila ${FILA} border-transparent hover:bg-superficie/70`}
       >
-        {fila(nombre, etiqueta, false, FONDO_SECCION[clave] ?? "bg-superficie", <Icon nombre="enlace" className="size-4 shrink-0 text-texto-2 group-data-[cerrado]:hidden" />)}
+        {fila(nombre, etiqueta, false, FICHA_SECCION[clave] ?? "text-texto-2", <Icon nombre="enlace" className="size-4 shrink-0 text-texto-2 group-data-[cerrado]:hidden" />)}
         <span className="sr-only">{textos.explorar.sobre.nuevaPestana}</span>
       </Link>
     </li>
@@ -76,27 +76,35 @@ export function ListaMenuVertical({
           <section
             key={g.titulo}
             aria-label={g.titulo}
-            className="flex flex-col gap-1.5 group-data-[cerrado]:border-t group-data-[cerrado]:border-dashed group-data-[cerrado]:border-teal-oscuro/30 group-data-[cerrado]:pt-3 group-data-[cerrado]:first:border-t-0 group-data-[cerrado]:first:pt-0"
+            className="flex flex-col gap-1.5 group-data-[cerrado]:border-t group-data-[cerrado]:border-linea group-data-[cerrado]:pt-3 group-data-[cerrado]:first:border-t-0 group-data-[cerrado]:first:pt-0"
           >
             <h2 className={TITULO}>{g.titulo}</h2>
-            <ul className="flex flex-col gap-1">
+            <ul className="flex flex-col gap-0.5">
               {filas.map((p) => {
                 const activa = ruta !== null && activaEn(ruta, p.href);
-                const fondo = FONDO_SECCION[p.href] ?? "bg-superficie";
+                const fondo = FICHA_SECCION[p.href] ?? "text-texto-2";
                 return (
                   <li key={p.href} className="relative">
                     <Link
                       href={p.href}
                       aria-current={activa ? "page" : undefined}
                       title={p.etiqueta}
-                      className={`${FILA} ${activa ? `border-teal-oscuro ${fondo} group-data-[cerrado]:border-transparent group-data-[cerrado]:bg-transparent` : `border-transparent ${PINTA_HOVER_SECCION[p.href] ?? ""}`}`}
+                      className={`group/fila ${FILA} ${activa ? "activa border-transparent bg-superficie font-bold shadow-xs group-data-[cerrado]:bg-transparent group-data-[cerrado]:shadow-none" : "border-transparent hover:bg-superficie/70"}`}
                     >
-                      {fila(p.icono, p.etiqueta, activa, fondo, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} enCamino={enCamino} /> : null)}
+                      {fila(
+                        p.icono,
+                        p.etiqueta,
+                        activa,
+                        fondo,
+                        p.href === "/pedidos" ? (
+                          <Insignia n={porAtender} urgente={urgente} enCamino={enCamino} />
+                        ) : null,
+                      )}
                     </Link>
                     {p.href === "/ajustes/tienda" && slug ? (
                       <AbrirVitrina
                         slug={slug}
-                        className="absolute right-1 top-0 flex size-11 items-center justify-center text-texto-2 hover:text-teal group-data-[cerrado]:hidden"
+                        className="absolute right-px top-0 flex h-11 w-8 items-center justify-center text-texto-2 hover:text-teal group-data-[cerrado]:hidden"
                       />
                     ) : null}
                   </li>

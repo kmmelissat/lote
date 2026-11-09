@@ -16,10 +16,10 @@ const t = textos.inicio.bienvenida;
 const dominio = urlSitio.replace(/^https?:\/\//, "");
 
 /** Recién creado el negocio: un "¡Listo!" con la dirección de la vitrina a mano. Solo aparece al llegar desde Crear negocio. */
-export function TarjetaBienvenida({ nombre, negocioId, slug, conVitrina }: { nombre: string; negocioId: string; slug: string; conVitrina: boolean }) {
+export function TarjetaBienvenida({ nombre, slug, conVitrina }: { nombre: string; slug: string; conVitrina: boolean }) {
   const router = useRouter();
   const { avisar } = useToast();
-  const { copiar } = useCompartirVitrina(negocioId, slug);
+  const { copiar } = useCompartirVitrina(slug);
   const [copiado, setCopiado] = useState(false);
 
   async function copiarEnlace() {

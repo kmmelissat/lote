@@ -9,7 +9,7 @@ export default function Page() {
     <>
       <PageHeader
         titulo="Sistema de diseño"
-        descripcion="Las reglas del panel: qué color, qué forma y qué componente va en cada lugar. La landing, el Marketplace y las vitrinas siguen siendo más juguetones."
+        descripcion="Punch: el logo y los colores. El resto del sistema se arma después."
       />
       <SistemaDeDiseno />
     </>

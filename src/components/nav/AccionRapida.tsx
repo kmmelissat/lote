@@ -68,11 +68,11 @@ export function AccionRapida({ abierta, alternar }: { abierta: boolean; alternar
       aria-expanded={abierta}
       aria-haspopup="dialog"
       title={`${t.rapida.titulo} (${t.rapida.atajo})`}
-      className="flex h-11 w-full items-center justify-center gap-2 rounded-sm border border-teal-oscuro bg-celeste text-base font-bold text-teal-oscuro shadow-dura-chica"
+      className="flex h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-teal-oscuro text-sm font-medium text-white hover:bg-teal"
     >
       <Icon nombre="mas" className="size-6" strokeWidth={2.25} />
       <span className="group-data-[cerrado]:hidden">{t.rapida.titulo}</span>
-      <kbd className="rounded-md border border-teal-oscuro/40 bg-white/50 px-1.5 text-xs group-data-[cerrado]:hidden">{t.rapida.atajo}</kbd>
+      <kbd className="rounded-md border border-white/30 px-1.5 text-xs group-data-[cerrado]:hidden">{t.rapida.atajo}</kbd>
     </button>
   );
 }

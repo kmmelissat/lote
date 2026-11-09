@@ -3,7 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import type { Centavos } from "@/domain/dinero";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { Card } from "@/components/ui/Card";
+import { Panel, FichaIcono } from "./Panel";
 
 const t = textos.inicio;
 
@@ -26,27 +26,28 @@ export function TarjetaGanancia({
 }) {
   const vs = cambio(ganancia, anterior);
   return (
-    <Card role="region" aria-labelledby="ganancia-semana" className="relative flex flex-wrap items-center gap-x-4 gap-y-2">
-      {/* El ojal del cartoncito de precio */}
-      <span aria-hidden="true" className="size-3.5 shrink-0 rounded-full border border-teal-oscuro bg-fondo" />
+    <Panel role="region" aria-labelledby="ganancia-semana" className="relative flex flex-wrap items-center gap-x-4 gap-y-2">
+      <FichaIcono color="bg-ficha-verde">
+        <Icon nombre="moneda" className="size-5" />
+      </FichaIcono>
       <div className="min-w-0 flex-1 basis-40">
         <h2 id="ganancia-semana" className="text-sm font-medium text-texto-2">
           {t.gananciaSemana}
         </h2>
-        <p className="font-logo text-4xl font-bold tabular-nums text-teal">{formatearDolares(ganancia)}</p>
+        <p className="text-4xl font-semibold tabular-nums tracking-tight text-teal-oscuro">{formatearDolares(ganancia)}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        {vs && <span className="rounded-full border border-teal-oscuro bg-teal-fondo px-3 py-1 font-bold">{t.contraSemana(vs)}</span>}
-        {estimada && <span className="rounded-full bg-fondo px-3 py-1 font-medium">{t.gananciaEstimada}</span>}
+        {vs && <span className="rounded-lg border border-teal-oscuro/10 bg-ficha-verde px-2.5 py-1 font-semibold">{t.contraSemana(vs)}</span>}
+        {estimada && <span className="rounded-lg border border-linea bg-gris-50 px-2.5 py-1 font-medium">{t.gananciaEstimada}</span>}
         {!vs && !estimada && <span className="text-texto-2">{t.quePasa.ganancia}</span>}
       </div>
       <Link
         href="/balance/detalle"
         aria-label={t.verGanancia}
-        className="flex size-8 max-md:size-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-superficie text-teal-oscuro hover:bg-teal-fondo"
+        className="flex size-8 max-md:size-11 shrink-0 items-center justify-center rounded-[12px] border border-linea bg-superficie text-teal-oscuro hover:bg-gris-50"
       >
         <Icon nombre="diagonal" className="size-4" />
       </Link>
-    </Card>
+    </Panel>
   );
 }

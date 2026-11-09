@@ -108,5 +108,4 @@ export const nav = {
     ayuda: "↑↓ para moverte, Enter para abrir, Esc para cerrar",
     ayudaTouch: "Tocá para abrir",
   },
-  pasos: { titulo: "Primeros pasos", avance: (h: number, t: number) => `${h} de ${t}`, siguiente: "Siguiente" },
 } as const;

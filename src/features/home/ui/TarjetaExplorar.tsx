@@ -1,6 +1,6 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { FichaIcono, Panel } from "./Panel";
 import { textos } from "@/lib/textos";
 
 const t = textos.inicio.explorar;
@@ -8,13 +8,13 @@ const t = textos.inicio.explorar;
 /** Explorar es donde otras personas descubren tu tienda. Acá se ve si estás y, si no, cómo entrar. */
 export function TarjetaExplorar({ visible }: { visible: boolean }) {
   return (
-    <Card role="region" aria-labelledby="explorar-inicio" className="flex h-full flex-wrap items-center justify-between gap-3">
+    <Panel role="region" aria-labelledby="explorar-inicio" className="flex h-full flex-wrap items-center justify-between gap-3">
       <div className="flex min-w-0 flex-1 basis-64 items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-teal-fondo text-teal-oscuro">
+        <FichaIcono color="bg-ficha-celeste">
           <Icon nombre="buscar" className="size-5" />
-        </span>
+        </FichaIcono>
         <div className="min-w-0">
-          <h2 id="explorar-inicio" className="font-bold">
+          <h2 id="explorar-inicio" className="font-semibold">
             {visible ? t.tituloSi : t.tituloNo}
           </h2>
           <p className="text-sm text-texto-2">{visible ? t.textoSi : t.textoNo}</p>
@@ -31,6 +31,6 @@ export function TarjetaExplorar({ visible }: { visible: boolean }) {
           {t.activar}
         </ButtonLink>
       )}
-    </Card>
+    </Panel>
   );
 }

@@ -41,7 +41,7 @@ export function Insignia({ n, urgente, enCamino = 0 }: { n: number; urgente: boo
   if (n === 0) return null;
   return (
     <span className="relative flex shrink-0 group-data-[cerrado]:absolute group-data-[cerrado]:right-1 group-data-[cerrado]:top-0.5">
-      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-teal-oscuro px-1.5 text-xs font-bold text-white max-md:h-6 max-md:min-w-6 max-md:text-sm">
+      <span className="flex h-5 min-w-5 items-center justify-center rounded-md bg-rosa px-1.5 text-xs font-bold text-teal-oscuro max-md:h-6 max-md:min-w-6 max-md:text-sm">
         <span className="sr-only">{textos.nav.porAtender(n)}: </span>
         {n}
       </span>
@@ -70,41 +70,12 @@ export function Buscar({
         "flex min-h-11 items-center gap-3 rounded-xl border border-borde bg-superficie px-3 text-texto-2 hover:border-borde-control group-data-[cerrado]:justify-center"
       }
     >
-      <Icon nombre="buscar" className="size-5 shrink-0" />
+      <Icon nombre="buscar" className="size-5 shrink-0 group-data-[cerrado]:size-5" />
       <span className={`flex-1 text-left group-data-[cerrado]:hidden ${soloIcono ? "hidden" : ""}`}>{t.buscarCorto}</span>
       <kbd className={`rounded-md border border-borde px-1.5 py-0.5 text-xs group-data-[cerrado]:hidden ${soloIcono ? "hidden" : ""}`}>
         {t.paleta.atajo}
       </kbd>
     </button>
-  );
-}
-
-export function PrimerosPasos({ pasos }: { pasos: NonNullable<DatosMenu["pasos"]> }) {
-  return (
-    <Link href={pasos.siguiente.href} className="mt-auto flex flex-col gap-2 pt-1 text-teal-oscuro group-data-[cerrado]:hidden">
-      <span className="flex items-center justify-between gap-2">
-        <span className="-rotate-1 rounded-sm border border-teal-oscuro bg-celeste px-1.5 py-0.5 text-teal-oscuro font-logo text-[10px] tracking-widest uppercase shadow-dura-chica max-md:text-xs">
-          {t.pasos.siguiente}
-        </span>
-        <span className="font-logo text-sm tabular-nums max-md:text-base">{t.pasos.avance(pasos.hechos, pasos.total)}</span>
-      </span>
-      <span
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={pasos.total}
-        aria-valuenow={pasos.hechos}
-        aria-label={t.pasos.titulo}
-        className="flex gap-1"
-      >
-        {Array.from({ length: pasos.total }, (_, i) => (
-          <span
-            key={i}
-            className={`size-2.5 rounded-full border border-teal-oscuro ${i < pasos.hechos ? "bg-rosa" : "bg-superficie"}`}
-          />
-        ))}
-      </span>
-      <span className="text-sm font-bold leading-snug max-md:text-base">{pasos.siguiente.titulo} →</span>
-    </Link>
   );
 }
 
@@ -150,8 +121,8 @@ export function TarjetaPerfil({
           <span className={`text-xs max-md:text-sm ${claro ? "text-white/70" : "text-texto-2"}`}>{perfil.detalle}</span>
         </span>
         <Icon
-          nombre="flecha"
-          className={`size-4 shrink-0 group-data-[cerrado]:hidden ${soloAvatar ? "hidden" : ""} ${claro ? "text-white/70" : "text-texto-2"}`}
+          nombre="ajustes"
+          className={`size-5 shrink-0 group-data-[cerrado]:hidden ${soloAvatar ? "hidden" : ""} ${claro ? "text-white/70" : "text-texto-2"}`}
         />
       </button>
       {abierto && (

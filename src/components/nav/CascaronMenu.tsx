@@ -2,16 +2,16 @@ import type { ComponentProps, ReactNode } from "react";
 
 export type Plataforma = "escritorio" | "movil";
 
-// La forma del menú lateral: una tarjeta celeste muy redonda con el logo arriba, las secciones en cuadros de dos en dos y tu
-// perfil abajo. En la computadora flota a la izquierda y se puede recoger a solo íconos; en el celular es un cajón.
+// La forma del menú lateral. En la computadora es el marco de la pantalla: de arriba a abajo, con su fondo gris rodeando el panel del
+// contenido (nada flota), y se puede recoger a solo íconos; en el celular es un cajón.
 const PIEL: Record<Plataforma, string> = {
-  escritorio: "rounded-[28px] border border-teal-oscuro bg-celeste-palido shadow-dura-chica",
+  escritorio: "bg-transparent",
   movil: "h-full w-[min(20rem,85vw)] rounded-r-[28px] border border-l-0 border-teal-oscuro bg-celeste-palido",
 };
 
 /** El botón de tu perfil: un sticker blanco con contorno. */
 export const BOTON_PERFIL =
-  "flex min-h-12 w-full items-center gap-3 rounded-2xl border border-teal-oscuro bg-superficie p-1.5 text-left group-data-[cerrado]:justify-center";
+  "flex min-h-12 w-full items-center gap-3 rounded-[14px] p-1.5 text-left hover:bg-superficie/70 group-data-[cerrado]:justify-center";
 
 /**
  * El cascarón del menú lateral, igual para la computadora y para el cajón del celular: pone la forma y los colores, y adentro
@@ -38,7 +38,7 @@ export function CascaronMenu({
 } & Omit<ComponentProps<"aside">, "children">) {
   const base =
     plataforma === "escritorio"
-      ? `sticky top-3 my-3 ml-3 hidden h-[calc(100dvh-1.5rem)] shrink-0 flex-col md:flex ${cerrado ? "w-[4.75rem]" : "w-72"}`
+      ? `sticky top-0 hidden h-dvh shrink-0 flex-col md:flex ${cerrado ? "w-[4.75rem]" : "w-72"}`
       : "flex shrink-0 flex-col motion-safe:animate-lateral";
   return (
     <aside {...resto} data-cerrado={cerrado ? "" : undefined} className={`group ${base} ${PIEL[plataforma]} ${className}`}>

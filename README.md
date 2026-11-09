@@ -10,6 +10,7 @@ Es un producto en beta, en construcción y en pruebas. Nació en el curso Diseñ
 - [ARQUITECTURA.md](docs/ARQUITECTURA.md): cómo está armado por dentro: frontend, servidor, base de datos, APIs y SEO.
 - [app.md](docs/app.md): especificación del producto. Es la fuente de verdad.
 - [PROGRESO.md](docs/PROGRESO.md): bitácora de la construcción. Histórico, está desactualizado.
+- [PUNCH.md](docs/PUNCH.md): el sistema de diseño nuevo de Punch (en rediseño). Leer antes de tocar el panel.
 - [BRANDING.md](docs/BRANDING.md): colores, formas, monitos y voz. Leer antes de tocar una pantalla.
 - [REDISENO.md](docs/REDISENO.md): rediseño del panel, componentes y estado por pantalla.
 - [GESTION.md](docs/GESTION.md): el balance general (dinero, deudas e inventario).

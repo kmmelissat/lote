@@ -22,7 +22,7 @@ export function PageHeader({
   ilustracion?: ReactNode;
 }) {
   return (
-    <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div className="flex min-w-0 items-start gap-3">
         {volver && (
           <Link
@@ -35,8 +35,11 @@ export function PageHeader({
           </Link>
         )}
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold">{titulo}</h1>
-          <p className="text-texto-2">{descripcion}</p>
+          <h1 className="flex items-center gap-2.5 text-2xl font-semibold tracking-tight">
+            <span aria-hidden className="size-2.5 shrink-0 rounded-[3px] bg-rosa" />
+            {titulo}
+          </h1>
+          <p className="mt-1 text-sm text-texto-2">{descripcion}</p>
         </div>
       </div>
       {(accion || ilustracion) && (

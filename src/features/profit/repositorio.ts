@@ -143,11 +143,15 @@ export async function resumenPorSemana(
   ahora: Date,
   semanas: number,
 ): Promise<SemanaResumen[]> {
-  const periodos = Array.from({ length: semanas }, (_, i) => rangoPeriodo("semana", ahora, i - (semanas - 1)));
+  return resumenPorPeriodos(supabase, negocioId, Array.from({ length: semanas }, (_, i) => rangoPeriodo("semana", ahora, i - (semanas - 1))));
+}
+
+/** Lo mismo para periodos seguidos cualquiera (semanas, meses o un rango elegido), del más viejo al más nuevo. */
+export async function resumenPorPeriodos(supabase: Cliente, negocioId: string, periodos: Periodo[]): Promise<SemanaResumen[]> {
   const rango: Periodo = {
     ...periodos[0],
-    hasta: periodos[semanas - 1].hasta,
-    hastaFecha: periodos[semanas - 1].hastaFecha,
+    hasta: periodos[periodos.length - 1].hasta,
+    hastaFecha: periodos[periodos.length - 1].hastaFecha,
   };
 
   const [ventas, fechas, gastos] = await Promise.all([

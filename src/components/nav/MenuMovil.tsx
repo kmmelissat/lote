@@ -8,7 +8,7 @@ import { textos } from "@/lib/textos";
 import { BOTON_PERFIL, CascaronMenu } from "./CascaronMenu";
 import { ListaMenu } from "./ListaMenu";
 import { ajustesEscritorio, pestanas, type DatosMenu } from "./menu";
-import { Buscar, PrimerosPasos, TarjetaPerfil } from "./PiezasMenu";
+import { Buscar, TarjetaPerfil } from "./PiezasMenu";
 
 const t = textos.nav;
 
@@ -149,8 +149,7 @@ export function BarraLateral({
                 grande
               />
             </nav>
-            {datos.pasos ? <PrimerosPasos pasos={datos.pasos} /> : null}
-          </>
+            </>
         }
         pie={<TarjetaPerfil perfil={datos.perfil} botonClass={BOTON_PERFIL} />}
       />

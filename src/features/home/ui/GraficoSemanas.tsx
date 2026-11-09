@@ -4,7 +4,7 @@ import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Too
 import type { SemanaResumen } from "@/features/profit/repositorio";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { Card } from "@/components/ui/Card";
+import { Panel } from "./Panel";
 
 const t = textos.inicio;
 
@@ -14,7 +14,7 @@ type Punto = { etiqueta: string; desde: string; vendido: number; gastos: number;
 
 const LINEAS = [
   { clave: "vendido" as const, color: "var(--color-rosa)", etiqueta: t.flujoVendido },
-  { clave: "gastos" as const, color: "var(--color-mango)", etiqueta: t.flujoGastos },
+  { clave: "gastos" as const, color: "#e3a600", etiqueta: t.flujoGastos },
   { clave: "ganancia" as const, color: "var(--color-teal)", etiqueta: t.flujoGanancia },
 ];
 
@@ -56,15 +56,15 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
   const pedidos = semanas.reduce((suma, s) => suma + s.resumen.pedidos, 0);
   const totales: { etiqueta: string; valor: string; color?: string }[] = [
     { etiqueta: t.flujoVendido, valor: formatearDolares(vendido), color: "bg-rosa" },
-    { etiqueta: t.flujoGastos, valor: formatearDolares(gastos), color: "bg-mango" },
+    { etiqueta: t.flujoGastos, valor: formatearDolares(gastos), color: "bg-[#e3a600]" },
     { etiqueta: t.flujoGanancia, valor: formatearDolares(ganancia), color: "bg-teal" },
     { etiqueta: t.flujoPedidos, valor: String(pedidos) },
   ];
 
   return (
-    <Card className="flex h-full flex-col gap-3">
+    <Panel className="flex h-full flex-col gap-3">
       <div>
-        <h2 className="font-bold">{t.flujoTitulo}</h2>
+        <h2 className="font-semibold">{t.flujoTitulo}</h2>
         <p className="text-sm text-texto-2">{t.flujoTexto}</p>
       </div>
 
@@ -75,7 +75,7 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
               <span aria-hidden="true" className={`size-2.5 shrink-0 rounded-full ${n.color ?? "bg-transparent"}`} />
               {n.etiqueta}
             </dt>
-            <dd className="truncate text-base font-bold tabular-nums md:text-xl">{n.valor}</dd>
+            <dd className="truncate text-base font-semibold tabular-nums md:text-xl">{n.valor}</dd>
           </div>
         ))}
       </dl>
@@ -83,7 +83,7 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
       <div className="h-44 w-full min-w-0 md:h-48">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={datos} margin={{ top: 4, right: 4, bottom: 0, left: 0 }} accessibilityLayer>
-            <CartesianGrid vertical={false} stroke="var(--color-borde)" />
+            <CartesianGrid vertical={false} stroke="var(--color-linea)" />
             <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} interval={0} tick={{ fontSize: 11, fill: "var(--color-texto-2)" }} />
             <YAxis
               width={36}
@@ -140,6 +140,6 @@ export function GraficoSemanas({ semanas }: { semanas: SemanaResumen[] }) {
         </table>
       </div>
       {semanas.some((s) => s.estimada) && <p className="text-sm text-ambar-texto">{t.flujoEstimada}</p>}
-    </Card>
+    </Panel>
   );
 }

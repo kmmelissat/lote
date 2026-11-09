@@ -1,8 +1,8 @@
 "use client";
 
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { FichaIcono, Panel } from "./Panel";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
 
@@ -21,13 +21,13 @@ export function TarjetaVitrina({ slug }: { slug: string }) {
     }
   }
   return (
-    <Card role="region" aria-labelledby="vitrina-inicio" className="flex h-full flex-wrap items-center justify-between gap-3">
+    <Panel role="region" aria-labelledby="vitrina-inicio" className="flex h-full flex-wrap items-center justify-between gap-3">
       <div className="flex min-w-0 flex-1 basis-64 items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-teal-fondo text-teal-oscuro">
+        <FichaIcono color="bg-ficha-rosa">
           <Icon nombre="tienda" className="size-5" />
-        </span>
+        </FichaIcono>
         <div className="min-w-0">
-          <h2 id="vitrina-inicio" className="font-bold">
+          <h2 id="vitrina-inicio" className="font-semibold">
             {t.titulo}
           </h2>
           <p className="text-sm text-texto-2">{t.texto}</p>
@@ -44,6 +44,6 @@ export function TarjetaVitrina({ slug }: { slug: string }) {
           <span className="sr-only">(se abre en una pestaña nueva)</span>
         </ButtonLink>
       </div>
-    </Card>
+    </Panel>
   );
 }

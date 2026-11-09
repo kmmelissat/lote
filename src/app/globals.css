@@ -4,6 +4,16 @@
 @source inline("bg-celeste bg-celeste-palido text-celeste fill-celeste");
 
 @theme static {
+  /* Punch: neutros y fichas del menú lateral nuevo (ver /design-system) */
+  --color-linea: #e1e8e8;
+  --color-gris-50: #f7f9f9;
+  --color-gris-100: #eef2f2;
+  --color-ficha-celeste: #c0eaf9;
+  --color-ficha-rosa: #f7c7d7;
+  --color-ficha-amarillo: #fae5a9;
+  --color-ficha-lila: #d6cdf6;
+  --color-ficha-verde: #b9e8c8;
+  --color-ficha-teal: #a5f1f3;
   --color-teal-oscuro: #003844;
   --color-teal: #006c67;
   --color-rosa: #f194b4;
