@@ -3,14 +3,26 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { Logo } from "@/components/ui/Logo";
 import { textos } from "@/lib/textos";
 import { BOTON_PERFIL, CascaronMenu } from "./CascaronMenu";
-import { ListaMenu } from "./ListaMenu";
+import { ListaMenuVertical } from "./ListaMenuVertical";
 import { ajustesEscritorio, pestanas, type DatosMenu } from "./menu";
 import { Buscar, TarjetaPerfil } from "./PiezasMenu";
 
 const t = textos.nav;
+
+/** El iso con "punch." (el mismo del menú de escritorio). */
+function LogoPunch() {
+  return (
+    <span className="flex items-center gap-2">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/punch.svg" alt="" className="size-11 shrink-0" />
+      <span className="font-logo text-[32px] font-bold lowercase leading-none text-teal-oscuro">
+        punch<span className="text-ficha-celeste brightness-90">.</span>
+      </span>
+    </span>
+  );
+}
 
 function Punto({ datos }: { datos: DatosMenu }) {
   if (datos.porAtender === 0) return null;
@@ -18,55 +30,50 @@ function Punto({ datos }: { datos: DatosMenu }) {
     <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-oscuro px-1 text-[10px] font-bold text-white">
       <span className="sr-only">{t.porAtender(datos.porAtender)}: </span>
       {datos.porAtender}
-      {datos.urgente && <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border border-crema bg-rosa" />}
+      {datos.urgente && <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full border border-white bg-rosa" />}
     </span>
   );
 }
 
 /**
  * El encabezado del celular: arriba, junto al contenido, y no una barra de pestañas abajo. Es un sitio y no una app,
- * y abajo ahora van los botones de guardar. Lleva el botón del menú lateral, el logo y la acción rápida (+).
+ * y abajo ahora van los botones de guardar. Lleva el botón del menú lateral, el logo y el acceso al asistente.
  */
 export function EncabezadoMovil({
   datos,
-  rapida,
-  abrirRapida,
   masAbierto,
   abrirMas,
 }: {
   datos: DatosMenu;
-  rapida: boolean;
-  abrirRapida: () => void;
   masAbierto: boolean;
   abrirMas: () => void;
 }) {
   return (
-    <header className="flex items-center justify-between gap-3 border-b border-teal-oscuro bg-crema px-4 py-2 md:hidden">
-      <div className="flex items-center gap-3">
+    <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sticky top-0 z-30 bg-[#eef7fb] px-3 py-2 md:hidden">
+      <div className="flex justify-start">
         <button
           type="button"
           onClick={abrirMas}
           aria-label={t.menuAbrir}
           aria-expanded={masAbierto}
           aria-haspopup="dialog"
-          className="relative flex size-11 items-center justify-center rounded-full border border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica"
+          className="relative flex size-11 items-center justify-center text-teal-oscuro"
         >
           <Icon nombre="menu" className="size-6" />
           <Punto datos={datos} />
         </button>
-        <Link href="/inicio" aria-label={t.inicio} className="group">
-          <Logo />
-        </Link>
       </div>
-      <button
-        type="button"
-        onClick={abrirRapida}
-        aria-label={t.rapida.titulo}
-        aria-expanded={rapida}
-        className="-rotate-2 flex size-11 items-center justify-center rounded-sm border border-teal-oscuro bg-celeste text-teal-oscuro shadow-dura-chica"
+      <Link href="/inicio" aria-label={t.inicio} className="group">
+        <LogoPunch />
+      </Link>
+      <Link
+        href="/asistente"
+        aria-label={t.asistente}
+        className="justify-self-end flex size-11 items-center justify-center text-teal-oscuro"
       >
-        <Icon nombre="mas" className="size-6" strokeWidth={2.25} />
-      </button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/punch-ai-icon.svg" alt="" className="size-8" />
+      </Link>
     </header>
   );
 }
@@ -116,7 +123,7 @@ export function BarraLateral({
     </button>
   );
   return (
-    <div className="fixed inset-0 z-40 bg-teal-oscuro/40 md:hidden" onClick={cerrar}>
+    <div className="fixed inset-0 z-40 bg-teal-oscuro/30 md:hidden" onClick={cerrar}>
       <CascaronMenu
         plataforma="movil"
         desplazable
@@ -127,7 +134,7 @@ export function BarraLateral({
         cabecera={
           <div className="flex items-center justify-between gap-2 group-data-[cerrado]:flex-col">
             <Link href="/inicio" aria-label={textos.nombre} className="px-1">
-              <Logo />
+              <LogoPunch />
             </Link>
             <div className="flex items-center group-data-[cerrado]:flex-col">
               {buscar}
@@ -137,8 +144,9 @@ export function BarraLateral({
         }
         cuerpo={
           <>
+            <div className="-m-1 p-1">
             <nav aria-label="Principal">
-              <ListaMenu
+              <ListaMenuVertical
                 items={datos.esDuena ? [...pestanas, ...ajustesEscritorio] : pestanas}
                 ruta={ruta}
                 porAtender={datos.porAtender}
@@ -149,6 +157,7 @@ export function BarraLateral({
                 grande
               />
             </nav>
+            </div>
             </>
         }
         pie={<TarjetaPerfil perfil={datos.perfil} botonClass={BOTON_PERFIL} />}

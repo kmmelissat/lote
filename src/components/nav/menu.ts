@@ -29,7 +29,7 @@ export const pestanas: Pestana[] = [
   { href: "/clientes", etiqueta: t.clientes, icono: "clientes" },
   { href: "/movimientos", etiqueta: t.movimientos, icono: "billetera" },
   { href: "/balance", etiqueta: t.gestion, icono: "balanza" },
-  { href: "/asistente", etiqueta: t.asistente, icono: "chat" },
+  { href: "/asistente", etiqueta: t.asistente, icono: "punchAi" },
 ];
 
 /** Lo que solo configura la dueña: "Mi tienda" va como una entrada más del menú, sin encabezado de Ajustes. También es atajo de la paleta ⌘K. */

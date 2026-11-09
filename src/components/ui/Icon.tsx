@@ -79,6 +79,7 @@ const iconos = {
   candado: Lock,
   correo: Mail,
   chat: MessageCircle,
+  punchAi: IconoPunchAi,
   tienda: Store,
   subir: Upload,
   reloj: Clock,
@@ -123,6 +124,12 @@ const iconos = {
   calendario: CalendarDays,
   explorar: Compass,
 } as const;
+
+/** El ícono del asistente (Punch AI): una imagen a color, no un trazo; ignora el color del texto. */
+function IconoPunchAi({ className }: LucideProps) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/punch-ai-icon.svg" alt="" aria-hidden="true" className={className} />;
+}
 
 export type NombreIcono = keyof typeof iconos;
 

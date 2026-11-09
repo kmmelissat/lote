@@ -28,6 +28,7 @@ export function ListaMenuVertical({
   enCamino = 0,
   slug = "",
   esDuena = false,
+  grande = false,
 }: {
   items: Pestana[];
   ruta: string | null;
@@ -36,15 +37,22 @@ export function ListaMenuVertical({
   enCamino?: number;
   slug?: string;
   esDuena?: boolean;
+  /** Celular: filas, íconos y letras más grandes */
+  grande?: boolean;
 }) {
+  const filaClase = grande ? FILA.replace("min-h-11", "min-h-14").replace("text-sm", "text-base") : FILA;
+  const tituloClase = grande ? TITULO.replace("text-xs", "text-sm") : TITULO;
+  const ficha = grande ? "size-10" : "size-8";
+  const icono = grande ? "size-6" : "size-5";
+  const altoFila = grande ? "h-14" : "h-11";
   const porHref = new Map(items.map((p) => [p.href, p]));
 
   const fila = (nombre: NombreIcono, etiqueta: string, activa: boolean, fondo: string, derecha?: React.ReactNode) => (
     <>
       <span
-        className={`flex size-8 shrink-0 items-center justify-center transition-colors group-data-[cerrado]:size-10 ${activa ? fondo : "text-texto-2 group-hover/fila:text-teal-oscuro"}`}
+        className={`flex ${ficha} shrink-0 items-center justify-center transition-colors group-data-[cerrado]:size-10 ${activa ? fondo : "text-texto-2 group-hover/fila:text-teal-oscuro"}`}
       >
-        <Icon nombre={nombre} className="size-5" />
+        <Icon nombre={nombre} className={icono} />
       </span>
       <span className="flex-1 truncate group-data-[cerrado]:hidden">{etiqueta}</span>
       {derecha}
@@ -58,7 +66,7 @@ export function ListaMenuVertical({
         target="_blank"
         rel="noreferrer"
         title={etiqueta}
-        className={`group/fila ${FILA} border-transparent hover:bg-superficie/70`}
+        className={`group/fila ${filaClase} border-transparent hover:bg-superficie/70`}
       >
         {fila(nombre, etiqueta, false, FICHA_SECCION[clave] ?? "text-texto-2", <Icon nombre="enlace" className="size-4 shrink-0 text-texto-2 group-data-[cerrado]:hidden" />)}
         <span className="sr-only">{textos.explorar.sobre.nuevaPestana}</span>
@@ -78,7 +86,7 @@ export function ListaMenuVertical({
             aria-label={g.titulo}
             className="flex flex-col gap-1.5 group-data-[cerrado]:border-t group-data-[cerrado]:border-linea group-data-[cerrado]:pt-3 group-data-[cerrado]:first:border-t-0 group-data-[cerrado]:first:pt-0"
           >
-            <h2 className={TITULO}>{g.titulo}</h2>
+            <h2 className={tituloClase}>{g.titulo}</h2>
             <ul className="flex flex-col gap-0.5">
               {filas.map((p) => {
                 const activa = ruta !== null && activaEn(ruta, p.href);
@@ -89,7 +97,7 @@ export function ListaMenuVertical({
                       href={p.href}
                       aria-current={activa ? "page" : undefined}
                       title={p.etiqueta}
-                      className={`group/fila ${FILA} ${activa ? "activa border-transparent bg-superficie font-bold shadow-xs group-data-[cerrado]:bg-transparent group-data-[cerrado]:shadow-none" : "border-transparent hover:bg-superficie/70"}`}
+                      className={`group/fila ${filaClase} ${activa ? "activa border-transparent bg-superficie font-bold shadow-xs group-data-[cerrado]:bg-transparent group-data-[cerrado]:shadow-none" : "border-transparent hover:bg-superficie/70"}`}
                     >
                       {fila(
                         p.icono,
@@ -104,7 +112,7 @@ export function ListaMenuVertical({
                     {p.href === "/ajustes/tienda" && slug ? (
                       <AbrirVitrina
                         slug={slug}
-                        className="absolute right-px top-0 flex h-11 w-8 items-center justify-center text-texto-2 hover:text-teal group-data-[cerrado]:hidden"
+                        className={`absolute right-px top-0 flex ${altoFila} w-8 items-center justify-center text-texto-2 hover:text-teal group-data-[cerrado]:hidden`}
                       />
                     ) : null}
                   </li>

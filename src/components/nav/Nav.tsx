@@ -56,8 +56,6 @@ export function Nav({ datos }: { datos: DatosMenu }) {
     <>
       <EncabezadoMovil
         datos={datos}
-        rapida={rapida}
-        abrirRapida={() => setRapida(true)}
         masAbierto={mas}
         abrirMas={() => setMas(true)}
       />

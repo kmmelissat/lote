@@ -6,7 +6,7 @@ export type Plataforma = "escritorio" | "movil";
 // contenido (nada flota), y se puede recoger a solo íconos; en el celular es un cajón.
 const PIEL: Record<Plataforma, string> = {
   escritorio: "bg-transparent",
-  movil: "h-full w-[min(20rem,85vw)] rounded-r-[28px] border border-l-0 border-teal-oscuro bg-celeste-palido",
+  movil: "h-full w-[min(23rem,90vw)] rounded-r-[32px] border border-l-0 border-linea bg-[#eef7fb]",
 };
 
 /** El botón de tu perfil: un sticker blanco con contorno. */

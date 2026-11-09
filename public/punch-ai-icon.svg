@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Punch AI chat">
+  <g stroke="#17404E" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M64 88 L90 115 L95 84 Z" fill="#AEDFF7"/>
+    <circle cx="17" cy="58" r="15" fill="#AEDFF7"/>
+    <circle cx="103" cy="58" r="15" fill="#AEDFF7"/>
+    <circle cx="19" cy="58" r="7" fill="#E8A0BF" stroke="none"/>
+    <circle cx="101" cy="58" r="7" fill="#E8A0BF" stroke="none"/>
+    <rect x="20" y="18" width="80" height="74" rx="22" fill="#AEDFF7"/>
+    <ellipse cx="60" cy="67" rx="28" ry="18" fill="#E3F4FD" stroke="none"/>
+    <circle cx="45" cy="50" r="4.5" fill="#17404E" stroke="none"/>
+    <circle cx="75" cy="50" r="4.5" fill="#17404E" stroke="none"/>
+    <circle cx="56" cy="62" r="2.2" fill="#17404E" stroke="none"/>
+    <circle cx="64" cy="62" r="2.2" fill="#17404E" stroke="none"/>
+    <path d="M52 72 L58 78 L70 67" fill="none" stroke="#E8A0BF" stroke-width="4.5"/>
+    <path d="M104 5 Q106 18 119 20 Q106 22 104 35 Q102 22 89 20 Q102 18 104 5Z" fill="#E8A0BF" stroke-width="3"/>
+  </g>
+</svg>

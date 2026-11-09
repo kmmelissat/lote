@@ -4,7 +4,7 @@ Desde el 8 de noviembre de 2026 la app se llama **Punch** (antes Lote). Este doc
 
 ## Estado
 
-- Rama `rediseno-punch`. Se rehace primero la página `/design-system`; en la app solo se aplicó la **barra lateral de escritorio**. El resto (pantallas, `components/ui`, cajón del celular) sigue con el estilo viejo.
+- Rama `rediseno-punch`. Se rehace primero la página `/design-system`; en la app se aplicó la **barra lateral de escritorio** y el **marco del celular** (encabezado y cajón). El resto (pantallas, `components/ui`) sigue con el estilo viejo.
 - Aplicar a la app por fases y avisar antes de cada una.
 
 ## Dirección
@@ -64,9 +64,14 @@ El iso es un monito con forma de etiqueta de precio y un check rosa. El nombre v
 - Abajo, la tarjeta de perfil.
 - Código: `CascaronMenu.tsx`, `MenuEscritorio.tsx`, `ListaMenuVertical.tsx`, `menu.ts` (`FICHA_SECCION`) y el layout `src/app/(panel)/layout.tsx`.
 
+## Celular (ya aplicado)
+
+- Mismo marco gris que en escritorio: encabezado pegado arriba (botón de menú, iso con "punch." y botón del asistente (ícono de chat, provisional) en teal oscuro) y el contenido en un panel blanco con borde y esquinas de 24 px.
+- El cajón reutiliza `ListaMenuVertical` (mismos grupos y fichas que escritorio) sobre fondo gris con borde fino. Código: `MenuMovil.tsx`.
+
 ## Pendiente
 
-- Aplicar el sistema al resto de la app y al cajón del celular.
+- Aplicar el sistema al resto de la app.
 - Definir la tipografía final del logo.
 - Decidir qué color es cada estado de los chips (hoy son provisionales).
 - Selector de tienda arriba de la barra y grupo "Mi tienda" con su signo +, como en la maqueta.
