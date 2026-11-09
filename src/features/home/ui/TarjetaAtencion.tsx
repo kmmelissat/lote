@@ -1,6 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
-import { Icon, type NombreIcono } from "@/components/ui/Icon";
+import { Icon } from "@/components/ui/Icon";
 import { LotitoMas } from "@/components/ui/LotitoMas";
 import { formatearDolares, tiempoRestante } from "@/lib/formato";
 import { ruta } from "@/lib/ruta";
@@ -10,28 +10,28 @@ import type { ResumenInicio } from "../resumen";
 
 const t = textos.inicio;
 
-type Pendiente = { clave: string; icono: NombreIcono; tono: string; titulo: string; detalle: string; href: Route; accion: string };
+type Pendiente = { clave: string; fondo: string; punto: string; cifra: string; titulo: string; detalle: string; href: Route; accion: string };
 
 /** Lo que hay que hacer hoy, de más a menos urgente: primero los apartados que vencen, luego cobrar y enviar. */
 function pendientes(r: ResumenInicio, ahora: Date): Pendiente[] {
-  const sinCliente = textos.pedidos.sinCliente;
   const lista: Pendiente[] = r.seEnfrian.slice(0, 3).map((p) => ({
     clave: `apartado-${p.id}`,
-    icono: "reloj",
-    tono: "bg-ficha-rosa",
-    titulo: `${p.cliente ?? sinCliente} · ${formatearDolares(p.total)}`,
-    detalle: t.venceEn(tiempoRestante(p.venceEn!, ahora)),
+    fondo: "bg-ficha-rosa",
+    punto: "bg-[#e0527f]",
+    cifra: formatearDolares(p.total),
+    titulo: p.cliente ?? textos.pedidos.sinCliente,
+    detalle: `Apartado · ${t.venceEn(tiempoRestante(p.venceEn!, ahora))}`,
     href: ruta(`/pedidos/${p.codigo}`),
     accion: t.cobrarAccion,
   }));
   if (r.porPagar > 0)
-    lista.push({ clave: "por-pagar", icono: "moneda", tono: "bg-ficha-amarillo", titulo: t.porPagar(r.porPagar), detalle: t.porPagarAyuda, href: "/pedidos?estado=pendiente", accion: t.verAccion });
+    lista.push({ clave: "por-pagar", fondo: "bg-ficha-amarillo", punto: "bg-[#d19200]", cifra: String(r.porPagar), titulo: t.porPagarEtiqueta(r.porPagar), detalle: t.porPagarAyuda, href: "/pedidos?estado=pendiente", accion: t.verAccion });
   if (r.porEnviar > 0)
-    lista.push({ clave: "por-enviar", icono: "camion", tono: "bg-ficha-celeste", titulo: t.porEnviar(r.porEnviar), detalle: t.porEnviarAyuda, href: "/pedidos?estado=pagado", accion: t.enviarAccion });
+    lista.push({ clave: "por-enviar", fondo: "bg-ficha-celeste", punto: "bg-[#2a9fd0]", cifra: String(r.porEnviar), titulo: t.porEnviarTitulo(r.porEnviar), detalle: t.porEnviarAyuda, href: "/pedidos?estado=pagado", accion: t.enviarAccion });
   return lista;
 }
 
-/** Lo que hay que hacer hoy: una sola acción principal, grande, y el resto como pendientes chicos debajo. */
+/** Lo que hay que hacer hoy: un número grande, una sola acción y el resto como pendientes chicos. El color cambia con lo urgente. */
 export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date }) {
   const [principal, ...resto] = pendientes(r, ahora);
   if (!principal) {
@@ -49,40 +49,37 @@ export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date })
   }
 
   return (
-    <section
-      aria-labelledby="atencion"
-      className="flex h-full flex-col gap-5 rounded-3xl bg-linear-to-br from-ficha-amarillo/60 via-ficha-rosa/30 to-ficha-celeste/40 p-5 shadow-xs md:p-6"
-    >
-      <h2 id="atencion" className="flex items-center justify-between gap-3 text-sm font-semibold uppercase tracking-wide text-teal-oscuro/80">
+    <section aria-labelledby="atencion" className={`flex h-full flex-col gap-6 rounded-3xl p-6 ${principal.fondo}`}>
+      <h2 id="atencion" className="text-sm font-semibold text-teal-oscuro/70">
         {t.accionTitulo}
-        <span className="rounded-full bg-superficie px-2.5 py-0.5 text-sm font-bold normal-case tracking-normal text-teal-oscuro">{resto.length + 1}</span>
       </h2>
 
-      <div className="flex flex-col gap-4">
-        <span aria-hidden="true" className={`flex size-12 items-center justify-center rounded-2xl text-teal-oscuro ${principal.tono}`}>
-          <Icon nombre={principal.icono} className="size-6" />
-        </span>
-        <div>
-          <p className="text-2xl font-semibold leading-tight tracking-tight text-teal-oscuro">{principal.titulo}</p>
-          <p className="mt-1 text-texto-2">{principal.detalle}</p>
-        </div>
-        <Link
-          href={principal.href}
-          className="inline-flex h-12 items-center justify-center gap-2 self-start rounded-[14px] bg-teal-oscuro px-5 font-semibold text-white shadow-sm transition-colors hover:bg-teal-oscuro/90 focus-visible:outline-2 focus-visible:outline-offset-2 max-sm:self-stretch"
-        >
-          {principal.accion}
-          <Icon nombre="adelante" className="size-4" />
-        </Link>
+      <div className="flex flex-col gap-1">
+        <p className="text-6xl font-semibold leading-none tracking-tighter text-teal-oscuro tabular-nums">{principal.cifra}</p>
+        <p className="mt-2 text-lg font-semibold text-teal-oscuro">{principal.titulo}</p>
+        <p className="text-sm text-teal-oscuro/70">{principal.detalle}</p>
       </div>
 
+      <Link
+        href={principal.href}
+        className="group inline-flex h-12 items-center justify-between gap-4 self-start rounded-full bg-superficie py-1 pl-5 pr-1 font-semibold text-teal-oscuro transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 max-sm:self-stretch"
+      >
+        {principal.accion}
+        <span className="flex size-10 items-center justify-center rounded-full bg-teal-oscuro text-white transition-transform group-hover:translate-x-0.5">
+          <Icon nombre="adelante" className="size-4" />
+        </span>
+      </Link>
+
       {resto.length > 0 && (
-        <ul className="mt-auto flex flex-col gap-1.5 border-t border-teal-oscuro/10 pt-3">
+        <ul className="mt-auto flex flex-col gap-1 border-t border-teal-oscuro/15 pt-3">
           {resto.map((p) => (
             <li key={p.clave}>
-              <Link href={p.href} className="flex min-h-10 items-center gap-2.5 rounded-xl px-2 text-sm font-medium text-teal-oscuro transition-colors hover:bg-superficie/60">
-                <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${p.tono}`} />
-                <span className="min-w-0 flex-1 truncate">{p.titulo}</span>
-                <Icon nombre="adelante" className="size-4 shrink-0 text-texto-2" />
+              <Link href={p.href} className="flex min-h-10 items-center gap-2.5 rounded-xl px-2 text-sm font-medium text-teal-oscuro transition-colors hover:bg-superficie/50">
+                <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${p.punto}`} />
+                <span className="min-w-0 flex-1 truncate">
+                  <b className="font-semibold">{p.cifra}</b> {p.titulo}
+                </span>
+                <Icon nombre="adelante" className="size-4 shrink-0 opacity-60" />
               </Link>
             </li>
           ))}

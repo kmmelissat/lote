@@ -51,6 +51,8 @@ export const inicio = {
   cobrarAccion: "Cobrar ahora",
   verAccion: "Ver apartados",
   enviarAccion: "Preparar envíos",
+  porPagarEtiqueta: (n: number) => (n === 1 ? "apartado esperando pago" : "apartados esperando pago"),
+  porEnviarTitulo: (n: number) => (n === 1 ? "pedido por enviar" : "pedidos por enviar"),
   porPagarAyuda: "Todavía no pagan.",
   porEnviarAyuda: "Ya están pagados, faltan por mandar.",
   periodoSemana: "Esta semana",
