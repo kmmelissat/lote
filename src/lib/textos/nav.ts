@@ -25,6 +25,7 @@ export const nav = {
   detalle: "Detalle",
   asistente: "Punch AI",
   grupos: { vender: "Vender", dinero: "Finanzas", negocio: "Tu negocio" },
+  abrirOpciones: (seccion: string) => `Mostrar u ocultar las opciones de ${seccion}`,
   vitrina: "Mi tienda en línea",
   explorar: "Marketplace",
   verVitrina: "Abrir mi tienda en línea",

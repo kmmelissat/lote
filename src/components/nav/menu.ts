@@ -104,4 +104,13 @@ export const menuCerrado = () => {
   }
 };
 
+/** Lo que cuelga de una sección y se despliega cuando se está en ella (el menú como árbol). */
+export const SUBMENU: Partial<Record<string, { href: Route; etiqueta: string }[]>> = {
+  "/productos": [
+    { href: "/productos/nuevo", etiqueta: textos.productos.agregar },
+    { href: "/productos/importar", etiqueta: textos.productos.importar.boton },
+    { href: "/productos/promociones", etiqueta: textos.promociones.entrada },
+  ],
+};
+
 export const activaEn = (pathname: string, href: Route) => pathname === href || pathname.startsWith(`${href}/`);

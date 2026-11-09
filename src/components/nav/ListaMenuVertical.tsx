@@ -3,7 +3,8 @@ import type { Route } from "next";
 import Link from "next/link";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
-import { activaEn, FICHA_SECCION, gruposMenu, type Pestana } from "./menu";
+import { activaEn, FICHA_SECCION, gruposMenu, SUBMENU, type Pestana } from "./menu";
+import { ItemConArbol } from "./ItemConArbol";
 import { AbrirVitrina, Insignia } from "./PiezasMenu";
 
 const t = textos.nav;
@@ -91,24 +92,41 @@ export function ListaMenuVertical({
               {filas.map((p) => {
                 const activa = ruta !== null && activaEn(ruta, p.href);
                 const fondo = FICHA_SECCION[p.href] ?? "text-texto-2";
+                const enlace = (
+                  <Link
+                    href={p.href}
+                    aria-current={activa ? "page" : undefined}
+                    title={p.etiqueta}
+                    className={`group/fila ${filaClase} ${activa ? "activa border-transparent bg-superficie font-bold shadow-xs group-data-[cerrado]:bg-transparent group-data-[cerrado]:shadow-none" : "border-transparent hover:bg-superficie/70"}`}
+                  >
+                    {fila(p.icono, p.etiqueta, activa, fondo, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} enCamino={enCamino} /> : null)}
+                  </Link>
+                );
+                const hijos = SUBMENU[p.href] ? (
+                  <ul className={`ml-[1.4rem] mt-0.5 flex flex-col gap-0.5 border-l border-linea pl-2 group-data-[cerrado]:hidden ${grande ? "text-base" : "text-sm"}`}>
+                    {SUBMENU[p.href]!.map((h) => {
+                      const hijaActiva = ruta !== null && activaEn(ruta, h.href);
+                      return (
+                        <li key={h.href}>
+                          <Link
+                            href={h.href}
+                            aria-current={hijaActiva ? "page" : undefined}
+                            className={`flex ${grande ? "min-h-11" : "min-h-9"} items-center rounded-xl px-3 transition-colors ${hijaActiva ? "bg-superficie font-semibold text-teal-oscuro shadow-xs" : "text-texto-2 hover:bg-superficie/70 hover:text-teal-oscuro"}`}
+                          >
+                            {h.etiqueta}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null;
                 return (
                   <li key={p.href} className="relative">
-                    <Link
-                      href={p.href}
-                      aria-current={activa ? "page" : undefined}
-                      title={p.etiqueta}
-                      className={`group/fila ${filaClase} ${activa ? "activa border-transparent bg-superficie font-bold shadow-xs group-data-[cerrado]:bg-transparent group-data-[cerrado]:shadow-none" : "border-transparent hover:bg-superficie/70"}`}
-                    >
-                      {fila(
-                        p.icono,
-                        p.etiqueta,
-                        activa,
-                        fondo,
-                        p.href === "/pedidos" ? (
-                          <Insignia n={porAtender} urgente={urgente} enCamino={enCamino} />
-                        ) : null,
-                      )}
-                    </Link>
+                    {hijos ? (
+                      <ItemConArbol activa={activa} alto={altoFila} etiqueta={t.abrirOpciones(p.etiqueta)} fila={enlace} hijos={hijos} />
+                    ) : (
+                      enlace
+                    )}
                     {p.href === "/ajustes/tienda" && slug ? (
                       <AbrirVitrina
                         slug={slug}
