@@ -23,7 +23,7 @@ export const nav = {
   menuAbrir: "Menú",
   migas: "Ruta de navegación",
   detalle: "Detalle",
-  asistente: "Lotito",
+  asistente: "Punch AI",
   grupos: { vender: "Vender", dinero: "Finanzas", negocio: "Tu negocio" },
   vitrina: "Mi tienda en línea",
   explorar: "Marketplace",
@@ -44,7 +44,7 @@ export const nav = {
     producto: "Nuevo producto",
     importar: "Importar productos",
     mostrador: "Vender o apartar",
-    asistente: "Hablar con Lotito",
+    asistente: "Hablar con Punch AI",
   },
   destinos: {
     inicio: "Lo que pasa hoy y qué sigue",

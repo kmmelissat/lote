@@ -52,7 +52,7 @@ export function ListaMenuVertical({
       <span
         className={`flex ${ficha} shrink-0 items-center justify-center transition-colors group-data-[cerrado]:size-10 ${activa ? fondo : "text-texto-2 group-hover/fila:text-teal-oscuro"}`}
       >
-        <Icon nombre={nombre} className={icono} />
+        <Icon nombre={nombre} className={nombre === "punchAi" ? (grande ? "size-8" : "size-6") : icono} />
       </span>
       <span className="flex-1 truncate group-data-[cerrado]:hidden">{etiqueta}</span>
       {derecha}

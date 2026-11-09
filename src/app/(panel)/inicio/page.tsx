@@ -137,7 +137,7 @@ async function Contenido({ bienvenida, modoPedido, desdePedido, hastaPedido }: {
               puntos={cifras[1].map((x, i) => ({ etiqueta: tramos[i].etiqueta, vendido: x.vendido / 100, gastos: x.resumen.gastos / 100, pedidos: x.resumen.pedidos }))}
             />
           )}
-          <div className={cifras ? "" : "lg:col-span-2"}>
+          <div className={`flex flex-col *:flex-1 ${cifras ? "" : "lg:col-span-2"}`}>
             <TarjetaAtencion r={r} ahora={ahora} />
           </div>
         </div>

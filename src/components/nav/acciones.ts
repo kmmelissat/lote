@@ -9,7 +9,7 @@ const ACCIONES: { href: Route; etiqueta: string; icono: NombreIcono; tono: strin
   { href: "/productos/nuevo", etiqueta: r.producto, icono: "productos", tono: "bg-limon" },
   { href: "/productos/importar", etiqueta: r.importar, icono: "hoja", tono: "bg-celeste/40" },
   { href: "/vender", etiqueta: r.mostrador, icono: "efectivo", tono: "bg-mango/40" },
-  { href: "/asistente", etiqueta: r.asistente, icono: "chat", tono: "bg-teal-fondo" },
+  { href: "/asistente", etiqueta: r.asistente, icono: "punchAi", tono: "bg-teal-fondo" },
 ];
 
 export const accionesDe = () => ACCIONES;

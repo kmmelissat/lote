@@ -8,9 +8,12 @@ export default function manifest(): MetadataRoute.Manifest {
     description: textos.descripcion,
     start_url: "/inicio",
     display: "standalone",
-    background_color: "#f5f8f7",
+    background_color: "#eef7fb",
     theme_color: "#003844",
     lang: "es",
-    icons: [{ src: "/lote-iso.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
+    icons: [
+      { src: "/punch-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/punch-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+    ],
   };
 }
