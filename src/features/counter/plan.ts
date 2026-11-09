@@ -2,6 +2,9 @@
 export type Entrega = "ahora" | "retiro" | "propio" | "paquetera";
 export const ENTREGAS: readonly Entrega[] = ["ahora", "retiro", "propio", "paquetera"];
 
+/** Lo que se ofrece al vender: llevarlo a una dirección es una sola opción ("paquetera"; "propio" queda solo por los pedidos viejos). */
+export const ENTREGAS_ELEGIBLES: readonly Entrega[] = ["ahora", "retiro", "paquetera"];
+
 /** Cómo paga: dos formas de cobrar ahora y dos de dejarlo para después. */
 export type PagoClave = "efectivo" | "transferencia" | "despues" | "contra_entrega";
 export const PAGOS: PagoClave[] = ["efectivo", "transferencia", "despues", "contra_entrega"];
@@ -11,9 +14,9 @@ export type CanalDeVenta = "presencial" | "instagram" | "whatsapp";
 /** Hay que llevarlo a una dirección: entrega propia o paquetera. */
 export const llevaEnvio = (e: Entrega): boolean => e === "propio" || e === "paquetera";
 
-/** El contra entrega solo tiene sentido si se lleva a una dirección: se cobra al entregar. */
+/** Con envío no se cobra en mano ni se deja para después: se paga por transferencia o se cobra al entregar (contra entrega). */
 export const pagosPermitidos = (e: Entrega): PagoClave[] =>
-  llevaEnvio(e) ? ["efectivo", "transferencia", "despues", "contra_entrega"] : ["efectivo", "transferencia", "despues"];
+  llevaEnvio(e) ? ["transferencia", "contra_entrega"] : ["efectivo", "transferencia", "despues"];
 
 export type PlanDeVenta = {
   /** `mostrador`: venta en persona ya pagada, que entra a la caja. `pedido`: todo lo demás, con sus datos. */

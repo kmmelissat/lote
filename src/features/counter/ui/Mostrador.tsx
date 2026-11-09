@@ -32,7 +32,7 @@ import { useAhorroPromociones } from "@/lib/useAhorroPromociones";
 import { textos } from "@/lib/textos";
 import { rastrear } from "@/lib/analitica";
 import { registrarPedidoDesdeVender } from "../actions/pedido";
-import { llevaEnvio, PAGOS, planDeVenta, type Entrega, type PagoClave } from "../plan";
+import { llevaEnvio, pagosPermitidos, planDeVenta, type Entrega, type PagoClave } from "../plan";
 import { buscarPorCodigoDeBarras, cobrarVenta } from "../actions/vender";
 import {
   coincide,
@@ -119,7 +119,9 @@ export function Mostrador({
   const entrada = useRef<HTMLInputElement>(null);
   // Cuándo recibe: un pedido de chat se envía; en persona, se lleva ahora
   const entrega: Entrega = entregaElegida ?? (modo === "chat" ? "paquetera" : "ahora");
-  const pagoActivo: PagoClave = pago;
+  // Con envío solo hay transferencia y contra entrega: si lo elegido no se ofrece, vale la primera que sí
+  const permitidos = pagosPermitidos(entrega);
+  const pagoActivo: PagoClave = permitidos.includes(pago) ? pago : permitidos[0];
   // En persona, el canal es "en persona"; un pedido de chat parte de Instagram (se cambia en la ficha Cliente)
   const canal: CanalDeVenta = canalElegido ?? (modo === "chat" ? "instagram" : "presencial");
   // Lo que se hace lo decide el plan: venta del Mostrador (caja), venta por chat, apartado pagado, apartado o contra entrega
@@ -448,9 +450,18 @@ export function Mostrador({
     </ResumenDeVenta>
   );
 
+  // Lo elegido en una línea, para el celular
+  const lineaDeVenta = [
+    modo === "chat" ? textos.mostrador.modoVenta.chat : textos.mostrador.modoVenta.persona,
+    t.pago[pagoActivo === "contra_entrega" ? "contraEntrega" : pagoActivo],
+    cliente.trim() || t.paso.sinCliente,
+  ].join(" · ");
+
   const textoDelBoton = !enCobro
     ? t.paso.continuar
-    : cobrando
+    : bloqueo
+      ? bloqueo
+      : cobrando
       ? apartado
         ? t.guardandoApartado
         : t.cobrando
@@ -472,7 +483,6 @@ export function Mostrador({
       textoBoton={textoDelBoton}
       alPulsar={enCobro ? cobrar : () => setPaso("cobro")}
       deshabilitado={enCobro ? cobrando || bloqueo !== null : false}
-      bloqueo={enCobro ? bloqueo : null}
       error={enCobro ? error : ""}
       descartar={enCobro ? descartarVenta : undefined}
     />
@@ -490,13 +500,14 @@ export function Mostrador({
       cambiarAcepta={setAcepta}
       canal={canal}
       cambiarCanal={setCanalElegido}
+      modoChat={modo === "chat"}
     />
   );
 
   const pagoNodo = (
     <OpcionesDePago
       pago={pagoActivo}
-      permitidos={PAGOS}
+      permitidos={permitidos}
       cambiarPago={elegirPago}
       total={totalAPagar}
       recibido={recibido}
@@ -529,7 +540,7 @@ export function Mostrador({
             <span className="sr-only">{t.buscarEtiqueta}</span>
             <Icon
               nombre="buscar"
-              className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-texto-2"
+              className="pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-texto-2"
             />
             <input
               ref={entrada}
@@ -547,21 +558,26 @@ export function Mostrador({
                 }
               }}
               placeholder={t.buscar}
-              className="h-12 w-full rounded-full border border-teal-oscuro bg-superficie pl-12 pr-4 text-base"
+              className="h-11 w-full rounded-[14px] border border-linea bg-superficie pl-11 pr-4 text-sm outline-none focus:border-teal"
             />
           </label>
-          {hayCamara && (
-            <Button
-              type="button"
-              variante="secundario"
-              onClick={() => setCamara((c) => !c)}
-              aria-pressed={camara}
-              aria-label={t.escanear}
-              title={t.escanear}
-            >
-              <Icon nombre="camara" className="size-5" />
-            </Button>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (hayCamara) setCamara((c) => !c);
+              else {
+                entrada.current?.focus();
+                avisar(t.escanearSinCamara);
+              }
+            }}
+            aria-pressed={camara}
+            aria-label={t.escanear}
+            title={t.escanear}
+            className="flex h-11 shrink-0 items-center gap-2 rounded-[14px] border border-linea bg-superficie px-3.5 text-sm font-medium hover:bg-gris-50"
+          >
+            <Icon nombre="camara" className="size-5" />
+            <span className="max-sm:sr-only">Escanear</span>
+          </button>
         </div>
 
         {conCaja && <ChipCaja cajaDesde={cajaDesde} />}
@@ -604,9 +620,11 @@ export function Mostrador({
             clienteVisible={apartado || modo === "chat" || cliente.trim() !== "" || guardables.hay}
             pago={pagoNodo}
             entrega={entregaNodo}
+            entregaVisible={modo === "chat" || entregaElegida !== null}
+            linea={lineaDeVenta}
             bloqueo={
               !esAncho && bloqueo ? (
-                <p role="status" className="text-center text-sm font-bold text-error">
+                <p role="status" className="text-center text-sm font-medium text-error">
                   {bloqueo}
                 </p>
               ) : null
@@ -635,10 +653,10 @@ export function Mostrador({
         <>
           <BarraGuardar>
             <button type="button" onClick={() => setHoja(true)} className="min-w-0 flex-1 text-left text-sm" aria-label={t.paso.verVenta}>
-              <span className="block font-bold">{t.paso.ver(unidades)} ⌃</span>
-              <span className="block font-logo text-lg font-bold tabular-nums">{formatearDolares(totalAPagar)}</span>
+              <span className="block font-medium">{t.paso.ver(unidades)} ⌃</span>
+              <span className="block text-lg font-bold tabular-nums">{formatearDolares(totalAPagar)}</span>
             </button>
-            <Button type="button" variante="mango" onClick={enCobro ? cobrar : () => setPaso("cobro")} disabled={enCobro ? cobrando || bloqueo !== null : false}>
+            <Button type="button" variante="primario" tamano="chico" onClick={enCobro ? cobrar : () => setPaso("cobro")} disabled={enCobro ? cobrando || bloqueo !== null : false}>
               {textoDelBoton}
             </Button>
           </BarraGuardar>

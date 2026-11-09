@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { contactoGuardable, contactoParaEscribir, limpiarContactoEscrito, normalizarTexto, type TipoContacto } from "@/domain";
+import { Icon } from "@/components/ui/Icon";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { ClienteParaVender } from "@/features/customers/repositorio";
@@ -12,9 +13,9 @@ export type { CanalDeVenta };
 const t = textos.pedidos.form;
 const tm = textos.mostrador.cliente;
 
-const CANALES: CanalDeVenta[] = ["presencial", "instagram", "whatsapp"];
-const campo = "h-12 w-full rounded-[14px] border bg-superficie px-4 text-base focus:border-teal";
-const prefijo = "flex h-12 items-center rounded-l-[14px] border border-r-0 border-borde-control bg-fondo px-3 font-bold text-texto-2";
+const CANALES: CanalDeVenta[] = ["instagram", "whatsapp"];
+const campo = "h-11 w-full rounded-[14px] border bg-superficie px-3.5 text-sm outline-none focus:border-teal";
+const prefijo = "flex h-11 items-center rounded-l-[14px] border border-r-0 border-linea bg-gris-50 px-3 text-sm font-medium text-texto-2";
 
 /** Lo que se escribió en cada modo de contacto, ya limpio. Se guarda como "+503 7000 1234", "@usuario" o el correo. */
 export type ContactosEscritos = Record<TipoContacto, string>;
@@ -46,6 +47,7 @@ export function ClienteDeVenta({
   cambiarAcepta,
   canal,
   cambiarCanal,
+  modoChat,
 }: {
   clientes: ClienteParaVender[];
   apartado: boolean;
@@ -57,8 +59,12 @@ export function ClienteDeVenta({
   cambiarAcepta: (v: boolean) => void;
   canal: CanalDeVenta;
   cambiarCanal: (c: CanalDeVenta) => void;
+  /** El canal solo se pregunta en un pedido de chat; en persona es "en persona" */
+  modoChat: boolean;
 }) {
   const [enfocado, setEnfocado] = useState(false);
+  const [correoAbierto, setCorreoAbierto] = useState(false);
+  const verCorreo = correoAbierto || contactos.correo.trim() !== "";
   const q = normalizarTexto(cliente.trim());
   const existente = useMemo(() => clientes.find((c) => normalizarTexto(c.nombre) === q), [clientes, q]);
   const sugerencias = useMemo(
@@ -84,15 +90,19 @@ export function ClienteDeVenta({
     setEnfocado(false);
   }
 
-  const borde = (incompleto: boolean) => (incompleto ? "border-error" : "border-borde-control");
+  const borde = (incompleto: boolean) => (incompleto ? "border-error" : "border-linea");
   const telefonoMal = contactos.telefono.trim() !== "" && g.telefono === "";
   const usuarioMal = contactos.usuario.trim() !== "" && g.usuario === "";
   const correoMal = contactos.correo.trim() !== "" && g.correo === "";
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative">
+      <div className="relative flex flex-col gap-1">
+        <label htmlFor="cliente-nombre" className="text-xs font-medium text-texto-2">
+          {tm.nombre}
+        </label>
         <input
+          id="cliente-nombre"
           value={cliente}
           onChange={(e) => cambiarCliente(e.target.value)}
           onFocus={() => setEnfocado(true)}
@@ -102,20 +112,19 @@ export function ClienteDeVenta({
           role="combobox"
           aria-expanded={enfocado && sugerencias.length > 0}
           aria-controls="sugerencias-clientes"
-          aria-label={apartado ? t.cliente : t.clienteOpcional}
           placeholder={apartado ? tm.placeholderApartado : tm.placeholder}
-          className={`${campo} border-borde-control`}
+          className={`${campo} border-linea`}
         />
         {enfocado && sugerencias.length > 0 && (
-          <ul id="sugerencias-clientes" role="listbox" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-2xl border border-teal-oscuro bg-superficie shadow-dura-chica">
+          <ul id="sugerencias-clientes" role="listbox" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-2xl border border-linea bg-superficie shadow-md">
             {sugerencias.map((c) => (
               <li key={c.nombre} role="option" aria-selected="false">
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => elegir(c)} className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-2 text-left text-sm hover:bg-teal-fondo">
+                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => elegir(c)} className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-2 text-left text-sm hover:bg-gris-50">
                   <span className="min-w-0">
-                    <span className="block truncate font-bold">{c.nombre}</span>
+                    <span className="block truncate font-semibold">{c.nombre}</span>
                     {(c.contacto || c.usuario || c.correo) && <span className="block truncate text-texto-2">{[c.contacto, c.usuario, c.correo].filter(Boolean).join(" · ")}</span>}
                   </span>
-                  {c.saldo > 0 && <span className="shrink-0 font-bold tabular-nums text-error">{tm.debe(formatearDolares(c.saldo))}</span>}
+                  {c.saldo > 0 && <span className="shrink-0 font-semibold tabular-nums text-error">{tm.debe(formatearDolares(c.saldo))}</span>}
                 </button>
               </li>
             ))}
@@ -124,9 +133,9 @@ export function ClienteDeVenta({
       </div>
 
       {existente && (
-        <p className="rounded-[14px] bg-fondo px-3 py-2 text-sm">
-          <span className="font-bold">{tm.yaEs}</span> · {tm.pedidos(existente.pedidos)}
-          {existente.saldo > 0 && <span className="font-bold text-error"> · {tm.debe(formatearDolares(existente.saldo))}</span>}
+        <p className="rounded-[14px] bg-gris-50 px-3 py-2 text-sm">
+          <span className="font-semibold">{tm.yaEs}</span> · {tm.pedidos(existente.pedidos)}
+          {existente.saldo > 0 && <span className="font-semibold text-error"> · {tm.debe(formatearDolares(existente.saldo))}</span>}
         </p>
       )}
 
@@ -141,7 +150,7 @@ export function ClienteDeVenta({
               inputMode="numeric"
               autoComplete="off"
               placeholder={tm.contacto.placeholder.telefono}
-              className={`h-12 min-w-0 flex-1 rounded-r-[14px] border bg-superficie px-3 text-base tabular-nums focus:border-teal ${borde(telefonoMal)}`}
+              className={`h-11 min-w-0 flex-1 rounded-r-[14px] border bg-superficie px-3 text-sm tabular-nums outline-none focus:border-teal ${borde(telefonoMal)}`}
             />
           </span>
         </label>
@@ -157,11 +166,12 @@ export function ClienteDeVenta({
               autoCorrect="off"
               spellCheck={false}
               placeholder={tm.contacto.placeholder.usuario}
-              className={`h-12 min-w-0 flex-1 rounded-r-[14px] border bg-superficie px-3 text-base focus:border-teal ${borde(usuarioMal)}`}
+              className={`h-11 min-w-0 flex-1 rounded-r-[14px] border bg-superficie px-3 text-sm outline-none focus:border-teal ${borde(usuarioMal)}`}
             />
           </span>
         </label>
       </div>
+      {verCorreo ? (
       <label className="flex flex-col gap-1">
         <span className="text-xs font-medium text-texto-2">{tm.contacto.correo}</span>
         <input
@@ -177,37 +187,39 @@ export function ClienteDeVenta({
           className={`${campo} ${borde(correoMal)}`}
         />
       </label>
+      ) : (
+        <button type="button" onClick={() => setCorreoAbierto(true)} className="flex min-h-9 w-fit items-center gap-1.5 text-sm font-medium text-teal">
+          <Icon nombre="mas" className="size-4" />
+          {tm.agregarCorreo}
+        </button>
+      )}
       {telefonoMal && <p className="text-sm text-error">{tm.contacto.invalido.telefono}</p>}
       {usuarioMal && <p className="text-sm text-error">{tm.contacto.invalido.usuario}</p>}
       {correoMal && <p className="text-sm text-error">{tm.contacto.invalido.correo}</p>}
 
       {g.telefono && (
-        <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-crema p-3 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal">
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-linea bg-gris-50 p-3 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal">
           <input type="checkbox" checked={acepta} onChange={(e) => cambiarAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-teal" />
           <span className="flex flex-col">
-            <span className="text-sm font-bold">{t.acepta}</span>
+            <span className="text-sm font-semibold">{t.acepta}</span>
             <span className="text-xs text-texto-2">{t.aceptaAyuda}</span>
           </span>
         </label>
       )}
+      {modoChat && (
+        <div role="radiogroup" aria-labelledby="canal-venta" className="flex flex-wrap items-center gap-x-5 gap-y-1 pt-1 text-sm">
+          <span id="canal-venta" className="text-texto-2">
+            {t.canal}
+          </span>
+          {CANALES.map((c) => (
+            <label key={c} className="flex min-h-9 cursor-pointer items-center gap-2">
+              <input type="radio" name="canal-venta" checked={canal === c} onChange={() => cambiarCanal(c)} className="size-4 accent-teal" />
+              {textos.pedidos.canales[c]}
+            </label>
+          ))}
+        </div>
+      )}
 
-      <fieldset className="flex flex-wrap items-center gap-2">
-        <legend className="sr-only">{t.canal}</legend>
-        <span aria-hidden="true" className="text-sm text-texto-2">
-          {t.canal}
-        </span>
-        {CANALES.map((c) => (
-          <button
-            key={c}
-            type="button"
-            aria-pressed={canal === c}
-            onClick={() => cambiarCanal(c)}
-            className={`min-h-11 rounded-full border px-3 text-sm ${canal === c ? "border-teal-oscuro bg-limon font-bold" : "border-borde-control bg-superficie text-texto-2"}`}
-          >
-            {textos.pedidos.canales[c]}
-          </button>
-        ))}
-      </fieldset>
     </div>
   );
 }

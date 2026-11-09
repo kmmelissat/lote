@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { TARJETA } from "@/components/ui/tarjeta";
+import { BotonPunch, TARJETA_PUNCH } from "./BotonesPunch";
 import { textos } from "@/lib/textos";
 import { asociarCodigoDeBarras } from "../actions/vender";
 import { coincide, nombreCompleto, normalizar } from "../mostrador";
@@ -46,14 +45,14 @@ function AsociarCodigo({
   }
 
   return (
-    <div className={`${TARJETA} flex flex-col gap-3 bg-limon`} role="alert">
-      <p className="font-bold">{b.nuevo(codigo)}</p>
+    <div className={`${TARJETA_PUNCH} flex flex-col gap-3 border-chip-amarillo bg-chip-amarillo/40`} role="alert">
+      <p className="font-semibold">{b.nuevo(codigo)}</p>
       {!puedeGestionar ? (
         <>
           <p className="text-sm">{b.soloGestion}</p>
-          <Button type="button" variante="secundario" onClick={cerrar}>
+          <BotonPunch variante="secundario" onClick={cerrar}>
             {b.descartar}
-          </Button>
+          </BotonPunch>
         </>
       ) : (
         <>
@@ -63,7 +62,7 @@ function AsociarCodigo({
             onChange={(e) => setBusca(e.target.value)}
             aria-label={b.elegir}
             placeholder={b.elegir}
-            className="h-12 rounded-[14px] border border-teal-oscuro bg-superficie px-4 text-base"
+            className="h-11 rounded-[14px] border border-linea bg-superficie px-3.5 text-sm outline-none focus:border-teal"
           />
           <ul className="flex flex-col gap-1.5">
             {opciones.map((p) => (
@@ -72,7 +71,7 @@ function AsociarCodigo({
                   type="button"
                   aria-pressed={elegido === p.id}
                   onClick={() => setElegido(p.id)}
-                  className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-teal-oscuro px-3 text-left text-sm ${elegido === p.id ? "bg-mango font-bold" : "bg-superficie"}`}
+                  className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-[14px] border px-3 text-left text-sm ${elegido === p.id ? "border-teal bg-teal-fondo font-semibold" : "border-linea"}`}
                 >
                   <span className="truncate">{nombreCompleto(p)}</span>
                   <span className="tabular-nums">#{p.codigo}</span>
@@ -82,18 +81,16 @@ function AsociarCodigo({
           </ul>
           {error && <p className="text-sm text-error">{error}</p>}
           <div className="flex gap-2">
-            <Button
-              type="button"
-              variante="mango"
+            <BotonPunch
               onClick={asociar}
               disabled={!elegido || pendiente}
               className="flex-1"
             >
               {pendiente ? b.asociando : b.asociar}
-            </Button>
-            <Button type="button" variante="secundario" onClick={cerrar}>
+            </BotonPunch>
+            <BotonPunch variante="secundario" onClick={cerrar}>
               {b.descartar}
-            </Button>
+            </BotonPunch>
           </div>
         </>
       )}

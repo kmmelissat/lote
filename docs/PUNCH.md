@@ -69,6 +69,14 @@ El iso es un monito con forma de etiqueta de precio y un check rosa. El nombre v
 - Mismo marco gris que en escritorio: encabezado pegado arriba (botón de menú, iso con "punch." y botón del asistente (ícono de chat, provisional) en teal oscuro) y el contenido en un panel blanco con borde y esquinas de 24 px.
 - El cajón reutiliza `ListaMenuVertical` (mismos grupos y fichas que escritorio) sobre fondo gris con borde fino. Código: `MenuMovil.tsx`.
 
+## Vender, el POS rápido (ya aplicado)
+
+- Variante A del mockup: tarjetas de producto (foto sobre color de ficha, chips de oferta y promoción, contador teal, precio grande y botón "+"), ticket a la derecha con borde fino y total en texto (sin bloque oscuro), botón principal teal de 44 px.
+- Cobro: formas de pago y entrega como tarjetas sueltas con borde fino; la elegida lleva borde teal con halo. El cambio va en chip verde.
+- Paso 2 (cobro): primero se elige el modo (dos tarjetas). En persona: Pago, Cliente opcional y la entrega escondida ("la llevan ya · Cambiar"). Por chat: Cliente (canal primero, correo plegado), Entrega y Pago. El efectivo sale con "Exacto" elegido y cambio en $0.00. Si falta algo, el botón lo dice. En celular, una línea con lo elegido arriba.
+- Recibo, escáner, asociar código y toda la Caja (abrir, cerrar, historial, código de barras) también van en Punch: tarjetas blancas con borde fino, chips verde/amarillo, botones de `BotonesPunch.tsx` (`BotonPunch`, `EnlacePunch`, `TARJETA_PUNCH`).
+- Código: `src/features/counter/ui/` (`ProductosDelMostrador`, `ResumenLateral`, `OpcionesDePago`, `EntregaDeVenta`, `ModoDeVenta`). Los componentes compartidos (`Button`, `OpcionRadio`) siguen viejos; aquí se estilizó en el lugar.
+
 ## Pendiente
 
 - Aplicar el sistema al resto de la app.

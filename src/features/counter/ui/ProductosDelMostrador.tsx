@@ -11,7 +11,10 @@ import type { ProductoMostrador } from "../repositorio";
 
 const t = textos.mostrador;
 
-const sticker = "rounded-full border border-teal-oscuro px-2 py-0.5 text-xs font-bold";
+const chip = "inline-flex h-6 items-center rounded-lg px-2 text-xs font-medium";
+/** El color de fondo de la foto cuando el producto no tiene: uno por nombre, estable entre ventas. */
+const FONDOS = ["bg-ficha-rosa", "bg-ficha-celeste", "bg-ficha-amarillo", "bg-ficha-lila", "bg-ficha-verde"];
+const fondoDe = (nombre: string) => FONDOS[[...nombre].reduce((s, c) => s + c.charCodeAt(0), 0) % FONDOS.length];
 
 export function ProductosDelMostrador({
   todos,
@@ -49,12 +52,12 @@ export function ProductosDelMostrador({
           <button
             type="button"
             onClick={() => setClaveAbierta(null)}
-            className="flex min-h-11 w-fit items-center gap-1.5 rounded-full pr-3 text-sm font-bold text-teal"
+            className="flex min-h-11 w-fit items-center gap-1.5 rounded-[14px] pr-3 text-sm font-medium text-teal"
           >
             <Icon nombre="atras" className="size-5" />
             {t.volverAProductos}
           </button>
-          <h2 className="text-lg font-bold">{abierta.nombre}</h2>
+          <h2 className="text-lg font-semibold">{abierta.nombre}</h2>
         </div>
         <Grilla>
           {abierta.miembros.map((m) => (
@@ -107,7 +110,7 @@ export function ProductosDelMostrador({
 }
 
 function Grilla({ children }: { children: ReactNode }) {
-  return <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">{children}</ul>;
+  return <ul className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 2xl:grid-cols-4">{children}</ul>;
 }
 
 function Tarjeta({
@@ -148,9 +151,9 @@ function Tarjeta({
         type="button"
         onClick={tocar}
         aria-label={etiqueta}
-        className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px] border border-teal-oscuro bg-superficie text-left transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+        className="relative flex h-full w-full flex-col gap-2.5 rounded-3xl border border-linea bg-superficie p-2.5 text-left shadow-xs transition-shadow hover:shadow-md active:shadow-xs"
       >
-        <div className="relative aspect-square w-full bg-teal-fondo">
+        <div className={`relative aspect-[5/4] w-full overflow-hidden rounded-2xl ${fondoDe(nombre)}`}>
           {foto ? (
             <Image
               src={urlFoto(foto)}
@@ -160,34 +163,33 @@ function Tarjeta({
               className="object-cover"
             />
           ) : (
-            <div className="grid size-full place-items-center text-teal">
+            <div className="grid size-full place-items-center text-teal-oscuro/50">
               <Icon nombre="productos" className="size-8" />
             </div>
           )}
           {(descuento > 0 || promocion) && (
             <span className="absolute left-2 top-2 flex flex-col items-start gap-1">
-              {descuento > 0 && (
-                <span className={`${sticker} -rotate-3 bg-mango font-extrabold`}>{t.oferta(descuento)}</span>
-              )}
-              {promocion && <span className={`${sticker} -rotate-2 bg-rosa`}>{promocion.etiqueta}</span>}
+              {descuento > 0 && <span className={`${chip} bg-chip-amarillo text-chip-texto-amarillo`}>{t.oferta(descuento)}</span>}
+              {promocion && <span className={`${chip} bg-chip-lila text-chip-texto-lila`}>{promocion.etiqueta}</span>}
             </span>
           )}
           {cantidad > 0 && (
-            <span className="absolute right-2 top-2 grid size-8 place-items-center rounded-full border border-teal-oscuro bg-mango text-sm font-bold">
+            <span className="absolute right-2 top-2 grid h-6 min-w-6 place-items-center rounded-lg bg-teal-oscuro px-1.5 text-xs font-semibold tabular-nums text-white">
               {cantidad}
             </span>
           )}
-          {opciones !== undefined && (
-            <span className={`${sticker} absolute bottom-2 left-2 bg-superficie`}>{t.opciones(opciones)}</span>
-          )}
         </div>
-        <div className="flex flex-1 flex-col items-start gap-0.5 p-3">
-          <p className="line-clamp-2 text-sm font-medium">{nombre}</p>
-          {promocion?.detalle && (
-            <p className="line-clamp-2 text-xs font-bold text-teal">{promocion.detalle}</p>
-          )}
-          <p className="mt-auto flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
-            <span className="font-bold">{precio}</span>
+        <div className="flex flex-1 flex-col items-start gap-0.5 px-1">
+          <p className="line-clamp-2 text-sm font-semibold">{nombre}</p>
+          {promocion?.detalle && <p className="line-clamp-2 text-xs font-medium text-teal">{promocion.detalle}</p>}
+          <p className="text-xs text-texto-2">
+            {opciones !== undefined ? `${t.opciones(opciones)} · ` : ""}
+            {pocas ? <span className="font-medium text-chip-texto-rojo">{t.quedan(disponibles)}</span> : t.quedan(disponibles)}
+          </p>
+        </div>
+        <div className="flex items-center justify-between px-1 pb-0.5">
+          <p className="flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
+            <span className="text-base font-bold">{precio}</span>
             {descuento > 0 && precioAnterior !== null && (
               <span className="text-xs text-texto-2 line-through">
                 <span className="sr-only">{t.antes} </span>
@@ -195,9 +197,9 @@ function Tarjeta({
               </span>
             )}
           </p>
-          <p className={pocas ? "rounded-full bg-ambar px-2 text-xs font-bold" : "text-xs text-texto-2"}>
-            {t.quedan(disponibles)}
-          </p>
+          <span aria-hidden className="grid size-8 place-items-center rounded-[10px] border border-linea bg-superficie">
+            <Icon nombre={opciones !== undefined ? "adelante" : "mas"} className="size-4" />
+          </span>
         </div>
       </button>
     </li>

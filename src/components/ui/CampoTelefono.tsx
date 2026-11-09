@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { digitosLocales, telefonoElSalvador } from "@/domain";
 
 const inputPanel =
-  "h-12 min-w-0 flex-1 rounded-r-[14px] border border-borde-control bg-superficie px-4 text-base tabular-nums focus:border-teal";
+  "h-11 min-w-0 flex-1 rounded-r-[14px] border border-linea bg-superficie px-3.5 text-sm tabular-nums outline-none focus:border-teal";
 const inputVitrina =
   "h-12 min-w-0 flex-1 rounded-r-[14px] border border-borde-control bg-superficie px-4 text-base tabular-nums placeholder:text-texto-2/60 focus:border-teal";
 
@@ -46,7 +46,7 @@ export function CampoTelefono({
         {etiqueta}
       </label>
       <span className="flex">
-        <span className="flex h-12 items-center rounded-l-[14px] border border-r-0 border-borde-control bg-fondo px-3 font-bold text-texto-2">
+        <span className="flex h-11 items-center rounded-l-[14px] border border-r-0 border-linea bg-gris-50 px-3 text-sm font-medium text-texto-2">
           +503
         </span>
         <input

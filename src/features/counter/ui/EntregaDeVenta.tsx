@@ -9,7 +9,7 @@ import { DEPARTAMENTOS, esDepartamento, MUNICIPIOS } from "@/lib/departamentos";
 import { dolaresTexto, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { tarifaDe, type Tarifas } from "@/features/shipping/repositorio";
-import { ENTREGAS, llevaEnvio, type Entrega } from "../plan";
+import { ENTREGAS_ELEGIBLES, llevaEnvio, type Entrega } from "../plan";
 
 const t = textos.mostrador.entrega;
 const te = textos.pedidos.envio;
@@ -55,6 +55,16 @@ export function envioCobrado(entrega: Entrega, d: DatosDeEntrega): number {
  * Cuándo y cómo se entrega: se la lleva ahora, la recoge después, o se la llevan (uno mismo o una paquetera).
  * Con envío se piden los datos de la dirección y cuánto cuesta; el costo se propone con la tarifa del departamento.
  */
+/** Un bloque de campos con su emoji, para que el formulario largo no se vea como una sola tira de cajas */
+function Grupo({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl bg-gris-50 p-3.5">
+      <p className="text-sm font-semibold">{titulo}</p>
+      {children}
+    </div>
+  );
+}
+
 export function EntregaDeVenta({
   entrega,
   cambiarEntrega,
@@ -84,8 +94,8 @@ export function EntregaDeVenta({
   return (
     <div className="flex flex-col gap-3">
       {/* Las mismas celdas pegadas que las formas de pago: un ícono y el nombre, nada más */}
-      <div role="radiogroup" aria-label={t.titulo} className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-teal-oscuro bg-teal-oscuro sm:grid-cols-4">
-        {ENTREGAS.map((e) => {
+      <div role="radiogroup" aria-label={t.titulo} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {ENTREGAS_ELEGIBLES.map((e) => {
           const activa = entrega === e;
           return (
             <button
@@ -94,7 +104,7 @@ export function EntregaDeVenta({
               role="radio"
               aria-checked={activa}
               onClick={() => cambiarEntrega(e)}
-              className={`flex min-h-16 flex-col items-center justify-center gap-1 px-2 text-center ${activa ? "bg-limon font-bold" : "bg-superficie"}`}
+              className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border px-2 text-center ${activa ? "border-teal bg-teal-fondo font-semibold" : "border-linea bg-superficie text-texto-2 hover:border-borde-control"}`}
             >
               <Icon nombre={ICONO[e]} className="size-5" />
               <span className="text-sm leading-tight">{t[e]}</span>
@@ -105,11 +115,14 @@ export function EntregaDeVenta({
       <p className="-mt-1 text-sm text-texto-2">{t[`${entrega}Ayuda`]}</p>
 
       {llevaEnvio(entrega) && (
-        <div className="flex flex-col gap-4 border-t border-dashed border-borde pt-4">
+        <div className="flex flex-col gap-4">
+          <Grupo titulo="Quién recibe">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field etiqueta={te.nombre} value={datos.nombre} placeholder={nombreSugerido} onChange={(e) => cambiarDatos({ nombre: e.target.value })} autoComplete="off" />
             <CampoTelefono etiqueta={te.telefono} name="entrega-telefono" value={datos.telefono || telefonoSugerido} onChange={(v) => cambiarDatos({ telefono: v })} ayuda={te.errorTelefono} />
           </div>
+          </Grupo>
+          <Grupo titulo="Adónde va">
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">{te.departamento}</span>
             <Select value={datos.departamento} onChange={(e) => elegirDepartamento(e.target.value)} required>
@@ -136,8 +149,10 @@ export function EntregaDeVenta({
           )}
           <Field etiqueta={te.direccion} value={datos.direccion} onChange={(e) => cambiarDatos({ direccion: e.target.value })} autoComplete="off" required />
           <Field etiqueta={te.referencia} value={datos.referencia} onChange={(e) => cambiarDatos({ referencia: e.target.value })} autoComplete="off" />
-          {entrega === "paquetera" && <Field etiqueta={te.paquetera} value={datos.paquetera} onChange={(e) => cambiarDatos({ paquetera: e.target.value })} autoComplete="off" />}
+          {entrega === "paquetera" && <Field etiqueta={`${te.paquetera} (opcional)`} value={datos.paquetera} onChange={(e) => cambiarDatos({ paquetera: e.target.value })} autoComplete="off" />}
 
+          </Grupo>
+          <Grupo titulo="Costo del envío">
           <div className="flex flex-col gap-1">
             <Field etiqueta={te.costo} inputMode="decimal" value={datos.costo} onChange={(e) => cambiarDatos({ costo: e.target.value, costoTocado: true })} />
             {datos.departamento && <p className="text-sm text-texto-2">{te.costoAyuda(formatearDolares(tarifaDe(tarifas, datos.departamento)))}</p>}
@@ -152,7 +167,7 @@ export function EntregaDeVenta({
                   type="button"
                   aria-pressed={datos.paga === q}
                   onClick={() => cambiarDatos({ paga: q })}
-                  className={`min-h-11 rounded-full border border-teal-oscuro px-3 text-sm ${datos.paga === q ? "bg-limon font-bold" : "bg-superficie"}`}
+                  className={`min-h-11 rounded-[14px] border px-3 text-sm ${datos.paga === q ? "border-teal bg-teal-fondo font-semibold" : "border-linea bg-superficie text-texto-2 hover:border-borde-control"}`}
                 >
                   {te.pagas[q]}
                 </button>
@@ -161,10 +176,11 @@ export function EntregaDeVenta({
           </fieldset>
 
           {reparto && (costo ?? 0) > 0 && (
-            <p className="text-sm text-texto-2" aria-live="polite">
+            <p className="rounded-2xl bg-chip-amarillo px-4 py-3 text-sm text-chip-texto-amarillo" aria-live="polite">
               {reparto.cobrado > 0 && te.cobraCliente(formatearDolares(reparto.cobrado))} {reparto.absorbido > 0 && te.absorbes(formatearDolares(reparto.absorbido))}
             </p>
           )}
+          </Grupo>
         </div>
       )}
     </div>

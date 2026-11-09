@@ -4,8 +4,8 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type 
 import { Icon } from "./Icon";
 
 const ESTILOS = {
-  panel: "h-12 w-full rounded-xl border border-borde-control bg-superficie px-3 text-base",
-  campo: "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base focus:border-teal",
+  panel: "h-11 w-full rounded-[14px] border border-linea bg-superficie px-3.5 text-sm outline-none focus:border-teal",
+  campo: "h-11 w-full rounded-[14px] border border-linea bg-superficie px-3.5 text-sm outline-none focus:border-teal",
   compacto: "h-10 max-md:min-h-11 w-full rounded-[12px] border border-borde-control bg-superficie px-3 text-sm focus:border-teal",
   pildora: "h-10 max-md:min-h-11 w-full rounded-full border border-borde-control bg-superficie pl-4 pr-2 text-sm font-bold text-teal-oscuro focus:border-teal",
 } as const;
@@ -184,7 +184,7 @@ export function ListaDesplegable({
         {elegida?.detalle && <span className="shrink-0 text-sm font-bold text-texto-2">{elegida.detalle}</span>}
         <span
           aria-hidden="true"
-          className={`flex shrink-0 items-center justify-center rounded-full ${variante === "pildora" ? "border border-teal-oscuro/30" : "border border-teal-oscuro"} bg-teal-fondo text-teal-oscuro transition-transform duration-150 ${variante === "compacto" || variante === "pildora" ? "size-6" : variante === "campo" ? "size-8" : "size-7"} ${abierta ? "rotate-180" : ""}`}
+          className={`flex shrink-0 items-center justify-center rounded-full ${variante === "pildora" ? "border border-teal-oscuro/30 bg-teal-fondo" : variante === "campo" || variante === "panel" ? "" : "border border-teal-oscuro bg-teal-fondo"} text-teal-oscuro transition-transform duration-150 ${variante === "compacto" || variante === "pildora" ? "size-6" : variante === "campo" || variante === "panel" ? "size-5" : "size-7"} ${abierta ? "rotate-180" : ""}`}
         >
           <Icon nombre="flecha" className="size-4" strokeWidth={2.5} />
         </span>
@@ -201,7 +201,7 @@ export function ListaDesplegable({
           id={`${id}-lista`}
           role="listbox"
           aria-label={placeholder}
-          className={`absolute inset-x-0 z-20 max-h-[min(16rem,45dvh)] animate-entra overflow-y-auto rounded-2xl bg-white p-1.5 md:max-h-64 ${variante === "pildora" ? "border border-teal-oscuro/20 shadow-lg" : "border border-teal-oscuro shadow-dura"} ${
+          className={`absolute inset-x-0 z-20 max-h-[min(16rem,45dvh)] animate-entra overflow-y-auto rounded-2xl bg-white p-1.5 md:max-h-64 ${variante === "pildora" ? "border border-teal-oscuro/20 shadow-lg" : variante === "campo" || variante === "panel" ? "border border-linea shadow-md" : "border border-teal-oscuro shadow-dura"} ${
             arriba ? "bottom-full mb-2" : "top-full mt-2"
           }`}
         >
@@ -220,7 +220,7 @@ export function ListaDesplegable({
                   elegir(i);
                 }}
                 onMouseEnter={() => setActiva(i)}
-                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 ${activa === i ? "bg-teal-fondo" : ""} ${marcada ? "font-bold" : ""}`}
+                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 ${activa === i ? "bg-gris-50" : ""} ${marcada ? "font-semibold" : ""}`}
               >
                 <span className="flex size-5 shrink-0 items-center justify-center">
                   {marcada && <Icon nombre="check" className="size-5" strokeWidth={2.5} />}

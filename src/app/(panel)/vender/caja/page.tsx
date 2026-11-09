@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { TARJETA } from "@/components/ui/tarjeta";
+import { TARJETA_PUNCH } from "@/features/counter/ui/BotonesPunch";
 import { cuadreDeCaja } from "@/domain";
 import { cajaAbierta, detalleDeCajaAbierta, resumenDeCaja, ultimosCierres } from "@/features/counter/repositorio";
 import { AbrirCajaForm } from "@/features/counter/ui/AbrirCajaForm";
@@ -52,8 +52,8 @@ async function Contenido() {
   // Los montos solo los ven dueña y administradora: la vendedora sabe que hay caja abierta y nada más.
   if (!negocio.puedeGestionar) {
     return (
-      <div className={`${TARJETA} max-w-xl bg-teal-fondo`}>
-        <h2 className="text-lg font-bold">{t.abierta}</h2>
+      <div className={`${TARJETA_PUNCH} max-w-xl`}>
+        <h2 className="text-base font-semibold">{t.abierta}</h2>
         <p className="text-texto-2">{t.abiertaTitulo(formatearHora(abierta.abiertaEn))}</p>
         <p className="mt-2">{t.soloVer}</p>
       </div>

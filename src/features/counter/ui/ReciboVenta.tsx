@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Button, ButtonLink } from "@/components/ui/Button";
-import { LotitoMas } from "@/components/ui/LotitoMas";
+import { Icon } from "@/components/ui/Icon";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { Recibo } from "../mostrador";
+import { BotonPunch, EnlacePunch } from "./BotonesPunch";
 
 const t = textos.mostrador;
 
@@ -29,25 +29,27 @@ export function ModalDeRecibo({ recibo, alCerrar }: { recibo: Recibo | null; alC
       aria-label={recibo ? r.titulo[recibo.clase] : r.titulo.venta}
       onClose={alCerrar}
       onClick={(e) => e.target === ventana.current && alCerrar()}
-      className="m-auto w-[min(26rem,calc(100vw-1.5rem))] rounded-[24px] border border-teal-oscuro bg-crema p-0 shadow-dura backdrop:bg-teal-oscuro/40"
+      className="m-auto w-[min(26rem,calc(100vw-1.5rem))] rounded-3xl border border-linea bg-superficie p-0 shadow-md backdrop:bg-teal-oscuro/40"
     >
       {recibo && (
         <div className="flex flex-col items-center gap-3 p-6 text-center" role="status">
-          <LotitoMas nombre="thumbsup" className="w-24" />
-          <h2 className="text-xl font-bold">{r.titulo[recibo.clase]}</h2>
+          <span aria-hidden className="grid size-14 place-items-center rounded-2xl bg-chip-verde text-chip-texto-verde">
+            <Icon nombre="check" className="size-7" />
+          </span>
+          <h2 className="text-xl font-semibold">{r.titulo[recibo.clase]}</h2>
           <p className="text-texto-2">{r.monito[recibo.clase]}</p>
-          <dl className="w-full rounded-2xl border border-dashed border-teal-oscuro/40 bg-superficie p-4">
+          <dl className="w-full rounded-2xl border border-linea bg-gris-50 p-4">
             <div className="flex justify-between">
               <dt className="text-texto-2">{r.pedido(recibo.codigo)}</dt>
             </div>
-            <div className="mt-1 flex justify-between text-lg font-bold">
+            <div className="mt-1 flex justify-between text-lg font-semibold">
               <dt>{r.total[recibo.clase]}</dt>
               <dd className="tabular-nums">{formatearDolares(recibo.total)}</dd>
             </div>
             {recibo.cambio !== null && recibo.cambio > 0 && (
-              <div className="mt-1 flex justify-between font-bold text-teal">
+              <div className="mt-2 flex justify-between rounded-xl bg-chip-verde px-3 py-2 font-medium text-chip-texto-verde">
                 <dt>{r.cambio}</dt>
-                <dd className="font-logo text-2xl tabular-nums">{formatearDolares(recibo.cambio)}</dd>
+                <dd className="text-2xl font-bold tabular-nums">{formatearDolares(recibo.cambio)}</dd>
               </div>
             )}
           </dl>
@@ -57,12 +59,12 @@ export function ModalDeRecibo({ recibo, alCerrar }: { recibo: Recibo | null; alC
               {t.problemas[p as keyof typeof t.problemas]}
             </p>
           ))}
-          <Button type="button" variante="mango" onClick={alCerrar} className="w-full">
+          <BotonPunch onClick={alCerrar} className="w-full">
             {r.nueva}
-          </Button>
-          <ButtonLink href={`/pedidos/${recibo.codigo}`} variante="secundario" className="w-full">
+          </BotonPunch>
+          <EnlacePunch href={`/pedidos/${recibo.codigo}`} className="w-full">
             {r.verPedido}
-          </ButtonLink>
+          </EnlacePunch>
         </div>
       )}
     </dialog>

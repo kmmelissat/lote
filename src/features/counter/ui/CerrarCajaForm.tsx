@@ -2,11 +2,10 @@
 
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch, TARJETA_PUNCH } from "./BotonesPunch";
 import { useConfirmar } from "@/components/ui/Confirmar";
 import { Field } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
-import { TARJETA } from "@/components/ui/tarjeta";
 import { cuadreDeCaja, leerDolares } from "@/domain";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -70,9 +69,9 @@ export function CerrarCajaForm({
 
   return (
     <div className="flex flex-col gap-4">
-      <section className={`${TARJETA} bg-teal-fondo`}>
+      <section className={TARJETA_PUNCH}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-lg font-bold">{t.resumen.titulo}</h2>
+          <h2 className="text-base font-semibold">{t.resumen.titulo}</h2>
           <p className="text-sm text-texto-2">
             {t.abiertaTitulo(desde)} · {t.resumen.ventas(resumen.ventas)}
           </p>
@@ -84,7 +83,7 @@ export function CerrarCajaForm({
               <dd className="font-medium tabular-nums">{valor}</dd>
             </div>
           ))}
-          <div className="mt-2 flex justify-between gap-3 border-t border-dashed border-teal-oscuro/30 pt-3 text-lg font-bold">
+          <div className="mt-2 flex justify-between gap-3 border-t border-linea pt-3 text-lg font-semibold">
             <dt>{t.resumen.esperado}</dt>
             <dd className="tabular-nums">{formatearDolares(esperado)}</dd>
           </div>
@@ -92,8 +91,8 @@ export function CerrarCajaForm({
         <p className="mt-3 text-sm text-texto-2">{t.resumen.gastosNota}</p>
       </section>
 
-      <section className={`${TARJETA} flex flex-col gap-4 bg-crema`}>
-        <h2 className="text-lg font-bold">{t.cierre.titulo}</h2>
+      <section className={`${TARJETA_PUNCH} flex flex-col gap-4`}>
+        <h2 className="text-base font-semibold">{t.cierre.titulo}</h2>
         <Field
           etiqueta={t.cierre.contado}
           inputMode="decimal"
@@ -105,7 +104,7 @@ export function CerrarCajaForm({
         {cuadre && (
           <p
             aria-live="polite"
-            className={`rounded-xl p-3 font-bold ${cuadre.estado === "cuadra" ? "bg-teal-fondo text-teal" : "bg-limon text-teal-oscuro"}`}
+            className={`rounded-xl p-3 text-sm font-medium ${cuadre.estado === "cuadra" ? "bg-chip-verde text-chip-texto-verde" : "bg-chip-amarillo text-chip-texto-amarillo"}`}
           >
             {cuadre.estado === "cuadra"
               ? t.cierre.cuadra
@@ -122,14 +121,12 @@ export function CerrarCajaForm({
           maxLength={300}
         />
         <MensajeError>{error}</MensajeError>
-        <Button
-          type="button"
-          variante="mango"
+        <BotonPunch
           onClick={cerrar}
           disabled={cerrando || contado === null}
         >
           {cerrando ? t.cierre.cerrando : t.cierre.cerrar}
-        </Button>
+        </BotonPunch>
       </section>
     </div>
   );

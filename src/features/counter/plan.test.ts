@@ -43,7 +43,7 @@ describe("planDeVenta", () => {
     expect(planDeVenta({ entrega: "retiro", pago: "contra_entrega", canal: "presencial" })).toMatchObject({ tipo: "apartado", contraEntrega: false });
     expect(pagosPermitidos("retiro")).not.toContain("contra_entrega");
     expect(pagosPermitidos("ahora")).not.toContain("contra_entrega");
-    expect(pagosPermitidos("paquetera")).toContain("contra_entrega");
+    expect(pagosPermitidos("paquetera")).toEqual(["transferencia", "contra_entrega"]);
     expect(llevaEnvio("propio")).toBe(true);
     expect(llevaEnvio("retiro")).toBe(false);
   });

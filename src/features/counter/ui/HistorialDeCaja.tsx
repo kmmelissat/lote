@@ -1,18 +1,18 @@
-import { TARJETA } from "@/components/ui/tarjeta";
 import { formatearDiaYHora, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { CierrePasado } from "../repositorio";
+import { TARJETA_PUNCH } from "./BotonesPunch";
 
 const t = textos.caja.historial;
 
 export function HistorialDeCaja({ cierres }: { cierres: CierrePasado[] }) {
   return (
-    <section className={`${TARJETA} bg-superficie`}>
-      <h2 className="text-lg font-bold">{t.titulo}</h2>
+    <section className={TARJETA_PUNCH}>
+      <h2 className="text-base font-semibold">{t.titulo}</h2>
       {!cierres.length ? (
         <p className="mt-2 text-texto-2">{t.vacio}</p>
       ) : (
-        <ul className="mt-3 flex flex-col divide-y divide-borde">
+        <ul className="mt-3 flex flex-col divide-y divide-linea">
           {cierres.map((c) => (
             <li
               key={c.id}
@@ -27,7 +27,7 @@ export function HistorialDeCaja({ cierres }: { cierres: CierrePasado[] }) {
                 {c.nota && <p className="text-sm text-texto-2">{c.nota}</p>}
               </div>
               <p
-                className={`rounded-full px-3 py-1 text-sm font-bold ${c.diferencia === 0 ? "bg-teal-fondo text-teal" : "bg-limon text-teal-oscuro"}`}
+                className={`rounded-lg px-2.5 py-1 text-xs font-medium ${c.diferencia === 0 ? "bg-chip-verde text-chip-texto-verde" : "bg-chip-amarillo text-chip-texto-amarillo"}`}
               >
                 {c.diferencia === 0
                   ? t.cuadra

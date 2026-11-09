@@ -9,13 +9,13 @@ export function ChipCaja({ cajaDesde }: { cajaDesde: string | null }) {
   return (
     <Link
       href="/vender/caja"
-      className={`flex min-h-11 items-center gap-2 self-start rounded-full border border-teal-oscuro px-4 text-sm font-medium ${cajaDesde ? "bg-teal-fondo" : "bg-limon"}`}
+      className={`flex min-h-10 items-center gap-2 self-start rounded-xl border px-3.5 text-sm font-medium ${cajaDesde ? "border-linea bg-gris-50" : "border-transparent bg-chip-amarillo text-chip-texto-amarillo"}`}
     >
       <Icon nombre={cajaDesde ? "efectivo" : "alerta"} className="size-4" />
       {cajaDesde
         ? t.caja.abierta(formatearHora(new Date(cajaDesde)))
         : t.caja.cerradaCorto}
-      <span className="font-bold underline underline-offset-2">
+      <span className="font-semibold underline underline-offset-2">
         {cajaDesde ? t.caja.ver : t.caja.abrir}
       </span>
     </Link>

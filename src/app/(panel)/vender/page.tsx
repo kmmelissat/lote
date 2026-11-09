@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { ButtonLink } from "@/components/ui/Button";
+import Link from "next/link";
+import { Icon } from "@/components/ui/Icon";
 import { cajaAbierta, productosDeMostrador } from "@/features/counter/repositorio";
 import { Mostrador } from "@/features/counter/ui/Mostrador";
 import { clientesParaVender } from "@/features/customers/repositorio";
@@ -29,9 +30,13 @@ async function Pantalla() {
       descripcion={t.descripcion}
       accion={
         conCaja ? (
-          <ButtonLink href="/vender/caja" variante="secundario">
+          <Link
+            href="/vender/caja"
+            className="flex h-11 items-center gap-2 rounded-[14px] border border-linea bg-superficie px-3.5 text-sm font-medium hover:bg-gris-50 md:h-9"
+          >
+            <Icon nombre="efectivo" className="size-4" />
             {textos.caja.titulo}
-          </ButtonLink>
+          </Link>
         ) : undefined
       }
     />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "./BotonesPunch";
 import { textos } from "@/lib/textos";
 
 const t = textos.mostrador.barras;
@@ -107,10 +107,10 @@ export function EscanerCamara({
   }, []);
 
   return (
-    <div className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-teal-oscuro p-3 text-white">
+    <div className="flex flex-col gap-3 rounded-3xl bg-teal-oscuro p-3 text-white">
       <div className="flex items-start justify-between gap-3 px-1">
         <div>
-          <p className="font-bold">{t.camaraTitulo}</p>
+          <p className="font-semibold">{t.camaraTitulo}</p>
           <p className="text-sm text-white/80">{t.camaraAyuda}</p>
         </div>
       </div>
@@ -126,9 +126,9 @@ export function EscanerCamara({
           className="aspect-[4/3] w-full rounded-2xl bg-black object-cover"
         />
       )}
-      <Button type="button" variante="secundario" onClick={cerrar}>
+      <BotonPunch variante="secundario" onClick={cerrar}>
         {t.camaraCerrar}
-      </Button>
+      </BotonPunch>
     </div>
   );
 }

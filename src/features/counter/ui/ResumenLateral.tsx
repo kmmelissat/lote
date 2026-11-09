@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/Button";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
@@ -22,7 +21,6 @@ export function ResumenLateral({
   textoBoton,
   alPulsar,
   deshabilitado,
-  bloqueo,
   error,
   descartar,
 }: {
@@ -36,20 +34,18 @@ export function ResumenLateral({
   textoBoton: string;
   alPulsar: () => void;
   deshabilitado: boolean;
-  /** Lo que impide cobrar todavía; null si se puede. Solo se muestra en el paso de cobro */
-  bloqueo: string | null;
   error: string;
   /** Solo en el paso de cobro */
   descartar?: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-[24px] border border-teal-oscuro bg-crema p-5">
+    <div className="flex flex-col gap-4 rounded-3xl border border-linea bg-superficie p-5 shadow-xs">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-bold">
+        <h2 className="text-base font-semibold">
           {t.carrito} <span className="text-sm font-normal text-texto-2">· {t.paso.productos(unidades)}</span>
         </h2>
         {detalle.length > 0 && (
-          <button type="button" onClick={vaciar} className="min-h-11 px-2 text-sm font-medium text-teal underline underline-offset-2">
+          <button type="button" onClick={vaciar} className="min-h-11 px-2 text-sm font-medium text-texto-2 hover:text-teal-oscuro">
             {t.vaciar}
           </button>
         )}
@@ -63,28 +59,28 @@ export function ResumenLateral({
             <LineasDelCarrito detalle={detalle} cambiarCantidad={cambiarCantidad} />
           </div>
 
-          {/* La cuenta y su total, una sola tarjeta que se lee de arriba hacia abajo: subtotal, descuento y, al final, el total */}
-          <section aria-label={t.paso.totalACobrar} className="overflow-hidden rounded-[20px] border border-teal-oscuro">
-            <div className="bg-superficie p-4">{resumen}</div>
-            <div className="bg-teal-oscuro px-5 py-3 text-white">
-              <p className="text-sm font-bold text-celeste">{t.paso.totalACobrar}</p>
-              <p className="font-logo text-5xl font-bold tabular-nums text-limon">{formatearDolares(total)}</p>
+          {/* La cuenta: subtotal, descuento y, al final, el total */}
+          <section aria-label={t.paso.totalACobrar} className="flex flex-col gap-3 border-t border-linea pt-4">
+            {resumen}
+            <div className="flex items-baseline justify-between border-t border-linea pt-3">
+              <p className="text-sm font-medium text-texto-2">{t.paso.totalACobrar}</p>
+              <p className="text-2xl font-bold tabular-nums">{formatearDolares(total)}</p>
             </div>
           </section>
 
-          {bloqueo && (
-            <p role="status" className="text-center text-sm font-bold text-error">
-              {bloqueo}
-            </p>
-          )}
           <MensajeError>{error}</MensajeError>
 
           <div className="flex flex-col gap-1">
-            <Button type="button" variante="mango" onClick={alPulsar} disabled={deshabilitado} className="min-h-14 w-full text-lg">
+            <button
+              type="button"
+              onClick={alPulsar}
+              disabled={deshabilitado}
+              className="min-h-11 w-full rounded-[14px] bg-teal-oscuro px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-oscuro/90 disabled:opacity-50"
+            >
               {textoBoton}
-            </Button>
+            </button>
             {descartar && (
-              <button type="button" onClick={descartar} className="min-h-11 text-sm font-medium text-texto-2 underline underline-offset-2">
+              <button type="button" onClick={descartar} className="min-h-11 text-sm font-medium text-texto-2 hover:text-teal-oscuro">
                 {t.paso.descartar}
               </button>
             )}

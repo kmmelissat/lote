@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "./BotonesPunch";
 import { Field } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
@@ -38,7 +38,7 @@ export function CodigoDeBarrasForm({
   }
 
   return (
-    <section className="rounded-[24px] border border-teal-oscuro bg-crema p-5 shadow-dura">
+    <section className="rounded-3xl border border-linea bg-superficie p-5 shadow-xs">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -47,11 +47,11 @@ export function CodigoDeBarrasForm({
         className="flex flex-col gap-4"
       >
         <div className="flex items-start gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-teal-oscuro bg-limon text-teal-oscuro">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-ficha-celeste text-chip-texto-celeste">
             <Icon nombre="buscar" className="size-6" />
           </span>
           <div>
-            <h2 className="text-lg font-bold leading-tight">{t.titulo}</h2>
+            <h2 className="text-base font-semibold leading-tight">{t.titulo}</h2>
             <p className="text-sm text-texto-2">{t.ayuda}</p>
           </div>
         </div>
@@ -64,22 +64,20 @@ export function CodigoDeBarrasForm({
           error={error}
         />
         <div className="flex flex-wrap items-center gap-3">
-          <Button
+          <BotonPunch
             type="submit"
-            variante="mango"
             disabled={pendiente || !codigo.trim() || codigo.trim() === guardado}
           >
             {pendiente ? t.guardando : t.guardar}
-          </Button>
+          </BotonPunch>
           {guardado && (
-            <Button
-              type="button"
+            <BotonPunch
               variante="secundario"
               disabled={pendiente}
               onClick={() => void guardar(null)}
             >
               {t.quitar}
-            </Button>
+            </BotonPunch>
           )}
         </div>
       </form>
