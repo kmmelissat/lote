@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Button } from "./Button";
+import { BotonPunch } from "./BotonesPunch";
 import { textos } from "@/lib/textos";
 
 export type OpcionesConfirmar = {
@@ -68,10 +68,10 @@ function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (r: boolean | st
       }}
       // Tocar el fondo oscuro (el propio dialog, no su contenido) también cancela.
       onClick={(e) => e.target === e.currentTarget && cerrar(false)}
-      className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[calc(100%-2rem)] max-w-sm overflow-y-auto rounded-[24px] border border-teal-oscuro bg-superficie p-0 text-texto backdrop:bg-teal-oscuro/40"
+      className="m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] w-[calc(100%-2rem)] max-w-sm overflow-y-auto rounded-3xl border border-linea bg-superficie p-0 text-texto shadow-lg backdrop:bg-teal-oscuro/40"
     >
       <div className="flex flex-col gap-2 p-6">
-        <h2 id="confirmar-titulo" className="text-lg font-bold">
+        <h2 id="confirmar-titulo" className="text-lg font-semibold">
           {abierto.titulo}
         </h2>
         {abierto.texto && (
@@ -83,7 +83,7 @@ function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (r: boolean | st
           <fieldset className="mt-2 flex flex-col gap-1">
             <legend className="sr-only">{abierto.titulo}</legend>
             {abierto.opciones.map((o) => (
-              <label key={o.valor} className="flex min-h-11 items-center gap-3 rounded-xl px-2 hover:bg-teal-fondo">
+              <label key={o.valor} className="flex min-h-11 items-center gap-3 rounded-[14px] border px-3 transition-colors hover:bg-gris-50 has-checked:border-teal has-checked:bg-teal/5 border-linea">
                 <input
                   type="radio"
                   name="elegido"
@@ -98,17 +98,17 @@ function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (r: boolean | st
           </fieldset>
         )}
         <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button type="button" variante="secundario" autoFocus={abierto.peligro} onClick={() => cerrar(false)}>
+          <BotonPunch type="button" variante="secundario" autoFocus={abierto.peligro} onClick={() => cerrar(false)}>
             {abierto.cancelar ?? textos.comun.cancelar}
-          </Button>
-          <Button
+          </BotonPunch>
+          <BotonPunch
             type="button"
-            variante={abierto.peligro ? "peligro" : "mango"}
+            variante={abierto.peligro ? "peligro" : "primario"}
             autoFocus={!abierto.peligro}
             onClick={() => cerrar(abierto.opciones ? elegido : true)}
           >
             {abierto.confirmar ?? textos.comun.confirmar}
-          </Button>
+          </BotonPunch>
         </div>
       </div>
     </dialog>

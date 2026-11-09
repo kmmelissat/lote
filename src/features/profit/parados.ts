@@ -10,7 +10,7 @@ const TOPE = 5000;
 const ESTADOS_DE_VENTA = ["pagado", "preparando", "enviado", "entregado"];
 
 /** Cuándo se creó y cuándo se vendió por última vez cada producto, para saber cuáles están parados. */
-async function actividadDeProductos(supabase: SupabaseClient<Database>, negocioId: string): Promise<Map<string, { creadoEn: string; ultimaVenta: string | null }>> {
+export async function actividadDeProductos(supabase: SupabaseClient<Database>, negocioId: string): Promise<Map<string, { creadoEn: string; ultimaVenta: string | null }>> {
   const [productos, ventas] = await Promise.all([
     supabase.from("producto").select("id, creado_en").eq("negocio_id", negocioId).limit(TOPE),
     supabase
@@ -31,6 +31,8 @@ async function actividadDeProductos(supabase: SupabaseClient<Database>, negocioI
   return mapa;
 }
 
+type Actividad = Awaited<ReturnType<typeof actividadDeProductos>>;
+
 export type ProductosQueNoSeMueven = {
   filas: ProductoParadoConCodigo[];
   /** Lo que costaron los productos parados (los sin costo no suman) */
@@ -48,8 +50,10 @@ export async function productosQueNoSeMueven(
   negocioId: string,
   productos: Lista,
   ahora: Date = new Date(),
+  /** La actividad ya pedida, para no esperar a tener la lista de productos antes de consultarla */
+  actividadPedida?: Promise<Actividad | null>,
 ): Promise<ProductosQueNoSeMueven> {
-  const actividad = await actividadDeProductos(supabase, negocioId);
+  const actividad = (await actividadPedida) ?? (await actividadDeProductos(supabase, negocioId));
   const enStock = productos.filter((p) => p.disponibles > 0);
   const inventario = enStock.reduce((suma, p) => suma + (p.costoUnitario ?? 0) * p.disponibles, 0);
   const porId = new Map(productos.map((p) => [p.id, p]));

@@ -50,10 +50,11 @@ async function Pantalla() {
     );
   }
 
-  // Antes de leer los precios: una oferta que empieza o termina hoy se cobra bien aunque la tarea diaria no haya corrido
-  await actualizarOfertas(supabase, negocio.id).catch(() => undefined);
+  // Antes de leer los precios: una oferta que empieza o termina hoy se cobra bien aunque la tarea diaria no haya corrido.
+  // Lo demás no depende de los precios, así que corre a la vez; solo los productos esperan a las ofertas.
+  const ofertas = actualizarOfertas(supabase, negocio.id).catch(() => undefined);
   const [productos, clientes, tarifas, caja] = await Promise.all([
-    productosDeMostrador(supabase, negocio.id),
+    ofertas.then(() => productosDeMostrador(supabase, negocio.id)),
     clientesParaVender(supabase, negocio.id),
     obtenerTarifas(supabase, negocio.id),
     // Si todavía no se corrió mostrador.sql no hay caja que mostrar, pero la pantalla no se rompe.

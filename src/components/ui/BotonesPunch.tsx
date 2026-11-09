@@ -8,6 +8,7 @@ const base =
 const variantes = {
   primario: "bg-teal-oscuro text-white hover:bg-teal-oscuro/90",
   secundario: "border border-linea bg-superficie text-teal-oscuro hover:bg-gris-50",
+  peligro: "bg-error text-white hover:bg-error/90",
 } as const;
 
 export const estiloBotonPunch = (variante: keyof typeof variantes = "primario") => `${base} ${variantes[variante]}`;

@@ -236,7 +236,6 @@ export function ListaProductos({
 
       <div className="flex flex-wrap items-center gap-2">
         <CampoBusqueda
-          punch
           className="min-w-48 flex-1 md:max-w-md"
           role="searchbox"
           aria-label={t.buscar.etiqueta}
@@ -366,7 +365,7 @@ export function ListaProductos({
           {/* Encabezados de las columnas: solo en pantalla ancha, donde las columnas se alinean */}
           <div
             aria-hidden="true"
-            className={`hidden gap-x-4 border-b border-linea bg-gris-50 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-texto-2 md:grid ${columnas}`}
+            className={`hidden gap-x-4 border-b border-linea bg-gris-50 px-4 py-3 text-xs font-medium text-texto-2 md:grid ${columnas}`}
           >
             <span />
             <span>{t.lista.producto}</span>
@@ -400,7 +399,7 @@ export function ListaProductos({
                     )}
                     <div className="min-w-0">
                       {/* El enlace del nombre cubre toda la fila; "Agregar costo" y el botón de variantes quedan por encima (z-10) */}
-                      <Link href={`/productos/${p.codigo}`} className="block truncate font-medium after:absolute after:inset-0">
+                      <Link href={`/productos/${p.codigo}`} className="block truncate font-semibold after:absolute after:inset-0">
                         {g.nombre}
                       </Link>
                       {g.conVariantes ? (
@@ -428,7 +427,7 @@ export function ListaProductos({
                     <p className="hidden text-right text-sm tabular-nums xl:order-4 xl:block">
                       {g.miembros.reduce((suma, m) => suma + m.vendidas, 0)}
                     </p>
-                    <p className="whitespace-nowrap font-bold md:order-5 md:text-right">{g.conVariantes ? rangoDePrecio(g) : formatearDolares(p.precio)}</p>
+                    <p className="whitespace-nowrap font-semibold tabular-nums md:order-5 md:text-right">{g.conVariantes ? rangoDePrecio(g) : formatearDolares(p.precio)}</p>
                     <div className="col-start-2 col-span-2 flex flex-wrap items-center justify-between gap-2 md:contents">
                       <div className="md:order-3">
                         <Stock {...(g.conVariantes ? stockDelGrupo(g, umbral) : stockDe(p, umbral))} />
@@ -453,7 +452,7 @@ export function ListaProductos({
                             </div>
                             <span aria-hidden="true" className="hidden xl:order-2 xl:block" />
                             <p className="hidden text-right text-sm tabular-nums xl:order-4 xl:block">{m.vendidas}</p>
-                            <p className="text-sm font-bold md:order-5 md:text-right">{formatearDolares(m.precio)}</p>
+                            <p className="text-sm font-semibold tabular-nums md:order-5 md:text-right">{formatearDolares(m.precio)}</p>
                             <div className="col-span-3 flex flex-wrap items-center justify-between gap-2 md:contents">
                               <div className="md:order-3">
                                 <Stock {...stockDe(m, umbral)} />

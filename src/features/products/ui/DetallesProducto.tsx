@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 import { MAX_DETALLES, MAX_NOMBRE_DETALLE, MAX_VALOR_DETALLE, type Detalle } from "../infoExtra";
@@ -16,7 +16,7 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
 
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="text-sm font-bold">{t.titulo}</legend>
+      <legend className="text-sm font-medium">{t.titulo}</legend>
       <p className="-mt-1 text-sm text-texto-2">{t.ayuda}</p>
       <input type="hidden" name="detalles" value={JSON.stringify(filas)} />
       <datalist id={`${id}-nombres`}>
@@ -56,7 +56,7 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
                 type="button"
                 onClick={() => onCambio(filas.filter((_, k) => k !== i))}
                 aria-label={t.quitar(i + 1)}
-                className="flex size-11 shrink-0 items-center justify-center rounded-full text-texto-2 hover:bg-teal-fondo hover:text-teal-oscuro"
+                className="flex size-11 shrink-0 items-center justify-center rounded-[14px] text-texto-2 hover:bg-gris-100 hover:text-teal-oscuro"
               >
                 <Icon nombre="x" />
               </button>
@@ -66,9 +66,10 @@ export function DetallesProducto({ filas, onCambio }: { filas: Detalle[]; onCamb
       )}
 
       {filas.length < MAX_DETALLES && (
-        <Button type="button" variante="suave" tamano="chico" icono="mas" className="self-start" onClick={() => onCambio([...filas, { nombre: "", valor: "" }])}>
+        <BotonPunch type="button" variante="secundario" className="self-start" onClick={() => onCambio([...filas, { nombre: "", valor: "" }])}>
+          <Icon nombre="mas" className="size-4" />
           {t.agregar}
-        </Button>
+        </BotonPunch>
       )}
     </fieldset>
   );

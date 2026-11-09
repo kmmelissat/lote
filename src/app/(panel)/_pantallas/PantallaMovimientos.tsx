@@ -131,7 +131,7 @@ export async function PantallaMovimientos({ searchParams }: { searchParams: Prom
       <input type="hidden" name="tipo" value={tipo} />
       <input type="hidden" name="metodo" value={metodo} />
       <input type="hidden" name="cuenta" value={cuenta} />
-      <CampoBusqueda compacto name="q" defaultValue={q} key={q} className="min-w-48 flex-1 md:max-w-md" aria-label={t.buscar.etiqueta} placeholder={t.buscar.placeholder} />
+      <CampoBusqueda name="q" defaultValue={q} key={q} className="min-w-48 flex-1 md:max-w-md" aria-label={t.buscar.etiqueta} placeholder={t.buscar.placeholder} />
       <FiltroDinero
         etiqueta={t.tipos.etiqueta}
         valor={tipo}

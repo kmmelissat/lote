@@ -23,7 +23,7 @@ import {
   reemplazarCostos,
 } from "../repositorio";
 import { nombresDeOpciones } from "../variantes";
-import { fotosDeVariante } from "../fotosVariantes";
+import { fotosDeVariante, fotosSueltas } from "../fotosVariantes";
 import type { EstadoNuevo } from "./nuevo";
 
 const t = textos.productos.form;
@@ -85,7 +85,9 @@ export async function editarGrupo(codigo: number, _anterior: EstadoNuevo, formDa
   const costosDe = (compra: number | null) => [...(compra === null ? [] : [{ tipo: "compra" as const, monto: compra }]), ...costos];
   // Las fotos del producto (arriba) van en todas las variantes y primero; después, las propias de cada una
   const fotosProducto = fotosValidas(valores.fotos, negocio.id);
-  const fotosDe = (rutas: string[]) => fotosDeVariante(fotosProducto, fotosValidas(JSON.stringify(rutas), negocio.id));
+  // Las de arriba que ninguna variante eligió se guardan en todas, para no perderlas
+  const sueltas = fotosSueltas(fotosProducto, filas.map((f) => fotosValidas(JSON.stringify(f.fotos), negocio.id)));
+  const fotosDe = (rutas: string[]) => fotosDeVariante(fotosProducto, fotosValidas(JSON.stringify(rutas), negocio.id), sueltas);
   const opciones = nombresDeOpciones(valores.opcionesNombres);
 
   for (const f of filas.filter((x) => x.id)) {

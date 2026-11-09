@@ -76,7 +76,7 @@ function Fichas({ etiqueta, valores, onCambio }: { etiqueta: string; valores: st
   return (
     <div className="flex min-h-12 flex-wrap items-center gap-2 rounded-[14px] border border-borde-control bg-superficie px-3 py-2 focus-within:border-teal">
       {valores.map((v) => (
-        <span key={v} className="inline-flex items-center gap-1 rounded-full border border-teal-oscuro bg-teal-fondo px-3 py-0.5 text-sm font-bold">
+        <span key={v} className="inline-flex items-center gap-1 rounded-lg border border-linea bg-teal-fondo px-2.5 py-0.5 text-sm font-medium text-teal-oscuro">
           {v}
           <button
             type="button"
@@ -189,8 +189,8 @@ export function EditorVariantes({
         }}
         aria-label={g.verFotos(nombre)}
         title={g.verFotos(nombre)}
-        className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border transition-colors hover:border-teal-oscuro ${
-          foto ? "border-teal-oscuro" : "border-dashed border-borde-control bg-superficie"
+        className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border transition-colors hover:border-teal ${
+          foto ? "border-linea" : "border-dashed border-borde-control/60 bg-gris-50"
         }`}
       >
         {foto ? <Image src={urlFoto(foto)} alt="" width={44} height={44} className="size-full object-cover" /> : <Icon nombre="camara" className="size-5 text-texto-2" />}
@@ -203,13 +203,13 @@ export function EditorVariantes({
     const f = filaDe(e, etiqueta);
     const nombre = agrupado ? restoDe(etiqueta) : etiqueta;
     return (
-      <li key={etiqueta} className={hijo ? "bg-fondo" : ""}>
+      <li key={etiqueta} className={hijo ? "bg-gris-50" : ""}>
         <div className={`${COLUMNAS} border-t border-borde px-3 py-2 ${hijo ? "pl-6 md:pl-10" : ""}`}>
           <div className="flex min-w-0 items-center gap-2">
             {miniatura([etiqueta], f.fotos, nombre)}
             <p className="min-w-0 font-bold">
               <span className="block truncate">{nombre}</span>
-              {!f.id && <span className="rounded-full bg-teal-fondo px-2 text-xs font-medium">{g.nueva}</span>}
+              {!f.id && <span className="rounded-lg bg-chip-celeste px-2 text-xs font-medium text-chip-texto-celeste">{g.nueva}</span>}
             </p>
           </div>
           {(["precio", "cantidad", "compra"] as const).map((k) => (
@@ -276,7 +276,7 @@ export function EditorVariantes({
         {e.opciones.map((o) => {
           if (o.id === editando) {
             return (
-              <li key={o.id} className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro p-4">
+              <li key={o.id} className="flex flex-col gap-3 rounded-2xl border border-teal p-4 ring-[3px] ring-teal/15">
                 <label className="flex flex-col gap-1">
                   <span className="text-sm font-bold">{t.opcionNombre}</span>
                   <input
@@ -305,14 +305,14 @@ export function EditorVariantes({
           }
           if (!o.valores.length) return null;
           return (
-            <li key={o.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-borde bg-fondo px-4 py-2.5">
+            <li key={o.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-linea bg-gris-50 px-4 py-2.5">
               <b className="min-w-16">
                 {o.nombre}
                 {deLotito && <ChipLotito />}
               </b>
               <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
                 {o.valores.map((v) => (
-                  <span key={v} className="rounded-full bg-superficie px-2.5 py-0.5 text-sm font-medium">
+                  <span key={v} className="rounded-lg border border-linea bg-superficie px-2.5 py-0.5 text-sm font-medium">
                     {v}
                   </span>
                 ))}
@@ -333,7 +333,7 @@ export function EditorVariantes({
         <div className="flex flex-col gap-2" aria-live="polite">
           {agrupado && <p className="text-sm text-texto-2">{t.ayudaGrupo}</p>}
           <div className="overflow-hidden rounded-2xl border border-borde">
-            <div aria-hidden="true" className={`${COLUMNAS} bg-fondo px-3 py-2 text-xs font-bold uppercase tracking-wide text-texto-2`}>
+            <div aria-hidden="true" className={`${COLUMNAS} bg-gris-50 px-3 py-2 text-xs font-medium uppercase tracking-wide text-texto-2`}>
               <span>{t.columnaVariante}</span>
               <span className="text-right">{g.precio}</span>
               <span className="text-right">{g.cantidad}</span>
@@ -383,7 +383,7 @@ export function EditorVariantes({
                             aria-expanded={abierto}
                             aria-label={abierto ? t.cerrarGrupo(grupo.clave) : t.abrirGrupo(grupo.clave)}
                             onClick={() => setAbiertos((a) => ({ ...a, [grupo.clave]: !abierto }))}
-                            className="flex size-9 items-center justify-center justify-self-end rounded-xl text-texto-2 hover:bg-fondo"
+                            className="flex size-9 items-center justify-center justify-self-end rounded-[12px] text-texto-2 hover:bg-gris-100"
                           >
                             <Icon nombre="flecha" className={`size-5 transition-transform ${abierto ? "rotate-180" : ""}`} />
                           </button>

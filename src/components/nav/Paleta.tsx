@@ -99,16 +99,16 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
 
   let grupoAnterior = "";
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-teal-oscuro/40 px-3 pt-[12vh]" onMouseDown={cerrar}>
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-teal-oscuro/30 px-3 pt-[12vh]" onMouseDown={cerrar}>
       <div
         role="dialog"
         aria-modal="true"
         aria-label={t.titulo}
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={alTeclear}
-        className="flex max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-[24px] border border-teal-oscuro bg-superficie shadow-dura"
+        className="flex max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-[24px] border border-linea bg-superficie shadow-xl"
       >
-        <div className="flex items-center gap-3 border-b border-teal-oscuro/15 px-4">
+        <div className="flex items-center gap-3 border-b border-linea px-4">
           <Icon nombre="buscar" className="size-5 shrink-0 text-texto-2" />
           <input
             ref={entrada}
@@ -120,9 +120,9 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
             }}
             placeholder={t.placeholder}
             aria-label={t.titulo}
-            className="h-14 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-texto-2"
+            className="h-14 min-w-0 flex-1 bg-transparent text-base text-teal-oscuro outline-none placeholder:text-texto-2"
           />
-          <kbd className="hidden rounded-md border border-borde px-1.5 py-0.5 text-xs text-texto-2 sm:block">Esc</kbd>
+          <kbd className="hidden rounded-md border border-linea bg-gris-50 px-1.5 py-0.5 text-xs text-texto-2 sm:block">Esc</kbd>
         </div>
         <ul className="flex flex-col overflow-y-auto p-2" role="listbox" aria-label={t.titulo}>
           {opciones.map((o, i) => {
@@ -130,16 +130,16 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
             grupoAnterior = o.grupo;
             return (
               <li key={o.clave} role="presentation">
-                {titulo && <p className="px-3 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-texto-2">{o.grupo}</p>}
+                {titulo && <p className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-texto-2">{o.grupo}</p>}
                 <button
                   type="button"
                   role="option"
                   aria-selected={i === activa}
                   onMouseEnter={() => setActiva(i)}
                   onClick={() => ir(o)}
-                  className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left ${i === activa ? "bg-teal-fondo" : ""}`}
+                  className={`flex min-h-11 w-full items-center gap-3 rounded-[12px] px-3 text-left ${i === activa ? "bg-gris-100" : ""}`}
                 >
-                  <Icon nombre={o.icono} className="size-5 shrink-0 text-teal" />
+                  <Icon nombre={o.icono} className="size-5 shrink-0 text-teal-oscuro" />
                   <span className="min-w-0 flex-1 truncate font-medium">{o.titulo}</span>
                   {o.detalle && <span className="shrink-0 truncate text-sm text-texto-2">{o.detalle}</span>}
                 </button>
@@ -149,16 +149,16 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
           {opciones.length === 0 && <li className="px-3 py-6 text-center text-texto-2">{buscando ? t.buscando : t.sinResultados}</li>}
           {!consulta.trim() && (
             <li className="flex flex-wrap items-center gap-2 px-3 pb-2 pt-3" role="presentation">
-              <span className="text-xs font-bold uppercase tracking-wide text-texto-2">{t.ejemplos}</span>
+              <span className="text-xs font-semibold uppercase tracking-wide text-texto-2">{t.ejemplos}</span>
               {t.ejemplosLista.map((e) => (
-                <button key={e} type="button" onClick={() => { setConsulta(e); setActiva(0); entrada.current?.focus(); }} className="min-h-8 rounded-full border border-borde px-3 text-sm font-medium hover:border-teal-oscuro">
+                <button key={e} type="button" onClick={() => { setConsulta(e); setActiva(0); entrada.current?.focus(); }} className="min-h-8 rounded-lg border border-linea px-3 text-sm font-medium text-teal-oscuro hover:bg-gris-50">
                   {e}
                 </button>
               ))}
             </li>
           )}
         </ul>
-        <p className="hidden border-t border-teal-oscuro/15 px-4 py-2 text-xs text-texto-2 sm:block">{t.ayuda}</p>
+        <p className="hidden border-t border-linea px-4 py-2 text-xs text-texto-2 sm:block">{t.ayuda}</p>
       </div>
     </div>
   );

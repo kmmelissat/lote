@@ -11,7 +11,7 @@ import { categoriaNoExiste, fotosValidas, leerCostos, leerNombreYPrecio, valores
 import { crearProducto } from "../repositorio";
 import { leerFilas, validarFilas, type ErrorGrupo } from "../edicionGrupo";
 import { nombresDeOpciones } from "../variantes";
-import { fotosDeVariante } from "../fotosVariantes";
+import { fotosDeVariante, fotosSueltas } from "../fotosVariantes";
 import { nombreConVariante } from "@/domain";
 import { esRutaFoto, urlFoto } from "@/lib/fotos";
 import { contextoDeLaTienda } from "@/features/store-settings/repositorio";
@@ -93,6 +93,8 @@ export async function nuevoProducto(
     const opcionesVariante = nombresDeOpciones(valores.opcionesNombres);
     const creados: number[] = [];
     let pagado = 0;
+    // Las fotos de arriba que ninguna variante eligió se guardan en todas, para no perderlas
+    const sueltas = fotosSueltas(fotos, validadas.filas.map((f) => fotosValidas(JSON.stringify(f.fotos), negocio.id)));
     // Una por una, para que los códigos queden en el orden de la tabla
     for (const f of validadas.filas) {
       const r = await crearProducto(supabase, negocio.id, {
@@ -101,7 +103,7 @@ export async function nuevoProducto(
         precio: f.precio,
         cantidad: f.cantidad,
         // Las que eligió la variante, en su orden (la primera es la que se ve); sin elegir, las generales
-        fotos: fotosDeVariante(fotos, fotosValidas(JSON.stringify(f.fotos), negocio.id)),
+        fotos: fotosDeVariante(fotos, fotosValidas(JSON.stringify(f.fotos), negocio.id), sueltas),
         costos: [...(f.compra === null ? [] : [{ tipo: "compra" as const, monto: f.compra }]), ...costos],
         grupo,
         variante: f.etiqueta,

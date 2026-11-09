@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { RUBROS, rubroDeCategoria, type RubroId } from "@/features/catalog/rubros";
 import { textos } from "@/lib/textos";
-import { ChipLotito, MensajeCampo } from "./campos";
+import { ChipLotito, MARCA_LOTITO, MensajeCampo, TRABAJANDO_LOTITO } from "./campos";
 
 const t = textos.productos.form.categorias;
 
@@ -41,11 +41,11 @@ export function SelectorCategoria({
     if (rubroDeCategoria(valor) !== nuevo) onCambio("");
   }
 
-  const marca = `${trabajando ? "animate-pulse bg-limon/40" : ""} ${lotito ? "border-teal-oscuro bg-limon/20" : ""}`;
+  const marca = `${trabajando ? TRABAJANDO_LOTITO : ""} ${lotito ? MARCA_LOTITO : ""}`;
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-bold">
+      <label htmlFor={id} className="text-sm font-medium">
         {etiqueta}
         {lotito && <ChipLotito />}
       </label>

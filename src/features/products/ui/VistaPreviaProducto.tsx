@@ -43,32 +43,32 @@ export function VistaPreviaProducto({
   children?: ReactNode;
 }) {
   const ficha = (
-    <div className="flex flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-white p-2 pb-3">
-      <div className="relative aspect-square overflow-hidden rounded-[18px] bg-teal-fondo">
+    <div className="flex flex-col gap-3 rounded-3xl border border-linea bg-superficie p-2 pb-4 shadow-xs">
+      <div className="relative aspect-square overflow-hidden rounded-[20px] bg-ficha-celeste">
         {foto ? (
           <Image src={urlFoto(foto)} alt="" fill sizes="320px" className="object-cover" />
         ) : (
-          <div className="flex size-full flex-col items-center justify-center gap-2 text-teal/70">
-            <Icon nombre="caja" className="size-10 text-teal/50" />
+          <div className="flex size-full flex-col items-center justify-center gap-2 text-chip-texto-celeste/70">
+            <Icon nombre="caja" className="size-10 text-chip-texto-celeste/50" />
             <span className="text-sm font-medium">{t.sinFoto}</span>
           </div>
         )}
         {categoria.trim() && (
-          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-full border border-teal-oscuro bg-crema px-2.5 py-0.5 text-xs font-bold">
+          <span className="absolute left-2 top-2 max-w-[60%] truncate rounded-lg border border-linea bg-superficie/90 px-2 py-0.5 text-xs font-medium text-teal-oscuro">
             {categoria.trim()}
           </span>
         )}
         {unidades <= POCAS_UNIDADES && (
-          <span className="absolute bottom-2 left-2 -rotate-2 rounded-full border border-teal-oscuro bg-rosa px-2.5 py-0.5 text-xs font-bold">
+          <span className="absolute bottom-2 left-2 rounded-lg bg-chip-amarillo px-2 py-0.5 text-xs font-medium text-chip-texto-amarillo">
             {e.ultimas(unidades)}
           </span>
         )}
       </div>
       <div className="flex flex-col gap-2 px-2">
-        <p className={`line-clamp-2 font-bold leading-tight ${nombre.trim() ? "" : "text-texto-2/60"}`}>{nombre.trim() || t.sinNombre}</p>
+        <p className={`line-clamp-2 font-medium leading-tight text-teal-oscuro ${nombre.trim() ? "" : "text-texto-2/60"}`}>{nombre.trim() || t.sinNombre}</p>
         <p className="flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
-          {variantes > 0 && <span className="text-xs font-bold text-texto-2">{e.desdeEtiqueta}</span>}
-          <span className="text-2xl font-extrabold leading-none tracking-tight">{precio || "$0.00"}</span>
+          {variantes > 0 && <span className="text-xs font-medium text-texto-2">{e.desdeEtiqueta}</span>}
+          <span className="text-2xl font-semibold leading-none tracking-tight text-teal-oscuro">{precio || "$0.00"}</span>
         </p>
         {variantes > 0 && <p className="text-xs font-medium text-texto-2">{t.variantesChip(variantes)}</p>}
         {children}
@@ -79,7 +79,7 @@ export function VistaPreviaProducto({
   return (
     <aside aria-label={t.vistaPrevia} className="flex flex-col gap-3">
       <div>
-        <h2 className="font-bold">{titulo ?? t.vistaPrevia}</h2>
+        <h2 className="font-semibold">{titulo ?? t.vistaPrevia}</h2>
         {ayuda !== null && <p className="text-sm text-texto-2">{ayuda ?? t.vistaPreviaAyuda}</p>}
       </div>
       {ficha}

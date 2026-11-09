@@ -3,6 +3,7 @@ import { aCentavos, aDolares, fechaLocalDe, type Centavos, type Descuento, type 
 import type { Busqueda } from "./busqueda";
 import type { PedidoDelMes } from "./delMes";
 import type { FiltrosPedido } from "./filtros";
+import type { PedidoParaAtender } from "./porAtender";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
@@ -113,10 +114,11 @@ export async function paginaDePedidos(
   negocioId: string,
   desde: number,
   cantidad: number,
-  filtros: { estado?: EstadoPedido; busqueda?: Busqueda } & FiltrosPedido = {},
+  filtros: { estado?: EstadoPedido; estados?: readonly EstadoPedido[]; masViejosPrimero?: boolean; busqueda?: Busqueda } & FiltrosPedido = {},
 ): Promise<Pedido[]> {
   let consulta = supabase.from("pedido").select(columnas).eq("negocio_id", negocioId);
   if (filtros.estado) consulta = consulta.eq("estado", filtros.estado);
+  if (filtros.estados) consulta = consulta.in("estado", [...filtros.estados]);
   if (filtros.canal) consulta = consulta.eq("canal", filtros.canal);
   if (filtros.desde) consulta = consulta.gte("creado_en", filtros.desde.toISOString());
   if (filtros.hasta) consulta = consulta.lt("creado_en", filtros.hasta.toISOString());
@@ -136,11 +138,36 @@ export async function paginaDePedidos(
     consulta = consulta.in("cliente_id", clientas.map((c) => c.id));
   }
   const { data, error } = await consulta
-    .order("creado_en", { ascending: false })
+    .order("creado_en", { ascending: filtros.masViejosPrimero === true })
     .order("id")
     .range(desde, desde + cantidad - 1);
   if (error) throw error;
   return data.map(aPedido);
+}
+
+export const ESTADOS_ABIERTOS = ["pendiente", "pagado", "preparando", "enviado"] as const satisfies readonly EstadoPedido[];
+const ESTADOS_CERRADOS = ["entregado", "cancelado"] as const satisfies readonly EstadoPedido[];
+
+/**
+ * Una página de todos los pedidos con los que siguen en marcha primero (pendiente a enviado) y después los cerrados
+ * (entregado y cancelado), cada grupo con los más recientes primero. `abiertos` es cuántos hay en marcha con estos
+ * filtros (sale de los contadores de las pestañas): sirve para saber dónde termina el primer grupo y cortar la página
+ * sin traer todo. No sirve con búsqueda por texto, que los contadores no cuentan.
+ */
+export async function paginaAbiertosPrimero(
+  supabase: Cliente,
+  negocioId: string,
+  desde: number,
+  cantidad: number,
+  abiertos: number,
+  filtros: FiltrosPedido = {},
+): Promise<Pedido[]> {
+  const hasta = desde + cantidad;
+  const deAbiertos = desde < abiertos ? await paginaDePedidos(supabase, negocioId, desde, Math.min(hasta, abiertos) - desde, { ...filtros, estados: ESTADOS_ABIERTOS, masViejosPrimero: true }) : [];
+  const faltan = cantidad - deAbiertos.length;
+  if (faltan <= 0) return deAbiertos;
+  const deCerrados = await paginaDePedidos(supabase, negocioId, Math.max(0, desde - abiertos), faltan, { ...filtros, estados: ESTADOS_CERRADOS });
+  return [...deAbiertos, ...deCerrados];
 }
 
 /** Cuántos pedidos hay en cada estado (para los contadores de las pestañas), con los mismos filtros que la lista. */
@@ -196,6 +223,26 @@ export async function buscarPedidos(
     .limit(200);
   if (error) throw error;
   return data.map(aPedido);
+}
+
+/**
+ * Los pedidos abiertos con solo lo que hace falta para contar qué pide atención (`pedidosPorAtender`): sin cliente,
+ * productos ni fotos. Para pantallas que solo muestran cifras o avisos.
+ */
+export async function pedidosAbiertosLivianos(supabase: Cliente, negocioId: string): Promise<PedidoParaAtender[]> {
+  const { data, error } = await supabase
+    .from("pedido")
+    .select("estado, vence_en, contra_entrega, creado_en")
+    .eq("negocio_id", negocioId)
+    .in("estado", ["pendiente", "pagado", "preparando", "enviado"])
+    .limit(1000);
+  if (error) throw error;
+  return data.map((f) => ({
+    estado: f.estado as EstadoPedido,
+    venceEn: f.vence_en ? new Date(f.vence_en) : null,
+    contraEntrega: f.contra_entrega,
+    creadoEn: new Date(f.creado_en),
+  }));
 }
 
 export async function obtenerPedido(

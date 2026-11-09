@@ -91,19 +91,21 @@ export function ListaMenuVertical({
             <ul className="flex flex-col gap-0.5">
               {filas.map((p) => {
                 const activa = ruta !== null && activaEn(ruta, p.href);
+                // Si una opción de adentro está activa, la marca esa y la fila de la sección queda sin píldora (para no repetir)
+                const hijaActivaAlguna = ruta !== null && (SUBMENU[p.href]?.some((h) => activaEn(ruta, h.href)) ?? false);
                 const fondo = FICHA_SECCION[p.href] ?? "text-texto-2";
                 const enlace = (
                   <Link
                     href={p.href}
                     aria-current={activa ? "page" : undefined}
                     title={p.etiqueta}
-                    className={`group/fila ${filaClase} ${activa ? "activa border-transparent bg-superficie font-bold shadow-xs group-data-[cerrado]:bg-transparent group-data-[cerrado]:shadow-none" : "border-transparent hover:bg-superficie/70"}`}
+                    className={`group/fila ${filaClase} ${activa && !hijaActivaAlguna ? "activa border-transparent bg-superficie font-bold shadow-xs group-data-[cerrado]:bg-transparent group-data-[cerrado]:shadow-none" : activa ? "activa border-transparent font-bold hover:bg-superficie/70" : "border-transparent hover:bg-superficie/70"}`}
                   >
                     {fila(p.icono, p.etiqueta, activa, fondo, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} enCamino={enCamino} /> : null)}
                   </Link>
                 );
                 const hijos = SUBMENU[p.href] ? (
-                  <ul className={`ml-[1.4rem] mt-0.5 flex flex-col gap-0.5 border-l border-linea pl-2 group-data-[cerrado]:hidden ${grande ? "text-base" : "text-sm"}`}>
+                  <ul className={`ml-[1.4rem] mt-0.5 flex flex-col border-l border-linea pl-1.5 group-data-[cerrado]:hidden ${grande ? "text-base" : "text-sm"}`}>
                     {SUBMENU[p.href]!.map((h) => {
                       const hijaActiva = ruta !== null && activaEn(ruta, h.href);
                       return (
@@ -111,7 +113,7 @@ export function ListaMenuVertical({
                           <Link
                             href={h.href}
                             aria-current={hijaActiva ? "page" : undefined}
-                            className={`flex ${grande ? "min-h-11" : "min-h-9"} items-center rounded-xl px-3 transition-colors ${hijaActiva ? "bg-superficie font-semibold text-teal-oscuro shadow-xs" : "text-texto-2 hover:bg-superficie/70 hover:text-teal-oscuro"}`}
+                            className={`-ml-px flex ${grande ? "min-h-11" : "min-h-9"} items-center border-l-2 px-3 transition-colors ${hijaActiva ? "border-teal-oscuro font-medium text-teal-oscuro" : "border-transparent text-texto-2 hover:border-borde-control hover:text-teal-oscuro"}`}
                           >
                             {h.etiqueta}
                           </Link>

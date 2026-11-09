@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BotonIconoLink } from "@/components/ui/BotonIcono";
-import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { TablaPunch, type ColumnaTabla } from "@/components/ui/TablaPunch";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { urlFoto } from "@/lib/fotos";
 import { formatearDolares, formatearFecha, tiempoRestante } from "@/lib/formato";
@@ -23,10 +23,10 @@ export const clasesUrgencia = {
 function chipDe(p: Pedido) {
   if (p.estado === "pendiente") {
     return p.contraEntrega
-      ? { texto: t.lista.contraEntrega, clase: "bg-celeste text-teal-oscuro", icono: "camion" as const }
-      : { texto: t.lista.esperandoPago, clase: "bg-limon text-teal-oscuro", icono: "reloj" as const };
+      ? { texto: t.lista.contraEntrega, clase: "bg-chip-celeste text-chip-texto-celeste", icono: "camion" as const }
+      : { texto: t.lista.esperandoPago, clase: "bg-chip-amarillo text-chip-texto-amarillo", icono: "reloj" as const };
   }
-  return { texto: t.canales[p.canal], clase: "bg-fondo text-teal-oscuro", icono: null };
+  return { texto: t.canales[p.canal], clase: "bg-gris-100 text-chip-texto-neutro", icono: null };
 }
 
 function Chip({ p, mostrarEstado }: { p: Pedido; mostrarEstado: boolean }) {
@@ -34,7 +34,7 @@ function Chip({ p, mostrarEstado }: { p: Pedido; mostrarEstado: boolean }) {
   if (mostrarEstado) return <StatusChip estado={p.estado} discreto />;
   const chip = chipDe(p);
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-bold ${chip.clase}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ring-teal-oscuro/10 ${chip.clase}`}>
       {chip.icono && <Icon nombre={chip.icono} className="size-4" />}
       {chip.texto}
     </span>
@@ -59,9 +59,9 @@ function Avisos({ p, ahora }: { p: Pedido; ahora: Date }) {
 function Foto({ p }: { p: Pedido }) {
   const foto = p.items.find((i) => i.foto)?.foto;
   return foto ? (
-    <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-xl border border-teal-oscuro/20 object-cover" />
+    <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-[14px] border border-linea object-cover" />
   ) : (
-    <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro/20 bg-fondo text-texto-2">
+    <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-ficha-celeste text-teal-oscuro">
       <Icon nombre="caja" className="size-5" />
     </span>
   );
@@ -97,88 +97,91 @@ export function ListaPedidos({
   puedeVender: boolean;
   mostrarEstado?: boolean;
 }) {
-  return (
-    <div className="@container">
-      {/* Tabla */}
-      <Card className="hidden overflow-hidden p-0 md:p-0 @2xl:block">
-        <table className="w-full text-left">
-          <thead className="border-b border-borde text-xs uppercase tracking-wide text-texto-2">
-            <tr>
-              <th scope="col" className="px-4 py-2 font-medium">{t.lista.producto}</th>
-              <th scope="col" className="px-2 py-2 font-medium">{t.lista.cliente}</th>
-              <th scope="col" className="px-2 py-2 font-medium">{t.lista.pedido}</th>
-              <th scope="col" className="px-2 py-2 text-right font-medium">{t.lista.total}</th>
-              <th scope="col" className="px-2 py-2 font-medium">{t.lista.estado}</th>
-              <th scope="col" className="px-4 py-2 text-right font-medium">{t.lista.accion}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pedidos.map((p) => (
-              <tr key={p.id} className="border-t border-borde first:border-t-0 hover:bg-teal-fondo">
-                <td className="max-w-64 px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Foto p={p} />
-                    <span className="truncate font-medium" title={productosDe(p)}>
-                      {p.items[0]?.nombre ?? t.pedido(p.codigo)}
-                      {p.items.length > 1 && <span className="font-normal text-texto-2"> {textos.inicio.masProductos(p.items.length - 1)}</span>}
-                    </span>
-                  </div>
-                </td>
-                <td className="max-w-40 truncate px-2 py-3">{p.cliente ?? t.sinCliente}</td>
-                <td className="px-2 py-3 text-sm">
-                  <Link href={`/pedidos/${p.codigo}`} className="font-medium text-teal underline">
-                    #{p.codigo}
-                  </Link>
-                  <span className="block text-texto-2">{formatearFecha(p.creadoEn)}</span>
-                </td>
-                <td className="whitespace-nowrap px-2 py-3 text-right font-bold">{formatearDolares(p.total)}</td>
-                <td className="px-2 py-3">
-                  <div className="flex flex-col items-start gap-1">
-                    <Chip p={p} mostrarEstado={mostrarEstado} />
-                    <Avisos p={p} ahora={ahora} />
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-2">
-                    <Accion p={p} puedeVender={puedeVender} />
-                    <BotonIconoLink variante="suave" tamano="chico" icono="diagonal" etiqueta={t.lista.detalles} href={`/pedidos/${p.codigo}`} />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Card>
+  const columnas: ColumnaTabla<Pedido>[] = [
+    {
+      id: "producto",
+      encabezado: t.lista.producto,
+      ancho: "max-w-64",
+      celda: (p) => (
+        <div className="flex items-center gap-3">
+          <Foto p={p} />
+          <span className="truncate font-semibold" title={productosDe(p)}>
+            {p.items[0]?.nombre ?? t.pedido(p.codigo)}
+            {p.items.length > 1 && <span className="font-normal text-texto-2"> {textos.inicio.masProductos(p.items.length - 1)}</span>}
+          </span>
+        </div>
+      ),
+    },
+    { id: "cliente", encabezado: t.lista.cliente, ancho: "max-w-40", celda: (p) => <span className="block truncate">{p.cliente ?? t.sinCliente}</span> },
+    {
+      id: "pedido",
+      encabezado: t.lista.pedido,
+      sinCorte: true,
+      celda: (p) => (
+        <>
+          <Link href={`/pedidos/${p.codigo}`} className="font-semibold text-teal-oscuro hover:underline">
+            #{p.codigo}
+          </Link>
+          <span className="block text-texto-2">{formatearFecha(p.creadoEn)}</span>
+        </>
+      ),
+    },
+    { id: "total", encabezado: t.lista.total, alinear: "derecha", sinCorte: true, celda: (p) => <span className="font-semibold">{formatearDolares(p.total)}</span> },
+    {
+      id: "estado",
+      encabezado: t.lista.estado,
+      celda: (p) => (
+        <div className="flex flex-col items-start gap-1">
+          <Chip p={p} mostrarEstado={mostrarEstado} />
+          <Avisos p={p} ahora={ahora} />
+        </div>
+      ),
+    },
+    {
+      id: "accion",
+      encabezado: t.lista.accion,
+      alinear: "derecha",
+      etiquetaOculta: true,
+      celda: (p) => (
+        <div className="flex items-center justify-end gap-2">
+          <Accion p={p} puedeVender={puedeVender} />
+          <BotonIconoLink variante="suave" tamano="chico" icono="diagonal" etiqueta={t.lista.detalles} href={`/pedidos/${p.codigo}`} />
+        </div>
+      ),
+    },
+  ];
 
-      {/* Lista apilada */}
-      <Card className="overflow-hidden p-0 md:p-0 @2xl:hidden"><ul>
-        {pedidos.map((p) => (
-          <li key={p.id} className="relative flex flex-col gap-2 border-t border-borde px-4 py-3 first:border-t-0 hover:bg-teal-fondo">
-            <div className="flex items-start gap-3">
-              <Foto p={p} />
-              <div className="min-w-0 flex-1">
-                {/* El enlace cubre toda la fila; el botón de acción queda por encima (z-10) */}
-                <Link href={`/pedidos/${p.codigo}`} className="block truncate font-medium after:absolute after:inset-0">
-                  {p.cliente ?? t.sinCliente}
-                </Link>
-                <p className="truncate text-sm text-texto-2">
-                  {t.pedido(p.codigo)} · {formatearFecha(p.creadoEn)}
-                </p>
-                <p className="truncate text-sm text-texto-2">{productosDe(p)}</p>
-              </div>
-              <p className="font-bold">{formatearDolares(p.total)}</p>
+  return (
+    <TablaPunch
+      etiqueta={t.titulo}
+      columnas={columnas}
+      filas={pedidos}
+      clave={(p) => p.id}
+      apilada={(p) => (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-start gap-3">
+            <Foto p={p} />
+            <div className="min-w-0 flex-1">
+              {/* El enlace cubre toda la fila; el botón de acción queda por encima (z-10) */}
+              <Link href={`/pedidos/${p.codigo}`} className="block truncate font-semibold after:absolute after:inset-0">
+                {p.cliente ?? t.sinCliente}
+              </Link>
+              <p className="truncate text-sm text-texto-2">
+                {t.pedido(p.codigo)} · {formatearFecha(p.creadoEn)}
+              </p>
+              <p className="truncate text-sm text-texto-2">{productosDe(p)}</p>
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 pl-15">
-              <div className="flex flex-col items-start gap-1">
-                <Chip p={p} mostrarEstado={mostrarEstado} />
-                <Avisos p={p} ahora={ahora} />
-              </div>
-              <Accion p={p} puedeVender={puedeVender} />
+            <p className="font-semibold tabular-nums">{formatearDolares(p.total)}</p>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 pl-15">
+            <div className="flex flex-col items-start gap-1">
+              <Chip p={p} mostrarEstado={mostrarEstado} />
+              <Avisos p={p} ahora={ahora} />
             </div>
-          </li>
-        ))}
-      </ul>
-      </Card>
-    </div>
+            <Accion p={p} puedeVender={puedeVender} />
+          </div>
+        </div>
+      )}
+    />
   );
 }

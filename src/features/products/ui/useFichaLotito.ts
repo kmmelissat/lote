@@ -149,9 +149,10 @@ export function useFichaLotito({
     });
   }
 
-  function cambiarFotos(nuevas: string[]) {
+  /** Solo lee la foto principal si es una foto nueva: reordenar o quitar fotos que ya estaban no vuelve a llenar la ficha. */
+  function cambiarFotos(nuevas: string[], anteriores: readonly string[] = []) {
     setRutas(nuevas);
-    if (nuevas[0] && nuevas[0] !== leida.current) leerFoto(nuevas[0]);
+    if (nuevas[0] && nuevas[0] !== leida.current && !anteriores.includes(nuevas[0])) leerFoto(nuevas[0]);
   }
 
   const editar = (campo: CampoLotito) => (valor: string) => {

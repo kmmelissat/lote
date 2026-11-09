@@ -4,11 +4,21 @@ import { MAXIMO_FOTOS } from "./limites";
 // carrito y listas); las generales (las del producto, arriba en el formulario) vienen después.
 
 /**
- * Lo que se guarda en una variante: las que eligió de «Mi galería» (en el orden en que las eligió), sin repetir y hasta el
- * tope. Si no eligió ninguna, usa todas las de la galería (las de arriba).
+ * Las fotos del producto (las de arriba) que ninguna variante eligió: sin esto se perderían al guardar, porque las fotos
+ * solo se guardan dentro de cada variante.
  */
-export function fotosDeVariante(galeria: readonly string[], elegidas: readonly string[]): string[] {
-  return [...new Set(elegidas.length ? elegidas : galeria)].slice(0, MAXIMO_FOTOS);
+export function fotosSueltas(galeria: readonly string[], eleccionDeCadaVariante: readonly (readonly string[])[]): string[] {
+  const usadas = new Set(eleccionDeCadaVariante.flat());
+  return galeria.filter((f) => !usadas.has(f));
+}
+
+/**
+ * Lo que se guarda en una variante: las que eligió de «Mi galería» (en el orden en que las eligió), sin repetir y hasta el
+ * tope, y después las del producto que ninguna variante eligió (`sueltas`, de `fotosSueltas`). Si no eligió ninguna, usa todas
+ * las de la galería (las de arriba).
+ */
+export function fotosDeVariante(galeria: readonly string[], elegidas: readonly string[], sueltas: readonly string[] = []): string[] {
+  return [...new Set(elegidas.length ? [...elegidas, ...sueltas] : galeria)].slice(0, MAXIMO_FOTOS);
 }
 
 /**

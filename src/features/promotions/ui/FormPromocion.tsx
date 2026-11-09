@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { AtajosDeFechas } from "@/components/ui/AtajosDeFechas";
 import { BarraFormulario } from "@/components/ui/BarraFormulario";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { BotonPunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
@@ -118,9 +117,9 @@ export function FormPromocion({ tipo, productos }: { tipo: TipoPromocion; produc
   }
 
   const boton = (
-    <Button type="submit" variante="mango" disabled={pendiente || pendientes.length > 0} className="w-full">
+    <BotonPunch type="submit" disabled={pendiente || pendientes.length > 0} className="w-full">
       {pendiente ? t.creando : t.crear}
-    </Button>
+    </BotonPunch>
   );
 
   return (
@@ -132,10 +131,10 @@ export function FormPromocion({ tipo, productos }: { tipo: TipoPromocion; produc
         if (!pendientes.length) crear();
       }}
     >
-      <Card role="region" aria-label={t.nueva} className="flex min-w-0 flex-col gap-6">
+      <div role="region" aria-label={t.nueva} className={`${TARJETA_PUNCH} flex min-w-0 flex-col gap-6`}>
         <section aria-labelledby="productos-promocion" className="flex flex-col gap-3">
           <div>
-            <h2 id="productos-promocion" className="font-bold">
+            <h2 id="productos-promocion" className="font-semibold text-teal-oscuro">
               {t.productos}
             </h2>
             <p className="text-sm text-texto-2">{tipo === "pack" ? t.productosPack : t.productosLlevasPagas}</p>
@@ -223,7 +222,7 @@ export function FormPromocion({ tipo, productos }: { tipo: TipoPromocion; produc
         </fieldset>
 
         <Field etiqueta={t.nombre} value={nombre} maxLength={60} placeholder={sugerido} onChange={(e) => setNombre(e.target.value)} />
-      </Card>
+      </div>
 
       <aside className="min-w-0 xl:sticky xl:top-4">
         <VistaPreviaPromocion

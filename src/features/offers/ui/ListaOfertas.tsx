@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { useConfirmar } from "@/components/ui/Confirmar";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { TarjetaPromocion } from "@/components/ui/TarjetaPromocion";
@@ -46,7 +46,7 @@ export function ListaOfertas({ ofertas }: { ofertas: OfertaDeTienda[] }) {
 
   return (
     <section aria-labelledby="ofertas-en-curso" className="flex flex-col gap-3">
-      <h2 id="ofertas-en-curso" className="text-lg font-bold">
+      <h2 id="ofertas-en-curso" className="text-lg font-semibold text-teal-oscuro">
         {t.titulo}
       </h2>
       <MensajeError>{error}</MensajeError>
@@ -65,9 +65,9 @@ export function ListaOfertas({ ofertas }: { ofertas: OfertaDeTienda[] }) {
                 cubre={x.productos.length > 1 ? textos.promociones.variantes(x.productos.length) : undefined}
                 fechas={o.fechas(formatearDia(x.desde), formatearDia(x.hasta))}
                 pie={
-                  <Button type="button" variante="suave" tamano="chico" disabled={pendiente} onClick={() => cancelar(x.lote)}>
+                  <BotonPunch type="button" variante="secundario" disabled={pendiente} onClick={() => cancelar(x.lote)}>
                     {pendiente ? o.cancelando : o.cancelar}
-                  </Button>
+                  </BotonPunch>
                 }
               />
             </li>

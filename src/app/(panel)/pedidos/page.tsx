@@ -2,24 +2,18 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import { PageHeader } from "@/components/nav/PageHeader";
 import { Pestanas } from "@/components/nav/Pestanas";
-import { ButtonLink } from "@/components/ui/Button";
+import { EnlacePunch } from "@/components/ui/BotonesPunch";
 import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
-import { ResumenCompacto } from "@/components/ui/ResumenCompacto";
-import { colorDeEstado } from "@/components/ui/StatusChip";
-import { rangoPeriodo } from "@/domain";
 import { interpretarBusqueda } from "@/features/orders/busqueda";
 import { cuantosFiltros, filtrosDeConsulta, leerFiltros } from "@/features/orders/filtros";
+import { FranjaPedidos } from "@/features/orders/ui/FranjaPedidos";
 import { FiltrosPedidos } from "@/features/orders/ui/FiltrosPedidos";
-import { resumenDelMes } from "@/features/orders/delMes";
-import { DIAS_EN_CAMINO, pedidosPorAtender, pedidosUrgentes } from "@/features/orders/porAtender";
-import { buscarPedidos, contarPedidosPorEstado, paginaDePedidos, pedidosDesde } from "@/features/orders/repositorio";
+import { DIAS_EN_CAMINO, pedidosPorAtender } from "@/features/orders/porAtender";
+import { contarPedidosPorEstado, paginaAbiertosPrimero, paginaDePedidos, pedidosAbiertosLivianos } from "@/features/orders/repositorio";
 import { ListaPedidos } from "@/features/orders/ui/ListaPedidos";
-import { ParaAtender } from "@/features/orders/ui/ParaAtender";
-import { ResumenDelMes } from "@/features/orders/ui/ResumenDelMes";
 import { porCobrar } from "@/features/profit/repositorio";
-import { formatearDolares } from "@/lib/formato";
 import { negocioActual } from "@/lib/negocio";
 import { conBusqueda } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
@@ -31,13 +25,21 @@ export const metadata: Metadata = { title: t.titulo };
 const ESTADOS = ["pendiente", "pagado", "preparando", "enviado", "entregado"] as const;
 const PESTANAS = ["todos", ...ESTADOS] as const;
 type Pestana = (typeof PESTANAS)[number];
+/** El color de cada estado, como puntito en su pestaña (los mismos tonos de los chips) */
+const PUNTO: Record<Pestana, string | undefined> = {
+  todos: undefined,
+  pendiente: "bg-[#d19200]",
+  pagado: "bg-[#7c5cd6]",
+  preparando: "bg-[#e0527f]",
+  enviado: "bg-[#3aa8d6]",
+  entregado: "bg-[#3fb77a]",
+};
 const esPestana = (s: string | undefined): s is Pestana => PESTANAS.includes(s as Pestana);
 
 /** Todas las listas van por páginas: con el tiempo, un solo estado (los entregados) puede pasar de cientos de pedidos. */
 const POR_PAGINA = 30;
 
 /** Ahí está quién debe y el botón para cobrarle por WhatsApp. */
-const CLIENTES_CON_SALDO = conBusqueda("/clientes", "saldo=1");
 
 export default function Page({ searchParams }: PageProps<"/pedidos">) {
   return <Lista searchParams={searchParams} />;
@@ -54,23 +56,21 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
   const { supabase, negocio } = await negocioActual();
   const ahora = new Date();
   const filtros = filtrosDeConsulta(elegidos, ahora);
-  const [pedidos, cuentas, debido, abiertos, recientes] = await Promise.all([
-    // Uno de más, solo para saber si hay otra página
-    paginaDePedidos(supabase, negocio.id, (pagina - 1) * POR_PAGINA, POR_PAGINA + 1, {
-      estado: estado === "todos" ? undefined : estado,
-      busqueda,
-      ...filtros,
-    }),
+  const desdeFila = (pagina - 1) * POR_PAGINA;
+  // Uno de más, solo para saber si hay otra página
+  const cuantos = POR_PAGINA + 1;
+  const [cuentas, debido, abiertos] = await Promise.all([
     contarPedidosPorEstado(supabase, negocio.id, filtros),
     porCobrar(supabase, negocio.id),
-    buscarPedidos(supabase, negocio.id, ["pendiente", "pagado", "preparando", "enviado"]),
-    pedidosDesde(supabase, negocio.id, rangoPeriodo("mes", ahora, -1).desde),
+    pedidosAbiertosLivianos(supabase, negocio.id),
   ]);
+  // En "Todos" los que siguen en marcha van primero; con búsqueda por texto, solo por fecha (los contadores no la cuentan)
+  const enMarcha = cuentas.pendiente + cuentas.pagado + cuentas.preparando + cuentas.enviado;
+  const pedidos =
+    estado === "todos" && !q
+      ? await paginaAbiertosPrimero(supabase, negocio.id, desdeFila, cuantos, enMarcha, filtros)
+      : await paginaDePedidos(supabase, negocio.id, desdeFila, cuantos, { estado: estado === "todos" ? undefined : estado, busqueda, ...filtros });
   const atender = pedidosPorAtender(abiertos, ahora);
-  const enCamino = abiertos.filter((p) => p.estado === "enviado").length;
-  const mes = resumenDelMes(recientes, ahora);
-  // "Por enviar" junta tres grupos: el enlace abre el primero que tenga algo
-  const estadoPorEnviar = atender.pagados ? "pagado" : atender.preparando ? "preparando" : atender.contraEntrega ? "pendiente" : "pagado";
   const total = Object.values(cuentas).reduce((suma, n) => suma + n, 0);
   const hayMas = pedidos.length > POR_PAGINA;
   const visibles = pedidos.slice(0, POR_PAGINA);
@@ -92,60 +92,19 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
         descripcion={t.descripcion}
         accion={
           negocio.puedeVender ? (
-            <ButtonLink href="/vender" variante="mango" icono="mas" className="w-full md:w-auto">
+            <EnlacePunch href="/vender" variante="primario" className="w-full md:w-auto">
+              <Icon nombre="mas" className="size-4" />
               {t.registrar}
-            </ButtonLink>
+            </EnlacePunch>
           ) : undefined
         }
       />
       <div className="flex flex-col gap-4">
-        {/* Lo principal: qué tocar hoy y cómo va el mes. Las cifras de cada estado van debajo, en chico */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <ParaAtender urgentes={pedidosUrgentes(abiertos, ahora)} ahora={ahora} />
-          {/* En el celular el mes va plegado: es contexto, y la lista de pedidos no tiene que quedar tan abajo */}
-          <details className="group md:hidden">
-            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between rounded-[24px] border border-teal-oscuro bg-superficie px-4 font-bold [&::-webkit-details-marker]:hidden">
-              {t.mes.verMes}
-              <Icon nombre="flecha" className="size-5 transition-transform group-open:rotate-180" />
-            </summary>
-            <ResumenDelMes mes={mes} className="mt-2" />
-          </details>
-          <ResumenDelMes mes={mes} className="hidden md:flex" />
-        </div>
-
-        <ResumenCompacto
-          titulo={t.stats.titulo}
-          datos={[
-            {
-              etiqueta: t.stats.porCobrar,
-              valor: formatearDolares(debido.monto),
-              nota: t.stats.porCobrarNota(debido.pedidos),
-              banda: colorDeEstado("pagado"),
-              href: CLIENTES_CON_SALDO,
-            },
-            {
-              etiqueta: t.stats.esperando,
-              valor: atender.porPagar,
-              nota: t.stats.esperandoNota(atender.porPagar),
-              aviso: atender.seEnfrian.length ? t.stats.porVencer(atender.seEnfrian.length) : undefined,
-              banda: colorDeEstado("pendiente"),
-              href: enlace({ estado: "pendiente", sinFiltros: true }),
-            },
-            {
-              etiqueta: t.stats.porEnviar,
-              valor: atender.porEnviar,
-              nota: t.stats.porEnviarNota(atender),
-              banda: colorDeEstado("preparando"),
-              href: enlace({ estado: estadoPorEnviar, sinFiltros: true }),
-            },
-            {
-              etiqueta: t.stats.enCamino,
-              valor: enCamino,
-              nota: atender.atascados ? t.stats.atascadosNota : t.stats.enCaminoNota,
-              aviso: atender.atascados ? t.stats.atascados(atender.atascados, DIAS_EN_CAMINO) : undefined,
-              banda: colorDeEstado("enviado"),
-              href: enlace({ estado: "enviado", sinFiltros: true }),
-            },
+        <FranjaPedidos
+          debido={debido}
+          avisos={[
+            ...(atender.seEnfrian.length ? [{ texto: t.stats.porVencer(atender.seEnfrian.length), href: enlace({ estado: "pendiente", sinFiltros: true }) }] : []),
+            ...(atender.atascados ? [{ texto: t.stats.atascados(atender.atascados, DIAS_EN_CAMINO), href: enlace({ estado: "enviado", sinFiltros: true }) }] : []),
           ]}
         />
 
@@ -164,9 +123,10 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
               placeholder={t.buscar.placeholder}
             />
             {q && (
-              <ButtonLink href={enlace({ sinQ: true })} variante="suave" icono="x">
+              <EnlacePunch href={enlace({ sinQ: true })} variante="secundario">
+                <Icon nombre="x" className="size-4" />
                 {t.buscar.quitar}
-              </ButtonLink>
+              </EnlacePunch>
             )}
           </Form>
           <FiltrosPedidos elegidos={elegidos} estado={estado} q={q} />
@@ -180,6 +140,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
             etiqueta: p === "todos" ? t.lista.todos : textos.estadosPedido[p],
             href: enlace({ estado: p }),
             cantidad: p === "todos" ? total : cuentas[p],
+            punto: PUNTO[p],
           }))}
         />
 
@@ -203,18 +164,19 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
         {(pagina > 1 || hayMas) && (
           <nav aria-label={t.lista.paginas} className="flex items-center justify-between gap-3">
             {pagina > 1 ? (
-              <ButtonLink href={enlace({ pagina: pagina - 1 })} variante="suave" icono="atras">
+              <EnlacePunch href={enlace({ pagina: pagina - 1 })} variante="secundario">
+                <Icon nombre="atras" className="size-4" />
                 {t.lista.anterior}
-              </ButtonLink>
+              </EnlacePunch>
             ) : (
               <span />
             )}
             <span className="text-sm text-texto-2">{t.lista.pagina(pagina)}</span>
             {hayMas ? (
-              <ButtonLink href={enlace({ pagina: pagina + 1 })} variante="suave">
+              <EnlacePunch href={enlace({ pagina: pagina + 1 })} variante="secundario">
                 {t.lista.siguiente}
-                <Icon nombre="adelante" className="size-5" />
-              </ButtonLink>
+                <Icon nombre="adelante" className="size-4" />
+              </EnlacePunch>
             ) : (
               <span />
             )}

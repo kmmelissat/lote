@@ -29,13 +29,13 @@ export function Ventana({
     <dialog
       ref={ref}
       aria-labelledby={id}
-      className={`m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] ${amplia ? "w-[min(46rem,calc(100vw-1.5rem))]" : "w-[min(32rem,calc(100vw-1.5rem))]"} overflow-y-auto rounded-[24px] border border-teal-oscuro bg-superficie p-0 backdrop:bg-teal-oscuro/40`}
+      className={`m-auto max-h-[min(90dvh,calc(100dvh-1.5rem))] ${amplia ? "w-[min(46rem,calc(100vw-1.5rem))]" : "w-[min(32rem,calc(100vw-1.5rem))]"} overflow-y-auto rounded-3xl border border-linea bg-superficie p-0 shadow-lg backdrop:bg-teal-oscuro/40`}
       onClick={(e) => e.target === e.currentTarget && cerrar()}
     >
       <div className="flex flex-col gap-4 p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 id={id} className="text-lg font-bold">
+            <h2 id={id} className="text-lg font-semibold text-teal-oscuro">
               {titulo}
             </h2>
             {ayuda && <p className="text-sm text-texto-2">{ayuda}</p>}
@@ -44,7 +44,7 @@ export function Ventana({
             type="button"
             aria-label={textos.comun.cerrarVentana}
             onClick={cerrar}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-teal-fondo"
+            className="flex size-9 shrink-0 items-center justify-center rounded-[10px] text-texto-2 transition-colors hover:bg-gris-100 hover:text-teal-oscuro"
           >
             <Icon nombre="x" className="size-5" />
           </button>

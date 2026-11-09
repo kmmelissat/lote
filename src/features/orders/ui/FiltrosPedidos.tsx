@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
+import { Icon } from "@/components/ui/Icon";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { conBusqueda } from "@/lib/ruta";
 import { textos } from "@/lib/textos";
@@ -69,17 +70,17 @@ export function FiltrosPedidos({ elegidos, estado, q }: { elegidos: FiltrosElegi
 
   return (
     <div ref={raiz} className="relative">
-      <Button
+      <BotonPunch
         type="button"
-        variante="suave"
-        icono="filtros"
+        variante="secundario"
         aria-expanded={abierto}
         aria-controls="filtros-pedidos"
         onClick={() => setAbierto((a) => !a)}
       >
+        <Icon nombre="filtros" className="size-4" />
         {t.boton}
-        {activos > 0 && <span className="rounded-full bg-teal-oscuro px-2 text-xs tabular-nums text-white">{activos}</span>}
-      </Button>
+        {activos > 0 && <span className="rounded-md bg-teal-oscuro px-1.5 text-xs tabular-nums text-white">{activos}</span>}
+      </BotonPunch>
 
       <div
         id="filtros-pedidos"
@@ -87,7 +88,7 @@ export function FiltrosPedidos({ elegidos, estado, q }: { elegidos: FiltrosElegi
         aria-label={t.boton}
         hidden={!abierto}
         aria-busy={cargando}
-        className="absolute right-0 top-full z-30 mt-2 flex w-[min(20rem,calc(100vw-2rem))] animate-entra flex-col gap-3 rounded-[24px] border border-teal-oscuro bg-superficie p-4 shadow-dura aria-busy:opacity-80"
+        className="absolute right-0 top-full z-30 mt-2 flex w-[min(20rem,calc(100vw-2rem))] animate-entra flex-col gap-3 rounded-3xl border border-linea bg-superficie p-4 shadow-lg aria-busy:opacity-80"
       >
         {listas.map((l) => (
           <div key={l.clave} className="flex flex-col gap-1.5">
@@ -105,9 +106,10 @@ export function FiltrosPedidos({ elegidos, estado, q }: { elegidos: FiltrosElegi
           </div>
         ))}
         {activos > 0 && (
-          <Button type="button" variante="suave" tamano="chico" icono="x" className="self-start" onClick={() => ir({})}>
+          <BotonPunch type="button" variante="secundario" className="self-start" onClick={() => ir({})}>
+            <Icon nombre="x" className="size-4" />
             {t.quitar}
-          </Button>
+          </BotonPunch>
         )}
       </div>
     </div>

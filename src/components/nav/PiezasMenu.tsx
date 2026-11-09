@@ -67,12 +67,12 @@ export function Buscar({
       title={`${t.paleta.abrir} (${t.paleta.atajo})`}
       className={
         className ??
-        "flex min-h-11 items-center gap-3 rounded-xl border border-borde bg-superficie px-3 text-texto-2 hover:border-borde-control group-data-[cerrado]:justify-center"
+        "flex min-h-11 items-center gap-3 rounded-[14px] border border-linea bg-superficie px-3 text-texto-2 shadow-xs transition-colors hover:bg-gris-50 group-data-[cerrado]:justify-center"
       }
     >
       <Icon nombre="buscar" className="size-5 shrink-0 group-data-[cerrado]:size-5" />
       <span className={`flex-1 text-left group-data-[cerrado]:hidden ${soloIcono ? "hidden" : ""}`}>{t.buscarCorto}</span>
-      <kbd className={`rounded-md border border-borde px-1.5 py-0.5 text-xs group-data-[cerrado]:hidden ${soloIcono ? "hidden" : ""}`}>
+      <kbd className={`rounded-md border border-linea bg-gris-50 px-1.5 py-0.5 text-xs group-data-[cerrado]:hidden ${soloIcono ? "hidden" : ""}`}>
         {t.paleta.atajo}
       </kbd>
     </button>

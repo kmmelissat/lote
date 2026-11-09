@@ -1,21 +1,14 @@
 import type { ComponentProps } from "react";
 import { Icon } from "./Icon";
 
-/**
- * Búsqueda en píldora con la lupa adentro. `className` va en el contenedor (ancho, márgenes).
- * `compacto` es la altura y el borde de las listas en píldora (`ListaDesplegable`), para ir en la misma fila de filtros.
- */
-export function CampoBusqueda({ className = "", compacto = false, punch = false, ...props }: ComponentProps<"input"> & { compacto?: boolean; punch?: boolean }) {
+/** Búsqueda Punch con la lupa adentro: borde fino, esquina de 14 px y halo teal al enfocar. `className` va en el contenedor (ancho, márgenes). */
+export function CampoBusqueda({ className = "", ...props }: ComponentProps<"input">) {
   return (
     <div className={`relative ${className}`}>
-      <Icon nombre="buscar" className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-texto-2 ${compacto || punch ? "size-4" : "size-5"}`} />
+      <Icon nombre="buscar" className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-texto-2" />
       <input
         type="search"
-        className={`w-full border bg-superficie placeholder:text-texto-2/70 focus:border-teal ${punch ? "" : "rounded-full"} ${
-          punch
-            ? "h-11 rounded-[14px] border-linea pl-10 pr-4 text-sm focus:ring-4 focus:ring-teal/15 md:h-10"
-            : compacto ? "h-10 border-borde-control pl-10 pr-4 text-sm max-md:min-h-11" : "h-12 border-teal-oscuro pl-12 pr-4 text-base"
-        }`}
+        className="h-11 w-full rounded-[14px] border border-linea bg-superficie pl-10 pr-4 text-sm text-teal-oscuro shadow-xs transition-colors placeholder:text-texto-2/70 focus:border-teal focus:outline-none focus:ring-[3px] focus:ring-teal/20 md:h-10"
         {...props}
       />
     </div>

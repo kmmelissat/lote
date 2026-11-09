@@ -6,9 +6,11 @@ export const pedidos = {
   registrar: "Vender",
   stats: {
     titulo: "Resumen de pedidos",
+    teDeben: (monto: string, n: number) => `Pendiente de recibir ${monto} en ${n === 1 ? "1 pedido" : `${n} pedidos`}`,
+    nadieDebe: "No tienes nada pendiente de recibir",
     porCobrar: "Por cobrar",
     porCobrarNota: (n: number) =>
-      n === 0 ? "Nadie te debe nada" : n === 1 ? "El saldo de 1 pedido" : `El saldo de ${n} pedidos`,
+      n === 0 ? "No tienes nada pendiente de recibir" : n === 1 ? "El saldo de 1 pedido" : `El saldo de ${n} pedidos`,
     esperando: "Esperando pago",
     esperandoNota: (n: number) => (n === 0 ? "Ningún apartado sin pagar" : "Apartados que todavía no pagan"),
     porVencer: (n: number) => (n === 1 ? "1 vence pronto" : `${n} vencen pronto`),
@@ -61,7 +63,7 @@ export const pedidos = {
     fechas: { hoy: "Hoy", semana: "Esta semana", mes: "Este mes", mes_pasado: "El mes pasado" },
     cobro: "Cobro",
     todosCobros: "Todos",
-    cobros: { debe: "Deben algo", contra_entrega: "Contra entrega" },
+    cobros: { debe: "Con saldo", contra_entrega: "Contra entrega" },
     sinResultados: "Ningún pedido coincide con estos filtros.",
   },
   buscar: {

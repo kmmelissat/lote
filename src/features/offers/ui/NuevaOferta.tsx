@@ -1,11 +1,10 @@
 "use client";
 
+import { BotonPunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import type { Route } from "next";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
 import { Icon } from "@/components/ui/Icon";
 import { filtrarGrupos, agruparOpciones, type OpcionProductoPromocion } from "@/features/promotions/grupos";
@@ -39,13 +38,13 @@ export function NuevaOferta({ productos, ofertas, alTerminar }: { productos: Opc
   if (elegido) {
     return (
       <div className="flex max-w-2xl flex-col gap-3">
-        <Card nivel="plano" className="flex items-center gap-3 p-3">
+        <div className={`${TARJETA_PUNCH} flex items-center gap-3 p-3`}>
           <Miniatura foto={elegido.foto} />
           <p className="min-w-0 flex-1 font-bold leading-tight">{elegido.nombre}</p>
-          <Button type="button" variante="suave" tamano="chico" onClick={() => setClave(null)}>
+          <BotonPunch type="button" variante="secundario" onClick={() => setClave(null)}>
             {t.cambiar}
-          </Button>
-        </Card>
+          </BotonPunch>
+        </div>
         <OfertaProducto
           key={elegido.clave}
           codigo={elegido.miembros[0].codigo}
@@ -59,7 +58,7 @@ export function NuevaOferta({ productos, ofertas, alTerminar }: { productos: Opc
   }
 
   return (
-    <Card role="region" aria-labelledby="elegir-oferta" className="flex max-w-2xl flex-col gap-3">
+    <div role="region" aria-labelledby="elegir-oferta" className={`${TARJETA_PUNCH} flex max-w-2xl flex-col gap-3`}>
       <div>
         <h2 id="elegir-oferta" className="text-lg font-bold">
           {t.elegir}
@@ -76,7 +75,7 @@ export function NuevaOferta({ productos, ofertas, alTerminar }: { productos: Opc
               <button
                 type="button"
                 onClick={() => setClave(g.clave)}
-                className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-borde bg-superficie p-2 text-left transition-colors hover:border-teal-oscuro hover:bg-crema"
+                className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-borde bg-superficie p-2 text-left transition-colors hover:border-linea hover:bg-gris-50"
               >
                 <Miniatura foto={g.foto} />
                 <span className="flex min-w-0 flex-1 flex-col">
@@ -92,13 +91,13 @@ export function NuevaOferta({ productos, ofertas, alTerminar }: { productos: Opc
           {visibles.length > MAX_RESULTADOS && <li className="text-center text-sm text-texto-2">{t.mas(visibles.length - MAX_RESULTADOS)}</li>}
         </ul>
       )}
-    </Card>
+    </div>
   );
 }
 
 function Miniatura({ foto }: { foto: string | null }) {
   return (
-    <span className="relative size-12 shrink-0 overflow-hidden rounded-xl border border-teal-oscuro bg-teal-fondo">
+    <span className="relative size-12 shrink-0 overflow-hidden rounded-xl border border-linea bg-teal-fondo">
       {foto ? (
         <Image src={urlFoto(foto)} alt="" fill sizes="48px" className="object-cover" />
       ) : (

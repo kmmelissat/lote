@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fotosDeVariante, fotosDelGrupo, separarFotos } from "./fotosVariantes";
+import { fotosDeVariante, fotosDelGrupo, fotosSueltas, separarFotos } from "./fotosVariantes";
 
 describe("fotosDeVariante", () => {
   it("usa las que eligió de la galería, en su orden y sin repetir", () => {
@@ -13,6 +13,19 @@ describe("fotosDeVariante", () => {
 
   it("no pasa del tope de fotos", () => {
     expect(fotosDeVariante([], ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])).toHaveLength(8);
+  });
+});
+
+describe("fotosSueltas", () => {
+  it("son las del producto que ninguna variante eligió, y van después de las que eligió cada una", () => {
+    const eleccion = [["b"], ["c"]];
+    const sueltas = fotosSueltas(["a", "b"], eleccion);
+    expect(sueltas).toEqual(["a"]);
+    expect(fotosDeVariante(["a", "b"], eleccion[0], sueltas)).toEqual(["b", "a"]);
+  });
+
+  it("si cada variante eligió todas las de arriba, no sobra ninguna", () => {
+    expect(fotosSueltas(["a"], [["a"], ["a"]])).toEqual([]);
   });
 });
 

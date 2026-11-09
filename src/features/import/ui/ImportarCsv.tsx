@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useEffectEvent, useMemo, useState, useTransition, type ChangeEvent } from "react";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { BotonPunch, EnlacePunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { categoriasSinReconocer } from "@/features/catalog/rubros";
 import { useConfirmar } from "@/components/ui/Confirmar";
 import { Icon } from "@/components/ui/Icon";
 import { ListaDesplegable } from "@/components/ui/ListaDesplegable";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { Monito } from "@/components/ui/Monito";
-import { TARJETA, TARJETA_BASE } from "@/components/ui/tarjeta";
 import { parseCsv } from "../csv";
 import {
   CAMPOS,
@@ -186,35 +184,34 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
     return (
       <div className="flex max-w-xl flex-col gap-4">
         <Pasos actual={3} />
-        <section className={`${TARJETA} relative overflow-hidden ${deshecha ? "bg-crema" : "bg-limon"} shadow-dura`}>
-          <Monito
-            nombre={deshecha ? "asoma" : "thumbsup"}
-            className={`absolute -bottom-2 right-3 hidden w-24 sm:block ${deshecha ? "text-rosa" : "text-teal"}`}
-          />
-          <h2 className="text-lg font-extrabold">{deshecha ? t.deshechaTitulo : t.listoTitulo}</h2>
-          <p role="status" className="mt-2 max-w-sm font-medium">
+        <section className={`${TARJETA_PUNCH} flex flex-col gap-2`}>
+          <span className={`flex size-10 items-center justify-center rounded-xl ${deshecha ? "bg-ficha-amarillo text-chip-texto-amarillo" : "bg-ficha-verde text-chip-texto-verde"}`}>
+            <Icon nombre="check" className="size-5" strokeWidth={2.5} />
+          </span>
+          <h2 className="mt-2 text-lg font-semibold text-teal-oscuro">{deshecha ? t.deshechaTitulo : t.listoTitulo}</h2>
+          <p role="status" className="max-w-md text-texto-2">
             {deshecha || t.listoTexto(resultado.creados, resultado.saltadas)}
           </p>
           {!deshecha && resultado.conFoto < resultado.creados && (
-            <p className="mt-1 max-w-sm text-sm text-texto-2">{t.listoFotos}</p>
+            <p className="max-w-md text-sm text-texto-2">{t.listoFotos}</p>
           )}
           {!deshecha && resultado.sinCategoria.length > 0 && (
-            <p className="mt-1 max-w-sm text-sm font-medium">{t.categoriasFaltanLuego(resultado.sinCategoria)}</p>
+            <p className="max-w-md rounded-[14px] bg-chip-amarillo px-3 py-2 text-sm font-medium text-chip-texto-amarillo">{t.categoriasFaltanLuego(resultado.sinCategoria)}</p>
           )}
           <MensajeError>{error}</MensajeError>
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-3 flex flex-wrap gap-3">
             {!deshecha && (
-              <Button type="button" variante="secundario" disabled={pendiente} onClick={deshacer}>
+              <BotonPunch type="button" variante="secundario" disabled={pendiente} onClick={deshacer}>
                 {pendiente ? t.deshaciendo : t.deshacer}
-              </Button>
+              </BotonPunch>
             )}
-            <ButtonLink href="/productos" variante={deshecha ? "secundario" : "mango"}>
+            <EnlacePunch href="/productos" variante={deshecha ? "secundario" : "primario"}>
               {t.verProductos}
-            </ButtonLink>
+            </EnlacePunch>
             {deshecha && (
-              <Button type="button" variante="mango" onClick={reiniciar}>
+              <BotonPunch type="button" onClick={reiniciar}>
                 {t.otroArchivo}
-              </Button>
+              </BotonPunch>
             )}
           </div>
         </section>
@@ -241,7 +238,7 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
         <span className="flex items-center gap-2 text-sm font-medium">
           {t.campos[campo]}
           {requerido && (
-            <span className="rounded-full bg-mango px-2 py-0.5 text-xs font-bold">{textos.productos.form.requerido}</span>
+            <span className="rounded-lg bg-gris-100 px-2 py-0.5 text-xs font-medium text-texto-2">{textos.productos.form.requerido}</span>
           )}
         </span>
         <ListaDesplegable
@@ -270,20 +267,22 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
     <div className="flex flex-col gap-5">
       <Pasos actual={tieneRequeridos ? 3 : 2} />
 
-      <div className={`${TARJETA_BASE} flex flex-wrap items-center gap-3 bg-limon p-4 shadow-dura-chica`}>
-        <Monito nombre="caja" className="w-10 shrink-0 text-teal-oscuro" />
-        <p className="min-w-0 flex-1 font-bold">{t.archivoListo(archivo.nombre, archivo.filas.length)}</p>
-        <Button type="button" variante="secundario" disabled={pendiente} onClick={reiniciar}>
+      <div className={`${TARJETA_PUNCH} flex flex-wrap items-center gap-3 !p-4`}>
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-ficha-verde text-chip-texto-verde">
+          <Icon nombre="check" className="size-4" strokeWidth={2.5} />
+        </span>
+        <p className="min-w-0 flex-1 font-medium text-teal-oscuro">{t.archivoListo(archivo.nombre, archivo.filas.length)}</p>
+        <BotonPunch type="button" variante="secundario" disabled={pendiente} onClick={reiniciar}>
           {t.cambiar}
-        </Button>
+        </BotonPunch>
       </div>
 
       {tieneRequeridos ? (
-        <details className={`${TARJETA_BASE} bg-superficie px-4 py-3 shadow-dura-chica`}>
-          <summary className="flex cursor-pointer flex-wrap items-center gap-x-2 font-bold">
+        <details className={`${TARJETA_PUNCH} !py-3`}>
+          <summary className="flex cursor-pointer flex-wrap items-center gap-x-2 font-medium text-teal-oscuro">
             <Icon nombre="check" className="size-5 text-teal" />
             {t.columnasListas(usadas.size)}
-            <span className="text-sm text-teal-oscuro underline">{t.cambiarColumnas}</span>
+            <span className="text-sm text-texto-2 underline">{t.cambiarColumnas}</span>
           </summary>
           <div className="mt-4 flex flex-col gap-4">
             <p className="text-texto-2">{t.pasoColumnasAyuda}</p>
@@ -291,9 +290,9 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
           </div>
         </details>
       ) : (
-        <section className={`${TARJETA} flex flex-col gap-4 bg-superficie shadow-dura-chica`}>
+        <section className={`${TARJETA_PUNCH} flex flex-col gap-4`}>
           <div>
-            <h2 className="text-lg font-extrabold">{t.pasoColumnas}</h2>
+            <h2 className="text-base font-semibold text-teal-oscuro">{t.pasoColumnas}</h2>
             <p className="mt-1 text-texto-2">{t.pasoColumnasAyuda}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">{CAMPOS.map(selectorColumna)}</div>
@@ -302,32 +301,32 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
       )}
 
       {tieneRequeridos && (
-        <section className={`${TARJETA} flex flex-col gap-3 bg-superficie shadow-dura-chica`}>
+        <section className={`${TARJETA_PUNCH} flex flex-col gap-3`}>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-lg font-extrabold">{t.vistaPrevia}</h2>
+              <h2 className="text-base font-semibold text-teal-oscuro">{t.vistaPrevia}</h2>
               <p role="status" className="mt-1 text-texto-2">
                 {t.resumen(buenas, malas)}
               </p>
               {categoriasFaltan.length > 0 && (
-                <p className="mt-2 max-w-xl rounded-xl bg-limon px-3 py-2 text-sm font-medium">
+                <p className="mt-2 max-w-xl rounded-[14px] bg-chip-amarillo px-3 py-2 text-sm font-medium text-chip-texto-amarillo">
                   {t.categoriasSinReconocer(categoriasFaltan)}
                 </p>
               )}
             </div>
             {malas > 0 && (
-              <div className="flex rounded-full border border-teal-oscuro bg-white p-1 text-sm font-bold">
+              <div className="flex rounded-xl bg-gris-100 p-1 text-sm font-medium">
                 <button
                   type="button"
                   onClick={() => setSoloErrores(false)}
-                  className={`rounded-full px-3 py-1.5 ${soloErrores ? "" : "bg-teal-fondo"}`}
+                  className={`rounded-lg px-3 py-1.5 ${soloErrores ? "text-texto-2" : "bg-superficie text-teal-oscuro shadow-xs"}`}
                 >
                   {t.todas}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSoloErrores(true)}
-                  className={`rounded-full px-3 py-1.5 ${soloErrores ? "bg-rosa-palido" : ""}`}
+                  className={`rounded-lg px-3 py-1.5 ${soloErrores ? "bg-superficie text-teal-oscuro shadow-xs" : "text-texto-2"}`}
                 >
                   {t.soloErrores}
                 </button>
@@ -335,27 +334,27 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
             )}
           </div>
           {grupos > 0 && (
-            <p role="status" className={`${TARJETA_BASE} bg-limon px-4 py-3 font-medium`}>
+            <p role="status" className="rounded-[14px] bg-chip-celeste px-4 py-3 text-sm font-medium text-chip-texto-celeste">
               {t.resumenVariantes(grupos)}
             </p>
           )}
-          <div className="max-h-[34rem] overflow-auto rounded-[18px] border border-teal-oscuro">
+          <div className="max-h-[34rem] overflow-auto rounded-2xl border border-linea">
             <table className="w-full text-left text-sm">
-              <thead className="sticky top-0 z-10 bg-crema text-texto-2">
+              <thead className="sticky top-0 z-10 bg-gris-50 text-texto-2">
                 <tr>
-                  <th className="px-3 py-2 font-bold">{t.fila}</th>
-                  <th className="px-3 py-2 font-bold">{t.foto}</th>
+                  <th className="px-3 py-2 font-medium">{t.fila}</th>
+                  <th className="px-3 py-2 font-medium">{t.foto}</th>
                   {columnasMostradas.map((c) => (
-                    <th key={c} className="px-3 py-2 font-bold">
+                    <th key={c} className="px-3 py-2 font-medium">
                       {t.campos[c]}
                     </th>
                   ))}
-                  <th className="px-3 py-2 font-bold">{t.estado}</th>
+                  <th className="px-3 py-2 font-medium">{t.estado}</th>
                 </tr>
               </thead>
               <tbody>
                 {filasVista.slice(0, FILAS_EN_PANTALLA).map(({ v, i }) => (
-                  <tr key={i} className={`border-t border-borde ${v.ok ? "" : "bg-rosa-palido"}`}>
+                  <tr key={i} className={`border-t border-linea ${v.ok ? "" : "bg-chip-rojo/30"}`}>
                     <td className="px-3 py-2 text-texto-2">{i + 2}</td>
                     <td className="px-3 py-2">
                       {v.ok && (
@@ -391,7 +390,7 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
                     ))}
                     <td className="px-3 py-2">
                       {v.ok ? (
-                        <span className="inline-flex items-center gap-1 font-medium text-teal">
+                        <span className="inline-flex items-center gap-1 font-medium text-chip-texto-verde">
                           <Icon nombre="check" className="size-4" />
                           {v.fila.etiqueta ? t.okVariante(v.fila.etiqueta) : t.ok}
                         </span>
@@ -415,12 +414,12 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
 
       <MensajeError>{error}</MensajeError>
       <div className="flex flex-wrap gap-3">
-        <Button type="button" variante="mango" disabled={pendiente || !tieneRequeridos || buenas === 0} onClick={importar}>
+        <BotonPunch type="button" disabled={pendiente || !tieneRequeridos || buenas === 0} onClick={importar}>
           {pendiente ? t.importando : t.importar(buenas)}
-        </Button>
-        <Button type="button" variante="secundario" disabled={pendiente} onClick={reiniciar}>
+        </BotonPunch>
+        <BotonPunch type="button" variante="secundario" disabled={pendiente} onClick={reiniciar}>
           {t.otroArchivo}
-        </Button>
+        </BotonPunch>
       </div>
     </div>
   );

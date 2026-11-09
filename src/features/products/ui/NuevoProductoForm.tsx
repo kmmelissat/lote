@@ -27,6 +27,8 @@ import {
   Cantidad,
   Etiqueta,
   estiloCampo,
+  MARCA_LOTITO,
+  TRABAJANDO_LOTITO,
 } from "./campos";
 import { LugarDeCompra } from "./LugarDeCompra";
 import { SelectorCategoria } from "./SelectorCategoria";
@@ -34,9 +36,8 @@ import { VistaPreviaProducto } from "./VistaPreviaProducto";
 import { EditorVariantes } from "./EditorVariantes";
 import { combinaciones, estadoDesdeVariantes, estadoVacio, filaDe, type DatosFila, type EstadoEditor } from "../editorVariantes";
 import { ZonaFotos } from "./ZonaFotos";
-import { Button, ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { OpcionRadio } from "@/components/ui/OpcionRadio";
+import { BotonPunch, EnlacePunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
+import { Icon } from "@/components/ui/Icon";
 
 const t = textos.productos.form;
 const l = t.lotito;
@@ -182,7 +183,7 @@ export function NuevoProductoForm({
         ...ed,
         filas: Object.fromEntries(Object.entries(ed.filas).map(([k, f]) => [k, { ...f, fotos: f.fotos.filter((r) => !quitadas.includes(r)) }])),
       }));
-    cambiarFotos(nuevas);
+    cambiarFotos(nuevas, rutas);
   }
 
   // Ganancia en vivo: precio − costo por unidad, con las mismas funciones que usa el servidor.
@@ -209,6 +210,23 @@ export function NuevoProductoForm({
   const costosExtra = campoCosto.filter((k) => k !== "compra" && (COSTOS_EXTRA[actividad].includes(k) || v[k]?.trim()));
   const errorCostos = Boolean(e.envio || e.importacion || e.mano_obra || e.otro);
 
+  // A qué variante(s) va cada foto de arriba: una variante sin fotos elegidas usa todas, y una que nadie eligió va en todas
+  const variantesDeFotos = conVariantes
+    ? (() => {
+        const etiquetas = combinaciones(editor);
+        if (!etiquetas.length) return undefined;
+        const fotosDe = etiquetas.map((c) => filaDe(editor, c).fotos);
+        return Object.fromEntries(
+          rutas.map((ruta) => {
+            const quienes = etiquetas.filter((_, i) => !fotosDe[i].length || fotosDe[i].includes(ruta));
+            const lista = quienes.length ? quienes : etiquetas;
+            const texto = lista.length === etiquetas.length ? textos.productos.fotos.todasLasVariantes : lista.length === 1 ? lista[0] : textos.productos.fotos.nVariantes(lista.length);
+            return [ruta, { texto, titulo: lista.join(", ") }];
+          }),
+        );
+      })()
+    : undefined;
+
   const vista = {
     foto: rutas[0] ?? (conVariantes ? resumen.foto : null),
     nombre,
@@ -228,7 +246,7 @@ export function NuevoProductoForm({
       action={accion}
       onChange={recalcular}
       onKeyDown={atajosDeFormulario}
-      className="flex min-h-[calc(100dvh-12rem)] flex-col gap-6 "
+      className="flex min-h-[calc(100dvh-12rem)] flex-col gap-6"
     >
       <input type="hidden" name="tipo" value={tipo} />
       {/* En pantalla ancha: a la izquierda la tarjeta del producto (se arma sola) y a la derecha los pasos con los campos repartidos
@@ -239,15 +257,15 @@ export function NuevoProductoForm({
         </div>
 
         <div className="flex min-w-0 flex-col gap-6">
-          <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-borde [&>*+*]:pt-6">
-            <BloqueForm numero={1} titulo={b.foto.titulo} ayuda={b.foto.ayuda} tono="limon" listo={rutas.length > 0}>
-              <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotosYVariantes} conLotito />
+          <div className={`${TARJETA_PUNCH} flex flex-col gap-6 md:p-6 [&>*+*]:border-t [&>*+*]:border-linea [&>*+*]:pt-6`}>
+            <BloqueForm numero={1} titulo={b.foto.titulo} ayuda={b.foto.ayuda} tono="celeste" listo={rutas.length > 0}>
+              <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={cambiarFotosYVariantes} conLotito variantesDe={variantesDeFotos} />
               <input type="hidden" name="fotos" value={JSON.stringify(rutas)} />
               <CartelLotito
                 estado={estadoLotito}
                 accion={
                   hayLotito && estadoLotito === "listo" ? (
-                    <button type="button" onClick={deshacerLotito} className="font-bold text-teal underline">
+                    <button type="button" onClick={deshacerLotito} className="font-medium text-teal underline">
                       {l.deshacer}
                     </button>
                   ) : undefined
@@ -255,7 +273,7 @@ export function NuevoProductoForm({
               />
             </BloqueForm>
 
-            <BloqueForm numero={2} titulo={b.nombrePrecio.titulo} ayuda={b.nombrePrecio.ayuda} tono="mango" listo={nombre.trim() !== "" && (conVariantes || precioCentavos !== null)}>
+            <BloqueForm numero={2} titulo={b.nombrePrecio.titulo} ayuda={b.nombrePrecio.ayuda} tono="rosa" listo={nombre.trim() !== "" && (conVariantes || precioCentavos !== null)}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Campo
                   etiqueta={conVariantes ? e2.nombreVariantes : t.nombre}
@@ -296,13 +314,13 @@ export function NuevoProductoForm({
                     <CampoDinero etiqueta={actividad === "produzco" ? t.tarjetas.costoMateriales : t.tarjetas.costoCompra} name="compra" defaultValue={v.compra} error={e.compra} />
                     <Cantidad valor={cantidad} onCambio={setCantidad} error={e.cantidad} />
                   </div>
-                  <div aria-live="polite" className="rounded-2xl bg-superficie px-4 py-3">
+                  <div aria-live="polite" className="rounded-2xl border border-linea bg-gris-50 px-4 py-3">
                     {ganancia === null ? (
                       <p className="text-sm text-texto-2">{t.resumenSinCosto}</p>
                     ) : (
                       <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                         <span className="text-sm text-texto-2">{t.gananciaUnidad}</span>
-                        <strong className="text-xl tabular-nums text-teal">{formatearDolares(ganancia)}</strong>
+                        <strong className="text-xl font-semibold tabular-nums text-teal">{formatearDolares(ganancia)}</strong>
                         {margenReal !== null && <span className="text-sm text-texto-2">· {t.margenReal} {margenReal} %</span>}
                       </p>
                     )}
@@ -319,18 +337,18 @@ export function NuevoProductoForm({
                   rows={3}
                   value={descripcion}
                   onChange={(ev) => editar("descripcion")(ev.target.value)}
-                  className={`${estiloCampo} h-auto py-3 ${brillo("descripcion") ? "animate-pulse bg-limon/40" : ""} ${deLotito.has("descripcion") ? "border-teal-oscuro bg-limon/20" : ""}`}
+                  className={`${estiloCampo} h-auto py-3 ${brillo("descripcion") ? TRABAJANDO_LOTITO : ""} ${deLotito.has("descripcion") ? MARCA_LOTITO : ""}`}
                 />
               </div>
             </BloqueForm>
-          </Card>
+          </div>
 
-          <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-borde [&>*+*]:pt-6">
+          <div className={`${TARJETA_PUNCH} flex flex-col gap-6 md:p-6 [&>*+*]:border-t [&>*+*]:border-linea [&>*+*]:pt-6`}>
             <BloqueForm
               numero={3}
               titulo={b.masInfo.titulo}
               ayuda={b.masInfo.ayuda}
-              tono="limon"
+              tono="lila"
               opcional
               lotito={deLotito.has("marca") || extrasLotito.detalles || extrasLotito.condicion}
               resumen={[marca.trim(), condicion === "usado" ? t.usado : t.nuevo].filter(Boolean).join(" · ")}
@@ -348,11 +366,16 @@ export function NuevoProductoForm({
                   lotito={deLotito.has("marca")}
                   trabajando={brillo("marca")}
                 />
-                <fieldset className="flex flex-col gap-2">
-                  <legend className="mb-1.5 text-sm font-bold">{t.condicion}</legend>
-                  <div className="flex flex-wrap gap-2">
+                <fieldset className="flex flex-col gap-1.5">
+                  <legend className="mb-1.5 text-sm font-medium">{t.condicion}</legend>
+                  <div className="flex w-fit gap-1 rounded-[14px] bg-gris-100 p-1">
                     {(["nuevo", "usado"] as const).map((c) => (
-                      <OpcionRadio key={c} name="condicion" value={c} titulo={t[c]} checked={condicion === c} onChange={() => setCondicion(c)} />
+                      <label key={c} className="cursor-pointer">
+                        <input type="radio" name="condicion" value={c} checked={condicion === c} onChange={() => setCondicion(c)} className="peer sr-only" />
+                        <span className="inline-flex min-h-10 items-center rounded-[10px] border border-transparent px-4 text-sm font-medium text-texto-2 transition-colors peer-checked:border-linea peer-checked:bg-superficie peer-checked:text-teal-oscuro peer-checked:shadow-xs peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal-oscuro">
+                          {t[c]}
+                        </span>
+                      </label>
                     ))}
                   </div>
                 </fieldset>
@@ -382,7 +405,7 @@ export function NuevoProductoForm({
               numero={4}
               titulo={b.variantes.titulo}
               ayuda={b.variantes.ayuda}
-              tono="celeste"
+              tono="verde"
               opcional
               lotito={extrasLotito.variantes && conVariantes}
               resumen={conVariantes ? t.variantesChip(resumen.cuantas) : b.variantes.sin}
@@ -404,17 +427,19 @@ export function NuevoProductoForm({
                   {variantesIniciales ? (
                     <p className="text-sm text-texto-2">{t.tipo.bloqueado}</p>
                   ) : (
-                    <Button type="button" variante="suave" tamano="chico" icono="x" className="self-start" onClick={() => setTipo("simple")}>
+                    <BotonPunch type="button" variante="secundario" className="self-start" onClick={() => setTipo("simple")}>
+                      <Icon nombre="x" className="size-4" />
                       {t.tarjetas.quitarVariantes}
-                    </Button>
+                    </BotonPunch>
                   )}
                 </>
               ) : (
                 <>
                   <p className="text-sm text-texto-2">{t.tarjetas.variantesTexto}</p>
-                  <Button type="button" variante="suave" icono="mas" className="self-start" onClick={pasarAVariantes}>
+                  <BotonPunch type="button" variante="secundario" className="self-start" onClick={pasarAVariantes}>
+                    <Icon nombre="mas" className="size-4" />
                     {t.tarjetas.agregarVariantes}
-                  </Button>
+                  </BotonPunch>
                 </>
               )}
             </BloqueForm>
@@ -423,7 +448,7 @@ export function NuevoProductoForm({
               numero={5}
               titulo={b.costos.titulo}
               ayuda={b.costos.ayuda}
-              tono="rosa"
+              tono="amarillo"
               opcional
               resumen={conVariantes ? b.costos.compartidos : b.costos.resumen}
               abierto={estaAbierto("costos", false, errorCostos)}
@@ -444,20 +469,21 @@ export function NuevoProductoForm({
                   <p className="min-h-12 flex-1 content-center" aria-live="polite">
                     {t.precioSugerido}: <strong>{formatearDolares(sugerido)}</strong>
                   </p>
-                  <Button type="button" variante="suave" icono="check" onClick={() => setPrecio(dolaresTexto(sugerido))}>
+                  <BotonPunch type="button" variante="secundario" onClick={() => setPrecio(dolaresTexto(sugerido))}>
+                    <Icon nombre="check" className="size-4" />
                     {t.usarPrecio}
-                  </Button>
+                  </BotonPunch>
                 </div>
               )}
             </BloqueForm>
 
             {/* Fuera del bloque de costos, que viene cerrado: así se ve sin tener que abrirlo */}
             {!editando && (
-              <div className="border-t border-borde pt-4">
+              <div className="border-t border-linea pt-6">
                 <LugarDeCompra cuentas={cuentas} tarjetas={tarjetas} />
               </div>
             )}
-          </Card>
+          </div>
 
           <MensajeError>{e.general}</MensajeError>
         </div>
@@ -465,7 +491,8 @@ export function NuevoProductoForm({
 
       {/* En el código el principal va primero (es el que dispara Enter); `order` lo deja a la derecha */}
       <BarraFormulario className="max-md:grid max-md:grid-cols-2 max-md:gap-2">
-        <Button type="submit" variante="mango" icono="check" disabled={pendiente} className="order-3">
+        <BotonPunch type="submit" disabled={pendiente} className="order-3">
+          <Icon nombre="check" className="size-4" />
           {editando || pendiente ? (
             guardarTexto
           ) : (
@@ -474,16 +501,18 @@ export function NuevoProductoForm({
               <span className="max-md:hidden">{guardarTexto}</span>
             </>
           )}
-        </Button>
+        </BotonPunch>
         {editando ? (
-          <ButtonLink href={`/productos/${modo.codigo}`} variante="secundario" icono="x" className="order-2">
+          <EnlacePunch href={`/productos/${modo.codigo}`} variante="secundario" className="order-2">
+            <Icon nombre="x" className="size-4" />
             {e2.cancelar}
-          </ButtonLink>
+          </EnlacePunch>
         ) : (
-          <Button type="submit" name="otro" value="1" variante="secundario" icono="mas" disabled={pendiente} className="order-2">
+          <BotonPunch type="submit" name="otro" value="1" variante="secundario" disabled={pendiente} className="order-2">
+            <Icon nombre="mas" className="size-4" />
             <span className="md:hidden">{t.guardarOtroCorto}</span>
             <span className="max-md:hidden">{t.guardarOtro}</span>
-          </Button>
+          </BotonPunch>
         )}
       </BarraFormulario>
     </form>

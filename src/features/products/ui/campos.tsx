@@ -7,12 +7,16 @@ import { textos } from "@/lib/textos";
 const t = textos.productos.form;
 
 export const estiloCampo =
-  "h-12 w-full rounded-[14px] border border-borde-control bg-superficie px-4 text-base placeholder:text-texto-2/60 focus:border-teal";
+  "h-12 w-full rounded-[14px] border border-linea bg-superficie px-4 text-base text-teal-oscuro shadow-xs transition-colors placeholder:text-texto-2/60 focus:border-teal focus:outline-none focus:ring-[3px] focus:ring-teal/20";
+
+/** Lo que llenó Lotito (resaltado suave) y lo que está escribiendo ahora (pulsa). */
+export const MARCA_LOTITO = "border-chip-texto-amarillo/40 bg-chip-amarillo/25";
+export const TRABAJANDO_LOTITO = "animate-pulse bg-chip-amarillo/40";
 
 /** El chip que marca lo que llenó Lotito, para que se note qué revisar. */
 export function ChipLotito() {
   return (
-    <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-teal-oscuro bg-limon px-2 py-0.5 align-middle text-xs font-bold text-teal-oscuro">
+    <span className="ml-2 inline-flex items-center gap-1 rounded-lg border border-chip-texto-amarillo/30 bg-chip-amarillo px-2 py-0.5 align-middle text-xs font-medium text-chip-texto-amarillo">
       <span aria-hidden="true">✦</span>
       {t.lotito.chip}
     </span>
@@ -32,7 +36,7 @@ export function Etiqueta({
   lotito?: boolean;
 }) {
   return (
-    <label htmlFor={htmlFor} className="text-sm font-bold">
+    <label htmlFor={htmlFor} className="text-sm font-medium">
       {children}
       {requerido && (
         <span aria-hidden="true" className="ml-0.5 text-error">
@@ -80,7 +84,7 @@ export function Campo({
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`${estiloCampo} ${trabajando ? "animate-pulse bg-limon/40" : ""} ${lotito ? "border-teal-oscuro bg-limon/20" : ""} ${className}`}
+        className={`${estiloCampo} ${trabajando ? TRABAJANDO_LOTITO : ""} ${lotito ? MARCA_LOTITO : ""} ${className}`}
         {...props}
         onChange={(e) => {
           e.target.value = limpiarSiNumero(e.target.value, props.inputMode, props.type);
@@ -107,7 +111,7 @@ export function CampoDinero({
         {etiqueta}
       </Etiqueta>
       <div className="relative">
-        <span aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-texto-2">
+        <span aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-medium text-texto-2">
           $
         </span>
         <input
@@ -147,13 +151,13 @@ export function Cantidad({
   return (
     <div className="flex flex-col gap-1.5">
       <Etiqueta htmlFor={id}>{t.cantidad}</Etiqueta>
-      <div className="flex h-12 items-center rounded-[14px] border border-borde-control bg-superficie">
+      <div className="flex h-12 items-center rounded-[14px] border border-linea bg-superficie shadow-xs">
         <button
           type="button"
           onClick={() => cambiar(-1)}
           disabled={!(n > 1)}
           aria-label={t.cantidadMenos}
-          className="flex h-full w-12 items-center justify-center rounded-l-xl text-xl font-bold hover:bg-teal-fondo disabled:opacity-30"
+          className="flex h-full w-12 items-center justify-center rounded-l-[13px] text-xl text-teal-oscuro hover:bg-gris-50 disabled:opacity-30"
         >
           −
         </button>
@@ -165,13 +169,13 @@ export function Cantidad({
           onChange={(e) => onCambio(soloNumero(e.target.value, false))}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${id}-error` : undefined}
-          className="h-full min-w-0 flex-1 bg-transparent text-center text-base font-bold tabular-nums outline-none"
+          className="h-full min-w-0 flex-1 bg-transparent text-center text-base font-medium tabular-nums text-teal-oscuro outline-none"
         />
         <button
           type="button"
           onClick={() => cambiar(1)}
           aria-label={t.cantidadMas}
-          className="flex h-full w-12 items-center justify-center rounded-r-xl text-xl font-bold hover:bg-teal-fondo"
+          className="flex h-full w-12 items-center justify-center rounded-r-[13px] text-xl text-teal-oscuro hover:bg-gris-50"
         >
           +
         </button>
@@ -185,9 +189,9 @@ export function Cantidad({
 export function Seccion({ titulo, ayuda, children }: { titulo: string; ayuda?: string; children: ReactNode }) {
   const id = useId();
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-4 rounded-[20px] border border-teal-oscuro/15 bg-white p-4">
+    <section aria-labelledby={id} className="flex flex-col gap-4 rounded-3xl border border-linea bg-superficie p-5 shadow-xs">
       <div className="flex flex-col">
-        <h2 id={id} className="font-bold">
+        <h2 id={id} className="font-semibold">
           {titulo}
         </h2>
         {ayuda && <p className="text-sm text-texto-2">{ayuda}</p>}

@@ -13,7 +13,10 @@ export const HORAS_APARTADO_HOY = 24;
 const HORA_MS = 3_600_000;
 const DIA_MS = 24 * HORA_MS;
 
-export type PorAtender = {
+/** Lo mínimo de un pedido para contar lo que pide atención: con esto basta una consulta liviana, sin fotos ni productos. */
+export type PedidoParaAtender = Pick<Pedido, "estado" | "contraEntrega" | "venceEn" | "creadoEn">;
+
+export type PorAtender<P extends PedidoParaAtender = Pedido> = {
   /** Apartados vigentes que todavía no pagan */
   porPagar: number;
   /** Pagados y en preparación, o contra entrega sin enviar */
@@ -23,13 +26,13 @@ export type PorAtender = {
   preparando: number;
   contraEntrega: number;
   /** Apartados que vencen pronto, el que vence antes primero */
-  seEnfrian: Pedido[];
+  seEnfrian: P[];
   /** Enviados creados hace más de `DIAS_EN_CAMINO` días (no se guarda la fecha de envío) */
   atascados: number;
 };
 
 /** Lo que los pedidos abiertos le piden a la persona. Lo usan el menú, Inicio y Pedidos para contar igual. */
-export function pedidosPorAtender(pedidos: Pedido[], ahora: Date): PorAtender {
+export function pedidosPorAtender<P extends PedidoParaAtender>(pedidos: P[], ahora: Date): PorAtender<P> {
   const limite = ahora.getTime() + HORAS_APARTADO_FRIO * HORA_MS;
   // Un apartado vencido ya no retiene unidades: no cuenta como pendiente (igual que en el asistente).
   const vigentes = pedidos.filter(

@@ -77,6 +77,32 @@ El iso es un monito con forma de etiqueta de precio y un check rosa. El nombre v
 - Recibo, escáner, asociar código y toda la Caja (abrir, cerrar, historial, código de barras) también van en Punch: tarjetas blancas con borde fino, chips verde/amarillo, botones de `BotonesPunch.tsx` (`BotonPunch`, `EnlacePunch`, `TARJETA_PUNCH`).
 - Código: `src/features/counter/ui/` (`ProductosDelMostrador`, `ResumenLateral`, `OpcionesDePago`, `EntregaDeVenta`, `ModoDeVenta`). Los componentes compartidos (`Button`, `OpcionRadio`) siguen viejos; aquí se estilizó en el lugar.
 
+## Agregar producto (ya aplicado)
+
+- `/productos/nuevo`, `/productos/[codigo]/editar` y el lote de fotos comparten piezas, todas en Punch: tarjeta blanca de 24 px con borde fino que reúne los pasos separados por una línea; cada paso (`BloqueForm`) lleva una ficha de color de 32 px con su número (pasa a check verde cuando está listo), título semibold, ayuda y, si es opcional, su chip gris.
+- Campos (`campos.tsx`): borde fino, `shadow-xs`, foco teal con halo de 3 px. Lo que llena Lotito se resalta en amarillo suave (`MARCA_LOTITO`).
+- Condición (nuevo/usado) como pestañas grises; "¿De dónde salió el dinero?" como chips de borde fino; zona de fotos con borde punteado gris y ficha celeste; vista previa del producto con foto sobre `ficha-celeste`.
+- Botones: `BotonPunch` / `EnlacePunch`. El `Button` viejo, en su variante `suave`, ahora también es Punch (esquina 14 px, borde fino), y `PageHeader` usa un botón de volver Punch.
+- Código: `src/features/products/ui/` (`NuevoProductoForm`, `BloqueForm`, `campos`, `ZonaFotos`, `VistaPreviaProducto`, `EditorVariantes`).
+
+## Importar productos (ya aplicado)
+
+- `/productos/importar`: pasos como píldoras de borde fino (el actual con halo teal, los hechos con check verde), zona de carga con borde punteado gris y ficha celeste, ayuda en tarjeta Punch con chips (requeridos en amarillo), tabla de vista previa con borde fino y errores en rojo suave, pestañas grises "Todas / Solo errores" y tarjeta de resultado con ficha verde.
+- Código: `src/features/import/ui/` (`ImportarCsv`, `PiezasImportar`, `FotoFila`).
+
+## Promociones (ya aplicado)
+
+- `/productos/promociones`: lista con tarjetas Punch (`components/ui/TarjetaPromocion.tsx`): sello en ficha de color (amarillo pack, rosa llevá y pagá, celeste oferta), estado como chip con borde, interruptor teal propio y botón de borrar cuadrado. "Nueva promoción" es un `EnlacePunch` primario.
+- `/productos/promociones/nueva`: el tipo se elige en tres tarjetas con ficha de ícono (la elegida con borde teal y halo); el formulario va en tarjeta Punch, y la vista previa, el selector de productos y la oferta de un producto usan bordes finos, fondos grises y fichas en vez de crema, limón y mango.
+- Código: `src/features/promotions/ui/` y `src/features/offers/ui/`. `Field`, `Select` (`ListaDesplegable`), `SelectorFecha` y `AtajosDeFechas` ya son Punch (borde fino, `shadow-xs`, foco teal con halo, esquinas 12–14 px); como son compartidos, el cambio se ve en todas las pantallas que los usan.
+
+## Lista de pedidos (ya aplicada)
+
+- `/pedidos`: botón "Registrar" primario teal (`EnlacePunch`); se quitaron "Para atender" y "Este mes" (7 nov: la lista es lo principal); `ResumenCompacto` en una sola tarjeta con líneas finas y cifras semibold; buscador, botón Filtros (`BotonPunch`, menú con borde fino) y pestañas grises.
+- `Pestanas` (`components/nav/Pestanas.tsx`) ya es Punch: barra gris donde la activa se levanta en blanco. Como es compartida, también cambió en Movimientos, Balance y Clientes.
+- Tabla y lista apilada con borde fino, encabezado gris claro, chips de estado y de canal con los tonos `chip-*`.
+- Falta: el detalle `/pedidos/[codigo]` (`ResumenPedido`, `ProgresoPedido`, `AccionesPedido`, cobro y envío) y `AccionPedido` en su variante grande.
+
 ## Pendiente
 
 - Aplicar el sistema al resto de la app.

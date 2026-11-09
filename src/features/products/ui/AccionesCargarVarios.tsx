@@ -1,4 +1,5 @@
-import { ButtonLink } from "@/components/ui/Button";
+import { EnlacePunch } from "@/components/ui/BotonesPunch";
+import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 
 const t = textos.productos.form.varios;
@@ -7,12 +8,14 @@ const t = textos.productos.form.varios;
 export function AccionesCargarVarios() {
   return (
     <div className="flex flex-wrap justify-end gap-2" role="group" aria-label={t.titulo}>
-      <ButtonLink href="/productos/lote" variante="suave" tamano="chico" icono="camara">
+      <EnlacePunch href="/productos/lote">
+        <Icon nombre="camara" className="size-4" />
         {t.fotos}
-      </ButtonLink>
-      <ButtonLink href="/productos/importar" variante="suave" tamano="chico" icono="hoja">
+      </EnlacePunch>
+      <EnlacePunch href="/productos/importar">
+        <Icon nombre="hoja" className="size-4" />
         {t.importar}
-      </ButtonLink>
+      </EnlacePunch>
     </div>
   );
 }

@@ -82,6 +82,7 @@
   --animate-meneo: meneo 500ms ease-in-out;
   --animate-marquesina: marquesina 30s linear infinite;
   --animate-ola: marquesina 22s linear infinite;
+  --animate-destello: destello 2.8s ease-in-out infinite;
   --animate-entra: entra 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-desliza: desliza 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-lateral: lateral 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -142,6 +143,18 @@ body:has(.barra-formulario, .barra-guardar) .burbuja-lotito {
 :focus-visible:not(input, textarea):not([role="combobox"]) {
   outline: 2px solid var(--color-teal);
   outline-offset: 2px;
+}
+
+@keyframes destello {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(20deg);
+  }
 }
 
 @keyframes flotar {

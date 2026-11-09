@@ -7,7 +7,7 @@ import { urlFoto } from "@/lib/fotos";
 import { subirFotos } from "@/lib/subirFotos";
 import { createClient } from "@/lib/supabase/client";
 import { textos } from "@/lib/textos";
-import { Button } from "./Button";
+import { BotonPunch, estiloBotonPunch } from "./BotonesPunch";
 import { Icon } from "./Icon";
 import { Ventana } from "./Ventana";
 
@@ -170,7 +170,7 @@ export function SelectorGaleria({
         type="button"
         disabled={Boolean(onElegir) && maximo <= 0}
         onClick={() => void abrir()}
-        className={`inline-flex h-11 items-center justify-center gap-2 rounded-full border border-teal-oscuro bg-white px-5 text-sm font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica disabled:opacity-50 ${className}`}
+        className={`${estiloBotonPunch("secundario")} ${className}`}
       >
         <Icon nombre="camara" className="size-4" />
         {etiqueta}
@@ -178,7 +178,7 @@ export function SelectorGaleria({
       )}
       <Ventana ref={ventana} amplia titulo={t.ventana.titulo} ayuda={reemplazar ? t.ventana.ayudaVariante : onElegir ? t.ventana.ayudaElegir(maximo) : t.ventana.ayudaAdministrar}>
         {error && (
-          <div role="alert" className="flex items-start gap-2 rounded-xl border border-error bg-error-fondo px-3 py-2 text-sm font-medium text-error">
+          <div role="alert" className="flex items-start gap-2 rounded-2xl border border-chip-texto-rojo/20 bg-error-fondo px-3 py-2 text-sm font-medium text-error">
             <Icon nombre="alerta" className="mt-0.5 size-4 shrink-0" />
             <span className="min-w-0">{error}</span>
           </div>
@@ -194,12 +194,12 @@ export function SelectorGaleria({
             setEncima(false);
             void subir([...e.dataTransfer.files]);
           }}
-          className={`flex min-h-48 flex-col gap-3 rounded-2xl border border-dashed p-3 transition-colors ${
-            encima ? "border-teal-oscuro bg-limon" : "border-borde bg-fondo"
+          className={`flex min-h-48 flex-col gap-3 rounded-3xl border border-dashed p-3 transition-colors ${
+            encima ? "border-teal bg-ficha-celeste/40" : "border-borde-control/60 bg-gris-50"
           }`}
         >
           {encima ? (
-            <p className="m-auto py-10 text-center font-bold">{t.soltar}</p>
+            <p className="m-auto py-10 text-center font-medium text-teal-oscuro">{t.soltar}</p>
           ) : fotos === null ? (
             <p role="status" className="m-auto py-10 text-sm text-texto-2">
               {t.cargando}
@@ -211,7 +211,7 @@ export function SelectorGaleria({
                   type="button"
                   disabled={subiendo}
                   onClick={() => entrada.current?.click()}
-                  className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-teal-oscuro bg-superficie p-2 text-center text-xs font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-60"
+                  className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-[14px] border border-dashed border-borde-control bg-superficie p-2 text-center text-xs font-medium text-teal-oscuro transition-colors hover:border-teal hover:bg-teal-fondo disabled:opacity-60"
                 >
                   <Icon nombre="subir" className="size-6" />
                   {subiendo ? t.subiendo : fotos.length ? t.subir : t.arrastrar}
@@ -230,18 +230,18 @@ export function SelectorGaleria({
                       aria-pressed={onElegir ? marcada : undefined}
                       aria-label={t.foto(i + 1)}
                       onClick={() => alternar(f.ruta)}
-                      className={`relative block aspect-square w-full overflow-hidden rounded-xl border bg-superficie transition-[border-color,opacity] ${
-                        marcada ? "border-teal-oscuro" : "border-transparent"
-                      } ${onElegir && !puesta ? "hover:border-teal-oscuro" : ""} ${puesta ? "opacity-50" : ""}`}
+                      className={`relative block aspect-square w-full overflow-hidden rounded-[14px] border bg-superficie transition-[border-color,box-shadow,opacity] ${
+                        marcada ? "border-teal ring-[3px] ring-teal/20" : "border-linea"
+                      } ${onElegir && !puesta ? "hover:border-teal" : ""} ${puesta ? "opacity-50" : ""}`}
                     >
                       <Image src={urlFoto(f.ruta)} alt="" width={160} height={160} sizes="160px" className="size-full object-cover" />
                       {orden >= 0 && (
-                        <span className="absolute left-1 top-1 flex size-6 items-center justify-center rounded-full bg-teal-oscuro text-xs font-bold text-white">
+                        <span className="absolute left-1.5 top-1.5 flex size-6 items-center justify-center rounded-lg bg-teal-oscuro text-xs font-medium text-white">
                           {orden + 1}
                         </span>
                       )}
                       {puesta && (
-                        <span className="absolute inset-x-0 bottom-0 bg-teal-oscuro/80 px-1 py-0.5 text-center text-[11px] font-bold text-white">{t.yaPuesta}</span>
+                        <span className="absolute inset-x-0 bottom-0 bg-teal-oscuro/80 px-1 py-0.5 text-center text-[11px] font-medium text-white">{t.yaPuesta}</span>
                       )}
                       {!puesta && f.usos > 0 && (
                         <span className="absolute inset-x-0 bottom-0 bg-black/55 px-1 py-0.5 text-center text-[11px] text-white">{t.enUso(f.usos)}</span>
@@ -252,7 +252,7 @@ export function SelectorGaleria({
                         type="button"
                         aria-label={t.borrar(i + 1)}
                         onClick={() => borrar(f.ruta)}
-                        className="absolute right-1 top-1 flex size-7 items-center justify-center rounded-full bg-white/95 text-error shadow-sm hover:bg-error-fondo md:opacity-0 md:transition-opacity md:focus:opacity-100 md:group-hover:opacity-100"
+                        className="absolute right-1.5 top-1.5 flex size-7 items-center justify-center rounded-lg border border-linea bg-white/95 text-error shadow-xs hover:bg-error-fondo md:opacity-0 md:transition-opacity md:focus:opacity-100 md:group-hover:opacity-100"
                       >
                         <Icon nombre="x" className="size-4" strokeWidth={2.5} />
                       </button>
@@ -263,27 +263,27 @@ export function SelectorGaleria({
             </ul>
           )}
           {todas && todas.length > visibles && !encima && (
-            <Button type="button" variante="secundario" tamano="chico" className="self-center" onClick={() => setVisibles((v) => v + POR_PAGINA)}>
+            <BotonPunch type="button" className="self-center" onClick={() => setVisibles((v) => v + POR_PAGINA)}>
               {t.verMas(todas.length - visibles)}
-            </Button>
+            </BotonPunch>
           )}
           {fotos?.length === 0 && !encima && <p className="text-center text-sm text-texto-2">{t.vacia}</p>}
         </div>
-        <div className="sticky bottom-0 -mx-5 -mb-5 flex items-center justify-between gap-3 border-t border-borde bg-superficie px-5 py-3">
+        <div className="sticky bottom-0 -mx-5 -mb-5 flex items-center justify-between gap-3 border-t border-linea bg-superficie px-5 py-3">
           <p className="text-sm text-texto-2">{onElegir ? t.elegidas(elegidas.length) : fotos ? t.cuantas(fotos.length) : ""}</p>
           {onElegir ? (
             <div className="flex items-center gap-2">
-              <Button type="button" variante="secundario" onClick={() => ventana.current?.close()}>
+              <BotonPunch type="button" variante="secundario" onClick={() => ventana.current?.close()}>
                 {t.cancelar}
-              </Button>
-              <Button type="button" disabled={!reemplazar && !elegidas.length} onClick={usar}>
+              </BotonPunch>
+              <BotonPunch type="button" disabled={!reemplazar && !elegidas.length} onClick={usar}>
                 {reemplazar ? t.listo : t.usar(elegidas.length)}
-              </Button>
+              </BotonPunch>
             </div>
           ) : (
-            <Button type="button" onClick={() => ventana.current?.close()}>
+            <BotonPunch type="button" onClick={() => ventana.current?.close()}>
               {t.cerrar}
-            </Button>
+            </BotonPunch>
           )}
         </div>
       </Ventana>

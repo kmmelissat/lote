@@ -20,7 +20,7 @@ const ALTO_PX = 400;
 const FILAS = 6;
 
 const flecha =
-  "grid size-11 place-items-center rounded-full border border-teal-oscuro bg-superficie text-teal-oscuro hover:bg-limon disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-superficie";
+  "grid size-11 place-items-center rounded-[12px] border border-linea bg-superficie text-teal-oscuro hover:bg-gris-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-superficie";
 
 /**
  * El selector de fecha de la app: un calendario propio en vez del del navegador (que en cada teléfono se ve distinto).
@@ -185,7 +185,7 @@ export function SelectorFecha({
             abrir();
           }
         }}
-        className={`flex h-12 w-full items-center justify-between gap-3 rounded-[14px] border bg-superficie px-4 text-left text-base focus:border-teal disabled:opacity-50 ${error ? "border-error" : "border-borde-control"}`}
+        className={`flex h-12 w-full items-center justify-between gap-3 rounded-[14px] border bg-superficie px-4 text-left text-base text-teal-oscuro shadow-xs transition-colors focus:border-teal focus:outline-none focus:ring-[3px] focus:ring-teal/20 disabled:opacity-50 ${error ? "border-error" : "border-linea"}`}
       >
         <span className={`truncate ${elegida ? "" : "text-texto-2/70"}`}>{elegida ? verFecha(elegida) : placeholder}</span>
         <Icon nombre="calendario" className="size-5 shrink-0 text-teal-oscuro" />
@@ -203,7 +203,7 @@ export function SelectorFecha({
           role="dialog"
           aria-label={t.calendario(nombreMes)}
           onKeyDown={teclado}
-          className={`absolute z-20 w-[19.5rem] max-w-[calc(100vw-2rem)] animate-entra rounded-2xl border border-teal-oscuro bg-white p-3 shadow-dura ${
+          className={`absolute z-20 w-[19.5rem] max-w-[calc(100vw-2rem)] animate-entra rounded-[20px] border border-linea bg-white p-3 shadow-lg ${
             arriba ? "bottom-full mb-2" : "top-full mt-2"
           } ${aLaDerecha ? "right-0" : "left-0"}`}
         >
@@ -211,7 +211,7 @@ export function SelectorFecha({
             <button type="button" aria-label={t.anterior} disabled={sinAnterior} onClick={() => setMes(anterior)} className={flecha}>
               <Icon nombre="atras" className="size-5" strokeWidth={2.5} />
             </button>
-            <p aria-live="polite" className="text-center font-bold capitalize">
+            <p aria-live="polite" className="text-center font-semibold capitalize text-teal-oscuro">
               {nombreMes}
             </p>
             <button type="button" aria-label={t.siguiente} disabled={sinSiguiente} onClick={() => setMes(siguiente)} className={flecha}>
@@ -222,7 +222,7 @@ export function SelectorFecha({
           <div role="grid" aria-label={nombreMes} className="flex flex-col gap-1">
             <div role="row" className="grid grid-cols-7">
               {t.diasCortos.map((d, i) => (
-                <span key={i} role="columnheader" aria-label={t.diasLargos[i]} className="grid h-8 place-items-center text-xs font-bold text-texto-2">
+                <span key={i} role="columnheader" aria-label={t.diasLargos[i]} className="grid h-8 place-items-center text-xs font-medium text-texto-2">
                   {d}
                 </span>
               ))}
@@ -242,10 +242,10 @@ export function SelectorFecha({
                         aria-label={`${leerIso(dia)!.dia} de ${t.meses[mes.mes - 1]} de ${mes.año}`}
                         aria-current={dia === hoy ? "date" : undefined}
                         onClick={() => elegir(dia)}
-                        className={`mx-auto grid size-10 place-items-center rounded-full text-sm tabular-nums focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal disabled:cursor-not-allowed disabled:text-texto-2/40 ${
+                        className={`mx-auto grid size-10 place-items-center rounded-[12px] text-sm tabular-nums focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal disabled:cursor-not-allowed disabled:text-texto-2/40 ${
                           dia === elegida
-                            ? "bg-teal-oscuro font-bold text-white"
-                            : `${dia === hoy ? "border border-teal-oscuro font-bold" : ""} enabled:hover:bg-limon`
+                            ? "bg-teal-oscuro font-medium text-white"
+                            : `${dia === hoy ? "border border-teal-oscuro font-medium" : ""} enabled:hover:bg-gris-100`
                         }`}
                       >
                         {leerIso(dia)!.dia}
@@ -257,7 +257,7 @@ export function SelectorFecha({
             ))}
           </div>
 
-          <div className="mt-2 flex items-center justify-between gap-2 border-t border-borde pt-2">
+          <div className="mt-2 flex items-center justify-between gap-2 border-t border-linea pt-2">
             <button
               type="button"
               disabled={!dentroDeLimites(hoy, min, max)}

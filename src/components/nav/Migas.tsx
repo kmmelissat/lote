@@ -105,25 +105,30 @@ export function Migas({ className = "mb-3" }: { className?: string }) {
   const { casa, items } = ruta;
   const casaActual = items.length === 0;
   const panel = casa.href === "/inicio";
-  // En el panel solo hay migas cuando hay niveles (Productos / Ropa / Chaqueta): en una pantalla raíz el título ya dice dónde estás
+  // En el panel solo hay migas cuando hay niveles (Productos / Promociones): en una pantalla raíz el título ya dice dónde estás
   if (panel && items.length < 2) return null;
 
   return (
     <nav aria-label={textos.nav.migas} className={className}>
       <ol className={`flex flex-wrap items-center ${panel ? "gap-1.5" : "gap-0.5"}`}>
-        <li>
-          <Pastilla actual={casaActual} href={casa.href} panel={panel}>
-            {!panel && <Icon nombre={casa.icono} className="size-3.5 shrink-0" />}
-            {casa.etiqueta}
-          </Pastilla>
-        </li>
+        {/* En el panel no se pone "Inicio": la cadena arranca en la sección (Productos / Promociones) */}
+        {!panel && (
+          <li>
+            <Pastilla actual={casaActual} href={casa.href} panel={panel}>
+              <Icon nombre={casa.icono} className="size-3.5 shrink-0" />
+              {casa.etiqueta}
+            </Pastilla>
+          </li>
+        )}
         {items.map((miga, i) => {
           const actual = i === items.length - 1;
           return (
             <Fragment key={miga.href}>
-              <li aria-hidden="true" className="px-0.5 text-xs text-teal-oscuro/30 aria-hidden:select-none">
-                /
-              </li>
+              {(i > 0 || !panel) && (
+                <li aria-hidden="true" className="px-0.5 text-xs text-teal-oscuro/30 aria-hidden:select-none">
+                  /
+                </li>
+              )}
               <li className="min-w-0">
                 <Pastilla actual={actual} href={miga.href} panel={panel}>
                   {miga.etiqueta}

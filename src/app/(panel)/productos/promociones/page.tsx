@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { ButtonLink } from "@/components/ui/Button";
+import { EnlacePunch } from "@/components/ui/BotonesPunch";
+import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { actualizarOfertas, ofertasDeTienda } from "@/features/offers/repositorio";
 import { ListaOfertas } from "@/features/offers/ui/ListaOfertas";
@@ -37,9 +38,10 @@ async function Pantalla() {
   const [promociones, ofertas] = await Promise.all([listarPromociones(supabase, negocio.id), ofertasDeTienda(supabase, negocio.id)]);
 
   const nueva = (
-    <ButtonLink href="/productos/promociones/nueva" variante="mango" icono="mas" className="w-full md:w-auto">
+    <EnlacePunch href="/productos/promociones/nueva" variante="primario" className="w-full md:w-auto">
+      <Icon nombre="mas" className="size-4" />
       {t.nueva}
-    </ButtonLink>
+    </EnlacePunch>
   );
 
   if (!promociones.length && !ofertas.length) {

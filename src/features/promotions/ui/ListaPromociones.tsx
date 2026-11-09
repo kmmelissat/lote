@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { BotonIcono } from "@/components/ui/BotonIcono";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { useConfirmar } from "@/components/ui/Confirmar";
-import { Interruptor } from "@/components/ui/Interruptor";
+import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { TarjetaPromocion } from "@/components/ui/TarjetaPromocion";
 import { useToast } from "@/components/ui/Toast";
@@ -53,7 +53,7 @@ export function ListaPromociones({ promociones }: { promociones: Promocion[] }) 
 
   return (
     <section aria-labelledby="tus-promociones" className="flex flex-col gap-3">
-      <h2 id="tus-promociones" className="text-lg font-bold">
+      <h2 id="tus-promociones" className="text-lg font-semibold text-teal-oscuro">
         {t.tusPromociones}
       </h2>
       <MensajeError>{error}</MensajeError>
@@ -85,16 +85,27 @@ export function ListaPromociones({ promociones }: { promociones: Promocion[] }) 
                 fechas={desde || hasta ? t.fechas(desde, hasta) : null}
                 pie={
                   <>
-                    <div className="min-w-0 flex-1">
-                      <Interruptor
-                        titulo={p.activa ? t.encendida : t.apagada}
-                        etiqueta={t.interruptor(p.nombre)}
-                        activo={p.activa}
+                    <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 has-[:disabled]:cursor-wait has-[:disabled]:opacity-60">
+                      <input
+                        type="checkbox"
+                        role="switch"
+                        aria-label={t.interruptor(p.nombre)}
+                        checked={p.activa}
                         disabled={pendiente}
-                        onCambio={() => encender(p)}
+                        onChange={() => encender(p)}
+                        className="peer sr-only"
                       />
-                    </div>
-                    <BotonIcono icono="borrar" etiqueta={t.borrarEtiqueta(p.nombre)} variante="suave" tamano="chico" disabled={pendiente} onClick={() => borrar(p)} />
+                      <span
+                        aria-hidden="true"
+                        className="relative h-6 w-10 shrink-0 rounded-full border border-linea bg-gris-100 transition-colors peer-checked:border-teal-oscuro peer-checked:bg-teal-oscuro peer-focus-visible:ring-[3px] peer-focus-visible:ring-teal/30 peer-checked:[&>span]:translate-x-4"
+                      >
+                        <span className="absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow-xs transition-transform duration-150" />
+                      </span>
+                      <span className="truncate text-sm font-medium text-teal-oscuro">{p.activa ? t.encendida : t.apagada}</span>
+                    </label>
+                    <BotonPunch type="button" variante="secundario" aria-label={t.borrarEtiqueta(p.nombre)} disabled={pendiente} onClick={() => borrar(p)} className="size-10 shrink-0 px-0 text-error">
+                      <Icon nombre="borrar" className="size-4" />
+                    </BotonPunch>
                   </>
                 }
               />

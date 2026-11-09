@@ -6,8 +6,8 @@ import { EnlacePunch } from "@/components/ui/BotonesPunch";
 import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { esFalta, esFiltroEstado, esOrden, FILTROS_ESTADO, type Falta, type Orden } from "@/features/products/filtro";
-import { categoriasEnUso, listarProductos } from "@/features/products/repositorio";
-import { productosQueNoSeMueven } from "@/features/profit/parados";
+import { listarProductos } from "@/features/products/repositorio";
+import { actividadDeProductos, productosQueNoSeMueven } from "@/features/profit/parados";
 import { DineroParado } from "@/features/profit/ui/PiezasCuadre";
 import { AcomodarCategorias } from "@/features/products/ui/AcomodarCategorias";
 import { AvisoCreado } from "@/features/products/ui/AvisoCreado";
@@ -36,10 +36,11 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
   const faltaPedida: Falta | undefined = esFalta(String(params.falta)) ? (String(params.falta) as Falta) : undefined;
   const abrirParados = params.parados === "1";
   const { supabase, negocio } = await negocioActual();
-  const [todos, categorias] = await Promise.all([
-    listarProductos(supabase, negocio.id, negocio.puedeGestionar),
-    categoriasEnUso(supabase, negocio.id),
-  ]);
+  // La actividad (para los parados) no depende de la lista: se pide a la vez. Si falla, se reintenta al usarla.
+  const actividad = negocio.puedeGestionar ? actividadDeProductos(supabase, negocio.id).catch(() => null) : undefined;
+  const todos = await listarProductos(supabase, negocio.id, negocio.puedeGestionar);
+  // Las categorías salen de la misma lista: no hace falta otra consulta a la tabla de productos
+  const categorias = [...new Set(todos.flatMap((p) => (p.categoria ? [p.categoria] : [])))].sort((a, b) => a.localeCompare(b, "es"));
   if (!todos.length) {
     return (
       <>
@@ -67,7 +68,7 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
   const sinCategoria = negocio.puedeGestionar ? new Set(todos.filter((p) => !p.categoria).map((p) => p.grupo ?? p.id)).size : 0;
 
   // Solo quien ve los costos: sin ellos no se sabe cuánto dinero hay parado
-  const parados = negocio.puedeGestionar ? await productosQueNoSeMueven(supabase, negocio.id, todos) : null;
+  const parados = negocio.puedeGestionar ? await productosQueNoSeMueven(supabase, negocio.id, todos, new Date(), actividad) : null;
 
   return (
     <>

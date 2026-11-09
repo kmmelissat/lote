@@ -14,7 +14,10 @@ import { resumenInicio } from "@/features/home/resumen";
 import { buscarPedidos, paginaDePedidos } from "@/features/orders/repositorio";
 import { contarUnidades } from "@/features/products/repositorio";
 import { resumenPorPeriodos } from "@/features/profit/repositorio";
-import { fechaLocalDe } from "@/domain";
+import { fechaLocalDe, unirMovimientos } from "@/domain";
+import { flujoPorPeriodos } from "@/features/home/flujo";
+import { gastosComoSalidas, pagosDelPeriodo } from "@/features/profit/movimientos";
+import { partidasDelPeriodo } from "@/features/gestion/apartes";
 import { periodoInicio, tramosDelGrafico } from "@/features/home/periodoInicio";
 import { SelectorPeriodo } from "@/features/home/ui/SelectorPeriodo";
 import { compararCifra, rangoCorto } from "@/features/home/resumenSemana";
@@ -56,8 +59,20 @@ async function Contenido({ bienvenida, modoPedido, desdePedido, hastaPedido }: {
       ? aplicarGastosFijos(supabase, negocio.id, fechaLocalDe(ahora)).then(async () => {
           // Una sola consulta para las cifras (anterior y actual) y las barras: los periodos se traslapan.
           const fijos = previo ? [previo, periodo] : [periodo];
-          const todos = await resumenPorPeriodos(supabase, negocio.id, [...fijos, ...tramos.map((x) => x.periodo)]);
-          return [todos.slice(0, fijos.length), todos.slice(fijos.length)] as const;
+          const todosPeriodos = [...fijos, ...tramos.map((x) => x.periodo)];
+          const masTemprano = todosPeriodos.reduce((a, b) => (b.desde < a.desde ? b : a));
+          const masTarde = todosPeriodos.reduce((a, b) => (b.hasta > a.hasta ? b : a));
+          const rangoTotal = { ...masTemprano, hasta: masTarde.hasta, hastaFecha: masTarde.hastaFecha };
+          // Entró y salió se cuentan igual que en el Balance: el dinero que de verdad se movió, no lo vendido
+          const [todos, pagos, gastos, { apartes, traslados }] = await Promise.all([
+            resumenPorPeriodos(supabase, negocio.id, todosPeriodos),
+            pagosDelPeriodo(supabase, negocio.id, rangoTotal),
+            gastosComoSalidas(supabase, negocio.id, rangoTotal),
+            partidasDelPeriodo(supabase, negocio.id, rangoTotal),
+          ]);
+          const flujo = flujoPorPeriodos(unirMovimientos(pagos, gastos, apartes, traslados), todosPeriodos);
+          const conFlujo = todos.map((x, i) => ({ ...x, entro: flujo[i].entradas, salio: flujo[i].salidas }));
+          return [conFlujo.slice(0, fijos.length), conFlujo.slice(fijos.length)] as const;
         })
       : null,
     negocio.puedeGestionar ? contarPendientes(supabase, negocio.id) : 0,
@@ -106,7 +121,7 @@ async function Contenido({ bienvenida, modoPedido, desdePedido, hastaPedido }: {
   const datos = (i: number) => {
     const sem = cifras?.[0].at(i);
     return sem
-      ? { vendido: sem.vendido, gastos: sem.resumen.gastos, ganancia: sem.gananciaDespuesDeGastos, pedidos: sem.resumen.pedidos, estimada: sem.estimada }
+      ? { vendido: sem.entro, gastos: sem.salio, ganancia: sem.gananciaDespuesDeGastos, pedidos: sem.resumen.pedidos, estimada: sem.estimada }
       : null;
   };
   const actual = datos(-1);
@@ -122,9 +137,9 @@ async function Contenido({ bienvenida, modoPedido, desdePedido, hastaPedido }: {
 
         {actual && (
           <section aria-label={`${titulo}, ${rango}`} className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <CifraPeriodo etiqueta="Vendiste" valor={formatearDolares(actual.vendido)} cambio={anterior ? compararCifra(actual.vendido, anterior.vendido, contra) : null} href="/balance" icono="moneda" color="bg-ficha-celeste" />
+            <CifraPeriodo etiqueta="Ingresos" valor={formatearDolares(actual.vendido)} cambio={anterior ? compararCifra(actual.vendido, anterior.vendido, contra) : null} href="/balance" icono="moneda" color="bg-ficha-celeste" />
             <CifraPeriodo etiqueta="Ganancia" valor={formatearDolares(actual.ganancia)} cambio={anterior ? compararCifra(actual.ganancia, anterior.ganancia, contra) : null} href="/balance/detalle" icono="moneda" color="bg-ficha-verde" />
-            <CifraPeriodo etiqueta="Gastos" valor={formatearDolares(actual.gastos)} cambio={anterior ? compararCifra(actual.gastos, anterior.gastos, contra) : null} masEsMalo href="/movimientos" icono="billetera" color="bg-ficha-rosa" />
+            <CifraPeriodo etiqueta="Egresos" valor={formatearDolares(actual.gastos)} cambio={anterior ? compararCifra(actual.gastos, anterior.gastos, contra) : null} masEsMalo href="/movimientos" icono="billetera" color="bg-ficha-rosa" />
             <CifraPeriodo etiqueta="Pedidos" valor={actual.pedidos} cambio={anterior ? compararCifra(actual.pedidos, anterior.pedidos, contra, String) : null} href="/pedidos" icono="pedidos" color="bg-ficha-amarillo" />
           </section>
         )}
@@ -134,7 +149,7 @@ async function Contenido({ bienvenida, modoPedido, desdePedido, hastaPedido }: {
           {cifras && (
             <GraficoPeriodo
               subtitulo={`${titulo} · ${rango}`}
-              puntos={cifras[1].map((x, i) => ({ etiqueta: tramos[i].etiqueta, vendido: x.vendido / 100, gastos: x.resumen.gastos / 100, pedidos: x.resumen.pedidos }))}
+              puntos={cifras[1].map((x, i) => ({ etiqueta: tramos[i].etiqueta, vendido: x.entro / 100, gastos: x.salio / 100, pedidos: x.resumen.pedidos }))}
             />
           )}
           <div className={`flex flex-col *:flex-1 ${cifras ? "" : "lg:col-span-2"}`}>

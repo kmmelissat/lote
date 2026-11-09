@@ -1,10 +1,9 @@
 "use client";
 
+import { BotonPunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { AtajosDeFechas } from "@/components/ui/AtajosDeFechas";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { useConfirmar } from "@/components/ui/Confirmar";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { MensajeError } from "@/components/ui/MensajeError";
@@ -107,7 +106,7 @@ export function OfertaProducto({
   }
 
   return (
-    <Card role="region" aria-labelledby="oferta-producto" className="flex flex-col gap-4">
+    <div role="region" aria-labelledby="oferta-producto" className={`${TARJETA_PUNCH} flex flex-col gap-4`}>
       <div>
         <h2 id="oferta-producto" className="font-bold">
           {t.titulo}
@@ -120,15 +119,15 @@ export function OfertaProducto({
       {ofertas.length > 0 ? (
         <ul className="flex flex-col gap-3">
           {ofertas.map((o) => (
-            <li key={o.lote} className="flex flex-col gap-2 rounded-2xl border border-teal-oscuro bg-limon p-4">
+            <li key={o.lote} className="flex flex-col gap-2 rounded-[20px] border border-linea bg-ficha-amarillo p-4">
               <p className="font-bold">
                 {o.estado === "activa" ? t.activa : t.programada} · {t.rebaja(textoDeRebaja(o.descuento))}
               </p>
               <p className="text-sm">{t.fechas(formatearDia(o.desde), formatearDia(o.hasta))}</p>
               <p className="text-sm">{t.precios(rango(o.precios))}</p>
-              <Button type="button" variante="suave" disabled={pendiente} onClick={() => cancelar(o.lote)} className="self-start text-sm">
+              <BotonPunch type="button" variante="secundario" disabled={pendiente} onClick={() => cancelar(o.lote)} className="self-start">
                 {pendiente ? t.cancelando : t.cancelar}
-              </Button>
+              </BotonPunch>
             </li>
           ))}
         </ul>
@@ -152,7 +151,7 @@ export function OfertaProducto({
                     setModo(m);
                     setValor("");
                   }}
-                  className={`min-h-11 flex-1 rounded-full border border-teal-oscuro px-3 text-sm font-medium ${modo === m ? "bg-limon font-bold" : "bg-superficie"}`}
+                  className={`min-h-11 flex-1 rounded-[14px] border border-linea px-3 text-sm font-medium ${modo === m ? "bg-ficha-amarillo font-bold" : "bg-superficie"}`}
                 >
                   {t.modos[m]}
                 </button>
@@ -200,12 +199,12 @@ export function OfertaProducto({
             </p>
           )}
           <MensajeError>{error}</MensajeError>
-          <Button type="submit" variante="mango" disabled={pendiente || !listo} className="self-start">
+          <BotonPunch type="submit" disabled={pendiente || !listo} className="self-start">
             {pendiente ? t.programando : t.programar}
-          </Button>
+          </BotonPunch>
         </form>
       )}
       {ofertas.length > 0 && <MensajeError>{error}</MensajeError>}
-    </Card>
+    </div>
   );
 }

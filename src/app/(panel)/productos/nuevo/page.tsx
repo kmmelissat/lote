@@ -47,7 +47,7 @@ async function Formulario({ searchParams }: Pick<PageProps<"/productos/nuevo">, 
       />
       <div className="flex flex-col gap-4">
         {original && (
-          <p className="max-w-xl rounded-xl bg-perla px-4 py-3 text-ambar-texto">
+          <p className="max-w-xl rounded-2xl border border-chip-texto-amarillo/20 bg-chip-amarillo/40 px-4 py-3 text-sm text-chip-texto-amarillo">
             {textos.productos.copiar.aviso(original.nombre)}
           </p>
         )}

@@ -95,12 +95,12 @@ export function LoteForm({ negocioId, cuentas, tarjetas = [] }: { negocioId: str
 
       <div className="flex w-full max-w-3xl flex-col gap-6">
         <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-borde [&>*+*]:pt-6">
-          <BloqueForm numero={1} titulo={b.fotos.titulo} ayuda={b.fotos.ayuda} tono="limon" listo={rutas.length > 0}>
+          <BloqueForm numero={1} titulo={b.fotos.titulo} ayuda={b.fotos.ayuda} tono="celeste" listo={rutas.length > 0}>
             <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={setRutas} maximo={MAXIMO_LOTE} conMiniaturas={false} />
           </BloqueForm>
 
           {rutas.length > 0 && (
-            <BloqueForm numero={2} titulo={b.piezas.titulo} ayuda={b.piezas.ayuda} tono="mango" listo={sinNombre === 0}>
+            <BloqueForm numero={2} titulo={b.piezas.titulo} ayuda={b.piezas.ayuda} tono="rosa" listo={sinNombre === 0}>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                 <p className="font-bold">{t.piezas(rutas.length)}</p>
                 <Button type="button" variante="suave" tamano="chico" disabled={leyendo} onClick={sugerirNombres}>
@@ -211,7 +211,7 @@ export function LoteForm({ negocioId, cuentas, tarjetas = [] }: { negocioId: str
               {sinNombre > 0 ? t.nombresFaltan(sinNombre) : t.errorSinPrecio}
             </p>
           )}
-          <Button type="submit" variante="mango" icono="check" disabled={pendiente || !listo}>
+          <Button type="submit" variante="primario" icono="check" disabled={pendiente || !listo}>
             {pendiente ? t.creando : t.crear(rutas.length)}
           </Button>
         </BarraFormulario>

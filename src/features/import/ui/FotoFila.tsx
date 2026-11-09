@@ -43,7 +43,7 @@ export function FotoFila({ negocioId, nombre, ruta, alCambiar }: Props) {
       <label
         htmlFor={id}
         title={fallo ? t.error : undefined}
-        className={`relative flex size-11 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-teal-oscuro bg-white text-teal-oscuro transition-colors hover:bg-limon focus-within:ring-2 focus-within:ring-teal ${fallo ? "border-error text-error" : ""} ${ruta ? "border-solid" : ""}`}
+        className={`relative flex size-11 cursor-pointer items-center justify-center overflow-hidden rounded-[10px] border border-dashed border-borde-control/60 bg-gris-50 text-texto-2 transition-colors hover:border-teal hover:bg-teal-fondo hover:text-teal-oscuro focus-within:ring-2 focus-within:ring-teal ${fallo ? "border-error text-error" : ""} ${ruta ? "border-solid" : ""}`}
       >
         {ruta ? (
           <Image src={urlFoto(ruta)} alt={t.alt(nombre)} width={44} height={44} className="size-full object-cover" />
@@ -54,7 +54,7 @@ export function FotoFila({ negocioId, nombre, ruta, alCambiar }: Props) {
         <input id={id} type="file" accept="image/*" disabled={subiendo} onChange={elegir} className="sr-only" />
       </label>
       {ruta && (
-        <button type="button" onClick={() => alCambiar(undefined)} className="text-xs font-bold text-teal-oscuro underline">
+        <button type="button" onClick={() => alCambiar(undefined)} className="text-xs font-medium text-texto-2 underline hover:text-teal-oscuro">
           {t.quitar}
         </button>
       )}

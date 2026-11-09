@@ -21,12 +21,13 @@ function Destello({ className, retraso }: { className: string; retraso: string }
 
 const FICHAS = ["bg-ficha-amarillo", "bg-ficha-verde", "bg-ficha-rosa", "bg-ficha-celeste"];
 
-type Pendiente = { clave: string; fondo: string; punto: string; cifra: string; titulo: string; detalle: string; href: Route; accion: string };
+type Pendiente = { clave: string; emoji: string; fondo: string; punto: string; cifra: string; titulo: string; detalle: string; href: Route; accion: string };
 
 /** Lo que hay que hacer hoy, de más a menos urgente: primero los apartados que vencen, luego cobrar y enviar. */
 function pendientes(r: ResumenInicio, ahora: Date): Pendiente[] {
   const lista: Pendiente[] = r.seEnfrian.slice(0, 3).map((p) => ({
     clave: `apartado-${p.id}`,
+    emoji: "💸",
     fondo: "bg-ficha-rosa",
     punto: "bg-[#e0527f]",
     cifra: formatearDolares(p.total),
@@ -36,9 +37,9 @@ function pendientes(r: ResumenInicio, ahora: Date): Pendiente[] {
     accion: t.cobrarAccion,
   }));
   if (r.porPagar > 0)
-    lista.push({ clave: "por-pagar", fondo: "bg-ficha-amarillo", punto: "bg-[#d19200]", cifra: String(r.porPagar), titulo: t.porPagarEtiqueta(r.porPagar), detalle: t.porPagarAyuda, href: "/pedidos?estado=pendiente", accion: t.verAccion });
+    lista.push({ clave: "por-pagar", emoji: "💸", fondo: "bg-ficha-amarillo", punto: "bg-[#d19200]", cifra: String(r.porPagar), titulo: t.porPagarEtiqueta(r.porPagar), detalle: t.porPagarAyuda, href: "/pedidos?estado=pendiente", accion: t.verAccion });
   if (r.porEnviar > 0)
-    lista.push({ clave: "por-enviar", fondo: "bg-ficha-celeste", punto: "bg-[#2a9fd0]", cifra: String(r.porEnviar), titulo: t.porEnviarTitulo(r.porEnviar), detalle: t.porEnviarAyuda, href: "/pedidos?estado=pagado", accion: t.enviarAccion });
+    lista.push({ clave: "por-enviar", emoji: "📦", fondo: "bg-ficha-teal/40", punto: "bg-[#1fa8ad]", cifra: String(r.porEnviar), titulo: t.porEnviarTitulo(r.porEnviar), detalle: t.porEnviarAyuda, href: "/pedidos?estado=pagado", accion: t.enviarAccion });
   return lista;
 }
 
@@ -91,13 +92,18 @@ export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date })
 
   return (
     <section aria-labelledby="atencion" className={`flex h-full flex-col gap-6 rounded-3xl p-6 ${principal.fondo}`}>
-      <h2 id="atencion" className="text-sm font-semibold text-teal-oscuro/70">
-        {t.accionTitulo}
-      </h2>
+      <div className="flex items-start justify-between gap-3">
+        <h2 id="atencion" className="text-sm font-semibold text-teal-oscuro/70">
+          {t.accionTitulo}
+        </h2>
+        <span aria-hidden="true" className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-superficie/70 text-3xl leading-none">
+          {principal.emoji}
+        </span>
+      </div>
 
-      <div className="flex flex-col gap-1">
-        <p className="text-6xl font-semibold leading-none tracking-tighter text-teal-oscuro tabular-nums">{principal.cifra}</p>
-        <p className="mt-2 text-lg font-semibold text-teal-oscuro">{principal.titulo}</p>
+      <div className="flex flex-1 flex-col justify-center gap-1">
+        <p className="text-7xl font-semibold leading-none tracking-tighter text-teal-oscuro tabular-nums">{principal.cifra}</p>
+        <p className="mt-3 text-lg font-semibold text-teal-oscuro">{principal.titulo}</p>
         <p className="text-sm text-teal-oscuro/70">{principal.detalle}</p>
       </div>
 

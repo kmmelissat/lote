@@ -17,7 +17,7 @@ export function Field({ etiqueta, error, sugerido, className = "", onChange, ...
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={`h-11 rounded-[14px] border border-linea bg-superficie px-3.5 text-sm outline-none focus:border-teal ${className}`}
+        className={`h-11 rounded-[14px] border border-linea bg-superficie px-3.5 text-sm text-teal-oscuro shadow-xs transition-colors placeholder:text-texto-2/60 focus:border-teal focus:outline-none focus:ring-[3px] focus:ring-teal/20 ${className}`}
         {...props}
         onChange={(e) => {
           e.target.value = limpiarSiNumero(e.target.value, props.inputMode, props.type);
