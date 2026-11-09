@@ -52,11 +52,11 @@ export function PedidosRecientes({ pedidos }: { pedidos: Pedido[] }) {
                   className="flex min-h-16 items-center gap-3 rounded-[14px] px-2 py-2.5 transition-colors hover:bg-gris-50"
                 >
                   {foto ? (
-                    <Image src={urlFoto(foto)} alt="" width={40} height={40} className="size-10 shrink-0 rounded-xl border border-linea object-cover" />
+                    <Image src={urlFoto(foto)} alt="" width={40} height={40} className="size-10 shrink-0 rounded-full border border-linea object-cover" />
                   ) : (
                     <span
                       aria-hidden="true"
-                      className={`flex size-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-teal-oscuro ${colorDe(cliente)}`}
+                      className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-teal-oscuro ${colorDe(cliente)}`}
                     >
                       {cliente.trim().charAt(0).toUpperCase() || "?"}
                     </span>
