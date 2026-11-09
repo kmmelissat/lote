@@ -2,7 +2,7 @@
 
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useState } from "react";
-import { BotonPunch, TARJETA_PUNCH } from "./BotonesPunch";
+import { BotonPunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { useConfirmar } from "@/components/ui/Confirmar";
 import { Field } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";

@@ -1,7 +1,7 @@
 import { formatearDiaYHora, formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { CierrePasado } from "../repositorio";
-import { TARJETA_PUNCH } from "./BotonesPunch";
+import { TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 
 const t = textos.caja.historial;
 

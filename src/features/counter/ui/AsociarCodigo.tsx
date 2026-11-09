@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BotonPunch, TARJETA_PUNCH } from "./BotonesPunch";
+import { BotonPunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { textos } from "@/lib/textos";
 import { asociarCodigoDeBarras } from "../actions/vender";
 import { coincide, nombreCompleto, normalizar } from "../mostrador";

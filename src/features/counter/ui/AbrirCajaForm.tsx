@@ -5,7 +5,7 @@ import { Field } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 import { abrirLaCaja, type EstadoCaja } from "../actions/caja";
-import { BotonPunch, TARJETA_PUNCH } from "./BotonesPunch";
+import { BotonPunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 
 const t = textos.caja;
 

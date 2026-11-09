@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { pocoStock } from "@/domain";
@@ -210,6 +209,7 @@ export function ListaProductos({
 
       <div className="flex flex-wrap items-center gap-2">
         <CampoBusqueda
+          punch
           className="min-w-48 flex-1 md:max-w-md"
           role="searchbox"
           aria-label={t.buscar.etiqueta}
@@ -221,23 +221,23 @@ export function ListaProductos({
           }}
         />
         <div className="flex items-center gap-2 md:ml-auto">
-          <Button
-            variante="suave"
-            icono="filtros"
+          <BotonPunch
+            variante="secundario"
             aria-expanded={verFiltros}
             aria-controls="filtros-productos"
             onClick={() => setVerFiltros((v) => !v)}
           >
+            <Icon nombre="filtros" className="size-4" />
             {t.buscar.filtros}
             {filtrosActivos > 0 && (
-              <span className="rounded-full bg-teal-oscuro px-2 text-xs tabular-nums text-white">{filtrosActivos}</span>
+              <span className="rounded-md bg-teal-oscuro px-1.5 text-xs tabular-nums text-white">{filtrosActivos}</span>
             )}
-          </Button>
+          </BotonPunch>
         </div>
       </div>
 
       <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
-        <div role="group" aria-label={t.buscar.estados} className="flex min-w-full gap-2 md:min-w-0 md:flex-wrap">
+        <div role="group" aria-label={t.buscar.estados} className="flex w-max min-w-full gap-1 rounded-[14px] bg-gris-100 p-1 md:w-fit md:min-w-0">
           {FILTROS_ESTADO.filter((e) => e === "todos" || e === estado || (cantidades[e] > 0 && cantidades[e] < cantidades.todos)).map((e) => {
             const activo = e === estado;
             return (
@@ -250,7 +250,7 @@ export function ListaProductos({
                   setEstado(e);
                   guardarEnUrl({ estado: e });
                 }}
-                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-bold text-texto-2 transition-colors hover:bg-fondo aria-pressed:bg-teal-fondo aria-pressed:text-teal-oscuro md:min-h-10">
+                className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-medium text-texto-2 transition-colors hover:text-teal-oscuro aria-pressed:border-linea aria-pressed:bg-superficie aria-pressed:text-teal-oscuro aria-pressed:shadow-xs border border-transparent md:min-h-9">
                 {e === "poco" ? (
                   <>
                     <span className="md:hidden">{t.buscar.pocoCorto}</span>
@@ -266,7 +266,7 @@ export function ListaProductos({
         </div>
       </div>
 
-      <div id="filtros-productos" hidden={!verFiltros} className="flex flex-wrap items-end gap-3 rounded-[24px] border border-borde bg-superficie p-4">
+      <div id="filtros-productos" hidden={!verFiltros} className="flex flex-wrap items-end gap-3 rounded-3xl border border-linea bg-superficie p-4">
         {categorias.length > 0 && (
           <div className="w-full sm:w-56">
             <ListaDesplegable
@@ -305,7 +305,7 @@ export function ListaProductos({
                 setFalta(nueva);
                 guardarEnUrl({ falta: nueva });
               }}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-borde-control bg-superficie px-4 text-sm font-bold text-teal-oscuro transition-colors hover:bg-fondo aria-pressed:border-teal-oscuro aria-pressed:bg-teal-fondo md:min-h-10"
+              className="inline-flex min-h-11 items-center gap-2 rounded-[14px] border border-linea bg-superficie px-4 text-sm font-medium text-teal-oscuro transition-colors hover:bg-gris-50 aria-pressed:border-teal aria-pressed:bg-teal-fondo md:min-h-10"
             >
               {f === "costo" ? t.buscar.sinCosto : t.buscar.sinFoto}
             </button>
@@ -318,9 +318,8 @@ export function ListaProductos({
           texto={t.buscar.sinResultados}
           accion={
             filtrando ? (
-              <Button
+              <BotonPunch
                 variante="secundario"
-                icono="x"
                 onClick={() => {
                   setTexto("");
                   setEstado("todos");
@@ -329,17 +328,18 @@ export function ListaProductos({
                   guardarEnUrl({ texto: "", estado: "todos", categoria: "", falta: undefined });
                 }}
               >
+                <Icon nombre="x" className="size-4" />
                 {t.buscar.limpiar}
-              </Button>
+              </BotonPunch>
             ) : undefined
           }
         />
       ) : (
-        <Card className="overflow-hidden p-0 md:p-0">
+        <div className="overflow-hidden rounded-3xl border border-linea bg-superficie shadow-xs">
           {/* Encabezados de las columnas: solo en pantalla ancha, donde las columnas se alinean */}
           <div
             aria-hidden="true"
-            className={`hidden gap-x-4 border-b border-borde px-4 py-2 text-xs font-medium uppercase tracking-wide text-texto-2 md:grid ${columnas}`}
+            className={`hidden gap-x-4 border-b border-linea bg-gris-50 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-texto-2 md:grid ${columnas}`}
           >
             <span />
             <span>{t.lista.producto}</span>
@@ -356,18 +356,18 @@ export function ListaProductos({
               const foto = g.miembros.find((m) => m.fotos[0])?.fotos[0];
               const idLista = `variantes-${g.clave}`;
               return (
-                <li key={g.clave} className="border-t border-borde first:border-t-0">
-                  <div className={`${fila} hover:bg-teal-fondo`}>
+                <li key={g.clave} className="border-t border-linea first:border-t-0">
+                  <div className={`${fila} hover:bg-gris-50`}>
                     {foto ? (
                       <Image
                         src={urlFoto(foto)}
                         alt=""
                         width={56}
                         height={56}
-                        className="size-14 rounded-xl border border-teal-oscuro/20 object-cover max-md:row-span-2 max-md:self-start"
+                        className="size-14 rounded-[14px] border border-linea object-cover max-md:row-span-2 max-md:self-start"
                       />
                     ) : (
-                      <span aria-hidden="true" className="flex size-14 items-center justify-center rounded-xl border border-teal-oscuro/20 bg-fondo text-texto-2 max-md:row-span-2 max-md:self-start">
+                      <span aria-hidden="true" className="flex size-14 items-center justify-center rounded-[14px] border border-linea bg-gris-100 text-texto-2 max-md:row-span-2 max-md:self-start">
                         <Icon nombre="caja" className="size-6" />
                       </span>
                     )}
@@ -382,7 +382,7 @@ export function ListaProductos({
                           aria-expanded={abierto}
                           aria-controls={idLista}
                           onClick={() => alternar(g.clave)}
-                          className="relative z-10 -ml-2 inline-flex min-h-8 max-md:min-h-10 items-center gap-1 rounded-lg px-2 text-sm text-teal hover:bg-teal-fondo"
+                          className="relative z-10 -ml-2 inline-flex min-h-8 max-md:min-h-10 items-center gap-1 rounded-lg px-2 text-sm text-teal hover:bg-gris-50"
                         >
                           {t.lista.variantes(g.miembros.length)}
                           <Icon nombre="flecha" className={`size-4 transition-transform duration-150 ${abierto ? "rotate-180" : ""}`} />
@@ -413,10 +413,10 @@ export function ListaProductos({
                   </div>
 
                   {g.conVariantes && abierto && (
-                    <ul id={idLista} className="border-t border-borde bg-fondo">
+                    <ul id={idLista} className="border-t border-linea bg-gris-50">
                       {g.miembros.map((m) => (
-                        <li key={m.id} className="border-t border-borde first:border-t-0">
-                          <div className={`${fila} py-2 hover:bg-teal-fondo`}>
+                        <li key={m.id} className="border-t border-linea first:border-t-0">
+                          <div className={`${fila} py-2 hover:bg-gris-50`}>
                             <span aria-hidden="true" className="max-md:hidden" />
                             <div className="min-w-0 max-md:col-span-2">
                               <Link href={`/productos/${p.codigo}?variante=${m.codigo}`} className="block truncate text-sm font-medium after:absolute after:inset-0">
@@ -446,7 +446,7 @@ export function ListaProductos({
               );
             })}
           </ul>
-        </Card>
+        </div>
       )}
     </div>
   );

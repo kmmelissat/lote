@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BotonPunch } from "./BotonesPunch";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { Field } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";

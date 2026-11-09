@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BotonPunch } from "./BotonesPunch";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { textos } from "@/lib/textos";
 
 const t = textos.mostrador.barras;

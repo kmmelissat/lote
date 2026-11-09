@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { TARJETA_PUNCH } from "@/features/counter/ui/BotonesPunch";
+import { TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { cuadreDeCaja } from "@/domain";
 import { cajaAbierta, detalleDeCajaAbierta, resumenDeCaja, ultimosCierres } from "@/features/counter/repositorio";
 import { AbrirCajaForm } from "@/features/counter/ui/AbrirCajaForm";

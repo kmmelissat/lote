@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/nav/PageHeader";
-import { SelectorGaleria } from "@/components/ui/SelectorGaleria";
 import { MenuAcciones } from "@/components/ui/MenuAcciones";
 import { ButtonLink } from "@/components/ui/Button";
+import { EnlacePunch } from "@/components/ui/BotonesPunch";
+import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { esFalta, esFiltroEstado, esOrden, FILTROS_ESTADO, type Falta, type Orden } from "@/features/products/filtro";
 import { categoriasEnUso, listarProductos } from "@/features/products/repositorio";
@@ -78,9 +79,10 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
             <>
               {/* En celular: lo principal ancho y lo demás guardado en el menú "⋯" */}
               <div className="flex w-full items-center gap-2 md:hidden">
-                <ButtonLink href="/productos/nuevo" variante="mango" icono="mas" className="flex-1">
+                <EnlacePunch href="/productos/nuevo" variante="primario" className="flex-1">
+                  <Icon nombre="mas" className="size-4" />
                   {textos.productos.agregar}
-                </ButtonLink>
+                </EnlacePunch>
                 <MenuAcciones
                   etiqueta={textos.productos.buscar.masAcciones}
                   acciones={[
@@ -90,16 +92,18 @@ async function ListaProductos({ searchParams }: Pick<PageProps<"/productos">, "s
                 />
               </div>
               <div className="hidden flex-wrap items-center gap-2 md:flex">
-                <ButtonLink href="/productos/importar" variante="secundario" icono="hoja">
+                <EnlacePunch href="/productos/importar">
+                  <Icon nombre="hoja" className="size-4" />
                   {textos.productos.importar.boton}
-                </ButtonLink>
-                <ButtonLink href="/productos/promociones" variante="secundario" icono="etiqueta">
+                </EnlacePunch>
+                <EnlacePunch href="/productos/promociones">
+                  <Icon nombre="etiqueta" className="size-4" />
                   {textos.promociones.entrada}
-                </ButtonLink>
-                <SelectorGaleria negocioId={negocio.id} />
-                <ButtonLink href="/productos/nuevo" variante="mango" icono="mas">
+                </EnlacePunch>
+                <EnlacePunch href="/productos/nuevo" variante="primario">
+                  <Icon nombre="mas" className="size-4" />
                   {textos.productos.agregar}
-                </ButtonLink>
+                </EnlacePunch>
               </div>
             </>
           ) : undefined

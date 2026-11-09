@@ -84,48 +84,48 @@ export function DineroParado({
   sinCosto: number;
 }) {
   return (
-    <details id={id} open={abierto} className="group overflow-hidden rounded-[24px] border border-teal-oscuro bg-superficie">
-      <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-3 hover:bg-fondo md:px-5 [&::-webkit-details-marker]:hidden">
-        <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-ambar">
+    <details id={id} open={abierto} className="group overflow-hidden rounded-3xl border border-linea bg-superficie shadow-xs">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-3 hover:bg-gris-50 md:px-5 [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ficha-amarillo">
           <Icon nombre="reloj" className="size-5" />
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
-          <h2 className="font-bold">{t.paradoTitulo}</h2>
+          <h2 className="font-semibold">{t.paradoTitulo}</h2>
           <span className="text-sm text-texto-2">{t.paradoResumen(productos.length, formatearDolares(total))}</span>
         </span>
         <Icon nombre="flecha" className="size-5 shrink-0 text-texto-2 transition-transform group-open:rotate-180" />
       </summary>
-      <p className="border-t border-teal-oscuro bg-perla px-4 py-2 text-sm md:px-5">
+      <p className="border-t border-linea bg-gris-50 px-4 py-2.5 text-sm md:px-5">
         {t.paradoAyuda(dias)} <span className="font-bold">{t.paradoTotal(formatearDolares(total), pctDelInventario, formatearDolares(inventario))}</span>
       </p>
       {productos.length === 0 ? (
-        <p className="border-t border-borde px-4 py-4 text-texto-2 md:px-5">{t.paradoVacio}</p>
+        <p className="border-t border-linea px-4 py-4 text-texto-2 md:px-5">{t.paradoVacio}</p>
       ) : (
-        <ul className="border-t border-borde">
+        <ul className="border-t border-linea">
           {productos.slice(0, 8).map((p) => {
             const foto = fotos[p.id];
             return (
-              <li key={p.id} className="relative flex items-center gap-3 border-t border-borde px-4 py-3 first:border-t-0 hover:bg-teal-fondo md:px-5">
+              <li key={p.id} className="relative flex items-center gap-3 border-t border-linea px-4 py-3 first:border-t-0 hover:bg-gris-50 md:px-5">
                 {foto ? (
-                  <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-xl border border-teal-oscuro object-cover" />
+                  <Image src={urlFoto(foto)} alt="" width={48} height={48} className="size-12 shrink-0 rounded-[14px] border border-linea object-cover" />
                 ) : (
-                  <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro/30 bg-fondo text-texto-2">
+                  <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-[14px] border border-linea bg-gris-100 text-texto-2">
                     <Icon nombre="caja" className="size-5" />
                   </span>
                 )}
                 <div className="min-w-0 flex-1">
-                  <Link href={`/productos/${p.codigo}`} className="line-clamp-2 font-bold leading-tight after:absolute after:inset-0">
+                  <Link href={`/productos/${p.codigo}`} className="line-clamp-2 font-medium leading-tight after:absolute after:inset-0">
                     {p.nombre}
                   </Link>
                   <p className="text-sm text-texto-2">{t.paradoFila(p.disponibles, p.dias)}</p>
                 </div>
-                <span className="font-bold tabular-nums">{p.costo === null ? t.sinCosto : formatearDolares(p.costo)}</span>
+                <span className="font-semibold tabular-nums">{p.costo === null ? t.sinCosto : formatearDolares(p.costo)}</span>
               </li>
             );
           })}
         </ul>
       )}
-      {sinCosto > 0 && <p className="border-t border-borde px-4 py-3 text-sm text-texto-2 md:px-5">{t.paradoSinCosto(sinCosto)}</p>}
+      {sinCosto > 0 && <p className="border-t border-linea px-4 py-3 text-sm text-texto-2 md:px-5">{t.paradoSinCosto(sinCosto)}</p>}
     </details>
   );
 }

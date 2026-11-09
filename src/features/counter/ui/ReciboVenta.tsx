@@ -5,7 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { Recibo } from "../mostrador";
-import { BotonPunch, EnlacePunch } from "./BotonesPunch";
+import { BotonPunch, EnlacePunch } from "@/components/ui/BotonesPunch";
 
 const t = textos.mostrador;
 
