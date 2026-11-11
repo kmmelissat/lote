@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { supabaseFalso } from "@/test/supabaseFalso";
 import { listarClientes, obtenerCliente } from "./repositorio";
 
-const pedido = (codigo: number, total: number, saldo: number, creado: string, estado = "pendiente") => ({ codigo, estado, total, saldo, creado_en: creado });
+const pedido = (codigo: number, total: number, saldo: number, creado: string, estado = "pendiente") => ({ codigo, estado, total, saldo, creado_en: creado, contra_entrega: false });
 
 describe("listarClientes", () => {
   it("pone primero a quien más debe y convierte a centavos", async () => {

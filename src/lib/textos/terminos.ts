@@ -1,6 +1,6 @@
 export const terminos = {
   titulo: "Términos de uso",
-  descripcion: "Las reglas básicas para usar Lote: tu cuenta, tus datos, los pedidos y lo que hace Lotito.",
+  descripcion: "Las reglas básicas para usar Lote: tu cuenta, tus datos, los pedidos y lo que hace Punch.",
   actualizado: "Última actualización: 4 de noviembre de 2026",
   volver: "Volver",
   secciones: [
@@ -30,9 +30,9 @@ export const terminos = {
         "Lote te ayuda a anotar los apartados, los abonos y las entregas, pero no cobra ni mueve dinero por vos. El trato de pago y de entrega es entre quien vende y quien compra. Un apartado se vence cuando se cumple el plazo que definió el negocio.",
     },
     {
-      titulo: "Lotito y la inteligencia artificial",
+      titulo: "Punch y la inteligencia artificial",
       texto:
-        "Lotito entiende lo que le escribís y propone acciones; los números y el dinero los calcula Lote. Puede equivocarse, así que revisá lo que te muestra antes de confirmar. Lo que hace lo podés deshacer cuando se puede.",
+        "Punch entiende lo que le escribís y propone acciones; los números y el dinero los calcula Lote. Puede equivocarse, así que revisá lo que te muestra antes de confirmar. Lo que hace lo podés deshacer cuando se puede.",
     },
     {
       titulo: "Uso correcto",

@@ -9,7 +9,7 @@ const t = textos.productos;
  * qué variante es cada foto (las que no están son de todas): se muestra sobre la foto.
  */
 export function GaleriaProducto({ fotos, nombre, de = {} }: { fotos: string[]; nombre: string; de?: Record<string, string> }) {
-  if (!fotos.length) return <p className="rounded-2xl bg-fondo px-4 py-3 text-sm text-texto-2">{t.detalle.sinFotos}</p>;
+  if (!fotos.length) return <p className="rounded-2xl bg-gris-50 px-4 py-3 text-sm text-texto-2">{t.detalle.sinFotos}</p>;
   return (
     <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-6">
       {fotos.map((ruta, i) => (
@@ -19,7 +19,7 @@ export function GaleriaProducto({ fotos, nombre, de = {} }: { fotos: string[]; n
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${nombre}, ${t.fotos.foto(i + 1).toLowerCase()}${de[ruta] ? ` · ${de[ruta]}` : ""} (se abre en una pestaña nueva)`}
-            className="group relative block aspect-square overflow-hidden rounded-2xl border border-teal-oscuro bg-teal-fondo"
+            className="group relative block aspect-square overflow-hidden rounded-2xl border border-linea bg-gris-50"
           >
             <Image
               src={urlFoto(ruta)}
@@ -29,7 +29,7 @@ export function GaleriaProducto({ fotos, nombre, de = {} }: { fotos: string[]; n
               className="object-cover transition-transform duration-200 group-hover:scale-105"
             />
             {de[ruta] && (
-              <span className="absolute inset-x-1 bottom-1 truncate rounded-full bg-superficie px-2 py-0.5 text-center text-xs font-bold text-teal-oscuro">{de[ruta]}</span>
+              <span className="absolute inset-x-1 bottom-1 truncate rounded-lg bg-superficie/90 px-2 py-0.5 text-center text-xs font-medium text-teal-oscuro">{de[ruta]}</span>
             )}
           </a>
         </li>

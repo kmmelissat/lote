@@ -11,6 +11,7 @@ Es un producto en beta, en construcción y en pruebas. Nació en el curso Diseñ
 - [app.md](docs/app.md): especificación del producto. Es la fuente de verdad.
 - [PROGRESO.md](docs/PROGRESO.md): bitácora de la construcción. Histórico, está desactualizado.
 - [PUNCH.md](docs/PUNCH.md): el sistema de diseño nuevo de Punch (en rediseño). Leer antes de tocar el panel.
+- [BRANDING_PUNCH.md](docs/BRANDING_PUNCH.md): la marca nueva de Punch en un resumen: dirección, color, formas, componentes y voz.
 - [BRANDING.md](docs/BRANDING.md): colores, formas, monitos y voz. Leer antes de tocar una pantalla.
 - [REDISENO.md](docs/REDISENO.md): rediseño del panel, componentes y estado por pantalla.
 - [GESTION.md](docs/GESTION.md): el balance general (dinero, deudas e inventario).
@@ -69,7 +70,7 @@ Organizado por funcionalidad. Todo se renderiza en el servidor; `"use client"` s
   - Vender: `products`, `orders`, `customers`, `payments`, `shipping`, `tracking`, `offers`, `promotions`, `counter` (el Mostrador), `import`, `export`.
   - Dinero: `gestion` (balance general), `profit` (ganancia y gastos).
   - La tienda afuera: `catalog` (vitrina y Marketplace), `reviews`, `store-settings`, `search`.
-  - Lotito y avisos: `assistant`, `ai`, `whatsapp`.
+  - Punch y avisos: `assistant`, `ai`, `whatsapp`.
   - El resto: `auth`, `team`, `home` (Inicio), `landing`, `ayuda`, `admin`, `design-system`.
 - `src/domain/`: reglas de dinero, estados, fechas y texto. Funciones puras con pruebas; no importa de nada fuera de sí mismo.
 - `src/components/`: piezas de interfaz compartidas: `ui/` (botones, tarjetas, campos) y `nav/` (el menú).

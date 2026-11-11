@@ -46,6 +46,9 @@ export type ResumenClientes = {
   deudoras: number;
   /** Cuántas han hecho más de un pedido: las que vuelven */
   repiten: number;
+  /** Pendiente de contra entrega: lo que llega al entregar, en cuántos clientes */
+  alEntregar: number;
+  conEntrega: number;
 };
 
 export function resumenDeClientes(clientes: ClienteConResumen[]): ResumenClientes {
@@ -54,6 +57,8 @@ export function resumenDeClientes(clientes: ClienteConResumen[]): ResumenCliente
     saldo: clientes.reduce((s, c) => s + c.resumen.saldo, 0),
     comprado: clientes.reduce((s, c) => s + c.resumen.comprado, 0),
     deudoras: clientes.filter((c) => c.resumen.saldo > 0).length,
+    alEntregar: clientes.reduce((s, c) => s + c.resumen.alEntregar, 0),
+    conEntrega: clientes.filter((c) => c.resumen.alEntregar > 0).length,
     repiten: clientes.filter((c) => c.resumen.pedidos >= 2).length,
   };
 }

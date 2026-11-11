@@ -22,7 +22,7 @@ describe("trato", () => {
     expect(esTrato("otro")).toBe(false);
   });
 
-  it("a Lotito se le dice cómo hablar en cada caso", () => {
+  it("a Punch se le dice cómo hablar en cada caso", () => {
     expect(indicacionDeTrato("ella")).toContain("femenino");
     expect(indicacionDeTrato("el")).toContain("masculino");
     expect(indicacionDeTrato("neutro")).toContain("sin género");

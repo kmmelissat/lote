@@ -9,11 +9,11 @@ const t = textos.productos.form;
 export const estiloCampo =
   "h-12 w-full rounded-[14px] border border-linea bg-superficie px-4 text-base text-teal-oscuro shadow-xs transition-colors placeholder:text-texto-2/60 focus:border-teal focus:outline-none focus:ring-[3px] focus:ring-teal/20";
 
-/** Lo que llenó Lotito (resaltado suave) y lo que está escribiendo ahora (pulsa). */
+/** Lo que llenó Punch (resaltado suave) y lo que está escribiendo ahora (pulsa). */
 export const MARCA_LOTITO = "border-chip-texto-amarillo/40 bg-chip-amarillo/25";
 export const TRABAJANDO_LOTITO = "animate-pulse bg-chip-amarillo/40";
 
-/** El chip que marca lo que llenó Lotito, para que se note qué revisar. */
+/** El chip que marca lo que llenó Punch, para que se note qué revisar. */
 export function ChipLotito() {
   return (
     <span className="ml-2 inline-flex items-center gap-1 rounded-lg border border-chip-texto-amarillo/30 bg-chip-amarillo px-2 py-0.5 align-middle text-xs font-medium text-chip-texto-amarillo">
@@ -23,7 +23,7 @@ export function ChipLotito() {
   );
 }
 
-/** Etiqueta de un campo: marca los obligatorios con un asterisco y los que puso Lotito con su chip. */
+/** Etiqueta de un campo: marca los obligatorios con un asterisco y los que puso Punch con su chip. */
 export function Etiqueta({
   htmlFor,
   children,
@@ -57,7 +57,7 @@ export function MensajeCampo({ id, children }: { id: string; children?: string }
   ) : null;
 }
 
-/** Un campo de texto con etiqueta, ayuda de error y, si hace falta, el brillo de "Lotito está escribiendo". */
+/** Un campo de texto con etiqueta, ayuda de error y, si hace falta, el brillo de "Punch está escribiendo". */
 export function Campo({
   etiqueta,
   error,

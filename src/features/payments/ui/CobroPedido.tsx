@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button, estiloBoton } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { TituloPaso } from "@/components/ui/TituloPaso";
+import { BotonPunch, estiloBotonPunch } from "@/components/ui/BotonesPunch";
+import { TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
+import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useToast } from "@/components/ui/Toast";
 import type { EstadoPedido } from "@/domain/index";
@@ -29,7 +29,17 @@ type Props = {
   puedeVender: boolean;
 };
 
-export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntrega, retiro, mensaje, puedeVender }: Props) {
+export function CobroPedido({
+  pedidoId,
+  estado,
+  total,
+  saldo,
+  pagos,
+  contraEntrega,
+  retiro,
+  mensaje,
+  puedeVender,
+}: Props) {
   const { avisar } = useToast();
   const [errorContra, setErrorContra] = useState("");
   const [pendienteContra, empezarContra] = useTransition();
@@ -38,7 +48,8 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
   const puedeCobrar = puedeVender && abierto && saldo > 0;
   // Contra entrega solo se activa o se quita mientras el pedido sigue pendiente (después, entregar ya es cobrar) y con envío
   const alEntregar = contraEntrega && abierto && saldo > 0;
-  const puedeActivar = puedeCobrar && estado === "pendiente" && !contraEntrega && !retiro;
+  const puedeActivar =
+    puedeCobrar && estado === "pendiente" && !contraEntrega && !retiro;
   const puedeQuitar = puedeCobrar && estado === "pendiente" && contraEntrega;
 
   async function copiar() {
@@ -59,8 +70,31 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
   }
 
   return (
-    <Card role="region" aria-labelledby="cobropedido" className="flex flex-col gap-4">
-      <TituloPaso numero={2} id="cobropedido">{t.titulo}</TituloPaso>
+    <section
+      aria-labelledby="cobropedido"
+      className={`${TARJETA_PUNCH} flex flex-col gap-4`}
+    >
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className={`grid size-8 shrink-0 place-items-center rounded-[10px] text-teal-oscuro ${saldo === 0 && total > 0 ? "bg-ficha-verde" : "bg-ficha-amarillo"}`}
+        >
+          <Icon
+            nombre={saldo === 0 && total > 0 ? "check" : "moneda"}
+            className="size-4"
+          />
+        </span>
+        <h2 id="cobropedido" className="flex-1 text-base font-semibold">
+          {t.titulo}
+        </h2>
+        {abierto && total > 0 && (
+          <span
+            className={`rounded-lg border px-2.5 py-0.5 text-xs font-medium ${saldo === 0 ? "border-linea bg-chip-verde text-chip-texto-verde" : "border-linea bg-chip-amarillo text-chip-texto-amarillo"}`}
+          >
+            {saldo === 0 ? t.chipPagado : t.chipSaldo}
+          </span>
+        )}
+      </div>
 
       <div>
         <h3 className="mb-2 text-sm font-medium text-texto-2">{t.pagos}</h3>
@@ -71,39 +105,45 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
                 <span>
                   {textos.cobro.metodos[p.metodo]} · {p.fecha}
                 </span>
-                <span className="font-medium">{formatearDolares(p.monto)}</span>
+                <span className="font-semibold tabular-nums">
+                  {formatearDolares(p.monto)}
+                </span>
               </li>
             ))}
           </ul>
         ) : (
           <p className="text-texto-2">{t.sinPagos}</p>
         )}
-        <p className="mt-3 flex justify-between border-t border-borde pt-2 font-bold">
+        <p className="mt-3 flex justify-between border-t border-linea pt-2 font-semibold">
           <span>{textos.pedidos.detalle.saldo}</span>
           <span>{formatearDolares(saldo)}</span>
         </p>
-        {total > 0 && saldo === 0 && abierto && <p className="mt-1 text-sm text-teal">{t.pagado}</p>}
+        {total > 0 && saldo === 0 && abierto && (
+          <p className="mt-1 text-sm text-teal">{t.pagado}</p>
+        )}
       </div>
 
       {/* Contra entrega: el cobro llega al entregar, así que el mensaje de cobro no aplica */}
       {alEntregar && (
-        <div className="flex flex-col gap-1 rounded-2xl border border-teal-oscuro bg-celeste-palido p-3 md:px-4">
-          <p className="font-bold">{t.contraEntregaCobro(formatearDolares(saldo))}</p>
-          <p className="text-sm text-texto-2">{t.contraEntregaCobroAyuda}</p>
+        <div className="flex flex-col gap-1 rounded-[14px] border border-linea bg-chip-amarillo p-3 text-chip-texto-amarillo md:px-4">
+          <p className="font-semibold">
+            {t.contraEntregaCobro(formatearDolares(saldo))}
+          </p>
+          <p className="text-sm">{t.contraEntregaCobroAyuda}</p>
         </div>
       )}
 
       {abierto && saldo > 0 && !contraEntrega && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap gap-3">
-            <Button type="button" variante="secundario" onClick={copiar}>
+            <BotonPunch type="button" variante="secundario" onClick={copiar}>
               {t.copiar}
-            </Button>
+            </BotonPunch>
             <a
               href={`https://wa.me/?text=${encodeURIComponent(mensaje)}`}
               target="_blank"
               rel="noreferrer"
-              className={estiloBoton("secundario")}
+              className={estiloBotonPunch("secundario")}
             >
               {t.whatsapp}
             </a>
@@ -114,20 +154,24 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
       {/* key: al registrar un pago cambia el saldo y el formulario arranca limpio */}
       {puedeCobrar &&
         (alEntregar ? (
-          <details className="rounded-xl border border-borde">
-            <summary className="flex min-h-11 cursor-pointer items-center px-4 text-sm font-bold">{t.abonoAdelantado}</summary>
+          <details className="rounded-[14px] border border-linea">
+            <summary className="flex min-h-11 cursor-pointer items-center px-4 text-sm font-semibold">
+              {t.abonoAdelantado}
+            </summary>
             <div className="p-3 pt-0">
               <PagoForm key={saldo} pedidoId={pedidoId} saldo={saldo} />
             </div>
           </details>
         ) : (
-          <PagoForm key={saldo} pedidoId={pedidoId} saldo={saldo} />
+          <RegistrarPago key={saldo} pedidoId={pedidoId} saldo={saldo} />
         ))}
 
       {(puedeActivar || puedeQuitar) && (
         <div className="flex flex-col gap-2">
-          {!contraEntrega && <p className="text-sm text-texto-2">{t.contraEntregaAyuda}</p>}
-          <Button
+          {!contraEntrega && (
+            <p className="text-sm text-texto-2">{t.contraEntregaAyuda}</p>
+          )}
+          <BotonPunch
             type="button"
             variante="secundario"
             className="self-start"
@@ -135,10 +179,33 @@ export function CobroPedido({ pedidoId, estado, total, saldo, pagos, contraEntre
             onClick={() => cambiarContraEntrega(!contraEntrega)}
           >
             {contraEntrega ? t.quitarContraEntrega : t.contraEntrega}
-          </Button>
+          </BotonPunch>
           <MensajeError>{errorContra}</MensajeError>
         </div>
       )}
-    </Card>
+    </section>
+  );
+}
+
+/** El formulario de pago llega cerrado: un botón lo abre. Con `key={saldo}` vuelve a cerrarse al registrar un pago. */
+function RegistrarPago({
+  pedidoId,
+  saldo,
+}: {
+  pedidoId: string;
+  saldo: number;
+}) {
+  const [abierto, setAbierto] = useState(false);
+  if (abierto) return <PagoForm pedidoId={pedidoId} saldo={saldo} />;
+  return (
+    <BotonPunch
+      type="button"
+      variante="secundario"
+      className="self-start"
+      onClick={() => setAbierto(true)}
+    >
+      <Icon nombre="mas" className="size-5" />
+      {t.registrar}
+    </BotonPunch>
   );
 }

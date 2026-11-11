@@ -2,7 +2,7 @@
 
 import { useAvisarErrores } from "@/components/ui/Toast";
 import { useActionState } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { aDolares } from "@/domain/index";
@@ -26,9 +26,14 @@ export function AgregarVarianteForm({ codigo, precio, convierte }: { codigo: num
         <Field etiqueta={t.precioNueva} name="precio" inputMode="decimal" defaultValue={aDolares(precio)} required error={e.precio} />
         <Field etiqueta={t.costoNueva} name="costo" inputMode="decimal" error={e.costo} />
       </div>
-      <Button type="submit" variante="mango" disabled={pendiente}>
-        {pendiente ? t.guardando : convierte ? t.botonConvertir : t.boton}
-      </Button>
+      <div className="flex flex-col-reverse gap-2 border-t border-linea pt-4 sm:flex-row sm:justify-end">
+        <BotonPunch type="button" variante="secundario" onClick={(ev) => ev.currentTarget.closest("dialog")?.close()}>
+          {textos.comun.cancelar}
+        </BotonPunch>
+        <BotonPunch type="submit" disabled={pendiente}>
+          {pendiente ? t.guardando : convierte ? t.botonConvertir : t.boton}
+        </BotonPunch>
+      </div>
       <MensajeError>{e.general}</MensajeError>
     </form>
   );

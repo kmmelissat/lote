@@ -400,6 +400,22 @@ export async function registrarAjusteDeCuenta(
   return !error;
 }
 
+/** Cuánto ya se devolvió por un pedido: los ajustes negativos ligados a él (centavos, positivo) */
+export async function devueltoDelPedido(supabase: Cliente, negocioId: string, pedidoId: string): Promise<Centavos> {
+  const { data } = await supabase.from("ajuste_dinero").select("monto").eq("negocio_id", negocioId).eq("pedido_id", pedidoId).lt("monto", 0).limit(100);
+  return (data ?? []).reduce((suma, a) => suma + aCentavos(-a.monto), 0);
+}
+
+/** Registra la devolución de un pedido cancelado; la base revisa que esté cancelado y que no pase de lo cobrado */
+export async function registrarDevolucionDePedido(supabase: Cliente, pedidoId: string, cuenta: Cuenta, monto: Centavos): Promise<boolean> {
+  const { error } = await supabase.rpc("registrar_devolucion_pedido", {
+    p_pedido: pedidoId,
+    p_monto: monto / 100,
+    ...(esCuentaDeSiempre(cuenta) ? { p_lugar: cuenta.tipo } : { p_cuenta: cuenta.id }),
+  });
+  return !error;
+}
+
 /** Lo que pasa con una cuenta nueva o editada: el error que entiende la persona, o el id */
 export type ResultadoCuenta = { ok: true; id?: string } | { ok: false; repetida: boolean };
 

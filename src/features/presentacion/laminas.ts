@@ -9,7 +9,7 @@ export type Marca = "en la app" | "manual" | "planeado" | "en prueba";
 export type Bloque = { etiqueta: string; texto?: string; items?: readonly string[]; ejemplo?: string; marca?: Marca };
 export type Hito = { cuando: string; que: string; marca?: Marca };
 export type Enlace = { etiqueta: string; href: string };
-/** Un Lotito que se asoma por el borde de abajo y reacciona distinto según la lámina. */
+/** Un Punch que se asoma por el borde de abajo y reacciona distinto según la lámina. */
 export type Ayudante = { pose: PoseLotito; reaccion: "aprobar" | "calcular" | "asomar"; lado: "izquierda" | "derecha" };
 
 /** Cada tipo es una composición de la interfaz; los textos de las láminas se editan acá. */
@@ -48,7 +48,7 @@ export const LAMINAS: readonly Lamina[] = [
       curso: "Diseño de Productos y Servicios · ESEN",
       lotito: "saluda",
     },
-    notas: "(1 min) Presentarnos rápido. Lote es una tienda en línea con cuentas claras para quienes venden por Instagram. Lotito es el monito que ayuda a llenar la ficha desde una foto.",
+    notas: "(1 min) Presentarnos rápido. Lote es una tienda en línea con cuentas claras para quienes venden por Instagram. Punch es el monito que ayuda a llenar la ficha desde una foto.",
   },
   {
     id: "problema",
@@ -109,11 +109,11 @@ export const LAMINAS: readonly Lamina[] = [
         { nombre: "Costo real y ganancia", respaldo: "5 de 5" },
         { nombre: "Pedidos con estados", respaldo: "4 de 5" },
         { nombre: "Vitrina completa y Marketplace", respaldo: "2 de 5" },
-        { nombre: "Lotito llena la ficha desde una foto", respaldo: "Hipótesis de diseño" },
+        { nombre: "Punch llena la ficha desde una foto", respaldo: "Hipótesis de diseño" },
       ],
     },
     ayudante: { pose: "calculadora", reaccion: "calcular", lado: "derecha" },
-    notas: "(1,5 min) Cada función tiene detrás un hallazgo de las entrevistas. La vitrina creció más allá del MVP (hoy es completa y hay Marketplace) aunque solo 2 de 5 la pidieron. Lotito es hipótesis de diseño: no tiene respaldo en las entrevistas y se prueba en el piloto. Decirlo así.",
+    notas: "(1,5 min) Cada función tiene detrás un hallazgo de las entrevistas. La vitrina creció más allá del MVP (hoy es completa y hay Marketplace) aunque solo 2 de 5 la pidieron. Punch es hipótesis de diseño: no tiene respaldo en las entrevistas y se prueba en el piloto. Decirlo así.",
   },
   {
     id: "construimos",
@@ -125,7 +125,7 @@ export const LAMINAS: readonly Lamina[] = [
       bloques: [
         {
           etiqueta: "Para quien vende",
-          items: ["Productos con foto: Lotito llena la ficha", "Variantes, costo real y ganancia por producto", "Apartar y vender, sin doble promesa", "Pedidos con estados y envíos", "Ofertas y promociones"],
+          items: ["Productos con foto: Punch llena la ficha", "Variantes, costo real y ganancia por producto", "Apartar y vender, sin doble promesa", "Pedidos con estados y envíos", "Ofertas y promociones"],
         },
         {
           etiqueta: "Dinero",
@@ -136,12 +136,12 @@ export const LAMINAS: readonly Lamina[] = [
           items: ["Vitrina propia", "Carrito", "Comprar en tres pasos o apartar", "Seguimiento del pedido", "Marketplace"],
         },
         {
-          etiqueta: "Lotito",
+          etiqueta: "Punch",
           items: ["Chat para apartar, cobrar y registrar gastos", "Deshacer lo que hizo", "Lee el comprobante de transferencia"],
         },
       ],
     },
-    notas: "(1,5 min) Mostrar que no es solo el MVP de las entrevistas: ya hay una tienda completa y las cuentas. Solo decimos lo que funciona hoy; las varias cuentas están en prueba. No mencionar paquetera integrada ni Lotito por WhatsApp: no existen.",
+    notas: "(1,5 min) Mostrar que no es solo el MVP de las entrevistas: ya hay una tienda completa y las cuentas. Solo decimos lo que funciona hoy; las varias cuentas están en prueba. No mencionar paquetera integrada ni Punch por WhatsApp: no existen.",
   },
   {
     id: "demo",
@@ -155,7 +155,7 @@ export const LAMINAS: readonly Lamina[] = [
       ],
       lotito: "celular",
     },
-    notas: "(5 min) Orden de la demo:\n1. Crear un producto con foto (Lotito completa la ficha).\n2. Abrir la vitrina y mostrar el producto.\n3. Apartarlo desde la vitrina.\n4. Registrar la venta en uno o dos toques.\n5. Volver a la vitrina: el producto ya cambió de estado.\n6. Mostrar la ganancia en el Balance.",
+    notas: "(5 min) Orden de la demo:\n1. Crear un producto con foto (Punch completa la ficha).\n2. Abrir la vitrina y mostrar el producto.\n3. Apartarlo desde la vitrina.\n4. Registrar la venta en uno o dos toques.\n5. Volver a la vitrina: el producto ya cambió de estado.\n6. Mostrar la ganancia en el Balance.",
   },
   {
     id: "posicionamiento",
@@ -168,7 +168,7 @@ export const LAMINAS: readonly Lamina[] = [
         { etiqueta: "Categoría", texto: "Tienda en línea y cuentas para vendedores de redes" },
         {
           etiqueta: "Diferenciadores",
-          items: ["Estado por producto", "Ganancia real por producto", "Vitrina que se actualiza sola", "Carga rápida con Lotito", "Pensada para efectivo y transferencia"],
+          items: ["Estado por producto", "Ganancia real por producto", "Vitrina que se actualiza sola", "Carga rápida con Punch", "Pensada para efectivo y transferencia"],
         },
       ],
       mensaje: MENSAJE_CENTRAL,
@@ -209,7 +209,7 @@ export const LAMINAS: readonly Lamina[] = [
     contenido: {
       tipo: "bloquesHitos",
       bloques: [
-        { etiqueta: "Lotito", texto: "Dentro de la app: ayuda, chat y deshacer", marca: "en la app" },
+        { etiqueta: "Punch", texto: "Dentro de la app: ayuda, chat y deshacer", marca: "en la app" },
         { etiqueta: "Soporte", texto: "Por WhatsApp, a mano, con el equipo", marca: "manual" },
         { etiqueta: "Avisos por WhatsApp", texto: "Planeados, esperando aprobación de Meta", marca: "planeado" },
       ],
@@ -222,7 +222,7 @@ export const LAMINAS: readonly Lamina[] = [
       ],
     },
     ayudante: { pose: "celular", reaccion: "asomar", lado: "derecha" },
-    notas: "(1,5 min) Cada ítem lleva su sello: en la app, manual o planeado. Lotito no responde por WhatsApp todavía (falta el webhook de entrada) y no hay aviso de bienvenida en la app: el día 3 lo hace el equipo a mano. El resumen semanal existe, pero sale solo cuando Meta apruebe las plantillas. Operaciones: hosting con copias diarias y unos USD 1 por usuario al mes (estimado); el reto es que vuelvan.",
+    notas: "(1,5 min) Cada ítem lleva su sello: en la app, manual o planeado. Punch no responde por WhatsApp todavía (falta el webhook de entrada) y no hay aviso de bienvenida en la app: el día 3 lo hace el equipo a mano. El resumen semanal existe, pero sale solo cuando Meta apruebe las plantillas. Operaciones: hosting con copias diarias y unos USD 1 por usuario al mes (estimado); el reto es que vuelvan.",
   },
   {
     id: "metricas",

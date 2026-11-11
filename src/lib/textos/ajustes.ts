@@ -58,8 +58,8 @@ export const ajustes = {
     secciones: {
       marca: "Datos de la tienda",
       marcaAyuda: "El nombre, el logo, tu número y tus redes. No hace falta tener tienda en línea.",
-      lotito: "Contale a Lotito de tu tienda",
-      lotitoAyuda: "Lotito lo lee cada vez que mirás la foto de un producto, para escribir la ficha como la escribirías vos.",
+      lotito: "Contale a Punch de tu tienda",
+      lotitoAyuda: "Punch lo lee cada vez que mirás la foto de un producto, para escribir la ficha como la escribirías vos.",
     },
     indice: {
       etiqueta: "Secciones",
@@ -72,7 +72,7 @@ export const ajustes = {
       confianza: "Confianza",
       confianzaAyuda: "Qué ven al pedir",
       confianzaTexto: "Lo que ven antes de pedir y si aparecés en el Marketplace.",
-      lotito: "Lotito",
+      lotito: "Punch",
       lotitoAyuda: "Cómo escribe las fichas",
       pagos: "Pagos",
       pagosAyuda: "Cómo te pagan",
@@ -104,7 +104,7 @@ export const ajustes = {
       { titulo: "Cómo querés los nombres", inicio: "Los nombres siempre con talla y color, por ejemplo \"Chaqueta negra M\". " },
       { titulo: "Qué no debe inventar", inicio: "No inventes marcas, medidas ni el estado de la prenda. " },
     ],
-    lotitoNota: "Lotito usa esto solo para leer fotos. Los precios y costos nunca los inventa.",
+    lotitoNota: "Punch usa esto solo para leer fotos. Los precios y costos nunca los inventa.",
     soloDuena: "Solo quien es titular del negocio puede cambiar la tienda.",
   },
   vitrina: {

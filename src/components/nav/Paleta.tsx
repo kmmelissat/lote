@@ -69,7 +69,7 @@ export function Paleta({ cerrar, tieneLocal, esDuena }: { cerrar: () => void; ti
     const ayudas: Opcion[] = q
       ? buscarAyuda(q).map((p) => ({ clave: `ay-${p.id}`, grupo: t.ayudaGrupo, titulo: p.pregunta, href: `${textos.ayuda.ruta}#${p.id}`, icono: "info" as const }))
       : [];
-    // Si nada respondió, Lotito es la salida: se le lleva la pregunta ya escrita
+    // Si nada respondió, Punch es la salida: se le lleva la pregunta ya escrita
     const nada = q.length >= 2 && !remotos.length && !locales.length && !ayudas.length;
     const lotito: Opcion[] =
       q.length >= 2 && (nada || !locales.length)

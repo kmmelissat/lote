@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { coloresDinero } from "@/components/ui/coloresDinero";
+import { TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 
 const t = textos.dinero;
 
 /**
- * Lo primero de Movimientos: lo que quedó (entradas menos salidas de lo que se está viendo), grande, con lo que entró y lo que salió al lado.
- * Es la una cosa fuerte de la pantalla.
+ * Lo primero del panel lateral de Movimientos: lo que quedó (entradas menos salidas de lo que se está viendo), grande,
+ * con lo que entró y lo que salió debajo.
  */
 export function HeroMovimientos({
   entradas,
@@ -25,30 +25,52 @@ export function HeroMovimientos({
   ayuda: string;
 }) {
   return (
-    <section aria-label={titulo} className="grid grid-cols-1 gap-5 rounded-[24px] border border-teal-oscuro bg-teal-oscuro p-5 text-white md:grid-cols-[1fr_1.2fr] md:items-center md:p-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-sm font-bold text-celeste">{titulo}</h2>
-        <p className={`font-logo text-5xl font-bold tabular-nums md:text-6xl ${neto < 0 ? "text-rosa" : "text-limon"}`}>
-          {neto < 0 ? "−" : ""}
-          {formatearDolares(Math.abs(neto))}
-        </p>
-        <p className="text-sm text-white/80">
-          {t.pie.movimientos(cantidad)} · {ayuda}
-        </p>
-        <Link href="/balance/detalle" className="inline-flex min-h-11 w-fit items-center font-bold text-celeste underline underline-offset-4 md:min-h-10">
-          {textos.gestion.libro.verBalance}
-        </Link>
-      </div>
-      <dl className="grid grid-cols-2 gap-3">
-        <div className={`rounded-[20px] border border-teal-oscuro ${coloresDinero.entra.fondo} p-4 text-teal-oscuro`}>
-          <dt className="text-sm font-bold">{t.pie.entradas}</dt>
-          <dd className="font-logo text-2xl font-bold tabular-nums md:text-3xl">+{formatearDolares(entradas)}</dd>
+    <section
+      aria-label={titulo}
+      className={`${TARJETA_PUNCH} flex flex-col gap-1 !border-teal !bg-teal text-white`}
+    >
+      <h2 className="text-sm font-medium text-white/80">{titulo}</h2>
+      <p
+        className={`text-5xl font-bold tabular-nums tracking-tight ${neto < 0 ? "text-chip-rojo" : ""}`}
+      >
+        {neto < 0 ? "−" : ""}
+        {formatearDolares(Math.abs(neto))}
+      </p>
+      <p className="text-xs text-white/70">
+        {t.pie.movimientos(cantidad)} · {ayuda}
+      </p>
+      <dl className="mt-3 flex flex-col text-sm">
+        <div className="flex items-center justify-between gap-3 border-t border-white/15 py-2.5">
+          <dt className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="size-2.5 rounded-full bg-chip-verde"
+            />
+            {t.pie.entradas}
+          </dt>
+          <dd className="font-semibold tabular-nums text-chip-verde">
+            +{formatearDolares(entradas)}
+          </dd>
         </div>
-        <div className={`rounded-[20px] border border-teal-oscuro ${coloresDinero.sale.fondo} p-4 text-teal-oscuro`}>
-          <dt className="text-sm font-bold">{t.pie.salidas}</dt>
-          <dd className="font-logo text-2xl font-bold tabular-nums md:text-3xl">−{formatearDolares(salidas)}</dd>
+        <div className="flex items-center justify-between gap-3 border-t border-white/15 py-2.5">
+          <dt className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="size-2.5 rounded-full bg-chip-rojo"
+            />
+            {t.pie.salidas}
+          </dt>
+          <dd className="font-semibold tabular-nums text-chip-rojo">
+            −{formatearDolares(salidas)}
+          </dd>
         </div>
       </dl>
+      <Link
+        href="/balance/detalle"
+        className="mt-1 w-fit text-sm font-medium text-white underline-offset-2 hover:underline"
+      >
+        {textos.gestion.libro.verBalance}
+      </Link>
     </section>
   );
 }

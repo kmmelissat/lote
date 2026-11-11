@@ -24,7 +24,7 @@ const hoyEnSalvador = new Intl.DateTimeFormat("es-SV", {
 });
 
 /**
- * El negocio en pocas líneas, para que Lotito conteste con datos reales: los productos (primero lo que más se
+ * El negocio en pocas líneas, para que Punch conteste con datos reales: los productos (primero lo que más se
  * vende), los pedidos abiertos y la ganancia de hoy, la semana y el mes. Sin costos si la persona no puede verlos.
  */
 export function datosParaResponder(
@@ -94,7 +94,7 @@ export function datosParaResponder(
     .join("\n");
 }
 
-/** Lo que no es una acción: Lotito contesta con sus palabras, con los datos del negocio a mano. */
+/** Lo que no es una acción: Punch contesta con sus palabras, con los datos del negocio a mano. */
 export async function conversar(d: Deps, entrada: Entrada): Promise<Respuesta> {
   if (!d.ia || !entrada.texto?.trim()) return respuestaNoEntendi();
   try {

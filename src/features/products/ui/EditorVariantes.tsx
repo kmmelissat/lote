@@ -125,7 +125,7 @@ export function EditorVariantes({
   error?: string;
   /** El producto suelto que se está pasando a "con variantes": queda como la primera combinación */
   idLibre?: string | null;
-  /** Lotito armó las opciones: cada una lleva su chip hasta que la persona la edite */
+  /** Punch armó las opciones: cada una lleva su chip hasta que la persona la edite */
   deLotito?: boolean;
 }) {
   const [editando, setEditando] = useState<string | null>(null);

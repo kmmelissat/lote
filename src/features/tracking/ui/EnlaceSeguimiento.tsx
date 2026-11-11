@@ -1,8 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { Button, ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { BotonPunch, estiloBotonPunch } from "@/components/ui/BotonesPunch";
+import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
 
@@ -16,7 +16,11 @@ const origenServidor = () => "";
 /** El enlace público que ve el cliente para seguir su pedido: a la vista, para copiarlo o abrirlo como lo ve ella. */
 export function EnlaceSeguimiento({ pedidoId }: { pedidoId: string }) {
   const { avisar } = useToast();
-  const origen = useSyncExternalStore(sinSuscripcion, origenActual, origenServidor);
+  const origen = useSyncExternalStore(
+    sinSuscripcion,
+    origenActual,
+    origenServidor,
+  );
   const ruta = `/p/${pedidoId}` as const;
 
   async function copiar() {
@@ -29,25 +33,39 @@ export function EnlaceSeguimiento({ pedidoId }: { pedidoId: string }) {
   }
 
   return (
-    <Card role="region" aria-labelledby="enlace-seguimiento" className="flex flex-col gap-3">
-      <div>
-        <h2 id="enlace-seguimiento" className="font-bold">
-          {t.titulo}
-        </h2>
-        <p className="text-sm text-texto-2">{t.ayuda}</p>
+    <section aria-labelledby="link-rastreo" className="flex flex-col gap-2">
+      <h2 id="link-rastreo" className="text-sm font-semibold">
+        {t.titulo}
+      </h2>
+      <div className="flex items-center gap-2">
+        <p className="flex h-11 min-w-0 md:h-10 flex-1 items-center gap-2 rounded-[14px] bg-gris-50 px-3 text-sm text-texto-2">
+          <Icon nombre="enlace" className="size-5 shrink-0" />
+          <span className="truncate">
+            {origen.replace(/^https?:\/\//, "")}
+            {ruta}
+          </span>
+        </p>
+        <BotonPunch
+          type="button"
+          variante="secundario"
+          onClick={copiar}
+          aria-label={t.copiar}
+          title={t.copiar}
+          soloIcono
+        >
+          <Icon nombre="copiar" className="size-5 shrink-0" />
+        </BotonPunch>
+        <a
+          href={ruta}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={t.abrir}
+          title={t.abrir}
+          className={estiloBotonPunch("secundario", true)}
+        >
+          <Icon nombre="diagonal" className="size-5 shrink-0" />
+        </a>
       </div>
-      <p className="break-all rounded-xl bg-fondo px-3 py-2 text-sm text-texto-2">
-        {origen}
-        {ruta}
-      </p>
-      <div className="flex flex-wrap gap-2">
-        <Button type="button" variante="secundario" tamano="chico" icono="copiar" onClick={copiar}>
-          {t.copiar}
-        </Button>
-        <ButtonLink href={ruta} target="_blank" rel="noreferrer" variante="suave" tamano="chico" icono="diagonal">
-          {t.abrir}
-        </ButtonLink>
-      </div>
-    </Card>
+    </section>
   );
 }

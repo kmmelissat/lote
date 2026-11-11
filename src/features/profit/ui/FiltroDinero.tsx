@@ -18,7 +18,10 @@ export function FiltroDinero({
 }) {
   const router = useRouter();
   return (
-    <div className={className} role="group" aria-label={etiqueta}>
+    <div className={`flex flex-col gap-1 ${className}`} role="group" aria-label={etiqueta}>
+      <span aria-hidden="true" className="text-xs font-medium text-texto-2">
+        {etiqueta}
+      </span>
       <ListaDesplegable
         variante="pildora"
         valor={valor}

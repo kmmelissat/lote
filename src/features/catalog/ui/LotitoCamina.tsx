@@ -33,7 +33,7 @@ function Pierna({ x, clase }: { x: number; clase: string }) {
 }
 
 /**
- * Lotito caminando de perfil hacia la derecha, con su bolsa de compras: el gorila rosa de Lote con la cara crema en
+ * Punch caminando de perfil hacia la derecha, con su bolsa de compras: el gorila rosa de Lote con la cara crema en
  * forma de corazón. Para que vaya hacia la izquierda, se da vuelta desde afuera (scaleX).
  */
 export function LotitoCamina({ className = "w-20" }: { className?: string }) {

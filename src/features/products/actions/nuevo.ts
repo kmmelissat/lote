@@ -139,7 +139,7 @@ export type FichaSugerida = {
   descripcion: string;
   categoria: string | null;
   marca: string | null;
-  /** Versiones que Lotito ve en la foto, por ejemplo los colores de una misma funda */
+  /** Versiones que Punch ve en la foto, por ejemplo los colores de una misma funda */
   opciones: { nombre: string; valores: string[] }[];
   /** Nuevo o usado, si se nota; null si no se sabe */
   condicion: "nuevo" | "usado" | null;

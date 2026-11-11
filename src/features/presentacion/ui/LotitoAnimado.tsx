@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { LotitoMas, type PoseLotito } from "@/components/ui/LotitoMas";
 import { EASE } from "../animacion";
 
-/** Cada Lotito reacciona distinto según la lámina. Con reduced-motion solo aparece (opacidad). */
+/** Cada Punch reacciona distinto según la lámina. Con reduced-motion solo aparece (opacidad). */
 export type Personalidad = "portada" | "problema" | "demo" | "cierre" | "aprobar" | "calcular" | "asomar";
 
 const AYUDANTES: readonly Personalidad[] = ["aprobar", "calcular", "asomar"];

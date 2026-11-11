@@ -25,7 +25,7 @@ describe.skipIf(!process.env.RUN_LIVE_AI)("entender mensajes con la IA real", ()
     ["¿me podés agregar un producto?", { intencion: "crear_producto", producto: null }],
     ["quiero anotar una venta", { intencion: "vender" }],
     ["¿cómo agrego un producto?", { intencion: "pregunta" }],
-    ["hola Lotito", { intencion: "conversar" }],
+    ["hola Punch", { intencion: "conversar" }],
     ["¿qué se vende más?", { intencion: "conversar" }],
     ["¿qué debería reponer?", { intencion: "conversar" }],
     ["haceme un post para Instagram de la chaqueta", { intencion: "conversar" }],
@@ -36,7 +36,7 @@ describe.skipIf(!process.env.RUN_LIVE_AI)("entender mensajes con la IA real", ()
     ["tomale un pedido a Ana", { intencion: "vender", alternativa: "apartar", cliente: "Ana" }],
   ];
 
-  // Lotito dejó una pregunta sin responder: ¿el mensaje la responde o pide otra cosa?
+  // Punch dejó una pregunta sin responder: ¿el mensaje la responde o pide otra cosa?
   const PREGUNTA = "¿De cuál cliente o pedido? Decime el nombre o el número, por ejemplo #3.";
   const conPregunta: [string, boolean][] = [
     ["Ana", true],

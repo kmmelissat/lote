@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Fragment } from "react";
-import { Card } from "@/components/ui/Card";
 import { coloresDinero } from "@/components/ui/coloresDinero";
 import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { sinMoverDinero, type ClaseAparte, type Movimiento } from "@/domain";
@@ -13,6 +12,13 @@ const t = textos.dinero;
 const diaDe = (fecha: string) => new Date(`${fecha}T12:00:00Z`);
 
 const aparte = textos.gestion.libro;
+
+/** Colores de ficha y de chip (fondo + texto) según el sentido del movimiento */
+const FICHA = {
+  entra: "bg-chip-verde text-chip-texto-verde",
+  sale: "bg-chip-rojo text-chip-texto-rojo",
+  otros: "bg-chip-celeste text-chip-texto-celeste",
+} as const;
 
 /** El ícono dice qué fue el movimiento (no con qué se pagó: eso ya lo dice la cuenta de al lado). */
 const ICONO_CLASE: Record<ClaseAparte, NombreIcono> = {
@@ -40,7 +46,7 @@ function ChipCuenta({ m, nombres }: { m: Movimiento; nombres: Record<string, str
     m.tipo === "traslado"
       ? aparte.trasladoChip
       : ((m.cuenta ? nombres[m.cuenta] : undefined) ?? (m.metodo ? t.metodos[m.metodo] : t.sinMetodo));
-  return <span className="inline-flex items-center gap-1 rounded-full bg-fondo px-3 py-1 text-sm font-bold text-teal-oscuro">{texto}</span>;
+  return <span className="inline-flex items-center gap-1 rounded-lg bg-gris-100 px-2.5 py-1 text-xs font-medium text-chip-texto-neutro">{texto}</span>;
 }
 
 /** Si el dinero entró (un pago, un préstamo o un ajuste a favor) o salió. */
@@ -54,19 +60,19 @@ function Icono({ m }: { m: Movimiento }) {
   return (
     <span
       aria-hidden="true"
-      className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro ${coloresDinero[sentidoDe(m)].fondo}`}
+      className={`flex size-10 shrink-0 items-center justify-center rounded-full ${FICHA[sentidoDe(m)]}`}
     >
-      <Icon nombre={iconoDe(m)} className="size-5" />
+      <Icon nombre={iconoDe(m)} className="size-4" />
     </span>
   );
 }
 
 /** Verde con + para lo que entró y rojo con − para lo que salió: el signo dice lo mismo que el color. */
 function Monto({ m }: { m: Movimiento }) {
-  if (sentidoDe(m) === "otros") return <span className={`whitespace-nowrap font-bold tabular-nums ${coloresDinero.otros.texto}`}>{formatearDolares(m.monto)}</span>;
+  if (sentidoDe(m) === "otros") return <span className={`whitespace-nowrap font-semibold tabular-nums ${coloresDinero.otros.texto}`}>{formatearDolares(m.monto)}</span>;
   const entrada = entra(m);
   return (
-    <span className={`whitespace-nowrap font-bold tabular-nums ${coloresDinero[entrada ? "entra" : "sale"].texto}`}>
+    <span className={`whitespace-nowrap font-semibold tabular-nums ${coloresDinero[entrada ? "entra" : "sale"].texto}`}>
       <span className="sr-only">{entrada ? t.entradaSigno : t.salidaSigno}: </span>
       <span aria-hidden="true">{entrada ? "+" : "−"}</span>
       {formatearDolares(m.monto)}
@@ -100,10 +106,17 @@ type Entrada = Extract<Movimiento, { tipo: "entrada" }>;
 
 /** «Venta completa» o «Abono» y, en la venta, lo que deja; en el abono, lo que falta por cobrar. */
 function EtiquetasDeVenta({ m }: { m: Entrada }) {
+  if (m.cancelado) {
+    return (
+      <span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-medium">
+        <span className="rounded-lg bg-chip-rojo px-2 py-0.5 text-chip-texto-rojo">{t.concepto.cancelado}</span>
+      </span>
+    );
+  }
   const venta = m.clase === "venta";
   return (
-    <span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-bold">
-      <span className={`rounded-full border border-teal-oscuro px-2 py-0.5 ${venta ? coloresDinero.entra.fondo : "bg-perla"}`}>
+    <span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-medium">
+      <span className={`rounded-lg px-2 py-0.5 ${venta ? FICHA.entra : "bg-chip-amarillo text-chip-texto-amarillo"}`}>
         {venta ? t.concepto.ventaCompleta : t.concepto.abonoChip}
       </span>
       {!venta && <span className="text-texto-2">{t.concepto.queda(formatearDolares(m.saldoDespues))}</span>}
@@ -117,11 +130,11 @@ const Concepto = ({ m, conFecha }: { m: Movimiento; conFecha: boolean }) => (
     <Icono m={m} />
     <div className="min-w-0">
       {m.tipo === "entrada" ? (
-        <Link href={`/pedidos/${m.pedidoCodigo}`} className="block truncate font-bold text-teal-oscuro underline decoration-teal/40 hover:decoration-teal">
+        <Link href={`/pedidos/${m.pedidoCodigo}`} className="block truncate font-semibold text-teal-oscuro hover:underline">
           {titulo(m)}
         </Link>
       ) : (
-        <span className="block truncate font-bold">{titulo(m)}</span>
+        <span className="block truncate font-semibold">{titulo(m)}</span>
       )}
       {m.tipo === "entrada" ? (
         <>
@@ -155,7 +168,7 @@ function porDia(movimientos: Movimiento[]): Dia[] {
 /** Lo que va sumado y restado hasta ese movimiento: va chico, bajo el monto o en su propia columna. */
 function Acumulado({ valor }: { valor: number }) {
   return (
-    <span className={`whitespace-nowrap text-sm font-bold tabular-nums ${valor < 0 ? "text-error" : "text-texto-2"}`}>
+    <span className={`whitespace-nowrap text-xs tabular-nums ${valor < 0 ? "text-error" : "text-texto-2"}`}>
       {valor < 0 ? "−" : ""}
       {formatearDolares(Math.abs(valor))}
     </span>
@@ -170,7 +183,7 @@ function etiquetaDelDia(fecha: string, hoy: string): string {
 
 function NetoDelDia({ neto }: { neto: number }) {
   return (
-    <span className={`font-bold tabular-nums ${neto < 0 ? "text-error" : coloresDinero.entra.texto}`}>
+    <span className={`text-xs font-semibold tabular-nums ${neto < 0 ? "text-error" : coloresDinero.entra.texto}`}>
       {neto < 0 ? "−" : "+"}
       {formatearDolares(Math.abs(neto))}
     </span>
@@ -197,21 +210,21 @@ export function ListaMovimientos({
   const dias = porDia(movimientos);
   return (
     <div className="@container">
-      <Card className="hidden overflow-hidden p-0 md:p-0 @2xl:block">
+      <div className="hidden overflow-hidden rounded-3xl border border-linea bg-superficie shadow-xs @2xl:block">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-teal-oscuro text-sm font-extrabold text-texto-2">
-              <th scope="col" className="px-4 py-3">
+            <tr className="border-b border-linea bg-gris-50 text-xs font-medium text-texto-2">
+              <th scope="col" className="px-4 py-3 font-medium">
                 {t.columnas.concepto}
               </th>
-              <th scope="col" className="px-2 py-3">
+              <th scope="col" className="px-2 py-3 font-medium">
                 {t.columnas.metodo}
               </th>
-              <th scope="col" className="px-4 py-3 text-right">
+              <th scope="col" className="px-4 py-3 text-right font-medium">
                 {t.columnas.monto}
               </th>
               {acumulados && (
-                <th scope="col" className="px-4 py-3 text-right">
+                <th scope="col" className="px-4 py-3 text-right font-medium">
                   {t.columnas.acumulado}
                 </th>
               )}
@@ -219,8 +232,8 @@ export function ListaMovimientos({
           </thead>
           {dias.map((d) => (
             <tbody key={d.fecha}>
-              <tr className="bg-fondo">
-                <th scope="colgroup" colSpan={2} className="px-4 py-2 text-left text-sm font-extrabold">
+              <tr className="border-t border-linea bg-gris-50">
+                <th scope="colgroup" colSpan={2} className="px-4 py-2 text-left text-xs font-semibold text-texto-2">
                   {etiquetaDelDia(d.fecha, hoy)}
                 </th>
                 <td className="px-4 py-2 text-right text-sm">
@@ -233,7 +246,7 @@ export function ListaMovimientos({
                 )}
               </tr>
               {d.movimientos.map((m) => (
-                <tr key={`${m.tipo}-${m.id}`} className="border-t border-borde hover:bg-teal-fondo">
+                <tr key={`${m.tipo}-${m.id}`} className="border-t border-linea transition-colors hover:bg-gris-50">
                   <td className="max-w-96 px-4 py-3">
                     <Concepto m={m} conFecha={conFecha} />
                   </td>
@@ -253,18 +266,18 @@ export function ListaMovimientos({
             </tbody>
           ))}
         </table>
-      </Card>
+      </div>
 
-      <Card className="overflow-hidden p-0 md:p-0 @2xl:hidden">
+      <div className="overflow-hidden rounded-3xl border border-linea bg-superficie shadow-xs @2xl:hidden">
         <ul>
           {dias.map((d) => (
             <Fragment key={d.fecha}>
-              <li className="flex items-center justify-between gap-3 bg-fondo px-4 py-2 text-sm">
-                <span className="font-extrabold">{etiquetaDelDia(d.fecha, hoy)}</span>
+              <li className="flex items-center justify-between gap-3 bg-gris-50 px-4 py-2 text-xs">
+                <span className="font-semibold text-texto-2">{etiquetaDelDia(d.fecha, hoy)}</span>
                 <NetoDelDia neto={d.neto} />
               </li>
               {d.movimientos.map((m) => (
-                <li key={`${m.tipo}-${m.id}`} className="flex items-center justify-between gap-3 border-t border-borde px-4 py-3">
+                <li key={`${m.tipo}-${m.id}`} className="flex items-center justify-between gap-3 border-t border-linea px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <Concepto m={m} conFecha={conFecha} />
                   </div>
@@ -278,7 +291,7 @@ export function ListaMovimientos({
             </Fragment>
           ))}
         </ul>
-      </Card>
+      </div>
     </div>
   );
 }

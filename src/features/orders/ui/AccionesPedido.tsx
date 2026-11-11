@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/Button";
-import { useConfirmar } from "@/components/ui/Confirmar";
+import { useElegir } from "@/components/ui/Confirmar";
 import { MensajeError } from "@/components/ui/MensajeError";
+import { MenuAcciones, type AccionMenu } from "@/components/ui/MenuAcciones";
 import type { EstadoPedido } from "@/domain/index";
+import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { cambiarEstado } from "../actions/estado";
+import { cambiarEstado, cancelar as cancelarPedido } from "../actions/estado";
+import { MOTIVOS_DE_CANCELACION } from "../motivos";
 
 const t = textos.pedidos.acciones;
 
@@ -14,12 +16,19 @@ type Props = {
   pedidoId: string;
   siguiente: Exclude<EstadoPedido, "pendiente" | "cancelado"> | null;
   puedeCancelar: boolean;
+  /** centavos ya cobrados: si hay, el aviso de cancelar lo dice */
+  cobrado?: number;
 };
 
-export function AccionesPedido({ pedidoId, siguiente, puedeCancelar }: Props) {
+export function AccionesPedido({
+  pedidoId,
+  siguiente,
+  puedeCancelar,
+  cobrado = 0,
+}: Props) {
   const [error, setError] = useState("");
   const [pendiente, empezar] = useTransition();
-  const confirmar = useConfirmar();
+  const elegir = useElegir();
 
   function cambiar(estado: EstadoPedido) {
     setError("");
@@ -30,37 +39,40 @@ export function AccionesPedido({ pedidoId, siguiente, puedeCancelar }: Props) {
   }
 
   async function cancelar() {
-    const si = await confirmar({
+    const motivo = await elegir({
       titulo: t.cancelarTitulo,
-      texto: t.confirmarCancelar,
+      texto: `${
+        cobrado > 0
+          ? t.confirmarCancelarConPagos(formatearDolares(cobrado))
+          : t.confirmarCancelar
+      } ${t.motivoPregunta}`,
+      opciones: MOTIVOS_DE_CANCELACION.map((valor) => ({ valor, etiqueta: t.motivos[valor] })),
       confirmar: t.cancelarConfirmar,
       cancelar: t.cancelarVolver,
       peligro: true,
     });
-    if (si) cambiar("cancelado");
+    if (!motivo) return;
+    setError("");
+    empezar(async () => {
+      const r = await cancelarPedido(pedidoId, motivo);
+      if (r.error) setError(r.error);
+    });
   }
 
-  if (!siguiente && !puedeCancelar) return null;
+  const acciones: AccionMenu[] = [];
+  if (siguiente)
+    acciones.push({
+      etiqueta: pendiente ? t.trabajando : t[siguiente],
+      icono: "check",
+      alElegir: () => cambiar(siguiente),
+    });
+  if (puedeCancelar)
+    acciones.push({ etiqueta: t.cancelar, icono: "x", alElegir: cancelar });
+  if (!acciones.length) return null;
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-3">
-        {siguiente && (
-          <Button type="button" disabled={pendiente} onClick={() => cambiar(siguiente)}>
-            {pendiente ? t.trabajando : t[siguiente]}
-          </Button>
-        )}
-        {puedeCancelar && (
-          <Button
-            type="button"
-            variante="secundario"
-            disabled={pendiente}
-            onClick={cancelar}
-          >
-            {t.cancelar}
-          </Button>
-        )}
-      </div>
+    <div className="flex flex-col items-end gap-2">
+      <MenuAcciones etiqueta={t.masAcciones} acciones={acciones} />
       <MensajeError>{error}</MensajeError>
     </div>
   );

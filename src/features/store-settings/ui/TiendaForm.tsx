@@ -451,7 +451,7 @@ export function TiendaForm({
           </Seccion>
 
           <Seccion id="lotito" className={`mt-10 ${activa === "lotito" ? "" : "hidden"}`}>
-            {/* Lotito se asoma por el borde de la tarjeta, como en "Para hoy" de Inicio */}
+            {/* Punch se asoma por el borde de la tarjeta, como en "Para hoy" de Inicio */}
             <LotitoMas nombre="asoma" className="pointer-events-none absolute -top-[3.3rem] right-6 w-28" />
             <Bloque titulo={t.secciones.lotito} texto={t.secciones.lotitoAyuda} tono="limon">
               <div className="flex flex-col gap-1.5">

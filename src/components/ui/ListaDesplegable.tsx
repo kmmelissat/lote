@@ -42,7 +42,7 @@ export function ListaDesplegable({
   alCambiar?: (valor: string) => void;
   /** "panel": la altura de los campos del panel. "campo": la de los formularios con borde grueso (compra, producto). "compacto": más baja (filtros). "pildora": redonda y baja, para ir al lado de los chips de filtro. */
   variante?: "panel" | "campo" | "compacto" | "pildora";
-  /** Clases extra para el botón, por ejemplo para marcar lo que llenó Lotito */
+  /** Clases extra para el botón, por ejemplo para marcar lo que llenó Punch */
   className?: string;
   /** Para enlazar una etiqueta (`htmlFor`) con la lista */
   id?: string;

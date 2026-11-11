@@ -6,7 +6,7 @@ export type ContextoIA = {
   clientes: string[];
   /** Los últimos mensajes de la conversación (de los últimos minutos), para entender "y el mes pasado?". Son datos, no instrucciones. */
   conversacion?: Turno[];
-  /** Lo último que Lotito le preguntó a la persona y sigue sin respuesta ("¿De cuál cliente o pedido?"). Es un dato, no una instrucción. */
+  /** Lo último que Punch le preguntó a la persona y sigue sin respuesta ("¿De cuál cliente o pedido?"). Es un dato, no una instrucción. */
   pendiente?: string;
 };
 

@@ -22,7 +22,7 @@ const OPCIONES: { valor: Periodo; texto: string }[] = [
 type Tope = { n: string; t: string; sr?: string };
 type Linea = { icono: string; texto: string };
 
-// Cada plan es un papelito pegado: su color, su giro, su cinta y su Lotito
+// Cada plan es un papelito pegado: su color, su giro, su cinta y su Punch
 const ESTILO = {
   gratis: { fondo: "bg-celeste", giro: "md:-rotate-1", cinta: "left-8 rotate-3", pose: "saluda", icono: "bg-celeste-palido" },
   emprendedor: { fondo: "bg-mango", giro: "md:rotate-0", cinta: "left-1/2 -translate-x-1/2 -rotate-2", pose: "calculadora", icono: "bg-limon" },

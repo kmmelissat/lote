@@ -32,7 +32,7 @@ export type Respuesta = {
   copiar?: string;
   /** Pantallas a las que la respuesta lleva (por ejemplo desde una pregunta frecuente) */
   enlaces?: { etiqueta: string; href: Route }[];
-  /** No se pudo leer lo que la persona quiso: se anota para mejorar a Lotito */
+  /** No se pudo leer lo que la persona quiso: se anota para mejorar a Punch */
   noEntendido?: boolean;
 };
 

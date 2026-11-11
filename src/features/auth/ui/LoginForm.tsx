@@ -17,7 +17,7 @@ export function LoginForm() {
 
   return (
     <div className="relative pt-20 md:pt-24">
-      {/* Como en la landing: Lotito se asoma por detrás de la tarjeta y habla en su globo */}
+      {/* Como en la landing: Punch se asoma por detrás de la tarjeta y habla en su globo */}
       <div className="absolute right-3 top-0 z-0 flex items-end gap-2 md:right-6">
         <Globo className="mb-7 -rotate-2 whitespace-nowrap motion-safe:animate-entra">{t.globo}</Globo>
         <LotitoMas nombre="asoma" className="w-36 motion-safe:animate-asomar md:w-44" />

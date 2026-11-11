@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import type { Cuenta, Tarjeta } from "@/domain/index";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { Field } from "@/components/ui/Field";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { Select } from "@/components/ui/Select";
@@ -61,9 +61,14 @@ export function ReponerForm({
       <Field etiqueta={t.llegan} name="llegan" inputMode="numeric" required error={e.llegan} />
       <Field etiqueta={t.costo} name="costo" inputMode="decimal" error={e.costo} />
       <LugarDeCompra cuentas={cuentas} tarjetas={tarjetas} />
-      <Button type="submit" variante="mango" disabled={pendiente}>
-        {pendiente ? t.guardando : t.boton}
-      </Button>
+      <div className="flex flex-col-reverse gap-2 border-t border-linea pt-4 sm:flex-row sm:justify-end">
+        <BotonPunch type="button" variante="secundario" onClick={(ev) => ev.currentTarget.closest("dialog")?.close()}>
+          {textos.comun.cancelar}
+        </BotonPunch>
+        <BotonPunch type="submit" disabled={pendiente}>
+          {pendiente ? t.guardando : t.boton}
+        </BotonPunch>
+      </div>
       <MensajeError>{e.general}</MensajeError>
     </form>
   );

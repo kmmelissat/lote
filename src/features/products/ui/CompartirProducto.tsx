@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
+import { EncabezadoTarjeta } from "@/components/ui/EncabezadoTarjeta";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
 import { armarRespuesta, armarTextoPost } from "../textosCompartir";
@@ -31,11 +32,8 @@ export function CompartirProducto({ slug, producto }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-3">
-      <div>
-        <h2 className="font-bold">{t.titulo}</h2>
-        <p className="text-sm text-texto-2">{t.ayuda}</p>
-      </div>
+    <section className={`${TARJETA_PUNCH} flex flex-col gap-4`}>
+      <EncabezadoTarjeta icono="enviar" color="rosa" titulo={t.titulo} ayuda={t.ayuda} />
       <div className="flex flex-wrap gap-2">
         <Button type="button" variante="suave" tamano="chico" icono="copiar" onClick={() => copiar("enlace")}>
           {t.botones.enlace}
@@ -47,6 +45,6 @@ export function CompartirProducto({ slug, producto }: Props) {
           {t.botones.respuesta}
         </Button>
       </div>
-    </Card>
+    </section>
   );
 }

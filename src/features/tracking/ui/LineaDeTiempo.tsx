@@ -62,7 +62,7 @@ export function LineaDeTiempo({
                     ? "bg-(--store-accent) text-(--store-on-button)"
                     : enCurso
                       ? "bg-(--store-soft) ring-4 ring-(--store-soft)"
-                      : "border-2 border-borde-control bg-superficie text-texto-2"
+                      : "border border-linea bg-superficie text-texto-2"
                 }`}
               >
                 {hecho ? <Icon nombre="check" className="size-4" strokeWidth={3} /> : enCurso ? <MiniCaja /> : i + 1}

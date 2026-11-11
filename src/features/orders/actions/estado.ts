@@ -6,9 +6,10 @@ import type { EstadoPedido } from "@/domain";
 import { negocioActual } from "@/lib/negocio";
 import { textos } from "@/lib/textos";
 import { marcarListoParaRecoger } from "@/features/shipping/repositorio";
-import { cambiarEstadoPedido, METODOS_DE_COBRO, registrarPago, saldoDelPedido, type MetodoPago } from "../repositorio";
+import { MOTIVOS_DE_CANCELACION } from "../motivos";
+import { cambiarEstadoPedido, cancelarPedido, METODOS_DE_COBRO, registrarPago, saldoDelPedido, type MetodoPago } from "../repositorio";
 
-const ESTADOS: EstadoPedido[] = ["preparando", "enviado", "entregado", "cancelado"];
+const ESTADOS: EstadoPedido[] = ["preparando", "enviado", "entregado"];
 
 export async function cambiarEstado(
   pedidoId: string,
@@ -29,6 +30,18 @@ export async function cambiarEstado(
   }
 
   await rastrearAccion("pedido_estado_cambiado", { estado });
+  revalidatePath("/", "layout");
+  return {};
+}
+
+/** Cancela el pedido y anota el motivo. Las reglas y el permiso los verifica cancelar_pedido en la base. */
+export async function cancelar(pedidoId: string, motivo: string): Promise<{ error?: string }> {
+  const a = textos.pedidos.acciones;
+  const valido = (MOTIVOS_DE_CANCELACION as readonly string[]).includes(motivo) ? motivo : null;
+  const { supabase } = await negocioActual();
+  const r = await cancelarPedido(supabase, pedidoId, valido);
+  if (!r.ok) return { error: r.error.tipo === "sin_permiso" ? a.errorPermiso : a.errorGeneral };
+  await rastrearAccion("pedido_estado_cambiado", { estado: "cancelado", motivo: valido ?? "ninguno" });
   revalidatePath("/", "layout");
   return {};
 }

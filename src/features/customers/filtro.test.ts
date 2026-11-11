@@ -28,7 +28,7 @@ describe("filtrarClientes", () => {
 describe("ordenarClientes y resumenDeClientes", () => {
   const d = (dia: number) => new Date(2026, 9, dia);
   const k = (nombre: string, saldo: number, comprado: number, pedidos: number, ultimo: Date | null): ClienteConResumen =>
-    ({ id: nombre, nombre, contacto: null, resumen: { saldo, comprado, pedidos, ultimoPedido: ultimo } }) as ClienteConResumen;
+    ({ id: nombre, nombre, contacto: null, resumen: { saldo, alEntregar: 0, comprado, pedidos, ultimoPedido: ultimo } }) as ClienteConResumen;
   const todos = [k("Bea", 0, 3000, 2, d(10)), k("Ana", 500, 1000, 1, d(20)), k("Cris", 0, 0, 0, null)];
   const nombres = (o: Parameters<typeof ordenarClientes>[1]) => ordenarClientes(todos, o).map((x) => x.nombre);
 
@@ -40,6 +40,6 @@ describe("ordenarClientes y resumenDeClientes", () => {
   });
 
   it("resume", () => {
-    expect(resumenDeClientes(todos)).toEqual({ clientas: 3, saldo: 500, comprado: 4000, deudoras: 1, repiten: 1 });
+    expect(resumenDeClientes(todos)).toEqual({ clientas: 3, saldo: 500, comprado: 4000, deudoras: 1, repiten: 1, alEntregar: 0, conEntrega: 0 });
   });
 });

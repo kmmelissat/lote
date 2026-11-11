@@ -1,24 +1,24 @@
 export const ayuda = {
   titulo: "Ayuda",
-  descripcion: "Respuestas cortas a lo que más se pregunta. Si no está acá, escribile a Lotito.",
+  descripcion: "Respuestas cortas a lo que más se pregunta. Si no está acá, escribile a Punch.",
   ruta: "/ayuda",
   enlace: "Ayuda",
   enlaceTexto: "Preguntas frecuentes sobre cómo usar Lote.",
-  heroEtiqueta: "Lotito te explica",
+  heroEtiqueta: "Punch te explica",
   heroTitulo: "¿En qué te ayudo?",
-  hablarConLotito: "Preguntale a Lotito",
+  hablarConLotito: "Preguntale a Punch",
   atajosTitulo: "Lo más buscado",
   grupos: [
     { id: "productos", titulo: "Tus productos", temas: ["producto_nuevo", "importar", "variantes", "categorias", "lotito_foto"] },
     { id: "ventas", titulo: "Cobrar y enviar", temas: ["apartado_vitrina", "cobrar", "pagar_pedido", "datos_de_pago", "envios_config", "seguimiento"] },
     { id: "vitrina", titulo: "Tu tienda en línea", temas: ["vitrina", "explorar"] },
     { id: "negocio", titulo: "Tu negocio", temas: ["ganancia", "balance", "saldo_inicial", "deuda", "cuota_deuda", "gastos_fijos", "actividad", "permisos", "equipo", "exportar"] },
-    { id: "lotito", titulo: "Hablar con Lotito", temas: ["asistente", "deshacer"] },
+    { id: "lotito", titulo: "Hablar con Punch", temas: ["asistente", "deshacer"] },
   ],
   cierreTitulo: "¿No encontrás lo que buscás?",
-  cierreTexto: "Escribile a Lotito como le escribirías a alguien que te ayuda: apartá, cobrá o preguntale cuánto ganaste.",
-  cierreAccion: "Hablar con Lotito",
-  cierreTituloFuera: "¿Querés que Lotito te ayude en tu negocio?",
+  cierreTexto: "Escribile a Punch como le escribirías a alguien que te ayuda: apartá, cobrá o preguntale cuánto ganaste.",
+  cierreAccion: "Hablar con Punch",
+  cierreTituloFuera: "¿Querés que Punch te ayude en tu negocio?",
   cierreTextoFuera: "Creá tu cuenta con Google o con tu correo. Gratis para empezar, sin tarjeta.",
   empezar: "Empezar gratis",
   /** Preguntas que se muestran como atajos cuando el chat está vacío y la pantalla no tiene las suyas */
@@ -177,9 +177,9 @@ export const ayuda = {
     {
       id: "lotito_foto",
       donde: ["/productos/nuevo", "/productos"],
-      pregunta: "¿Cómo me ayuda Lotito con las fotos?",
+      pregunta: "¿Cómo me ayuda Punch con las fotos?",
       respuesta:
-        "Subí o sacá la foto en Nuevo producto y Lotito la lee: te propone nombre, categoría, marca y descripción. Vos corregís lo que haga falta, y si no te gusta, tocá Deshacer. El precio y el costo siempre los ponés vos.",
+        "Subí o sacá la foto en Nuevo producto y Punch la lee: te propone nombre, categoría, marca y descripción. Vos corregís lo que haga falta, y si no te gusta, tocá Deshacer. El precio y el costo siempre los ponés vos.",
     },
     {
       id: "datos_de_pago",
@@ -218,7 +218,7 @@ export const ayuda = {
       donde: ["/productos/nuevo", "/productos"],
       pregunta: "¿Cómo organizo mis productos en categorías?",
       respuesta:
-        "Las categorías son una lista fija de Lote, la misma para todas las tiendas: al crear o editar un producto elegís el rubro y después la categoría (por ejemplo, Belleza y Brochas y esponjas). Así tus productos aparecen en el lugar correcto del Marketplace. Si subís una foto, Lotito te propone la categoría.",
+        "Las categorías son una lista fija de Lote, la misma para todas las tiendas: al crear o editar un producto elegís el rubro y después la categoría (por ejemplo, Belleza y Brochas y esponjas). Así tus productos aparecen en el lugar correcto del Marketplace. Si subís una foto, Punch te propone la categoría.",
     },
   ],
 } as const;

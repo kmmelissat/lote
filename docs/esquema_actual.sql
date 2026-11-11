@@ -3,7 +3,7 @@
 -- No incluye grant/revoke, datos (insert/update/delete) ni bloques do. Las columnas con sus tipos también están en
 -- src/lib/supabase/database.types.ts.
 --
--- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda, busqueda_sin_tildes, sitemap_publico, vitrina_negocio_unica, tiendas_del_momento.
+-- Orden usado: schema, productos, reponer, fotos, importar, pedidos, cobros, envios, vitrina, asistente, gastos, asistente_gasto, rendimiento, unidades, seguimiento, variantes, equipo, avisos, avisos_eventos, avisos_tiempo, tienda, tienda_contexto, editar_existencia, categorias, ganancia_por_entrar, variantes_nombres, explorar, compra_vitrina, compra_limite, vitrina_opcional, carrito_vitrina, ficha_producto, facebook, modos_y_zonas, rubros, paginacion, destacados, importar_ficha, pedido_cliente, local, mostrador, descuento_pedido, ofertas, promociones, seguridad, cerrar_publicas, categorias_fijas, rubros_nuevos, rubros_guardados, catalogo_fijo, tiktok, importar_fotos, explorar_filtros, gasto_metodo, vitrina_estrellas, vitrina_perfil, asistente_fallos, listo_para_recoger, sin_billetera, actividad, compras, explorar_promociones, gestion, pasivo_cuota, precio_anterior_explorar, categorias_arreglos, contexto_largo, fecha_local, pago_paquetera, cliente_contactos, gastos_fijos, quitar_conteo_dinero, cuentas, galeria, fotos_variantes_orden, tarjetas, asistente_acciones, carritos, comprador_correo, comprador_perfil, comprador_usuario, compradores, banner_tienda, busqueda_sin_tildes, sitemap_publico, vitrina_negocio_unica, tiendas_del_momento, devoluciones, cancelacion_motivo.
 
 -- ====================================================================================================
 -- TABLAS (44)
@@ -707,6 +707,10 @@ alter table public.pedido add constraint pedido_metodo_preferido_check
 -- compradores.sql
 alter table public.pedido
   add column if not exists comprador_id uuid references public.comprador(id) on delete set null;
+-- cancelacion_motivo.sql
+alter table public.pedido
+  add column if not exists motivo_cancelacion text
+  check (motivo_cancelacion in ('cliente_desistio', 'sin_stock', 'no_pago', 'error', 'otro'));
 
 -- tabla pedido_item
 -- pedidos.sql
@@ -898,7 +902,7 @@ alter table public.ubicacion enable row level security;
 
 
 -- ====================================================================================================
--- FUNCIONES (130)
+-- FUNCIONES (131)
 -- ====================================================================================================
 
 -- función abonar_pasivo(uuid, numeric, text, text, uuid)
@@ -1567,6 +1571,22 @@ begin
   loop
     perform public.cerrar_oferta(v_id, 'cancelada');
   end loop;
+end;
+$$;
+
+-- función cancelar_pedido(uuid, text)
+-- cancelacion_motivo.sql
+create or replace function public.cancelar_pedido(p_pedido uuid, p_motivo text default null)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+begin
+  if p_motivo is not null and p_motivo not in ('cliente_desistio', 'sin_stock', 'no_pago', 'error', 'otro') then
+    raise exception 'Dato no válido' using errcode = '22023';
+  end if;
+  perform public.cambiar_estado_pedido(p_pedido, 'cancelado');
+  update public.pedido set motivo_cancelacion = p_motivo where id = p_pedido;
 end;
 $$;
 

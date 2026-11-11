@@ -35,7 +35,7 @@ function abrirDeHash() {
   requestAnimationFrame(() => el.scrollIntoView({ behavior: "smooth", block: "start" }));
 }
 
-/** La ayuda de Lote: Lotito invita, los atajos saltan a una pregunta y el resto va por tema. */
+/** La ayuda de Lote: Punch invita, los atajos saltan a una pregunta y el resto va por tema. */
 export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
   useEffect(() => {
     abrirDeHash();

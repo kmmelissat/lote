@@ -227,7 +227,7 @@ function conDuda(entendida: SalidaEntender): SalidaEntender | Respuesta {
 const ESPERA_UN_NUMERO: Falta[] = ["precio", "monto", "montoGasto", "cantidad"];
 
 /**
- * Lotito hizo una pregunta y la persona escribió algo. ¿Es la respuesta o es otra cosa ("hacer pedido")?
+ * Punch hizo una pregunta y la persona escribió algo. ¿Es la respuesta o es otra cosa ("hacer pedido")?
  * Con IA se le pregunta a ella, pasándole la pregunta; sin IA (o si falla) solo se cuentan palabras.
  */
 async function leerRespuesta(

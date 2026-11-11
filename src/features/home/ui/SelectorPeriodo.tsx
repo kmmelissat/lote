@@ -8,14 +8,14 @@ import { conBusqueda } from "@/lib/ruta";
 import type { ModoPeriodo } from "../periodoInicio";
 
 const PREDETERMINADOS: { modo: ModoPeriodo; texto: string; busqueda: string }[] = [
-  { modo: "semana", texto: "Esta semana", busqueda: "" },
-  { modo: "mes", texto: "Este mes", busqueda: "p=mes" },
+  { modo: "semana", texto: "Esta semana", busqueda: "p=semana" },
+  { modo: "mes", texto: "Este mes", busqueda: "" },
   { modo: "90", texto: "Últimos 90 días", busqueda: "p=90" },
   { modo: "todo", texto: "Todo el historial", busqueda: "p=todo" },
 ];
 
 /** El rango de Inicio, pegado al título: muestra las fechas y al abrirse deja elegir un rango o un predeterminado. */
-export function SelectorPeriodo({ modo, etiqueta, desde, hasta, hoy }: { modo: ModoPeriodo; etiqueta: string; desde: string; hasta: string; hoy: string }) {
+export function SelectorPeriodo({ modo, etiqueta, desde, hasta, hoy, ruta = "/inicio" }: { modo: ModoPeriodo; etiqueta: string; desde: string; hasta: string; hoy: string; ruta?: "/inicio" | "/balance/detalle" }) {
   const [abierto, setAbierto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -34,7 +34,7 @@ export function SelectorPeriodo({ modo, etiqueta, desde, hasta, hoy }: { modo: M
 
   const ir = (busqueda: string) => {
     setAbierto(false);
-    router.push(conBusqueda("/inicio", busqueda));
+    router.push(conBusqueda(ruta, busqueda));
   };
 
   return (

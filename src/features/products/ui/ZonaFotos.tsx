@@ -45,7 +45,7 @@ export function ZonaFotos({
   negocioId: string;
   rutas: string[];
   onCambio: (rutas: string[]) => void;
-  /** Solo donde Lotito de verdad lee la foto y llena la ficha: así la zona no promete lo que no hace */
+  /** Solo donde Punch de verdad lee la foto y llena la ficha: así la zona no promete lo que no hace */
   conLotito?: boolean;
   /** Sin monito ni título grande: la foto de un diseño, no la ficha del producto */
   compacto?: boolean;

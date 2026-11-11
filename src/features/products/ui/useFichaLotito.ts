@@ -14,14 +14,14 @@ const ORDEN_LOTITO: CampoLotito[] = [
   "marca",
   "descripcion",
 ];
-/** Lo que tarda Lotito en "escribir" cada campo, para que se sienta que va llenando uno por uno */
+/** Lo que tarda Punch en "escribir" cada campo, para que se sienta que va llenando uno por uno */
 const PAUSA_MS = 380;
 
 type Valores = Record<string, string>;
 
 /**
- * La parte de la ficha que Lotito puede llenar (nombre, categoría, marca, descripción, condición y detalles) vive acá:
- * Lotito lee la primera foto y llena lo que está vacío. También abre y cierra los bloques opcionales.
+ * La parte de la ficha que Punch puede llenar (nombre, categoría, marca, descripción, condición y detalles) vive acá:
+ * Punch lee la primera foto y llena lo que está vacío. También abre y cierra los bloques opcionales.
  */
 export function useFichaLotito({
   fotoInicial,
@@ -48,7 +48,7 @@ export function useFichaLotito({
   // Lo que le da confianza a quien compra: detalles en lista y, si es usado, cómo está
   const [detalles, setDetalles] = useState<Detalle[]>(() => leerDetalles(v.detalles));
 
-  // Cuáles bloques opcionales están abiertos (los que Lotito llena se abren solos, para que se vea qué revisar)
+  // Cuáles bloques opcionales están abiertos (los que Punch llena se abren solos, para que se vea qué revisar)
   // Al editar (o repetir un producto) los bloques que ya tienen datos arrancan abiertos
   const [abiertos, setAbiertos] = useState<Record<string, boolean>>(() => {
     const hay = (k: string) => Boolean(v[k]?.trim());
@@ -57,15 +57,15 @@ export function useFichaLotito({
       masInfo: hay("marca") || v.condicion === "usado" || hay("estado_detalle") || leerDetalles(v.detalles).length > 0,
     };
   });
-  // Lo que Lotito llenó además de los campos de texto, para poder deshacerlo
+  // Lo que Punch llenó además de los campos de texto, para poder deshacerlo
   const [extrasLotito, setExtrasLotito] = useState({ variantes: false, detalles: false, condicion: false });
 
-  // Lotito: lo que llenó, qué está haciendo y cuál foto ya leyó
+  // Punch: lo que llenó, qué está haciendo y cuál foto ya leyó
   const [deLotito, setDeLotito] = useState<Set<CampoLotito>>(new Set());
   const [estadoLotito, setEstadoLotito] = useState<EstadoLotito>("quieto");
   const [escribiendo, setEscribiendo] = useState<Set<CampoLotito>>(new Set());
   const [, empezarLectura] = useTransition();
-  // Al editar, la foto que ya tiene no se vuelve a leer: Lotito solo mira las que se agregan
+  // Al editar, la foto que ya tiene no se vuelve a leer: Punch solo mira las que se agregan
   const leida = useRef<string | null>(fotoInicial);
   const temporizadores = useRef<number[]>([]);
   useEffect(() => () => temporizadores.current.forEach(clearTimeout), []);
@@ -83,9 +83,9 @@ export function useFichaLotito({
     descripcion,
   };
 
-  // Lotito no pisa lo que escribió la persona: solo llena campos vacíos o los que él mismo había llenado.
+  // Punch no pisa lo que escribió la persona: solo llena campos vacíos o los que él mismo había llenado.
   function aplicar(visto: FichaSugerida) {
-    // Lo que Lotito vio se pasa a la categoría del catálogo que más se parece; si no dice nada, queda vacío
+    // Lo que Punch vio se pasa a la categoría del catálogo que más se parece; si no dice nada, queda vacío
     const f = { ...visto, categoria: categoriaPorTexto(visto.categoria)?.nombre ?? null };
     const llenar = ORDEN_LOTITO.filter(
       (c) => f[c] && (!actuales[c].trim() || deLotito.has(c)),
@@ -129,7 +129,7 @@ export function useFichaLotito({
     }
     setExtrasLotito(extras);
 
-    // Todo lo que Lotito llenó se abre: así se ve de una vez qué hay que revisar
+    // Todo lo que Punch llenó se abre: así se ve de una vez qué hay que revisar
     const llenoMasInfo = Boolean(f.marca && (!marca.trim() || deLotito.has("marca"))) || extras.detalles || extras.condicion;
     setAbiertos((a) => ({ ...a, ...(extras.variantes ? { variantes: true } : {}), ...(llenoMasInfo ? { masInfo: true } : {}) }));
   }
@@ -183,7 +183,7 @@ export function useFichaLotito({
   const brillo = (c: CampoLotito) => escribiendo.has(c);
   const hayLotito = deLotito.size > 0 || extrasLotito.variantes || extrasLotito.detalles || extrasLotito.condicion;
 
-  // Los bloques opcionales vienen cerrados; la persona los abre. Si tienen un error, o Lotito llenó algo ahí, se abren solos.
+  // Los bloques opcionales vienen cerrados; la persona los abre. Si tienen un error, o Punch llenó algo ahí, se abren solos.
   const estaAbierto = (id: string, defecto = false, forzar = false) => forzar || (abiertos[id] ?? defecto);
   const alternar = (id: string, defecto = false, forzar = false) => setAbiertos((a) => ({ ...a, [id]: !estaAbierto(id, defecto, forzar) }));
 

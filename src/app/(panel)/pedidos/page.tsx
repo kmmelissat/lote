@@ -146,7 +146,7 @@ async function Lista({ searchParams }: Pick<PageProps<"/pedidos">, "searchParams
 
         {!visibles.length ? (
           <EmptyState
-            monito="asoma"
+            monito={null}
             texto={
               q
                 ? t.buscar.sinResultados(q)

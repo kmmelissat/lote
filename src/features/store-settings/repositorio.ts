@@ -68,7 +68,7 @@ export type IdentidadTienda = {
   usuarioFacebook: string | null;
   usuarioTiktok: string | null;
   banner: string | null;
-  /** Lo que Lotito debe saber de la tienda cuando lee una foto */
+  /** Lo que Punch debe saber de la tienda cuando lee una foto */
   contextoIa: string | null;
 };
 

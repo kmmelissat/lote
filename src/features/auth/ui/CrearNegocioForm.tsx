@@ -197,7 +197,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
             })}
           </ol>
 
-          {/* En escritorio la hoja se reparte en dos: a la izquierda la pregunta y Lotito, a la derecha lo que se responde */}
+          {/* En escritorio la hoja se reparte en dos: a la izquierda la pregunta y Punch, a la derecha lo que se responde */}
           <div className="lg:grid lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:gap-x-12 lg:pr-8">
           <div className="flex flex-col lg:pt-4">
           <h1 ref={titulo} tabIndex={-1} className="mt-6 max-w-[16ch] -rotate-1 text-3xl font-bold leading-[1.15] outline-none md:max-w-[20ch] md:text-4xl">
@@ -250,7 +250,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
               {paso === 3 ? r.elegir : r.trato.pregunta}
             </p>
           )}
-          {/* Lotito comenta al margen, como una nota adhesiva (en escritorio vive acá, a la izquierda) */}
+          {/* Punch comenta al margen, como una nota adhesiva (en escritorio vive acá, a la izquierda) */}
           <div className="mt-auto hidden items-end gap-2 pt-8 lg:flex" aria-hidden="true">
             <LotitoMas nombre={POSES[paso]} className="w-24 shrink-0 motion-safe:animate-asomar" key={paso} />
             <p className="max-w-[12rem] -rotate-1 rounded-2xl border border-teal-oscuro bg-white px-3 py-2 text-sm font-medium shadow-dura-chica">{r.notas[paso - 1]}</p>
@@ -425,7 +425,7 @@ export function CrearNegocioForm({ correo }: { correo?: string }) {
             <MensajeError>{errorGeneral}</MensajeError>
           </div>
 
-          {/* Lotito comenta al margen, como una nota adhesiva */}
+          {/* Punch comenta al margen, como una nota adhesiva */}
           <div className="mt-6 flex items-end justify-end gap-2 lg:hidden" aria-hidden="true">
             <p className="max-w-[15rem] rotate-2 rounded-2xl border border-teal-oscuro bg-white px-3 py-2 text-sm font-medium shadow-dura-chica">{r.notas[paso - 1]}</p>
             <LotitoMas nombre={POSES[paso]} className="w-20 shrink-0 motion-safe:animate-asomar md:w-24" key={paso} />

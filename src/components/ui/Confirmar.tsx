@@ -15,6 +15,8 @@ export type OpcionesConfirmar = {
 };
 
 export type OpcionesElegir = OpcionesConfirmar & {
+  /** Una cifra grande bajo el título (el monto que se cobra) */
+  destacado?: string;
   /** Lo que se puede elegir; la primera viene marcada. */
   opciones: { valor: string; etiqueta: string }[];
 };
@@ -79,18 +81,19 @@ function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (r: boolean | st
             {abierto.texto}
           </p>
         )}
+        {abierto.destacado && <p className="mt-1 text-4xl font-bold tracking-tight tabular-nums">{abierto.destacado}</p>}
         {abierto.opciones && (
-          <fieldset className="mt-2 flex flex-col gap-1">
+          <fieldset className="mt-3 grid grid-cols-2 gap-2">
             <legend className="sr-only">{abierto.titulo}</legend>
             {abierto.opciones.map((o) => (
-              <label key={o.valor} className="flex min-h-11 items-center gap-3 rounded-[14px] border px-3 transition-colors hover:bg-gris-50 has-checked:border-teal has-checked:bg-teal/5 border-linea">
+              <label key={o.valor} className="flex min-h-14 cursor-pointer items-center justify-center rounded-[14px] border border-linea px-3 text-center font-medium text-texto-2 transition-colors hover:border-borde-control has-checked:border-teal has-checked:bg-teal-fondo has-checked:text-teal-oscuro has-checked:ring-[3px] has-checked:ring-teal/15 has-focus-visible:ring-[3px] has-focus-visible:ring-teal/30">
                 <input
                   type="radio"
                   name="elegido"
                   value={o.valor}
                   checked={elegido === o.valor}
                   onChange={() => setElegido(o.valor)}
-                  className="size-5 accent-teal"
+                  className="sr-only"
                 />
                 {o.etiqueta}
               </label>

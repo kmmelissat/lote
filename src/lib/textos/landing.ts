@@ -171,7 +171,7 @@ export const landing = {
     },
     foto: {
       titulo: "Una foto y listo",
-      texto: "Sacá la foto del producto y Lotito llena el nombre, la categoría, la marca y la descripción. Vos confirmás o corregís.",
+      texto: "Sacá la foto del producto y Punch llena el nombre, la categoría, la marca y la descripción. Vos confirmás o corregís.",
       campos: ["Chaqueta negra M", "Ropa", "Descripción lista"],
     },
     mostrador: {
@@ -257,7 +257,7 @@ export const landing = {
       lista: [
         { icono: "tienda", texto: "Tu vitrina en línea con tu enlace" },
         { icono: "carrito", texto: "Tu lugar en el Marketplace" },
-        { icono: "chat", texto: "Lotito: 30 acciones al mes" },
+        { icono: "chat", texto: "Punch: 30 acciones al mes" },
       ],
     },
     emprendedor: {
@@ -274,7 +274,7 @@ export const landing = {
         { icono: "moneda", texto: "Costos reales de cada producto" },
         { icono: "ganancia", texto: "Ganancia por producto" },
         { icono: "balanza", texto: "Balance general" },
-        { icono: "chat", texto: "Lotito completo: 300 acciones al mes" },
+        { icono: "chat", texto: "Punch completo: 300 acciones al mes" },
         { icono: "campana", texto: "Avisos por WhatsApp" },
         { icono: "estrella", texto: "Ofertas y promociones" },
         { icono: "hoja", texto: "Exportar tus datos" },
@@ -294,7 +294,7 @@ export const landing = {
       ],
       incluye: "Todo lo de Emprendedor, y además:",
       lista: [
-        { icono: "chat", texto: "Lotito: 1,000 acciones al mes" },
+        { icono: "chat", texto: "Punch: 1,000 acciones al mes" },
         { icono: "clientes", texto: "Equipo y roles" },
         { icono: "tarjeta", texto: "Varias cuentas y tarjetas" },
         { icono: "efectivo", texto: "Caja" },

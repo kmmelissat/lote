@@ -45,7 +45,7 @@ export function MenuAcciones({ etiqueta, acciones }: { etiqueta: string; accione
     items[(i + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length]?.focus();
   }
 
-  const claseItem = "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-bold text-teal-oscuro hover:bg-teal-fondo focus-visible:bg-teal-fondo";
+  const claseItem = "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-teal-oscuro hover:bg-teal-fondo focus-visible:bg-teal-fondo";
 
   return (
     <div ref={caja} className="relative">
@@ -58,7 +58,7 @@ export function MenuAcciones({ etiqueta, acciones }: { etiqueta: string; accione
         aria-expanded={abierto}
         aria-controls={id}
         onClick={() => setAbierto((a) => !a)}
-        className="flex size-12 items-center justify-center rounded-full border border-borde-control bg-superficie text-teal-oscuro transition-colors hover:border-teal-oscuro hover:bg-teal-fondo aria-expanded:border-teal-oscuro aria-expanded:bg-teal-fondo"
+        className="flex size-11 shrink-0 items-center justify-center rounded-[14px] border border-linea bg-superficie text-teal-oscuro transition-colors hover:bg-gris-50 aria-expanded:bg-gris-100 md:size-10"
       >
         <Icon nombre="mas_opciones" className="size-5" />
       </button>
@@ -74,7 +74,7 @@ export function MenuAcciones({ etiqueta, acciones }: { etiqueta: string; accione
             role="menu"
             aria-label={etiqueta}
             onKeyDown={mover}
-            className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-50 flex max-h-[min(20rem,calc(100dvh-8rem))] w-auto flex-col gap-0.5 overflow-y-auto rounded-2xl border border-teal-oscuro bg-superficie p-1.5 shadow-dura md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-full md:z-30 md:mt-2 md:max-h-none md:w-60"
+            className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-50 flex max-h-[min(20rem,calc(100dvh-8rem))] w-auto flex-col gap-0.5 overflow-y-auto rounded-2xl border border-linea bg-superficie p-1.5 shadow-lg md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-full md:z-30 md:mt-2 md:max-h-none md:w-60"
           >
             {acciones.map((a) =>
               "href" in a ? (

@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
-import { Card } from "@/components/ui/Card";
+import { TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { Icon } from "@/components/ui/Icon";
-import { LotitoMas } from "@/components/ui/LotitoMas";
 import type { EstadoPedido } from "@/domain";
 import { textos } from "@/lib/textos";
 
@@ -11,7 +10,7 @@ type Paso = "pendiente" | "pagado" | "preparando" | "recoge" | "enviado" | "entr
 const PASOS: Paso[] = ["pendiente", "pagado", "preparando", "recoge", "enviado", "entregado"];
 
 /**
- * Dónde va el pedido y qué sigue: los pasos hechos con su check, el actual en limón y los que faltan en gris. Debajo,
+ * Dónde va el pedido y qué sigue: los pasos hechos con su check, el actual a medio tono y los que faltan en gris. Debajo,
  * lo que toca hacer ahora (`titulo` y `ayuda`) con la acción principal de la pantalla (`accion`).
  */
 export function ProgresoPedido({
@@ -22,6 +21,7 @@ export function ProgresoPedido({
   titulo,
   ayuda,
   accion,
+  motivo,
 }: {
   estado: EstadoPedido;
   /** Contra entrega con saldo: no pasa por "pagado", se cobra al entregar */
@@ -33,56 +33,59 @@ export function ProgresoPedido({
   titulo: string;
   ayuda?: string;
   accion?: ReactNode;
+  /** Si está cancelado, por qué (ya traducido) */
+  motivo?: string;
 }) {
   if (estado === "cancelado") {
-    return <Card tono="error" className="flex items-center gap-3 font-medium">{t.cancelado}</Card>;
+    return <section className="flex flex-col gap-1 rounded-3xl border border-linea bg-error-fondo p-5 font-medium text-error">
+        {t.cancelado}
+        {motivo && <span className="text-sm font-normal">{t.motivoCancelacion(motivo)}</span>}
+      </section>;
   }
   const pasos: Paso[] = PASOS.filter((p) => !(p === "pagado" && cobraAlEntregar) && !(p === "recoge" && !paquetera));
   const actual = pasos.indexOf(estado === "preparando" && paquetera && listo ? "recoge" : (estado as Paso));
   const entregado = estado === "entregado";
+  const etiqueta = (p: Paso) => (p === "recoge" ? t.pasoRecoge : textos.estadosPedido[p]);
+  const hechos = entregado ? pasos.length : actual;
   return (
-    <Card role="region" aria-label={t.pasos} className="flex flex-col gap-4">
-      <ol className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))]">
+    <section aria-label={t.pasos} className={`${TARJETA_PUNCH} !p-0`}>
+      <div className="flex items-baseline justify-between gap-3 px-5 pt-5 pb-3 sm:px-7">
+        <h2 className="text-lg font-semibold">{t.paraCerrar}</h2>
+        <span className="shrink-0 text-sm text-texto-2">{t.listos(hechos, pasos.length)}</span>
+      </div>
+      <ol className="px-3 pb-3 sm:px-5">
         {pasos.map((p, i) => {
           const hecho = i < actual || entregado;
           const enCurso = i === actual && !entregado;
-          return (
-            <li
-              key={p}
-              aria-current={enCurso ? "step" : undefined}
-              // La línea que une un paso con el siguiente
-              className={`relative flex min-w-0 flex-col items-center gap-2 px-1 text-center ${
-                i < pasos.length - 1
-                  ? `after:absolute after:left-[calc(50%+1.5rem)] after:right-[calc(-50%+1.5rem)] after:top-5 after:h-0.5 ${hecho ? "after:bg-teal" : "after:bg-borde"}`
-                  : ""
+          const marca = (
+            <span
+              aria-hidden="true"
+              className={`flex size-7 shrink-0 items-center justify-center rounded-full border-2 ${
+                hecho ? "border-teal bg-teal text-white" : enCurso ? "border-teal bg-superficie" : "border-linea bg-superficie"
               }`}
             >
-              <span
-                className={`relative z-10 flex size-10 items-center justify-center rounded-full border border-teal-oscuro text-sm font-bold text-teal-oscuro ${
-                  hecho ? "bg-teal text-white" : enCurso ? "bg-limon" : "bg-superficie"
-                }`}
-              >
-                {hecho ? <Icon nombre="check" className="size-5" strokeWidth={2.5} /> : i + 1}
-              </span>
-              <span className={`text-xs sm:text-sm ${enCurso ? "font-bold" : hecho ? "font-medium" : "text-texto-2"}`}>
-                {p === "recoge" ? t.pasoRecoge : textos.estadosPedido[p]}
-                {enCurso && <span className="sr-only"> ({t.pasoActual})</span>}
-              </span>
+              {hecho ? <Icon nombre="check" className="size-4" strokeWidth={3} /> : enCurso ? <span className="size-2.5 rounded-full bg-teal" /> : null}
+            </span>
+          );
+          if (enCurso)
+            return (
+              <li key={p} aria-current="step" className="my-1 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[20px] border border-teal p-4 ring-4 ring-teal/12">
+                {marca}
+                <div className="min-w-0 flex-1 basis-40">
+                  <p className="text-base font-semibold">{titulo}</p>
+                  {ayuda && <p className="text-sm text-texto-2">{ayuda}</p>}
+                </div>
+                {accion && <div className="max-sm:w-full [&>*]:max-sm:w-full">{accion}</div>}
+              </li>
+            );
+          return (
+            <li key={p} className="flex items-center gap-4 border-t border-linea px-2 py-4 first:border-t-0">
+              {marca}
+              <span className={`text-sm font-semibold ${hecho ? "" : "text-texto-2"}`}>{etiqueta(p)}</span>
             </li>
           );
         })}
       </ol>
-
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-teal-oscuro bg-fondo p-3 md:px-4">
-        <div className="flex min-w-0 items-center gap-3">
-          <LotitoMas nombre={entregado ? "thumbsup" : "saluda"} className="w-10 shrink-0" />
-          <div className="min-w-0">
-            <p className="font-bold">{titulo}</p>
-            {ayuda && <p className="text-sm text-texto-2">{ayuda}</p>}
-          </div>
-        </div>
-        {accion}
-      </div>
-    </Card>
+    </section>
   );
 }

@@ -15,10 +15,10 @@ export function PageHeader({
   ilustracion,
 }: {
   titulo: ReactNode;
-  descripcion: string;
+  descripcion?: string;
   accion?: ReactNode;
   volver?: { href: Route; etiqueta: string };
-  /** Un dibujo (Lotito) al lado de la acción; solo en pantallas anchas */
+  /** Un dibujo (Punch) al lado de la acción; solo en pantallas anchas */
   ilustracion?: ReactNode;
 }) {
   return (
@@ -39,7 +39,7 @@ export function PageHeader({
             <span aria-hidden className="size-2.5 shrink-0 rounded-[3px] bg-rosa" />
             {titulo}
           </h1>
-          <p className="mt-1 text-sm text-texto-2">{descripcion}</p>
+          {descripcion && <p className="mt-1 text-sm text-texto-2">{descripcion}</p>}
         </div>
       </div>
       {(accion || ilustracion) && (

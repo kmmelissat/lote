@@ -109,7 +109,7 @@ const FICHAS: Record<string, string> = {
   Dinero: "bg-(--verde-200) text-(--verde-800)",
   Vitrina: "bg-(--rosa-200) text-(--rosa-800)",
   Marketplace: "bg-(--celeste-200) text-(--teal-900)",
-  Lotito: "bg-(--lila-200) text-(--lila-800)",
+  Punch: "bg-(--lila-200) text-(--lila-800)",
 };
 
 const PUNTOS: Record<string, string> = {
@@ -771,7 +771,7 @@ export function SistemaDeDiseno() {
                 [
                   ["tienda", "Vitrina"],
                   ["explorar", "Marketplace"],
-                  ["chat", "Lotito"],
+                  ["chat", "Punch"],
                 ] as [NombreIcono, string][]
               ).map(([ic, nombre]) => (
                 <a key={nombre} href="#sidebar" className="flex h-11 items-center gap-3 rounded-[14px] px-2 text-sm font-medium text-(--teal-800) transition-colors hover:bg-(--gris-50)">

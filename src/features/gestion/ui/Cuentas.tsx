@@ -1,12 +1,20 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { BotonIcono } from "@/components/ui/BotonIcono";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
-import { ChipsElegir, estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
-import { LUGARES_DE_DINERO, type Cuenta, type LugarDeDinero } from "@/domain/index";
+import {
+  ChipsElegir,
+  estiloCampo,
+  VentanaConBoton,
+} from "@/components/ui/VentanaConBoton";
+import {
+  LUGARES_DE_DINERO,
+  type Cuenta,
+  type LugarDeDinero,
+} from "@/domain/index";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import { guardarCuenta, moverDinero } from "../actions/cuentas";
@@ -26,8 +34,17 @@ function useAlGuardar(estado: EstadoGestion, cerrar: () => void) {
 
 type CuentaConSaldo = Cuenta & { saldo: number | null };
 
-function FormCuenta({ cuenta, cerrar }: { cuenta?: CuentaConSaldo; cerrar: () => void }) {
-  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(guardarCuenta, {});
+function FormCuenta({
+  cuenta,
+  cerrar,
+}: {
+  cuenta?: CuentaConSaldo;
+  cerrar: () => void;
+}) {
+  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(
+    guardarCuenta,
+    {},
+  );
   const [tipo, setTipo] = useState<LugarDeDinero>("transferencia");
   useAlGuardar(estado, cerrar);
   const tipoTexto = cuenta ? t.tipos[cuenta.tipo].toLowerCase() : "";
@@ -36,42 +53,72 @@ function FormCuenta({ cuenta, cerrar }: { cuenta?: CuentaConSaldo; cerrar: () =>
     <form action={accion} className="flex flex-col gap-4">
       {cuenta && <input type="hidden" name="cuenta" value={cuenta.id} />}
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold">{t.nombre}</span>
-        <input name="nombre" required maxLength={40} defaultValue={cuenta?.nombre} placeholder={t.nombrePlaceholder} className={estiloCampo} />
+        <span className="text-sm font-semibold">{t.nombre}</span>
+        <input
+          name="nombre"
+          required
+          maxLength={40}
+          defaultValue={cuenta?.nombre}
+          placeholder={t.nombrePlaceholder}
+          className={estiloCampo}
+        />
       </label>
 
       {!cuenta && (
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-bold">{t.tipo}</legend>
-          <ChipsElegir name="tipo" valor={tipo} onCambio={(v) => setTipo(v as LugarDeDinero)} opciones={LUGARES_DE_DINERO.map((l) => ({ valor: l, etiqueta: t.tipos[l] }))} />
+          <legend className="mb-1 text-sm font-semibold">{t.tipo}</legend>
+          <ChipsElegir
+            name="tipo"
+            valor={tipo}
+            onCambio={(v) => setTipo(v as LugarDeDinero)}
+            opciones={LUGARES_DE_DINERO.map((l) => ({
+              valor: l,
+              etiqueta: t.tipos[l],
+            }))}
+          />
           <p className="text-sm text-texto-2">{t.tipoAyuda[tipo]}</p>
         </fieldset>
       )}
 
       {cuenta && !cuenta.principal && (
         <label className="flex items-start gap-3">
-          <input type="checkbox" name="principal" className="mt-1 size-5 accent-teal" />
+          <input
+            type="checkbox"
+            name="principal"
+            className="mt-1 size-5 accent-teal"
+          />
           <span className="flex flex-col">
-            <span className="font-bold">{t.hacerPrincipal}</span>
-            <span className="text-sm text-texto-2">{t.hacerPrincipalAyuda(tipoTexto)}</span>
+            <span className="font-semibold">{t.hacerPrincipal}</span>
+            <span className="text-sm text-texto-2">
+              {t.hacerPrincipalAyuda(tipoTexto)}
+            </span>
           </span>
         </label>
       )}
 
       <MensajeError>{estado.error}</MensajeError>
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" variante="mango" icono="check" disabled={pendiente}>
+        <BotonPunch type="submit" disabled={pendiente}>
           {pendiente ? t.guardando : cuenta ? t.guardar : t.crear}
-        </Button>
+        </BotonPunch>
         {cuenta &&
           (cuenta.principal ? (
             <p className="text-sm text-texto-2">{t.noArchivarPrincipal}</p>
           ) : (cuenta.saldo ?? 0) !== 0 ? (
-            <p className="text-sm text-texto-2">{t.archivarConSaldo(formatearDolares(cuenta.saldo ?? 0))}</p>
+            <p className="text-sm text-texto-2">
+              {t.archivarConSaldo(formatearDolares(cuenta.saldo ?? 0))}
+            </p>
           ) : (
-            <Button type="submit" name="archivar" value="1" variante="suave" icono="borrar" disabled={pendiente} title={t.archivarAyuda}>
+            <BotonPunch
+              type="submit"
+              name="archivar"
+              value="1"
+              variante="peligro"
+              disabled={pendiente}
+              title={t.archivarAyuda}
+            >
               {t.archivar}
-            </Button>
+            </BotonPunch>
           ))}
       </div>
     </form>
@@ -86,11 +133,17 @@ export function BotonCuenta({ cuenta }: { cuenta?: CuentaConSaldo }) {
       titulo={cuenta ? t.editarTitulo(cuenta.nombre) : t.nuevaTitulo}
       boton={(abrir) =>
         cuenta ? (
-          <BotonIcono variante="suave" tamano="chico" icono="editar" etiqueta={t.editar} onClick={abrir} />
+          <BotonIcono
+            variante="suave"
+            tamano="chico"
+            icono="editar"
+            etiqueta={t.editar}
+            onClick={abrir}
+          />
         ) : (
-          <Button type="button" variante="suave" tamano="chico" icono="mas" onClick={abrir}>
+          <BotonPunch type="button" variante="secundario" onClick={abrir}>
             {t.agregar}
-          </Button>
+          </BotonPunch>
         )
       }
     >
@@ -99,9 +152,18 @@ export function BotonCuenta({ cuenta }: { cuenta?: CuentaConSaldo }) {
   );
 }
 
-function FormMover({ cuentas, cerrar }: { cuentas: readonly CuentaConSaldo[]; cerrar: () => void }) {
+function FormMover({
+  cuentas,
+  cerrar,
+}: {
+  cuentas: readonly CuentaConSaldo[];
+  cerrar: () => void;
+}) {
   const m = t.mover;
-  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(moverDinero, {});
+  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(
+    moverDinero,
+    {},
+  );
   const opciones = opcionesDeCuentas(cuentas);
   const [desde, setDesde] = useState(cuentaInicial(cuentas, "efectivo"));
   const [hacia, setHacia] = useState(cuentaInicial(cuentas, "transferencia"));
@@ -112,38 +174,62 @@ function FormMover({ cuentas, cerrar }: { cuentas: readonly CuentaConSaldo[]; ce
     <form action={accion} className="flex flex-col gap-4">
       <p className="text-sm text-texto-2">{m.ayuda}</p>
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-bold">{m.desde}</legend>
-        <ChipsElegir name="desde" valor={desde} onCambio={setDesde} opciones={opciones} />
-        {saldoDesde !== null && <p className="text-sm text-texto-2">{m.errorExcede(cuentas.find((c) => c.id === desde)?.nombre ?? "", formatearDolares(saldoDesde))}</p>}
+        <legend className="mb-1 text-sm font-semibold">{m.desde}</legend>
+        <ChipsElegir
+          name="desde"
+          valor={desde}
+          onCambio={setDesde}
+          opciones={opciones}
+        />
+        {saldoDesde !== null && (
+          <p className="text-sm text-texto-2">
+            {m.errorExcede(
+              cuentas.find((c) => c.id === desde)?.nombre ?? "",
+              formatearDolares(saldoDesde),
+            )}
+          </p>
+        )}
       </fieldset>
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-bold">{m.hacia}</legend>
-        <ChipsElegir name="hacia" valor={hacia} onCambio={setHacia} opciones={opciones.filter((o) => o.valor !== desde)} />
+        <legend className="mb-1 text-sm font-semibold">{m.hacia}</legend>
+        <ChipsElegir
+          name="hacia"
+          valor={hacia}
+          onCambio={setHacia}
+          opciones={opciones.filter((o) => o.valor !== desde)}
+        />
       </fieldset>
       <Monto name="monto" etiqueta={m.monto} placeholder="50.00" />
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold">{m.nota}</span>
+        <span className="text-sm font-semibold">{m.nota}</span>
         <input name="nota" maxLength={120} className={estiloCampo} />
       </label>
       <MensajeError>{estado.error}</MensajeError>
-      <Button type="submit" variante="mango" icono="check" disabled={pendiente || !desde || !hacia || desde === hacia}>
+      <BotonPunch
+        type="submit"
+        disabled={pendiente || !desde || !hacia || desde === hacia}
+      >
         {pendiente ? t.guardando : m.guardar}
-      </Button>
+      </BotonPunch>
     </form>
   );
 }
 
 /** Pasar dinero de una cuenta a otra; hace falta tener al menos dos */
-export function MoverDinero({ cuentas }: { cuentas: readonly CuentaConSaldo[] }) {
+export function MoverDinero({
+  cuentas,
+}: {
+  cuentas: readonly CuentaConSaldo[];
+}) {
   if (opcionesDeCuentas(cuentas).length < 2) return null;
   return (
     <VentanaConBoton
       id="mover-dinero"
       titulo={t.mover.titulo}
       boton={(abrir) => (
-        <Button type="button" variante="suave" tamano="chico" icono="enviar" onClick={abrir}>
+        <BotonPunch type="button" variante="secundario" onClick={abrir}>
           {t.mover.boton}
-        </Button>
+        </BotonPunch>
       )}
     >
       {(cerrar) => <FormMover cuentas={cuentas} cerrar={cerrar} />}

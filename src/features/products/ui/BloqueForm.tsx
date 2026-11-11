@@ -38,7 +38,7 @@ export function BloqueForm({
   tono: keyof typeof FICHA;
   listo?: boolean;
   opcional?: boolean;
-  /** Lotito llenó este bloque: se marca con su chip para que se note qué revisar */
+  /** Punch llenó este bloque: se marca con su chip para que se note qué revisar */
   lotito?: boolean;
   resumen?: string;
   abierto?: boolean;

@@ -1,5 +1,5 @@
 /**
- * Las respuestas de Lotito son texto con un poco de forma: listas ("- ", "• ", "1. ") y **negritas**.
+ * Las respuestas de Punch son texto con un poco de forma: listas ("- ", "• ", "1. ") y **negritas**.
  * Esto las parte en bloques para dibujarlas sin HTML crudo (nada de lo que escribe la IA se interpreta como código).
  */
 export type Trozo = { texto: string; negrita: boolean };

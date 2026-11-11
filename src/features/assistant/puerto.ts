@@ -100,9 +100,9 @@ export interface Puerto {
   ganancia(periodo: TipoPeriodo): Promise<R<ResumenPeriodo>>;
   /** El balance de hoy: lo que tiene, lo que debe y lo que es suyo. Solo dueña y administradora. */
   balance(): Promise<R<BalanceAsistente>>;
-  /** Cómo quiere la persona que le hable Lotito (lo eligió al crear su negocio) */
+  /** Cómo quiere la persona que le hable Punch (lo eligió al crear su negocio) */
   readonly trato: Trato;
-  /** Lo que quien lleva el negocio cuenta de su negocio (Mi tienda → Lotito, o al crearlo): rubro, estilo, público. Vacío si no escribió nada. */
+  /** Lo que quien lleva el negocio cuenta de su negocio (Mi tienda → Punch, o al crearlo): rubro, estilo, público. Vacío si no escribió nada. */
   sobreElNegocio(): Promise<string>;
   mensajeCobro(codigoPedido: number): Promise<string>;
 

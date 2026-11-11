@@ -18,7 +18,7 @@ function textoDeContexto(c?: ContextoIA): string {
   const conversacion = c.conversacion?.length
     ? [
         "<conversacion>",
-        ...c.conversacion.map((t) => `${t.de === "yo" ? "Persona" : "Lotito"}: ${t.texto.replace(/\s+/g, " ")}`),
+        ...c.conversacion.map((t) => `${t.de === "yo" ? "Persona" : "Punch"}: ${t.texto.replace(/\s+/g, " ")}`),
         "</conversacion>",
       ]
     : [];
@@ -112,7 +112,7 @@ export function crearProveedorOpenAI(): ProveedorIA {
 
     async responder(mensaje, datosNegocio, conversacion) {
       const historial = conversacion?.length
-        ? ["<conversacion>", ...conversacion.map((t) => `${t.de === "yo" ? "Persona" : "Lotito"}: ${t.texto.replace(/\s+/g, " ")}`), "</conversacion>", ""]
+        ? ["<conversacion>", ...conversacion.map((t) => `${t.de === "yo" ? "Persona" : "Punch"}: ${t.texto.replace(/\s+/g, " ")}`), "</conversacion>", ""]
         : [];
       const respuesta = await client.responses.create({
         model: modelo,

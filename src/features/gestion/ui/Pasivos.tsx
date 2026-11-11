@@ -1,17 +1,32 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { BotonIcono } from "@/components/ui/BotonIcono";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { SelectorFecha } from "@/components/ui/SelectorFecha";
 import { useAvisarListo } from "@/components/ui/Toast";
-import { aDolares, TIPOS_DE_PASIVO, type Cuenta, type TipoPasivo } from "@/domain/index";
+import {
+  aDolares,
+  TIPOS_DE_PASIVO,
+  type Cuenta,
+  type TipoPasivo,
+} from "@/domain/index";
 import { soloNumero } from "@/lib/entrada";
 import { formatearDolares } from "@/lib/formato";
 import { textos } from "@/lib/textos";
-import { agregarAbono, agregarPasivo, borrarPasivo, cambiarPasivo, type EstadoGestion } from "../actions/gestion";
-import { ChipsElegir, estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
+import {
+  agregarAbono,
+  agregarPasivo,
+  borrarPasivo,
+  cambiarPasivo,
+  type EstadoGestion,
+} from "../actions/gestion";
+import {
+  ChipsElegir,
+  estiloCampo,
+  VentanaConBoton,
+} from "@/components/ui/VentanaConBoton";
 import { cuentaInicial, opcionesDeCuentas } from "../elegirCuenta";
 
 const t = textos.gestion.pasivos;
@@ -39,12 +54,27 @@ export type FilaPasivo = {
   nota: string | null;
 };
 
-export function Monto({ name, etiqueta, placeholder, defaultValue, requerido = true }: { name: string; etiqueta: string; placeholder?: string; defaultValue?: string; requerido?: boolean }) {
+export function Monto({
+  name,
+  etiqueta,
+  placeholder,
+  defaultValue,
+  requerido = true,
+}: {
+  name: string;
+  etiqueta: string;
+  placeholder?: string;
+  defaultValue?: string;
+  requerido?: boolean;
+}) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-bold">{etiqueta}</span>
+      <span className="text-sm font-semibold">{etiqueta}</span>
       <span className="relative">
-        <span aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-texto-2">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-texto-2"
+        >
           $
         </span>
         <input
@@ -64,12 +94,52 @@ export function Monto({ name, etiqueta, placeholder, defaultValue, requerido = t
   );
 }
 
-export const enDolares = (centavos: number | null) => (centavos === null ? undefined : aDolares(centavos).toFixed(2));
+export const enDolares = (centavos: number | null) =>
+  centavos === null ? undefined : aDolares(centavos).toFixed(2);
+
+function QuitarPasivo({ id, cerrar }: { id: string; cerrar: () => void }) {
+  const [error, setError] = useState("");
+  const [pendiente, empezar] = useTransition();
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <button
+        type="button"
+        disabled={pendiente}
+        onClick={() => {
+          if (!window.confirm(t.quitarConfirmar)) return;
+          setError("");
+          empezar(async () => {
+            const r = await borrarPasivo(id);
+            if (r.error) setError(r.error);
+            else cerrar();
+          });
+        }}
+        className="inline-flex h-10 items-center rounded-[12px] px-3 text-sm font-semibold text-chip-texto-rojo hover:bg-chip-rojo/30 disabled:opacity-50"
+      >
+        {t.quitar}
+      </button>
+      <MensajeError>{error}</MensajeError>
+    </div>
+  );
+}
 
 /** El mismo formulario para anotar una deuda y para corregirla: al corregir no se pide el tipo ni dónde entró el dinero. */
-function FormPasivo({ hoy, cerrar, pasivo, cuentas = [] }: { hoy: string; cerrar: () => void; pasivo?: FilaPasivo; cuentas?: readonly Cuenta[] }) {
+function FormPasivo({
+  hoy,
+  cerrar,
+  pasivo,
+  cuentas = [],
+}: {
+  hoy: string;
+  cerrar: () => void;
+  pasivo?: FilaPasivo;
+  cuentas?: readonly Cuenta[];
+}) {
   const editando = Boolean(pasivo);
-  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(editando ? cambiarPasivo : agregarPasivo, {});
+  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(
+    editando ? cambiarPasivo : agregarPasivo,
+    {},
+  );
   const [tipo, setTipo] = useState<TipoPasivo>("prestamo");
   const [recibido, setRecibido] = useState("");
   useAvisarListo(estado);
@@ -78,7 +148,11 @@ function FormPasivo({ hoy, cerrar, pasivo, cuentas = [] }: { hoy: string; cerrar
   }, [estado.guardados]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <form key={estado.guardados ?? 0} action={accion} className="flex flex-col gap-4">
+    <form
+      key={estado.guardados ?? 0}
+      action={accion}
+      className="flex flex-col gap-4"
+    >
       {pasivo && (
         <>
           <input type="hidden" name="pasivo" value={pasivo.id} />
@@ -87,81 +161,147 @@ function FormPasivo({ hoy, cerrar, pasivo, cuentas = [] }: { hoy: string; cerrar
       )}
       {!editando && (
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-bold">{t.tipo}</legend>
-          <ChipsElegir name="tipo" valor={tipo} onCambio={(v) => setTipo(v as TipoPasivo)} opciones={TIPOS_DE_PASIVO.map((x) => ({ valor: x, etiqueta: t.tipos[x] }))} />
+          <legend className="mb-1 text-sm font-semibold">{t.tipo}</legend>
+          <ChipsElegir
+            name="tipo"
+            valor={tipo}
+            onCambio={(v) => setTipo(v as TipoPasivo)}
+            opciones={TIPOS_DE_PASIVO.map((x) => ({
+              valor: x,
+              etiqueta: t.tipos[x],
+            }))}
+          />
           <p className="text-sm text-texto-2">{t.tiposAyuda[tipo]}</p>
         </fieldset>
       )}
 
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold">{t.acreedor}</span>
-        <input name="acreedor" required maxLength={120} placeholder={t.acreedorPlaceholder} defaultValue={pasivo?.acreedor} className={estiloCampo} />
+        <span className="text-sm font-semibold">{t.acreedor}</span>
+        <input
+          name="acreedor"
+          required
+          maxLength={120}
+          placeholder={t.acreedorPlaceholder}
+          defaultValue={pasivo?.acreedor}
+          className={estiloCampo}
+        />
       </label>
 
       <div className="flex flex-col gap-1.5">
         <Monto
           name="monto"
-          etiqueta={editando ? t.monto : recibido ? t.montoPrestado : t.montoPendiente}
+          etiqueta={
+            editando ? t.monto : recibido ? t.montoPrestado : t.montoPendiente
+          }
           placeholder="100.00"
           defaultValue={enDolares(pasivo?.monto ?? null)}
         />
-        {!editando && !recibido && <p className="text-sm text-texto-2">{t.montoPendienteAyuda}</p>}
+        {!editando && !recibido && (
+          <p className="text-sm text-texto-2">{t.montoPendienteAyuda}</p>
+        )}
       </div>
 
       {!editando && (
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-bold">{t.recibido}</legend>
+          <legend className="mb-1 text-sm font-semibold">{t.recibido}</legend>
           <ChipsElegir
             name="recibido_en"
             valor={recibido}
             onCambio={setRecibido}
-            opciones={[{ valor: "", etiqueta: t.recibidoNo }, ...opcionesDeCuentas(cuentas)]}
+            opciones={[
+              { valor: "", etiqueta: t.recibidoNo },
+              ...opcionesDeCuentas(cuentas),
+            ]}
           />
           <p className="text-sm text-texto-2">{t.recibidoAyuda}</p>
         </fieldset>
       )}
 
-      <fieldset className="flex flex-col gap-3 rounded-2xl bg-fondo p-4">
-        <legend className="px-1 text-sm font-bold">{t.cuotaTitulo}</legend>
+      <fieldset className="flex flex-col gap-3 rounded-2xl bg-gris-50 p-4">
+        <legend className="px-1 text-sm font-semibold">{t.cuotaTitulo}</legend>
         <p className="text-sm text-texto-2">{t.cuotaAyudaForm}</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <Monto name="cuota" etiqueta={t.cuotaMonto} placeholder="50.00" defaultValue={enDolares(pasivo?.cuota ?? null)} requerido={false} />
+          <Monto
+            name="cuota"
+            etiqueta={t.cuotaMonto}
+            placeholder="50.00"
+            defaultValue={enDolares(pasivo?.cuota ?? null)}
+            requerido={false}
+          />
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-bold">{t.cuotaCuotas}</span>
-            <input name="cuotas" inputMode="numeric" autoComplete="off" placeholder="12" defaultValue={pasivo?.cuotas ?? undefined} onChange={(e) => (e.target.value = soloNumero(e.target.value, false))} className={estiloCampo} />
+            <span className="text-sm font-semibold">{t.cuotaCuotas}</span>
+            <input
+              name="cuotas"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="12"
+              defaultValue={pasivo?.cuotas ?? undefined}
+              onChange={(e) =>
+                (e.target.value = soloNumero(e.target.value, false))
+              }
+              className={estiloCampo}
+            />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-bold">{t.cuotaDia}</span>
-            <input name="dia_pago" inputMode="numeric" autoComplete="off" placeholder="15" maxLength={2} defaultValue={pasivo?.diaPago ?? undefined} onChange={(e) => (e.target.value = soloNumero(e.target.value, false))} className={estiloCampo} />
+            <span className="text-sm font-semibold">{t.cuotaDia}</span>
+            <input
+              name="dia_pago"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="15"
+              maxLength={2}
+              defaultValue={pasivo?.diaPago ?? undefined}
+              onChange={(e) =>
+                (e.target.value = soloNumero(e.target.value, false))
+              }
+              className={estiloCampo}
+            />
           </label>
         </div>
       </fieldset>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <SelectorFecha etiqueta={t.fechaLimite} name="fecha_limite" min={editando ? undefined : hoy} valorInicial={pasivo?.fechaLimite ?? ""} />
+        <SelectorFecha
+          etiqueta={t.fechaLimite}
+          name="fecha_limite"
+          min={editando ? undefined : hoy}
+          valorInicial={pasivo?.fechaLimite ?? ""}
+        />
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-bold">{t.nota}</span>
-          <input name="nota" maxLength={120} defaultValue={pasivo?.nota ?? undefined} className={estiloCampo} />
+          <span className="text-sm font-semibold">{t.nota}</span>
+          <input
+            name="nota"
+            maxLength={120}
+            defaultValue={pasivo?.nota ?? undefined}
+            className={estiloCampo}
+          />
         </label>
       </div>
 
       <MensajeError>{estado.error}</MensajeError>
-      <Button type="submit" variante="mango" disabled={pendiente}>
+      <BotonPunch type="submit" disabled={pendiente}>
         {pendiente ? t.guardando : editando ? t.guardarCambios : t.guardar}
-      </Button>
+      </BotonPunch>
+      {pasivo && <QuitarPasivo id={pasivo.id} cerrar={cerrar} />}
     </form>
   );
 }
 
-export function AnotarPasivo({ hoy, cuentas }: { hoy: string; cuentas: readonly Cuenta[] }) {
+export function AnotarPasivo({
+  hoy,
+  cuentas,
+}: {
+  hoy: string;
+  cuentas: readonly Cuenta[];
+}) {
   return (
     <VentanaConBoton
       id="anotar-pasivo"
       titulo={t.formTitulo}
       boton={(abrir) => (
-        <Button type="button" variante="suave" tamano="chico" icono="mas" onClick={abrir}>
+        <BotonPunch type="button" variante="secundario" onClick={abrir}>
           {t.agregar}
-        </Button>
+        </BotonPunch>
       )}
     >
       {(cerrar) => <FormPasivo hoy={hoy} cerrar={cerrar} cuentas={cuentas} />}
@@ -169,8 +309,19 @@ export function AnotarPasivo({ hoy, cuentas }: { hoy: string; cuentas: readonly 
   );
 }
 
-function FormAbono({ pasivo, cerrar, cuentas }: { pasivo: FilaPasivo; cerrar: () => void; cuentas: readonly Cuenta[] }) {
-  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(agregarAbono, {});
+export function FormAbono({
+  pasivo,
+  cerrar,
+  cuentas,
+}: {
+  pasivo: FilaPasivo;
+  cerrar: () => void;
+  cuentas: readonly Cuenta[];
+}) {
+  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(
+    agregarAbono,
+    {},
+  );
   const [cuenta, setCuenta] = useState(cuentaInicial(cuentas));
   useAvisarListo(estado);
   useEffect(() => {
@@ -178,128 +329,59 @@ function FormAbono({ pasivo, cerrar, cuentas }: { pasivo: FilaPasivo; cerrar: ()
   }, [estado.guardados]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <form key={estado.guardados ?? 0} action={accion} className="flex flex-col gap-4">
+    <form
+      key={estado.guardados ?? 0}
+      action={accion}
+      className="flex flex-col gap-4"
+    >
       <input type="hidden" name="pasivo" value={pasivo.id} />
-      <p className="text-sm text-texto-2">{t.falta(formatearDolares(pasivo.saldo))}</p>
-      <Monto name="monto" etiqueta={t.abonoMonto} placeholder={aDolares(pasivo.saldo).toFixed(2)} defaultValue={pasivo.cuota ? enDolares(Math.min(pasivo.cuota, pasivo.saldo)) : undefined} />
+      <p className="text-sm text-texto-2">
+        {t.falta(formatearDolares(pasivo.saldo))}
+      </p>
+      <Monto
+        name="monto"
+        etiqueta={t.abonoMonto}
+        placeholder={aDolares(pasivo.saldo).toFixed(2)}
+        defaultValue={
+          pasivo.cuota
+            ? enDolares(Math.min(pasivo.cuota, pasivo.saldo))
+            : undefined
+        }
+      />
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-bold">{t.abonoLugar}</legend>
-        <ChipsElegir name="cuenta" valor={cuenta} onCambio={setCuenta} opciones={opcionesDeCuentas(cuentas)} />
+        <legend className="mb-1 text-sm font-semibold">{t.abonoLugar}</legend>
+        <ChipsElegir
+          name="cuenta"
+          valor={cuenta}
+          onCambio={setCuenta}
+          opciones={opcionesDeCuentas(cuentas)}
+        />
       </fieldset>
       <MensajeError>{estado.error}</MensajeError>
-      <Button type="submit" variante="mango" icono="check" disabled={pendiente}>
+      <BotonPunch type="submit" disabled={pendiente}>
         {pendiente ? t.guardando : t.guardarAbono}
-      </Button>
+      </BotonPunch>
     </form>
   );
 }
 
-/** Los pasivos con lo que falta pagar de cada uno, y los botones para abonar o quitar. */
-export function ListaPasivos({ pasivos, cuentas }: { pasivos: FilaPasivo[]; cuentas: readonly Cuenta[] }) {
-  const [error, setError] = useState("");
-  const [pendiente, empezar] = useTransition();
-
-  function quitar(id: string) {
-    if (!window.confirm(t.quitarConfirmar)) return;
-    setError("");
-    empezar(async () => {
-      const r = await borrarPasivo(id);
-      if (r.error) setError(r.error);
-    });
-  }
-
-  if (!pasivos.length) return <p className="text-texto-2">{textos.gestion.cuadre.sinPasivos}</p>;
+/** Corregir una deuda desde su fila; dentro de la ventana también se puede quitar. */
+export function EditarPasivo({ pasivo }: { pasivo: FilaPasivo }) {
   return (
-    <div className="flex flex-col gap-2">
-      <ul className="flex flex-col gap-2">
-        {pasivos.map((p) => (
-          <li key={p.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[20px] bg-fondo p-3">
-            <span
-              aria-hidden="true"
-              className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-teal-oscuro font-logo text-lg font-bold bg-fondo`}
-            >
-              {p.acreedor.trim().charAt(0).toUpperCase()}
-            </span>
-            <div className="min-w-0 flex-1 basis-40">
-              <p className="truncate font-bold">{p.acreedor}</p>
-              <p className="truncate text-sm text-texto-2">{[t.tipos[p.tipo], p.vence ? t.vence(p.vence) : null, p.nota].filter(Boolean).join(" · ")}</p>
-              {p.cuota && p.saldo > 0 && (
-                <p className="text-sm font-bold text-teal">
-                  {[t.cuotaResumen(formatearDolares(p.cuota)), p.cuotasQuedan ? t.cuotasQuedan(p.cuotasQuedan) : null, p.toca ? t.cuotaToca(p.toca) : null].filter(Boolean).join(" · ")}
-                </p>
-              )}
-              {p.saldo > 0 && p.urgencia && (
-                <span className={`mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${p.urgencia === "vencida" ? "bg-error-fondo text-error" : "bg-ambar text-teal-oscuro"}`}>
-                  {p.urgencia === "vencida" ? t.vencida : t.vencePronto}
-                </span>
-              )}
-            </div>
-            <div className="text-right">
-              {p.saldo > 0 ? (
-                <>
-                  <p className="font-logo text-xl font-bold tabular-nums">{formatearDolares(p.saldo)}</p>
-                  {p.saldo < p.monto && <p className="text-xs text-texto-2">{t.de(formatearDolares(p.monto))}</p>}
-                </>
-              ) : (
-                <span className="rounded-full bg-teal-fondo px-3 py-1 text-sm font-bold text-teal-oscuro">{t.saldado}</span>
-              )}
-            </div>
-            <div className="flex gap-1">
-              {p.saldo > 0 && (
-                <VentanaConBoton
-                  id={`abono-${p.id}`}
-                  titulo={t.abonarTitulo(p.acreedor)}
-                  boton={(abrir) => (
-                    <Button type="button" variante="suave" tamano="chico" onClick={abrir}>
-                      {t.abonar}
-                    </Button>
-                  )}
-                >
-                  {(cerrar) => <FormAbono pasivo={p} cerrar={cerrar} cuentas={cuentas} />}
-                </VentanaConBoton>
-              )}
-              <VentanaConBoton
-                id={`editar-${p.id}`}
-                titulo={t.editarTitulo(p.acreedor)}
-                boton={(abrir) => (
-                  <BotonIcono variante="suave" tamano="chico" icono="editar" etiqueta={t.editar} onClick={abrir} />
-                )}
-              >
-                {(cerrar) => <FormPasivo hoy="" cerrar={cerrar} pasivo={p} />}
-              </VentanaConBoton>
-              <button
-                type="button"
-                disabled={pendiente}
-                onClick={() => quitar(p.id)}
-                className="inline-flex h-10 items-center rounded-full px-3 text-sm font-bold text-texto-2 hover:bg-error-fondo hover:text-error disabled:opacity-50 max-md:min-h-11"
-              >
-                {t.quitar}
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <MensajeError>{error}</MensajeError>
-    </div>
-  );
-}
-
-export function SeccionPasivos({ pasivos, hoy, cuentas }: { pasivos: FilaPasivo[]; hoy: string; cuentas: readonly Cuenta[] }) {
-  const falta = pasivos.reduce((suma, p) => suma + p.saldo, 0);
-  return (
-    <section aria-labelledby="deudas" className="overflow-hidden rounded-[24px] border border-teal-oscuro bg-superficie">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-teal-oscuro px-4 py-3 md:px-5">
-        <h2 id="deudas" className="font-logo text-lg font-bold">
-          {t.titulo}
-        </h2>
-        <div className="flex items-center gap-3">
-          {falta > 0 && <span className="font-logo text-xl font-bold tabular-nums">{formatearDolares(falta)}</span>}
-          <AnotarPasivo hoy={hoy} cuentas={cuentas} />
-        </div>
-      </div>
-      <div className="p-3 md:p-4">
-        <ListaPasivos pasivos={pasivos} cuentas={cuentas} />
-      </div>
-    </section>
+    <VentanaConBoton
+      id={`editar-${pasivo.id}`}
+      titulo={t.editarTitulo(pasivo.acreedor)}
+      boton={(abrir) => (
+        <BotonIcono
+          variante="suave"
+          tamano="chico"
+          icono="editar"
+          etiqueta={t.editar}
+          onClick={abrir}
+        />
+      )}
+    >
+      {(cerrar) => <FormPasivo hoy="" cerrar={cerrar} pasivo={pasivo} />}
+    </VentanaConBoton>
   );
 }

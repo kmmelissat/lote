@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { Pestanas } from "@/components/nav/Pestanas";
-import { ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { estiloBotonPunch, EnlacePunch } from "@/components/ui/BotonesPunch";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { colorDeEstado } from "@/components/ui/StatusChip";
-import { TarjetaDato } from "@/components/ui/TarjetaDato";
+import { Icon } from "@/components/ui/Icon";
+import { TablaPunch, type ColumnaTabla } from "@/components/ui/TablaPunch";
 import { enlaceWhatsApp } from "@/features/catalog/enlaces";
 import { formatearDolares, formatearFecha } from "@/lib/formato";
 import { conBusqueda } from "@/lib/ruta";
@@ -24,10 +23,76 @@ function enlace(texto: string, conSaldo: boolean, orden: OrdenCliente) {
   return conBusqueda("/clientes", q);
 }
 
-// En pantalla ancha cada dato tiene su columna; en el celular quedan la cara, el nombre y lo que debe.
-const COLUMNAS = "md:grid-cols-[3rem_minmax(0,1fr)_8rem_10rem] lg:grid-cols-[3rem_minmax(0,2fr)_6rem_8rem_9rem_12rem]";
+const primerNombre = (c: ClienteConResumen) => c.nombre.split(" ")[0];
+const contactoDe = (c: ClienteConResumen) => [c.contacto, c.usuario, c.correo].filter(Boolean).join(" · ") || t.sinContacto;
 
-/** La lista de clientas: totales arriba, búsqueda y orden, y una tabla con lo que compraron y lo que deben. */
+function Cara({ c }: { c: ClienteConResumen }) {
+  return (
+    <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-ficha-rosa font-bold text-chip-texto-rosa">
+      {inicialDe(c.nombre)}
+    </span>
+  );
+}
+
+/** Lo que debe: la cifra en chip amarillo y, si hay teléfono, el botón para cobrarle por WhatsApp (encima del enlace de la fila). */
+function Debe({ c, negocio }: { c: ClienteConResumen; negocio: string }) {
+  if (c.resumen.saldo <= 0) {
+    return c.resumen.alEntregar > 0 ? (
+      <span className="whitespace-nowrap rounded-lg bg-chip-celeste px-2.5 py-1 text-xs font-medium text-chip-texto-celeste ring-1 ring-inset ring-teal-oscuro/10">
+        {t.alEntregar(formatearDolares(c.resumen.alEntregar))}
+      </span>
+    ) : (
+      <span className="text-texto-2">{t.alDia}</span>
+    );
+  }
+  const cobro = enlaceWhatsApp(c.contacto, t.cobrarMensaje(primerNombre(c), formatearDolares(c.resumen.saldo), negocio));
+  return (
+    <div className="flex items-center gap-2">
+      <span className="whitespace-nowrap rounded-lg bg-chip-amarillo px-2.5 py-1 text-xs font-medium tabular-nums text-chip-texto-amarillo ring-1 ring-inset ring-teal-oscuro/10">
+        {formatearDolares(c.resumen.saldo)}
+      </span>
+      {cobro && (
+        <a href={cobro} target="_blank" rel="noopener noreferrer" className={`${estiloBotonPunch("secundario")} relative z-10 h-9! px-3 md:h-8!`}>
+          <Icon nombre="chat" className="size-4" />
+          {t.cobrar}
+        </a>
+      )}
+    </div>
+  );
+}
+
+/** Lo único que la lista no dice sola: cuánto te deben y cuántos vuelven a comprar. */
+function Franja({ todos, texto, orden }: { todos: ClienteConResumen[]; texto: string; orden: OrdenCliente }) {
+  const r = resumenDeClientes(todos);
+  return (
+    <section aria-label={t.stats.titulo} className="flex flex-wrap items-center gap-2 rounded-3xl border border-linea bg-superficie px-4 py-3 shadow-xs">
+      <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full bg-ficha-amarillo text-chip-texto-amarillo">
+        <Icon nombre="moneda" className="size-4" />
+      </span>
+      <p className="min-w-0 flex-1 text-sm font-medium">
+        {r.saldo > 0 ? t.franja.teDeben(formatearDolares(r.saldo), r.deudoras) : r.alEntregar > 0 ? "" : t.franja.nadieDebe}
+        {r.saldo > 0 && r.alEntregar > 0 && " · "}
+        {r.alEntregar > 0 && t.franja.contraEntrega(formatearDolares(r.alEntregar), r.conEntrega)}
+      </p>
+      {r.saldo > 0 && (
+        <Link
+          href={enlace(texto, true, orden)}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-chip-amarillo px-2.5 py-1 text-xs font-medium text-chip-texto-amarillo ring-1 ring-inset ring-teal-oscuro/10 transition-colors hover:brightness-95"
+        >
+          {t.franja.verQuienes}
+        </Link>
+      )}
+      {r.repiten > 0 && (
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-chip-verde px-2.5 py-1 text-xs font-medium text-chip-texto-verde ring-1 ring-inset ring-teal-oscuro/10">
+          <Icon nombre="estrella" className="size-3.5" />
+          {t.franja.repiten(r.repiten)}
+        </span>
+      )}
+    </section>
+  );
+}
+
+/** La lista de clientes: franja con lo que te deben, búsqueda y orden, y una tabla con lo que compraron y lo que deben. */
 export function ListaClientes({
   todos,
   clientes,
@@ -44,111 +109,87 @@ export function ListaClientes({
   negocio: string;
 }) {
   const r = resumenDeClientes(todos);
-  const fila = `relative grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-3 md:gap-x-4 ${COLUMNAS}`;
+  const sinFiltro = soloConSaldo && !texto.trim();
+
+  const columnas: ColumnaTabla<ClienteConResumen>[] = [
+    {
+      id: "cliente",
+      encabezado: t.columnas.clienta,
+      ancho: "max-w-72",
+      celda: (c) => (
+        <div className="flex items-center gap-3">
+          <Cara c={c} />
+          <div className="min-w-0">
+            <Link href={`/clientes/${c.id}`} className="block truncate font-semibold hover:underline">
+              {c.nombre}
+            </Link>
+            <p className="truncate text-texto-2">{contactoDe(c)}</p>
+          </div>
+        </div>
+      ),
+    },
+    { id: "pedidos", encabezado: t.columnas.pedidos, sinCorte: true, celda: (c) => c.resumen.pedidos },
+    { id: "comprado", encabezado: t.columnas.comprado, alinear: "derecha", sinCorte: true, celda: (c) => <span className="font-semibold">{formatearDolares(c.resumen.comprado)}</span> },
+    { id: "ultimo", encabezado: t.columnas.ultimo, sinCorte: true, celda: (c) => <span className="text-texto-2">{c.resumen.ultimoPedido ? formatearFecha(c.resumen.ultimoPedido) : "—"}</span> },
+    { id: "debe", encabezado: t.columnas.debe, sinCorte: true, celda: (c) => <Debe c={c} negocio={negocio} /> },
+  ];
 
   return (
     <div className="flex flex-col gap-4">
-      <section aria-label={t.stats.titulo} className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <TarjetaDato etiqueta={t.stats.clientas} valor={r.clientas} texto={t.stats.clientasNota(r.clientas)} banda={colorDeEstado("disponible")} icono="clientes" />
-        <TarjetaDato
-          etiqueta={t.stats.deben}
-          valor={formatearDolares(r.saldo)}
-          texto={t.stats.debenNota(r.deudoras)}
-          href={r.saldo > 0 ? enlace(texto, true, orden) : undefined}
-          banda={colorDeEstado("pendiente")}
-          icono="moneda"
-        />
-        <TarjetaDato etiqueta={t.stats.compraron} valor={formatearDolares(r.comprado)} texto={t.stats.compraronNota} banda={colorDeEstado("pagado")} icono="carrito" />
-        <TarjetaDato etiqueta={t.stats.repiten} valor={r.repiten} texto={t.stats.repitenNota} banda={colorDeEstado("entregado")} icono="estrella" />
-      </section>
+      <Franja todos={todos} texto={texto} orden={orden} />
 
-      <BuscadorClientes texto={texto} soloConSaldo={soloConSaldo} orden={orden} />
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Pestanas
-          etiqueta={t.filtros}
-          activa={soloConSaldo ? "saldo" : "todos"}
-          pestanas={[
-            { valor: "todos", etiqueta: t.todos, href: enlace(texto, false, orden), cantidad: todos.length },
-            { valor: "saldo", etiqueta: t.conSaldo, href: enlace(texto, true, orden), cantidad: r.deudoras },
-          ]}
-        />
+      <div className="flex flex-wrap items-center gap-2">
+        <BuscadorClientes texto={texto} soloConSaldo={soloConSaldo} orden={orden} />
         <OrdenarClientes texto={texto} soloConSaldo={soloConSaldo} orden={orden} />
       </div>
 
+      <Pestanas
+        etiqueta={t.filtros}
+        activa={soloConSaldo ? "saldo" : "todos"}
+        pestanas={[
+          { valor: "todos", etiqueta: t.todos, href: enlace(texto, false, orden), cantidad: todos.length },
+          { valor: "saldo", etiqueta: t.conSaldo, href: enlace(texto, true, orden), cantidad: r.deudoras, punto: "bg-[#d19200]" },
+        ]}
+      />
+
       {!clientes.length ? (
         <EmptyState
-          monito="saluda"
-          titulo={soloConSaldo && !texto.trim() ? t.alDia : undefined}
-          texto={soloConSaldo && !texto.trim() ? t.sinDeudores : t.sinResultados}
+          monito={null}
+          titulo={sinFiltro ? t.alDia : undefined}
+          texto={sinFiltro ? t.sinDeudores : t.sinResultados}
           accion={
-            <ButtonLink href="/clientes" variante="suave" icono="x">
+            <EnlacePunch href="/clientes" variante="secundario">
+              <Icon nombre="x" className="size-4" />
               {t.limpiar}
-            </ButtonLink>
+            </EnlacePunch>
           }
         />
       ) : (
-        <Card className="overflow-hidden p-0 md:p-0">
-          {/* Encabezados de las columnas: solo en pantalla ancha, donde las columnas se alinean */}
-          <div
-            aria-hidden="true"
-            className={`hidden gap-x-4 border-b border-borde px-4 py-2 text-xs font-medium uppercase tracking-wide text-texto-2 md:grid ${COLUMNAS}`}
-          >
-            <span />
-            <span>{t.columnas.clienta}</span>
-            <span className="hidden lg:block">{t.columnas.pedidos}</span>
-            <span className="text-right">{t.columnas.comprado}</span>
-            <span className="hidden lg:block">{t.columnas.ultimo}</span>
-            <span>{t.columnas.debe}</span>
-          </div>
-          <ul>
-            {clientes.map((c) => {
-              const debe = c.resumen.saldo > 0;
-              const cobro = debe
-                ? enlaceWhatsApp(c.contacto, t.cobrarMensaje(c.nombre.split(" ")[0], formatearDolares(c.resumen.saldo), negocio))
-                : null;
-              return (
-                <li key={c.id} className="border-t border-borde first:border-t-0">
-                  <div className={`${fila} hover:bg-teal-fondo`}>
-                    <span
-                      aria-hidden="true"
-                      className="flex size-12 items-center justify-center rounded-full bg-teal-fondo font-logo text-lg font-bold text-teal-oscuro max-md:row-span-2 max-md:self-start"
-                    >
-                      {inicialDe(c.nombre)}
-                    </span>
-                    <div className="min-w-0">
-                      {/* El enlace del nombre cubre toda la fila; el botón de cobrar queda por encima (z-10) */}
-                      <Link href={`/clientes/${c.id}`} className="block truncate font-medium after:absolute after:inset-0">
-                        {c.nombre}
-                      </Link>
-                      <p className="truncate text-sm text-texto-2">{[c.contacto, c.usuario, c.correo].filter(Boolean).join(" · ") || t.sinContacto}</p>
-                    </div>
-                    <p className="hidden text-sm tabular-nums lg:block">{c.resumen.pedidos}</p>
-                    <p className="whitespace-nowrap text-right font-bold tabular-nums max-md:hidden">{formatearDolares(c.resumen.comprado)}</p>
-                    <p className="hidden text-sm text-texto-2 lg:block">{c.resumen.ultimoPedido ? formatearFecha(c.resumen.ultimoPedido) : "—"}</p>
-                    <div className="flex items-center justify-end gap-2 md:justify-start">
-                      {debe ? (
-                        <>
-                          <span className="whitespace-nowrap font-bold tabular-nums text-ambar-texto">{formatearDolares(c.resumen.saldo)}</span>
-                          {cobro && (
-                            <ButtonLink href={cobro} target="_blank" rel="noopener noreferrer" variante="suave" tamano="chico" icono="chat" className="relative z-10">
-                              {t.cobrar}
-                            </ButtonLink>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-sm text-texto-2 max-md:hidden">{t.alDia}</span>
-                      )}
-                    </div>
-                    <p className="col-start-2 col-span-2 text-sm text-texto-2 md:hidden">
-                      {t.pedidos(c.resumen.pedidos)} · {formatearDolares(c.resumen.comprado)}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </Card>
+        <TablaPunch
+          etiqueta={t.titulo}
+          columnas={columnas}
+          filas={clientes}
+          clave={(c) => c.id}
+          apilada={(c) => (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-3">
+                <Cara c={c} />
+                <div className="min-w-0 flex-1">
+                  {/* El enlace cubre toda la fila; el botón de cobrar queda por encima (z-10) */}
+                  <Link href={`/clientes/${c.id}`} className="block truncate font-semibold after:absolute after:inset-0">
+                    {c.nombre}
+                  </Link>
+                  <p className="truncate text-sm text-texto-2">{contactoDe(c)}</p>
+                </div>
+                <p className="font-semibold tabular-nums">{formatearDolares(c.resumen.comprado)}</p>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2 pl-14 text-sm">
+                <span className="text-texto-2">{t.pedidos(c.resumen.pedidos)}</span>
+                <Debe c={c} negocio={negocio} />
+              </div>
+            </div>
+          )}
+        />
       )}
     </div>
   );

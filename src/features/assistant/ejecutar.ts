@@ -27,7 +27,7 @@ export async function ejecutar(
     case "ayuda":
       return { texto: t.ayuda };
     case "pregunta":
-      // Si ninguna pregunta frecuente calza, Lotito la contesta con la guía en vez de decir "no sé"
+      // Si ninguna pregunta frecuente calza, Punch la contesta con la guía en vez de decir "no sé"
       return intencion.tema ? respuestaDeAyuda(intencion.tema) : conversar(d, entrada);
     case "conversar":
     case "no_entiendo":

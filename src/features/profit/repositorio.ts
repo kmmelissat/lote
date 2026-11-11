@@ -10,6 +10,9 @@ import {
   type ResumenPeriodo,
   rangoPeriodo,
   resumenDelPeriodo,
+  gananciaDespuesDeGastos,
+  gananciaProductos,
+  type ResultadoGanancia,
 } from "@/domain";
 import { repartirPorSemana, type SemanaResumen } from "./porSemana";
 import type { Database } from "@/lib/supabase/database.types";
@@ -45,7 +48,7 @@ export type NuevoGasto = {
 export async function ventasDelPeriodo(
   supabase: Cliente,
   negocioId: string,
-  periodo: Periodo,
+  periodo: Pick<Periodo, "desde" | "hasta">,
   /** La tarea programada no tiene una persona con sesión: usa la versión que no comprueba su rol. */
   rpc: "ventas_del_periodo" | "ventas_del_periodo_servicio" = "ventas_del_periodo",
 ): Promise<LineaVendida[]> {
@@ -65,6 +68,24 @@ export async function ventasDelPeriodo(
     descuento: aCentavos(v.descuento),
     envioAbsorbido: aCentavos(v.envio_absorbido),
   }));
+}
+
+/**
+ * La ganancia de un pedido (productos − descuento − envío absorbido), o null si todavía no cuenta como venta.
+ * `costo_unitario` no se lee directo de la tabla (la base lo oculta): se pide a `ventas_del_periodo` en el instante del pedido.
+ */
+export async function gananciaDelPedido(
+  supabase: Cliente,
+  negocioId: string,
+  pedidoId: string,
+  creadoEn: Date,
+): Promise<ResultadoGanancia | null> {
+  const lineas = (
+    await ventasDelPeriodo(supabase, negocioId, { desde: creadoEn, hasta: new Date(creadoEn.getTime() + 1000) })
+  ).filter((l) => l.pedidoId === pedidoId);
+  if (lineas.length === 0) return null;
+  const g = gananciaProductos(lineas, lineas[0].descuento);
+  return { monto: gananciaDespuesDeGastos(g.monto, { envioAbsorbido: lineas[0].envioAbsorbido }), estimada: g.estimada };
 }
 
 const aGasto = (f: Database["public"]["Tables"]["gasto"]["Row"]): Gasto => ({

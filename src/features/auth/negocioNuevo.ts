@@ -24,7 +24,7 @@ export function rubrosValidos(crudos: readonly unknown[]): RubroId[] {
 }
 
 /**
- * Lo que Lotito sabe del negocio desde el primer día: los rubros y la frase de la dueña juntos, en una sola línea y sin pasar
+ * Lo que Punch sabe del negocio desde el primer día: los rubros y la frase de la dueña juntos, en una sola línea y sin pasar
  * del límite del campo "Sobre tu tienda". Vacío si no dijo nada.
  */
 export function contextoDeNegocio(rubros: readonly RubroId[], frase: string): string {

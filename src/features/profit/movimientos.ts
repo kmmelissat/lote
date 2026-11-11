@@ -19,6 +19,7 @@ type FilaPago = {
   pedido_id: string;
   pedido: {
     codigo: number;
+    estado: string;
     total: number;
     cliente: { nombre: string } | null;
     descuento: number;
@@ -77,7 +78,7 @@ async function gananciasPorPedido(supabase: Cliente, negocioId: string, periodo:
 export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, periodo: Periodo): Promise<PagoEntrante[]> {
   const { data, error } = await supabase
     .from("pago")
-    .select("id, fecha, creado_en, monto, metodo, cuenta_id, pedido_id, pedido(codigo, total, descuento, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, variante, fotos)))")
+    .select("id, fecha, creado_en, monto, metodo, cuenta_id, pedido_id, pedido(codigo, estado, total, descuento, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, variante, fotos)))")
     .eq("negocio_id", negocioId)
     .gte("fecha", periodo.desdeFecha)
     .lt("fecha", periodo.hastaFecha)
@@ -120,6 +121,7 @@ export async function pagosDelPeriodo(supabase: Cliente, negocioId: string, peri
       saldoDespues: Math.max(0, aCentavos(f.pedido?.total ?? 0) - hastaAqui),
       items: f.pedido ? itemsDe(f.pedido.pedido_item) : [],
       ganancia: ganancias.get(f.pedido_id) ?? null,
+      cancelado: f.pedido?.estado === "cancelado",
     };
   });
 }

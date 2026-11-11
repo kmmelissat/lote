@@ -12,7 +12,7 @@ const OPCIONES_RUBRO = RUBROS.map((r) => ({ valor: r.id, etiqueta: r.nombre }));
 
 /**
  * La categoría se elige del catálogo de Lote en dos pasos, rubro y categoría: nadie la escribe ni la crea, así todas las
- * tiendas quedan ordenadas igual en Explorar. Al elegir la categoría, el rubro se deduce solo (también cuando la llena Lotito).
+ * tiendas quedan ordenadas igual en Explorar. Al elegir la categoría, el rubro se deduce solo (también cuando la llena Punch).
  */
 export function SelectorCategoria({
   etiqueta,

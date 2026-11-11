@@ -80,7 +80,7 @@ El iso es un monito con forma de etiqueta de precio y un check rosa. El nombre v
 ## Agregar producto (ya aplicado)
 
 - `/productos/nuevo`, `/productos/[codigo]/editar` y el lote de fotos comparten piezas, todas en Punch: tarjeta blanca de 24 px con borde fino que reúne los pasos separados por una línea; cada paso (`BloqueForm`) lleva una ficha de color de 32 px con su número (pasa a check verde cuando está listo), título semibold, ayuda y, si es opcional, su chip gris.
-- Campos (`campos.tsx`): borde fino, `shadow-xs`, foco teal con halo de 3 px. Lo que llena Lotito se resalta en amarillo suave (`MARCA_LOTITO`).
+- Campos (`campos.tsx`): borde fino, `shadow-xs`, foco teal con halo de 3 px. Lo que llena Punch se resalta en amarillo suave (`MARCA_LOTITO`).
 - Condición (nuevo/usado) como pestañas grises; "¿De dónde salió el dinero?" como chips de borde fino; zona de fotos con borde punteado gris y ficha celeste; vista previa del producto con foto sobre `ficha-celeste`.
 - Botones: `BotonPunch` / `EnlacePunch`. El `Button` viejo, en su variante `suave`, ahora también es Punch (esquina 14 px, borde fino), y `PageHeader` usa un botón de volver Punch.
 - Código: `src/features/products/ui/` (`NuevoProductoForm`, `BloqueForm`, `campos`, `ZonaFotos`, `VistaPreviaProducto`, `EditorVariantes`).
@@ -98,10 +98,31 @@ El iso es un monito con forma de etiqueta de precio y un check rosa. El nombre v
 
 ## Lista de pedidos (ya aplicada)
 
-- `/pedidos`: botón "Registrar" primario teal (`EnlacePunch`); se quitaron "Para atender" y "Este mes" (7 nov: la lista es lo principal); `ResumenCompacto` en una sola tarjeta con líneas finas y cifras semibold; buscador, botón Filtros (`BotonPunch`, menú con borde fino) y pestañas grises.
-- `Pestanas` (`components/nav/Pestanas.tsx`) ya es Punch: barra gris donde la activa se levanta en blanco. Como es compartida, también cambió en Movimientos, Balance y Clientes.
-- Tabla y lista apilada con borde fino, encabezado gris claro, chips de estado y de canal con los tonos `chip-*`.
-- Falta: el detalle `/pedidos/[codigo]` (`ResumenPedido`, `ProgresoPedido`, `AccionesPedido`, cobro y envío) y `AccionPedido` en su variante grande.
+- `/pedidos`: botón "Registrar" primario teal (`EnlacePunch`); se quitaron "Para atender" y "Este mes". Arriba una franja amarilla (`FranjaPedidos`): "Pendiente de recibir $X en N pedidos" y avisos de apartados por vencer o enviados sin entregar. Buscador, Filtros (`BotonPunch`; "Con saldo" filtra los que tienen saldo) y pestañas grises con un punto de color por estado.
+- La lista usa `TablaPunch` (`components/ui/TablaPunch.tsx`): tarjeta con borde fino, encabezado gris, cifras a la derecha y lista apilada cuando el contenedor es angosto (container query). En "Todos" salen primero los abiertos, del más viejo al más nuevo, y luego los cerrados.
+- `Pestanas` ya es Punch (barra gris, activa en blanco); es compartida con Movimientos, Balance y Clientes.
+- Detalle `/pedidos/[codigo]` aplicado: cliente, pasos, productos, cobro, envío y enlace de seguimiento son tarjetas `TARJETA_PUNCH`; el botón grande de acción es primario. Por dentro también: `PagoForm`, el formulario de envío, el pago a la paquetera, la guía y el enlace de seguimiento usan `BotonPunch` y fondos grises. `/pedidos/nuevo` solo redirige a Vender.
+
+- Detalle del pedido (mockup E "Lista de tareas", 9 nov): a la izquierda `ProgresoPedido` es una lista de pasos ("Para cerrar este pedido", "X de N listos"): hechos con check, el actual resaltado con su título, ayuda y botón (`AccionPedido grande`), y los que faltan en gris; debajo, los productos con total y ganancia (solo quien gestiona). A la derecha: `ClientePedido` (iniciales, contacto, WhatsApp, vencimiento), envío, cobro, devolución si está cancelado y el link de rastreo plegado. Pendiente: notas del pedido (necesita columna nueva).
+- Orden del detalle (propuesta 2 del mockup): el encabezado ya no lleva chip de estado (lo dice la barra de progreso) y trae un menú ⋯ (`AccionesPedido` + `MenuAcciones`, ahora en Punch) con Cancelar. Cobro y envío abren con ficha de ícono, título y chip (Pagado / Con saldo / Sin definir). El formulario de pago llega cerrado tras "+ Registrar pago o abono".
+
+## Clientes (ya aplicado)
+
+- `/clientes`: franja amarilla ("Te deben $X entre N clientes", enlace "Ver quiénes" y chip verde de quienes vuelven a comprar) en vez de las cuatro tarjetas de datos; buscador y orden Punch, pestañas grises (Todos / Con saldo con punto amarillo) y `TablaPunch` con avatar en ficha rosa, lo que deben en chip amarillo y botón "Cobrar" por WhatsApp. En celular, lista apilada.
+- `/clientes/[id]`: historial de pedidos en `TablaPunch` a la izquierda; a la derecha tarjeta del cliente (contacto y botón de WhatsApp: primario si debe), comprado y saldo en fichas, y notas. En celular, la tarjeta va primero.
+- Código: `src/features/customers/ui/` (`ListaClientes`, `FichaCliente`).
+## Movimientos (ya aplicado)
+
+- Variante C del mockup: a la izquierda buscador, filtros en píldora (periodo, método y cuenta), pestañas grises Todos / Entradas / Salidas (puntos verde y rosa) y la lista; a la derecha un panel con lo que quedó (`HeroMovimientos`, ya sin bloque oscuro), el gráfico día por día y los gastos fijos. En celular el panel va debajo de la lista.
+- La lista (`ListaMovimientos`) es tabla de borde fino con encabezado gris y una fila gris por día con su neto; cada concepto lleva ficha de ícono (verde entra, rojo sale, celeste traslado) y chip de cuenta. Ya no muestra la columna "acumulado".
+- El gráfico usa chips verde y rojo; los gastos fijos van en `TARJETA_PUNCH`. El formulario "Registrar gasto" también: botón y ventana de borde fino, campos y chips de 12 a 14 px (el elegido con borde teal y halo), "Una vez / Cada mes" en gris y botones de `BotonPunch`.
+
+## Detalle de producto (ya aplicado)
+
+- `/productos/[codigo]` (mockup D, 10 nov): sin pestañas; lo que más le importa al emprendedor va arriba. Cabecera con foto, chips, nombre, precio y acciones (Editar, ver en la tienda, Agregar variante); franja amarilla solo si hay avisos; con variantes, "Ver: Todas / cada una".
+- Tres tarjetas grandes (`TarjetaResumen`): **Te quedan** (`TarjetaStock`, con el botón Reponer que abre su ventana; ámbar si queda poco o nada), **Ganás** (`LoQueTeDeja`: ganancia por unidad, margen, lo que dejaría lo que queda y lo ya vendido; el desglose del costo se abre aparte; ámbar si falta algún costo) y **Vendiste** (unidades y cuánto está apartado por cobrar).
+- Debajo: variantes y últimos pedidos a la izquierda; avisos de stock y compartir a la derecha. Luego la oferta a todo el ancho (formulario en dos columnas), las fotos, el código de barras y borrar, todo a la vista (sin menú plegable).
+- Todas las tarjetas usan `TARJETA_PUNCH` con `components/ui/EncabezadoTarjeta`. Código: `src/features/products/ui/`.
 
 ## Pendiente
 

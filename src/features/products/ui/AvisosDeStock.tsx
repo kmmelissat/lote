@@ -1,4 +1,5 @@
-import { Card } from "@/components/ui/Card";
+import { estiloBotonPunch, TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
+import { EncabezadoTarjeta } from "@/components/ui/EncabezadoTarjeta";
 import { formatearFecha } from "@/lib/formato";
 import { textos } from "@/lib/textos";
 import type { AvisoDeStock } from "../repositorio";
@@ -9,11 +10,8 @@ const t = textos.productos.avisos;
 export function AvisosDeStock({ avisos, producto }: { avisos: AvisoDeStock[]; producto: string }) {
   if (!avisos.length) return null;
   return (
-    <Card className="flex flex-col gap-3">
-      <div>
-        <h2 className="font-bold">{t.titulo(avisos.length)}</h2>
-        <p className="text-sm text-texto-2">{t.ayuda}</p>
-      </div>
+    <section className={`${TARJETA_PUNCH} flex flex-col gap-4`}>
+      <EncabezadoTarjeta icono="campana" color="amarillo" titulo={t.titulo(avisos.length)} ayuda={t.ayuda} />
       <ul className="flex flex-col gap-2">
         {avisos.map((a) => {
           const digitos = a.contacto.replace(/\D/g, "");
@@ -31,7 +29,7 @@ export function AvisosDeStock({ avisos, producto }: { avisos: AvisoDeStock[]; pr
                   href={`https://wa.me/${digitos}?text=${mensaje}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-10 max-md:min-h-11 items-center rounded-full border border-teal-oscuro px-4 text-sm font-bold text-teal-oscuro hover:bg-limon"
+                  className={estiloBotonPunch("secundario")}
                 >
                   {t.escribir}
                 </a>
@@ -40,6 +38,6 @@ export function AvisosDeStock({ avisos, producto }: { avisos: AvisoDeStock[]; pr
           );
         })}
       </ul>
-    </Card>
+    </section>
   );
 }

@@ -26,6 +26,8 @@ export type PagoEntrante = {
   items?: ItemCobrado[];
   /** Lo que deja el pedido (sin envío); null si algún producto no tiene costo guardado */
   ganancia?: Centavos | null;
+  /** El pedido se canceló: el dinero cobrado sigue en la cuenta, pero ya no es una venta */
+  cancelado?: boolean;
 };
 
 /** Un gasto que salió. El método puede faltar: los gastos viejos no lo guardaban. */
@@ -85,6 +87,7 @@ export type Movimiento =
       cuenta: string | null;
       items: ItemCobrado[];
       ganancia: Centavos | null;
+      cancelado: boolean;
     }
   | {
       tipo: "salida";
@@ -162,6 +165,7 @@ export function unirMovimientos(pagos: readonly PagoEntrante[], gastos: readonly
     cuenta: p.cuenta ?? null,
     items: p.items ?? [],
     ganancia: p.ganancia ?? null,
+    cancelado: p.cancelado ?? false,
   }));
   const salidas: Movimiento[] = gastos.map((g) => ({
     tipo: "salida",

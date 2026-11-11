@@ -12,7 +12,7 @@ const pedido = (extra: Partial<PedidoDeCliente>): PedidoDeCliente => ({
 
 describe("resumenDeCliente", () => {
   it("sin pedidos todo está en cero", () => {
-    expect(resumenDeCliente([])).toEqual({ pedidos: 0, comprado: 0, saldo: 0, ultimoPedido: null });
+    expect(resumenDeCliente([])).toEqual({ pedidos: 0, comprado: 0, saldo: 0, alEntregar: 0, ultimoPedido: null });
   });
 
   it("suma lo comprado solo de pedidos pagados en adelante", () => {

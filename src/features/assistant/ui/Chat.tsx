@@ -2,9 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { Icon } from "@/components/ui/Icon";
-import { LotitoMas } from "@/components/ui/LotitoMas";
 import type { Boton, Comando, Estado, Respuesta } from "../motor";
 import { textos } from "@/lib/textos";
 import { subirFotos } from "@/lib/subirFotos";
@@ -18,9 +24,15 @@ const t = textos.asistente;
 
 type Mensaje =
   | { id: string; en: number; de: "yo"; texto: string; foto?: string }
-  | { id: string; en: number; de: "lote"; respuesta: Respuesta; vigente: boolean };
+  | {
+      id: string;
+      en: number;
+      de: "lote";
+      respuesta: Respuesta;
+      vigente: boolean;
+    };
 
-// Lotito se acuerda de lo último que se habló, por unos minutos: así entiende "¿y el mes pasado?".
+// Punch se acuerda de lo último que se habló, por unos minutos: así entiende "¿y el mes pasado?".
 const MEMORIA_MS = 5 * 60_000;
 const TURNOS_DE_MEMORIA = 6;
 
@@ -28,40 +40,49 @@ function historialDe(ms: Mensaje[]): Turno[] {
   const desde = Date.now() - MEMORIA_MS;
   return ms
     .filter((m) => m.en >= desde)
-    .map((m): Turno => ({ de: m.de, texto: m.de === "yo" ? m.texto : m.respuesta.texto }))
+    .map(
+      (m): Turno => ({
+        de: m.de,
+        texto: m.de === "yo" ? m.texto : m.respuesta.texto,
+      }),
+    )
     .filter((t) => t.texto.trim())
     .slice(-TURNOS_DE_MEMORIA);
 }
 
-const pildoraFuerte = "!bg-teal-oscuro !text-white hover:!bg-teal";
+const pildoraFuerte =
+  "!border-teal-oscuro !bg-teal-oscuro !text-white hover:!bg-teal";
 const pildora =
-  "min-h-11 rounded-full border border-teal-oscuro bg-superficie px-4 text-sm font-medium text-teal-oscuro transition-colors hover:bg-teal-fondo disabled:opacity-50";
+  "min-h-10 rounded-full border border-linea bg-superficie px-4 text-sm font-medium text-teal-oscuro shadow-xs transition-colors hover:bg-gris-50 disabled:opacity-50";
 
 function sugerenciasPara(ruta: string | null) {
-  const clave = Object.keys(t.sugerencias).find((k) => k !== "inicio" && ruta && (ruta === k || ruta.startsWith(`${k}/`)));
+  const clave = Object.keys(t.sugerencias).find(
+    (k) => k !== "inicio" && ruta && (ruta === k || ruta.startsWith(`${k}/`)),
+  );
   return t.sugerencias[clave ?? "inicio"];
 }
 
-function tonoSugerencia(modo: "mandar" | "escribir" | "foto") {
-  if (modo === "foto") return "bg-mango";
-  if (modo === "mandar") return "bg-teal-fondo";
-  return "bg-limon";
-}
+const FICHAS = {
+  mandar: "bg-ficha-verde",
+  escribir: "bg-ficha-amarillo",
+  foto: "bg-ficha-celeste",
+} as const;
+const ICONOS = {
+  mandar: "enviar",
+  escribir: "etiqueta",
+  foto: "camara",
+} as const;
 
 type Props = {
   negocioId: string;
-  /** En el chat flotante: sin título grande y con menos ejemplos */
-  compacto?: boolean;
   /** Dónde está la persona, para ofrecerle las preguntas que le tocan */
   ruta?: string | null;
-  /** Se avisa cuando la persona sigue un enlace de una respuesta */
-  alSeguirEnlace?: () => void;
   /** Una pregunta que ya viene escrita (la del buscador): se manda sola al abrir el chat */
   preguntaInicial?: string;
 };
 
 /** Ocupa todo el alto de su contenedor: quien lo usa decide cuánto mide. */
-export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace, preguntaInicial }: Props) {
+export function Chat({ negocioId, ruta = null, preguntaInicial }: Props) {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [texto, setTexto] = useState("");
   const [estado, setEstado] = useState<Estado | null>(null);
@@ -84,26 +105,57 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
 
   // Baja solo la lista del chat. scrollIntoView movería también la página entera.
   useEffect(() => {
-    if (lista.current && (mensajes.length || pendiente)) lista.current.scrollTop = lista.current.scrollHeight;
+    if (lista.current && (mensajes.length || pendiente))
+      lista.current.scrollTop = lista.current.scrollHeight;
   }, [mensajes, pendiente]);
 
-  function mandar(entrada: { texto?: string; comando?: Comando; foto?: string }, visible?: string) {
+  function mandar(
+    entrada: { texto?: string; comando?: Comando; foto?: string },
+    visible?: string,
+  ) {
     const mensajeId = crypto.randomUUID();
     setAviso("");
     setMensajes((ms) => {
       // Los botones de las respuestas anteriores dejan de servir: la conversación ya siguió.
-      const anteriores = ms.map((m) => (m.de === "lote" && entrada.comando?.tipo !== "deshacer" ? { ...m, vigente: false } : m));
+      const anteriores = ms.map((m) =>
+        m.de === "lote" && entrada.comando?.tipo !== "deshacer"
+          ? { ...m, vigente: false }
+          : m,
+      );
       return visible !== undefined || entrada.foto
-        ? [...anteriores, { id: mensajeId, en: Date.now(), de: "yo", texto: visible ?? "", foto: entrada.foto }]
+        ? [
+            ...anteriores,
+            {
+              id: mensajeId,
+              en: Date.now(),
+              de: "yo",
+              texto: visible ?? "",
+              foto: entrada.foto,
+            },
+          ]
         : anteriores;
     });
     // Lo que se habló antes de este mensaje (el nuevo viaja aparte).
     const historial = historialDe(mensajes);
     empezar(async () => {
-      const respuesta = await enviarAlAsistente({ mensajeId, ...entrada, estado, historial });
+      const respuesta = await enviarAlAsistente({
+        mensajeId,
+        ...entrada,
+        estado,
+        historial,
+      });
       rastrear("lotito_mensaje_enviado", { con_foto: Boolean(entrada.foto) });
       setEstado(respuesta.estado ?? null);
-      setMensajes((ms) => [...ms, { id: `${mensajeId}-r`, en: Date.now(), de: "lote", respuesta, vigente: true }]);
+      setMensajes((ms) => [
+        ...ms,
+        {
+          id: `${mensajeId}-r`,
+          en: Date.now(),
+          de: "lote",
+          respuesta,
+          vigente: true,
+        },
+      ]);
     });
   }
 
@@ -136,7 +188,10 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
   }
 
   function boton(b: Boton) {
-    mandar({ comando: b.comando }, b.comando.tipo === "elegir" ? b.etiqueta : undefined);
+    mandar(
+      { comando: b.comando },
+      b.comando.tipo === "elegir" ? b.etiqueta : undefined,
+    );
   }
 
   async function copiar(textoACopiar: string) {
@@ -162,186 +217,215 @@ export function Chat({ negocioId, compacto = false, ruta = null, alSeguirEnlace,
   const vacio = !mensajes.length && !pendiente;
 
   return (
-    <div
-      className={`flex h-full min-h-0 flex-col ${compacto ? "" : "overflow-hidden rounded-[28px] border border-teal-oscuro bg-crema shadow-dura"}`}
-    >
-      {!compacto && (
-        <header
-          className={`flex shrink-0 items-center gap-3 border-b border-teal-oscuro bg-celeste-palido px-4 py-3 md:px-6 md:py-4 ${vacio ? "md:hidden" : ""}`}
-        >
-          <AvatarLotito className="size-11 md:size-12" enLinea />
-          <div className="min-w-0 flex-1">
-            {vacio ? (
-              <p className="font-logo text-xl leading-none md:text-2xl">{t.titulo}</p>
-            ) : (
-              <h1 className="font-logo text-xl leading-none md:text-2xl">{t.titulo}</h1>
-            )}
-            <p className="mt-0.5 truncate text-sm text-texto-2">
-              <span className="font-medium text-teal">{t.enLinea}</span> · {t.flotanteSubtitulo}
-            </p>
-          </div>
-        </header>
-      )}
-
-      <div
-        ref={lista}
-        className={`min-h-0 flex-1 overflow-y-auto ${compacto ? "px-1 pb-2" : "px-4 py-3 md:px-10 md:py-6"}`}
-        style={compacto ? undefined : { backgroundImage: "radial-gradient(rgb(0 56 68 / 0.12) 1.5px, transparent 1.5px)", backgroundSize: "22px 22px" }}
-      >
-        {/* Cada respuesta nueva se anuncia a quien usa lector de pantalla */}
-        <ol
-          className={`flex flex-col gap-4 ${vacio && !compacto ? "min-h-full" : compacto ? "" : "md:mx-auto md:w-full md:max-w-2xl"}`}
-          aria-live="polite"
-          aria-label={t.titulo}
-        >
-          {vacio && compacto && (
-            <li className="flex items-start gap-2">
-              <AvatarLotito />
-              <div className="flex min-w-0 flex-col gap-3">
-                <div className="max-w-[92%] rounded-2xl rounded-bl-md border border-teal-oscuro bg-white px-4 py-2.5 shadow-dura-chica">
-                  <p>{t.vacioFlotante}</p>
-                </div>
-                <Sugerencias sugerencias={sugerencias} pendiente={pendiente} subiendo={subiendo} alElegir={usarSugerencia} />
-                <LinkAyuda alSeguir={alSeguirEnlace} />
-              </div>
-            </li>
-          )}
-
-          {vacio && !compacto && (
-            <li className="flex min-h-full flex-col items-center justify-center gap-5 px-2 py-6 text-center md:flex-row-reverse md:items-center md:justify-center md:gap-16 md:px-4 md:text-left">
-              <LotitoMas nombre="saluda" className="w-28 shrink-0 motion-safe:animate-asomar md:w-52 lg:w-60" />
-              <div className="flex max-w-md flex-col items-center gap-4 md:max-w-xl md:items-start">
-                <div>
-                  <h1 className="font-logo text-3xl leading-none tracking-tight md:text-5xl">{t.vacioTitulo}</h1>
-                  <p className="mt-2 text-texto-2 md:mt-3 md:text-lg">{t.saludoInicial}</p>
-                </div>
-                <Sugerencias sugerencias={sugerencias} pendiente={pendiente} subiendo={subiendo} alElegir={usarSugerencia} centradas />
-                <LinkAyuda />
-              </div>
-            </li>
-          )}
-
-          {mensajes.map((m) =>
-            m.de === "yo" ? (
-              <li key={m.id} className="flex flex-col items-end gap-1 pl-10 motion-safe:animate-entra">
-                <span className="sr-only">{t.tu}:</span>
-                {m.foto && (
-                  <Image
-                    src={urlFoto(m.foto)}
-                    alt={t.fotoAdjunta}
-                    width={160}
-                    height={160}
-                    className="size-40 rotate-1 rounded-2xl border border-teal-oscuro object-cover shadow-dura-chica"
-                  />
-                )}
-                {m.texto && (
-                  <p className="whitespace-pre-line rounded-2xl rounded-br-md border border-teal-oscuro bg-limon px-4 py-2.5 text-teal-oscuro">{m.texto}</p>
-                )}
-              </li>
-            ) : (
-              <li key={m.id} className="flex items-end gap-2 pr-6 motion-safe:animate-entra">
-                <AvatarLotito />
-                <div className="flex min-w-0 flex-col items-start gap-2">
-                  <span className="sr-only">{t.asistente}:</span>
-                  <div className="rounded-2xl rounded-bl-md border border-teal-oscuro bg-white px-4 py-2.5 shadow-dura-chica">
-                    <TextoLotito texto={m.respuesta.texto} />
-                  </div>
-                  {m.respuesta.enlaces?.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {m.respuesta.enlaces.map((e) => (
-                        <Link key={e.href} href={e.href} onClick={alSeguirEnlace} className={`${pildora} inline-flex items-center gap-1.5 bg-teal-fondo`}>
-                          {e.etiqueta}
-                          <Icon nombre="diagonal" className="size-4" />
-                        </Link>
-                      ))}
-                    </div>
-                  ) : null}
-                  {m.vigente && (m.respuesta.botones?.length || m.respuesta.copiar) ? (
-                    <div className="flex flex-wrap gap-2">
-                      {m.respuesta.botones?.map((b) => (
-                        <button key={`${b.etiqueta}-${b.comando.tipo}`} type="button" disabled={pendiente} onClick={() => boton(b)} className={`${pildora} ${b.comando.tipo === "confirmar" ? pildoraFuerte : ""}`}>
-                          {b.etiqueta}
-                        </button>
-                      ))}
-                      {m.respuesta.copiar && (
-                        <button type="button" onClick={() => copiar(m.respuesta.copiar!)} className={`${pildora} inline-flex items-center gap-1.5`}>
-                          <Icon nombre="copiar" className="size-4" />
-                          {t.copiar}
-                        </button>
-                      )}
-                    </div>
-                  ) : null}
-                </div>
-              </li>
-            ),
-          )}
-          {pendiente && (
-            <li className="flex items-end gap-2">
-              <AvatarLotito />
-              <Escribiendo etiqueta={t.pensando} />
-            </li>
-          )}
-        </ol>
-      </div>
-
-      <p role="status" className={`px-3 text-sm text-texto-2 ${aviso ? "py-1" : ""}`}>
-        {aviso}
-      </p>
-      {(foto || subiendo) && (
-        <div className={`mb-2 flex items-center gap-3 ${compacto ? "px-1" : "px-4 md:mx-auto md:w-full md:max-w-2xl"}`}>
-          {foto ? (
-            <>
-              <Image
-                src={urlFoto(foto)}
-                alt={t.fotoAdjunta}
-                width={56}
-                height={56}
-                className="size-14 -rotate-2 rounded-xl border border-teal-oscuro object-cover"
-              />
-              <button type="button" onClick={() => setFoto(null)} className="min-h-11 rounded-full px-3 text-sm text-teal underline">
-                {t.quitarFoto}
-              </button>
-            </>
+    <div className="flex h-full min-h-0 flex-col bg-superficie">
+      <header className="flex shrink-0 items-center gap-3 border-b border-linea px-4 py-3 md:px-6">
+        <AvatarLotito className="size-10" enLinea />
+        <div className="min-w-0 flex-1">
+          {vacio ? (
+            <p className="font-semibold leading-tight">{t.titulo}</p>
           ) : (
-            <p role="status" className="text-sm text-texto-2">
-              {t.subiendoFoto}
-            </p>
+            <h1 className="font-semibold leading-tight">{t.titulo}</h1>
           )}
+          <p className="truncate text-sm text-texto-2">
+            <span className="font-medium text-teal">{t.enLinea}</span> ·{" "}
+            {t.flotanteSubtitulo}
+          </p>
         </div>
-      )}
-      {/* Todo en una sola cápsula: la cámara, lo que se escribe y el botón de mandar */}
-      <div className={compacto ? "" : "px-3 pb-3 md:flex md:justify-center md:px-10 md:pb-6"}>
-        <form
-          onSubmit={enviar}
-          className={`flex items-center gap-1 rounded-full border border-teal-oscuro bg-white p-1 shadow-dura-chica focus-within:ring-4 focus-within:ring-rosa/50 md:p-1.5 ${compacto ? "" : "md:w-full md:max-w-2xl"}`}
+      </header>
+
+      <div className="relative min-h-0 flex-1 bg-gris-50">
+        <div
+          ref={lista}
+          className="h-full overflow-y-auto px-4 pb-32 pt-4 md:px-10 md:pt-6"
         >
-          <label className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-teal-oscuro hover:bg-teal-fondo has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-teal md:size-12">
-            <span className="sr-only">{t.adjuntar}</span>
-            <Icon nombre="camara" className="size-5" />
-            <input ref={archivoRef} type="file" accept="image/*" capture="environment" onChange={adjuntar} disabled={subiendo || pendiente} className="sr-only" />
-          </label>
-          <label htmlFor={compacto ? "asistente-texto-flotante" : "asistente-texto"} className="sr-only">
-            {t.titulo}
-          </label>
-          <input
-            ref={inputRef}
-            id={compacto ? "asistente-texto-flotante" : "asistente-texto"}
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            placeholder={compacto ? t.placeholderCorto : t.placeholder}
-            autoComplete="off"
-            maxLength={1000}
-            className="h-10 min-w-0 flex-1 bg-transparent px-2 text-base outline-none placeholder:text-texto-2/70 md:h-12 md:text-lg"
-          />
-          <button
-            type="submit"
-            aria-label={t.enviar}
-            disabled={pendiente || subiendo || (!texto.trim() && !foto)}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-teal-oscuro bg-mango text-teal-oscuro transition-transform duration-150 enabled:hover:-translate-y-0.5 disabled:border-transparent disabled:bg-teal-fondo disabled:text-texto-2 md:size-12"
+          {/* Cada respuesta nueva se anuncia a quien usa lector de pantalla */}
+          <ol
+            className={`flex flex-col gap-4 md:mx-auto md:w-full md:max-w-2xl ${vacio ? "min-h-full" : ""}`}
+            aria-live="polite"
+            aria-label={t.titulo}
           >
-            <Icon nombre="enviar" className="size-5" strokeWidth={2.5} />
-          </button>
-        </form>
+            {vacio && (
+              <li className="flex min-h-full flex-col items-center justify-center gap-5 py-6 text-center">
+                <AvatarLotito className="size-16" />
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                    {t.vacioTitulo}
+                  </h1>
+                  <p className="mt-2 text-texto-2">{t.saludoInicial}</p>
+                </div>
+                <Sugerencias
+                  sugerencias={sugerencias}
+                  pendiente={pendiente}
+                  subiendo={subiendo}
+                  alElegir={usarSugerencia}
+                />
+                <LinkAyuda />
+              </li>
+            )}
+
+            {mensajes.map((m) =>
+              m.de === "yo" ? (
+                <li
+                  key={m.id}
+                  className="flex flex-col items-end gap-1 pl-10 motion-safe:animate-entra"
+                >
+                  <span className="sr-only">{t.tu}:</span>
+                  {m.foto && (
+                    <Image
+                      src={urlFoto(m.foto)}
+                      alt={t.fotoAdjunta}
+                      width={160}
+                      height={160}
+                      className="size-40 rounded-2xl border border-linea object-cover shadow-xs"
+                    />
+                  )}
+                  {m.texto && (
+                    <p className="whitespace-pre-line rounded-[20px] rounded-br-md bg-teal-oscuro px-4 py-2.5 text-white">
+                      {m.texto}
+                    </p>
+                  )}
+                </li>
+              ) : (
+                <li
+                  key={m.id}
+                  className="flex items-end gap-2 pr-6 motion-safe:animate-entra"
+                >
+                  <AvatarLotito />
+                  <div className="flex min-w-0 flex-col items-start gap-2">
+                    <span className="sr-only">{t.asistente}:</span>
+                    <div className="rounded-[20px] rounded-bl-md border border-linea bg-superficie px-4 py-2.5 shadow-xs">
+                      <TextoLotito texto={m.respuesta.texto} />
+                    </div>
+                    {m.respuesta.enlaces?.length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {m.respuesta.enlaces.map((e) => (
+                          <Link
+                            key={e.href}
+                            href={e.href}
+                            className={`${pildora} inline-flex items-center gap-1.5 !border-transparent !bg-chip-verde !text-chip-texto-verde`}
+                          >
+                            {e.etiqueta}
+                            <Icon nombre="diagonal" className="size-4" />
+                          </Link>
+                        ))}
+                      </div>
+                    ) : null}
+                    {m.vigente &&
+                    (m.respuesta.botones?.length || m.respuesta.copiar) ? (
+                      <div className="flex flex-wrap gap-2">
+                        {m.respuesta.botones?.map((b) => (
+                          <button
+                            key={`${b.etiqueta}-${b.comando.tipo}`}
+                            type="button"
+                            disabled={pendiente}
+                            onClick={() => boton(b)}
+                            className={`${pildora} ${b.comando.tipo === "confirmar" ? pildoraFuerte : ""}`}
+                          >
+                            {b.etiqueta}
+                          </button>
+                        ))}
+                        {m.respuesta.copiar && (
+                          <button
+                            type="button"
+                            onClick={() => copiar(m.respuesta.copiar!)}
+                            className={`${pildora} inline-flex items-center gap-1.5`}
+                          >
+                            <Icon nombre="copiar" className="size-4" />
+                            {t.copiar}
+                          </button>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                </li>
+              ),
+            )}
+            {pendiente && (
+              <li className="flex items-end gap-2">
+                <AvatarLotito />
+                <Escribiendo etiqueta={t.pensando} />
+              </li>
+            )}
+          </ol>
+        </div>
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 pt-2">
+          <div className="pointer-events-auto">
+            <p
+              role="status"
+              className={`px-4 text-sm text-texto-2 ${aviso ? "py-1" : ""}`}
+            >
+              {aviso}
+            </p>
+            {(foto || subiendo) && (
+              <div className="mb-2 flex items-center gap-3 px-4 md:mx-auto md:w-full md:max-w-2xl">
+                {foto ? (
+                  <>
+                    <Image
+                      src={urlFoto(foto)}
+                      alt={t.fotoAdjunta}
+                      width={56}
+                      height={56}
+                      className="size-14 rounded-xl border border-linea object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFoto(null)}
+                      className="min-h-11 rounded-full px-3 text-sm text-teal underline"
+                    >
+                      {t.quitarFoto}
+                    </button>
+                  </>
+                ) : (
+                  <p role="status" className="text-sm text-texto-2">
+                    {t.subiendoFoto}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="px-3 pb-3 md:flex md:justify-center md:px-10 md:pb-5">
+              <form
+                onSubmit={enviar}
+                className="flex w-full items-center gap-1 rounded-[20px] border border-linea bg-superficie p-1.5 shadow-lg shadow-teal-oscuro/10 transition-shadow focus-within:border-teal focus-within:ring-[3px] focus-within:ring-teal/20 md:max-w-2xl"
+              >
+                <label className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-gris-100 text-teal-oscuro hover:bg-gris-50 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-teal">
+                  <span className="sr-only">{t.adjuntar}</span>
+                  <Icon nombre="camara" className="size-5" />
+                  <input
+                    ref={archivoRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={adjuntar}
+                    disabled={subiendo || pendiente}
+                    className="sr-only"
+                  />
+                </label>
+                <label htmlFor="asistente-texto" className="sr-only">
+                  {t.titulo}
+                </label>
+                <input
+                  ref={inputRef}
+                  id="asistente-texto"
+                  value={texto}
+                  onChange={(e) => setTexto(e.target.value)}
+                  placeholder={t.placeholder}
+                  autoComplete="off"
+                  maxLength={1000}
+                  className="h-10 min-w-0 flex-1 bg-transparent px-2 text-base outline-none placeholder:text-texto-2/70 md:text-[15px]"
+                />
+                <button
+                  type="submit"
+                  aria-label={t.enviar}
+                  disabled={pendiente || subiendo || (!texto.trim() && !foto)}
+                  className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-teal-oscuro text-white transition-colors enabled:hover:bg-teal disabled:bg-gris-100 disabled:text-texto-2"
+                >
+                  <Icon nombre="enviar" className="size-5" strokeWidth={2.5} />
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -352,25 +436,30 @@ function Sugerencias({
   pendiente,
   subiendo,
   alElegir,
-  centradas = false,
 }: {
   sugerencias: { texto: string; modo: "mandar" | "escribir" | "foto" }[];
   pendiente: boolean;
   subiendo: boolean;
-  alElegir: (sg: { texto: string; modo: "mandar" | "escribir" | "foto" }) => void;
-  centradas?: boolean;
+  alElegir: (sg: {
+    texto: string;
+    modo: "mandar" | "escribir" | "foto";
+  }) => void;
 }) {
   return (
-    <ul className={`flex flex-wrap gap-2 ${centradas ? "justify-center md:grid md:w-full md:grid-cols-2 md:gap-3" : ""}`}>
+    <ul className="grid w-full max-w-xl grid-cols-1 gap-2.5 sm:grid-cols-2">
       {sugerencias.map((sg) => (
-        <li key={sg.texto} className={centradas ? "md:min-w-0" : ""}>
+        <li key={sg.texto}>
           <button
             type="button"
             disabled={pendiente || subiendo}
             onClick={() => alElegir(sg)}
-            className={`min-h-11 rounded-full border border-teal-oscuro px-4 text-left text-sm font-bold text-teal-oscuro transition-transform duration-150 hover:-translate-y-0.5 disabled:opacity-50 ${tonoSugerencia(sg.modo)} ${centradas ? "md:h-14 md:w-full md:rounded-2xl md:px-5 md:text-base" : ""}`}
+            className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-linea bg-superficie p-3 text-left text-sm font-semibold text-teal-oscuro shadow-xs transition-colors hover:bg-gris-50 disabled:opacity-50"
           >
-            {sg.modo === "foto" && <Icon nombre="camara" className="mr-1.5 inline size-4 align-[-3px]" />}
+            <span
+              className={`flex size-8 shrink-0 items-center justify-center rounded-[10px] text-chip-texto-celeste ${FICHAS[sg.modo]}`}
+            >
+              <Icon nombre={ICONOS[sg.modo]} className="size-5" />
+            </span>
             {sg.texto}
           </button>
         </li>
@@ -379,14 +468,13 @@ function Sugerencias({
   );
 }
 
-function LinkAyuda({ alSeguir }: { alSeguir?: () => void }) {
+function LinkAyuda() {
   return (
     <p className="text-sm text-texto-2">
       {t.preguntasTitulo}{" "}
       <Link
         href={textos.ayuda.ruta}
-        onClick={alSeguir}
-        className="font-bold text-teal-oscuro underline decoration-2 underline-offset-2 hover:text-teal"
+        className="font-semibold text-teal underline underline-offset-2 hover:text-teal-oscuro"
       >
         {t.verAyuda}
       </Link>

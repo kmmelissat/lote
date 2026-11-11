@@ -861,6 +861,7 @@ export type Database = {
           codigo: number
           contra_entrega: boolean
           metodo_preferido: string | null
+          motivo_cancelacion: string | null
           creado_en: string
           descuento: number
           envio_absorbido: number
@@ -880,6 +881,7 @@ export type Database = {
           codigo: number
           contra_entrega?: boolean
           metodo_preferido?: string | null
+          motivo_cancelacion?: string | null
           creado_en?: string
           descuento?: number
           envio_absorbido?: number
@@ -899,6 +901,7 @@ export type Database = {
           codigo?: number
           contra_entrega?: boolean
           metodo_preferido?: string | null
+          motivo_cancelacion?: string | null
           creado_en?: string
           descuento?: number
           envio_absorbido?: number
@@ -1200,6 +1203,7 @@ export type Database = {
           monto: number
           negocio_id: string
           nota: string | null
+          pedido_id: string | null
           tipo: string
           usuario_id: string | null
         }
@@ -1211,6 +1215,7 @@ export type Database = {
           monto: number
           negocio_id: string
           nota?: string | null
+          pedido_id?: string | null
           tipo: string
           usuario_id?: string | null
         }
@@ -1222,6 +1227,7 @@ export type Database = {
           monto?: number
           negocio_id?: string
           nota?: string | null
+          pedido_id?: string | null
           tipo?: string
           usuario_id?: string | null
         }
@@ -1888,6 +1894,10 @@ export type Database = {
         Args: { p_negocio: string }
         Returns: { cantidad: number; apartadas: number; vendidas: number }[]
       }
+      cancelar_pedido: {
+        Args: { p_motivo?: string; p_pedido: string }
+        Returns: undefined
+      }
       cambiar_estado_pedido: {
         Args: { p_estado: string; p_pedido: string }
         Returns: undefined
@@ -2084,6 +2094,10 @@ export type Database = {
       }
       registrar_ajuste_cuenta: {
         Args: { p_cuenta: string; p_monto: number; p_nota?: string; p_tipo: string }
+        Returns: string
+      }
+      registrar_devolucion_pedido: {
+        Args: { p_cuenta?: string; p_lugar?: string; p_monto: number; p_pedido: string }
         Returns: string
       }
       registrar_ajuste_dinero: {

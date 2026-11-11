@@ -115,7 +115,7 @@ function LineaDeTiempo({ titulo, hitos }: { titulo: string; hitos: readonly Hito
   );
 }
 
-/** Ondas que salen de Lotito, como un toque en la pantalla. */
+/** Ondas que salen de Punch, como un toque en la pantalla. */
 function Pulso() {
   const reducido = useReducedMotion();
   if (reducido) return null;
@@ -151,7 +151,7 @@ function SelloEnVivo() {
   );
 }
 
-/** Confeti de la marca que salta desde Lotito cuando se despide. */
+/** Confeti de la marca que salta desde Punch cuando se despide. */
 function Confeti() {
   const reducido = useReducedMotion();
   if (reducido) return null;
@@ -208,7 +208,7 @@ function Cuerpo({ lamina }: { lamina: DatosLamina }) {
               ))}
             </ul>
           </div>
-          {/* Un celular con la tienda, Lotito encima y tarjetitas pegadas alrededor */}
+          {/* Un celular con la tienda, Punch encima y tarjetitas pegadas alrededor */}
           <Pieza className="relative mx-auto w-56 md:w-[19em]" >
             <div aria-hidden="true" className="absolute -inset-[18%] rounded-full border-2 border-dashed border-teal-oscuro/25 motion-safe:animate-girar-lento" />
             <div aria-hidden="true" className="relative rotate-3 rounded-[2.2rem] border-[3px] border-teal-oscuro bg-white p-3 shadow-dura md:rounded-[2.2em] md:border-[0.2em] md:p-[0.9em]">

@@ -50,9 +50,9 @@ flowchart LR
 ## Frontend
 
 - **Server Components por defecto.** Cada página de `src/app/` es delgada: lee los parámetros, pide los datos a la feature (`repositorio.ts`) y arma la pantalla. El HTML llega completo; `cacheComponents` está apagado a propósito para no llenar todo de `<Suspense>`.
-- **`"use client"` solo donde hay interacción** (unos 120 archivos): formularios, el chat de Lotito, el escáner de códigos, el carrito, los modales. Va en la pieza más chica que lo necesita, no en la página entera.
+- **`"use client"` solo donde hay interacción** (unos 120 archivos): formularios, el chat de Punch, el escáner de códigos, el carrito, los modales. Va en la pieza más chica que lo necesita, no en la página entera.
 - **Grupos de rutas** en `src/app/`:
-  - `(panel)`: todo lo de quien vende (`/inicio`, `/productos`, `/pedidos`, `/balance`, `/vender`…), con el menú y la burbuja de Lotito en su `layout.tsx`.
+  - `(panel)`: todo lo de quien vende (`/inicio`, `/productos`, `/pedidos`, `/balance`, `/vender`…), con el menú y la burbuja de Punch en su `layout.tsx`.
   - `(auth)`: el login. `(onboarding)`: crear el negocio, a pantalla completa.
   - Afuera de los grupos, lo público: `/` (landing), `/c/<tienda>` (vitrina), `/p/<pedido>` (seguimiento), `/marketplace`, `/ayuda`, `/privacidad`.
 - **Estilos:** Tailwind 4 con tokens de marca en `src/app/globals.css` (colores, radios, sombras). Las reglas visuales están en [BRANDING.md](BRANDING.md). Fuentes con `next/font`: Plus Jakarta Sans para el texto y Fredoka para el logo.
@@ -142,7 +142,7 @@ Todo lo demás (crear, editar, cobrar) son **Server Actions**, no rutas de API.
 - **OpenAI** (`features/ai/`, modelo `gpt-4.1-mini`, cambiable con `ASISTENTE_MODELO`): entender los mensajes del chat, leer la foto de un producto, leer un comprobante de transferencia y conversar con los datos del negocio. Salida estructurada con esquemas de Zod y `store: false`. **La IA solo interpreta**: devuelve la intención y los datos, y el código decide y calcula. Sin `OPENAI_API_KEY`, el chat sigue respondiendo "ayuda" y "deshacer".
 - **WhatsApp Cloud API de Meta** (`features/whatsapp/`): seis plantillas de avisos, con una cola en la base que la tarea diaria vacía. Con `WHATSAPP_CANAL=consola` imprime los mensajes en vez de mandarlos (para la demo). Falta el webhook de entrada.
 
-### Lotito por dentro (`features/assistant/`)
+### Punch por dentro (`features/assistant/`)
 
 `actions/enviar.ts` recibe el mensaje → `motor.ts` resuelve atajos sin IA y, si no, le pregunta a la IA la intención → cada intención (`intenciones/`: pedido, cobro, gasto, producto, consulta, conversar) ejecuta con el **puerto** (`puertoSupabase.ts`, una interfaz que en las pruebas se reemplaza por uno falso) → cada acción guarda cómo deshacerse (`accion` en la base). Lo delicado se confirma con botones antes de ejecutarse.
 
@@ -158,7 +158,7 @@ Todo lo demás (crear, editar, cobrar) son **Server Actions**, no rutas de API.
 
 ## Pruebas y calidad
 
-- **Vitest**, con las pruebas al lado del código (`*.test.ts`): sobre todo `src/domain/`, los repositorios y el motor de Lotito. `src/test/supabaseFalso.ts` es un Supabase de mentira para probar repositorios y acciones sin red.
+- **Vitest**, con las pruebas al lado del código (`*.test.ts`): sobre todo `src/domain/`, los repositorios y el motor de Punch. `src/test/supabaseFalso.ts` es un Supabase de mentira para probar repositorios y acciones sin red.
 - Las pruebas contra OpenAI real (`openai.live.test.ts`) se saltan salvo con `RUN_LIVE_AI=1`, porque cuestan dinero.
 - Verificación: `npx tsc --noEmit`, `npx eslint src`, `npx vitest run`, `npx next build`.
 

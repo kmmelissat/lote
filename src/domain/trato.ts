@@ -20,7 +20,7 @@ export function rolPropio(rol: string, trato: Trato): string | undefined {
   return ROLES_PROPIOS[rol]?.[trato];
 }
 
-/** Una línea para decirle a Lotito cómo hablarle a la persona. Va como dato, no como instrucción de quien escribe. */
+/** Una línea para decirle a Punch cómo hablarle a la persona. Va como dato, no como instrucción de quien escribe. */
 export function indicacionDeTrato(trato: Trato): string {
   switch (trato) {
     case "ella":

@@ -63,14 +63,14 @@ export function BorrarProducto({
   return (
     <section
       aria-labelledby="borrar-producto"
-      className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-teal-oscuro bg-superficie p-5"
+      className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-linea bg-superficie p-5 shadow-xs"
     >
       <div className="flex min-w-0 items-start gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-teal-oscuro bg-error-fondo text-error">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-error-fondo text-error">
           <Icon nombre="x" className="size-6" />
         </span>
         <div className="min-w-0">
-          <h2 id="borrar-producto" className="text-lg font-bold leading-tight">
+          <h2 id="borrar-producto" className="text-[15px] font-semibold leading-tight">
             {texto.seccion}
           </h2>
           <p className="text-sm text-texto-2">{texto.ayuda}</p>

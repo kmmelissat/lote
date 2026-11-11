@@ -95,7 +95,7 @@ function montar(opciones: { productos?: ProductoAsistente[]; pedidos?: PedidoAsi
       return { ...fichaBase, ...foto };
     },
     leerComprobante: async () => ({ esComprobante: false, monto: null, fecha: null, referencia: null }),
-    responder: async () => "Respuesta de Lotito",
+    responder: async () => "Respuesta de Punch",
   });
   const turno = (
     entrada: Partial<Entrada> & { mensajeId: string },
@@ -751,10 +751,10 @@ describe("cuando no se entiende", () => {
     expect(eligio.texto).toBe(textos.asistente.pregunta.montoGasto);
   });
 
-  it("si Lotito contesta con palabras, igual se anota que no se entendió", async () => {
+  it("si Punch contesta con palabras, igual se anota que no se entendió", async () => {
     const { turno } = montar();
     const r = await turno({ mensajeId: "m1" }, { intencion: "no_entiendo" });
-    expect(r.texto).toBe("Respuesta de Lotito");
+    expect(r.texto).toBe("Respuesta de Punch");
     expect(r.noEntendido).toBe(true);
   });
 });

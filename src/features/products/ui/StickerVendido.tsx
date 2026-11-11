@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { useToast } from "@/components/ui/Toast";
 import { textos } from "@/lib/textos";
 import { ALTO, ANCHO, dibujarSticker, type Colores } from "../sticker";
@@ -70,14 +70,14 @@ export function StickerVendido({ foto, nombre, codigo, negocio }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-3 md:col-span-2">
-      <h2 className="font-bold">{t.titulo}</h2>
+    <section className={`${TARJETA_PUNCH} flex flex-col gap-3`}>
+      <h2 className="text-[15px] font-semibold">{t.titulo}</h2>
       <p className="text-sm text-texto-2">{t.ayuda}</p>
       <div className="flex items-center gap-4">
         <Button type="button" variante="secundario" disabled={generando} onClick={generar}>
           {generando ? t.generando : t.boton}
         </Button>
       </div>
-    </Card>
+    </section>
   );
 }

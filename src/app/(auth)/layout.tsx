@@ -66,7 +66,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
           </ul>
         </div>
 
-        {/* Lotito sentado en la esquina, con su globo */}
+        {/* Punch sentado en la esquina, con su globo */}
         <div className="relative z-10 flex items-end justify-between gap-4">
           <p className="max-w-[16rem] text-sm font-medium text-teal-oscuro/80">{textos.eslogan}</p>
         </div>

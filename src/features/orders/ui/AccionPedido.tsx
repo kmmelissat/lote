@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
+import { Icon } from "@/components/ui/Icon";
 import { useElegir } from "@/components/ui/Confirmar";
 import type { NombreIcono } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
@@ -68,7 +70,8 @@ export function AccionPedido({
       const metodos = alEntregar ? ["efectivo" as const, ...METODOS_DE_COBRO.filter((m) => m !== "efectivo")] : METODOS_DE_COBRO;
       metodo = await elegir({
         titulo: t.cobroTitulo,
-        texto: (alEntregar ? t.entregaTexto : t.cobroTexto)(formatearDolares(saldo), cliente),
+        texto: (alEntregar ? t.entregaTexto : t.cobroTexto)(cliente),
+        destacado: formatearDolares(saldo),
         confirmar: alEntregar ? t.entregaConfirmar : t.cobroConfirmar,
         opciones: metodos.map((m) => ({ valor: m, etiqueta: textos.cobro.metodos[m] })),
       });
@@ -88,12 +91,20 @@ export function AccionPedido({
     avisar(error ?? t.hecho[paso](codigo), { tipo: error ? "error" : "exito" });
   }
 
+  if (grande)
+    return (
+      <BotonPunch type="button" disabled={pendiente} onClick={avanzar}>
+        <Icon nombre={ICONO_DEL_PASO[paso]} className="size-5 shrink-0" />
+        {t.acciones[paso]}
+      </BotonPunch>
+    );
+
   return (
     // z-10: queda por encima del enlace que cubre toda la fila
     <Button
       type="button"
-      variante={grande ? "mango" : "suave"}
-      tamano={grande ? "normal" : "chico"}
+      variante="suave"
+      tamano="chico"
       icono={ICONO_DEL_PASO[paso]}
       className="relative z-10"
       disabled={pendiente}

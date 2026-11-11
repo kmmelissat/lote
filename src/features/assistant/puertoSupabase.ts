@@ -177,7 +177,7 @@ export function crearPuertoSupabase(supabase: SupabaseClient<Database>, negocio:
 
     trato: negocio.trato,
 
-    // Si no se puede leer, Lotito sigue sin ese dato: no es para frenarlo
+    // Si no se puede leer, Punch sigue sin ese dato: no es para frenarlo
     sobreElNegocio: () => contextoDeLaTienda(supabase, negocio.id).catch(() => ""),
 
     async mensajeCobro(codigoPedido) {

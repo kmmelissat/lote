@@ -4,7 +4,7 @@
 
 Nota para no olvidarla. Cada pantalla, también las del panel, tiene que sentirse **de la misma marca que la landing**: juguetona, cálida y un poco desordenada a propósito. Nada de "panel genérico" gris y blanco.
 
-> **Panel: marca y jerarquía van por separado.** El contorno de 2 px, las esquinas redondas, Lotito y el movimiento van parejos en todo (eso es la marca). La jerarquía la dan el relleno de color, la sombra dura y el tamaño: una cosa fuerte por pantalla, pocas medias, el resto callado. El color solo se usa si significa algo. Detalle en `/design-system`.
+> **Panel: marca y jerarquía van por separado.** El contorno de 2 px, las esquinas redondas, Punch y el movimiento van parejos en todo (eso es la marca). La jerarquía la dan el relleno de color, la sombra dura y el tamaño: una cosa fuerte por pantalla, pocas medias, el resto callado. El color solo se usa si significa algo. Detalle en `/design-system`.
 
 ## Vibe
 
@@ -20,7 +20,7 @@ Lote se ve como un **dibujo animado hecho a mano**, no como una app. Es lo que l
 - **Color plano, sin degradados ni desenfoques.** Bloques de color liso (mango, limón, rosa, celeste, crema), como un dibujo coloreado con marcador. Las sombras son **duras y desplazadas** (abajo a la derecha), como un sticker despegado del papel.
 - **Formas redondeadas y blandas.** Radios grandes, píldoras, círculos; nada de esquinas filosas. Hasta el toldo, el globo del monito y los cartoncitos de precio tienen las puntas redondeadas.
 - **Un poco torcido a propósito.** Las cosas están pegadas, no alineadas: giros de ±1 a 10° en stickers, etiquetas e ilustraciones sueltas (nunca en texto largo ni en formularios). La perfección geométrica se siente corporativa.
-- **Personaje con voz.** Lotito reacciona como un personaje de caricatura: se asoma, se levanta cuando enfocás el buscador, habla en globos con borde grueso y la cola del globo apunta a él.
+- **Personaje con voz.** Punch reacciona como un personaje de caricatura: se asoma, se levanta cuando enfocás el buscador, habla en globos con borde grueso y la cola del globo apunta a él.
 - **Objetos con carita de ilustración.** Las cosas se dibujan, no se fotografían: la tartaleta, la blusa, el bolso y el case son stickers con el mismo trazo que el monito. Una foto de stock rompe el vibe.
 - **Movimiento de dibujo animado.** Rebote suave (`asomar`, `entra`), balanceo de cosas colgadas (`balancea`), flotar, girar despacito. Todo "squash and stretch" liviano; nada de fundidos lineales ni transiciones de aplicación.
 - **Escenas, no pantallas.** Cuando una sección lo permite, se arma como una escena con objetos puestos en un lugar (el puesto de feria con toldo, mesa y productos; el monito sobre el borde del buscador), con profundidad por capas: fondo, personaje detrás, objetos delante.
@@ -67,8 +67,8 @@ Reglas: un solo mango principal por pantalla; el texto siempre `teal-oscuro` sob
 Prueba en [/marketplace/mercadito](src/app/marketplace/mercadito/page.tsx), componente [HeroMercadito](src/features/catalog/ui/HeroMercadito.tsx). Idea: el Marketplace es **un puesto de feria**, no un banner con fotos pegadas (la feria, el mercado, el tiangue).
 
 - **Toldo** de rayas `teal` y `crema` con borde ondulado, en SVG. El fondo del puesto va en `celeste-palido`: sobre `teal` las rayas verdes desaparecen y el toldo se lee como bultos crema.
-- **El buscador es el centro**: grande, centrado, el único botón mango. Lotito se asoma por detrás de su esquina, con globo ("¿Qué andás buscando?"; al enfocar dice "¡Dale, decime!") y una lupa que levanta al enfocar. El placeholder rota entre frases ("un regalo para mamá…", "algo dulce…") y nombres de productos reales.
-- **La mesa** (`limon`, borde superior `mango`) es donde se apoyan los productos. Las ilustraciones se riegan por todo el hero, cada una con su tamaño, altura y giro, **sin repetir ninguna y sin dos productos del mismo tipo**; el centro (titular, buscador, Lotito) se deja libre.
+- **El buscador es el centro**: grande, centrado, el único botón mango. Punch se asoma por detrás de su esquina, con globo ("¿Qué andás buscando?"; al enfocar dice "¡Dale, decime!") y una lupa que levanta al enfocar. El placeholder rota entre frases ("un regalo para mamá…", "algo dulce…") y nombres de productos reales.
+- **La mesa** (`limon`, borde superior `mango`) es donde se apoyan los productos. Las ilustraciones se riegan por todo el hero, cada una con su tamaño, altura y giro, **sin repetir ninguna y sin dos productos del mismo tipo**; el centro (titular, buscador, Punch) se deja libre.
 - **Ilustraciones** hechas con OpenAI (`pnpm imagenes-mercadito`, [scripts/imagenes-mercadito.mts](scripts/imagenes-mercadito.mts)): estilo sticker plano, trazo grueso `teal-oscuro`, fondo transparente, sin texto ni personas. Viven en [public/mercadito/](public/mercadito/). No son productos reales: los precios son de ejemplo.
 - **Cartoncito de precio** chico, colgado de un hilo en la esquina de arriba, medio afuera de la ilustración para no taparla; se balancea (`balancea`). Al pasar el mouse, el producto se endereza y sube.
 - **Detalles**: contador animado "N productos · N tiendas" y un sello giratorio "Hecho en El Salvador" (`girar-lento`), solo en pantallas grandes, igual que las ilustraciones del fondo. Todo respeta "reducir movimiento".
@@ -89,15 +89,15 @@ Cuando no queremos productos reales (portadas, fondos, estados vacíos) usamos i
 
 Para no repetir vueltas, esto salió de iterar el hero del mercadito con Melissa:
 
-- **Centrado y simétrico.** Con el titular a la izquierda, Lotito a la derecha y el buscador de lado, nada cuadraba. El buscador va al medio y es lo más grande.
+- **Centrado y simétrico.** Con el titular a la izquierda, Punch a la derecha y el buscador de lado, nada cuadraba. El buscador va al medio y es lo más grande.
 - **Baja altura.** Alrededor de 280 px en escritorio. Todo lo que se agrega tiene que caber sin subirla.
 - **Productos chicos y regados**, no en fila ni en grilla; cada uno con otro tamaño, altura y giro. Que se sienta como cosas puestas en un puesto.
 - **Precios discretos.** Cartoncitos de 10 px que no tapen la ilustración.
 - **Sin nombres de producto** y **sin repetir** ilustraciones ni tipos de producto.
-- **Lo que no se toca:** el centro (titular, buscador, Lotito) queda libre de ilustraciones, y el sello va en una esquina.
+- **Lo que no se toca:** el centro (titular, buscador, Punch) queda libre de ilustraciones, y el sello va en una esquina.
 - **Fondo celeste, no verde**, para que el toldo se lea como toldo.
-- **En celular** se oculta lo decorativo (ilustraciones del fondo, sello, Lotito con su globo) y quedan toldo, titular, buscador y la mesa con los productos.
-- **Pendiente:** un dibujo propio de Lotito con la lupa en la mano (hoy es una lupa en SVG sobre el `asoma`); el mercadito todavía vive en una ruta de prueba y no reemplaza el hero de [PaginaExplorar](src/features/catalog/ui/PaginaExplorar.tsx).
+- **En celular** se oculta lo decorativo (ilustraciones del fondo, sello, Punch con su globo) y quedan toldo, titular, buscador y la mesa con los productos.
+- **Pendiente:** un dibujo propio de Punch con la lupa en la mano (hoy es una lupa en SVG sobre el `asoma`); el mercadito todavía vive en una ruta de prueba y no reemplaza el hero de [PaginaExplorar](src/features/catalog/ui/PaginaExplorar.tsx).
 
 ## Tipografía
 
@@ -128,7 +128,7 @@ Componente [Button](src/components/ui/Button.tsx) (`ButtonLink` para enlaces, `e
 ## Tarjetas y estados vacíos
 
 - **Tarjeta** ([Card](src/components/ui/Card.tsx)): fondo blanco, relleno de 20 px, radio de 24 px y borde de 2 px `teal-oscuro`. Las protagonistas suman sombra dura.
-- **Estado vacío** ([EmptyState](src/components/ui/EmptyState.tsx)): recuadro **punteado** de 2 px `teal-oscuro` sobre `crema`, el monito `rosa` asomándose, título corto, una frase con la voz de Lotito y, si se puede, una acción.
+- **Estado vacío** ([EmptyState](src/components/ui/EmptyState.tsx)): recuadro **punteado** de 2 px `teal-oscuro` sobre `crema`, el monito `rosa` asomándose, título corto, una frase con la voz de Punch y, si se puede, una acción.
 - **Chips de estado** ([StatusChip](src/components/ui/StatusChip.tsx)): píldora con ícono y texto, un solo mapa estado → color. Disponible `teal-fondo`, apartado y pendiente `perla`, pagado `rosa-fondo`, enviado `azul-fondo`, entregado `teal`, cancelado `error`, vendido `gris-fondo`. Nunca solo color: siempre ícono y texto.
 
 ## Ventanas (modales) y avisos
@@ -160,7 +160,7 @@ La sombra dura siempre baja y a la derecha (4 px o 3 px; 6 px solo en el hero), 
 - Español salvadoreño con **voseo** (tenés, mandá, apartés). Todos los textos en [src/lib/textos.ts](src/lib/textos.ts).
 - Corto, concreto, con calidez: "Todavía no hay pedidos. Cuando apartés algo, aparece acá."
 - Los estados vacíos hablan con la voz del monito y siempre traen una acción.
-- El buscador habla como Lotito: el globo pregunta "¿Qué andás buscando?", y el placeholder rota con frases como "un regalo para mamá…", "algo dulce…", "una blusa de lino…" más nombres de productos reales.
+- El buscador habla como Punch: el globo pregunta "¿Qué andás buscando?", y el placeholder rota con frases como "un regalo para mamá…", "algo dulce…", "una blusa de lino…" más nombres de productos reales.
 - Títulos y botones con **verbos concretos** ("Guardar cambios", "Cancelar pedido", "Armá tu vitrina gratis"); nunca "Aceptar", "OK" ni "Enviar" a secas.
 - Errores amables y accionables: dicen qué pasó y qué hacer, sin culpar ("Revisá el precio: tiene que ser un número").
 - Las cifras van exactas y con su formato (`$16.00`, "12 productos · 3 tiendas"); el plural se ajusta ("1 tienda", "2 tiendas").
@@ -170,7 +170,7 @@ La sombra dura siempre baja y a la derecha (4 px o 3 px; 6 px solo en el hero), 
 
 - Animaciones con rebote suave (`entra`, `asomar`, `flotar`), y para el mercadito `balancea` (cartoncitos colgando, ±3° cada 3,2 s) y `girar-lento` (sello, una vuelta cada 18 s), definidas en [globals.css](src/app/globals.css); la sección **nunca cambia de tamaño** mientras se anima (reservar el espacio con `invisible`).
 - Todo respeta "reducir movimiento" (`motion-safe:` en CSS, `prefers-reduced-motion` en lo que se anima con JavaScript: el placeholder que rota y el contador). Con movimiento reducido el contador muestra el número final de una vez.
-- Lo que reacciona al usuario es chico y con intención: Lotito se levanta y cambia su globo cuando se enfoca el buscador; los productos se enderezan y suben al pasar el mouse.
+- Lo que reacciona al usuario es chico y con intención: Punch se levanta y cambia su globo cuando se enfoca el buscador; los productos se enderezan y suben al pasar el mouse.
 
 ## Cómo se aplica al panel
 

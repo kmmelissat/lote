@@ -29,13 +29,13 @@ export function periodoInicio(p: string, desde: string, hasta: string, ahora: Da
     contra,
     hasta: restar(periodo.hastaFecha, 1),
   });
-  const rango = (d: string, h: string) => rangoPersonalizado(d, h) ?? rangoPeriodo("semana", ahora);
-  if (p === "mes") return cerrar("mes", rangoPeriodo("mes", ahora), "Este mes", "el mes pasado");
+  const rango = (d: string, h: string) => rangoPersonalizado(d, h) ?? rangoPeriodo("mes", ahora);
+  if (p === "semana") return cerrar("semana", rangoPeriodo("semana", ahora), "Esta semana", "la semana pasada");
   if (p === "90") return cerrar("90", rango(restar(hoy, 89), hoy), "Últimos 90 días", "el periodo anterior");
   if (p === "todo") return cerrar("todo", rango(INICIO_HISTORIAL, hoy), "Todo el historial", "", false);
   const propio = p === "rango" ? rangoPersonalizado(desde, hasta) : null;
   if (propio) return cerrar("rango", propio, "Periodo elegido", "el periodo anterior");
-  return cerrar("semana", rangoPeriodo("semana", ahora), "Esta semana", "la semana pasada");
+  return cerrar("mes", rangoPeriodo("mes", ahora), "Este mes", "el mes pasado");
 }
 
 export type Tramo = { periodo: Periodo; etiqueta: string };

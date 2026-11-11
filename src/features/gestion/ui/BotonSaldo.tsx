@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { useAvisarListo } from "@/components/ui/Toast";
@@ -13,8 +13,19 @@ import { estiloCampo, VentanaConBoton } from "@/components/ui/VentanaConBoton";
 
 const t = textos.gestion.saldo;
 
-function FormSaldo({ cuenta, esperado, cerrar }: { cuenta: string; esperado: number | null; cerrar: () => void }) {
-  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(guardarSaldo, {});
+function FormSaldo({
+  cuenta,
+  esperado,
+  cerrar,
+}: {
+  cuenta: string;
+  esperado: number | null;
+  cerrar: () => void;
+}) {
+  const [estado, accion, pendiente] = useActionState<EstadoGestion, FormData>(
+    guardarSaldo,
+    {},
+  );
   const inicial = esperado === null;
   useAvisarListo(estado);
   // Al guardar, la ventana se cierra sola y los campos quedan limpios
@@ -23,13 +34,24 @@ function FormSaldo({ cuenta, esperado, cerrar }: { cuenta: string; esperado: num
   }, [estado.guardados]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <form key={estado.guardados ?? 0} action={accion} className="flex flex-col gap-4">
+    <form
+      key={estado.guardados ?? 0}
+      action={accion}
+      className="flex flex-col gap-4"
+    >
       <input type="hidden" name="cuenta" value={cuenta} />
-      <p className="text-sm text-texto-2">{inicial ? t.empezaPor : t.ajusteAyuda(formatearDolares(esperado))}</p>
+      <p className="text-sm text-texto-2">
+        {inicial ? t.empezaPor : t.ajusteAyuda(formatearDolares(esperado))}
+      </p>
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold">{inicial ? t.saldoInicial : t.loQueHay}</span>
+        <span className="text-sm font-semibold">
+          {inicial ? t.saldoInicial : t.loQueHay}
+        </span>
         <span className="relative">
-          <span aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-texto-2">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-texto-2"
+          >
             $
           </span>
           <input
@@ -47,14 +69,20 @@ function FormSaldo({ cuenta, esperado, cerrar }: { cuenta: string; esperado: num
       </label>
       {!inicial && (
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-bold">{t.motivo}</span>
-          <input name="nota" required maxLength={120} placeholder={t.motivoPlaceholder} className={estiloCampo} />
+          <span className="text-sm font-semibold">{t.motivo}</span>
+          <input
+            name="nota"
+            required
+            maxLength={120}
+            placeholder={t.motivoPlaceholder}
+            className={estiloCampo}
+          />
         </label>
       )}
       <MensajeError>{estado.error}</MensajeError>
-      <Button type="submit" variante="mango" icono="check" disabled={pendiente}>
+      <BotonPunch type="submit" disabled={pendiente}>
         {pendiente ? t.guardando : inicial ? t.guardarInicial : t.guardarAjuste}
-      </Button>
+      </BotonPunch>
     </form>
   );
 }
@@ -63,7 +91,15 @@ function FormSaldo({ cuenta, esperado, cerrar }: { cuenta: string; esperado: num
  * El botón de cada cuenta: pone el saldo inicial la primera vez y después sirve para ajustarlo a lo que hay de verdad.
  * `discreto` lo dibuja como un enlace de texto, para ir en una línea de la lista sin pesar más que el monto.
  */
-export function BotonSaldo({ cuenta, saldo, discreto = false }: { cuenta: { id: string; nombre: string }; saldo: number | null; discreto?: boolean }) {
+export function BotonSaldo({
+  cuenta,
+  saldo,
+  discreto = false,
+}: {
+  cuenta: { id: string; nombre: string };
+  saldo: number | null;
+  discreto?: boolean;
+}) {
   const nombre = cuenta.nombre;
   const etiqueta = saldo === null ? t.ponerInicial : t.ajustar;
   return (
@@ -72,18 +108,24 @@ export function BotonSaldo({ cuenta, saldo, discreto = false }: { cuenta: { id: 
       titulo={saldo === null ? t.inicialTitulo(nombre) : t.ajusteTitulo(nombre)}
       boton={(abrir) =>
         discreto ? (
-          <button type="button" onClick={abrir} className="-mx-2 inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-sm font-bold text-teal underline decoration-teal/40 underline-offset-4 hover:bg-teal-fondo">
+          <button
+            type="button"
+            onClick={abrir}
+            className="-mx-2 inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-sm font-semibold text-teal underline decoration-teal/40 underline-offset-4 hover:bg-teal-fondo"
+          >
             <Icon nombre="filtros" className="size-4" />
             {etiqueta}
           </button>
         ) : (
-          <Button type="button" variante="suave" tamano="chico" onClick={abrir}>
+          <BotonPunch type="button" variante="secundario" onClick={abrir}>
             {etiqueta}
-          </Button>
+          </BotonPunch>
         )
       }
     >
-      {(cerrar) => <FormSaldo cuenta={cuenta.id} esperado={saldo} cerrar={cerrar} />}
+      {(cerrar) => (
+        <FormSaldo cuenta={cuenta.id} esperado={saldo} cerrar={cerrar} />
+      )}
     </VentanaConBoton>
   );
 }

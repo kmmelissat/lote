@@ -2,7 +2,7 @@
 // agrupa sin adivinar: la tienda solo elige de la lista (nada se escribe a mano). Las mismas categorías están en
 // supabase/catalogo_fijo.sql (tabla categoria_lote); si se cambia una, cambia en los dos lados (una prueba lo cuida).
 //
-// Cada categoría trae `claves`: palabras que la reconocen en un texto libre (importar un CSV, lo que dice Lotito).
+// Cada categoría trae `claves`: palabras que la reconocen en un texto libre (importar un CSV, lo que dice Punch).
 // Una clave con "!" delante pesa el triple: es la que manda cuando el texto nombra dos cosas ("brocha de maquillaje").
 
 import { normalizarTexto } from "@/domain";

@@ -18,9 +18,9 @@ export type ClienteConResumen = {
 };
 
 // La lista solo necesita los totales; los productos de cada pedido se piden solo en la ficha.
-const columnasLista = "id, nombre, contacto, usuario, correo, notas, pedido(codigo, estado, total, saldo, creado_en)";
+const columnasLista = "id, nombre, contacto, usuario, correo, notas, pedido(codigo, estado, total, saldo, contra_entrega, creado_en)";
 const columnasFicha =
-  "id, nombre, contacto, usuario, correo, notas, pedido(codigo, estado, total, saldo, creado_en, pedido_item(cantidad, producto(nombre)))";
+  "id, nombre, contacto, usuario, correo, notas, pedido(codigo, estado, total, saldo, contra_entrega, creado_en, pedido_item(cantidad, producto(nombre)))";
 
 type Fila = {
   id: string;
@@ -34,6 +34,7 @@ type Fila = {
     estado: string;
     total: number;
     saldo: number;
+    contra_entrega: boolean;
     creado_en: string;
     pedido_item?: { cantidad: number; producto: { nombre: string } }[];
   }[];
@@ -46,6 +47,7 @@ function aCliente(f: Fila): ClienteConResumen {
       estado: p.estado as EstadoPedido,
       total: aCentavos(p.total),
       saldo: aCentavos(p.saldo),
+      contraEntrega: p.contra_entrega,
       creadoEn: new Date(p.creado_en),
       productos: (p.pedido_item ?? []).map((i) => `${i.producto.nombre} ×${i.cantidad}`).join(", "),
     }))

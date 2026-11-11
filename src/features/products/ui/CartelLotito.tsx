@@ -8,7 +8,7 @@ const l = textos.productos.form.lotito;
 
 export type EstadoLotito = "quieto" | "leyendo" | "listo" | "borrosa" | "sin_ia";
 
-/** Lotito en pose y con una frase corta: lo que está haciendo con la foto. `accion` va al final (por ejemplo, deshacer). */
+/** Punch en pose y con una frase corta: lo que está haciendo con la foto. `accion` va al final (por ejemplo, deshacer). */
 export function CartelLotito({ estado, accion }: { estado: EstadoLotito; accion?: ReactNode }) {
   const [frase, setFrase] = useState(0);
   useEffect(() => {

@@ -38,11 +38,13 @@ export type Pedido = {
   contraEntrega: boolean;
   creadoEn: Date;
   cliente: string | null;
+  /** Teléfono, usuario u otro dato con el que se le escribe al cliente */
+  contacto: string | null;
   items: ItemPedido[];
 };
 
 const columnas =
-  "id, codigo, canal, estado, total, descuento, saldo, vence_en, envio_cobrado, envio_absorbido, contra_entrega, creado_en, cliente(nombre), pedido_item(cantidad, precio_final, producto(nombre, codigo, fotos))";
+  "id, codigo, canal, estado, total, descuento, saldo, vence_en, envio_cobrado, envio_absorbido, contra_entrega, creado_en, cliente(nombre, contacto), pedido_item(cantidad, precio_final, producto(nombre, codigo, fotos))";
 
 type Fila = {
   id: string;
@@ -57,7 +59,7 @@ type Fila = {
   envio_absorbido: number;
   contra_entrega: boolean;
   creado_en: string;
-  cliente: { nombre: string } | null;
+  cliente: { nombre: string; contacto: string | null } | null;
   pedido_item: {
     cantidad: number;
     precio_final: number;
@@ -80,6 +82,7 @@ const aPedido = (f: Fila): Pedido => ({
   contraEntrega: f.contra_entrega,
   creadoEn: new Date(f.creado_en),
   cliente: f.cliente?.nombre ?? null,
+  contacto: f.cliente?.contacto ?? null,
   items: f.pedido_item.map((i) => ({
     cantidad: i.cantidad,
     precioFinal: aCentavos(i.precio_final),
@@ -325,6 +328,22 @@ export async function cambiarEstadoPedido(
     p_estado: estado,
   });
   return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
+}
+
+/** Cancela un pedido y anota por qué (la base valida permiso y estado, igual que cambiar_estado_pedido) */
+export async function cancelarPedido(
+  supabase: Cliente,
+  pedidoId: string,
+  motivo: string | null,
+): Promise<{ ok: true } | { ok: false; error: ErrorPedido }> {
+  const { error } = await supabase.rpc("cancelar_pedido", { p_pedido: pedidoId, ...(motivo ? { p_motivo: motivo } : {}) });
+  return error ? { ok: false, error: aErrorPedido(error) } : { ok: true };
+}
+
+/** El motivo con el que se canceló un pedido, o null si no se anotó */
+export async function motivoDeCancelacion(supabase: Cliente, pedidoId: string): Promise<string | null> {
+  const { data } = await supabase.from("pedido").select("motivo_cancelacion").eq("id", pedidoId).maybeSingle();
+  return data?.motivo_cancelacion ?? null;
 }
 
 /** Cuánto debe todavía un pedido. Null si no existe o no es del negocio de la persona (lo filtra RLS). */

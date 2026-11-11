@@ -3,7 +3,7 @@ import { MONITOS } from "@/components/ui/Monito";
 
 export type PoseLotito = "asoma" | "saluda" | "thumbsup" | "calculadora" | "celular";
 
-/** Lotito a color: misma pose que el monito original. */
+/** Punch a color: misma pose que el monito original. */
 export function LotitoMas({ nombre, className = "w-24" }: { nombre: PoseLotito; className?: string }) {
   const [ancho, alto] = MONITOS[nombre];
   return (

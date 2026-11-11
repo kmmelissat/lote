@@ -1,19 +1,16 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition, type FormEvent, type ReactNode } from "react";
-import { Button } from "@/components/ui/Button";
-import { BotonIcono } from "@/components/ui/BotonIcono";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { OpcionRadio } from "@/components/ui/OpcionRadio";
-import { Card } from "@/components/ui/Card";
+import { TARJETA_PUNCH } from "@/components/ui/BotonesPunch";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
 import { Field } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
 import { MensajeError } from "@/components/ui/MensajeError";
-import { TituloPaso } from "@/components/ui/TituloPaso";
 import { useAvisarListo } from "@/components/ui/Toast";
 import { Select } from "@/components/ui/Select";
 import { leerDolares, repartirEnvio, type EstadoPedido, type QuienPagaEnvio } from "@/domain/index";
-import { armarMensajeEnvio } from "../mensajeEnvio";
 import { tarifaDe, type Envio, type ModoEntrega, type Tarifas } from "../repositorio";
 import { DEPARTAMENTOS } from "@/lib/departamentos";
 import { dolaresTexto, formatearDolares } from "@/lib/formato";
@@ -34,25 +31,33 @@ type Props = {
   puedeVender: boolean;
   /** Lo que se le pagó a la paquetera, al pie: es parte del mismo envío */
   pagoPaquetera?: ReactNode;
+  /** El link de rastreo del cliente, en lugar del mensaje para copiar */
+  seguimiento?: ReactNode;
 };
 
 /**
  * El envío del pedido. Guardado, se lee como un resumen y se edita aparte: el formulario abierto todo el tiempo repetía
  * los mismos datos dos veces. Sin envío todavía, el formulario ya viene abierto.
  */
-export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVender, pagoPaquetera }: Props) {
+export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVender, pagoPaquetera, seguimiento }: Props) {
   const cerrado = estado === "entregado" || estado === "cancelado";
   const editable = puedeVender && !cerrado;
   const [editando, setEditando] = useState(!envio && editable);
 
   return (
-    <Card role="region" aria-labelledby="enviopedido" className="flex flex-col gap-4">
+    <section aria-labelledby="enviopedido" className={`${TARJETA_PUNCH} flex flex-col gap-4`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <TituloPaso numero={3} id="enviopedido">
-          {t.titulo}
-        </TituloPaso>
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <h2 id="enviopedido" className="text-base font-semibold">{t.titulo}</h2>
+          {!envio && !cerrado && (
+            <span className="rounded-lg border border-linea bg-chip-amarillo px-2.5 py-0.5 text-xs font-medium text-chip-texto-amarillo">{t.chipSin}</span>
+          )}
+        </div>
         {envio && editable && !editando && (
-          <BotonIcono variante="suave" tamano="chico" icono="editar" etiqueta={t.editar} onClick={() => setEditando(true)} />
+          <BotonPunch type="button" variante="secundario" onClick={() => setEditando(true)}>
+            <Icon nombre="editar" className="size-4 shrink-0" />
+            {t.editar}
+          </BotonPunch>
         )}
       </div>
 
@@ -67,13 +72,13 @@ export function EnvioPedido({ pedidoId, estado, cliente, envio, tarifas, puedeVe
           alCancelar={envio ? () => setEditando(false) : undefined}
         />
       ) : envio ? (
-        <ResumenEnvio pedidoId={pedidoId} cliente={cliente} envio={envio} />
+        <ResumenEnvio envio={envio} seguimiento={seguimiento} />
       ) : (
         <p className="text-texto-2">{cerrado ? t.cerrado : t.sinEnvio}</p>
       )}
 
       {!editando && pagoPaquetera}
-    </Card>
+    </section>
   );
 }
 
@@ -82,37 +87,19 @@ function costoDelEnvio(envio: Envio): string {
   return t.costoResumen[envio.paga](formatearDolares(envio.costo));
 }
 
-function ResumenEnvio({ pedidoId, cliente, envio }: { pedidoId: string; cliente: string | null; envio: Envio }) {
-  const [aviso, setAviso] = useState("");
+function ResumenEnvio({ envio, seguimiento }: { envio: Envio; seguimiento?: ReactNode }) {
   const conDireccion = envio.modo !== "retiro";
   const direccion = [envio.direccion, envio.municipio, envio.departamento].filter(Boolean).join(", ");
   const recibe = [envio.nombre, envio.telefono].filter(Boolean).join(" · ");
 
-  async function copiarMensaje() {
-    try {
-      await navigator.clipboard.writeText(
-        armarMensajeEnvio({
-          cliente,
-          modo: envio.modo,
-          paquetera: envio.paquetera,
-          guia: envio.guia,
-          enlace: `${window.location.origin}/p/${pedidoId}`,
-        }),
-      );
-      setAviso(t.copiado);
-    } catch {
-      setAviso(t.noSePudoCopiar);
-    }
-  }
-
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3 rounded-2xl bg-fondo p-3">
-        <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full border border-teal-oscuro bg-celeste">
+      <div className="flex items-center gap-3 rounded-[24px] bg-gris-50 p-3">
+        <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-xl bg-ficha-celeste text-teal-oscuro">
           <Icon nombre={ICONO_MODO[envio.modo]} className="size-5" />
         </span>
         <div className="min-w-0">
-          <p className="font-bold">
+          <p className="font-semibold">
             {t.modos[envio.modo]}
             {envio.modo === "paquetera" && envio.paquetera ? ` · ${envio.paquetera}` : ""}
           </p>
@@ -149,14 +136,7 @@ function ResumenEnvio({ pedidoId, cliente, envio }: { pedidoId: string; cliente:
         </dl>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="button" variante="secundario" tamano="chico" icono="copiar" onClick={copiarMensaje}>
-          {t.copiarMensaje}
-        </Button>
-        <p role="status" className="text-sm text-texto-2">
-          {aviso}
-        </p>
-      </div>
+      {seguimiento}
     </div>
   );
 }
@@ -214,17 +194,18 @@ function FormEnvio({
 
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-sm font-medium">{t.modo}</legend>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {MODOS.map((m) => (
-            <OpcionRadio
+            <label
               key={m}
-              name="modo"
-              value={m}
-              icono={ICONO_MODO[m]}
-              titulo={t.modos[m]}
-              checked={modo === m}
-              onChange={() => setModo(m)}
-            />
+              className={`flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-[14px] border px-2 py-2 text-center text-sm font-medium transition-colors has-focus-visible:ring-[3px] has-focus-visible:ring-teal/30 ${
+                modo === m ? "border-teal bg-teal-fondo text-teal-oscuro ring-[3px] ring-teal/15" : "border-linea bg-superficie text-texto-2 hover:border-borde-control"
+              }`}
+            >
+              <input type="radio" name="modo" value={m} checked={modo === m} onChange={() => setModo(m)} className="sr-only" />
+              <Icon nombre={ICONO_MODO[m]} className="size-5" />
+              {t.modos[m]}
+            </label>
           ))}
         </div>
         <p className="text-sm text-texto-2">{t.ayudaModos[modo]}</p>
@@ -235,7 +216,14 @@ function FormEnvio({
 
       {modo !== "retiro" && (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {modo === "paquetera" && (
+            <div className="flex flex-col gap-4 rounded-[20px] bg-gris-50 p-4">
+              <Field etiqueta={t.paquetera} name="paquetera" defaultValue={envio?.paquetera ?? ""} />
+              <Field etiqueta={t.guia} name="guia" defaultValue={envio?.guia ?? ""} />
+            </div>
+          )}
+
+          <div className="flex flex-col gap-4 border-t border-linea pt-4">
             <Field etiqueta={t.nombre} name="nombre" defaultValue={envio?.nombre ?? cliente ?? ""} />
             <CampoTelefono etiqueta={t.telefono} name="telefono" defaultValue={envio?.telefono ?? ""} ayuda={t.errorTelefono} />
             <label className="flex flex-col gap-1.5">
@@ -250,21 +238,11 @@ function FormEnvio({
               </Select>
             </label>
             <Field etiqueta={t.municipio} name="municipio" defaultValue={envio?.municipio ?? ""} />
-            <div className="sm:col-span-2">
-              <Field etiqueta={t.direccion} name="direccion" required defaultValue={envio?.direccion ?? ""} />
-            </div>
-            <div className="sm:col-span-2">
-              <Field etiqueta={t.referencia} name="referencia" defaultValue={envio?.referencia ?? ""} />
-            </div>
-            {modo === "paquetera" && (
-              <>
-                <Field etiqueta={t.paquetera} name="paquetera" defaultValue={envio?.paquetera ?? ""} />
-                <Field etiqueta={t.guia} name="guia" defaultValue={envio?.guia ?? ""} />
-              </>
-            )}
+            <Field etiqueta={t.direccion} name="direccion" required defaultValue={envio?.direccion ?? ""} />
+            <Field etiqueta={t.referencia} name="referencia" defaultValue={envio?.referencia ?? ""} />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 border-t border-borde pt-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-4 border-t border-linea pt-4">
             <div className="flex flex-col gap-1">
               <Field
                 etiqueta={t.costo}
@@ -298,14 +276,14 @@ function FormEnvio({
         </>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" icono="check" disabled={pendiente}>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+        <BotonPunch type="submit" disabled={pendiente}>
           {pendiente ? t.guardando : t.guardar}
-        </Button>
+        </BotonPunch>
         {alCancelar && (
-          <Button type="button" variante="suave" onClick={alCancelar} disabled={pendiente}>
+          <BotonPunch type="button" variante="secundario" onClick={alCancelar} disabled={pendiente}>
             {t.cancelar}
-          </Button>
+          </BotonPunch>
         )}
       </div>
       <MensajeError>{estadoForm.error}</MensajeError>

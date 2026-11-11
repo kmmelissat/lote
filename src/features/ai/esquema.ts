@@ -73,7 +73,7 @@ export const SalidaEntender = z.object({
   variantes: z.array(VarianteDicha),
   /** Qué es lo que cambia entre las variantes: "Sabor", "Color", "Talla", "Modelo". Null si no hay variantes. */
   opcionVariante: z.string().nullable(),
-  /** Solo si Lotito dejó una pregunta pendiente: true si el mensaje es la respuesta a esa pregunta, false si es otra cosa */
+  /** Solo si Punch dejó una pregunta pendiente: true si el mensaje es la respuesta a esa pregunta, false si es otra cosa */
   esRespuesta: z.boolean(),
   /** Las demás acciones del mismo mensaje, en el orden en que las dijo. Vacío si pidió una sola cosa. */
   ademas: z.array(AccionExtra),
