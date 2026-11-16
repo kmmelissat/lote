@@ -8,7 +8,7 @@ export type MarcaDeTienda = { color: string; logo: string | null };
 // Con cuántas unidades se avisa "Quedan N" (la tienda lo configura; en el Marketplace es fijo)
 const POCAS_UNIDADES = 5;
 
-// Los colores de Lote, no los de cada tienda
+// Los colores de Punch, no los de cada tienda
 const COLORES_LOTE = storeThemeVars(null);
 
 /** Lo que el Marketplace sabe de un producto, con la forma que pide la tarjeta de la vitrina. */

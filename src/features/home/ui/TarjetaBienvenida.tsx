@@ -34,11 +34,11 @@ export function TarjetaBienvenida({ nombre, slug, conVitrina }: { nombre: string
   }
 
   return (
-    <Card tono="marca" role="region" aria-labelledby="bienvenida" className="relative overflow-hidden text-crema shadow-dura motion-safe:animate-entra">
+    <Card tono="marca" role="region" aria-labelledby="bienvenida" className="relative overflow-hidden text-crema shadow-xs motion-safe:animate-entra">
       {/* Confeti de cuaderno: pegado a mano, sin significado */}
-      <span aria-hidden="true" className="absolute right-44 top-5 hidden size-4 rotate-12 rounded-sm border border-teal-oscuro bg-limon sm:block" />
-      <span aria-hidden="true" className="absolute right-28 top-14 hidden size-3 -rotate-12 rounded-full border border-teal-oscuro bg-rosa sm:block" />
-      <span aria-hidden="true" className="absolute right-56 top-16 hidden size-3.5 rotate-45 rounded-sm border border-teal-oscuro bg-mango sm:block" />
+      <span aria-hidden="true" className="absolute right-44 top-5 hidden size-4 rotate-12 rounded-sm border border-linea bg-chip-amarillo sm:block" />
+      <span aria-hidden="true" className="absolute right-28 top-14 hidden size-3 -rotate-12 rounded-full border border-linea bg-rosa sm:block" />
+      <span aria-hidden="true" className="absolute right-56 top-16 hidden size-3.5 rotate-45 rounded-sm border border-linea bg-chip-amarillo sm:block" />
 
       <div className="absolute right-3 top-3 z-10">
         <BotonIconoLink icono="x" etiqueta={t.cerrar} href="/inicio" />
@@ -60,7 +60,7 @@ export function TarjetaBienvenida({ nombre, slug, conVitrina }: { nombre: string
               {t.enlace}
             </span>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <p className="flex min-h-12 min-w-0 items-center gap-1 rounded-full border border-teal-oscuro bg-white px-4 text-sm text-teal-oscuro shadow-dura-chica">
+              <p className="flex min-h-12 min-w-0 items-center gap-1 rounded-full border border-linea bg-white px-4 text-sm text-teal-oscuro shadow-xs">
                 <span className="sr-only">{t.enlace}: </span>
                 <span className="hidden shrink-0 text-texto-2 sm:inline">{dominio}/c/</span>
                 <span className="truncate font-bold">{slug}</span>

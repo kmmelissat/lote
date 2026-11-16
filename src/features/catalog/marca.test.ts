@@ -31,13 +31,13 @@ describe("colores de marca", () => {
     expect(colorDeMarca("#FF9A2E").id).toBe("mango");
   });
 
-  it("ausente o inválido cae en el de Lote", () => {
+  it("ausente o inválido cae en el de Punch", () => {
     expect(colorDeMarca(null)).toBe(COLOR_POR_DEFECTO);
     expect(colorDeMarca("rojo")).toBe(COLOR_POR_DEFECTO);
     expect(colorDeMarca("#fff")).toBe(COLOR_POR_DEFECTO);
   });
 
-  it("los botones principales usan el color de la tienda si eligió uno, y el mango de Lote si no", () => {
+  it("los botones principales usan el color de la tienda si eligió uno, y el mango de Punch si no", () => {
     expect(estiloDeMarca("#ff9a2e")).toMatchObject({
       "--color-accion": "#ff9a2e",
       "--color-accion-texto": TEXTO_OSCURO,

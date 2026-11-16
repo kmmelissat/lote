@@ -15,7 +15,7 @@ const foco = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visib
 const tarjeta = `group relative flex overflow-hidden rounded-3xl text-teal-oscuro transition-transform duration-200 hover:-translate-y-0.5 ${foco}`;
 
 /**
- * El mosaico de promos de la portada: "Ofertas del día" (grande, con un collage de productos en oferta) y, apiladas, "Nuevos en Lote"
+ * El mosaico de promos de la portada: "Ofertas del día" (grande, con un collage de productos en oferta) y, apiladas, "Nuevos en Punch"
  * y "Tienda del momento". Cada tarjeta es un solo enlace. Altura total de 300px en escritorio.
  */
 export function MosaicoPromos({

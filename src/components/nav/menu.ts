@@ -46,8 +46,8 @@ export const gruposMenu: { titulo: string; rutas: Route[] }[] = [
 
 /** El relleno de color de cada sección en el menú: uno vivo y distinto por sección, sin repetir. Clases completas, para que Tailwind las vea. */
 export const FONDO_SECCION: Record<string, string> = {
-  "/inicio": "bg-limon",
-  "/vender": "bg-mango",
+  "/inicio": "bg-chip-amarillo",
+  "/vender": "bg-chip-amarillo",
   "/productos": "bg-rosa",
   "/pedidos": "bg-celeste",
   "/clientes": "bg-menta",

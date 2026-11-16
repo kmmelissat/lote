@@ -260,7 +260,7 @@ export function BalanceGeneral({
       </section>
 
       {cuentas.some((c) => c.saldo === null) && (
-        <section className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-3xl border border-teal-oscuro/20 bg-gris-50 p-5">
+        <section className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-3xl border border-linea/20 bg-gris-50 p-5">
           <div className="min-w-0 flex-1 basis-64">
             <h2 className="font-semibold">{b.empieza.titulo}</h2>
             <p className="mt-0.5 text-sm text-texto-2">{b.empieza.texto}</p>

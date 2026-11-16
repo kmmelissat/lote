@@ -21,14 +21,14 @@ describe("getStoreTheme", () => {
     });
   }
 
-  it("gris, blanco, negro, inválido y vacío usan el teal de Lote", () => {
+  it("gris, blanco, negro, inválido y vacío usan el teal de Punch", () => {
     const lote = getStoreTheme(TEAL_LOTE);
     for (const malo of ["#888888", "#ffffff", "#000000", "rojo", "#12345", "", null, undefined]) {
       expect(getStoreTheme(malo), String(malo)).toEqual(lote);
     }
   });
 
-  it("el teal de Lote se queda como está", () => {
+  it("el teal de Punch se queda como está", () => {
     expect(getStoreTheme(TEAL_LOTE).buttonBg).toBe(TEAL_LOTE);
   });
 

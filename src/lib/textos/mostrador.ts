@@ -24,6 +24,7 @@ export const mostrador = {
   promoCadaUna: "Cada opción tiene su promo",
   opciones: (n: number) => `${n} opciones`,
   volverAProductos: "Todos los productos",
+  deEsteProducto: (n: number) => (n === 1 ? "1 en la venta" : `${n} en la venta`),
 
   carrito: "Venta",
   carritoVacio: "Tocá un producto o escaneá su código para agregarlo.",

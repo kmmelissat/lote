@@ -1,11 +1,11 @@
 import type { ComponentProps } from "react";
 import { TARJETA_BASE } from "./tarjeta";
 
-/** Plano: borde fino, para lo que se lee. Tarjeta: el contenido principal. Interactivo: lo que se toca (lleva sombra dura y se levanta). */
+/** Plano: borde fino, para lo que se lee. Tarjeta: el contenido principal. Interactivo: lo que se toca (se aclara al pasar el mouse). */
 const niveles = {
-  plano: "min-w-0 rounded-[24px] border border-borde",
+  plano: "min-w-0 rounded-[24px] border border-linea",
   tarjeta: TARJETA_BASE,
-  interactivo: `${TARJETA_BASE} shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura`,
+  interactivo: `${TARJETA_BASE} transition-colors duration-150 hover:bg-gris-50`,
 } as const;
 
 /** Blanca de base; aviso y error solo cuando la tarjeta avisa algo. */
@@ -13,7 +13,7 @@ const tonos = {
   neutra: "bg-superficie",
   /** Lo principal de la pantalla o una celebración: una sola por pantalla. */
   marca: "bg-teal text-white",
-  aviso: "bg-limon",
+  aviso: "bg-chip-amarillo",
   error: "bg-error-fondo",
 } as const;
 

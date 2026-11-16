@@ -86,7 +86,7 @@ function Modal({ abierto, cerrar }: { abierto: Abierto; cerrar: (r: boolean | st
           <fieldset className="mt-3 grid grid-cols-2 gap-2">
             <legend className="sr-only">{abierto.titulo}</legend>
             {abierto.opciones.map((o) => (
-              <label key={o.valor} className="flex min-h-14 cursor-pointer items-center justify-center rounded-[14px] border border-linea px-3 text-center font-medium text-texto-2 transition-colors hover:border-borde-control has-checked:border-teal has-checked:bg-teal-fondo has-checked:text-teal-oscuro has-checked:ring-[3px] has-checked:ring-teal/15 has-focus-visible:ring-[3px] has-focus-visible:ring-teal/30">
+              <label key={o.valor} className="flex min-h-14 cursor-pointer items-center justify-center rounded-[14px] border border-linea px-3 text-center font-medium text-texto-2 transition-colors hover:border-linea has-checked:border-teal has-checked:bg-teal-fondo has-checked:text-teal-oscuro has-checked:ring-[3px] has-checked:ring-teal/15 has-focus-visible:ring-[3px] has-focus-visible:ring-teal/30">
                 <input
                   type="radio"
                   name="elegido"

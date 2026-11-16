@@ -3,7 +3,7 @@ import { Pie } from "@/components/ui/Pie";
 import { PieReducido } from "@/components/ui/PieReducido";
 import { PieSegunRuta } from "@/components/ui/PieSegunRuta";
 
-// Páginas públicas: sin barra inferior ni menú, con la marca de Lote al pie (plan gratis).
+// Páginas públicas: sin barra inferior ni menú, con la marca de Punch al pie (plan gratis).
 export default function PublicoLayout({ children }: LayoutProps<"/c">) {
   return (
     <div className="flex min-h-dvh flex-col overflow-x-clip bg-crema [--color-crema:var(--color-fondo)]">

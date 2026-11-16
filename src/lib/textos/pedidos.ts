@@ -278,7 +278,7 @@ export const pedidos = {
     listo: "Pago registrado.",
     comprobante: {
       etiqueta: "Subí el comprobante de transferencia",
-      ayuda: "Lote lee el monto y lo deja puesto abajo. Vos revisás y registrás. La imagen no se guarda.",
+      ayuda: "Punch lee el monto y lo deja puesto abajo. Vos revisás y registrás. La imagen no se guarda.",
       leyendo: "Leyendo el comprobante…",
       sinMonto: "No pudimos leer el monto. Escribilo a mano.",
       exacto: (leido: string) => `Leímos ${leido} y coincide con lo que debe el pedido. Revisá y tocá Registrar pago.`,
@@ -348,7 +348,7 @@ export const pedidos = {
   },
   form: {
     titulo: "Registrar venta o apartado",
-    descripcion: "Elegí qué se lleva y para quién es. Lote cuida que no se prometa dos veces.",
+    descripcion: "Elegí qué se lleva y para quién es. Punch cuida que no se prometa dos veces.",
     tipo: "¿Qué querés registrar?",
     apartado: "Apartado",
     apartadoAyuda: "Se guarda para esa persona hasta que pague.",
@@ -373,7 +373,7 @@ export const pedidos = {
     contacto: "WhatsApp o @usuario (opcional)",
     contactoAyuda: "Un WhatsApp de 8 números (el 503 se pone solo) o un @usuario.",
     acepta: "Aceptó recibir avisos por WhatsApp",
-    aceptaAyuda: "Solo si te lo dijo. Así Lote le avisa cuando mandes su pedido o le falte un abono.",
+    aceptaAyuda: "Solo si te lo dijo. Así Punch le avisa cuando mandes su pedido o le falte un abono.",
     errorContactoSinNombre: "Poné el nombre del cliente para guardar su contacto.",
     canal: "Canal",
     pago: "Cómo pagó",

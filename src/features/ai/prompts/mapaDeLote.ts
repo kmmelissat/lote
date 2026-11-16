@@ -19,11 +19,12 @@ Dónde está cada cosa en el panel (menú de abajo en celular, menú lateral en 
 
 Dónde se configura cada cosa (todo lo de Mi tienda es solo de quien es titular del negocio):
 - Mi tienda (/ajustes/tienda) tiene cinco pestañas:
-  - Tu tienda: nombre, frase, logo, color de marca, WhatsApp, Instagram y Facebook, si hay vitrina o no, la dirección del enlace (/c/<tu-tienda>), si se puede comprar, apartar o solo escribir, el plazo de los apartados, tiempo de entrega, política de cambios y si aparece en el Marketplace.
-  - Ventas: "¿Qué hacés?" (compro y vendo, produzco o las dos cosas: cambia los costos que se piden en un producto, por ejemplo Materiales y Mano de obra para quien produce), "Vendo en persona" (activa la caja y el código de barras en cada producto) y desde cuántas unidades avisar de poco stock.
+  - Negocio: nombre, logo, WhatsApp, Instagram, Facebook y TikTok.
+  - Tienda en línea (/ajustes/tienda?seccion=vitrina): si hay vitrina o no, la dirección del enlace (/c/<tu-tienda>), si se puede comprar, apartar o solo escribir, el plazo de los apartados y si aparece en el Marketplace.
+  - Apariencia (/ajustes/tienda?seccion=apariencia): banner, color de marca, frase, tiempo de entrega y política de cambios.
+  - Ventas: "¿Qué hacés?" (compro y vendo, produzco o las dos cosas: cambia los costos que se piden en un producto, por ejemplo Materiales y Mano de obra para quien produce), "Vendo en persona" (activa la caja y el código de barras en cada producto) desde cuántas unidades avisar de poco stock y el contexto del negocio para Punch, para que escriba las fichas como quien lleva el negocio las escribiría.
   - Pagos (/ajustes/tienda?seccion=pagos): los datos de pago (transferencia, efectivo, contra entrega). Salen en cada mensaje de cobro.
   - Envíos (/ajustes/tienda?seccion=envios): quién gestiona los envíos (hoy los gestiona quien lleva el negocio; que Lote los gestione con paquetera viene pronto), si se puede recoger en la tienda, a qué departamentos y municipios entrega y cuánto cobra por el envío.
-  - Punch: el contexto del negocio, para que escriba las fichas como quien lleva el negocio las escribiría.
 - Equipo (/ajustes/equipo): invitar con un enlace de un solo uso (vence en 7 días), cambiar el rol o quitar el acceso. Roles: titular del negocio, administración, ventas y solo lectura. Solo quien es titular lo cambia.
 - Categorías: son una lista fija de Lote, la misma para todas las tiendas (rubro y categoría, por ejemplo Belleza > Brochas y esponjas). Se elige una al crear o editar un producto; no se crean ni se renombran. Así los productos de todas las tiendas quedan ordenados igual en el Marketplace.
 - Reseñas (/ajustes/resenas): las reseñas llegan pendientes y la tienda decide cuáles publicar, ocultar o borrar; también puede agregar las suyas.

@@ -1,4 +1,4 @@
-/** Cómo quiere la persona que le hable Lote. Es gramática, no una pregunta sobre su identidad. */
+/** Cómo quiere la persona que le hable Punch. Es gramática, no una pregunta sobre su identidad. */
 export const TRATOS = ["ella", "el", "neutro"] as const;
 export type Trato = (typeof TRATOS)[number];
 export const esTrato = (v: unknown): v is Trato => TRATOS.includes(v as Trato);
@@ -13,7 +13,7 @@ const ROLES_PROPIOS: Record<string, Record<Trato, string>> = {
 };
 
 /**
- * El nombre del rol de la persona que usa Lote, como ella lo quiere leer. Para hablar de otras personas (el equipo, una invitación)
+ * El nombre del rol de la persona que usa Punch, como ella lo quiere leer. Para hablar de otras personas (el equipo, una invitación)
  * no se sabe su trato: ahí van los nombres sin género de `textos.perfil.roles`.
  */
 export function rolPropio(rol: string, trato: Trato): string | undefined {

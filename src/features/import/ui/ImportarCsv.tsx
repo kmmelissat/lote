@@ -51,7 +51,7 @@ export function ImportarCsv({ negocioId }: { negocioId: string }) {
   const malas = validadas.length - buenas;
   const grupos = new Set(validadas.flatMap((v) => (v.ok && v.fila.grupo ? [v.fila.grupo] : []))).size;
   const tieneRequeridos = REQUERIDOS.every((c) => mapeo[c] !== undefined);
-  // Las categorías del archivo que no se parecen a ninguna del catálogo de Lote: esos productos se crean sin categoría
+  // Las categorías del archivo que no se parecen a ninguna del catálogo de Punch: esos productos se crean sin categoría
   const categoriasFaltan = useMemo(
     () => categoriasSinReconocer(validadas.flatMap((v) => (v.ok ? [v.fila.categoria] : []))),
     [validadas],

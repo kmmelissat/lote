@@ -26,15 +26,18 @@ export function BotonLanding<T extends string>({
   enOscuro?: boolean;
   className?: string;
 }) {
-  const color = variante === "mango" ? "bg-mango text-teal-oscuro" : variante === "teal" ? "bg-teal text-white" : "bg-superficie text-teal-oscuro";
-  const marco = enOscuro
-    ? "border-crema shadow-[3px_3px_0_0_var(--color-crema)] hover:shadow-[5px_5px_0_0_var(--color-crema)]"
-    : "border-teal-oscuro shadow-dura-chica hover:shadow-dura";
+  const color = enOscuro
+    ? "bg-white text-teal-oscuro hover:bg-gris-50"
+    : variante === "mango"
+      ? "bg-teal-oscuro text-white hover:bg-teal"
+      : variante === "teal"
+        ? "bg-teal text-white hover:bg-teal-oscuro"
+        : "border border-linea bg-superficie text-teal-oscuro hover:bg-gris-50";
   return (
     <Link
       href={href}
       data-cta=""
-      className={`inline-flex ${chico ? "h-10 px-5 text-sm" : "h-12 px-7 text-base"} items-center justify-center gap-2 rounded-full border font-bold transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none ${color} ${marco} ${className}`}
+      className={`inline-flex ${chico ? "h-10 px-5 text-sm" : "h-12 px-7 text-base"} items-center justify-center gap-2 rounded-full font-semibold transition-colors ${color} ${className}`}
     >
       {children}
     </Link>

@@ -12,19 +12,19 @@ export type NegocioActual = {
   logo: string | null;
   /** El de la vitrina pública: /c/<slug> */
   slug: string;
-  /** La vitrina es opcional: sin ella Lote sirve igual para registrar ventas y ver ganancia y stock */
+  /** La vitrina es opcional: sin ella Punch sirve igual para registrar ventas y ver ganancia y stock */
   vitrinaActiva: boolean;
   /** Si vende en persona desde un local: solo entonces aparecen el Mostrador y la caja */
   tieneLocal: boolean;
   /** Qué hace: revende, produce o las dos cosas. Cambia los costos que se piden en un producto */
   actividad: Actividad;
-  /** Si la tienda eligió aparecer en Explorar, el escaparate con las tiendas de Lote */
+  /** Si la tienda eligió aparecer en Explorar, el escaparate con las tiendas de Punch */
   visibleEnExplorar: boolean;
   /** Con cuántas unidades disponibles un producto cuenta como "poco stock" */
   umbralPocoStock: number;
   /** La persona que hace la petición */
   usuarioId: string;
-  /** Cómo quiere que le hable Lote (lo dijo al crear su negocio); sin género si no lo dijo */
+  /** Cómo quiere que le hable Punch (lo dijo al crear su negocio); sin género si no lo dijo */
   trato: Trato;
   rol: string;
   puedeGestionar: boolean;

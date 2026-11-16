@@ -23,7 +23,7 @@ export function Pestanas({ etiqueta, pestanas, activa }: { etiqueta: string; pes
               <Link
                 href={p.href}
                 aria-current={actual ? "page" : undefined}
-                className={`inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-[10px] border px-3.5 text-sm font-medium transition-colors md:min-h-9 ${
+                className={`inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-[10px] border px-3.5 text-base font-medium transition-colors md:min-h-9 ${
                   actual ? "border-linea bg-superficie text-teal-oscuro shadow-xs" : "border-transparent text-texto-2 hover:text-teal-oscuro"
                 }`}
               >

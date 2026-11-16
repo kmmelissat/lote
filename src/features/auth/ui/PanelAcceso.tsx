@@ -10,7 +10,7 @@ import { COOKIE_DESTINO } from "../rutaSegura";
 const t = textos.acceso;
 
 const botonBase =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-teal-oscuro font-bold text-teal-oscuro shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-60";
+  "inline-flex h-12 items-center justify-center gap-2 rounded-[14px] border border-linea font-medium text-teal-oscuro shadow-xs transition-colors duration-150 hover:bg-gris-50 disabled:opacity-60";
 const botonClaro = `${botonBase} bg-white`;
 
 /**
@@ -49,7 +49,7 @@ export function PanelAcceso({ destino, errorInicial = "" }: { destino: string | 
   if (estado === "enviado") {
     return (
       <div className="flex flex-col gap-4">
-        <div role="status" className="flex flex-col gap-2 rounded-[18px] border border-teal-oscuro bg-limon p-4">
+        <div role="status" className="flex flex-col gap-2 rounded-[18px] border border-linea bg-chip-amarillo p-4">
           <h2 className="text-lg font-bold">{t.revisaTitulo}</h2>
           <p>{t.enviadoA(correo.trim())}</p>
           <p className="text-sm text-teal-oscuro/80">{t.mismoNavegador}</p>
@@ -74,9 +74,9 @@ export function PanelAcceso({ destino, errorInicial = "" }: { destino: string | 
       </button>
 
       <div className="flex items-center gap-3 text-sm text-texto-2">
-        <span className="h-0.5 flex-1 rounded-full bg-teal-oscuro/15" />
+        <span className="h-px flex-1 bg-linea" />
         {t.separador}
-        <span className="h-0.5 flex-1 rounded-full bg-teal-oscuro/15" />
+        <span className="h-px flex-1 bg-linea" />
       </div>
 
       <form data-formulario="login_correo" onSubmit={conCorreo} className="flex flex-col gap-4">
@@ -84,7 +84,7 @@ export function PanelAcceso({ destino, errorInicial = "" }: { destino: string | 
           <Field etiqueta={t.correo} type="email" name="correo" autoComplete="email" required value={correo} onChange={(e) => setCorreo(e.target.value)} />
           <p className="text-sm text-texto-2">{t.correoAyuda}</p>
         </div>
-        <button type="submit" disabled={estado === "enviando"} className={`${botonBase} bg-mango px-6`}>
+        <button type="submit" disabled={estado === "enviando"} className={`${botonBase} !border-teal-oscuro !bg-teal-oscuro !text-white hover:!bg-teal px-6`}>
           {estado === "enviando" ? t.enviando : t.enviar}
         </button>
       </form>

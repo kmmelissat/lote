@@ -199,7 +199,7 @@ function FormEnvio({
             <label
               key={m}
               className={`flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-[14px] border px-2 py-2 text-center text-sm font-medium transition-colors has-focus-visible:ring-[3px] has-focus-visible:ring-teal/30 ${
-                modo === m ? "border-teal bg-teal-fondo text-teal-oscuro ring-[3px] ring-teal/15" : "border-linea bg-superficie text-texto-2 hover:border-borde-control"
+                modo === m ? "border-teal bg-teal-fondo text-teal-oscuro ring-[3px] ring-teal/15" : "border-linea bg-superficie text-texto-2 hover:border-linea"
               }`}
             >
               <input type="radio" name="modo" value={m} checked={modo === m} onChange={() => setModo(m)} className="sr-only" />

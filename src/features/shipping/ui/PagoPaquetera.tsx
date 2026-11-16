@@ -67,7 +67,7 @@ function FormPago({ pedidoId, costo, pago, cuentas, cerrar }: { pedidoId: string
 export function PagoPaquetera({ pedidoId, costo, pago, cuentas }: { pedidoId: string; costo: Centavos; pago: PagoAPaquetera | null; cuentas: readonly Cuenta[] }) {
   const deDonde = cuentas.find((c) => c.id === pago?.cuenta)?.nombre ?? (pago ? textos.gestion.lugares[pago.lugar] : "");
   return (
-    <section aria-labelledby="pagopaquetera" className="flex flex-wrap items-center justify-between gap-3 border-t border-borde pt-4">
+    <section aria-labelledby="pagopaquetera" className="flex flex-wrap items-center justify-between gap-3 border-t border-linea pt-4">
       <div className="min-w-0">
         <h3 id="pagopaquetera" className="font-semibold">
           {t.titulo}

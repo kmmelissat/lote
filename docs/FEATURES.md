@@ -83,8 +83,8 @@ Detalle de diseño y reglas en [GESTION.md](GESTION.md). La sección "Dinero" (`
 - ❌ Chatear con Punch desde el celular por WhatsApp (falta el webhook de entrada).
 
 ### Tienda, equipo y datos
-- ✅ **Mi tienda**: nombre, frase, logo, **banner** (imagen ancha 4:1 que se recorta al subir; sin ella la vitrina muestra una franja del color de marca; necesita `banner_tienda.sql`), color de marca, dirección de la vitrina (`/c/<tu-tienda>`), contacto (WhatsApp, Instagram, Facebook, TikTok), «¿Qué hacés?» (revendo, produzco o ambos), tiempo de entrega y política de cambios, y contexto para Punch.
-- ✅ **Crear negocio** (`/crear-negocio`): un cuaderno de cinco hojas (nombre y trato, de qué es el negocio, qué hacés, cómo vendés y la tienda en línea, revisar). Solo el nombre es obligatorio.
+- ✅ **Mi tienda** (`/ajustes/tienda`, pestañas Negocio, Tienda en línea, Apariencia, Ventas, Pagos y Envíos; la vitrina se reparte entre Tienda en línea —enlace, Marketplace, cómo piden— y Apariencia —banner, frase, color con vista previa, entrega y cambios—): nombre, frase, logo, **banner** (imagen ancha 4:1 que se recorta al subir; sin ella la vitrina muestra una franja del color de marca; necesita `banner_tienda.sql`), color de marca, dirección de la vitrina (`/c/<tu-tienda>`), contacto (WhatsApp, Instagram, Facebook, TikTok), «¿Qué hacés?» (revendo, produzco o ambos), tiempo de entrega y política de cambios, y contexto para Punch.
+- ✅ **Crear negocio** (`/crear-negocio`): tres pantallas (el negocio y vos con el trato; qué hacés, rubro y frase; cómo vendés y tienda en línea), en una tarjeta centrada, con círculos de color que se mueven en cada paso. Solo el nombre es obligatorio.
 - ✅ La vitrina es opcional: se prende y se apaga. También se decide si se puede comprar, apartar o solo escribir, y si aparecer en el Marketplace.
 - ✅ **Equipo y roles**: la dueña invita por enlace de un solo uso (vence en 7 días) y asigna rol; una persona se puede quitar al instante.
 
@@ -200,7 +200,7 @@ Cada sección, sus rutas y dónde está su código (en `src/features/` salvo que
 | Movimientos | `/movimientos` | `profit` (ganancia por periodo, gastos, movimientos, productos que no se mueven); la pantalla está en `src/app/(panel)/_pantallas/` |
 | Vender y caja | `/vender`, `/vender/caja` | `counter` |
 | Punch | `/asistente` (y la burbuja en todo el panel) | `assistant` (`motor.ts` decide qué hacer; `intenciones/` cada acción), `ai` (OpenAI y los prompts) |
-| Ajustes | `/ajustes` (índice), `/ajustes/tienda` (con secciones; `/ajustes/pagos`, `/envios` y `/vitrina` redirigen ahí), `/ajustes/equipo`, `/resenas`, `/exportar` (`/ajustes/ayuda` redirige a `/ayuda`) | `store-settings`, `team`, `reviews`, `export` (`/api/exportar/<tipo>`) |
+| Ajustes | `/ajustes` (índice), `/ajustes/tienda` (cinco pestañas: Negocio, Tienda en línea `?seccion=vitrina`, Ventas con el contexto de Punch, Pagos y Envíos; `/ajustes/pagos`, `/envios` y `/vitrina` redirigen ahí), `/ajustes/equipo`, `/resenas`, `/exportar` (`/ajustes/ayuda` redirige a `/ayuda`) | `store-settings`, `team`, `reviews`, `export` (`/api/exportar/<tipo>`) |
 | Vitrina | `/c/<tienda>`, `/c/<tienda>/<código>` (`/comprar`, `/apartar`), `/c/<tienda>/carrito` (`/comprar`) | `catalog`, `reviews` |
 | Seguimiento | `/p/<pedido>` | `tracking` |
 | Marketplace | `/marketplace`, `/marketplace/tiendas` (todas las tiendas: buscador por nombre, chips por rubro, tarjetas), `/marketplace/pedidos`, `/marketplace/cuenta` (perfil, dirección y pedidos recientes), `/marketplace/categoria/<nombre>` (`/calle` y `/mercadito` eran prototipos y redirigen) | `catalog` |
@@ -209,7 +209,6 @@ Cada sección, sus rutas y dónde está su código (en `src/features/` salvo que
 | Landing y ayuda | `/`, `/ayuda`, `/privacidad`, `/terminos` | `landing`, `ayuda` |
 | Avisos por WhatsApp | `/api/cron/avisos` (tarea diaria de Vercel; también registra los gastos fijos) | `whatsapp` |
 | Sistema de diseño | `/design-system` | `design-system` |
-| Presentación | `/presentacion?s=<lámina>` (pública, pantalla completa; teclas F y N) | `presentacion` (`laminas.ts` es el contenido) |
 
 Lo compartido:
 

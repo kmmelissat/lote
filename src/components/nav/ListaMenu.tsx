@@ -36,12 +36,12 @@ export function ListaMenu({
 }) {
   const letra = grande ? "text-base" : "text-sm";
   const icono = grande ? "size-6" : "size-5";
-  const forma = `flex ${grande ? "min-h-24" : "min-h-20"} w-full flex-col justify-between gap-2 rounded-2xl border border-teal-oscuro p-2.5 ${letra} font-bold text-teal-oscuro transition-[transform,background-color]`;
+  const forma = `flex ${grande ? "min-h-24" : "min-h-20"} w-full flex-col justify-between gap-2 rounded-2xl border border-linea p-2.5 ${letra} font-bold text-teal-oscuro transition-[transform,background-color]`;
 
   /** El ícono dentro de su cuadrito de color, con lo que va a la derecha (el contador, o la flechita de los que abren afuera). */
   const cabecera = (nombre: NombreIcono, fondo: string, activa: boolean, derecha: React.ReactNode) => (
     <span className="flex items-start justify-between gap-1">
-      <span className={`flex size-9 items-center justify-center rounded-xl border border-teal-oscuro ${activa ? "bg-superficie" : fondo}`}>
+      <span className={`flex size-9 items-center justify-center rounded-xl border border-linea ${activa ? "bg-superficie" : fondo}`}>
         <Icon nombre={nombre} className={icono} />
       </span>
       {derecha}
@@ -56,7 +56,7 @@ export function ListaMenu({
         target="_blank"
         rel="noreferrer"
         title={etiqueta}
-        className={`${forma} bg-superficie ${PINTA_HOVER_SECCION[clave] ?? "hover:bg-limon/40"}`}
+        className={`${forma} bg-superficie ${PINTA_HOVER_SECCION[clave] ?? "hover:bg-chip-amarillo/40"}`}
       >
         {cabecera(nombre, FONDO_SECCION[clave] ?? "bg-superficie", false, null)}
         <span className="truncate">{etiqueta}</span>
@@ -80,7 +80,7 @@ export function ListaMenu({
               href={p.href}
               aria-current={activa ? "page" : undefined}
               title={p.etiqueta}
-              className={`${forma} ${activa ? `${fondo} -translate-y-0.5 shadow-dura-chica` : `bg-superficie ${PINTA_HOVER_SECCION[p.href] ?? "hover:bg-limon/40"}`}`}
+              className={`${forma} ${activa ? `${fondo} -translate-y-0.5 shadow-xs` : `bg-superficie ${PINTA_HOVER_SECCION[p.href] ?? "hover:bg-chip-amarillo/40"}`}`}
             >
               {cabecera(p.icono, fondo, activa, p.href === "/pedidos" ? <Insignia n={porAtender} urgente={urgente} enCamino={enCamino} /> : null)}
               <span className="truncate">{p.etiqueta}</span>

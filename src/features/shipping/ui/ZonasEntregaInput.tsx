@@ -1,6 +1,5 @@
 "use client";
 
-import { Aviso } from "@/components/ui/Aviso";
 import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
 import { DEPARTAMENTOS, MUNICIPIOS, type Departamento, type ZonasEntrega } from "@/lib/departamentos";
@@ -12,7 +11,7 @@ export type Marcadas = Partial<Record<Departamento, string[]>>;
 
 const ficha = (activa: boolean) =>
   `inline-flex min-h-9 cursor-pointer items-center rounded-full border px-3 text-sm font-bold transition-colors ${
-    activa ? "border-teal-oscuro bg-teal-fondo" : "border-borde-control bg-white hover:bg-fondo"
+    activa ? "border-teal-oscuro bg-teal-fondo" : "border-linea bg-white hover:bg-fondo"
   } has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-teal`;
 
 /** El estado interno: "el departamento entero" es la lista con todos sus municipios, para marcarlos uno a uno. */
@@ -57,7 +56,7 @@ export function ZonasEntregaInput({
       <input type="hidden" name="zonas" value={JSON.stringify(marcadas)} />
 
       {todo ? (
-        <Aviso>{t.todoElPaisNota}</Aviso>
+        <p className="text-sm text-texto-2">{t.todoElPaisNota}</p>
       ) : (
         <>
           <p className="text-sm font-bold text-teal" aria-live="polite">
@@ -81,7 +80,7 @@ export function ZonasEntregaInput({
             const lista = marcadas[d] ?? [];
             const todos = lista.length === MUNICIPIOS[d].length;
             return (
-              <div key={d} role="group" aria-label={t.municipios(d)} className="flex flex-col gap-2 rounded-2xl border border-teal-oscuro bg-white p-3">
+              <div key={d} role="group" aria-label={t.municipios(d)} className="flex flex-col gap-2 rounded-2xl border border-linea bg-white p-3">
                 <p className="text-sm">
                   <span className="font-bold">{d}</span>
                   <span className="text-texto-2"> · {todos ? t.departamentoEntero : t.parcial(lista.length, MUNICIPIOS[d].length)}</span>

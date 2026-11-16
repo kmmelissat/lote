@@ -1,96 +1,63 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Globo } from "@/components/ui/Globo";
-import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
-import { LotitoMas } from "@/components/ui/LotitoMas";
-import { Pie } from "@/components/ui/Pie";
 import { textos } from "@/lib/textos";
 
 // Entrar y crear negocio no tienen nada que indexar: la landing es la puerta pública.
 export const metadata: Metadata = { robots: { index: false, follow: true } };
 
-// Cada beneficio es un sticker pegado a mano: su giro, su color, su dibujo y su cinta
-const NOTAS = [
-  { giro: "-rotate-1", fondo: "bg-limon", icono: "camara", tono: "bg-white", cinta: "left-6 rotate-3" },
-  { giro: "rotate-1", fondo: "bg-rosa", icono: "caja", tono: "bg-limon", cinta: "right-8 -rotate-2" },
-  { giro: "-rotate-[0.5deg]", fondo: "bg-white", icono: "ganancia", tono: "bg-mango", cinta: "left-1/2 rotate-2" },
-] as const;
+const t = textos.acceso;
 
-// Entrar y crear negocio comparten el marco: en pantalla ancha, un panel de marca a la izquierda.
+// Entrar comparte marco con las demás pantallas de acceso: a la izquierda, la frase de marca.
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
     <>
-    <div className="grid min-h-dvh md:grid-cols-[1fr_1fr] lg:grid-cols-[5fr_6fr]">
-      <aside className="relative hidden flex-col justify-between gap-8 overflow-hidden border-r border-teal-oscuro bg-crema bg-[radial-gradient(var(--color-teal-oscuro)_1px,transparent_1.5px)] bg-[length:22px_22px] p-10 md:flex">
-        <Link href="/" aria-label={textos.nombre} className="relative z-10 self-start">
-          <Logo />
-        </Link>
-
-        {/* Sello de feria, girando despacito */}
-        <svg viewBox="0 0 120 120" aria-hidden="true" className="absolute right-10 top-10 hidden size-24 xl:block">
-          <g className="motion-safe:animate-girar-lento" style={{ transformOrigin: "60px 60px" }}>
-            <circle cx="60" cy="60" r="58" fill="var(--color-mango)" stroke="var(--color-teal-oscuro)" strokeWidth="2" />
-            <path id="sello-acceso" d="M60 60m-40 0a40 40 0 1 1 80 0a40 40 0 1 1 -80 0" fill="none" />
-            <text fontSize="11.5" fontWeight="800" fill="var(--color-teal-oscuro)" letterSpacing="1.5">
-              <textPath href="#sello-acceso">{textos.explorar.mercadito.sello}</textPath>
-            </text>
-          </g>
-          <text x="60" y="72" textAnchor="middle" fontSize="26" fontWeight="800" fill="var(--color-teal-oscuro)">
-            SV
-          </text>
-        </svg>
-
-        <div className="relative z-10 flex max-w-md flex-col gap-7">
-          <h2 className="text-4xl font-bold leading-[1.05] tracking-tight">
-            <span className="bg-[linear-gradient(transparent_86%,var(--color-limon)_86%,var(--color-limon)_100%)] box-decoration-clone pb-0.5">
-              {textos.acceso.beneficiosTitulo}
-            </span>
-          </h2>
-          <ul className="flex flex-col gap-4">
-            {textos.acceso.beneficios.map((b, i) => {
-              const n = NOTAS[i % NOTAS.length];
-              return (
-                <li
-                  key={b}
-                  className={`relative flex items-center gap-3 rounded-2xl border border-teal-oscuro px-4 py-3 font-medium shadow-dura-chica ${n.giro} ${n.fondo}`}
-                >
-                  <span aria-hidden="true" className={`absolute -top-2.5 h-4 w-14 rounded-sm border border-teal-oscuro/30 bg-celeste/70 ${n.cinta}`} />
-                  <span className={`flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal-oscuro text-teal-oscuro ${n.tono}`}>
-                    <Icon nombre={n.icono} className="size-5" />
-                  </span>
-                  {b}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        {/* Punch sentado en la esquina, con su globo */}
-        <div className="relative z-10 flex items-end justify-between gap-4">
-          <p className="max-w-[16rem] text-sm font-medium text-teal-oscuro/80">{textos.eslogan}</p>
-        </div>
-        {/* Contenedor aparte: el Globo ya es `relative`, y pisaba al `absolute` dejándolo estirado en el flujo */}
-        <div className="absolute bottom-44 right-52 z-10 -rotate-2">
-          <Globo className="whitespace-nowrap">{textos.acceso.globoLateral}</Globo>
-        </div>
-        <LotitoMas nombre="saluda" className="absolute -bottom-3 right-6 w-56 motion-safe:animate-asomar" />
-      </aside>
-      <main className="flex flex-col justify-center bg-superficie px-4 py-10 md:px-12 lg:px-20">
-        <div className="mx-auto flex w-full max-w-sm flex-col gap-6 lg:max-w-md has-[[data-ancho=amplio]]:max-w-3xl has-[[data-ancho=amplio]]:lg:max-w-3xl">
-          <div className="flex items-center justify-between gap-3">
-            <Link href="/" aria-label={textos.nombre} className="md:hidden">
-              <Logo />
-            </Link>
-            <Link href="/" className="ml-auto inline-flex min-h-11 items-center text-sm font-bold text-teal underline">
-              ← {textos.acceso.volver}
-            </Link>
+      <div className="grid min-h-dvh md:grid-cols-2">
+        <aside className="relative hidden flex-col gap-10 overflow-hidden bg-ficha-amarillo/25 p-10 md:flex lg:p-14">
+          {/* Fondo de papel de cuaderno: puntitos suaves, un círculo claro donde se apoya la ilustración (así sus sombras grises se ven naturales) y un manchón pastel. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(var(--color-teal-oscuro)_1px,transparent_1.5px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent_70%)]"
+          />
+          <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-20 size-[560px] rounded-full bg-white/80" />
+          <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-1/3 size-64 rounded-full bg-ficha-celeste/60" />
+          <Link href="/" aria-label={textos.nombre} className="relative z-10 self-start">
+            <Logo />
+          </Link>
+          <div className="relative z-10 flex flex-col gap-8">
+            <h2 className="max-w-xl text-4xl font-bold leading-[1.4] tracking-tight lg:text-[46px]">
+              {t.lema.antes}{" "}
+              <span className="inline-block -rotate-2 rounded-xl bg-ficha-amarillo px-2">{t.lema.chiquito}</span>{" "}
+              {t.lema.medio}{" "}
+              <span className="inline-block rotate-1 rounded-xl bg-ficha-rosa px-2">{t.lema.grande}</span>{" "}
+              {t.lema.despues}
+            </h2>
+            <p className="max-w-xl text-base leading-relaxed text-teal-oscuro/80">{t.lemaAyuda}</p>
           </div>
-          {children}
-        </div>
-      </main>
-    </div>
-    <Pie />
+          {/* Ilustración dibujada a mano: va debajo del texto y sangra por abajo y por la derecha. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/login/mesa.webp"
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none relative -mb-10 -mr-10 mt-auto w-[calc(100%+1rem)] max-w-none self-end lg:-mb-14 lg:-mr-14 lg:w-[calc(100%+2rem)]"
+          />
+        </aside>
+
+        <main className="flex flex-col justify-center bg-superficie px-4 py-10 md:px-12 lg:px-20">
+          <div className="mx-auto flex w-full max-w-md flex-col gap-6 has-[[data-ancho=amplio]]:max-w-3xl">
+            <div className="flex items-center justify-between gap-3">
+              <Link href="/" aria-label={textos.nombre} className="md:hidden">
+                <Logo />
+              </Link>
+              <Link href="/" className="ml-auto inline-flex min-h-11 items-center text-sm font-medium text-teal underline">
+                ← {t.volver}
+              </Link>
+            </div>
+            {children}
+          </div>
+        </main>
+      </div>
     </>
   );
 }

@@ -2,7 +2,6 @@ import { Icon } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
 import { contenedor, Mini } from "../comun";
 import { Aparece, ApareceGrupo, ApareceItem } from "./Aparece";
-import { Sticker } from "./piezasLanding";
 
 const t = textos.landing;
 
@@ -11,21 +10,21 @@ type ClaveBloque = "estado" | "vitrina" | "modos" | "balance" | "ganancia" | "pe
 
 // Lo que ven tus clientes
 const TIENDA: Bloque[] = [
-  { clave: "vitrina", color: "bg-rosa", span: "md:col-span-2" },
-  { clave: "modos", color: "bg-limon", span: "md:col-span-2" },
-  { clave: "descubrir", color: "bg-crema", span: "md:col-span-2" },
+  { clave: "vitrina", color: "bg-ficha-rosa", span: "md:col-span-2" },
+  { clave: "modos", color: "bg-ficha-amarillo", span: "md:col-span-2" },
+  { clave: "descubrir", color: "bg-gris-50", span: "md:col-span-2" },
 ];
 
 // Lo que ves vos
 const CUENTAS: Bloque[] = [
-  { clave: "estado", color: "bg-crema", span: "md:col-span-3" },
-  { clave: "balance", color: "bg-limon", span: "md:col-span-3" },
-  { clave: "ganancia", color: "bg-celeste", span: "md:col-span-2" },
-  { clave: "pedidos", color: "bg-rosa-palido", span: "md:col-span-2" },
-  { clave: "asistente", color: "bg-mango", span: "md:col-span-2" },
-  { clave: "importar", color: "bg-celeste-palido", span: "md:col-span-2" },
-  { clave: "foto", color: "bg-rosa-palido", span: "md:col-span-2" },
-  { clave: "mostrador", color: "bg-crema", span: "md:col-span-2" },
+  { clave: "estado", color: "bg-gris-50", span: "md:col-span-3" },
+  { clave: "balance", color: "bg-ficha-amarillo", span: "md:col-span-3" },
+  { clave: "ganancia", color: "bg-ficha-celeste", span: "md:col-span-2" },
+  { clave: "pedidos", color: "bg-gris-50", span: "md:col-span-2" },
+  { clave: "asistente", color: "bg-ficha-amarillo", span: "md:col-span-2" },
+  { clave: "importar", color: "bg-gris-50", span: "md:col-span-2" },
+  { clave: "foto", color: "bg-gris-50", span: "md:col-span-2" },
+  { clave: "mostrador", color: "bg-gris-50", span: "md:col-span-2" },
 ];
 
 /** Recorte chiquito adentro de cada tarjeta, para que no sean solo título y párrafo. */
@@ -35,8 +34,8 @@ function Recorte({ de }: { de: ClaveBloque }) {
     return (
       <dl className="mt-auto grid grid-cols-3 gap-2">
         {f.estado.contadores.map(([n, etiqueta]) => (
-          <div key={etiqueta} className="flex flex-col items-center rounded-2xl border border-teal-oscuro bg-celeste-palido py-2">
-            <dd className="text-2xl font-extrabold leading-none tabular-nums">{n}</dd>
+          <div key={etiqueta} className="flex flex-col items-center rounded-2xl border border-linea bg-gris-50 py-2">
+            <dd className="text-2xl font-bold leading-none tabular-nums">{n}</dd>
             <dt className="mt-1 text-[11px] font-bold text-texto-2">{etiqueta}</dt>
           </div>
         ))}
@@ -56,7 +55,7 @@ function Recorte({ de }: { de: ClaveBloque }) {
     return (
       <ul className="mt-auto flex flex-wrap gap-2">
         {f.modos.opciones.map((o, i) => (
-          <li key={o} className={`rounded-full border border-teal-oscuro px-4 py-1.5 text-sm font-extrabold shadow-dura-chica ${["bg-mango", "bg-white", "bg-celeste"][i]}`}>
+          <li key={o} className={`rounded-full border border-linea px-4 py-1.5 text-sm font-bold shadow-xs ${["bg-ficha-amarillo", "bg-white", "bg-ficha-celeste"][i]}`}>
             {o}
           </li>
         ))}
@@ -65,14 +64,14 @@ function Recorte({ de }: { de: ClaveBloque }) {
   }
   if (de === "balance") {
     return (
-      <dl className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-teal-oscuro bg-white p-3 text-sm font-bold">
+      <dl className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-linea bg-white p-3 text-sm font-bold">
         {f.balance.filas.map(([nombre, valor]) => (
           <div key={nombre} className="flex justify-between gap-2">
             <dt>{nombre}</dt>
             <dd className="tabular-nums">{valor}</dd>
           </div>
         ))}
-        <div className="mt-1 flex justify-between gap-2 border-t border-teal-oscuro pt-2 text-base font-extrabold">
+        <div className="mt-1 flex justify-between gap-2 border-t border-linea pt-2 text-base font-bold">
           <dt>{f.balance.total[0]}</dt>
           <dd className="tabular-nums">{f.balance.total[1]}</dd>
         </div>
@@ -81,16 +80,16 @@ function Recorte({ de }: { de: ClaveBloque }) {
   }
   if (de === "mostrador") {
     return (
-      <div className="mt-auto flex flex-col gap-1 rounded-2xl border border-teal-oscuro bg-white p-3 text-sm font-bold">
+      <div className="mt-auto flex flex-col gap-1 rounded-2xl border border-linea bg-white p-3 text-sm font-bold">
         {f.mostrador.lineas.map(([nombre, valor]) => (
           <div key={nombre} className="flex justify-between gap-2">
             <span>{nombre}</span>
             <span className="tabular-nums">{valor}</span>
           </div>
         ))}
-        <div className="mt-1 flex items-center justify-between gap-2 border-t border-teal-oscuro pt-2 font-extrabold">
+        <div className="mt-1 flex items-center justify-between gap-2 border-t border-linea pt-2 font-bold">
           <span>{f.mostrador.total}</span>
-          <span className="rounded-full border border-teal-oscuro bg-mango px-3 py-0.5">{f.mostrador.cobrar}</span>
+          <span className="rounded-full border border-linea bg-ficha-amarillo px-3 py-0.5">{f.mostrador.cobrar}</span>
         </div>
       </div>
     );
@@ -98,7 +97,7 @@ function Recorte({ de }: { de: ClaveBloque }) {
   if (de === "ganancia") {
     return (
       <div className="mt-auto flex items-end justify-between gap-2">
-        <span className="text-[40px] font-extrabold leading-none tracking-tight">{f.ganancia.valor}</span>
+        <span className="text-[40px] font-bold leading-none tracking-tight">{f.ganancia.valor}</span>
         <Mini src="/landing/ganancia.webp" className="size-14" />
       </div>
     );
@@ -108,7 +107,6 @@ function Recorte({ de }: { de: ClaveBloque }) {
       <div className="relative mt-auto flex flex-col gap-1.5 pr-10">
         <p className="max-w-[90%] self-end rounded-2xl rounded-br-md bg-teal px-3 py-1.5 text-sm font-bold text-white">{f.asistente.tu}</p>
         <p className="rounded-2xl rounded-bl-md bg-white px-3 py-1.5 text-sm font-bold">{f.asistente.lote}</p>
-        <Sticker src="/landing/chat.webp" className="-right-1 -top-7 w-12 rotate-12" />
       </div>
     );
   }
@@ -129,7 +127,7 @@ function Recorte({ de }: { de: ClaveBloque }) {
   }
   if (de === "descubrir") {
     return (
-      <figure className="mt-auto rotate-1 bg-white p-3 shadow-[3px_3px_0_0_rgba(0,56,68,0.25)]">
+      <figure className="mt-auto  bg-white p-3 shadow-xs">
         <blockquote className="text-sm font-semibold leading-snug">«{f.descubrir.cita}»</blockquote>
         <figcaption className="mt-1 text-xs font-bold">{f.descubrir.quien}</figcaption>
       </figure>
@@ -143,7 +141,7 @@ function GrupoFunciones({ titulo, intro, bloques, desde = 0 }: { titulo: string;
   return (
     <div className="flex flex-col gap-6">
       <Aparece className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <h3 className="text-[30px] font-extrabold leading-tight tracking-tight text-teal-oscuro md:text-[38px]">{titulo}</h3>
+        <h3 className="text-[30px] font-bold leading-tight tracking-tight text-teal-oscuro md:text-[38px]">{titulo}</h3>
         <p className="text-[17px] font-medium text-teal-oscuro/75">{intro}</p>
       </Aparece>
       <ApareceGrupo className="grid grid-cols-1 gap-6 md:grid-cols-6">
@@ -152,9 +150,9 @@ function GrupoFunciones({ titulo, intro, bloques, desde = 0 }: { titulo: string;
           return (
             <ApareceItem
               key={b.clave}
-              className={`flex min-h-44 flex-col gap-3 rounded-[28px] border border-teal-oscuro p-6 shadow-[6px_6px_0_0_var(--color-teal-oscuro)] md:transition-transform md:duration-200 md:hover:-translate-y-1 ${b.color} ${b.span} ${(n + desde) % 2 ? "md:hover:rotate-1" : "md:hover:-rotate-1"}`}
+              className={`flex min-h-44 flex-col gap-3 rounded-[28px] border border-linea p-6 shadow-xs md:transition-transform md:duration-200 md:hover:-translate-y-1 ${b.color} ${b.span} ${(n + desde) % 2 ? "" : ""}`}
             >
-              <h4 className="text-[26px] font-extrabold leading-[1.05] tracking-tight text-teal-oscuro">{x.titulo}</h4>
+              <h4 className="text-[26px] font-bold leading-[1.05] tracking-tight text-teal-oscuro">{x.titulo}</h4>
               <p className="text-[16px] font-medium leading-relaxed text-teal-oscuro/90">{x.texto}</p>
               <Recorte de={b.clave} />
             </ApareceItem>
@@ -171,7 +169,7 @@ export function Funciones() {
     <section id="funciones" className="relative scroll-mt-24 overflow-x-clip bg-white py-16 md:py-28" aria-labelledby="funciones-mas">
       <div className={`${contenedor} flex flex-col gap-14`}>
         <Aparece>
-          <h2 id="funciones-mas" className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.03em] text-teal-oscuro md:text-[64px]">
+          <h2 id="funciones-mas" className="font-logo text-[36px] font-semibold leading-[1.1] text-teal-oscuro md:text-[52px]">
             {f.titulo}
           </h2>
         </Aparece>

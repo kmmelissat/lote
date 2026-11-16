@@ -1,5 +1,5 @@
 export const landing = {
-  titulo: "Lote · Tu tienda en línea y tus cuentas claras",
+  titulo: "Punch · Tu tienda en línea y tus cuentas claras",
   descripcion:
     "Para quienes venden por redes sociales: una tienda en línea con tu enlace, donde te compran, y tus cuentas claras con inventario, pedidos, cobros, ganancia y balance.",
   palabrasClave: [
@@ -27,58 +27,60 @@ export const landing = {
   irAlPanel: "Ir a mi panel",
   hero: {
     etiqueta: "Para quienes venden por redes sociales",
-    tituloInicio: "Tu tienda en línea",
-    tituloMarca: "y tus cuentas claras.",
-    texto: "Un enlace para que te compren, y adentro tus pedidos, cobros y balance, sin llevar el control dos veces.",
+    tituloInicio: "Todo tu negocio",
+    tituloMarca: "en un solo lugar",
+    texto: "Inventario, pedidos, cobros, ganancia y balance, sin llevar el control en chats y libretas. Y tu tienda en línea, cuando la quieras.",
     verComo: "Ver cómo funciona",
     nota: "Gratis para empezar. Sin tarjeta.",
     ejemplo: "Así se ve (datos de ejemplo)",
-    // Datos de ejemplo: la tienda del celular, las tarjetas que flotan alrededor y la ganancia.
+    // Datos de ejemplo: la tienda del celular y las tarjetas del panel que flotan alrededor.
+    // `foto`: ruta en /public (por ejemplo "/landing/producto-1.webp"); sin ella se ve un bloque de color.
     mock: {
       tienda: "Mi tienda",
-      pedir: "Pedir por WhatsApp",
+      inicial: "M",
+      direccion: "/c/mi-tienda",
       buscar: "Buscá un producto",
+      categorias: ["Todo", "Fundas", "Llaveros", "Aretes"],
+      carrito: "Ver carrito · 2",
       productos: [
-        { clave: "case-silicon", nombre: "Silicón liso", precio: "$15.00" },
-        { clave: "case-corazones", nombre: "Corazones", precio: "$25.00" },
-        { clave: "case-estrellas", nombre: "Con estrellas", precio: "$19.00" },
-        { clave: "case-brillos", nombre: "Con brillos", precio: "$18.00" },
+        { nombre: "Funda corazón con puntos", precio: "$18.00", color: "bg-ficha-rosa", foto: "/landing/producto-1.jpeg" as string | null },
+        { nombre: "Funda lunares verde", precio: "$22.00", color: "bg-ficha-verde", foto: "/landing/producto-2.jpeg" as string | null },
+        { nombre: "Funda silicón fucsia", precio: "$15.00", color: "bg-ficha-rosa", foto: "/landing/producto-3.jpeg" as string | null },
+        { nombre: "Funda puntitos amarilla", precio: "$19.00", color: "bg-ficha-amarillo", foto: "/landing/producto-4.jpeg" as string | null },
       ],
-      envio: "Envío a domicilio",
-      venta: { titulo: "Venta nueva · $15.00", texto: "Silicón liso · pago recibido" },
-      pregunta: "¿Lo tenés en lila?",
-      pedido: { titulo: "Pedido #12 · Silicón liso", estado: "Enviado · llega mañana" },
-      enlace: { titulo: "Tu tienda con enlace propio.", antes: "Pegalo en tu bio y ", resalte: "te compran sin escribirte", despues: "." },
-      ganancia: { etiqueta: "Ganancia de este mes", monto: "$374.00" },
-      comprar: "Comprar",
+      ganancia: { etiqueta: "Ganancia de la semana", monto: "$374.00", cambio: "+12 % vs. semana pasada" },
+      pedido: { titulo: "Pedido #12", cliente: "Ana Martínez", detalle: "Funda silicón fucsia", estado: "Enviado", total: "$15.00" },
+      pago: { titulo: "Pago recibido", texto: "Ana Martínez · $15.00" },
+      poco: { titulo: "Quedan 2", texto: "Funda lunares verde" },
     },
   },
   marquesina: ["Publicado", "Apartado", "Cobrado", "Enviado", "Cuadrado"],
   problema: {
-    titulo: "Si vendés por redes, esto te suena",
-    intro: "Hablamos con cinco emprendimientos que venden por redes sociales. En los cinco pasó lo mismo.",
-    carrusel: "Lo que encontramos en las entrevistas",
+    titulo: "De un desorden a todo en su lugar",
+    antes: "antes",
+    despues: "con Punch",
+    notas: [
+      "¿todavía hay la azul?? 😰",
+      "¿cuánto gané??? 🤷‍♀️",
+      "¿pagó o no pagó? a buscar en el chat…",
+      "libreta + Excel + notas ✏️",
+      "¿envío $3? ¿empaque $1?",
+    ],
     items: [
       {
-        dato: "5 de 5",
-        titulo: "Prometiste algo que ya se vendió",
-        texto: "La publicación sigue arriba, el chat quedó enterrado y otra persona pregunta por la misma pieza.",
-        cita: "Casi le confirmé el mismo producto a dos personas.",
-        quien: "Ternuritos",
+        etiqueta: "Inventario",
+        titulo: "Solo lo que de verdad tenés",
+        texto: "Se descuenta con cada pedido, y tu tienda muestra solo lo que hay.",
       },
       {
-        dato: "5 de 5",
-        titulo: "No sabés cuánto ganaste",
-        texto: "Vendiste bien, pero entre el envío, el empaque y lo que costó cada pieza, la cuenta no cuadra.",
-        cita: "Realmente no sé cuánto gané.",
-        quien: "Ternuritos",
+        etiqueta: "Ganancia",
+        titulo: "Cada pedido, su ganancia",
+        texto: "Con el costo real, el envío y el empaque. El balance, al día.",
       },
       {
-        dato: "5 de 5",
-        titulo: "Todo está en un chat, una nota y un Excel",
-        texto: "Pedidos, pagos y envíos viven en conversaciones, sin un estado que se vea de un vistazo.",
-        cita: "Tener que buscar la misma información en tres lugares distintos.",
-        quien: "Capo",
+        etiqueta: "Pedidos",
+        titulo: "Cobro, abonos y entrega",
+        texto: "Todo en un solo lugar, cada pedido con su estado a la vista.",
       },
     ],
   },
@@ -87,7 +89,7 @@ export const landing = {
     pasos: [
       {
         titulo: "Subí tus productos con una foto",
-        texto: "Mandá la foto y una línea. Lote arma la ficha con nombre, precio, costo y estado. El costo lo podés poner después.",
+        texto: "Mandá la foto y una línea. Punch arma la ficha con nombre, precio, costo y estado. El costo lo podés poner después.",
         chat: "chaqueta negra M, 25, me costó 10",
         ficha: { nombre: "Chaqueta negra M", precio: "$25.00", costo: "Costo $10.00" },
       },
@@ -118,7 +120,7 @@ export const landing = {
     },
     estado: {
       titulo: "Un estado por pieza",
-      texto: "Disponible, apartada o vendida. Si alguien intenta apartar algo que ya no está, Lote te avisa para quién es.",
+      texto: "Disponible, apartada o vendida. Si alguien intenta apartar algo que ya no está, Punch te avisa para quién es.",
       aviso: "Ya está apartada para @ana",
       contadores: [
         ["12", "Disponibles"],
@@ -138,7 +140,7 @@ export const landing = {
     },
     balance: {
       titulo: "Dónde está tu dinero",
-      texto: "Efectivo, cuenta, lo que te deben, tu inventario y lo que debés. Lote lo suma y te dice cuánto vale tu negocio hoy.",
+      texto: "Efectivo, cuenta, lo que te deben, tu inventario y lo que debés. Punch lo suma y te dice cuánto vale tu negocio hoy.",
       filas: [
         ["Efectivo", "$420"],
         ["Por cobrar", "$85"],
@@ -224,13 +226,13 @@ export const landing = {
         titulo: "Números sin inventos",
         texto: "El dinero lo calcula el programa con reglas fijas. Vos confirmás lo delicado.",
         cita: "Tranquila, yo llevo la cuenta.",
-        quien: "Lote",
+        quien: "Punch",
       },
     ],
   },
   precios: {
     titulo: "Gratis durante la beta",
-    intro: "Hoy todo Lote es gratis. Estos son los planes y los precios de lanzamiento que vienen.",
+    intro: "Hoy todo Punch es gratis. Estos son los planes y los precios de lanzamiento que vienen.",
     etiquetaPeriodo: "Elegí cómo pagar",
     mensual: "Mensual",
     anual: "Anual",
@@ -313,7 +315,7 @@ export const landing = {
     items: [
       {
         p: "¿Tengo que dejar mis redes?",
-        r: "No. Seguís vendiendo por Instagram, Facebook, WhatsApp o en persona. Lote es donde llevás el control, y tu tienda en línea es el enlace que ponés en tu perfil para que te compren.",
+        r: "No. Seguís vendiendo por Instagram, Facebook, WhatsApp o en persona. Punch es donde llevás el control, y tu tienda en línea es el enlace que ponés en tu perfil para que te compren.",
       },
       {
         p: "¿Puedo mostrar mi catálogo sin vender en línea?",
@@ -321,7 +323,7 @@ export const landing = {
       },
       {
         p: "¿Necesito saber de contabilidad?",
-        r: "No. Lote habla en palabras de todos los días: lo que tenés, lo que te deben y lo que debés. Escribís tu saldo inicial una vez y después se actualiza solo.",
+        r: "No. Punch habla en palabras de todos los días: lo que tenés, lo que te deben y lo que debés. Escribís tu saldo inicial una vez y después se actualiza solo.",
       },
       {
         p: "¿Funciona desde el celular?",
@@ -329,7 +331,7 @@ export const landing = {
       },
       {
         p: "¿Y si no sé cuánto me costó algo?",
-        r: "Lo dejás vacío. Lote marca la ganancia como estimada y te lo pregunta después, sin frenarte.",
+        r: "Lo dejás vacío. Punch marca la ganancia como estimada y te lo pregunta después, sin frenarte.",
       },
       {
         p: "¿La IA calcula mi dinero?",

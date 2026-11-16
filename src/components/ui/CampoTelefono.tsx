@@ -4,9 +4,9 @@ import { useId, useState } from "react";
 import { digitosLocales, telefonoElSalvador } from "@/domain";
 
 const inputPanel =
-  "h-11 min-w-0 flex-1 rounded-r-[14px] border border-linea bg-superficie px-3.5 text-sm tabular-nums outline-none focus:border-teal";
+  "h-11 min-w-0 flex-1 rounded-r-[14px] border border-linea bg-superficie px-3.5 text-base tabular-nums outline-none focus:border-teal";
 const inputVitrina =
-  "h-12 min-w-0 flex-1 rounded-r-[14px] border border-borde-control bg-superficie px-4 text-base tabular-nums placeholder:text-texto-2/60 focus:border-teal";
+  "h-12 min-w-0 flex-1 rounded-r-[14px] border border-linea bg-superficie px-4 text-base tabular-nums placeholder:text-texto-2/60 focus:border-teal";
 
 /** WhatsApp de El Salvador: el +503 va fijo y el campo solo acepta los 8 números. */
 export function CampoTelefono({
@@ -42,11 +42,11 @@ export function CampoTelefono({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className={variante === "vitrina" ? "text-sm font-bold" : "text-sm font-medium"}>
+      <label htmlFor={id} className={variante === "vitrina" ? "text-sm font-medium" : "text-sm font-medium"}>
         {etiqueta}
       </label>
       <span className="flex">
-        <span className="flex h-11 items-center rounded-l-[14px] border border-r-0 border-linea bg-gris-50 px-3 text-sm font-medium text-texto-2">
+        <span className="flex h-11 items-center rounded-l-[14px] border border-r-0 border-linea bg-gris-50 px-3 text-base font-medium text-texto-2">
           +503
         </span>
         <input

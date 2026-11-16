@@ -6,24 +6,14 @@ import { textos } from "@/lib/textos";
 
 const r = textos.crearNegocio.recorrido;
 
-/** Lo que va subrayado con marcador amarillo, como escrito a mano */
+/** La palabra clave del título, en teal */
 export function Marcador({ children }: { children: ReactNode }) {
-  return <span className="bg-[linear-gradient(transparent_62%,var(--color-limon)_62%)] box-decoration-clone">{children}</span>;
-}
-
-/** Un sticker redondo pegado afuera de la hoja */
-export function Sticker({ icono, className }: { icono: NombreIcono; className: string }) {
-  return (
-    <span aria-hidden="true" className={`absolute z-10 size-14 items-center justify-center rounded-full border border-teal-oscuro shadow-dura-chica ${className}`}>
-      <Icon nombre={icono} className="size-7" />
-    </span>
-  );
+  return <span className="text-teal">{children}</span>;
 }
 
 /**
- * Una respuesta de "elegí una" como foto pegada: un radio de verdad con la foto como etiqueta. Se nota cuál está elegida de
- * tres maneras a la vez, para que no dependa de ver un detalle: el circulito de arriba (vacío o naranja con ✓), el fondo limón
- * con borde grueso y la etiqueta "Elegida". Las demás bajan un poco de intensidad. En celular es una fila: dibujo y texto.
+ * Una respuesta de "elegí una" como tarjeta: un radio de verdad con la tarjeta como etiqueta. La elegida lleva borde teal con
+ * halo, fondo teal suave y el círculo de arriba lleno con un check. El color vive en la ficha del ícono.
  */
 export function Foto({
   nombre,
@@ -34,7 +24,7 @@ export function Foto({
   ayuda,
   icono,
   fondo,
-  giro,
+  compacta = false,
 }: {
   nombre: string;
   valor: string;
@@ -44,32 +34,27 @@ export function Foto({
   ayuda: string;
   icono: NombreIcono;
   fondo: string;
-  giro: string;
+  /** Sin el texto de ayuda y en vertical: cabe en una fila de tres. La ayuda se muestra aparte, solo la de la elegida. */
+  compacta?: boolean;
 }) {
   return (
     <label className="group flex cursor-pointer">
       <input type="radio" name={nombre} value={valor} checked={marcada} onChange={alElegir} className="peer sr-only" />
       <span
-        className={`relative flex w-full flex-row items-center gap-3 rounded-md border border-teal-oscuro p-2.5 pr-11 shadow-dura-chica transition-[transform,opacity,background-color] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] peer-focus-visible:outline peer-focus-visible:outline-4 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-teal motion-reduce:transition-none sm:flex-col sm:items-stretch sm:gap-2 sm:pb-4 sm:pr-2.5 ${
-          marcada ? "-translate-y-1 rotate-0 border bg-limon shadow-dura sm:-translate-y-2 sm:scale-[1.04]" : `bg-white opacity-80 hover:-translate-y-1 hover:opacity-100 ${giro}`
+        className={`relative flex w-full rounded-[20px] border ${compacta ? "flex-col items-start gap-2 p-3" : "items-center gap-3 px-3.5 py-3 pr-12"} shadow-xs transition-[background-color,border-color,box-shadow,translate] duration-200 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal motion-reduce:transition-none ${
+          marcada ? "border-teal bg-teal-fondo ring-[3px] ring-teal/15" : "border-linea bg-superficie hover:-translate-y-0.5 hover:bg-gris-50 motion-reduce:hover:translate-y-0"
         }`}
       >
-        <span aria-hidden="true" className="absolute -top-2.5 left-1/2 h-4 w-14 -translate-x-1/2 rotate-2 rounded-sm border border-teal-oscuro/30 bg-celeste/70" />
-        <span aria-hidden="true" className={`absolute right-2 top-2 flex size-7 items-center justify-center rounded-full border-[2.5px] border-teal-oscuro ${marcada ? "bg-mango" : "bg-white"}`}>
-          {marcada && <Icon nombre="check" className="size-4" strokeWidth={3} />}
+        <span aria-hidden="true" className={`absolute flex size-6 ${compacta ? "right-2.5 top-2.5" : "right-3.5 top-1/2 -translate-y-1/2"} items-center justify-center rounded-full border transition-colors ${marcada ? "border-teal bg-teal" : "border-linea bg-white"}`}>
+          {marcada && <Icon nombre="check" className="size-3.5 text-white" />}
         </span>
-        <span className={`flex size-16 shrink-0 items-center justify-center rounded border border-teal-oscuro sm:h-20 sm:w-full ${marcada ? "bg-white" : fondo}`}>
-          <Icon nombre={icono} className="size-8 sm:size-9" />
+        <span aria-hidden="true" className={`flex size-10 shrink-0 items-center justify-center rounded-xl text-teal-oscuro ${fondo}`}>
+          <Icon nombre={icono} className="size-5" />
         </span>
-        <span className="flex min-w-0 flex-col gap-0.5 text-left sm:items-center sm:text-center">
-          <span className="font-logo text-base font-bold leading-tight">{titulo}</span>
-          <span className="text-xs leading-snug text-texto-2">{ayuda}</span>
+        <span className="flex min-w-0 flex-col gap-0.5 text-left">
+          <span className="font-semibold leading-tight">{titulo}</span>
+          {!compacta && <span className="text-sm leading-snug text-texto-2">{ayuda}</span>}
         </span>
-        {marcada && (
-          <span aria-hidden="true" className="absolute -bottom-3 left-1/2 -translate-x-1/2 -rotate-2 whitespace-nowrap rounded-full bg-teal-oscuro px-3 py-0.5 text-xs font-extrabold text-white">
-            {r.elegida}
-          </span>
-        )}
       </span>
     </label>
   );
@@ -82,7 +67,6 @@ export function Casilla({
   marcada,
   alMarcar,
   icono,
-  giro,
   children,
 }: {
   nombre: string;
@@ -90,19 +74,18 @@ export function Casilla({
   marcada: boolean;
   alMarcar: () => void;
   icono: NombreIcono;
-  giro: string;
   children: ReactNode;
 }) {
   return (
     <label className="flex cursor-pointer">
       <input type="checkbox" name={nombre} value={valor} checked={marcada} onChange={alMarcar} className="peer sr-only" />
       <span
-        className={`flex min-h-14 w-full items-center gap-3 rounded-xl border border-teal-oscuro px-3 py-2 transition-transform peer-focus-visible:outline peer-focus-visible:outline-4 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-teal motion-reduce:transition-none ${
-          marcada ? "border bg-limon shadow-dura-chica" : `bg-white opacity-85 hover:-translate-y-0.5 hover:opacity-100 ${giro}`
+        className={`flex min-h-14 w-full items-center gap-3 rounded-[14px] border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,translate] duration-200 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-teal motion-reduce:transition-none ${
+          marcada ? "border-teal bg-teal-fondo ring-[3px] ring-teal/15" : "border-linea bg-superficie hover:-translate-y-0.5 hover:bg-gris-50 motion-reduce:hover:translate-y-0"
         }`}
       >
-        <span aria-hidden="true" className={`flex size-6 shrink-0 items-center justify-center rounded-md border-[2.5px] border-teal-oscuro ${marcada ? "bg-mango" : "bg-white"}`}>
-          {marcada && <Icon nombre="check" className="size-4" strokeWidth={3} />}
+        <span aria-hidden="true" className={`flex size-6 shrink-0 items-center justify-center rounded-md border ${marcada ? "border-teal bg-teal" : "border-linea bg-white"}`}>
+          {marcada && <Icon nombre="check" className="size-3.5 text-white" />}
         </span>
         <Icon nombre={icono} className="size-5 shrink-0" />
         <span className="min-w-0">{children}</span>
@@ -113,7 +96,7 @@ export function Casilla({
 
 export function Linea({ etiqueta, cambiar, children }: { etiqueta: string; cambiar: () => void; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-dashed border-teal-oscuro/50 py-2.5">
+    <div className="flex items-center justify-between gap-3 border-b border-linea py-3">
       <div className="min-w-0">
         <dt className="text-xs font-bold uppercase tracking-wide text-texto-2">{etiqueta}</dt>
         <dd className="font-bold">{children}</dd>

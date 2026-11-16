@@ -1,4 +1,4 @@
-// El catálogo de Lote: rubros y, dentro de cada uno, categorías fijas. Es el mismo para todas las tiendas, así Explorar
+// El catálogo de Punch: rubros y, dentro de cada uno, categorías fijas. Es el mismo para todas las tiendas, así Explorar
 // agrupa sin adivinar: la tienda solo elige de la lista (nada se escribe a mano). Las mismas categorías están en
 // supabase/catalogo_fijo.sql (tabla categoria_lote); si se cambia una, cambia en los dos lados (una prueba lo cuida).
 //

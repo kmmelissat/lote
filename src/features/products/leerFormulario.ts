@@ -50,5 +50,5 @@ export function leerCostos(valores: Valores) {
   return { costos, errores };
 }
 
-/** La categoría se elige del catálogo de Lote: una que no esté en la lista se rechaza. Vacía no cuenta como error. */
+/** La categoría se elige del catálogo de Punch: una que no esté en la lista se rechaza. Vacía no cuenta como error. */
 export const categoriaNoExiste = (categoria: string): boolean => Boolean(categoria) && !categoriaDeNombre(categoria);

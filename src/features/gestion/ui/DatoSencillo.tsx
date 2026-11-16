@@ -4,7 +4,7 @@ import Link from "next/link";
 const PUNTO = {
   rosa: "bg-rosa",
   ambar: "bg-ambar",
-  limon: "bg-limon",
+  limon: "bg-chip-amarillo",
   celeste: "bg-celeste",
 } as const;
 
@@ -25,12 +25,12 @@ export function DatoSencillo({
   return (
     <Link
       href={href}
-      className="flex flex-col gap-0.5 rounded-[24px] border border-borde bg-superficie p-4 transition-colors duration-150 hover:border-teal-oscuro md:p-5"
+      className="flex flex-col gap-0.5 rounded-[24px] border border-linea bg-superficie p-4 transition-colors duration-150 hover:border-teal-oscuro md:p-5"
     >
       <span className="flex items-center gap-2 text-sm font-bold text-texto-2">
         <span
           aria-hidden="true"
-          className={`size-3 rounded-full border border-teal-oscuro ${PUNTO[color]}`}
+          className={`size-3 rounded-full border border-linea ${PUNTO[color]}`}
         />
         {etiqueta}
       </span>

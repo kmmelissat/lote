@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { textos } from "@/lib/textos";
-import { Gorila } from "./Gorila";
 import { Icon } from "./Icon";
 import { Logo } from "./Logo";
 
@@ -17,7 +16,7 @@ export function Pie() {
           <Logo />
           <p className="max-w-xs text-crema/80">{textos.eslogan}</p>
           <p className="flex items-center gap-2 text-sm text-crema/80">
-            <span className="-rotate-3 rounded-md border border-crema bg-limon px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide text-teal-oscuro">
+            <span className="-rotate-3 rounded-md border border-crema bg-chip-amarillo px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide text-teal-oscuro">
               {t.etiqueta}
             </span>
             {t.beta}
@@ -56,7 +55,7 @@ export function Pie() {
           <a
             href={`mailto:${t.correo}`}
             aria-label={`${t.escribirA} ${t.correo}`}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-crema bg-limon px-4 font-bold text-teal-oscuro shadow-[3px_3px_0_0_var(--color-crema)] transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-crema bg-chip-amarillo px-4 font-bold text-teal-oscuro shadow-[3px_3px_0_0_var(--color-crema)] transition-transform  motion-reduce:transition-none"
           >
             <Icon nombre="correo" className="size-4" />
             {t.correo}
@@ -67,7 +66,8 @@ export function Pie() {
       <div className="border-t border-crema/20">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-sm text-crema/70 md:px-8">
           <p className="flex items-center gap-2">
-            <Gorila className="size-5 text-limon" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/punch.svg" alt="" aria-hidden="true" className="size-5" />
             {t.derechos}
           </p>
           <p>{t.hechoEn}</p>

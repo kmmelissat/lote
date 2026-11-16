@@ -74,7 +74,7 @@ export const nav = {
     caja: "Caja: abrir y cerrar con el efectivo",
     cajaDetalle: "Abrir y cerrar la caja",
     asistente: "Escribile lo que pasó y lo registra",
-    ayuda: "Preguntas frecuentes de cómo usar Lote",
+    ayuda: "Preguntas frecuentes de cómo usar Punch",
     marketplace: "Marketplace",
     marketplaceDetalle: "Las tiendas que quieren aparecer",
     tienda: "Logo, color, contacto y qué hacés",
@@ -93,7 +93,7 @@ export const nav = {
   paleta: {
     abrir: "Buscar",
     atajo: "⌘K",
-    titulo: "Buscar en Lote",
+    titulo: "Buscar en Punch",
     placeholder: "Buscá un producto, un cliente, una pantalla o preguntá algo",
     ejemplos: "Probá con",
     ejemplosLista: ["deudas", "cuota", "saldo", "importar excel", "abrir caja", "invitar"],

@@ -133,7 +133,7 @@ export const gestion = {
   },
   saldo: {
     empezaPor:
-      "Cuenta lo que tienes en esta cuenta en este momento y escríbelo, aunque ya hayas registrado ventas o gastos. Esos movimientos ya están dentro de esa cantidad: desde ahora Lote suma solo lo que entre y salga después.",
+      "Cuenta lo que tienes en esta cuenta en este momento y escríbelo, aunque ya hayas registrado ventas o gastos. Esos movimientos ya están dentro de esa cantidad: desde ahora Punch suma solo lo que entre y salga después.",
     saldoInicial: "Cuánto tienes ahora",
     guardarInicial: "Guardar saldo inicial",
     actualizado: "Se actualiza solo con tus cobros, gastos y pagos de deudas.",
@@ -143,7 +143,7 @@ export const gestion = {
     ajusteTitulo: (lugar: string) => `Ajustar saldo de ${lugar}`,
     inicialTitulo: (lugar: string) => `Saldo inicial de ${lugar}`,
     ajusteAyuda: (esperado: string) =>
-      `Según Lote hay ${esperado}. Cuenta lo que hay de verdad y Lote anota la diferencia como un ajuste.`,
+      `Según Punch hay ${esperado}. Cuenta lo que hay de verdad y Punch anota la diferencia como un ajuste.`,
     motivo: "¿Por qué la diferencia?",
     motivoPlaceholder: "Ej. un cambio que di de más, gasto que no anoté",
     errorMotivo: "Escribe por qué ajustas, así queda claro después.",
@@ -172,7 +172,7 @@ export const gestion = {
     unaVez: "Una vez",
     cadaMesOpcion: "Cada mes",
     cuandoAyuda:
-      "Lote lo registra solo ese día de cada mes, desde hoy. Si el mes es más corto, cae el último día. Si ya lo pagaste este mes, anotalo aparte como gasto de una vez.",
+      "Punch lo registra solo ese día de cada mes, desde hoy. Si el mes es más corto, cae el último día. Si ya lo pagaste este mes, anotalo aparte como gasto de una vez.",
     editarTitulo: (nombre: string) => `Editar ${nombre}`,
     editar: "Editar",
     cerrar: "Cerrar",
@@ -232,7 +232,7 @@ export const gestion = {
     monto: "Cuánto es",
     montoPendiente: "Cuánto debes todavía",
     montoPendienteAyuda:
-      "Si ya pagaste una parte antes de usar Lote, escribe solo lo que falta. Lo que pagues desde ahora lo anotas con Abonar.",
+      "Si ya pagaste una parte antes de usar Punch, escribe solo lo que falta. Lo que pagues desde ahora lo anotas con Abonar.",
     montoPrestado: "Cuánto te prestaron",
     recibido: "¿Te entró dinero?",
     recibidoNo: "No me entró dinero",
@@ -252,7 +252,7 @@ export const gestion = {
     cuotaCuotas: "Cuántas cuotas son",
     cuotaDia: "Día del mes en que pagas",
     cuotaAyudaForm:
-      "Opcional. Con esto Lote te muestra cuántas cuotas faltan y cuándo toca pagar, y llena el abono por ti.",
+      "Opcional. Con esto Punch te muestra cuántas cuotas faltan y cuándo toca pagar, y llena el abono por ti.",
     cuotaResumen: (monto: string) => `Cuota de ${monto} al mes`,
     cuotasQuedan: (n: number) =>
       n === 1 ? "queda 1 cuota" : `quedan ${n} cuotas`,
@@ -409,7 +409,7 @@ export const gestion = {
     diaCorte: "Día de corte",
     diaPago: "Día de pago",
     diasAyuda:
-      "Opcionales. Del 1 al 31; Lote te muestra cuándo toca, no te cobra nada.",
+      "Opcionales. Del 1 al 31; Punch te muestra cuándo toca, no te cobra nada.",
     guardar: "Guardar cambios",
     crear: "Agregar tarjeta",
     guardando: "Guardando…",
@@ -452,9 +452,9 @@ export const gestion = {
     titulo: "¿Con qué cuenta pagaste esta mercadería?",
     noAnoto: "No anotar el pago",
     ayuda:
-      "Elige la cuenta con la que pagaste lo que costó esta mercadería y Lote se lo resta al saldo. Si no eliges ninguna, el saldo no cambia y lo puedes ajustar después.",
+      "Elige la cuenta con la que pagaste lo que costó esta mercadería y Punch se lo resta al saldo. Si no eliges ninguna, el saldo no cambia y lo puedes ajustar después.",
     ayudaConTarjeta:
-      "Elige la cuenta con la que pagaste y Lote se lo resta al saldo. Si la pagaste con una tarjeta, no baja ninguna cuenta: sube lo que debes en la tarjeta. Si no eliges ninguna, nada cambia.",
+      "Elige la cuenta con la que pagaste y Punch se lo resta al saldo. Si la pagaste con una tarjeta, no baja ninguna cuenta: sube lo que debes en la tarjeta. Si no eliges ninguna, nada cambia.",
     anotada: (nota: string) => `Compra de ${nota}`,
   },
   libro: {

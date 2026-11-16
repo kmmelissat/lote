@@ -37,7 +37,7 @@ const campo = `${estiloCampo} h-11 px-3`;
 /** La tabla: variante, precio, cantidad, costo y la acción de la fila. En el celular las columnas se angostan, no se apilan. */
 const COLUMNAS = "grid grid-cols-[minmax(0,1fr)_4.75rem_3.5rem_4.75rem_2.25rem] items-center gap-2 md:grid-cols-[minmax(0,1fr)_6rem_5rem_6rem_2.5rem] md:gap-3";
 const campoNumero =
-  "h-10 w-full rounded-[12px] border border-borde-control bg-superficie px-2 text-right text-sm tabular-nums placeholder:text-texto-2/60 focus:border-teal disabled:border-transparent disabled:bg-transparent";
+  "h-10 w-full rounded-[12px] border border-linea bg-superficie px-2 text-right text-sm tabular-nums placeholder:text-texto-2/60 focus:border-teal disabled:border-transparent disabled:bg-transparent";
 
 /** Valores como fichas: se agregan con Enter o coma, y al pegar una lista (por línea o separada por comas) se parte sola. */
 function Fichas({ etiqueta, valores, onCambio }: { etiqueta: string; valores: string[]; onCambio: (v: string[]) => void }) {
@@ -74,7 +74,7 @@ function Fichas({ etiqueta, valores, onCambio }: { etiqueta: string; valores: st
   };
 
   return (
-    <div className="flex min-h-12 flex-wrap items-center gap-2 rounded-[14px] border border-borde-control bg-superficie px-3 py-2 focus-within:border-teal">
+    <div className="flex min-h-12 flex-wrap items-center gap-2 rounded-[14px] border border-linea bg-superficie px-3 py-2 focus-within:border-teal">
       {valores.map((v) => (
         <span key={v} className="inline-flex items-center gap-1 rounded-lg border border-linea bg-teal-fondo px-2.5 py-0.5 text-sm font-medium text-teal-oscuro">
           {v}
@@ -190,7 +190,7 @@ export function EditorVariantes({
         aria-label={g.verFotos(nombre)}
         title={g.verFotos(nombre)}
         className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border transition-colors hover:border-teal ${
-          foto ? "border-linea" : "border-dashed border-borde-control/60 bg-gris-50"
+          foto ? "border-linea" : "border-dashed border-linea/60 bg-gris-50"
         }`}
       >
         {foto ? <Image src={urlFoto(foto)} alt="" width={44} height={44} className="size-full object-cover" /> : <Icon nombre="camara" className="size-5 text-texto-2" />}
@@ -204,7 +204,7 @@ export function EditorVariantes({
     const nombre = agrupado ? restoDe(etiqueta) : etiqueta;
     return (
       <li key={etiqueta} className={hijo ? "bg-gris-50" : ""}>
-        <div className={`${COLUMNAS} border-t border-borde px-3 py-2 ${hijo ? "pl-6 md:pl-10" : ""}`}>
+        <div className={`${COLUMNAS} border-t border-linea px-3 py-2 ${hijo ? "pl-6 md:pl-10" : ""}`}>
           <div className="flex min-w-0 items-center gap-2">
             {miniatura([etiqueta], f.fotos, nombre)}
             <p className="min-w-0 font-bold">
@@ -332,7 +332,7 @@ export function EditorVariantes({
       {filas.length > 0 && editando === null && (
         <div className="flex flex-col gap-2" aria-live="polite">
           {agrupado && <p className="text-sm text-texto-2">{t.ayudaGrupo}</p>}
-          <div className="overflow-hidden rounded-2xl border border-borde">
+          <div className="overflow-hidden rounded-2xl border border-linea">
             <div aria-hidden="true" className={`${COLUMNAS} bg-gris-50 px-3 py-2 text-xs font-medium uppercase tracking-wide text-texto-2`}>
               <span>{t.columnaVariante}</span>
               <span className="text-right">{g.precio}</span>
@@ -347,7 +347,7 @@ export function EditorVariantes({
                     const fotosDelGrupo = fotosDelGrupoFilas(e, grupo.filas);
                     const total = grupo.filas.reduce((suma, et) => suma + (Number(filaDe(e, et).cantidad) || 0), 0);
                     return (
-                      <li key={grupo.clave} className="border-t border-borde first:border-t-0">
+                      <li key={grupo.clave} className="border-t border-linea first:border-t-0">
                         <div className={`${COLUMNAS} px-3 py-2`}>
                           <div className="flex min-w-0 items-center gap-2">
                             {miniatura(grupo.filas, fotosDelGrupo, grupo.clave)}
@@ -394,7 +394,7 @@ export function EditorVariantes({
                   })
                 : filas.map((et) => filaVariante(et, false))}
             </ul>
-            <p className="border-t border-borde px-4 py-3 text-sm text-texto-2">{t.total(filas.length, unidades)}</p>
+            <p className="border-t border-linea px-4 py-3 text-sm text-texto-2">{t.total(filas.length, unidades)}</p>
           </div>
         </div>
       )}

@@ -121,13 +121,13 @@ export function SelectorProductos({
       {visibles.length === 0 ? (
         <p className="py-6 text-center text-texto-2">{t.sinResultados}</p>
       ) : (
-        <ul className="max-h-[26rem] overflow-y-auto overscroll-contain rounded-2xl border border-borde bg-superficie">
+        <ul className="max-h-[26rem] overflow-y-auto overscroll-contain rounded-2xl border border-linea bg-superficie">
           {visibles.map((g) => {
             const unico = g.miembros.length === 1 ? g.miembros[0] : null;
             const abierto = buscando || abiertos.has(g.clave);
             const elegido = g.miembros.some((m) => elegidos[m.id] > 0);
             return (
-              <li key={g.clave} className="border-t border-borde first:border-t-0">
+              <li key={g.clave} className="border-t border-linea first:border-t-0">
                 <div className={`flex items-center gap-3 px-3 py-2 ${elegido ? "bg-gris-50" : ""}`}>
                   <Foto foto={g.foto} />
                   <div className="min-w-0 flex-1">
@@ -177,9 +177,9 @@ export function SelectorProductos({
 
                 {/* En un pack se agrega cada variante; en "llevá y pagá" el producto entra completo */}
                 {!unico && modo === "pack" && abierto && (
-                  <ul className="border-t border-borde bg-fondo/60">
+                  <ul className="border-t border-linea bg-fondo/60">
                     {g.miembros.map((m) => (
-                      <li key={m.id} className="flex items-center gap-3 border-t border-borde py-2 pl-6 pr-3 first:border-t-0 sm:pl-[4.5rem]">
+                      <li key={m.id} className="flex items-center gap-3 border-t border-linea py-2 pl-6 pr-3 first:border-t-0 sm:pl-[4.5rem]">
                         <div className="min-w-0 flex-1">
                           <p className="line-clamp-2 text-sm font-medium">{m.variante ?? nombreDeOpcion(m)}</p>
                           <p className="text-sm text-texto-2">

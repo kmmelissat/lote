@@ -15,7 +15,7 @@ export function OpcionCheck({ titulo, icono, ...input }: Props) {
       <span className="font-medium">{titulo}</span>
       <span
         aria-hidden="true"
-        className="ml-1 flex size-6 shrink-0 items-center justify-center rounded-full border border-borde-control bg-white transition-colors duration-150 group-has-[:checked]:border-teal group-has-[:checked]:bg-teal"
+        className="ml-1 flex size-6 shrink-0 items-center justify-center rounded-full border border-linea bg-white transition-colors duration-150 group-has-[:checked]:border-teal group-has-[:checked]:bg-teal"
       >
         <Icon nombre="check" className="size-3.5 scale-50 text-white opacity-0 transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-has-[:checked]:scale-100 group-has-[:checked]:opacity-100" />
       </span>

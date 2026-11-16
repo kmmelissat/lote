@@ -1,17 +1,13 @@
 import { textos } from "@/lib/textos";
-import { Gorila } from "./Gorila";
 
-// El logo es un sticker: el monito y "lote" sobre una etiqueta limón, con borde, sombra dura y un poco
-// torcida. Dentro de un contenedor con `group` y `data-cerrado` (el menú lateral cerrado) queda solo el monito.
-export function Logo({ className = "", liviano = false }: { className?: string; /** Sin torcer, con borde fino y sin sombra */ liviano?: boolean }) {
+/** El logo de Punch: el iso y "punch." en minúscula. Dentro de un contenedor con `group` y `data-cerrado` queda solo el iso. */
+export function Logo({ className = "" }: { className?: string }) {
   return (
-    <span className={`inline-flex ${className}`}>
-      <span
-        aria-hidden="true"
-        className={`inline-flex items-center gap-1 rounded-xl bg-limon py-0.5 pl-2 pr-3 text-teal-oscuro group-data-[cerrado]:px-1 ${liviano ? "border border-teal-oscuro/30" : "-rotate-2 border border-teal-oscuro shadow-dura-chica"}`}
-      >
-        <Gorila className="size-7 shrink-0" />
-        <span className="font-logo text-[26px] font-semibold leading-none tracking-tight group-data-[cerrado]:hidden">lote</span>
+    <span className={`inline-flex items-center gap-2 ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/punch.svg" alt="" aria-hidden="true" className="size-10 shrink-0" />
+      <span aria-hidden="true" className="font-logo text-[28px] font-bold lowercase leading-none text-teal-oscuro group-data-[cerrado]:hidden">
+        punch<span className="text-ficha-celeste brightness-90">.</span>
       </span>
       <span className="sr-only">{textos.nombre}</span>
     </span>

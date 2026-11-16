@@ -52,7 +52,7 @@ export async function guardarCuenta(previo: EstadoGestion, datos: FormData): Pro
   return { listo: archivar ? t.archivada : t.guardada, guardados: siguiente };
 }
 
-/** Pasar dinero de una cuenta a otra. No es ingreso ni gasto; no deja sacar más de lo que Lote sabe que hay. */
+/** Pasar dinero de una cuenta a otra. No es ingreso ni gasto; no deja sacar más de lo que Punch sabe que hay. */
 export async function moverDinero(previo: EstadoGestion, datos: FormData): Promise<EstadoGestion> {
   const m = t.mover;
   const monto = leerDolares(texto(datos, "monto"));

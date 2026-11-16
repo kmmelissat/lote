@@ -1,4 +1,3 @@
-import { LotitoMas } from "@/components/ui/LotitoMas";
 import { textos } from "@/lib/textos";
 import { BotonLanding, contenedor, Mini } from "../comun";
 import { Aparece } from "./Aparece";
@@ -15,9 +14,9 @@ export function Cierre({ conSesion }: { conSesion: boolean }) {
       />
       <div className={`${contenedor} relative grid grid-cols-1 items-center gap-10 md:grid-cols-[1.15fr_0.85fr] md:gap-8`}>
         <Aparece className="relative z-10 flex flex-col items-start gap-7">
-          <h2 id="cierre-mas" className="flex flex-col items-start gap-3 text-[40px] font-extrabold leading-[1.02] tracking-[-0.04em] md:text-[56px]">
+          <h2 id="cierre-mas" className="flex flex-col items-start gap-3 text-[40px] font-bold leading-[1.02] tracking-[-0.04em] md:text-[56px]">
             <span>{t.cierre.tituloInicio}</span>
-            <span className="origin-left -rotate-1 rounded-[16px] border border-limon bg-limon px-3 py-1 text-[28px] text-teal-oscuro shadow-[5px_5px_0_0_var(--color-mango)] sm:text-[34px] md:text-[44px] lg:text-[48px]">
+            <span className="  rounded-[16px] border border-limon bg-ficha-amarillo px-3 py-1 text-[28px] text-teal-oscuro shadow-xs sm:text-[34px] md:text-[44px] lg:text-[48px]">
               {t.cierre.tituloMarca}
             </span>
           </h2>
@@ -32,7 +31,6 @@ export function Cierre({ conSesion }: { conSesion: boolean }) {
         <Aparece delay={0.12} className="relative mx-auto flex h-52 w-full max-w-sm items-end justify-center md:h-72">
           <Mini src="/landing/chaqueta.webp" className="absolute left-6 top-2 aspect-square w-16 -rotate-12 md:w-20" />
           <Mini src="/landing/disco.webp" className="absolute right-4 top-8 aspect-square w-14 rotate-12 md:w-16" />
-          <LotitoMas nombre="thumbsup" className="relative z-10 w-48 animate-asomar md:w-72" />
         </Aparece>
       </div>
     </section>

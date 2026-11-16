@@ -34,12 +34,12 @@ async function Secciones({ searchParams }: Pick<PageProps<"/ajustes/tienda">, "s
     obtenerTarifas(supabase, negocio.id),
   ]);
   // Los tres formularios quedan montados y solo se oculta el que no toca: así lo que escribiste sin guardar sobrevive al cambiar de pestaña.
-  const oculto = (id: IdSeccion) => (seccion === id ? "" : "hidden");
+  const oculto = (id: IdSeccion) => (seccion === id ? "flex flex-1 flex-col" : "hidden");
   const tiendaActiva = seccion !== "pagos" && seccion !== "envios";
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex min-w-0 flex-1 flex-col gap-8">
       <SeccionesTienda activa={seccion} />
-      <div className={tiendaActiva ? "" : "hidden"}>
+      <div className={tiendaActiva ? "flex flex-1 flex-col" : "hidden"}>
         <TiendaForm identidad={identidad} ajustes={ajustes} negocioId={negocio.id} seccion={seccion} actividad={negocio.actividad} />
       </div>
       <div id="panel-pagos" role="tabpanel" aria-labelledby="tab-pagos" className={oculto("pagos")}>

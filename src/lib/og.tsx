@@ -76,7 +76,7 @@ export async function fotoOg(ruta: string | null | undefined, lado = 600): Promi
   }
 }
 
-/** El logo de Lote como sticker, igual que en la app: el gorila y "lote" sobre una etiqueta limón. */
+/** El logo de Punch como sticker, igual que en la app: el gorila y "lote" sobre una etiqueta limón. */
 export function LogoOg({ gorila, escala = 1 }: { gorila: string; escala?: number }) {
   return (
     <div

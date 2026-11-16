@@ -1,7 +1,7 @@
 export const pie = {
-  menu: "Información de Lote",
+  menu: "Información de Punch",
   etiqueta: "beta",
-  beta: "Lote se está construyendo y probando.",
+  beta: "Punch se está construyendo y probando.",
   colExplorar: "Explorar",
   colLegal: "Legal",
   colContacto: "Contacto",
@@ -12,9 +12,9 @@ export const pie = {
   crearTienda: "Abrir mi tienda",
   privacidad: "Aviso de privacidad",
   terminos: "Términos de uso",
-  contactoTexto: "¿Algo falló, tenés una queja o te interesa Lote? Escribinos.",
+  contactoTexto: "¿Algo falló, tenés una queja o te interesa Punch? Escribinos.",
   correo: "kmmelissat@gmail.com",
   escribirA: "Escribir a",
-  derechos: "© 2026 Lote",
+  derechos: "© 2026 Punch",
   hechoEn: "Hecho en El Salvador",
 } as const;

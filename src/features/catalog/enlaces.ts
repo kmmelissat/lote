@@ -2,7 +2,7 @@ import { textos } from "@/lib/textos";
 
 const t = textos.vitrina;
 
-/** Un enlace a otro sitio (WhatsApp, redes): con protocolo, así `Link` lo acepta sin pasar por las rutas de Lote. */
+/** Un enlace a otro sitio (WhatsApp, redes): con protocolo, así `Link` lo acepta sin pasar por las rutas de Punch. */
 export type EnlaceExterno = `https://${string}`;
 
 /** WhatsApp abre con el chat y el mensaje armado. Sin número válido no hay enlace. */

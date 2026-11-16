@@ -3,7 +3,7 @@
  * mover dinero) es celeste neutro. Todo lo que pinta un movimiento (filas, tarjetas, gráfica) sale de acá.
  */
 export const coloresDinero = {
-  entra: { fondo: "bg-limon", texto: "text-exito", barra: "bg-limon border border-teal-oscuro", signo: "+" },
+  entra: { fondo: "bg-chip-amarillo", texto: "text-exito", barra: "bg-chip-amarillo border border-linea", signo: "+" },
   sale: { fondo: "bg-rosa", texto: "text-error", barra: "bg-rosa", signo: "−" },
   otros: { fondo: "bg-celeste-palido", texto: "text-texto-2", barra: "bg-celeste", signo: "" },
 } as const;

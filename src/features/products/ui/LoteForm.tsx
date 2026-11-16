@@ -94,7 +94,7 @@ export function LoteForm({ negocioId, cuentas, tarjetas = [] }: { negocioId: str
       <input type="hidden" name="precios" value={JSON.stringify(rutas.map((r) => precios[r] ?? ""))} />
 
       <div className="flex w-full max-w-3xl flex-col gap-6">
-        <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-borde [&>*+*]:pt-6">
+        <Card className="flex flex-col gap-6 [&>*+*]:border-t [&>*+*]:border-linea [&>*+*]:pt-6">
           <BloqueForm numero={1} titulo={b.fotos.titulo} ayuda={b.fotos.ayuda} tono="celeste" listo={rutas.length > 0}>
             <ZonaFotos negocioId={negocioId} rutas={rutas} onCambio={setRutas} maximo={MAXIMO_LOTE} conMiniaturas={false} />
           </BloqueForm>
@@ -120,13 +120,13 @@ export function LoteForm({ negocioId, cuentas, tarjetas = [] }: { negocioId: str
                         alt={textos.productos.fotos.foto(i + 1)}
                         width={80}
                         height={80}
-                        className="size-16 rounded-xl border border-teal-oscuro object-cover sm:size-20"
+                        className="size-16 rounded-xl border border-linea object-cover sm:size-20"
                       />
                       <button
                         type="button"
                         aria-label={t.quitarPieza(i + 1)}
                         onClick={() => setRutas((rs) => rs.filter((r) => r !== ruta))}
-                        className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full border border-teal-oscuro bg-white text-teal-oscuro hover:bg-rosa"
+                        className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full border border-linea bg-white text-teal-oscuro hover:bg-rosa"
                       >
                         <Icon nombre="x" className="size-3.5" strokeWidth={2.5} />
                       </button>

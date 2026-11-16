@@ -18,7 +18,7 @@ export function ModoDeVenta({ modo, cambiar }: { modo: ModoDeVentaClave; cambiar
           role="radio"
           aria-checked={modo === m}
           onClick={() => cambiar(m)}
-          className={`flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-shadow ${modo === m ? "border-teal bg-teal-fondo" : "border-linea bg-superficie hover:border-borde-control"}`}
+          className={`flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-shadow ${modo === m ? "border-teal bg-teal-fondo" : "border-linea bg-superficie hover:border-linea"}`}
         >
           <span aria-hidden className={`grid size-10 shrink-0 place-items-center rounded-xl text-xl ${m === "persona" ? "bg-ficha-amarillo" : "bg-ficha-lila"}`}>
             {m === "persona" ? "🛍️" : "💬"}

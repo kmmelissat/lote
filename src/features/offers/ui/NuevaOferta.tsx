@@ -75,7 +75,7 @@ export function NuevaOferta({ productos, ofertas, alTerminar }: { productos: Opc
               <button
                 type="button"
                 onClick={() => setClave(g.clave)}
-                className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-borde bg-superficie p-2 text-left transition-colors hover:border-linea hover:bg-gris-50"
+                className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-linea bg-superficie p-2 text-left transition-colors hover:border-linea hover:bg-gris-50"
               >
                 <Miniatura foto={g.foto} />
                 <span className="flex min-w-0 flex-1 flex-col">

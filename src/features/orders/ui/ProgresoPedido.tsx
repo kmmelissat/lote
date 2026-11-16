@@ -60,7 +60,7 @@ export function ProgresoPedido({
           const marca = (
             <span
               aria-hidden="true"
-              className={`flex size-7 shrink-0 items-center justify-center rounded-full border-2 ${
+              className={`flex size-7 shrink-0 items-center justify-center rounded-full border ${
                 hecho ? "border-teal bg-teal text-white" : enCurso ? "border-teal bg-superficie" : "border-linea bg-superficie"
               }`}
             >

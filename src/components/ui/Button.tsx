@@ -3,14 +3,14 @@ import Link from "next/link";
 import type { ComponentProps } from "react";
 import { Icon, type NombreIcono } from "./Icon";
 
-/** Todos llevan el marco de la marca (borde de 2 px y sombra dura); cambia el color de relleno. */
+/** Estilo Punch: borde fino, esquinas de 14 px y sin sombra dura; cambia el color de relleno. */
 const variantes = {
-  primario: "bg-teal-oscuro text-white",
-  mango: "bg-mango text-teal-oscuro",
-  peligro: "bg-error text-white",
-  secundario: "bg-superficie text-teal-oscuro",
-  /** Sin sombra y con borde fino: para lo que no manda, dentro de una tarjeta. No compite con el botón mango. */
-  suave: "bg-superficie text-teal-oscuro",
+  primario: "border-teal-oscuro bg-teal-oscuro text-white hover:bg-teal",
+  mango: "border-teal-oscuro bg-teal-oscuro text-white hover:bg-teal",
+  peligro: "border-error bg-error text-white hover:bg-error/90",
+  secundario: "border-linea bg-superficie text-teal-oscuro shadow-xs hover:bg-gris-50",
+  /** Para lo que no manda, dentro de una tarjeta. */
+  suave: "border-linea bg-superficie text-teal-oscuro shadow-xs hover:bg-gris-50",
 } as const;
 
 export type VarianteBoton = keyof typeof variantes;
@@ -21,14 +21,11 @@ const tamanos = {
 } as const;
 
 const base =
-  "inline-flex min-w-11 items-center justify-center gap-2 rounded-full border border-teal-oscuro font-bold shadow-dura-chica transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-dura active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none";
-
-const baseSuave =
-  "inline-flex min-w-11 items-center justify-center gap-2 rounded-[14px] border border-linea font-medium shadow-xs transition-colors duration-150 hover:bg-gris-50 disabled:opacity-50";
+  "inline-flex min-w-11 items-center justify-center gap-2 rounded-[14px] border font-medium transition-colors duration-150 disabled:opacity-50";
 
 /** Las clases de un botón de la marca, para lo que no es un <button> ni un enlace (por ejemplo, el que abre una ventana). */
 export const estiloBoton = (variante: VarianteBoton = "primario", tamano: keyof typeof tamanos = "normal") =>
-  `${variante === "suave" ? baseSuave : base} ${tamanos[tamano]} ${variantes[variante]}`;
+  `${base} ${tamanos[tamano]} ${variantes[variante]}`;
 
 /** `chico` es para botones dentro de una tarjeta o una fila; en el celular se queda en 44 px. */
 type Props = { variante?: VarianteBoton; tamano?: keyof typeof tamanos; icono?: NombreIcono };

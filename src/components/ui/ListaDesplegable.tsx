@@ -201,7 +201,7 @@ export function ListaDesplegable({
           id={`${id}-lista`}
           role="listbox"
           aria-label={placeholder}
-          className={`absolute inset-x-0 z-20 max-h-[min(16rem,45dvh)] animate-entra overflow-y-auto rounded-[20px] bg-white p-1.5 md:max-h-64 border border-linea shadow-lg ${
+          className={`absolute inset-x-0 z-20 text-sm max-h-[min(16rem,45dvh)] animate-entra overflow-y-auto rounded-[20px] bg-white p-1.5 md:max-h-64 border border-linea shadow-lg ${
             arriba ? "bottom-full mb-2" : "top-full mt-2"
           }`}
         >

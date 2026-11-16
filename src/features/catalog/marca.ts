@@ -1,4 +1,4 @@
-// Colores sugeridos para la tienda: vivos, de la familia de Lote. Cualquier hex vale;
+// Colores sugeridos para la tienda: vivos, de la familia de Punch. Cualquier hex vale;
 // el texto de los botones se elige solo (oscuro, crema o blanco) para que se lea.
 
 export const TEXTO_BLANCO = "#ffffff";
@@ -93,7 +93,7 @@ export function tonoDeEnlace(hex: string): string {
   return TEXTO_OSCURO;
 }
 
-/** Lo que hay guardado en `negocio.color` es el hex; si no es uno válido, se usa el de Lote. */
+/** Lo que hay guardado en `negocio.color` es el hex; si no es uno válido, se usa el de Punch. */
 export function colorDeMarca(guardado: string | null | undefined): ColorMarca {
   const hex = guardado?.trim().toLowerCase();
   if (!esHex(hex)) return COLOR_POR_DEFECTO;

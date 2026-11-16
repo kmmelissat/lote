@@ -380,7 +380,7 @@ export function SistemaDeDiseno() {
         </div>
         <Regla
           si="Usar el iso a color, con aire alrededor (al menos la mitad del ancho de la etiqueta) y de 16 px para arriba."
-          no="Estirarlo, girarlo, cambiarle los colores o ponerle sombra. Tampoco mezclarlo con el logo viejo de Lote."
+          no="Estirarlo, girarlo, cambiarle los colores o ponerle sombra. Tampoco mezclarlo con el logo viejo de Punch."
         />
       </Seccion>
 

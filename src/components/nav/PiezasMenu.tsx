@@ -33,7 +33,7 @@ export function Insignia({ n, urgente, enCamino = 0 }: { n: number; urgente: boo
   if (n === 0 && enCamino > 0) {
     return (
       <span className="relative flex shrink-0 group-data-[cerrado]:absolute group-data-[cerrado]:right-2 group-data-[cerrado]:top-1.5">
-        <span className="size-3 rounded-full border border-teal-oscuro bg-celeste" />
+        <span className="size-3 rounded-full border border-linea bg-celeste" />
         <span className="sr-only">{textos.nav.enCamino(enCamino)}</span>
       </span>
     );
@@ -106,7 +106,7 @@ export function TarjetaPerfil({
         aria-label={t.menuPerfil}
         className={
           botonClass ??
-          "flex min-h-12 w-full items-center gap-3 rounded-xl border border-teal-oscuro/15 bg-superficie p-1.5 text-left hover:border-teal-oscuro group-data-[cerrado]:justify-center group-data-[cerrado]:border-transparent"
+          "flex min-h-12 w-full items-center gap-3 rounded-xl border border-linea/15 bg-superficie p-1.5 text-left hover:border-teal-oscuro group-data-[cerrado]:justify-center group-data-[cerrado]:border-transparent"
         }
       >
         {perfil.logo ? (
@@ -117,8 +117,8 @@ export function TarjetaPerfil({
           </span>
         )}
         <span className={`flex min-w-0 flex-1 flex-col leading-tight group-data-[cerrado]:hidden ${soloAvatar ? "hidden" : ""}`}>
-          <span className="truncate text-sm font-bold max-md:text-base">{perfil.nombre}</span>
-          <span className={`text-xs max-md:text-sm ${claro ? "text-white/70" : "text-texto-2"}`}>{perfil.detalle}</span>
+          <span className="truncate text-base font-bold max-md:text-lg">{perfil.nombre}</span>
+          <span className={`text-sm max-md:text-base ${claro ? "text-white/70" : "text-texto-2"}`}>{perfil.detalle}</span>
         </span>
         <Icon
           nombre="ajustes"
@@ -126,7 +126,7 @@ export function TarjetaPerfil({
         />
       </button>
       {abierto && (
-        <div role="menu" className={`absolute z-30 w-60 rounded-2xl border border-teal-oscuro bg-superficie p-2 text-texto shadow-dura ${menuClass}`}>
+        <div role="menu" className={`absolute z-30 w-60 rounded-2xl border border-linea bg-superficie p-2 text-texto shadow-xs ${menuClass}`}>
           <Link
             href={textos.ayuda.ruta}
             role="menuitem"

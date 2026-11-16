@@ -19,7 +19,6 @@ import { terminos } from "./terminos";
 import { equipo } from "./equipo";
 import { invitacion } from "./invitacion";
 import { ayuda } from "./ayuda";
-import { presentacion } from "./presentacion";
 import { resenas } from "./resenas";
 import { exportar } from "./exportar";
 import { seguimiento } from "./seguimiento";
@@ -40,7 +39,7 @@ import { admin } from "./admin";
 import { promociones } from "./promociones";
 
 export const textos = {
-  nombre: "Lote",
+  nombre: "Punch",
   eslogan: "Tu tienda en línea y tus cuentas claras.",
   descripcion:
     "Una tienda en línea con tu enlace, donde te compran, y tus cuentas claras: inventario, pedidos, cobros, ganancia y balance.",
@@ -63,7 +62,6 @@ export const textos = {
   equipo,
   invitacion,
   ayuda,
-  presentacion,
   resenas,
   exportar,
   seguimiento,

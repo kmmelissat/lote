@@ -36,7 +36,7 @@ function armar(pathname: string): { casa: Casa; items: Miga[] } | null {
   const partes = pathname.split("/").filter(Boolean);
   if (!partes.length || SIN_MIGAS.has(partes[0])) return null;
 
-  // La portada de una tienda lleva su propia barra con el logo de Lote
+  // La portada de una tienda lleva su propia barra con el logo de Punch
   if (partes[0] === "c" && (partes.length === 2 || (partes.length === 3 && /^\d+$/.test(partes[2])))) return null;
 
   // El carrito también: lleva la barra de la tienda
@@ -79,11 +79,11 @@ function Pastilla({ children, actual, href, panel }: { children: ReactNode; actu
   // En el panel las migas son texto gris sin pastilla (Punch); la actual va en oscuro
   const clase = panel
     ? actual
-      ? "inline-flex max-w-full items-center gap-1 truncate text-[13px] font-semibold text-teal-oscuro"
-      : "inline-flex max-w-full items-center gap-1 truncate text-[13px] font-medium text-texto-2 hover:text-teal-oscuro"
+      ? "inline-flex max-w-full items-center gap-1 truncate text-base font-semibold text-teal-oscuro"
+      : "inline-flex max-w-full items-center gap-1 truncate text-base font-medium text-texto-2 hover:text-teal-oscuro"
     : actual
-    ? `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-extrabold text-teal-oscuro ${panel ? "bg-teal-fondo" : "bg-limon"}`
-    : `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-xs font-bold text-texto-2 ${panel ? "hover:bg-teal-fondo hover:text-teal-oscuro" : "hover:bg-crema hover:text-teal-oscuro"}`;
+    ? `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-sm font-extrabold text-teal-oscuro ${panel ? "bg-teal-fondo" : "bg-chip-amarillo"}`
+    : `inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-sm font-bold text-texto-2 ${panel ? "hover:bg-teal-fondo hover:text-teal-oscuro" : "hover:bg-gris-50 hover:text-teal-oscuro"}`;
   if (actual || !href) {
     return (
       <span aria-current={actual ? "page" : undefined} className={clase}>

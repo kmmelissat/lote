@@ -72,7 +72,7 @@ export function ZonaCarga({
           if (!e.currentTarget.contains(e.relatedTarget as Node)) setEncima(false);
         }}
         onDrop={soltadas}
-        className={`relative flex flex-1 flex-col items-center justify-center gap-5 rounded-3xl border border-dashed px-5 py-10 text-center transition-colors duration-150 lg:min-h-96 ${encima ? "border-teal bg-ficha-celeste/40" : "border-borde-control/60 bg-gris-50"}`}
+        className={`relative flex flex-1 flex-col items-center justify-center gap-5 rounded-3xl border border-dashed px-5 py-10 text-center transition-colors duration-150 lg:min-h-96 ${encima ? "border-teal bg-ficha-celeste/40" : "border-linea/60 bg-gris-50"}`}
       >
         <span className="absolute right-4 top-4 hidden rounded-lg bg-gris-100 px-2 py-0.5 text-xs font-medium text-texto-2 sm:block">
           {t.hasta(MAXIMO_FILAS)}

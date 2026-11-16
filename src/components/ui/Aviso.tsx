@@ -10,7 +10,7 @@ export function Aviso({ tipo = "info", children }: { tipo?: "info" | "alerta"; c
     <p
       role="status"
       className={`flex items-start gap-2 rounded-xl px-3 py-2 text-sm ${
-        tipo === "alerta" ? "bg-limon font-medium" : "border border-borde bg-superficie text-texto-2"
+        tipo === "alerta" ? "bg-chip-amarillo font-medium" : "border border-linea bg-superficie text-texto-2"
       }`}
     >
       <Icon nombre={tipo === "alerta" ? "alerta" : "info"} className="mt-0.5 size-4 shrink-0" />

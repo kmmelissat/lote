@@ -20,7 +20,7 @@ export function OpcionRadio({ titulo, ayuda, icono, forma = "pildora", ...input 
   const marca = (
     <span
       aria-hidden="true"
-      className="flex size-6 shrink-0 items-center justify-center rounded-full border border-borde-control bg-white transition-colors duration-150 group-has-[:checked]:border-teal group-has-[:checked]:bg-teal"
+      className="flex size-6 shrink-0 items-center justify-center rounded-full border border-linea bg-white transition-colors duration-150 group-has-[:checked]:border-teal group-has-[:checked]:bg-teal"
     >
       <Icon nombre="check" className="size-3.5 text-white opacity-0 transition-opacity duration-150 group-has-[:checked]:opacity-100" />
     </span>

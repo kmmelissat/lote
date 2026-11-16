@@ -195,7 +195,7 @@ export function SelectorGaleria({
             void subir([...e.dataTransfer.files]);
           }}
           className={`flex min-h-48 flex-col gap-3 rounded-3xl border border-dashed p-3 transition-colors ${
-            encima ? "border-teal bg-ficha-celeste/40" : "border-borde-control/60 bg-gris-50"
+            encima ? "border-teal bg-ficha-celeste/40" : "border-linea/60 bg-gris-50"
           }`}
         >
           {encima ? (
@@ -211,7 +211,7 @@ export function SelectorGaleria({
                   type="button"
                   disabled={subiendo}
                   onClick={() => entrada.current?.click()}
-                  className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-[14px] border border-dashed border-borde-control bg-superficie p-2 text-center text-xs font-medium text-teal-oscuro transition-colors hover:border-teal hover:bg-teal-fondo disabled:opacity-60"
+                  className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-[14px] border border-dashed border-linea bg-superficie p-2 text-center text-xs font-medium text-teal-oscuro transition-colors hover:border-teal hover:bg-teal-fondo disabled:opacity-60"
                 >
                   <Icon nombre="subir" className="size-6" />
                   {subiendo ? t.subiendo : fotos.length ? t.subir : t.arrastrar}

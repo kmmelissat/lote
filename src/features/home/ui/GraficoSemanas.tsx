@@ -22,7 +22,7 @@ function Detalle({ active, payload }: TooltipContentProps) {
   const punto = payload?.[0]?.payload as Punto | undefined;
   if (!active || !punto) return null;
   return (
-    <div className="rounded-xl border border-borde bg-superficie px-3 py-2 text-xs shadow-lg">
+    <div className="rounded-xl border border-linea bg-superficie px-3 py-2 text-xs shadow-lg">
       <p className="font-medium">{t.flujoSemanaDel(dia(punto.desde))}</p>
       <p>
         {t.flujoVendido}: {formatearDolares(Math.round(punto.vendido * 100))}

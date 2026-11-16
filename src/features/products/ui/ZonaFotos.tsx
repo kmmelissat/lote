@@ -114,7 +114,7 @@ export function ZonaFotos({
   // Con fotos ya puestas: no hace falta la franja grande. Las fotos en fila, un cuadrito para sumar más y se pueden reordenar.
   if (!compacto && conMiniaturas && rutas.length > 0) {
     const cuadro =
-      "flex size-24 flex-col items-center justify-center gap-1 rounded-[14px] border border-dashed border-borde-control/60 bg-gris-50 text-xs font-medium text-texto-2 transition-colors hover:border-teal hover:bg-teal-fondo hover:text-teal-oscuro disabled:opacity-50";
+      "flex size-24 flex-col items-center justify-center gap-1 rounded-[14px] border border-dashed border-linea/60 bg-gris-50 text-xs font-medium text-texto-2 transition-colors hover:border-teal hover:bg-teal-fondo hover:text-teal-oscuro disabled:opacity-50";
     return (
       <div className="flex flex-col gap-3">
         <div
@@ -259,7 +259,7 @@ export function ZonaFotos({
         onDrop={soltadas}
         className={`relative flex flex-col items-center gap-3 overflow-hidden border border-dashed text-center transition-colors duration-150 ${
           compacto ? "rounded-2xl p-3 sm:flex-row sm:text-left" : "rounded-3xl p-5"
-        } ${encima ? "border-teal bg-ficha-celeste/40" : "border-borde-control/60 bg-gris-50"} ${rutas.length && !compacto ? "sm:flex-row sm:text-left" : ""}`}
+        } ${encima ? "border-teal bg-ficha-celeste/40" : "border-linea/60 bg-gris-50"} ${rutas.length && !compacto ? "sm:flex-row sm:text-left" : ""}`}
       >
         {conLotito && !compacto && (
           <>

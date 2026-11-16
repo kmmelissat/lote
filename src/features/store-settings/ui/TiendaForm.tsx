@@ -5,16 +5,15 @@ import Link from "next/link";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { Aviso } from "@/components/ui/Aviso";
 import { BarraFormulario } from "@/components/ui/BarraFormulario";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { CampoTelefono } from "@/components/ui/CampoTelefono";
 import { Field } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
-import { LotitoMas } from "@/components/ui/LotitoMas";
 import { MensajeError } from "@/components/ui/MensajeError";
 import { OpcionRadio } from "@/components/ui/OpcionRadio";
 import { useAvisarListo, useToast } from "@/components/ui/Toast";
-import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
+import { Bloque, Fila, Seccion } from "@/components/ui/BloqueAjustes";
 import { subirBanner, subirLogo } from "@/lib/subirFotos";
 import { urlFoto } from "@/lib/fotos";
 import { slugDe } from "@/lib/slug";
@@ -61,7 +60,7 @@ function Muestra({ hex, nombre, elegido, onElegir }: { hex: string; nombre: stri
     >
       <span
         style={{ backgroundColor: hex, color: textoSobre(hex) }}
-        className={`flex size-11 items-center justify-center rounded-full border border-teal-oscuro ${elegido ? "ring-2 ring-texto ring-offset-2" : ""}`}
+        className={`flex size-9 items-center justify-center rounded-full border border-linea ${elegido ? "ring-2 ring-texto ring-offset-2" : ""}`}
       >
         {elegido && <Icon nombre="check" className="size-4" />}
       </span>
@@ -116,6 +115,7 @@ export function TiendaForm({
   const guardado = useRef<string>(undefined);
   const [sucio, setSucio] = useState(false);
   const idContexto = useId();
+  const [masColores, setMasColores] = useState(false);
   const propio = !COLORES_MARCA.some((c) => c.hex === color) && !delLogo.includes(color);
 
   // Los campos del formulario (los que tienen nombre) tal como van a viajar al guardar
@@ -186,7 +186,7 @@ export function TiendaForm({
   }
 
   return (
-    <form ref={formulario} action={accion} onInput={revisarCambios} onChange={revisarCambios} className="flex min-w-0 flex-col gap-4">
+    <form ref={formulario} action={accion} onInput={revisarCambios} onChange={revisarCambios} className="flex min-w-0 flex-1 flex-col gap-4">
       <input type="hidden" name="logo" value={logo} />
       <input type="hidden" name="color" value={color} />
       <input type="hidden" name="banner" value={banner} />
@@ -195,10 +195,10 @@ export function TiendaForm({
           <Seccion id="tienda" className={activa === "tienda" ? "" : "hidden"}>
             <Bloque titulo={t.secciones.marca} texto={t.secciones.marcaAyuda} tono="limon">
               <div className="flex min-w-0 items-start gap-4">
-                <div className="flex w-24 shrink-0 flex-col gap-1.5">
+                <div className="flex w-[8.9rem] shrink-0 flex-col gap-1.5">
                   <p className="text-sm font-medium">{t.logo}</p>
-                  <div className="relative size-20">
-                    <Logo ruta={logo} nombre={nombre} color={color} className="size-20 rounded-2xl border border-teal-oscuro" />
+                  <div className="relative size-[8.9rem]">
+                    <Logo ruta={logo} nombre={nombre} color={color} className="size-full rounded-2xl border border-linea" />
                     <input
                       ref={entrada}
                       type="file"
@@ -211,14 +211,14 @@ export function TiendaForm({
                     <label
                       htmlFor="archivo-logo"
                       title={subiendo ? t.subiendoLogo : logo ? t.cambiarLogo : t.subirLogo}
-                      className="absolute -bottom-1 -right-1 flex size-10 cursor-pointer items-center justify-center rounded-full border border-teal-oscuro bg-white text-teal-oscuro shadow-dura-chica"
+                      className="absolute -bottom-1 -right-1 flex size-10 cursor-pointer items-center justify-center rounded-full border border-linea bg-white text-teal-oscuro shadow-xs"
                     >
                       <Icon nombre="camara" className="size-4" />
                       <span className="sr-only">{subiendo ? t.subiendoLogo : logo ? t.cambiarLogo : t.subirLogo}</span>
                     </label>
                   </div>
                   {logo && (
-                    <button type="button" onClick={() => { setLogo(""); setDelLogo([]); }} className="text-sm font-medium text-texto-2 underline hover:text-teal-oscuro">
+                    <button type="button" onClick={() => { setLogo(""); setDelLogo([]); }} className="self-start text-base text-texto-2 underline hover:text-teal-oscuro">
                       {t.quitarLogo}
                     </button>
                   )}
@@ -239,39 +239,6 @@ export function TiendaForm({
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <p className="text-sm font-medium">{t.banner}</p>
-                <div className="relative aspect-[4/1] w-full overflow-hidden rounded-2xl border border-teal-oscuro" style={{ backgroundColor: color }}>
-                  {banner && <Image src={urlFoto(banner)} alt="" fill sizes="(min-width: 768px) 640px, 100vw" className="object-cover" />}
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    id="archivo-banner"
-                    onChange={(e) => {
-                      void elegirBanner(e.target.files?.[0]);
-                      e.target.value = "";
-                    }}
-                    disabled={subiendoBanner}
-                  />
-                  <label
-                    htmlFor="archivo-banner"
-                    className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-teal-oscuro bg-white px-4 text-sm font-bold text-teal-oscuro"
-                  >
-                    <Icon nombre="camara" className="size-4" />
-                    {subiendoBanner ? t.subiendoBanner : banner ? t.cambiarBanner : t.subirBanner}
-                  </label>
-                  {banner && (
-                    <button type="button" onClick={() => setBanner("")} className="text-sm font-medium text-texto-2 underline hover:text-teal-oscuro">
-                      {t.quitarBanner}
-                    </button>
-                  )}
-                </div>
-                <p className="text-sm text-texto-2">{t.bannerAyuda}</p>
-                <MensajeError>{errorBanner}</MensajeError>
-              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field etiqueta={t.instagram} name="instagram" autoComplete="off" placeholder={t.instagramPlaceholder} value={instagram} onChange={(e) => setInstagram(e.target.value)} />
                 <Field etiqueta={t.facebook} name="facebook" autoComplete="off" placeholder={t.facebookPlaceholder} value={facebook} onChange={(e) => setFacebook(e.target.value)} />
@@ -279,16 +246,28 @@ export function TiendaForm({
                 <p className="text-sm text-texto-2 sm:col-span-2">{t.redesAyuda}</p>
               </div>
             </Bloque>
+          </Seccion>
 
-            <Bloque titulo={v.opcional.titulo} texto={v.opcional.texto} tono="mango" className="border-t border-teal-oscuro/15 pt-5">
-              <Interruptor name="vitrina" titulo={v.opcional.interruptor} ayuda={v.opcional.ayuda} activo={vitrina} onCambio={setVitrina} />
+          <Seccion id="vitrina" className={activa === "vitrina" ? "" : "hidden"}>
+            <Bloque
+              titulo={v.opcional.titulo}
+              texto={`${v.opcional.texto} ${v.opcional.ayuda}`}
+              tono="mango"
+              accion={<Interruptor soloSwitch name="vitrina" titulo={v.opcional.interruptor} activo={vitrina} onCambio={setVitrina} />}
+            >
               {!vitrina && <Aviso>{v.opcional.apagada}</Aviso>}
-              <div className={`flex flex-col gap-1.5 ${vitrina ? "" : "hidden"}`}>
-                <label htmlFor="direccion-vitrina" className="text-sm font-medium">
-                  {v.miEnlace}
-                </label>
-                <div className="flex h-12 min-w-0 items-center overflow-hidden rounded-[14px] border border-borde-control bg-superficie focus-within:border-teal">
-                  <span className="shrink-0 bg-fondo px-3 py-3.5 text-sm text-texto-2">{urlSitio.replace(/^https?:\/\//, "")}/c/</span>
+              <div className={`flex flex-col gap-2 ${vitrina ? "" : "hidden"}`}>
+                <div className="flex items-baseline justify-between gap-4">
+                  <label htmlFor="direccion-vitrina" className="text-sm font-medium">
+                    {v.miEnlace}
+                  </label>
+                  <button type="button" onClick={() => setDireccion(slugDe(nombre))} className="text-sm font-medium text-teal underline-offset-2 hover:underline">
+                    {t.slug.usarNombre}
+                  </button>
+                </div>
+                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex h-12 min-w-0 flex-1 items-center overflow-hidden rounded-[14px] border border-linea bg-superficie focus-within:border-teal">
+                  <span className="shrink-0 bg-fondo px-3 py-3.5 text-base text-texto-2">{urlSitio.replace(/^https?:\/\//, "")}/c/</span>
                   <input
                     id="direccion-vitrina"
                     name="slug"
@@ -304,7 +283,7 @@ export function TiendaForm({
                     type="button"
                     onClick={async () => {
                       try {
-                        await navigator.clipboard.writeText(`${urlSitio}/c/${identidad.slug}`);
+                        await navigator.clipboard.writeText(`${urlSitio}/c/${direccion}`);
                         avisar(v.enlaceCopiado, { tipo: "exito" });
                       } catch {
                         avisar(v.enlaceNoCopiado, { tipo: "error" });
@@ -317,75 +296,132 @@ export function TiendaForm({
                     <Icon nombre="copiar" className="size-4" />
                   </button>
                 </div>
-                <p className="text-sm text-texto-2">
-                  {v.miEnlaceAyuda}{" "}
-                  <button type="button" onClick={() => setDireccion(slugDe(nombre))} className="font-bold text-teal underline">
-                    {t.slug.usarNombre}
-                  </button>
-                </p>
+                </div>
+                <p className="text-sm leading-relaxed text-texto-2">{v.miEnlaceAyuda}</p>
                 {direccion !== identidad.slug && <Aviso tipo="alerta">{t.slug.aviso}</Aviso>}
+              </div>
+              <div className={`flex flex-col gap-1 ${vitrina ? "" : "hidden"}`}>
+                              <Interruptor name="explorar" titulo={v.explorar} ayuda={v.explorarAyuda} activo={explorar} onCambio={setExplorar} />
+              <Link href="/marketplace" target="_blank" className="inline-flex min-h-11 items-center gap-2 self-start font-bold text-teal underline">
+                {v.verExplorar}
+                <Icon nombre="enlace" className="size-4" />
+                <span className="sr-only">(se abre en una pestaña nueva)</span>
+              </Link>
               </div>
             </Bloque>
 
-            <Bloque titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto} tono="rosa" className={`border-t border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
+            <Bloque titulo={v.grupos.pedidos.titulo} texto={v.grupos.pedidos.texto} tono="rosa" className={vitrina ? "" : "hidden"}>
               <Interruptor name="comprar" titulo={v.comprar} ayuda={v.comprarAyuda} activo={comprar} onCambio={setComprar} />
-              <Interruptor name="apartar" titulo={v.apartar} ayuda={v.apartarAyuda} activo={apartar} onCambio={setApartar} />
-              <Aviso>{!comprar && !apartar ? v.modoCatalogo : comprar && apartar ? v.modoAmbos : comprar ? v.modoComprar : v.modoApartar}</Aviso>
-              <Replegable titulo={t.indice.apartados}>
-                <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${apartar ? "" : "opacity-60"}`}>
+              <div>
+                <Interruptor name="apartar" titulo={v.apartar} ayuda={v.apartarAyuda} activo={apartar} onCambio={setApartar} />
+                {/* Los campos se ocultan, no se quitan: así el plazo y el límite siguen viajando en el formulario */}
+                <div className={apartar ? "mt-3 grid grid-cols-1 gap-4 border-l-2 border-linea pl-5 sm:grid-cols-2" : "hidden"}>
                   <Field etiqueta={v.plazo} name="plazo" type="number" min={1} max={168} inputMode="numeric" defaultValue={ajustes.plazoHoras} />
                   <Field etiqueta={v.limite} name="limite" type="number" min={1} max={20} inputMode="numeric" defaultValue={ajustes.limitePorContacto} />
                 </div>
-                {!apartar && <Aviso>{v.apagadoAviso}</Aviso>}
-              </Replegable>
+              </div>
             </Bloque>
+          </Seccion>
 
-            <Bloque titulo={v.look.titulo} texto={v.look.texto} tono="celeste" className={`border-t border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
-              <div className="grid items-start gap-6 lg:grid-cols-2">
-                <div className="flex min-w-0 flex-col gap-4">
-                  <Field etiqueta={t.frase} name="frase" maxLength={120} placeholder={t.fraseAyuda} value={frase} onChange={(e) => setFrase(e.target.value)} />
-                  <fieldset className="flex min-w-0 flex-col gap-3">
-                    <legend className="text-sm font-medium">{t.color}</legend>
+          <Seccion id="apariencia" className={activa === "apariencia" ? "" : "hidden"}>
+            {!vitrina && <Aviso>{v.opcional.apagada}</Aviso>}
+            <Bloque titulo={v.look.titulo} texto={v.look.texto} tono="celeste" className={vitrina ? "" : "hidden"}>
+              <div className="grid items-start gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_19rem]">
+                <div className="flex min-w-0 flex-col divide-y divide-linea [&>*]:py-5 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">
+                  <Fila etiqueta={t.banner} ayuda={t.bannerAyuda}>
+                {/* Baja (96 a 112 px). Sin banner, una zona punteada para subirlo: el color de marca se elige aparte */}
+                <div className="relative h-24 w-full overflow-hidden rounded-2xl border border-linea sm:h-28">
+                  {banner ? (
+                    <Image src={urlFoto(banner)} alt="" fill sizes="(min-width: 768px) 640px, 100vw" className="object-cover" />
+                  ) : (
+                    <label
+                      htmlFor="archivo-banner"
+                      className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-linea bg-gris-50 text-base font-medium text-texto-2 transition-colors hover:border-teal hover:bg-teal-fondo hover:text-teal-oscuro"
+                    >
+                      <Icon nombre="subir" className="size-5" />
+                      {subiendoBanner ? t.subiendoBanner : t.subirBanner}
+                    </label>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    id="archivo-banner"
+                    onChange={(e) => {
+                      void elegirBanner(e.target.files?.[0]);
+                      e.target.value = "";
+                    }}
+                    disabled={subiendoBanner}
+                  />
+                  {banner && (
+                    <label
+                      htmlFor="archivo-banner"
+                      className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[14px] border border-linea bg-superficie px-4 text-base font-medium text-teal-oscuro"
+                    >
+                      <Icon nombre="camara" className="size-4" />
+                      {subiendoBanner ? t.subiendoBanner : t.cambiarBanner}
+                    </label>
+                  )}
+                  {banner && (
+                    <button type="button" onClick={() => setBanner("")} className="self-start text-base text-texto-2 underline hover:text-teal-oscuro">
+                      {t.quitarBanner}
+                    </button>
+                  )}
+                </div>
+                <MensajeError>{errorBanner}</MensajeError>
+              </Fila>
+                  <Fila etiqueta={t.frase} ayuda={t.fraseAyuda}>
+                    <Field etiquetaOculta etiqueta={t.frase} name="frase" maxLength={120} value={frase} onChange={(e) => setFrase(e.target.value)} />
+                  </Fila>
+                  <Fila etiqueta={t.color} ayuda={t.colorAyuda}>
+                    <div role="group" aria-label={t.color} className="flex min-w-0 flex-col gap-3">
                     <div className="flex flex-wrap gap-1.5">
-                      {COLORES_MARCA.map((c) => (
+                      {(masColores ? COLORES_MARCA : COLORES_MARCA.filter((c, i) => i < 8 || c.hex === color)).map((c) => (
                         <Muestra key={c.id} hex={c.hex} nombre={c.nombre} elegido={color === c.hex} onElegir={() => setColor(c.hex)} />
                       ))}
+                      {COLORES_MARCA.length > 8 && (
+                        <button type="button" onClick={() => setMasColores((v) => !v)} aria-expanded={masColores} className="inline-flex h-9 cursor-pointer items-center rounded-[12px] px-2.5 text-base font-medium text-teal underline-offset-2 hover:underline">
+                          {masColores ? t.menosColores : t.masColores}
+                        </button>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <label className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border border-teal-oscuro bg-white px-3 text-sm font-bold ${propio ? "ring-2 ring-texto ring-offset-2" : ""}`}>
-                        <span className="relative size-7 overflow-hidden rounded-full border border-teal-oscuro" style={{ backgroundColor: color }}>
+                      <label className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-[14px] border border-linea bg-superficie px-3 text-base font-medium ${propio ? "ring-2 ring-texto ring-offset-2" : ""}`}>
+                        <span className="relative size-7 overflow-hidden rounded-full border border-linea" style={{ backgroundColor: color }}>
                           <input type="color" value={color} onChange={(e) => setColor(e.target.value.toLowerCase())} aria-label={t.colorPropio} className="absolute inset-0 size-full cursor-pointer opacity-0" />
                         </span>
                         {t.colorPropio}
                       </label>
                       {delLogo.length > 0 ? (
                         <>
-                          <span className="text-sm font-medium text-texto-2">{t.colorDelLogo}</span>
+                          <span className="text-base font-medium text-texto-2">{t.colorDelLogo}</span>
                           {delLogo.map((hex) => (
                             <Muestra key={hex} hex={hex} nombre={t.colorDelLogo} elegido={color === hex} onElegir={() => setColor(hex)} />
                           ))}
                         </>
                       ) : (
                         logo && (
-                          <button type="button" onClick={() => void sacarDelLogo()} className="text-sm font-bold text-teal underline">
+                          <button type="button" onClick={() => void sacarDelLogo()} className="text-base font-bold text-teal underline">
                             {t.sacarDelLogo}
                           </button>
                         )
                       )}
                     </div>
-                  </fieldset>
+                  </div>
+                  </Fila>
                 </div>
                 <div style={estiloDeMarca(color)} className="lg:sticky lg:top-4">
-                  <p className="mb-2 text-sm font-medium">{t.vistaPrevia}</p>
-                  <div className="overflow-hidden rounded-3xl border border-teal-oscuro bg-superficie">
-                    <div aria-hidden="true" className="h-7 bg-accion" />
+                  <div className="overflow-hidden rounded-3xl border border-linea bg-superficie">
+                    <div aria-hidden="true" className="h-7" style={{ backgroundColor: color }} />
                     <div className="flex flex-col gap-3 px-4 pb-4">
                       <Logo ruta={logo} nombre={nombre} color={color} className="-mt-5 size-14 rounded-2xl border border-superficie ring-2 ring-teal-oscuro" />
                       <div className="min-w-0">
                         <p className="text-xl font-bold leading-tight">{nombre.trim() || identidad.nombre}</p>
                         {frase.trim() ? <p className="mt-1 text-sm leading-relaxed text-texto-2">{frase}</p> : null}
                       </div>
-                      <span className="inline-flex h-10 w-fit max-w-full items-center justify-center rounded-full border border-teal-oscuro bg-accion px-5 text-sm font-bold text-accion-texto">
+                      <span className="inline-flex h-10 w-fit max-w-full items-center justify-center rounded-[14px] bg-teal-oscuro px-5 text-base font-medium text-accion-texto">
                         {textos.vitrina.pedirWhatsApp}
                       </span>
                     </div>
@@ -394,25 +430,16 @@ export function TiendaForm({
               </div>
             </Bloque>
 
-            <Bloque titulo={v.confianza.titulo} texto={v.confianza.texto} tono="rosa" className={`border-t border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Bloque titulo={v.confianza.titulo} texto={v.confianza.texto} tono="rosa" className={vitrina ? "" : "hidden"}>
+              <div className="max-w-md">
                 <Field etiqueta={v.confianza.tiempo} name="tiempo_entrega" maxLength={80} placeholder={v.confianza.tiempoPlaceholder} defaultValue={ajustes.tiempoEntrega ?? ""} />
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="politica-cambios" className="text-sm font-medium">
-                    {v.confianza.cambios}
-                  </label>
-                  <Textarea id="politica-cambios" name="politica_cambios" rows={3} maxLength={300} defaultValue={ajustes.politicaCambios ?? ""} placeholder={v.confianza.cambiosPlaceholder} />
-                </div>
               </div>
-            </Bloque>
-
-            <Bloque titulo={v.grupos.explorar.titulo} texto={v.grupos.explorar.texto} tono="limon" className={`border-t border-teal-oscuro/15 pt-5 ${vitrina ? "" : "hidden"}`}>
-              <Interruptor name="explorar" titulo={v.explorar} ayuda={v.explorarAyuda} activo={explorar} onCambio={setExplorar} />
-              <Link href="/marketplace" target="_blank" className="inline-flex min-h-11 items-center gap-2 self-start font-bold text-teal underline">
-                {v.verExplorar}
-                <Icon nombre="enlace" className="size-4" />
-                <span className="sr-only">(se abre en una pestaña nueva)</span>
-              </Link>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="politica-cambios" className="text-sm font-medium">
+                  {v.confianza.cambios}
+                </label>
+                <Textarea id="politica-cambios" name="politica_cambios" rows={3} maxLength={300} defaultValue={ajustes.politicaCambios ?? ""} placeholder={v.confianza.cambiosPlaceholder} />
+              </div>
             </Bloque>
           </Seccion>
 
@@ -437,26 +464,23 @@ export function TiendaForm({
               </fieldset>
             </Bloque>
 
-            <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste" className="border-t border-teal-oscuro/15 pt-5">
+            <Bloque titulo={v.local.titulo} texto={v.local.texto} tono="celeste">
               <Interruptor name="local" titulo={v.local.interruptor} ayuda={v.local.ayuda} activo={local} onCambio={setLocal} />
               {local && <Aviso>{v.local.prendido}</Aviso>}
             </Bloque>
 
-            <Bloque titulo={v.grupos.stock.titulo} texto={v.grupos.stock.texto} tono="mango" className="border-t border-teal-oscuro/15 pt-5">
-              <div className="flex max-w-sm flex-col gap-1">
-                <Field etiqueta={v.umbral} name="umbral" type="number" min={0} max={50} inputMode="numeric" defaultValue={ajustes.umbralPocoStock} />
-                <p className="text-sm text-texto-2">{v.umbralAyuda}</p>
-              </div>
+            <Bloque titulo={v.grupos.stock.titulo} texto={v.grupos.stock.texto} tono="mango">
+              <Fila etiqueta={v.umbral} ayuda={v.umbralAyuda}>
+                <div className="max-w-40">
+                  <Field etiquetaOculta etiqueta={v.umbral} name="umbral" type="number" min={0} max={50} inputMode="numeric" defaultValue={ajustes.umbralPocoStock} />
+                </div>
+              </Fila>
             </Bloque>
-          </Seccion>
 
-          <Seccion id="lotito" className={`mt-10 ${activa === "lotito" ? "" : "hidden"}`}>
-            {/* Punch se asoma por el borde de la tarjeta, como en "Para hoy" de Inicio */}
-            <LotitoMas nombre="asoma" className="pointer-events-none absolute -top-[3.3rem] right-6 w-28" />
             <Bloque titulo={t.secciones.lotito} texto={t.secciones.lotitoAyuda} tono="limon">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor={idContexto} className="text-sm font-bold">
-                  {t.contexto}
+                <label htmlFor={idContexto} className="text-sm font-medium">
+                    {t.contexto}
                 </label>
                 <Textarea
                   id={idContexto}
@@ -470,9 +494,8 @@ export function TiendaForm({
                 <p className="text-right text-xs tabular-nums text-texto-2" aria-live="polite">
                   {t.contextoContador(contexto.length, LIMITE_CONTEXTO)}
                 </p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <p className="text-sm font-bold">{t.ideasTitulo}</p>
+                <div className="mt-4 flex flex-col gap-2">
+                <p className="text-sm font-medium">{t.ideasTitulo}</p>
                 <ul className="flex flex-wrap gap-2">
                   {t.ideas.map((idea) => (
                     <li key={idea.titulo}>
@@ -483,7 +506,7 @@ export function TiendaForm({
                           setContexto(`${base ? `${base}\n` : ""}${idea.inicio}`.slice(0, LIMITE_CONTEXTO));
                           document.getElementById(idContexto)?.focus();
                         }}
-                        className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-borde-control bg-superficie px-4 text-sm font-bold text-teal-oscuro transition-colors hover:bg-teal-fondo md:min-h-10"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-linea bg-superficie px-3.5 text-sm font-medium text-teal-oscuro transition-colors hover:bg-teal-fondo md:min-h-10"
                       >
                         <Icon nombre="mas" className="size-4" />
                         {idea.titulo}
@@ -492,19 +515,21 @@ export function TiendaForm({
                   ))}
                 </ul>
               </div>
-              <Aviso>{t.lotitoNota}</Aviso>
+              </div>
+              <p className="text-sm text-texto-2">{t.lotitoNota}</p>
             </Bloque>
           </Seccion>
       </div>
 
       <MensajeError>{estado.error}</MensajeError>
       <BarraFormulario>
-        <p role="status" className={`mr-auto text-sm ${sucio ? "font-medium text-teal-oscuro" : "text-texto-2"}`}>
+        <p role="status" className={`mr-auto text-base ${sucio ? "font-medium text-teal-oscuro" : "text-texto-2"}`}>
           {sucio ? t.cambiosSinGuardar : t.sinCambios}
         </p>
-        <Button type="submit" variante="mango" icono="check" disabled={pendiente || subiendo || !sucio}>
+        <BotonPunch type="submit" disabled={pendiente || subiendo || !sucio}>
+          <Icon nombre="check" className="size-5 shrink-0" />
           {pendiente ? t.guardando : t.guardar}
-        </Button>
+        </BotonPunch>
       </BarraFormulario>
     </form>
   );

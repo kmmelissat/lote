@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { Aviso } from "@/components/ui/Aviso";
 import { BarraFormulario } from "@/components/ui/BarraFormulario";
 import { Bloque, Replegable, Seccion } from "@/components/ui/BloqueAjustes";
-import { Button } from "@/components/ui/Button";
+import { BotonPunch } from "@/components/ui/BotonesPunch";
 import { Icon } from "@/components/ui/Icon";
 import { Interruptor } from "@/components/ui/Interruptor";
 import { MensajeError } from "@/components/ui/MensajeError";
@@ -24,7 +24,7 @@ const t = textos.ajustes.envios;
 function Dolares({ id, name, value, onChange, placeholder, className }: { id: string; name: string; value: string; onChange: (v: string) => void; placeholder: string; className: string }) {
   return (
     <span className={`relative block shrink-0 ${className}`}>
-      <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-bold text-texto-2">
+      <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-semibold text-texto-2">
         $
       </span>
       <input
@@ -34,7 +34,7 @@ function Dolares({ id, name, value, onChange, placeholder, className }: { id: st
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(limpiarSiNumero(e.target.value, "decimal"))}
-        className="h-11 w-full rounded-[14px] border border-borde-control bg-superficie pl-7 pr-3 text-right text-base font-bold tabular-nums focus:border-teal"
+        className="h-11 w-full rounded-[14px] border border-linea bg-superficie pl-7 pr-3 text-right text-base font-semibold tabular-nums focus:border-teal"
       />
     </span>
   );
@@ -42,29 +42,30 @@ function Dolares({ id, name, value, onChange, placeholder, className }: { id: st
 
 function Quien() {
   const opciones = [
-    { clave: "lote", icono: "caja", titulo: t.quienLote, texto: t.quienLoteTexto, disponible: false },
     { clave: "propio", icono: "camion", titulo: t.quienPropio, texto: t.quienPropioTexto, disponible: true },
+    { clave: "lote", icono: "caja", titulo: t.quienLote, texto: t.quienLoteTexto, disponible: false },
   ] as const;
   return (
-    <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
+    <ul className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
       {opciones.map((o) => (
         <li
           key={o.clave}
-          className={`flex items-start gap-3 rounded-[20px] border p-4 ${
-            o.disponible ? "border-teal-oscuro bg-superficie" : "border-dashed border-borde-control bg-superficie opacity-80"
-          }`}
+          className={`flex items-start gap-3 ${o.disponible ? "" : "opacity-70"}`}
         >
-          <span className={`flex size-11 shrink-0 items-center justify-center rounded-full text-teal-oscuro ${o.disponible ? "bg-teal-fondo" : "bg-fondo"}`}>
-            <Icon nombre={o.icono} className="size-6" />
+          <span className={`flex size-10 shrink-0 items-center justify-center rounded-[12px] text-teal-oscuro ${o.disponible ? "bg-ficha-celeste" : "bg-gris-100"}`}>
+            <Icon nombre={o.icono} className="size-5" />
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="flex flex-wrap items-center gap-2">
-              <span className="font-bold">{o.titulo}</span>
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${o.disponible ? "bg-teal-fondo text-teal-oscuro" : "bg-fondo text-texto-2"}`}>
-                {o.disponible ? t.elegido : t.proximamente}
-              </span>
-            </span>
+            <span className="text-base font-bold">{o.titulo}</span>
             <span className="text-sm text-texto-2">{o.texto}</span>
+          </span>
+          <span
+            className={`inline-flex h-9 shrink-0 items-center gap-1.5 self-center rounded-full px-4 text-sm font-bold ${
+              o.disponible ? "bg-teal text-white" : "border border-linea bg-gris-100 text-texto-2"
+            }`}
+          >
+            {o.disponible && <Icon nombre="check" className="size-4" />}
+            {o.disponible ? t.elegido : t.proximamente}
           </span>
         </li>
       ))}
@@ -113,13 +114,13 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
   const propias = visibles.filter((d) => (porDepto[d] ?? "").trim() !== "").length;
 
   return (
-    <form action={accion} className="flex min-w-0 flex-col gap-4">
+    <form action={accion} className="flex min-w-0 flex-1 flex-col gap-4">
       <Seccion id="envios">
         <Bloque titulo={t.quienTitulo} texto={t.quienTexto} tono="celeste">
           <Quien />
         </Bloque>
 
-        <Bloque titulo={t.retiroTitulo} texto={t.retiroTexto} tono="rosa" className="border-t border-teal-oscuro/15 pt-5">
+        <Bloque titulo={t.retiroTitulo} texto={t.retiroTexto} tono="rosa">
           {/* Sin dirección no hay retiro: el interruptor apagado manda la dirección vacía, pero lo escrito se queda por si lo prendés de nuevo */}
           <input type="hidden" name="retiro" value={recoger ? retiro : ""} />
           <Interruptor titulo={t.retiroInterruptor} ayuda={t.retiroInterruptorAyuda} activo={recoger} onCambio={setRecoger} />
@@ -138,25 +139,27 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
             />
           </div>
           {/* Solo es alerta cuando falta la dirección: dice que retiran pero no a dónde */}
-          <Aviso tipo={recoger && !hayRetiro ? "alerta" : "info"}>
-            {hayRetiro ? t.retiroActivo : recoger ? t.retiroSinDireccion : t.retiroApagado}
-          </Aviso>
+          {recoger && !hayRetiro ? (
+            <Aviso tipo="alerta">{t.retiroSinDireccion}</Aviso>
+          ) : (
+            <p className="text-sm text-texto-2">{hayRetiro ? t.retiroActivo : t.retiroApagado}</p>
+          )}
         </Bloque>
 
-        <Bloque titulo={t.zonas.titulo} texto={t.zonas.texto} tono="limon" className="border-t border-teal-oscuro/15 pt-5">
+        <Bloque titulo={t.zonas.titulo} texto={t.zonas.texto} tono="limon">
           <ZonasEntregaInput todo={todo} onTodo={setTodo} marcadas={marcadas} onMarcadas={setMarcadas} />
         </Bloque>
 
-        <Bloque titulo={t.tarifasTitulo} texto={t.tarifasTexto} tono="mango" className="border-t border-teal-oscuro/15 pt-5">
-          <div className="flex flex-col gap-3 rounded-2xl border border-teal-oscuro bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+        <Bloque titulo={t.tarifasTitulo} texto={t.tarifasTexto} tono="mango">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 flex-col gap-0.5">
-              <label htmlFor="tarifa-defecto" className="font-bold">
+              <label htmlFor="tarifa-defecto" className="text-base font-bold">
                 {t.defecto}
               </label>
               <p className="text-sm text-texto-2">{t.defectoAyuda}</p>
             </div>
             <div className="flex items-center gap-3">
-              {defectoCentavos === 0 && <span className="rounded-full bg-teal-fondo px-2.5 py-0.5 text-xs font-bold text-teal-oscuro">{t.previaGratis}</span>}
+              {defectoCentavos === 0 && <span className="rounded-lg bg-teal-fondo px-2.5 py-0.5 text-xs font-semibold text-teal-oscuro">{t.previaGratis}</span>}
               <Dolares id="tarifa-defecto" name="defecto" value={defecto} onChange={setDefecto} placeholder="0.00" className="w-28" />
             </div>
           </div>
@@ -170,10 +173,10 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
                   <div
                     key={d}
                     className={`${visibles.includes(d) ? "flex" : "hidden"} items-center justify-between gap-3 rounded-xl border px-3 py-2 ${
-                      propia ? "border-teal-oscuro bg-teal-fondo" : "border-borde bg-white"
+                      propia ? "border-teal-oscuro bg-teal-fondo" : "border-transparent bg-gris-100/50"
                     }`}
                   >
-                    <label htmlFor={`tarifa-${i}`} className="min-w-0 truncate text-sm font-bold">
+                    <label htmlFor={`tarifa-${i}`} className="min-w-0 truncate text-sm font-semibold">
                       {t.departamento(d)}
                     </label>
                     <Dolares
@@ -198,9 +201,10 @@ export function TarifasForm({ tarifas }: { tarifas: Tarifas }) {
         <p role="status" className={`mr-auto text-sm ${sucio ? "font-medium text-teal-oscuro" : "text-texto-2"}`}>
           {sucio ? t.cambiosSinGuardar : t.sinCambios}
         </p>
-        <Button type="submit" variante="mango" icono="check" disabled={pendiente || !sucio}>
+        <BotonPunch type="submit" disabled={pendiente || !sucio}>
+          <Icon nombre="check" className="size-5 shrink-0" />
           {pendiente ? t.guardando : t.guardar}
-        </Button>
+        </BotonPunch>
       </BarraFormulario>
     </form>
   );

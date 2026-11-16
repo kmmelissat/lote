@@ -18,7 +18,7 @@ export interface Cola {
     id: string,
     cierre: { estado: "enviado" | "omitido" | "fallido"; motivo?: string; externo?: string; reintentar?: boolean },
   ): Promise<void>;
-  /** Último mensaje que esa persona le escribió a Lote: abre la ventana de 24 horas. Null si nunca o si no se sabe. */
+  /** Último mensaje que esa persona le escribió a Punch: abre la ventana de 24 horas. Null si nunca o si no se sabe. */
   ultimoMensajeDe?(telefono: string): Promise<Date | null>;
 }
 

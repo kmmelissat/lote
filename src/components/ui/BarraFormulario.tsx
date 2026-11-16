@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
  */
 export function BarraFormulario({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`barra-formulario sticky bottom-0 z-20 col-span-full -mx-4 mt-auto flex flex-wrap items-center justify-end gap-3 border-t border-borde bg-superficie px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:-mx-6 md:px-6 ${className}`}>
+    <div className={`barra-formulario sticky bottom-0 z-20 col-span-full -mx-4 mt-auto flex flex-wrap items-center justify-end gap-3 border-t border-linea bg-superficie px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:-mx-6 md:px-6 ${className}`}>
       {children}
     </div>
   );

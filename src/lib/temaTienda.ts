@@ -1,6 +1,6 @@
 // Colores accesibles a partir del color de marca de una tienda. Sin librerías: contraste WCAG y HSL a mano.
 
-/** El teal real de Lote: respaldo cuando el color es inválido o casi gris, blanco o negro */
+/** El teal real de Punch: respaldo cuando el color es inválido o casi gris, blanco o negro */
 export const TEAL_LOTE = "#006c67";
 /** Fondo de la página (--color-fondo) contra el que se miden el texto y los botones */
 export const FONDO = "#f5f8f7";

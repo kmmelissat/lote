@@ -24,8 +24,8 @@ export default function PanelLayout({ children }: LayoutProps<"/">) {
       <Suspense fallback={<NavSinDatos />}>
         <NavConDatos />
       </Suspense>
-      <main id="contenido" tabIndex={-1} className="relative mx-auto mb-2 w-[calc(100%-1rem)] rounded-[24px] border border-linea bg-superficie px-4 pb-24 pt-4 md:mx-0 md:my-3 md:w-full md:mr-3 md:flex-1 md:overflow-y-auto md:rounded-[32px] md:border md:border-linea md:bg-superficie md:p-12 has-[.barra-formulario]:pb-0">
-        <div className="md:max-w-none mx-auto max-w-[1100px]">
+      <main id="contenido" tabIndex={-1} className="relative mx-auto mb-2 flex min-h-[calc(100dvh-5rem)] w-[calc(100%-1rem)] flex-col rounded-[24px] border border-linea bg-superficie px-4 pb-24 pt-4 md:mx-0 md:my-3 md:w-full md:mr-3 md:flex-1 md:overflow-y-auto md:rounded-[32px] md:border md:border-linea md:bg-superficie md:p-12 has-[.barra-formulario]:pb-0">
+        <div className="md:max-w-none mx-auto flex w-full max-w-[1100px] flex-1 flex-col">
           <Migas />
           <RequiereNegocio />
           {children}

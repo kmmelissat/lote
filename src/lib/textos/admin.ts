@@ -1,5 +1,5 @@
 export const admin = {
-  titulo: "Admin de Lote",
+  titulo: "Admin de Punch",
   descripcion: "Elegí qué productos salen en Destacados, arriba del Marketplace. El último que destacás va primero.",
   buscar: "Buscar producto o tienda",
   buscarBoton: "Buscar",

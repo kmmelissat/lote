@@ -62,7 +62,7 @@ export function FotoInput({ negocioId, name, onCambio, maximo = MAXIMO_FOTOS, me
               alt={t.foto(i + 1)}
               width={96}
               height={96}
-              className="size-24 rounded-xl border border-borde object-cover"
+              className="size-24 rounded-xl border border-linea object-cover"
             />
             <button
               type="button"

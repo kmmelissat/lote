@@ -62,7 +62,7 @@ export function Tira({
     el.scrollBy({ left: lado * paso, behavior: "smooth" });
   };
   const flecha =
-    `${flechasEnMovil ? "" : "max-md:hidden "}absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-teal-oscuro bg-superficie text-teal-oscuro shadow-dura-chica hover:bg-teal-fondo`;
+    `${flechasEnMovil ? "" : "max-md:hidden "}absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-linea bg-superficie text-teal-oscuro shadow-xs hover:bg-teal-fondo`;
 
   return (
     <div className={`relative ${porPaginas ? "-mx-1" : ""}`}>

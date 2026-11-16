@@ -37,7 +37,7 @@ export function TarjetaGanancia({
         <p className="text-4xl font-semibold tabular-nums tracking-tight text-teal-oscuro">{formatearDolares(ganancia)}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        {vs && <span className="rounded-lg border border-teal-oscuro/10 bg-ficha-verde px-2.5 py-1 font-semibold">{t.contraSemana(vs)}</span>}
+        {vs && <span className="rounded-lg border border-linea/10 bg-ficha-verde px-2.5 py-1 font-semibold">{t.contraSemana(vs)}</span>}
         {estimada && <span className="rounded-lg border border-linea bg-gris-50 px-2.5 py-1 font-medium">{t.gananciaEstimada}</span>}
         {!vs && !estimada && <span className="text-texto-2">{t.quePasa.ganancia}</span>}
       </div>

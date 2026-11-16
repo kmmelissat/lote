@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-// Datos estructurados: qué es Lote (una aplicación gratis para empezar) y sus preguntas frecuentes, para los buscadores.
+// Datos estructurados: qué es Punch (una aplicación gratis para empezar) y sus preguntas frecuentes, para los buscadores.
 const datosEstructurados = {
   "@context": "https://schema.org",
   "@graph": [
@@ -61,21 +61,13 @@ export default async function Landing() {
       <Encabezado conSesion={conSesion} />
       <main id="contenido" className="overflow-x-clip">
         <M.Hero conSesion={conSesion} />
-        <M.Cinta />
         <M.Problema />
-        <M.Ola de="var(--color-rosa-palido, #fdeaf1)" a="var(--color-celeste-palido, #e2f4fc)" />
         <M.Pasos />
-        <M.Ola de="var(--color-celeste-palido, #e2f4fc)" a="white" />
         <M.Funciones />
-        <M.Ola de="white" a="var(--color-mango, #ff9a2e)" />
         <M.Buscar />
-        <M.Ola de="var(--color-mango, #ff9a2e)" a="var(--color-crema, #fff7e8)" />
         <M.Principios />
-        <M.Ola de="var(--color-crema, #fff7e8)" a="var(--color-limon, #ffe27a)" />
         <M.Precios conSesion={conSesion} />
-        <M.Ola de="var(--color-limon, #ffe27a)" a="var(--color-celeste-palido, #e2f4fc)" />
         <M.Preguntas />
-        <M.Ola de="var(--color-celeste-palido, #e2f4fc)" a="var(--color-teal-oscuro, #003844)" />
         <M.Cierre conSesion={conSesion} />
       </main>
       <Pie />

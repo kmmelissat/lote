@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function TerminosPage() {
   return (
-    <div className="flex min-h-dvh flex-col bg-crema">
+    <div className="flex min-h-dvh flex-col bg-gris-50">
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 px-4 py-8">
         <Logo />
         <Migas />

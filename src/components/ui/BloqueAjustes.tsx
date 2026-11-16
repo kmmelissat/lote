@@ -1,11 +1,10 @@
 import type { ReactNode } from "react";
 import { Icon } from "./Icon";
-import { TARJETA } from "./tarjeta";
 
 /** La tarjeta y los bloques con título subrayado de las pestañas de Mi tienda. */
 export function Seccion({
   id,
-  fondo = "bg-superficie",
+  fondo = "",
   className = "",
   children,
 }: {
@@ -19,18 +18,18 @@ export function Seccion({
       id={`panel-${id}`}
       role="tabpanel"
       aria-labelledby={`tab-${id}`}
-      className={`${TARJETA} relative flex flex-col gap-6 ${fondo} ${className}`}
+      className={`relative flex min-w-0 flex-col gap-12 ${fondo} ${className}`}
     >
       {children}
     </section>
   );
 }
 
-const SUBRAYADO = {
-  limon: "bg-[linear-gradient(transparent_86%,var(--color-limon)_86%,var(--color-limon)_100%)]",
-  mango: "bg-[linear-gradient(transparent_86%,var(--color-mango)_86%,var(--color-mango)_100%)]",
-  rosa: "bg-[linear-gradient(transparent_86%,var(--color-rosa)_86%,var(--color-rosa)_100%)]",
-  celeste: "bg-[linear-gradient(transparent_86%,var(--color-celeste)_86%,var(--color-celeste)_100%)]",
+const PUNTO = {
+  limon: "bg-teal",
+  mango: "bg-lila",
+  rosa: "bg-rosa",
+  celeste: "bg-celeste",
 } as const;
 
 export function Bloque({
@@ -38,23 +37,29 @@ export function Bloque({
   texto,
   tono = "limon",
   className = "",
+  accion,
   children,
 }: {
+  accion?: ReactNode;
   titulo: string;
   texto: string;
-  tono?: keyof typeof SUBRAYADO;
+  tono?: keyof typeof PUNTO;
   className?: string;
   children: ReactNode;
 }) {
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
+    <div className={`flex flex-col gap-4 ${className}`}>
+      <div className="flex items-center justify-between gap-6">
       <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-bold leading-tight">
-          <span className={`${SUBRAYADO[tono]} box-decoration-clone pb-0.5`}>{titulo}</span>
+        <h3 className="flex items-center gap-2 font-logo text-[18px] font-semibold leading-tight">
+          <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${PUNTO[tono]}`} />
+          {titulo}
         </h3>
-        <p className="max-w-xl text-sm text-texto-2">{texto}</p>
+        <p className="max-w-2xl text-sm leading-relaxed text-texto-2">{texto}</p>
       </div>
-      <div className="flex flex-col gap-4 rounded-2xl bg-fondo p-4">{children}</div>
+      {accion}
+      </div>
+      <div className="flex flex-col divide-y divide-linea border-y border-linea [&>*]:py-5">{children}</div>
     </div>
   );
 }
@@ -68,5 +73,23 @@ export function Replegable({ titulo, abierto, children }: { titulo: string; abie
       </summary>
       <div className="mt-3 flex flex-col gap-3">{children}</div>
     </details>
+  );
+}
+
+/**
+ * Una fila de configuración: a la izquierda el nombre y su ayuda, a la derecha el control. Si el espacio es angosto
+ * (celular, o una columna estrecha) se apila. El nombre es visible aquí; el campo lleva su propia etiqueta oculta.
+ */
+export function Fila({ etiqueta, ayuda, children }: { etiqueta: string; ayuda?: string; children: ReactNode }) {
+  return (
+    <div className="@container">
+      <div className="grid gap-x-8 gap-y-3 @2xl:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] @2xl:items-start">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium">{etiqueta}</p>
+          {ayuda && <p className="text-sm leading-relaxed text-texto-2">{ayuda}</p>}
+        </div>
+        <div className="flex min-w-0 flex-col gap-2">{children}</div>
+      </div>
+    </div>
   );
 }

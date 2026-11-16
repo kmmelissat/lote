@@ -4,7 +4,7 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = SupabaseClient<Database>;
 
-/** ¿La sesión es de la admin de Lote? Lo decide la base (es_admin), no la app. */
+/** ¿La sesión es de la admin de Punch? Lo decide la base (es_admin), no la app. */
 export async function esAdmin(supabase: Cliente): Promise<boolean> {
   const { data } = await supabase.rpc("es_admin");
   return data === true;

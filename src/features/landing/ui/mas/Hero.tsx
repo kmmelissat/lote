@@ -1,40 +1,166 @@
+import Image from "next/image";
+import Link from "next/link";
+import { Icon, type NombreIcono } from "@/components/ui/Icon";
 import { textos } from "@/lib/textos";
-import { BotonLanding } from "../comun";
 import { Aparece } from "./Aparece";
-import { HeroEscena } from "./HeroEscena";
 
 const t = textos.landing;
+const m = t.hero.mock;
+
+const boton =
+  "inline-flex h-14 items-center justify-center rounded-full px-8 text-base font-semibold transition-colors";
+
+const sombra = "shadow-[0_18px_40px_-18px_rgba(1,60,71,0.35),0_2px_6px_rgba(1,60,71,0.06)]";
+
+function Ficha({ icono, color }: { icono: NombreIcono; color: string }) {
+  return (
+    <span className={`flex size-9 shrink-0 items-center justify-center rounded-[12px] text-teal-oscuro ${color}`}>
+      <Icon nombre={icono} className="size-5" />
+    </span>
+  );
+}
+
+const tarjeta = `absolute rounded-[24px] border border-linea bg-superficie p-4 ${sombra}`;
+
+/** El celular con una tienda de verdad: barra del navegador, buscador, categorías, productos y carrito. */
+function Celular() {
+  return (
+    <div className="absolute left-1/2 top-4 h-[580px] w-[272px] -translate-x-1/2 [perspective:1400px] md:h-[620px] md:w-[292px]">
+      {/* Sombra en el piso */}
+      <span aria-hidden="true" className="absolute -bottom-10 left-6 right-[-30px] h-10 rounded-[50%] bg-teal-oscuro/30 blur-2xl" />
+      <div className="relative h-full w-full [transform-style:preserve-3d] [transform:rotateY(-16deg)_rotateX(5deg)_rotateZ(2deg)]">
+      {/* Grosor del celular: una pila de capas hacia atrás */}
+      <span aria-hidden="true" className="absolute inset-0 rounded-[48px] bg-[#0b2228] [transform:translateZ(-14px)_translateX(10px)]" />
+      <span aria-hidden="true" className="absolute inset-0 rounded-[48px] bg-[#16383f] [transform:translateZ(-7px)_translateX(5px)]" />
+      {/* Botones del costado */}
+      <span aria-hidden="true" className="absolute -left-[3px] top-28 h-8 w-[3px] rounded-l bg-[#2c5560]" />
+      <span aria-hidden="true" className="absolute -left-[3px] top-44 h-14 w-[3px] rounded-l bg-[#2c5560]" />
+      <span aria-hidden="true" className="absolute -right-[3px] top-40 h-20 w-[3px] rounded-r bg-[#2c5560]" />
+      <div className="relative h-full w-full rounded-[48px] bg-[linear-gradient(145deg,#3d6670,#0e2a30_45%,#274c56)] p-[7px] shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.18),0_50px_80px_-30px_rgba(1,60,71,0.55)]">
+      <div className="relative flex h-full flex-col overflow-hidden rounded-[41px] bg-superficie">
+        <div className="flex items-center justify-between px-6 pt-3 text-[11px] font-bold">
+          <span>9:41</span>
+          <span aria-hidden="true" className="h-4 w-20 rounded-full bg-teal-oscuro" />
+          <span className="flex items-center gap-1">
+            <span className="h-2.5 w-4 rounded-[3px] border border-teal-oscuro p-px"><span className="block h-full w-3/4 rounded-[1px] bg-teal-oscuro" /></span>
+          </span>
+        </div>
+        <div className="mx-4 mt-2 flex items-center gap-1.5 rounded-full bg-gris-100 px-3 py-1.5 text-[11px] font-medium text-texto-2">
+          <Icon nombre="candado" className="size-3" />
+          {m.direccion}
+        </div>
+        <div className="flex items-center gap-2.5 px-4 pt-3">
+          <span className="flex size-10 items-center justify-center rounded-full bg-ficha-rosa text-base font-extrabold">{m.inicial}</span>
+          <p className="flex-1 text-[15px] font-bold leading-tight">{m.tienda}</p>
+          <span className="relative flex size-9 items-center justify-center rounded-full border border-linea">
+            <Icon nombre="carrito" className="size-[18px]" />
+            <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-teal-oscuro text-[9px] font-bold text-white">2</span>
+          </span>
+        </div>
+        <div className="mx-4 mt-3 flex h-9 items-center gap-2 rounded-full border border-linea px-3 text-xs text-texto-2">
+          <Icon nombre="buscar" className="size-4" />
+          {m.buscar}
+        </div>
+        <ul className="mt-2.5 flex gap-1.5 overflow-hidden px-4">
+          {m.categorias.map((c, i) => (
+            <li key={c} className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold ${i === 0 ? "bg-teal-oscuro text-white" : "border border-linea"}`}>
+              {c}
+            </li>
+          ))}
+        </ul>
+        <ul className="mt-3 grid grid-cols-2 gap-x-2.5 gap-y-3 px-4">
+          {m.productos.map((p) => (
+            <li key={p.nombre} className="text-[11.5px]">
+              <span className={`relative mb-1.5 block aspect-square overflow-hidden rounded-[14px] ${p.color}`}>
+                {p.foto && <Image src={p.foto} alt="" fill sizes="140px" className="object-cover" />}
+                <span className="absolute right-1.5 top-1.5 flex size-6 items-center justify-center rounded-full bg-superficie/90">
+                  <Icon nombre="corazon" className="size-3.5" />
+                </span>
+              </span>
+              <span className="block truncate font-semibold">{p.nombre}</span>
+              <span className="block font-bold">{p.precio}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="absolute inset-x-4 bottom-4 flex h-11 items-center justify-center gap-2 rounded-[14px] bg-teal-oscuro text-sm font-semibold text-white shadow-lg">
+          <Icon nombre="carrito" className="size-4" />
+          {m.carrito}
+        </p>
+        {/* Reflejo en el vidrio */}
+        <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.32)_0%,rgba(255,255,255,0)_32%)]" />
+      </div>
+      </div>
+      </div>
+    </div>
+  );
+}
 
 export function Hero({ conSesion }: { conSesion: boolean }) {
   return (
-    <section className="relative bg-celeste-palido">
-      {/* Primera pantalla: el hero entero, sin la cinta. El espacio de abajo es solo
-          la mitad de la cinta, para que el borde quede debajo del pliegue. */}
-      <div className="relative flex min-h-svh flex-col justify-center">
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center gap-7 px-5 pb-12 pt-36 min-[880px]:gap-2 min-[880px]:px-10 min-[880px]:pb-16 min-[880px]:pt-32">
-          <Aparece alCargar className="relative flex max-w-[760px] flex-col items-center gap-3 text-center min-[880px]:gap-3.5">
-            <span className="-rotate-2 rounded-full border border-teal-oscuro bg-celeste px-4 py-1.5 text-sm font-bold text-teal-oscuro shadow-dura-chica">
-              {t.hero.etiqueta}
-            </span>
-            <h1 className="flex flex-col items-center gap-2 text-[38px] font-extrabold leading-[1.04] tracking-[-0.04em] text-teal-oscuro min-[880px]:text-[56px]">
-              <span>{t.hero.tituloInicio}</span>
-              <span className="-rotate-1 whitespace-nowrap rounded-[16px] border border-teal-oscuro bg-rosa px-3 py-0.5 text-[31px] text-crema shadow-[5px_5px_0_0_var(--color-teal-oscuro)] min-[880px]:text-[46px]">
-                {t.hero.tituloMarca}
-              </span>
-            </h1>
-            <p className="max-w-lg text-[17px] font-medium leading-relaxed text-teal-oscuro min-[880px]:max-w-2xl min-[880px]:text-[19px]">{t.hero.texto}</p>
-            <BotonLanding href={conSesion ? "/inicio" : "/login"} variante="mango" className="mt-1 !h-14 w-full max-w-sm !px-8 !text-lg min-[880px]:w-auto">
+    <section className="relative overflow-hidden bg-white">
+      {/* Aurora: manchas suaves de color detrás de todo */}
+      <div aria-hidden="true" className="absolute -left-24 top-16 size-[520px] rounded-full bg-[radial-gradient(closest-side,rgba(153,225,248,0.6),transparent)]" />
+      <div aria-hidden="true" className="absolute -right-20 top-0 size-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(242,158,187,0.5),transparent)]" />
+      <div aria-hidden="true" className="absolute left-1/3 top-[320px] size-[480px] rounded-full bg-[radial-gradient(closest-side,rgba(207,194,245,0.65),transparent)]" />
+
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-32 min-[880px]:px-10 min-[880px]:pt-36">
+        <Aparece alCargar className="flex flex-col items-center gap-5 text-center">
+          <h1 className="font-logo text-[42px] font-semibold leading-[1.1] tracking-[-0.01em] min-[880px]:text-[68px]">
+            {t.hero.tituloInicio}
+            <br />
+            <span className="bg-[linear-gradient(90deg,#0e8aa6,#e0679a)] bg-clip-text text-transparent">{t.hero.tituloMarca}</span>
+          </h1>
+          <p className="max-w-xl text-lg leading-relaxed text-texto-2 min-[880px]:text-xl">{t.hero.texto}</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link href={conSesion ? "/inicio" : "/login"} data-cta="" className={`${boton} bg-teal-oscuro text-white hover:bg-teal`}>
               {conSesion ? t.irAlPanel : t.empezar}
-            </BotonLanding>
-            <p className="text-sm font-medium text-teal-oscuro/80">{t.hero.nota}</p>
-          </Aparece>
-          <Aparece alCargar delay={0.15} className="relative w-full min-w-0 min-[880px]:-mt-2">
-            <HeroEscena />
-            <p className="mt-2 text-center text-xs font-medium text-teal-oscuro/80">{t.hero.ejemplo}</p>
-          </Aparece>
-        </div>
+            </Link>
+            <a href="#como" data-cta="" className={`${boton} border border-linea bg-superficie text-teal-oscuro hover:bg-gris-50`}>
+              {t.hero.verComo}
+            </a>
+          </div>
+        </Aparece>
+
+        {/* El celular sube desde abajo: se recorta a media altura */}
+        <Aparece alCargar delay={0.15} className="relative mt-12 h-[430px] w-full max-w-[900px]">
+          <div className="absolute inset-0 overflow-hidden">
+            <Celular />
+          </div>
+          <div className={`${tarjeta} left-0 top-28 w-56 -rotate-3 motion-safe:animate-flotar max-md:hidden`}>
+            <div className="flex items-start gap-3">
+              <Ficha icono="moneda" color="bg-ficha-verde" />
+              <div>
+                <p className="text-xs font-medium text-texto-2">{m.ganancia.etiqueta}</p>
+                <p className="text-2xl font-semibold tabular-nums tracking-tight">{m.ganancia.monto}</p>
+              </div>
+            </div>
+            <p className="mt-2.5 inline-block rounded-lg bg-ficha-verde px-2 py-1 text-[11px] font-semibold">{m.ganancia.cambio}</p>
+          </div>
+
+          <div className={`${tarjeta} right-0 top-52 w-56 rotate-3 motion-safe:animate-flotar [animation-delay:-1.5s] max-md:hidden`}>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold">{m.pedido.titulo}</p>
+              <span className="rounded-lg bg-ficha-verde px-2 py-0.5 text-xs font-semibold">{m.pedido.estado}</span>
+            </div>
+            <div className="mt-3 flex items-center gap-2.5">
+              <span className="flex size-9 items-center justify-center rounded-full bg-ficha-lila text-xs font-bold">AM</span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">{m.pedido.cliente}</p>
+                <p className="truncate text-xs text-texto-2">{m.pedido.detalle}</p>
+              </div>
+              <p className="text-sm font-bold">{m.pedido.total}</p>
+            </div>
+          </div>
+
+          <div className={`absolute right-6 top-16 flex items-center gap-3 rounded-[20px] border border-linea bg-superficie px-4 py-3 max-md:hidden ${sombra}`}>
+            <Ficha icono="exito" color="bg-ficha-verde" />
+            <div>
+              <p className="text-sm font-bold leading-tight">{m.pago.titulo}</p>
+              <p className="text-xs text-texto-2">{m.pago.texto}</p>
+            </div>
+          </div>
+        </Aparece>
       </div>
-      <div className="h-[calc(2rem+4.5vw)]" aria-hidden="true" />
     </section>
   );
 }

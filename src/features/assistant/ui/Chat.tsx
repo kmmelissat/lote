@@ -51,9 +51,9 @@ function historialDe(ms: Mensaje[]): Turno[] {
 }
 
 const pildoraFuerte =
-  "!border-teal-oscuro !bg-teal-oscuro !text-white hover:!bg-teal";
+  "!border-transparent !bg-[linear-gradient(135deg,#003844,#006c67)] !text-white hover:!opacity-90";
 const pildora =
-  "min-h-10 rounded-full border border-linea bg-superficie px-4 text-sm font-medium text-teal-oscuro shadow-xs transition-colors hover:bg-gris-50 disabled:opacity-50";
+  "min-h-10 rounded-full border border-linea bg-white/80 px-4 text-sm font-medium text-teal-oscuro backdrop-blur transition-all hover:border-teal/40 hover:bg-white hover:shadow-sm disabled:opacity-50";
 
 function sugerenciasPara(ruta: string | null) {
   const clave = Object.keys(t.sugerencias).find(
@@ -62,11 +62,6 @@ function sugerenciasPara(ruta: string | null) {
   return t.sugerencias[clave ?? "inicio"];
 }
 
-const FICHAS = {
-  mandar: "bg-ficha-verde",
-  escribir: "bg-ficha-amarillo",
-  foto: "bg-ficha-celeste",
-} as const;
 const ICONOS = {
   mandar: "enviar",
   escribir: "etiqueta",
@@ -218,22 +213,24 @@ export function Chat({ negocioId, ruta = null, preguntaInicial }: Props) {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-superficie">
-      <header className="flex shrink-0 items-center gap-3 border-b border-linea px-4 py-3 md:px-6">
-        <AvatarLotito className="size-10" enLinea />
-        <div className="min-w-0 flex-1">
+      <header className="flex shrink-0 items-center gap-3 px-4 pt-4 md:px-6">
+        <AvatarLotito className="size-8" />
+        <div className="flex min-w-0 flex-1 items-center gap-2">
           {vacio ? (
             <p className="font-semibold leading-tight">{t.titulo}</p>
           ) : (
             <h1 className="font-semibold leading-tight">{t.titulo}</h1>
           )}
-          <p className="truncate text-sm text-texto-2">
-            <span className="font-medium text-teal">{t.enLinea}</span> ·{" "}
-            {t.flotanteSubtitulo}
-          </p>
+          <span
+            aria-hidden="true"
+            className="rounded-full bg-[linear-gradient(135deg,#a5f1f3,#d6cdf6)] px-2 py-0.5 text-[11px] font-semibold tracking-wide text-teal-oscuro"
+          >
+            IA
+          </span>
         </div>
       </header>
 
-      <div className="relative min-h-0 flex-1 bg-gris-50">
+      <div className="relative min-h-0 flex-1">
         <div
           ref={lista}
           className="h-full overflow-y-auto px-4 pb-32 pt-4 md:px-10 md:pt-6"
@@ -246,12 +243,12 @@ export function Chat({ negocioId, ruta = null, preguntaInicial }: Props) {
           >
             {vacio && (
               <li className="flex min-h-full flex-col items-center justify-center gap-5 py-6 text-center">
-                <AvatarLotito className="size-16" />
+                <AvatarLotito className="size-20" />
                 <div>
-                  <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                  <h1 className="bg-[linear-gradient(90deg,#003844,#006c67_50%,#7a62e0)] bg-clip-text text-3xl font-semibold tracking-tight text-transparent md:text-4xl">
                     {t.vacioTitulo}
                   </h1>
-                  <p className="mt-2 text-texto-2">{t.saludoInicial}</p>
+                  <p className="mx-auto mt-2 max-w-sm text-texto-2">{t.saludoInicial}</p>
                 </div>
                 <Sugerencias
                   sugerencias={sugerencias}
@@ -280,7 +277,7 @@ export function Chat({ negocioId, ruta = null, preguntaInicial }: Props) {
                     />
                   )}
                   {m.texto && (
-                    <p className="whitespace-pre-line rounded-[20px] rounded-br-md bg-teal-oscuro px-4 py-2.5 text-white">
+                    <p className="whitespace-pre-line rounded-[22px] rounded-br-md bg-[linear-gradient(135deg,#003844,#006c67)] px-4 py-2.5 text-white shadow-md shadow-teal-oscuro/15">
                       {m.texto}
                     </p>
                   )}
@@ -288,12 +285,12 @@ export function Chat({ negocioId, ruta = null, preguntaInicial }: Props) {
               ) : (
                 <li
                   key={m.id}
-                  className="flex items-end gap-2 pr-6 motion-safe:animate-entra"
+                  className="flex items-start gap-3 pr-2 motion-safe:animate-entra"
                 >
-                  <AvatarLotito />
-                  <div className="flex min-w-0 flex-col items-start gap-2">
+                  <AvatarLotito className="mt-0.5 size-8" />
+                  <div className="flex min-w-0 flex-col items-start gap-3">
                     <span className="sr-only">{t.asistente}:</span>
-                    <div className="rounded-[20px] rounded-bl-md border border-linea bg-superficie px-4 py-2.5 shadow-xs">
+                    <div className="leading-relaxed text-texto">
                       <TextoLotito texto={m.respuesta.texto} />
                     </div>
                     {m.respuesta.enlaces?.length ? (
@@ -341,8 +338,8 @@ export function Chat({ negocioId, ruta = null, preguntaInicial }: Props) {
               ),
             )}
             {pendiente && (
-              <li className="flex items-end gap-2">
-                <AvatarLotito />
+              <li className="flex items-center gap-3">
+                <AvatarLotito className="size-8" />
                 <Escribiendo etiqueta={t.pensando} />
               </li>
             )}
@@ -386,9 +383,9 @@ export function Chat({ negocioId, ruta = null, preguntaInicial }: Props) {
             <div className="px-3 pb-3 md:flex md:justify-center md:px-10 md:pb-5">
               <form
                 onSubmit={enviar}
-                className="flex w-full items-center gap-1 rounded-[20px] border border-linea bg-superficie p-1.5 shadow-lg shadow-teal-oscuro/10 transition-shadow focus-within:border-teal focus-within:ring-[3px] focus-within:ring-teal/20 md:max-w-2xl"
+                className="flex w-full items-center gap-1 rounded-full border border-white bg-white/90 p-1.5 pl-2 shadow-xl shadow-[#7a62e0]/15 ring-1 ring-linea backdrop-blur transition-shadow focus-within:ring-2 focus-within:ring-[#8b7cf0]/60 md:max-w-2xl"
               >
-                <label className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-gris-100 text-teal-oscuro hover:bg-gris-50 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-teal">
+                <label className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-texto-2 hover:bg-gris-100 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-teal">
                   <span className="sr-only">{t.adjuntar}</span>
                   <Icon nombre="camara" className="size-5" />
                   <input
@@ -418,7 +415,7 @@ export function Chat({ negocioId, ruta = null, preguntaInicial }: Props) {
                   type="submit"
                   aria-label={t.enviar}
                   disabled={pendiente || subiendo || (!texto.trim() && !foto)}
-                  className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-teal-oscuro text-white transition-colors enabled:hover:bg-teal disabled:bg-gris-100 disabled:text-texto-2"
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#006c67,#7a62e0)] text-white transition-opacity enabled:hover:opacity-90 disabled:bg-none disabled:bg-gris-100 disabled:text-texto-2"
                 >
                   <Icon nombre="enviar" className="size-5" strokeWidth={2.5} />
                 </button>
@@ -446,20 +443,19 @@ function Sugerencias({
   }) => void;
 }) {
   return (
-    <ul className="grid w-full max-w-xl grid-cols-1 gap-2.5 sm:grid-cols-2">
+    <ul className="flex w-full max-w-xl flex-wrap justify-center gap-2">
       {sugerencias.map((sg) => (
         <li key={sg.texto}>
           <button
             type="button"
             disabled={pendiente || subiendo}
             onClick={() => alElegir(sg)}
-            className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-linea bg-superficie p-3 text-left text-sm font-semibold text-teal-oscuro shadow-xs transition-colors hover:bg-gris-50 disabled:opacity-50"
+            className="group inline-flex min-h-10 items-center gap-2 rounded-full border border-white bg-white/70 py-2 pl-3 pr-4 text-sm text-teal-oscuro ring-1 ring-linea backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md hover:ring-[#8b7cf0]/40 disabled:opacity-50"
           >
-            <span
-              className={`flex size-8 shrink-0 items-center justify-center rounded-[10px] text-chip-texto-celeste ${FICHAS[sg.modo]}`}
-            >
-              <Icon nombre={ICONOS[sg.modo]} className="size-5" />
-            </span>
+            <Icon
+              nombre={ICONOS[sg.modo]}
+              className="size-4 shrink-0 text-[#7a62e0]"
+            />
             {sg.texto}
           </button>
         </li>

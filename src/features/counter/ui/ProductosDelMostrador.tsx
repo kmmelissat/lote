@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Undo2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { urlFoto } from "@/lib/fotos";
@@ -37,6 +38,8 @@ export function ProductosDelMostrador({
   if (claveAbierta && !abierta) setClaveAbierta(null);
   const enVenta = (id: string) => lineas.find((l) => l.productoId === id)?.cantidad ?? 0;
 
+  const enLaVenta = abierta ? abierta.miembros.reduce((n, m) => n + enVenta(m.id), 0) : 0;
+
   const cabecera = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (claveAbierta) cabecera.current?.scrollIntoView({ block: "nearest" });
@@ -48,16 +51,22 @@ export function ProductosDelMostrador({
   if (abierta)
     return (
       <div className="flex flex-col gap-3">
-        <div ref={cabecera} className="flex flex-col gap-1">
-          <button
-            type="button"
-            onClick={() => setClaveAbierta(null)}
-            className="flex min-h-11 w-fit items-center gap-1.5 rounded-[14px] pr-3 text-sm font-medium text-teal"
-          >
-            <Icon nombre="atras" className="size-5" />
-            {t.volverAProductos}
-          </button>
-          <h2 className="text-lg font-semibold">{abierta.nombre}</h2>
+        {/* Encabezado pegado arriba: se nota en qué producto se está y cuántas unidades van de él */}
+        <div ref={cabecera} className="sticky top-0 z-10 -mx-1 flex items-center justify-between gap-3 bg-superficie px-1 py-1">
+          {/* Botón redondo con la flecha: tocarlo vuelve a la grilla general */}
+          <div className="flex min-h-11 min-w-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setClaveAbierta(null)}
+              aria-label={t.volverAProductos}
+              title={t.volverAProductos}
+              className="flex size-9 shrink-0 items-center justify-center rounded-full border border-linea bg-superficie text-teal-oscuro shadow-xs transition-all hover:-translate-x-0.5 hover:bg-teal-fondo hover:text-teal focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-teal/30 active:scale-95 motion-reduce:transition-none"
+            >
+              <Undo2 aria-hidden="true" className="size-4" strokeWidth={2.25} />
+            </button>
+            <h2 className="truncate text-base font-semibold">{abierta.nombre}</h2>
+          </div>
+          {enLaVenta > 0 && <span className={`${chip} shrink-0 bg-teal-fondo text-teal`}>{t.deEsteProducto(enLaVenta)}</span>}
         </div>
         <Grilla>
           {abierta.miembros.map((m) => (

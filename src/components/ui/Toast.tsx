@@ -39,7 +39,7 @@ const estilos: Record<Tipo, { icono: NombreIcono; caja: string; chapa: string; a
     icono: "info",
     caja: "bg-celeste text-teal-oscuro",
     chapa: "bg-white text-teal-oscuro",
-    accion: "bg-white text-teal-oscuro hover:bg-celeste-palido",
+    accion: "bg-white text-teal-oscuro hover:bg-chip-celeste",
     cerrar: "text-teal-oscuro hover:bg-white/50",
   },
 };
@@ -112,7 +112,7 @@ function AvisoVista({ aviso, cerrar }: { aviso: Aviso; cerrar: () => void }) {
       onMouseLeave={() => setPausado(false)}
       onFocus={() => setPausado(true)}
       onBlur={() => setPausado(false)}
-      className={`animate-aviso pointer-events-auto flex items-center gap-3 rounded-[20px] border border-teal-oscuro py-2 pl-3 pr-2 shadow-dura-chica ${caja}`}
+      className={`animate-aviso pointer-events-auto flex items-center gap-3 rounded-[20px] border border-linea py-2 pl-3 pr-2 shadow-xs ${caja}`}
     >
       <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full ${chapa}`}>
         <Icon nombre={icono} className="size-5" />

@@ -3,7 +3,7 @@ export const ayuda = {
   descripcion: "Respuestas cortas a lo que más se pregunta. Si no está acá, escribile a Punch.",
   ruta: "/ayuda",
   enlace: "Ayuda",
-  enlaceTexto: "Preguntas frecuentes sobre cómo usar Lote.",
+  enlaceTexto: "Preguntas frecuentes sobre cómo usar Punch.",
   heroEtiqueta: "Punch te explica",
   heroTitulo: "¿En qué te ayudo?",
   hablarConLotito: "Preguntale a Punch",
@@ -38,7 +38,7 @@ export const ayuda = {
       donde: ["/productos", "/productos/importar"],
       pregunta: "¿Cómo importo los productos que ya tengo en Excel?",
       respuesta:
-        "En Productos tocá Importar. Subí tu Excel o tu CSV, pegá las filas o el enlace de Google Sheets. Además del nombre y el precio podés traer descripción, condición y el resto de la ficha. Si el mismo producto va en varias filas con talla o color, Lote las junta como variantes. Si algo sale mal, hay un botón para deshacer.",
+        "En Productos tocá Importar. Subí tu Excel o tu CSV, pegá las filas o el enlace de Google Sheets. Además del nombre y el precio podés traer descripción, condición y el resto de la ficha. Si el mismo producto va en varias filas con talla o color, Punch las junta como variantes. Si algo sale mal, hay un botón para deshacer.",
     },
     {
       id: "apartado_vitrina",
@@ -94,7 +94,7 @@ export const ayuda = {
       donde: ["/balance"],
       pregunta: "¿Cómo guardo la cuota de una deuda que pago cada mes?",
       respuesta:
-        "Al anotar la deuda, o con Editar si ya la tenés, completá la cuota: cuánto pagás cada vez, cuántas cuotas son y qué día del mes toca. Lote te muestra cuántas cuotas faltan y cuándo toca pagar, y al abonar ya te pone el monto de la cuota. Podés cambiarla cuando quieras.",
+        "Al anotar la deuda, o con Editar si ya la tenés, completá la cuota: cuánto pagás cada vez, cuántas cuotas son y qué día del mes toca. Punch te muestra cuántas cuotas faltan y cuándo toca pagar, y al abonar ya te pone el monto de la cuota. Podés cambiarla cuando quieras.",
     },
     {
       id: "gastos_fijos",
@@ -102,7 +102,7 @@ export const ayuda = {
       donde: ["/movimientos"],
       pregunta: "¿Cómo anoto un gasto que pago todos los meses, como el alquiler?",
       respuesta:
-        "En Movimientos, tocá Registrar gasto, elegí «Cada mes» en «¿Cuándo?», y escribí qué es, cuánto cuesta, la categoría y qué día del mes se paga. Desde ahí Lote lo registra solo cada mes, y tu ganancia ya lo descuenta. Cuenta desde hoy: si este mes ya lo pagaste, anotalo aparte como un gasto normal. Si un mes es más corto, se registra el último día. Podés editar el monto, pausarlo o quitarlo; lo que ya se registró se queda.",
+        "En Movimientos, tocá Registrar gasto, elegí «Cada mes» en «¿Cuándo?», y escribí qué es, cuánto cuesta, la categoría y qué día del mes se paga. Desde ahí Punch lo registra solo cada mes, y tu ganancia ya lo descuenta. Cuenta desde hoy: si este mes ya lo pagaste, anotalo aparte como un gasto normal. Si un mes es más corto, se registra el último día. Podés editar el monto, pausarlo o quitarlo; lo que ya se registró se queda.",
     },
     {
       id: "actividad",
@@ -156,7 +156,7 @@ export const ayuda = {
       donde: ["/productos/nuevo"],
       pregunta: "¿Cómo vendo un producto con tallas o colores?",
       respuesta:
-        "En Nuevo producto abrí la sección de variantes y escribí las opciones, por ejemplo modelos y colores. Lote arma las combinaciones y cada una lleva su precio, su costo y sus unidades. En la tienda en línea tu cliente elige la que quiere. Si ya las tenés en Excel, importalas: repetí el nombre del producto y cambiá la talla o el color en cada fila.",
+        "En Nuevo producto abrí la sección de variantes y escribí las opciones, por ejemplo modelos y colores. Punch arma las combinaciones y cada una lleva su precio, su costo y sus unidades. En la tienda en línea tu cliente elige la que quiere. Si ya las tenés en Excel, importalas: repetí el nombre del producto y cambiá la talla o el color en cada fila.",
     },
     {
       id: "vitrina",
@@ -195,7 +195,7 @@ export const ayuda = {
       donde: ["/ajustes", "/pedidos"],
       pregunta: "¿Dónde configuro mis envíos?",
       respuesta:
-        "En Ajustes, en Mi tienda, pestaña Envíos. Ahí decís si se puede recoger en la tienda, a qué departamentos entregás y cuánto cobrás por el envío (una tarifa para todos, o distinta en algún departamento). Que Lote gestione tus envíos con una paquetera viene pronto. Solo quien es titular puede cambiarlo.",
+        "En Ajustes, en Mi tienda, pestaña Envíos. Ahí decís si se puede recoger en la tienda, a qué departamentos entregás y cuánto cobrás por el envío (una tarifa para todos, o distinta en algún departamento). Que Punch gestione tus envíos con una paquetera viene pronto. Solo quien es titular puede cambiarlo.",
     },
     {
       id: "pagar_pedido",
@@ -218,7 +218,7 @@ export const ayuda = {
       donde: ["/productos/nuevo", "/productos"],
       pregunta: "¿Cómo organizo mis productos en categorías?",
       respuesta:
-        "Las categorías son una lista fija de Lote, la misma para todas las tiendas: al crear o editar un producto elegís el rubro y después la categoría (por ejemplo, Belleza y Brochas y esponjas). Así tus productos aparecen en el lugar correcto del Marketplace. Si subís una foto, Punch te propone la categoría.",
+        "Las categorías son una lista fija de Punch, la misma para todas las tiendas: al crear o editar un producto elegís el rubro y después la categoría (por ejemplo, Belleza y Brochas y esponjas). Así tus productos aparecen en el lugar correcto del Marketplace. Si subís una foto, Punch te propone la categoría.",
     },
   ],
 } as const;

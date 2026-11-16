@@ -3,9 +3,9 @@ import { Icon, type NombreIcono } from "./Icon";
 /** El color de la esquina identifica la métrica y es siempre el mismo: es el único toque de color de la tarjeta. */
 const TONOS = {
   teal: "bg-teal-fondo text-teal",
-  celeste: "bg-celeste-palido text-teal",
+  celeste: "bg-chip-celeste text-teal",
   ambar: "bg-perla text-ambar-texto",
-  rosa: "bg-rosa-palido text-rosa-texto",
+  rosa: "bg-chip-rosa text-rosa-texto",
 } as const;
 
 export type TonoStat = keyof typeof TONOS;
@@ -42,7 +42,7 @@ export function TarjetaStat({
   nota?: string;
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-4 rounded-[24px] border border-borde bg-superficie p-5">
+    <div className="flex min-w-0 flex-col gap-4 rounded-[24px] border border-linea bg-superficie p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="min-w-0 text-texto-2">{titulo}</p>
         <span aria-hidden="true" className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${TONOS[tono]}`}>

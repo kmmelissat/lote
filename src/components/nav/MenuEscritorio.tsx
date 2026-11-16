@@ -53,7 +53,7 @@ export function MenuEscritorio({ datos, cerrado, alternarMenu, abrirPaleta }: Pr
         <>
           <Buscar
             abrir={abrirPaleta}
-            className="flex h-11 items-center gap-2.5 rounded-[14px] border border-linea bg-superficie px-3 text-sm text-texto-2 shadow-xs hover:border-teal-oscuro/40 group-data-[cerrado]:mx-auto group-data-[cerrado]:size-12 group-data-[cerrado]:justify-center group-data-[cerrado]:border-transparent group-data-[cerrado]:bg-transparent group-data-[cerrado]:px-0 group-data-[cerrado]:shadow-none group-data-[cerrado]:hover:bg-superficie/60 group-data-[cerrado]:hover:text-teal-oscuro"
+            className="flex h-11 items-center gap-2.5 rounded-[14px] border border-linea bg-superficie px-3 text-base text-texto-2 shadow-xs hover:border-teal-oscuro/40 group-data-[cerrado]:mx-auto group-data-[cerrado]:size-12 group-data-[cerrado]:justify-center group-data-[cerrado]:border-transparent group-data-[cerrado]:bg-transparent group-data-[cerrado]:px-0 group-data-[cerrado]:shadow-none group-data-[cerrado]:hover:bg-superficie/60 group-data-[cerrado]:hover:text-teal-oscuro"
           />
           {/* El margen negativo con relleno deja lugar para la sombra y el levantarse del cuadro activo, que si no el scroll los recorta */}
           <div className="-m-1 min-h-0 flex-1 overflow-y-auto p-1 mt-2">

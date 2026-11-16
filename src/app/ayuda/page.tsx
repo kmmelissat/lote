@@ -36,7 +36,7 @@ export default async function AyudaPage() {
   return (
     <>
       <JsonLd datos={datosEstructurados} />
-      <div className="min-h-dvh bg-crema">
+      <div className="min-h-dvh bg-gris-50">
         <header className="mx-auto flex w-full max-w-[1100px] items-center justify-between gap-3 px-4 py-5 md:px-6">
           <Link href="/" aria-label={textos.nombre}>
             <Logo />

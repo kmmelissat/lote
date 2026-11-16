@@ -2,14 +2,14 @@ import { useId, type ComponentProps } from "react";
 import { limpiarSiNumero } from "@/lib/entrada";
 import { Sugerido } from "./Sugerido";
 
-type Props = { etiqueta: string; error?: string; sugerido?: boolean } & ComponentProps<"input">;
+type Props = { etiqueta: string; error?: string; sugerido?: boolean; etiquetaOculta?: boolean } & ComponentProps<"input">;
 
-export function Field({ etiqueta, error, sugerido, className = "", onChange, ...props }: Props) {
+export function Field({ etiqueta, error, sugerido, etiquetaOculta, className = "", onChange, ...props }: Props) {
   const id = useId();
   const errorId = `${id}-error`;
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium">
+      <label htmlFor={id} className={etiquetaOculta ? "sr-only" : "text-sm font-medium"}>
         {etiqueta}
         {sugerido && <Sugerido />}
       </label>
@@ -17,7 +17,7 @@ export function Field({ etiqueta, error, sugerido, className = "", onChange, ...
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={`h-11 rounded-[14px] border border-linea bg-superficie px-3.5 text-sm text-teal-oscuro shadow-xs transition-colors placeholder:text-texto-2/60 focus:border-teal focus:outline-none focus:ring-[3px] focus:ring-teal/20 ${className}`}
+        className={`h-11 rounded-[14px] border border-linea bg-superficie px-3.5 text-base text-teal-oscuro shadow-xs transition-colors placeholder:text-texto-2/60 focus:border-teal focus:outline-none focus:ring-[3px] focus:ring-teal/20 ${className}`}
         {...props}
         onChange={(e) => {
           e.target.value = limpiarSiNumero(e.target.value, props.inputMode, props.type);
@@ -25,7 +25,7 @@ export function Field({ etiqueta, error, sugerido, className = "", onChange, ...
         }}
       />
       {error && (
-        <p id={errorId} className="text-sm text-error">
+        <p id={errorId} className="text-base text-error">
           {error}
         </p>
       )}

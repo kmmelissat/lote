@@ -1,6 +1,6 @@
 export const acceso = {
-  titulo: "Entrá a Lote",
-  tituloResalta: "Lote",
+  titulo: "Entrá a Punch",
+  tituloResalta: "Punch",
   globo: "¡Hola! ¿Entramos?",
   globoLateral: "Tranquila, yo llevo la cuenta.",
   descripcion: "Con tu cuenta de Google o con tu correo.",
@@ -25,6 +25,8 @@ export const acceso = {
     "Aparta, cobrá y enviá sin llevar el control dos veces.",
     "Sabé cuánto ganás con cada producto.",
   ],
+  lema: { antes: "Todo lo que", chiquito: "tu negocio", medio: "necesita,", grande: "en un solo lugar.", despues: "" },
+  lemaAyuda: "Punch te ayuda a llevar tu inventario y tus cuentas, a ver cuánto ganás y a que más gente te encuentre. Vos vendé, que de lo demás se encarga Punch.",
   volver: "Volver al inicio",
   explorar: "¿Solo querés mirar? Entrá al Marketplace",
   privacidad: "Al entrar aceptás el",

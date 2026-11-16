@@ -66,7 +66,7 @@ export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date })
             <li key={a.href} className="flex">
               <Link
                 href={a.href}
-                className={`group relative flex min-h-24 w-full overflow-hidden flex-col justify-between rounded-[20px] p-4 text-teal-oscuro transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 ${FICHAS[i % FICHAS.length]}`}
+                className={`group relative flex min-h-24 w-full overflow-hidden flex-col justify-between rounded-[20px] p-4 text-teal-oscuro transition-transform  focus-visible:outline-2 focus-visible:outline-offset-2 ${FICHAS[i % FICHAS.length]}`}
               >
                 {a.href === "/asistente" && (
                   <>
@@ -118,7 +118,7 @@ export function TarjetaAtencion({ r, ahora }: { r: ResumenInicio; ahora: Date })
       </Link>
 
       {resto.length > 0 && (
-        <ul className="mt-auto flex flex-col gap-1 border-t border-teal-oscuro/15 pt-3">
+        <ul className="mt-auto flex flex-col gap-1 border-t border-linea/15 pt-3">
           {resto.map((p) => (
             <li key={p.clave}>
               <Link href={p.href} className="flex min-h-10 items-center gap-2.5 rounded-xl px-2 text-sm font-medium text-teal-oscuro transition-colors hover:bg-superficie/50">

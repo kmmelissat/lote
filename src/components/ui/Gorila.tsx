@@ -1,7 +1,7 @@
 import type { SVGProps } from "react";
 
 /**
- * El monito de Lote (el isotipo), como SVG en línea para poder pintarlo del color que haga falta con
+ * El monito de Punch (el isotipo), como SVG en línea para poder pintarlo del color que haga falta con
  * `text-*` (usa `currentColor`). Es el mismo dibujo de public/lote-iso.svg.
  */
 export function Gorila({ className = "size-16", ...props }: SVGProps<SVGSVGElement>) {

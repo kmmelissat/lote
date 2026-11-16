@@ -245,7 +245,7 @@ export function SelectorFecha({
                         className={`mx-auto grid size-10 place-items-center rounded-[12px] text-sm tabular-nums focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal disabled:cursor-not-allowed disabled:text-texto-2/40 ${
                           dia === elegida
                             ? "bg-teal-oscuro font-medium text-white"
-                            : `${dia === hoy ? "border border-teal-oscuro font-medium" : ""} enabled:hover:bg-gris-100`
+                            : `${dia === hoy ? "border border-linea font-medium" : ""} enabled:hover:bg-gris-100`
                         }`}
                       >
                         {leerIso(dia)!.dia}

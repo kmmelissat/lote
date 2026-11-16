@@ -104,7 +104,7 @@ export function EntregaDeVenta({
               role="radio"
               aria-checked={activa}
               onClick={() => cambiarEntrega(e)}
-              className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border px-2 text-center ${activa ? "border-teal bg-teal-fondo font-semibold" : "border-linea bg-superficie text-texto-2 hover:border-borde-control"}`}
+              className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border px-2 text-center ${activa ? "border-teal bg-teal-fondo font-semibold" : "border-linea bg-superficie text-texto-2 hover:border-linea"}`}
             >
               <Icon nombre={ICONO[e]} className="size-5" />
               <span className="text-sm leading-tight">{t[e]}</span>
@@ -167,7 +167,7 @@ export function EntregaDeVenta({
                   type="button"
                   aria-pressed={datos.paga === q}
                   onClick={() => cambiarDatos({ paga: q })}
-                  className={`min-h-11 rounded-[14px] border px-3 text-sm ${datos.paga === q ? "border-teal bg-teal-fondo font-semibold" : "border-linea bg-superficie text-texto-2 hover:border-borde-control"}`}
+                  className={`min-h-11 rounded-[14px] border px-3 text-sm ${datos.paga === q ? "border-teal bg-teal-fondo font-semibold" : "border-linea bg-superficie text-texto-2 hover:border-linea"}`}
                 >
                   {te.pagas[q]}
                 </button>

@@ -79,7 +79,7 @@ export function TarjetaDeVitrina({
             ? { texto: t.etiquetas.nuevo, fondo: "bg-(--store-soft) text-(--store-on-soft)" }
             : null;
   const sePuedeAgregar = puedeComprar && libre;
-  // En el Marketplace (cuando viene `tienda`) la tarjeta se afina: alturas parejas, badges de Lote y zoom suave. La vitrina queda igual.
+  // En el Marketplace (cuando viene `tienda`) la tarjeta se afina: alturas parejas, badges de Punch y zoom suave. La vitrina queda igual.
   const mercado = !!tienda;
   const esOferta = descuento > 0 || promo || !!promocion;
   const fondoSticker = mercado ? (esOferta && libre ? "bg-mango text-texto" : "bg-limon text-texto") : sticker?.fondo;

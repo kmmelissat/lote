@@ -3,7 +3,7 @@ import { Icon, type NombreIcono } from "./Icon";
 
 type Estilo = { texto: string; clase: string; icono: NombreIcono };
 
-// Un solo mapa estado → texto, ícono y colores para productos y pedidos. La paleta de Lote, no grises.
+// Un solo mapa estado → texto, ícono y colores para productos y pedidos. La paleta de Punch, no grises.
 const estilos = {
   disponible: { texto: textos.estadosProducto.disponible, clase: "bg-chip-celeste text-chip-texto-celeste", icono: "check" },
   apartado: { texto: textos.estadosProducto.apartado, clase: "bg-chip-amarillo text-chip-texto-amarillo", icono: "reloj" },
@@ -26,12 +26,12 @@ export const colorDeEstado = (estado: Estado) => estilos[estado].clase.split(" "
 // La landing, el Marketplace y las vitrinas conservan los colores juguetones de siempre.
 const clasePublica: Record<Estado, string> = {
   disponible: "bg-(--store-soft,var(--color-accion)) text-(--store-on-soft,var(--color-accion-texto))",
-  apartado: "bg-limon text-teal-oscuro",
+  apartado: "bg-chip-amarillo text-teal-oscuro",
   poco_stock: "bg-(--store-soft,var(--color-accion)) text-(--store-on-soft,var(--color-accion-texto))",
-  vendido: "bg-crema text-teal-oscuro",
-  pendiente: "bg-limon text-teal-oscuro",
+  vendido: "bg-gris-50 text-teal-oscuro",
+  pendiente: "bg-chip-amarillo text-teal-oscuro",
   pagado: "bg-rosa text-teal-oscuro",
-  preparando: "bg-celeste-palido text-teal-oscuro",
+  preparando: "bg-chip-celeste text-teal-oscuro",
   enviado: "bg-celeste text-teal-oscuro",
   entregado: "bg-teal text-white",
   cancelado: "bg-error-fondo text-error",
@@ -41,7 +41,7 @@ const clasePublica: Record<Estado, string> = {
 export function StatusChip({ estado, texto, publico = false, discreto = false }: { estado: Estado; texto?: string; publico?: boolean; discreto?: boolean }) {
   const e = estilos[estado];
   const forma = publico
-    ? `rounded-full border ${discreto ? "border-transparent" : "border-teal-oscuro"} px-3 py-1 text-sm font-bold ${clasePublica[estado]}`
+    ? `rounded-full border ${discreto ? "border-transparent" : "border-linea"} px-3 py-1 text-sm font-bold ${clasePublica[estado]}`
     : `rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${discreto ? "ring-transparent" : "ring-teal-oscuro/10"} ${e.clase}`;
   return (
     <span className={`inline-flex items-center gap-1.5 ${forma}`}>

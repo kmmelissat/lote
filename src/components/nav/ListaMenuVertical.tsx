@@ -10,10 +10,10 @@ import { AbrirVitrina, Insignia } from "./PiezasMenu";
 const t = textos.nav;
 
 const FILA =
-  "flex min-h-11 w-full items-center gap-3 rounded-[14px] border px-2 text-sm font-medium text-teal-oscuro transition-colors group-data-[cerrado]:mx-auto group-data-[cerrado]:size-12 group-data-[cerrado]:min-h-0 group-data-[cerrado]:justify-center group-data-[cerrado]:px-0";
+  "flex min-h-11 w-full items-center gap-3 rounded-[14px] border px-2 text-base font-medium text-teal-oscuro transition-colors group-data-[cerrado]:mx-auto group-data-[cerrado]:size-12 group-data-[cerrado]:min-h-0 group-data-[cerrado]:justify-center group-data-[cerrado]:px-0";
 
 const TITULO =
-  "px-2 text-xs font-bold uppercase tracking-wide text-teal group-data-[cerrado]:hidden";
+  "px-2 text-sm font-bold uppercase tracking-wide text-teal group-data-[cerrado]:hidden";
 
 /**
  * El menú lateral de escritorio: una lista agrupada (Vender, Finanzas, Tu negocio) donde cada ícono va en un cuadrito del color
@@ -41,8 +41,8 @@ export function ListaMenuVertical({
   /** Celular: filas, íconos y letras más grandes */
   grande?: boolean;
 }) {
-  const filaClase = grande ? FILA.replace("min-h-11", "min-h-14").replace("text-sm", "text-base") : FILA;
-  const tituloClase = grande ? TITULO.replace("text-xs", "text-sm") : TITULO;
+  const filaClase = grande ? FILA.replace("min-h-11", "min-h-14").replace("text-base", "text-lg") : FILA;
+  const tituloClase = grande ? TITULO.replace("text-sm", "text-base") : TITULO;
   const ficha = grande ? "size-10" : "size-8";
   const icono = grande ? "size-6" : "size-5";
   const altoFila = grande ? "h-14" : "h-11";
@@ -105,7 +105,7 @@ export function ListaMenuVertical({
                   </Link>
                 );
                 const hijos = SUBMENU[p.href] ? (
-                  <ul className={`ml-[1.4rem] mt-0.5 flex flex-col border-l border-linea pl-1.5 group-data-[cerrado]:hidden ${grande ? "text-base" : "text-sm"}`}>
+                  <ul className={`ml-[1.4rem] mt-0.5 flex flex-col border-l border-linea pl-1.5 group-data-[cerrado]:hidden ${grande ? "text-lg" : "text-base"}`}>
                     {SUBMENU[p.href]!.map((h) => {
                       const hijaActiva = ruta !== null && activaEn(ruta, h.href);
                       return (
@@ -113,7 +113,7 @@ export function ListaMenuVertical({
                           <Link
                             href={h.href}
                             aria-current={hijaActiva ? "page" : undefined}
-                            className={`-ml-px flex ${grande ? "min-h-11" : "min-h-9"} items-center border-l-2 px-3 transition-colors ${hijaActiva ? "border-teal-oscuro font-medium text-teal-oscuro" : "border-transparent text-texto-2 hover:border-borde-control hover:text-teal-oscuro"}`}
+                            className={`-ml-px flex ${grande ? "min-h-11" : "min-h-9"} items-center border-l-2 px-3 transition-colors ${hijaActiva ? "border-linea font-medium text-teal-oscuro" : "border-transparent text-texto-2 hover:border-linea hover:text-teal-oscuro"}`}
                           >
                             {h.etiqueta}
                           </Link>

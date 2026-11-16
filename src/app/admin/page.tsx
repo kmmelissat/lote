@@ -17,7 +17,7 @@ const t = textos.admin;
 
 export const metadata: Metadata = { title: t.titulo, robots: { index: false, follow: false } };
 
-/** El panel de la admin de Lote: elegir los destacados del Marketplace. Para cualquier otra cuenta, no existe. */
+/** El panel de la admin de Punch: elegir los destacados del Marketplace. Para cualquier otra cuenta, no existe. */
 export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   await connection();
   const supabase = await createClient();
@@ -29,7 +29,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   const destacados = productos?.filter((p) => p.destacado).length ?? 0;
 
   return (
-    <div className="min-h-dvh bg-crema">
+    <div className="min-h-dvh bg-gris-50">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <Link href="/" aria-label={textos.nombre}>
@@ -54,13 +54,13 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
             <p className="text-sm text-texto-2">{t.tiendasDescripcion}</p>
           </div>
           {tiendas === null ? (
-            <p className="rounded-2xl border border-dashed border-teal-oscuro bg-white p-5 font-bold">{t.tiendasSinSql}</p>
+            <p className="rounded-2xl border border-dashed border-linea bg-white p-5 font-bold">{t.tiendasSinSql}</p>
           ) : (
             <>
               <p className="text-sm font-bold">{t.tiendasMarcadas(tiendas.filter((x) => x.destacada).length)}</p>
               <ul className="flex flex-col gap-2">
                 {tiendas.map((x) => (
-                  <li key={x.slug} className={`flex items-center gap-3 rounded-2xl border border-teal-oscuro p-2 pr-3 ${x.destacada ? "bg-limon" : "bg-white"}`}>
+                  <li key={x.slug} className={`flex items-center gap-3 rounded-2xl border border-linea p-2 pr-3 ${x.destacada ? "bg-chip-amarillo" : "bg-white"}`}>
                     <span className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-teal-fondo">
                       {x.logo && <Image src={urlFoto(x.logo)} alt="" fill sizes="56px" className="object-cover" />}
                     </span>
@@ -91,7 +91,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
             defaultValue={busqueda}
             aria-label={t.buscar}
             placeholder={t.buscar}
-            className="h-12 min-w-0 flex-1 rounded-full border border-teal-oscuro bg-white px-5"
+            className="h-12 min-w-0 flex-1 rounded-full border border-linea bg-white px-5"
           />
           <button type="submit" className={estiloBoton("mango")}>
             {t.buscarBoton}
@@ -99,7 +99,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
         </form>
 
         {productos === null ? (
-          <p className="rounded-2xl border border-dashed border-teal-oscuro bg-white p-5 font-bold">{t.sinSql}</p>
+          <p className="rounded-2xl border border-dashed border-linea bg-white p-5 font-bold">{t.sinSql}</p>
         ) : productos.length === 0 ? (
           <p className="text-texto-2">{t.vacio}</p>
         ) : (
@@ -109,7 +109,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
               {productos.map((p) => (
                 <li
                   key={p.productoId}
-                  className={`flex items-center gap-3 rounded-2xl border border-teal-oscuro p-2 pr-3 ${p.destacado ? "bg-limon" : "bg-white"}`}
+                  className={`flex items-center gap-3 rounded-2xl border border-linea p-2 pr-3 ${p.destacado ? "bg-chip-amarillo" : "bg-white"}`}
                 >
                   <span className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-teal-fondo">
                     {p.foto && <Image src={urlFoto(p.foto)} alt="" fill sizes="56px" className="object-cover" />}

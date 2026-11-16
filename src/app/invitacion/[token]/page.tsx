@@ -27,7 +27,7 @@ async function Invitacion({ params }: Pick<PageProps<"/invitacion/[token]">, "pa
   const info = esTokenInvitacion(token) ? await verInvitacion(createPublicClient(), token) : null;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-crema">
+    <div className="flex min-h-dvh flex-col bg-gris-50">
     <main className="flex-1 px-4 py-10">
       <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-6">
         <Logo />
@@ -36,12 +36,12 @@ async function Invitacion({ params }: Pick<PageProps<"/invitacion/[token]">, "pa
         <div className="relative mt-10">
           <LotitoMas nombre="saluda" className="absolute -top-[4.25rem] right-6 w-24" />
           {!info ? (
-            <div className={`${TARJETA} flex flex-col gap-2 bg-limon`}>
+            <div className={`${TARJETA} flex flex-col gap-2 bg-chip-amarillo`}>
               <h1 className="text-xl font-bold">{t.invalidaTitulo}</h1>
               <p>{t.invalida}</p>
             </div>
           ) : (
-            <div className={`${TARJETA} flex flex-col gap-5 bg-superficie shadow-dura`}>
+            <div className={`${TARJETA} flex flex-col gap-5 bg-superficie shadow-xs`}>
               <div className="flex flex-col gap-2">
                 <h1 className="text-2xl font-bold leading-tight">{t.invitaron(info.negocio)}</h1>
                 <p className="font-medium">{t.comoRol(textos.perfil.roles[info.rol])}</p>

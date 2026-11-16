@@ -5,7 +5,7 @@ import { Pie } from "@/components/ui/Pie";
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // Seguimiento público: mismo contenedor que la vitrina; la página pone la barra de la tienda (logo y carrito).
-// Sin barra inferior ni menú, con la marca de Lote al pie (plan gratis).
+// Sin barra inferior ni menú, con la marca de Punch al pie (plan gratis).
 export default function SeguimientoLayout({ children }: LayoutProps<"/p">) {
   return (
     <div className="flex min-h-dvh flex-col overflow-x-clip bg-crema [--color-crema:var(--color-fondo)]">

@@ -1,7 +1,8 @@
+import Image from "next/image";
 import { Fragment } from "react";
 import { bloquesDe, type Trozo } from "../formatoRespuesta";
 
-/** El avatar de Punch: por ahora un círculo azul, mientras llega el ícono. Con `enLinea`, el puntito. */
+/** El avatar de Punch: su carita en versión perlada. Con `enLinea`, el puntito. */
 export function AvatarLotito({
   className = "size-8",
   enLinea = false,
@@ -11,9 +12,15 @@ export function AvatarLotito({
 }) {
   return (
     <span aria-hidden="true" className={`relative flex shrink-0 ${className}`}>
-      <span className="size-full rounded-full bg-celeste" />
+      <Image
+        src="/punch_ai.png"
+        alt=""
+        width={256}
+        height={256}
+        className="size-full scale-110 object-contain"
+      />
       {enLinea && (
-        <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border border-white bg-exito" />
+        <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white bg-exito" />
       )}
     </span>
   );
@@ -63,20 +70,17 @@ export function TextoLotito({ texto }: { texto: string }) {
   );
 }
 
-/** Tres puntitos que saltan, dentro de una burbuja: Punch está escribiendo. */
+/** Punch está pensando: puntitos con degradado que pulsan, sin burbuja. */
 export function Escribiendo({ etiqueta }: { etiqueta: string }) {
   return (
-    <span
-      role="status"
-      className="flex items-center gap-1 rounded-[20px] rounded-bl-md border border-linea bg-superficie px-4 py-3.5 shadow-xs"
-    >
+    <span role="status" className="flex items-center gap-1.5 py-3">
       <span className="sr-only">{etiqueta}</span>
-      {[0, 150, 300].map((demora) => (
+      {[0, 160, 320].map((demora) => (
         <span
           key={demora}
           aria-hidden="true"
-          className="size-2 rounded-full bg-teal-oscuro/60 motion-safe:animate-bounce"
-          style={{ animationDelay: `${demora}ms` }}
+          className="size-2 rounded-full bg-[linear-gradient(135deg,#4fd1d4,#8b7cf0)] motion-safe:animate-pulse"
+          style={{ animationDelay: `${demora}ms`, animationDuration: "1s" }}
         />
       ))}
     </span>

@@ -10,11 +10,11 @@ import { textos } from "@/lib/textos";
 const t = textos.errores;
 
 const enlaceSecundario =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-teal-oscuro bg-white px-5 font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura-chica";
+  "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-linea bg-white px-5 font-bold text-teal-oscuro transition-[transform,box-shadow] duration-150  ";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-dvh flex-col bg-crema">
+    <div className="flex min-h-dvh flex-col bg-gris-50">
     <main className="flex flex-1 flex-col items-center px-4 py-8">
       <Link href="/" className="inline-flex items-center gap-2 self-start font-bold text-teal-oscuro sm:self-center">
         <Gorila className="size-9" />
@@ -27,15 +27,15 @@ export default function NotFound() {
           <LotitoMas nombre="asoma" className="absolute bottom-0 w-40 motion-safe:animate-asomar" />
         </div>
 
-        <section className="relative motion-safe:animate-entra rounded-[28px] border border-teal-oscuro bg-white px-6 pb-8 pt-10 text-center shadow-dura">
-          <span className="absolute -top-4 left-1/2 -translate-x-1/2 -rotate-3 rounded-full border border-teal-oscuro bg-limon px-4 py-1 text-sm font-bold text-teal-oscuro shadow-dura-chica">
+        <section className="relative motion-safe:animate-entra rounded-[28px] border border-linea bg-white px-6 pb-8 pt-10 text-center shadow-xs">
+          <span className="absolute -top-4 left-1/2 -translate-x-1/2 -rotate-3 rounded-full border border-linea bg-chip-amarillo px-4 py-1 text-sm font-bold text-teal-oscuro shadow-xs">
             {t.noEncontradaEtiqueta}
           </span>
 
           <h1 className="text-3xl font-bold leading-tight text-teal-oscuro">{t.noEncontradaTitulo}</h1>
           <p className="mt-2 text-lg text-texto-2">{t.noEncontradaTexto}</p>
 
-          <div className="mx-auto mt-6 max-w-sm rotate-1 rounded-2xl bg-rosa-palido p-4 text-left">
+          <div className="mx-auto mt-6 max-w-sm rotate-1 rounded-2xl bg-chip-rosa p-4 text-left">
             <p className="text-sm font-bold text-teal-oscuro">{t.noEncontradaPistasTitulo}</p>
             <ul className="mt-2 flex flex-col gap-1.5 text-sm text-teal-oscuro">
               {t.noEncontradaPistas.map((pista) => (

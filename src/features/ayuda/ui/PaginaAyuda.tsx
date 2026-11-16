@@ -10,17 +10,17 @@ import { textos } from "@/lib/textos";
 const t = textos.ayuda;
 
 const ESTILO_GRUPO: Record<(typeof t.grupos)[number]["id"], { tono: string; icono: NombreIcono }> = {
-  productos: { tono: "bg-limon", icono: "productos" },
+  productos: { tono: "bg-chip-amarillo", icono: "productos" },
   ventas: { tono: "bg-rosa", icono: "pedidos" },
   vitrina: { tono: "bg-celeste", icono: "tienda" },
-  negocio: { tono: "bg-mango", icono: "ganancia" },
+  negocio: { tono: "bg-chip-amarillo", icono: "ganancia" },
   lotito: { tono: "bg-teal-fondo", icono: "chat" },
 };
 
 const ESTILO_ATAJO: Record<(typeof t.atajos)[number], { tono: string; icono: NombreIcono }> = {
-  producto_nuevo: { tono: "bg-limon", icono: "productos" },
+  producto_nuevo: { tono: "bg-chip-amarillo", icono: "productos" },
   cobrar: { tono: "bg-rosa", icono: "moneda" },
-  ganancia: { tono: "bg-mango", icono: "ganancia" },
+  ganancia: { tono: "bg-chip-amarillo", icono: "ganancia" },
   vitrina: { tono: "bg-celeste", icono: "tienda" },
 };
 
@@ -35,7 +35,7 @@ function abrirDeHash() {
   requestAnimationFrame(() => el.scrollIntoView({ behavior: "smooth", block: "start" }));
 }
 
-/** La ayuda de Lote: Punch invita, los atajos saltan a una pregunta y el resto va por tema. */
+/** La ayuda de Punch: Punch invita, los atajos saltan a una pregunta y el resto va por tema. */
 export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
   useEffect(() => {
     abrirDeHash();
@@ -45,9 +45,9 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className={`${TARJETA_BASE} relative overflow-hidden bg-limon p-5 shadow-dura md:p-7`}>
+      <section className={`${TARJETA_BASE} relative overflow-hidden bg-chip-amarillo p-5 shadow-xs md:p-7`}>
         <div className="relative z-10 flex max-w-xl flex-col items-start gap-4 pr-6 sm:pr-36">
-          <span className="-rotate-2 rounded-full border border-teal-oscuro bg-celeste px-3 py-1 text-sm font-bold shadow-dura-chica">
+          <span className="-rotate-2 rounded-full border border-linea bg-celeste px-3 py-1 text-sm font-bold shadow-xs">
             {t.heroEtiqueta}
           </span>
           <div>
@@ -75,9 +75,9 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
               <li key={id}>
                 <a
                   href={`#${id}`}
-                  className={`${TARJETA_BASE} ${estilo.tono} flex min-h-20 items-center gap-4 p-4 shadow-dura-chica transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-dura`}
+                  className={`${TARJETA_BASE} ${estilo.tono} flex min-h-20 items-center gap-4 p-4 shadow-xs transition-[transform,box-shadow] duration-150  `}
                 >
-                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-teal-oscuro bg-superficie">
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-linea bg-superficie">
                     <Icon nombre={estilo.icono} className="size-6" />
                   </span>
                   <span className="min-w-0 flex-1 font-bold leading-tight">{p.pregunta}</span>
@@ -94,7 +94,7 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
         return (
           <section key={grupo.id} aria-labelledby={`ayuda-${grupo.id}`} className="flex flex-col gap-3">
             <h2 id={`ayuda-${grupo.id}`} className="flex items-center gap-2 text-xl font-extrabold">
-              <span className={`flex size-9 items-center justify-center rounded-xl border border-teal-oscuro ${estilo.tono}`}>
+              <span className={`flex size-9 items-center justify-center rounded-xl border border-linea ${estilo.tono}`}>
                 <Icon nombre={estilo.icono} className="size-5" />
               </span>
               {grupo.titulo}
@@ -109,7 +109,7 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
                     {/* <details> ya se abre con teclado y lo leen los lectores de pantalla */}
                     <details
                       id={id}
-                      className={`${TARJETA_BASE} group scroll-mt-4 bg-superficie shadow-dura-chica open:bg-crema`}
+                      className={`${TARJETA_BASE} group scroll-mt-4 bg-superficie shadow-xs open:bg-gris-50`}
                     >
                       <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-bold [&::-webkit-details-marker]:hidden">
                         {p.pregunta}
@@ -133,7 +133,7 @@ export function PaginaAyuda({ conSesion }: { conSesion: boolean }) {
         );
       })}
 
-      <section className={`${TARJETA_BASE} relative overflow-hidden bg-teal p-5 text-crema shadow-dura md:p-6`}>
+      <section className={`${TARJETA_BASE} relative overflow-hidden bg-teal p-5 text-crema shadow-xs md:p-6`}>
         <div className="relative z-10 flex max-w-xl flex-col items-start gap-3 pr-6 sm:pr-32">
           <h2 className="text-2xl font-extrabold leading-tight">{conSesion ? t.cierreTitulo : t.cierreTituloFuera}</h2>
           <p className="text-crema/90">{conSesion ? t.cierreTexto : t.cierreTextoFuera}</p>
