@@ -59,13 +59,11 @@ export default async function Landing() {
         {textos.landing.saltar}
       </a>
       <Encabezado conSesion={conSesion} />
-      <main id="contenido" className="overflow-x-clip">
+      <main id="contenido" className="relative overflow-x-clip bg-white">
         <M.Hero conSesion={conSesion} />
         <M.Problema />
+        <M.Beneficios />
         <M.Pasos />
-        <M.Funciones />
-        <M.Buscar />
-        <M.Principios />
         <M.Precios conSesion={conSesion} />
         <M.Preguntas />
         <M.Cierre conSesion={conSesion} />

@@ -10,7 +10,8 @@ const m = t.hero.mock;
 const boton =
   "inline-flex h-14 items-center justify-center rounded-full px-8 text-base font-semibold transition-colors";
 
-const sombra = "shadow-[0_18px_40px_-18px_rgba(1,60,71,0.35),0_2px_6px_rgba(1,60,71,0.06)]";
+const sombra = "shadow-[0_18px_40px_-18px_rgba(1,60,71,0.3)]";
+const tarjeta = `absolute z-10 rounded-[24px] bg-white p-4 ${sombra} max-md:hidden`;
 
 function Ficha({ icono, color }: { icono: NombreIcono; color: string }) {
   return (
@@ -20,12 +21,10 @@ function Ficha({ icono, color }: { icono: NombreIcono; color: string }) {
   );
 }
 
-const tarjeta = `absolute rounded-[24px] border border-linea bg-superficie p-4 ${sombra}`;
-
 /** El celular con una tienda de verdad: barra del navegador, buscador, categorías, productos y carrito. */
 function Celular() {
   return (
-    <div className="absolute left-1/2 top-4 h-[580px] w-[272px] -translate-x-1/2 [perspective:1400px] md:h-[620px] md:w-[292px]">
+    <div className="absolute left-1/2 top-4 h-[620px] w-[272px] -translate-x-1/2 [perspective:1400px] md:h-[660px] md:w-[292px]">
       {/* Sombra en el piso */}
       <span aria-hidden="true" className="absolute -bottom-10 left-6 right-[-30px] h-10 rounded-[50%] bg-teal-oscuro/30 blur-2xl" />
       <div className="relative h-full w-full [transform-style:preserve-3d] [transform:rotateY(-16deg)_rotateX(5deg)_rotateZ(2deg)]">
@@ -102,60 +101,52 @@ export function Hero({ conSesion }: { conSesion: boolean }) {
       <div aria-hidden="true" className="absolute -left-24 top-16 size-[520px] rounded-full bg-[radial-gradient(closest-side,rgba(153,225,248,0.6),transparent)]" />
       <div aria-hidden="true" className="absolute -right-20 top-0 size-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(242,158,187,0.5),transparent)]" />
       <div aria-hidden="true" className="absolute left-1/3 top-[320px] size-[480px] rounded-full bg-[radial-gradient(closest-side,rgba(207,194,245,0.65),transparent)]" />
-
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-32 min-[880px]:px-10 min-[880px]:pt-36">
-        <Aparece alCargar className="flex flex-col items-center gap-5 text-center">
-          <h1 className="font-logo text-[42px] font-semibold leading-[1.1] tracking-[-0.01em] min-[880px]:text-[68px]">
-            {t.hero.tituloInicio}
-            <br />
-            <span className="bg-[linear-gradient(90deg,#0e8aa6,#e0679a)] bg-clip-text text-transparent">{t.hero.tituloMarca}</span>
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-6 px-5 pb-20 pt-32 min-[880px]:grid-cols-[1.05fr_0.95fr] min-[880px]:px-10 min-[880px]:pt-36">
+        <Aparece alCargar className="flex flex-col items-center gap-5 text-center min-[880px]:items-start min-[880px]:text-left">
+          <h1 className="font-logo text-[44px] font-semibold leading-[1.1] tracking-[-0.01em] text-teal-oscuro min-[880px]:text-[72px]">
+            {t.hero.tituloInicio} <span className="text-teal">{t.hero.tituloMarca}</span>
           </h1>
           <p className="max-w-xl text-lg leading-relaxed text-texto-2 min-[880px]:text-xl">{t.hero.texto}</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link href={conSesion ? "/inicio" : "/login"} data-cta="" className={`${boton} bg-teal-oscuro text-white hover:bg-teal`}>
               {conSesion ? t.irAlPanel : t.empezar}
             </Link>
-            <a href="#como" data-cta="" className={`${boton} border border-linea bg-superficie text-teal-oscuro hover:bg-gris-50`}>
+            <a href="#como" data-cta="" className={`${boton} bg-gris-100 text-teal-oscuro hover:bg-gris-50`}>
               {t.hero.verComo}
             </a>
           </div>
         </Aparece>
 
-        {/* El celular sube desde abajo: se recorta a media altura */}
-        <Aparece alCargar delay={0.15} className="relative mt-12 h-[430px] w-full max-w-[900px]">
-          <div className="absolute inset-0 overflow-hidden">
-            <Celular />
-          </div>
-          <div className={`${tarjeta} left-0 top-28 w-56 -rotate-3 motion-safe:animate-flotar max-md:hidden`}>
+        <Aparece alCargar delay={0.15} className="relative mx-auto h-[680px] w-full max-w-[480px] md:h-[720px]">
+          <Celular />
+          <div className={`${tarjeta} -left-6 top-40 w-56 -rotate-3 motion-safe:animate-flotar`}>
             <div className="flex items-start gap-3">
               <Ficha icono="moneda" color="bg-ficha-verde" />
               <div>
                 <p className="text-xs font-medium text-texto-2">{m.ganancia.etiqueta}</p>
-                <p className="text-2xl font-semibold tabular-nums tracking-tight">{m.ganancia.monto}</p>
+                <p className="text-2xl font-semibold tabular-nums tracking-tight text-teal-oscuro">{m.ganancia.monto}</p>
               </div>
             </div>
-            <p className="mt-2.5 inline-block rounded-lg bg-ficha-verde px-2 py-1 text-[11px] font-semibold">{m.ganancia.cambio}</p>
+            <p className="mt-2.5 inline-block rounded-lg bg-ficha-verde px-2 py-1 text-[11px] font-semibold text-teal-oscuro">{m.ganancia.cambio}</p>
           </div>
-
-          <div className={`${tarjeta} right-0 top-52 w-56 rotate-3 motion-safe:animate-flotar [animation-delay:-1.5s] max-md:hidden`}>
+          <div className={`${tarjeta} -right-8 top-[26rem] w-56 rotate-3 motion-safe:animate-flotar [animation-delay:-1.5s]`}>
             <div className="flex items-center justify-between">
-              <p className="text-sm font-bold">{m.pedido.titulo}</p>
-              <span className="rounded-lg bg-ficha-verde px-2 py-0.5 text-xs font-semibold">{m.pedido.estado}</span>
+              <p className="text-sm font-bold text-teal-oscuro">{m.pedido.titulo}</p>
+              <span className="rounded-lg bg-ficha-verde px-2 py-0.5 text-xs font-semibold text-teal-oscuro">{m.pedido.estado}</span>
             </div>
             <div className="mt-3 flex items-center gap-2.5">
-              <span className="flex size-9 items-center justify-center rounded-full bg-ficha-lila text-xs font-bold">AM</span>
+              <span className="flex size-9 items-center justify-center rounded-full bg-ficha-lila text-xs font-bold text-teal-oscuro">AM</span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{m.pedido.cliente}</p>
+                <p className="truncate text-sm font-semibold text-teal-oscuro">{m.pedido.cliente}</p>
                 <p className="truncate text-xs text-texto-2">{m.pedido.detalle}</p>
               </div>
-              <p className="text-sm font-bold">{m.pedido.total}</p>
+              <p className="text-sm font-bold text-teal-oscuro">{m.pedido.total}</p>
             </div>
           </div>
-
-          <div className={`absolute right-6 top-16 flex items-center gap-3 rounded-[20px] border border-linea bg-superficie px-4 py-3 max-md:hidden ${sombra}`}>
+          <div className={`${tarjeta} -right-4 top-20 flex items-center gap-3 !rounded-[20px] !px-4 !py-3`}>
             <Ficha icono="exito" color="bg-ficha-verde" />
             <div>
-              <p className="text-sm font-bold leading-tight">{m.pago.titulo}</p>
+              <p className="text-sm font-bold leading-tight text-teal-oscuro">{m.pago.titulo}</p>
               <p className="text-xs text-texto-2">{m.pago.texto}</p>
             </div>
           </div>

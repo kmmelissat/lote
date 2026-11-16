@@ -7,7 +7,7 @@ const p = textos.landing.precios;
 
 export function Precios({ conSesion }: { conSesion: boolean }) {
   return (
-    <section id="precios" className="relative scroll-mt-24 overflow-x-clip bg-gris-50 py-16 md:py-28" aria-labelledby="precios-mas">
+    <section id="precios" className="relative scroll-mt-24 overflow-x-clip py-16 md:py-28" aria-labelledby="precios-mas">
       <div className={`${contenedor} relative flex flex-col gap-12`}>
         <Aparece className="flex max-w-2xl flex-col gap-3">
           <h2 id="precios-mas" className="font-logo text-[36px] font-semibold leading-[1.1] text-teal-oscuro md:text-[52px]">

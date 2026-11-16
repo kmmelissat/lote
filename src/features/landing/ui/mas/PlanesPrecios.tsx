@@ -23,9 +23,9 @@ type Linea = { icono: string; texto: string };
 
 // Cada plan tiene su color
 const ESTILO = {
-  gratis: { fondo: "bg-ficha-celeste", icono: "bg-gris-50" },
-  emprendedor: { fondo: "bg-ficha-amarillo", icono: "bg-ficha-amarillo" },
-  negocio: { fondo: "bg-ficha-rosa", icono: "bg-gris-50" },
+  gratis: { fondo: "", icono: "bg-white" },
+  emprendedor: { fondo: "", icono: "bg-white" },
+  negocio: { fondo: "", icono: "bg-white" },
 } as const satisfies Record<string, { fondo: string; icono: string }>;
 
 function Topes({ topes }: { topes: readonly Tope[] }) {
@@ -35,7 +35,7 @@ function Topes({ topes }: { topes: readonly Tope[] }) {
         <li
           key={x.t}
           aria-label={x.sr}
-          className="flex flex-col items-center justify-center rounded-2xl border border-linea bg-white px-1 py-2 text-center shadow-xs"
+          className="flex flex-col items-center justify-center rounded-2xl bg-white px-1 py-2 text-center"
         >
           <span aria-hidden={x.sr ? "true" : undefined} className="text-3xl font-bold leading-none text-teal-oscuro">
             {x.n}
@@ -49,12 +49,12 @@ function Topes({ topes }: { topes: readonly Tope[] }) {
   );
 }
 
-function Lista({ lista, tono }: { lista: readonly Linea[]; tono: string }) {
+function Lista({ lista, tono, oscuro }: { lista: readonly Linea[]; tono: string; oscuro: boolean }) {
   return (
     <ul className="flex flex-col gap-2.5">
       {lista.map((l) => (
-        <li key={l.texto} className="flex items-center gap-3 text-[16px] font-medium text-teal-oscuro">
-          <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg border border-linea ${tono}`}>
+        <li key={l.texto} className={`flex items-center gap-3 text-[16px] font-medium ${oscuro ? "text-white" : "text-teal-oscuro"}`}>
+          <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-teal-oscuro ${tono}`}>
             <Icon nombre={l.icono as NombreIcono} className="size-4" />
           </span>
           {l.texto}
@@ -68,17 +68,17 @@ function Lista({ lista, tono }: { lista: readonly Linea[]; tono: string }) {
 function Precio({ plan, periodo }: { plan: PlanDePago | null; periodo: Periodo }) {
   if (!plan) {
     return (
-      <p className="rounded-2xl border border-dashed border-linea bg-white/70 p-4 text-5xl font-bold leading-none tracking-tighter text-teal-oscuro">
+      <p className="rounded-2xl bg-white p-4 text-5xl font-bold leading-none tracking-tighter text-teal-oscuro">
         $0 <span className="text-sm font-bold tracking-normal text-teal-oscuro/80">{p.paraSiempre}</span>
       </p>
     );
   }
   const anual = periodo === "anual";
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-dashed border-linea bg-white/70 p-4">
+    <div className="flex flex-col gap-1 rounded-2xl bg-white p-4">
       <div className="flex items-center gap-3">
         <p className="text-5xl font-bold leading-none tracking-tighter text-teal-oscuro">$0</p>
-        <span className=" rounded-md border border-linea bg-ficha-amarillo px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-teal-oscuro">
+        <span className=" rounded-md bg-ficha-amarillo px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-teal-oscuro">
           {p.betaEtiqueta}
         </span>
       </div>
@@ -114,28 +114,28 @@ function Plan({
   return (
     <ApareceCaja
       as="article"
-      className={`relative mt-6 flex flex-col rounded-[28px] border border-linea bg-gris-50 ${
-        destacado ? "shadow-xs md:-translate-y-4" : "shadow-xs"
+      className={`relative mt-6 flex flex-col rounded-[36px] ${
+        destacado ? "bg-teal-oscuro md:-translate-y-4" : "bg-gris-100"
       }`}
     >
       {destacado && (
-        <span className="absolute -right-3 -top-6 z-10  rounded-full border border-linea bg-ficha-amarillo px-4 py-1 text-sm font-bold text-teal-oscuro shadow-xs">
+        <span className="absolute -right-3 -top-6 z-10  rounded-full bg-ficha-amarillo px-4 py-1 text-sm font-bold text-teal-oscuro">
           {p.recomendado}
         </span>
       )}
 
-      <div className={`relative overflow-hidden rounded-t-[24px] border-b border-linea px-6 pb-5 pt-8 ${e.fondo}`}>
-        <p className="text-sm font-bold uppercase tracking-wide text-teal-oscuro/80">{plan.lema}</p>
-        <h3 className="text-3xl font-bold leading-none tracking-tight text-teal-oscuro">{plan.nombre}</h3>
-        <p className="mt-2 max-w-[13rem] text-[15px] font-medium leading-snug text-teal-oscuro/85">{plan.texto}</p>
+      <div className={`relative px-6 pb-2 pt-8`}>
+        <p className={`text-sm font-bold uppercase tracking-wide ${destacado ? "text-white/70" : "text-teal-oscuro/80"}`}>{plan.lema}</p>
+        <h3 className={`font-logo text-3xl font-semibold leading-none ${destacado ? "text-white" : "text-teal-oscuro"}`}>{plan.nombre}</h3>
+        <p className={`mt-2 max-w-[13rem] text-[15px] font-medium leading-snug ${destacado ? "text-white/80" : "text-teal-oscuro/85"}`}>{plan.texto}</p>
       </div>
 
       <div className="flex flex-1 flex-col gap-5 p-6">
         <Topes topes={plan.topes} />
         <Precio plan={"mensual" in plan ? plan : null} periodo={periodo} />
-        <p className="text-sm font-bold text-teal-oscuro">{plan.incluye}</p>
-        <Lista lista={plan.lista} tono={e.icono} />
-        <BotonLanding href={href} variante={destacado ? "mango" : "claro"} className="mt-auto">
+        <p className={`text-sm font-bold ${destacado ? "text-white" : "text-teal-oscuro"}`}>{plan.incluye}</p>
+        <Lista lista={plan.lista} tono={e.icono} oscuro={destacado} />
+        <BotonLanding href={href} enOscuro={destacado} className="mt-auto">
           {boton}
         </BotonLanding>
       </div>
@@ -151,7 +151,7 @@ export function PlanesPrecios({ conSesion }: { conSesion: boolean }) {
   return (
     <>
       <div role="group" aria-label={p.etiquetaPeriodo} className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-full border border-linea bg-white p-1 shadow-xs">
+        <div className="inline-flex rounded-full bg-gris-100 p-1">
           {OPCIONES.map((o) => (
             <button
               key={o.valor}
@@ -159,14 +159,14 @@ export function PlanesPrecios({ conSesion }: { conSesion: boolean }) {
               aria-pressed={periodo === o.valor}
               onClick={() => setPeriodo(o.valor)}
               className={`min-h-11 rounded-full px-5 font-bold transition-colors ${
-                periodo === o.valor ? "bg-teal-oscuro text-crema" : "text-teal-oscuro hover:bg-ficha-amarillo"
+                periodo === o.valor ? "bg-teal-oscuro text-white" : "text-teal-oscuro hover:bg-white"
               }`}
             >
               {o.texto}
             </button>
           ))}
         </div>
-        <span className=" rounded-full border border-linea bg-ficha-amarillo px-3 py-1 text-sm font-bold text-teal-oscuro">
+        <span className=" rounded-full bg-ficha-amarillo px-3 py-1 text-sm font-bold text-teal-oscuro">
           {p.ahorroAnual}
         </span>
       </div>

@@ -1,38 +1,24 @@
 import { textos } from "@/lib/textos";
-import { BotonLanding, contenedor, Mini } from "../comun";
+import { BotonLanding, contenedor } from "../comun";
 import { Aparece } from "./Aparece";
-import { Sello } from "./piezasLanding";
 
 const t = textos.landing;
 
 export function Cierre({ conSesion }: { conSesion: boolean }) {
   return (
-    <section className="relative overflow-x-clip bg-teal-oscuro py-16 text-white md:py-28" aria-labelledby="cierre-mas">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.12] bg-[radial-gradient(var(--color-limon)_1.2px,transparent_1.3px)] [background-size:22px_22px]"
-      />
-      <div className={`${contenedor} relative grid grid-cols-1 items-center gap-10 md:grid-cols-[1.15fr_0.85fr] md:gap-8`}>
-        <Aparece className="relative z-10 flex flex-col items-start gap-7">
-          <h2 id="cierre-mas" className="flex flex-col items-start gap-3 text-[40px] font-bold leading-[1.02] tracking-[-0.04em] md:text-[56px]">
-            <span>{t.cierre.tituloInicio}</span>
-            <span className="  rounded-[16px] border border-limon bg-ficha-amarillo px-3 py-1 text-[28px] text-teal-oscuro shadow-xs sm:text-[34px] md:text-[44px] lg:text-[48px]">
-              {t.cierre.tituloMarca}
-            </span>
+    <section className="relative px-4 py-12 md:px-6 md:py-20" aria-labelledby="cierre-mas">
+      <Aparece className="rounded-[40px] bg-ficha-amarillo py-20 text-center md:rounded-[56px] md:py-28">
+        <div className={`${contenedor} flex flex-col items-center gap-6`}>
+          <h2 id="cierre-mas" className="max-w-3xl font-logo text-[38px] font-semibold leading-[1.1] text-teal-oscuro md:text-[64px]">
+            {t.cierre.tituloInicio} {t.cierre.tituloMarca}
           </h2>
-          <p className="max-w-lg text-[18px] font-medium leading-relaxed text-white/90 md:text-[21px]">{t.cierre.texto}</p>
-          <div className="flex flex-wrap items-center gap-5">
-            <BotonLanding href={conSesion ? "/inicio" : "/login"} enOscuro className="!h-14 !px-8 !text-lg">
-              {conSesion ? t.irAlPanel : t.empezar}
-            </BotonLanding>
-            <Sello clave="cierre" texto="GRATIS PARA EMPEZAR" className="size-20 rotate-12 md:size-24" />
-          </div>
-        </Aparece>
-        <Aparece delay={0.12} className="relative mx-auto flex h-52 w-full max-w-sm items-end justify-center md:h-72">
-          <Mini src="/landing/chaqueta.webp" className="absolute left-6 top-2 aspect-square w-16 -rotate-12 md:w-20" />
-          <Mini src="/landing/disco.webp" className="absolute right-4 top-8 aspect-square w-14 rotate-12 md:w-16" />
-        </Aparece>
-      </div>
+          <p className="max-w-lg text-lg leading-relaxed text-teal-oscuro/85 md:text-xl">{t.cierre.texto}</p>
+          <BotonLanding href={conSesion ? "/inicio" : "/login"} className="!h-14 !px-8 !text-lg">
+            {conSesion ? t.irAlPanel : t.empezar}
+          </BotonLanding>
+          <p className="text-sm font-medium text-teal-oscuro/70">{t.cierre.garantia}</p>
+        </div>
+      </Aparece>
     </section>
   );
 }

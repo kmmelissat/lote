@@ -45,7 +45,7 @@ export const landing = {
       productos: [
         { nombre: "Funda corazón con puntos", precio: "$18.00", color: "bg-ficha-rosa", foto: "/landing/producto-1.jpeg" as string | null },
         { nombre: "Funda lunares verde", precio: "$22.00", color: "bg-ficha-verde", foto: "/landing/producto-2.jpeg" as string | null },
-        { nombre: "Funda silicón fucsia", precio: "$15.00", color: "bg-ficha-rosa", foto: "/landing/producto-3.jpeg" as string | null },
+        { nombre: "Funda leopardo", precio: "$15.00", color: "bg-ficha-rosa", foto: "/landing/producto-3.jpeg" as string | null },
         { nombre: "Funda puntitos amarilla", precio: "$19.00", color: "bg-ficha-amarillo", foto: "/landing/producto-4.jpeg" as string | null },
       ],
       ganancia: { etiqueta: "Ganancia de la semana", monto: "$374.00", cambio: "+12 % vs. semana pasada" },
@@ -57,6 +57,12 @@ export const landing = {
   marquesina: ["Publicado", "Apartado", "Cobrado", "Enviado", "Cuadrado"],
   problema: {
     titulo: "De un desorden a todo en su lugar",
+    texto: "Se acabó preguntarte si ya pagó, cuánto ganaste o cuántas te quedan. Todo vive en un solo lugar y se actualiza solo.",
+    antesEtiqueta: "Antes",
+    antesDato: "¿pagó o no pagó? 🤔",
+    ahoraEtiqueta: "Ahora",
+    ahoraDato: "Pagado ✓",
+    ahoraDetalle: "Ana M. · $15.00",
     antes: "antes",
     despues: "con Punch",
     notas: [
@@ -109,7 +115,7 @@ export const landing = {
     ],
   },
   funciones: {
-    titulo: "Todo lo que ya podés hacer",
+    titulo: "Así se ve por dentro",
     tienda: {
       titulo: "Tu tienda en línea",
       intro: "Lo que ven tus clientes.",
@@ -205,6 +211,17 @@ export const landing = {
     productos: "Buscar productos",
     tiendas: "Buscar tiendas",
     ir: "Ver el Marketplace",
+  },
+  beneficios: {
+    titulo: "Menos desorden, más tiempo para vender",
+    chat: "chaqueta negra M, 25, me costó 10",
+    respuesta: "Listo. Ficha creada ✓",
+    items: [
+      { icono: "ganancia", titulo: "Sabé cuánto ganás de verdad", texto: "Punch resta el costo real de cada producto y tus gastos. Ves tu ganancia sin hacer cuentas." },
+      { icono: "caja", titulo: "Todo en un solo lugar", texto: "Inventario, pedidos, cobros y cuentas juntos. Se acabó saltar entre Excel, notas y chats." },
+      { icono: "chat", titulo: "Registrá en una línea", texto: "Escribile como a una persona o mandá una foto. Y si te equivocás, se deshace." },
+      { icono: "tienda", titulo: "Tu tienda en línea, si querés", texto: "Un enlace con tu logo y tu color, siempre al día. Tus clientes compran, apartan o solo te escriben." },
+    ],
   },
   principios: {
     titulo: "Hecha para que no la abandones",
@@ -351,6 +368,7 @@ export const landing = {
     tituloInicio: "Abrí tu tienda",
     tituloMarca: "y cuadrá tus cuentas",
     texto: "Creá tu cuenta con Google o con tu correo, cargá tu primer producto en minutos y compartí tu enlace.",
+    garantia: "Gratis durante la beta, sin tarjeta y sin compromiso.",
   },
   pie: {
     gorila: "Hasta la próxima.",
